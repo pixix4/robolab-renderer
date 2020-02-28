@@ -1,0 +1,30 @@
+group = 'de.roboplot'
+version = '1.0.0'
+
+apply plugin: "base"
+apply plugin: "distribution"
+
+allprojects {
+    buildscript {
+        ext.kotlin_version = '1.3.21'
+        ext.jvm_target = '1.8'
+    }
+}
+
+task copyArtefacts(type: Copy) {
+    from tasks.getByPath(':plotter:jar')
+
+    rename { stripVersion(it) }
+
+    into "$buildDir"
+}
+
+static String stripVersion(String filename) {
+    return filename.replaceAll("-([0-9]+\\.)+[0-9]+(-[a-zA-Z]+)*", "")
+}
+
+clean.doFirst() {
+    delete("out")
+}
+
+build.dependsOn copyArtefacts

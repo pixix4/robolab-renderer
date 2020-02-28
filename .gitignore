@@ -1,0 +1,9 @@
+.idea/*
+*.iml
+**/target/*
+**/out/*
+**/build/*
+magic_draw/*
+.gradle/*
+robolab.conf
+export/*
