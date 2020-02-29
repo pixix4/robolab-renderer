@@ -13,11 +13,13 @@ class PlanetDrawable : IDrawable {
     private val pathDrawable = PathListDrawable()
     private val targetDrawable = TargetDrawable()
     private val senderDrawable = SenderDrawable()
+    private val pathSelectDrawable = PathSelectDrawable()
 
     private val planetForeground = GroupDrawable(
             targetDrawable,
             senderDrawable,
             pathDrawable,
+            pathSelectDrawable,
             pointDrawable
     )
 
@@ -51,5 +53,6 @@ class PlanetDrawable : IDrawable {
         pathDrawable.importPlanet(planet)
         targetDrawable.importPlanet(planet)
         senderDrawable.importPlanet(planet)
+        pathSelectDrawable.importPlanet(planet)
     }
 }

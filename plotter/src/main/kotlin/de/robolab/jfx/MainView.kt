@@ -3,9 +3,7 @@ package de.robolab.jfx
 import de.robolab.drawable.PlanetDrawable
 import de.robolab.jfx.adapter.FxCanvas
 import de.robolab.jfx.adapter.FxTimer
-import de.robolab.model.Direction
-import de.robolab.model.Path
-import de.robolab.model.Planet
+import de.robolab.model.*
 import de.robolab.model.Target
 import de.robolab.renderer.Plotter
 import javafx.application.Platform
@@ -103,7 +101,7 @@ class MainView : View() {
 
         val PLANET_3 = Planet(
                 0 to 0,
-                true,
+                false,
                 listOf(
                         Path(
                                 0 to 0,
@@ -131,6 +129,12 @@ class MainView : View() {
                         Target(
                                 -1 to 3,
                                 setOf(0 to 0)
+                        )
+                ),
+                listOf(
+                        PathSelect(
+                                0 to 2,
+                                Direction.NORTH
                         )
                 )
         )
@@ -171,6 +175,12 @@ class MainView : View() {
                         Target(
                                 -1 to 3,
                                 setOf(0 to 0)
+                        )
+                ),
+                listOf(
+                        PathSelect(
+                                0 to 2,
+                                Direction.NORTH
                         )
                 )
         )
@@ -221,8 +231,13 @@ class MainView : View() {
                                 Direction.WEST,
                                 4
                         )
+                ),
+                pathSelectList = listOf(
+                        PathSelect(
+                                0 to 2,
+                                Direction.NORTH
+                        )
                 )
         )
-
     }
 }

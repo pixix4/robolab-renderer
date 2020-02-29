@@ -1,5 +1,7 @@
 package de.robolab.renderer.data
 
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 data class Point(
@@ -41,6 +43,11 @@ data class Point(
     fun interpolate(other: Point, progress: Double) = Point(
             left * (1 - progress) + other.left * progress,
             top * (1 - progress) + other.top * progress
+    )
+
+    fun rotate(rotation: Double) = Point (
+            left * cos(rotation) - top * sin(rotation),
+            left * sin(rotation) + top * cos(rotation)
     )
 
     val width: Double

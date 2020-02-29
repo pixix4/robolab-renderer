@@ -24,6 +24,8 @@ class SenderDrawable : AnimatableManager<Pair<Int, Int>, SenderDrawable.SenderAn
         private val position = Point(reference.first.toDouble(), reference.second.toDouble())
 
         override fun startExitAnimation(onFinish: () -> Unit) {
+            oldColors = newColors
+            newColors = emptyList()
             animator.animate(0.0, 1.0, offset = Plotter.ANIMATION_TIME / 2).onFinish {
                 onFinish()
             }
