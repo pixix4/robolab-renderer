@@ -17,6 +17,8 @@ class DefaultPlotter(
 ) {
     private val transformation = Transformation()
 
+    private val interaction = DefaultInteraction(transformation)
+
     private val context = DrawContext(canvas, transformation, LightTheme)
 
 
@@ -24,11 +26,12 @@ class DefaultPlotter(
         context.clear(context.theme.secondaryBackgroundColor)
 
         drawable.onUpdate(ms_offset)
+        interaction.onUpdate(ms_offset)
         drawable.onDraw(context)
     }
 
     init {
-        canvas.setListener(DefaultInteraction(transformation))
+        canvas.setListener(interaction)
 
         timer.onRender(this::render)
 

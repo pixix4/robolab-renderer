@@ -15,10 +15,10 @@ object CompassDrawable : IDrawable {
     private val transformation = Transformation()
 
     override fun onDraw(context: DrawContext) {
-        val center = Point(context.width - 44.0, 44.0)
+        val center = Point(context.width - RIGHT_PADDING, TOP_PADDING)
         context.canvas.fillArc(
                 center,
-                24.0,
+                RADIUS,
                 0.0,
                 2 * PI,
                 context.theme.lineColor.a(0.25)
@@ -43,4 +43,9 @@ object CompassDrawable : IDrawable {
         context.canvas.fillPolygon(arrowTop, context.theme.redColor)
         context.canvas.fillPolygon(arrowBottom, context.theme.lineColor.a(0.8))
     }
+
+    const val RADIUS = 24.0
+    
+    const val TOP_PADDING = 20.0 + RADIUS
+    const val RIGHT_PADDING = 20.0 + RADIUS
 }

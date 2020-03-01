@@ -1,12 +1,30 @@
 package de.robolab.renderer.interaction
 
+import de.robolab.drawable.CompassDrawable
 import de.robolab.renderer.Transformation
+import de.robolab.renderer.animation.DoubleTransition
+import de.robolab.renderer.animation.GenericTransition
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.platform.*
 import kotlin.math.PI
 
 class DefaultInteraction(private val transformation: Transformation) : ICanvasListener {
+
+    private var transitionMap = emptyMap<GenericTransition<*>, () -> Unit>()
+
+    fun onUpdate(ms_offset: Double): Boolean {
+        var hasChanges = false
+
+        for ((animatable, lambda) in transitionMap) {
+            if (animatable.update(ms_offset)) {
+                lambda()
+                hasChanges = true
+            }
+        }
+
+        return hasChanges
+    }
 
     private var lastPoint: Point = Point.ZERO
 
@@ -26,6 +44,25 @@ class DefaultInteraction(private val transformation: Transformation) : ICanvasLi
     }
 
     override fun onMouseClick(event: MouseEvent) {
+        val compassCenter = Point(
+                event.screen.width - CompassDrawable.RIGHT_PADDING,
+                CompassDrawable.TOP_PADDING
+        )
+
+        if (event.point.distance(compassCenter) <= CompassDrawable.RADIUS) {
+            val transition = DoubleTransition((transformation.rotation - PI) % (2 * PI) + PI)
+            transition.animate(0.0, 250.0)
+            transition.onFinish {
+                println("finished")
+                transitionMap = transitionMap - transition
+            }
+            transitionMap = transitionMap + (transition to {
+                transformation.rotateTo(transition.value, Point(
+                        event.screen.width / 2,
+                        event.screen.height / 2
+                ))
+            })
+        }
     }
 
     override fun onScroll(event: ScrollEvent) {

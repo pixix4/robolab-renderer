@@ -22,6 +22,7 @@ class FxCanvas : ICanvas {
         canvas.setOnMousePressed { event ->
             listener.onMouseDown(MouseEvent(
                     Point(event.x, event.y),
+                    Dimension(width, height),
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
@@ -30,6 +31,7 @@ class FxCanvas : ICanvas {
         canvas.setOnMouseReleased { event ->
             listener.onMouseUp(MouseEvent(
                     Point(event.x, event.y),
+                    Dimension(width, height),
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
@@ -38,6 +40,7 @@ class FxCanvas : ICanvas {
         canvas.setOnMouseDragged { event ->
             listener.onMouseDrag(MouseEvent(
                     Point(event.x, event.y),
+                    Dimension(width, height),
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
@@ -46,6 +49,7 @@ class FxCanvas : ICanvas {
         canvas.setOnMouseMoved { event ->
             listener.onMouseMove(MouseEvent(
                     Point(event.x, event.y),
+                    Dimension(width, height),
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
@@ -54,6 +58,7 @@ class FxCanvas : ICanvas {
         canvas.setOnMouseClicked { event ->
             listener.onMouseClick(MouseEvent(
                     Point(event.x, event.y),
+                    Dimension(width, height),
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
@@ -63,6 +68,7 @@ class FxCanvas : ICanvas {
             listener.onScroll(ScrollEvent(
                     Point(event.x, event.y),
                     Point(event.deltaX, event.deltaY),
+                    Dimension(width, height),
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
@@ -72,6 +78,7 @@ class FxCanvas : ICanvas {
             listener.onZoom(ZoomEvent(
                     Point(event.x, event.y),
                     event.zoomFactor,
+                    Dimension(width, height),
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
@@ -81,6 +88,7 @@ class FxCanvas : ICanvas {
             listener.onRotate(RotateEvent(
                     Point(event.x, event.y),
                     event.angle / 180.0 * PI,
+                    Dimension(width, height),
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
