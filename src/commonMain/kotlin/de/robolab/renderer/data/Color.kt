@@ -1,5 +1,6 @@
 package de.robolab.renderer.data
 
+import de.robolab.renderer.animation.IInterpolatable
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
@@ -8,22 +9,22 @@ data class Color(
         val green: Int,
         val blue: Int,
         val alpha: Double = 1.0
-) {
+): IInterpolatable<Color> {
     fun r(red: Int) = copy(red = red)
     fun g(green: Int) = copy(green = green)
     fun b(blue: Int) = copy(blue = blue)
     fun a(alpha: Double) = copy(alpha = alpha)
 
 
-    fun interpolate(other: Color, progress: Double) = Color(
-            (red * (1 - progress) + other.red * progress).roundToInt(),
-            (green * (1 - progress) + other.green * progress).roundToInt(),
-            (blue * (1 - progress) + other.blue * progress).roundToInt(),
-            alpha * (1 - progress) + other.alpha * progress
+    override fun interpolate(toValue: Color, progress: Double) = Color(
+            (red * (1 - progress) + toValue.red * progress).roundToInt(),
+            (green * (1 - progress) + toValue.green * progress).roundToInt(),
+            (blue * (1 - progress) + toValue.blue * progress).roundToInt(),
+            alpha * (1 - progress) + toValue.alpha * progress
     )
 
     companion object {
-        val TRANSPARENT = Color(0, 0, 0, 1.0)
+        val TRANSPARENT = Color(0, 0, 0, 0.0)
 
         fun hsb(hue: Double, saturation: Double, brightness: Double): Color {
             val var6 = (hue % 360.0 + 360.0) % 360.0
@@ -81,6 +82,20 @@ data class Color(
                     (blue * 255).roundToInt()
             )
         }
-
+        
+        fun mix(colors: Map<Color, Double>) : Color {
+            if (colors.isEmpty()) return TRANSPARENT
+            
+            val sum = colors.values.sum()
+            
+            return colors.entries.fold(TRANSPARENT) { acc, (c, d) ->
+                Color(
+                        (acc.red + c.red * (d / sum)).roundToInt(),
+                        (acc.green + c.green * (d / sum)).roundToInt(),
+                        (acc.blue + c.blue * (d / sum)).roundToInt(),
+                        acc.alpha + c.alpha * d / sum
+                )
+            }
+        }
     }
 }

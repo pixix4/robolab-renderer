@@ -37,7 +37,7 @@ abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
 
         for (o in objectsToDelete) {
             animatableMap[o]?.let { a ->
-                a.startExitAnimation {
+                a.startExitAnimation(planet.animationTime) {
                     animatableMap = animatableMap - o
                 }
             }
@@ -50,7 +50,7 @@ abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
         for (o in objectsToCreate) {
             val a = createAnimatable(o, planet)
             animatableMap = animatableMap + (o to a)
-            a.startEnterAnimation {  }
+            a.startEnterAnimation(planet.animationTime) {  }
         }
     }
 }

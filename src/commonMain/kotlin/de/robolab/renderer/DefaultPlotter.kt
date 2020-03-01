@@ -10,9 +10,9 @@ import de.robolab.renderer.theme.LightTheme
 /**
  * @author lars
  */
-class Plotter(
+class DefaultPlotter(
         canvas: ICanvas,
-        private val timer: ITimer,
+        timer: ITimer,
         var drawable: IDrawable = BlankDrawable
 ) {
     private val transformation = Transformation()
@@ -27,29 +27,11 @@ class Plotter(
         drawable.onDraw(context)
     }
 
-    fun start() {
-        timer.start()
-    }
-
-    fun stop() {
-        timer.stop()
-    }
-
     init {
         canvas.setListener(DefaultInteraction(transformation))
 
         timer.onRender(this::render)
 
-        start()
-    }
-
-    companion object {
-        const val POINT_SIZE = 0.2
-        const val LINE_WIDTH = POINT_SIZE / 7.5
-        const val TARGET_RADIUS = 0.25
-        const val CURVE_FIRST_POINT = 0.15
-        const val CURVE_SECOND_POINT = 0.3
-        
-        const val ANIMATION_TIME = 1000
+        timer.start()
     }
 }

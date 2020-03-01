@@ -1,5 +1,6 @@
 package de.robolab.renderer.data
 
+import de.robolab.renderer.animation.IInterpolatable
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -7,7 +8,7 @@ import kotlin.math.sqrt
 data class Point(
         val left: Double,
         val top: Double
-) {
+): IInterpolatable<Point> {
 
     operator fun plus(other: Point) = Point(left + other.left, top + other.top)
     operator fun minus(other: Point) = Point(left - other.left, top - other.top)
@@ -40,9 +41,9 @@ data class Point(
         }
     }
 
-    fun interpolate(other: Point, progress: Double) = Point(
-            left * (1 - progress) + other.left * progress,
-            top * (1 - progress) + other.top * progress
+    override fun interpolate(toValue: Point, progress: Double) = Point(
+            left * (1 - progress) + toValue.left * progress,
+            top * (1 - progress) + toValue.top * progress
     )
 
     fun rotate(rotation: Double) = Point (

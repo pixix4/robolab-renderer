@@ -1,67 +1,89 @@
 package de.robolab.drawable
 
 import de.robolab.model.Planet
-import de.robolab.renderer.Animator
 import de.robolab.renderer.DrawContext
-import de.robolab.renderer.Plotter
+import de.robolab.renderer.PlottingConstraints
+import de.robolab.renderer.animation.DoubleTransition
+import de.robolab.renderer.animation.IInterpolatable
+import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 
 class PointDrawable : AnimatableManager<Pair<Int, Int>, PointDrawable.PointAnimatable>() {
 
+    data class PointColor(
+            val red: Double = 0.0,
+            val blue: Double = 0.0,
+            val grey: Double = 0.0
+    ) : IInterpolatable<PointColor> {
+
+        companion object {
+            val RED = PointColor(red = 1.0)
+            val BLUE = PointColor(blue = 1.0)
+            val GREY = PointColor(grey = 1.0)
+        }
+
+        fun toColor(context: DrawContext): Color {
+            return Color.mix(mapOf(
+                    context.theme.redColor to red,
+                    context.theme.blueColor to blue,
+                    context.theme.gridTextColor to grey
+            ))
+        }
+
+        override fun interpolate(toValue: PointColor, progress: Double) = PointColor(
+                red * (1 - progress) + toValue.red * progress,
+                blue * (1 - progress) + toValue.blue * progress,
+                grey * (1 - progress) + toValue.grey * progress
+        )
+    }
+
     class PointAnimatable(
             reference: Pair<Int, Int>,
             planet: Planet
     ) : Animatable<Pair<Int, Int>>(reference) {
-        override val animator = Animator(Plotter.ANIMATION_TIME / 2, Plotter.ANIMATION_TIME / 2)
 
         private val isThisPointEven = (reference.first + reference.second) % 2 == 0
         private val position = Point(reference.first.toDouble(), reference.second.toDouble())
-        private var state = State.UPDATE
 
-        private var oldColor: PointColor = PointColor.GREY
-        private var newColor: PointColor = calcColor(planet)
+        private val colorTransition = ValueTransition(calcColor(planet))
+        private val sizeTransition = DoubleTransition(0.0)
+        private val alphaTransition = DoubleTransition(0.0)
+
+        override val animators = listOf(
+                colorTransition,
+                sizeTransition,
+                alphaTransition
+        )
 
         override fun onDraw(context: DrawContext) {
-            var size = Point(Plotter.POINT_SIZE / 2, Plotter.POINT_SIZE / 2)
-            var color = newColor.toColor(context)
-
-            if (animator.current < 1.0) when (state) {
-                State.ADD -> {
-                    size *= animator.current
-                    color = newColor.toColor(context).a(animator.current)
-                }
-                State.UPDATE -> {
-                    color = oldColor.toColor(context).interpolate(newColor.toColor(context), animator.current)
-                }
-                State.REMOVE -> {
-                    size *= animator.current
-                    color = newColor.toColor(context).a(animator.current)
-                }
-            }
+            val size = Point(PlottingConstraints.POINT_SIZE / 2, PlottingConstraints.POINT_SIZE / 2) * sizeTransition.value
 
             context.fillRect(Rectangle.fromEdges(
                     position - size,
                     position + size
-            ), color)
+            ), colorTransition.value.toColor(context).a(alphaTransition.value))
         }
 
-        override fun startExitAnimation(onFinish: () -> Unit) {
-            state = State.REMOVE
-            animator.animate(1.0, 0.0).onFinish { onFinish() }
+        override fun startExitAnimation(animationTime: Double, onFinish: () -> Unit) {
+            sizeTransition.animate(0.0, animationTime / 2, animationTime / 2)
+            sizeTransition.onFinish.clearListeners()
+            sizeTransition.onFinish { onFinish() }
+
+            alphaTransition.animate(0.0, animationTime / 2, animationTime / 2)
         }
 
-        override fun startEnterAnimation(onFinish: () -> Unit) {
-            state = State.ADD
-            animator.animate(0.0, 1.0).onFinish { onFinish() }
+        override fun startEnterAnimation(animationTime: Double, onFinish: () -> Unit) {
+            sizeTransition.animate(1.0, animationTime / 2, animationTime / 2)
+            sizeTransition.onFinish.clearListeners()
+            sizeTransition.onFinish { onFinish() }
+
+            alphaTransition.animate(1.0, animationTime / 2, animationTime / 2)
         }
 
         override fun startUpdateAnimation(obj: Pair<Int, Int>, planet: Planet) {
-            oldColor = newColor
-            state = State.UPDATE
-            newColor = calcColor(planet)
-            animator.animate(0.0, 1.0)
+            colorTransition.animate(calcColor(planet), planet.animationTime / 2, planet.animationTime / 4)
         }
 
         private fun calcColor(planet: Planet): PointColor {
@@ -78,21 +100,6 @@ class PointDrawable : AnimatableManager<Pair<Int, Int>, PointDrawable.PointAnima
                     PointColor.RED
                 }
             } ?: PointColor.GREY
-        }
-
-
-        enum class State {
-            ADD, REMOVE, UPDATE
-        }
-
-        enum class PointColor {
-            RED, BLUE, GREY;
-
-            fun toColor(context: DrawContext) = when (this) {
-                RED -> context.theme.redColor
-                BLUE -> context.theme.blueColor
-                GREY -> context.theme.gridTextColor
-            }
         }
     }
 

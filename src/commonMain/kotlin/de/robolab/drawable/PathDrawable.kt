@@ -7,15 +7,15 @@ import de.robolab.drawable.utils.shift
 import de.robolab.model.Direction
 import de.robolab.model.Path
 import de.robolab.model.Planet
-import de.robolab.renderer.Animator
 import de.robolab.renderer.DrawContext
-import de.robolab.renderer.Plotter
+import de.robolab.renderer.PlottingConstraints
+import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 
 
 class PathDrawable(
-    path: Path
+        path: Path
 ) : Animatable<Path>(path) {
 
     val startPoint: Point = path.source.let { Point(it.first.toDouble(), it.second.toDouble()) }
@@ -23,17 +23,17 @@ class PathDrawable(
     val endPoint: Point = path.target.let { Point(it.first.toDouble(), it.second.toDouble()) }
     val endDirection: Direction = path.targetDirection
     private var weight: Int = path.weight
-    
+
     private var state = State.NONE
 
     private val linePoints: List<Point> = null ?: PathGenerator.generateControlPoints(this)
 
     private val controlPoints: List<Point> = listOfNotNull(
-            startPoint.shift(startDirection, Plotter.CURVE_FIRST_POINT),
-            if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(startPoint, startDirection, linePoints.first())) null else startPoint.shift(startDirection, Plotter.CURVE_SECOND_POINT),
+            startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
+            if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(startPoint, startDirection, linePoints.first())) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
             *linePoints.toTypedArray(),
-            if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(endPoint, endDirection, linePoints.last())) null else endPoint.shift(endDirection, Plotter.CURVE_SECOND_POINT),
-            endPoint.shift(endDirection, Plotter.CURVE_FIRST_POINT)
+            if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(endPoint, endDirection, linePoints.last())) null else endPoint.shift(endDirection, PlottingConstraints.CURVE_SECOND_POINT),
+            endPoint.shift(endDirection, PlottingConstraints.CURVE_FIRST_POINT)
     )
 
     val area by lazy {
@@ -75,18 +75,18 @@ class PathDrawable(
         }
 
         points[index] = (controlPoints.last())
-        
-        val startPoint = startPoint + (controlPoints.first() - startPoint).normalize() * Plotter.POINT_SIZE / 2
-        val endPoint = endPoint + (controlPoints.last() - endPoint).normalize() * Plotter.POINT_SIZE / 2
+
+        val startPoint = startPoint + (controlPoints.first() - startPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
+        val endPoint = endPoint + (controlPoints.last() - endPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
 
         return listOf(startPoint) + points.take(index + 1).requireNoNulls() + endPoint
     }
 
-    class PointLengthHelper (
+    class PointLengthHelper(
             val point: Point,
             var length: Double = 0.0
     )
-    
+
     private val pointHelperCache = mutableMapOf<Int, List<PointLengthHelper>>()
     private fun getCachedPointHelpers(steps: Int): List<PointLengthHelper> {
         return pointHelperCache.getOrPut(steps) {
@@ -99,19 +99,19 @@ class PathDrawable(
             pointHelpers
         }
     }
-    
+
     private fun interpolate(context: DrawContext) {
         val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
 
         when (state) {
             State.REMOVE -> {
-                context.strokeLine(getCachedPointHelpers(steps).map { it.point }, context.theme.lineColor.a(animator.current), Plotter.LINE_WIDTH)
+                context.strokeLine(getCachedPointHelpers(steps).map { it.point }, context.theme.lineColor.a(transition.value), PlottingConstraints.LINE_WIDTH)
             }
             State.DRAW -> {
                 val pointHelpers = getCachedPointHelpers(steps)
 
                 val length = pointHelpers.last().length
-                val targetLength = length * animator.current
+                val targetLength = length * transition.value
 
                 val endIndex = pointHelpers.indexOfFirst { it.length > targetLength }
 
@@ -123,24 +123,24 @@ class PathDrawable(
                 val endPoint = p1.point.interpolate(p2.point, (targetLength - p1.length) / (p2.length - p1.length))
 
                 val points = pointHelpers.take(endIndex).map { it.point } + endPoint
-                context.strokeLine(points, context.theme.lineColor, Plotter.LINE_WIDTH)
+                context.strokeLine(points, context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
             }
             State.NONE -> {
-                context.strokeLine(getCachedPointHelpers(steps).map { it.point }, context.theme.lineColor, Plotter.LINE_WIDTH)
+                context.strokeLine(getCachedPointHelpers(steps).map { it.point }, context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
             }
         }
     }
 
     override fun onDraw(context: DrawContext) {
         if (!context.area.intersects(area)) return
-        
+
         interpolate(context)
 
         val alpha = when {
-            state == State.REMOVE -> animator.current
-            animator.current <= 0.4 -> return
-            animator.current >= 0.6 -> 1.0
-            else -> (animator.current - 0.4) * 5
+            state == State.REMOVE -> transition.value
+            transition.value <= 0.4 -> return
+            transition.value >= 0.6 -> 1.0
+            else -> (transition.value - 0.4) * 5
         }
 
         val beforeCenter = eval(0.49)
@@ -221,19 +221,25 @@ class PathDrawable(
         }
     }
 
-    override val animator = Animator(Plotter.ANIMATION_TIME)
+    private val transition = DoubleTransition(0.0)
 
-    override fun startExitAnimation(onFinish: () -> Unit) {
+    override val animators = listOf(transition)
+
+    override fun startExitAnimation(animationTime: Double, onFinish: () -> Unit) {
         state = State.REMOVE
-        animator.animate(1.0, 0.0, Plotter.ANIMATION_TIME / 3).onFinish {
+        transition.animate(0.0, animationTime / 3)
+        transition.onFinish.clearListeners()
+        transition.onFinish {
             state = State.NONE
             onFinish()
         }
     }
 
-    override fun startEnterAnimation(onFinish: () -> Unit) {
+    override fun startEnterAnimation(animationTime: Double, onFinish: () -> Unit) {
         state = State.DRAW
-        animator.animate(0.0, 1.0, Plotter.ANIMATION_TIME).onFinish {
+        transition.animate(1.0, animationTime)
+        transition.onFinish.clearListeners()
+        transition.onFinish {
             state = State.NONE
             onFinish()
         }
@@ -242,7 +248,7 @@ class PathDrawable(
     override fun startUpdateAnimation(obj: Path, planet: Planet) {
         weight = obj.weight
     }
-    
+
     enum class State {
         DRAW, REMOVE, NONE
     }

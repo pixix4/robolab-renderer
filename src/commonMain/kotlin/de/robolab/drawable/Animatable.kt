@@ -1,20 +1,28 @@
 package de.robolab.drawable
 
 import de.robolab.model.Planet
-import de.robolab.renderer.Animator
+import de.robolab.renderer.animation.GenericTransition
 import de.robolab.renderer.drawable.IDrawable
 
 abstract class Animatable<T>(
         open val reference: T
 ): IDrawable {
 
-    abstract val animator: Animator
+    abstract val animators: List<GenericTransition<*>>
 
     override fun onUpdate(ms_offset: Double): Boolean {
-        return animator.update(ms_offset)
+        var hasChanges = false
+
+        for (animatable in animators) {
+            if (animatable.update(ms_offset)) {
+                hasChanges = true
+            }
+        }
+
+        return hasChanges
     }
 
-    abstract fun startExitAnimation(onFinish: () -> Unit)
-    abstract fun startEnterAnimation(onFinish: () -> Unit)
+    abstract fun startExitAnimation(animationTime: Double, onFinish: () -> Unit)
+    abstract fun startEnterAnimation(animationTime: Double, onFinish: () -> Unit)
     abstract fun startUpdateAnimation(obj: T, planet: Planet)
 }

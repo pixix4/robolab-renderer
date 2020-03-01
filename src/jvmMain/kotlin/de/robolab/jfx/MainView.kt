@@ -5,7 +5,7 @@ import de.robolab.jfx.adapter.FxCanvas
 import de.robolab.jfx.adapter.FxTimer
 import de.robolab.model.*
 import de.robolab.model.Target
-import de.robolab.renderer.Plotter
+import de.robolab.renderer.DefaultPlotter
 import javafx.application.Platform
 import javafx.scene.layout.BorderPane
 import tornadofx.*
@@ -26,7 +26,7 @@ class MainView : View() {
 
         val canvas = FxCanvas()
         val timer = FxTimer(50.0)
-        val plotter = Plotter(canvas, timer)
+        val plotter = DefaultPlotter(canvas, timer)
 
 
         val planetDrawable = PlanetDrawable()
@@ -41,7 +41,7 @@ class MainView : View() {
         val planetList = listOf(PLANET_1, PLANET_2, PLANET_3, PLANET_4, PLANET_5)
         var planetIndex = 0
 
-        val anim = FxTimer(1000 / (Plotter.ANIMATION_TIME * 1.25))
+        val anim = FxTimer(1000 / (ANIMATION_TIME * 1.25))
         anim.start()
         anim.onRender {
             println("Render planet index $planetIndex")
@@ -57,6 +57,8 @@ class MainView : View() {
 
     companion object {
         val headerText: String = "RoboLab ${LocalDate.now().year}"
+        
+        const val ANIMATION_TIME = 1000.0
 
         val PLANET_1 = Planet(
                 0 to 0,
@@ -69,7 +71,8 @@ class MainView : View() {
                                 Direction.SOUTH,
                                 4
                         )
-                )
+                ),
+                animationTime = ANIMATION_TIME
         )
 
         val PLANET_2 = Planet(
@@ -96,7 +99,8 @@ class MainView : View() {
                                 -1 to 3,
                                 setOf(0 to 0)
                         )
-                )
+                ),
+                animationTime = ANIMATION_TIME
         )
 
         val PLANET_3 = Planet(
@@ -136,7 +140,8 @@ class MainView : View() {
                                 0 to 2,
                                 Direction.NORTH
                         )
-                )
+                ),
+                animationTime = ANIMATION_TIME
         )
         val PLANET_4 = Planet(
                 0 to 0,
@@ -182,7 +187,8 @@ class MainView : View() {
                                 0 to 2,
                                 Direction.NORTH
                         )
-                )
+                ),
+                animationTime = ANIMATION_TIME
         )
 
         val PLANET_5 = Planet(
@@ -237,7 +243,8 @@ class MainView : View() {
                                 0 to 2,
                                 Direction.NORTH
                         )
-                )
+                ),
+                animationTime = ANIMATION_TIME
         )
     }
 }

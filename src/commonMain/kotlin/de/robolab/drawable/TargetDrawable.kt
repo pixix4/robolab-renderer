@@ -3,9 +3,11 @@ package de.robolab.drawable
 import de.robolab.drawable.utils.Utils
 import de.robolab.model.Planet
 import de.robolab.model.Target
-import de.robolab.renderer.Animator
 import de.robolab.renderer.DrawContext
-import de.robolab.renderer.Plotter
+import de.robolab.renderer.PlottingConstraints
+import de.robolab.renderer.animation.DoubleTransition
+import de.robolab.renderer.animation.GenericTransition
+import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import kotlin.math.PI
@@ -14,60 +16,44 @@ class TargetDrawable : AnimatableManager<Target, TargetDrawable.TargetAnimatable
 
     class TargetAnimatable(
             override var reference: Target,
-            color: Color?
-    ): Animatable<Target>(reference) {
-        override val animator = Animator(Plotter.ANIMATION_TIME / 2, Plotter.ANIMATION_TIME / 2)
-
-        private var oldColor: Color? = null
-        private var newColor: Color? = color
+            private  val initColor: Color
+    ) : Animatable<Target>(reference) {
 
         private val position = Point(reference.target.first.toDouble(), reference.target.second.toDouble())
 
-        override fun startExitAnimation(onFinish: () -> Unit) {
-            oldColor = newColor
-            newColor = null
-            animator.animate(0.0, 1.0).onFinish {
-                onFinish()
-            }
+        private val colorTransition = ValueTransition(Color.TRANSPARENT)
+        private val sizeTransition = DoubleTransition(0.0)
+
+        override val animators = listOf(
+                colorTransition,
+                sizeTransition
+        )
+
+        override fun startExitAnimation(animationTime: Double, onFinish: () -> Unit) {
+            sizeTransition.animate(0.0, animationTime / 2, animationTime / 2)
+            sizeTransition.onFinish.clearListeners()
+            sizeTransition.onFinish { onFinish() }
+
+            colorTransition.animate(Color.TRANSPARENT, animationTime / 2, animationTime / 2)
         }
 
-        override fun startEnterAnimation(onFinish: () -> Unit) {
-            animator.animate(0.0, 1.0).onFinish {
-                onFinish()
-            }
+        override fun startEnterAnimation(animationTime: Double, onFinish: () -> Unit) {
+            sizeTransition.animate(1.0, animationTime / 2, animationTime / 2)
+            sizeTransition.onFinish.clearListeners()
+            sizeTransition.onFinish { onFinish() }
+
+
+            colorTransition.animate(initColor, animationTime / 2, animationTime / 2)
         }
 
         override fun onDraw(context: DrawContext) {
-            val newColor = newColor
-            val oldColor = oldColor
-
-            if (newColor != null) {
-                if (oldColor != null) {
-                    context.fillArc(
-                            position,
-                            Plotter.TARGET_RADIUS,
-                            0.0,
-                            PI * 2,
-                            oldColor.interpolate(newColor, animator.current)
-                    )
-                } else {
-                    context.fillArc(
-                            position,
-                            Plotter.TARGET_RADIUS * animator.current,
-                            0.0,
-                            PI * 2,
-                            newColor.a(animator.current)
-                    )
-                }
-            } else if (oldColor != null) {
-                context.fillArc(
-                        position,
-                        Plotter.TARGET_RADIUS * (1 - animator.current),
-                        0.0,
-                        PI * 2,
-                        oldColor.a(1 - animator.current)
-                )
-            }
+            context.fillArc(
+                    position,
+                    PlottingConstraints.TARGET_RADIUS * sizeTransition.value,
+                    0.0,
+                    PI * 2,
+                    colorTransition.value
+            )
         }
 
         override fun startUpdateAnimation(obj: Target, planet: Planet) {
@@ -75,12 +61,10 @@ class TargetDrawable : AnimatableManager<Target, TargetDrawable.TargetAnimatable
                 Utils.getColorByIndex(i)
             }
 
-            oldColor = newColor
-            newColor = senderGrouping[obj.exposure]
-
-            animator.animate(0.0, 1.0, offset = Plotter.ANIMATION_TIME / 4)
+            sizeTransition.animate(1.0, planet.animationTime / 2, planet.animationTime / 2)
+            colorTransition.animate(senderGrouping[obj.exposure]
+                    ?: Color.TRANSPARENT, planet.animationTime / 2, planet.animationTime / 4)
         }
-
     }
 
     override fun getObjectList(planet: Planet): List<Target> {
@@ -96,7 +80,7 @@ class TargetDrawable : AnimatableManager<Target, TargetDrawable.TargetAnimatable
 
         return TargetAnimatable(
                 obj,
-                color
+                color ?: Color.TRANSPARENT
         )
     }
 }

@@ -1,54 +1,30 @@
 package de.robolab.drawable
 
 import de.robolab.model.Planet
-import de.robolab.renderer.Animator
 import de.robolab.renderer.DrawContext
-import de.robolab.renderer.Plotter
+import de.robolab.renderer.animation.DoubleTransition
+import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.IDrawable
 
 class BackgroundDrawable : IDrawable {
 
-    private var fromArea: Rectangle? = null
-    private var targetArea: Rectangle? = null
-    private var currentArea: Rectangle? = null
-    private var animateAlpha = false
-    private var alpha: Double = 0.0
-
-    private val animator = Animator(Plotter.ANIMATION_TIME)
+    private val areaTransition = ValueTransition(Rectangle.ZERO)
+    private val alphaTransition = DoubleTransition(0.0)
 
     override fun onUpdate(ms_offset: Double): Boolean {
-        val changed = animator.update(ms_offset)
+        var changed = alphaTransition.update(ms_offset)
 
-        if (changed) {
-            fromArea?.let { fromArea ->
-                targetArea?.let {targetArea ->
-                    currentArea = Rectangle(
-                            fromArea.left + (targetArea.left - fromArea.left) * animator.current,
-                            fromArea.top + (targetArea.top - fromArea.top) * animator.current,
-                            fromArea.width + (targetArea.width - fromArea.width) * animator.current,
-                            fromArea.height + (targetArea.height - fromArea.height) * animator.current
-                    )
-                    alpha = if (animateAlpha) animator.current else 1.0
-                } ?: run {
-                    currentArea = fromArea
-                    alpha = if (animateAlpha) 1.0 - animator.current else 1.0
-                }
-            } ?: run {
-                currentArea = targetArea
-                alpha = if (animateAlpha) animator.current else 1.0
-            }
-
+        if (areaTransition.update(ms_offset)) {
+            changed = true
         }
 
         return changed
     }
 
     override fun onDraw(context: DrawContext) {
-        currentArea?.let { area ->
-            context.fillRect(area, context.theme.primaryBackgroundColor.a(alpha))
-        }
+        context.fillRect(areaTransition.value, context.theme.primaryBackgroundColor.a(alphaTransition.value))
     }
 
     fun importPlanet(planet: Planet) {
@@ -60,21 +36,27 @@ class BackgroundDrawable : IDrawable {
             Point(left.toDouble(), top.toDouble())
         }
 
-        val area =  Rectangle.fromEdges(pointList).expand(1.0)
+        if (pointList.isEmpty()) {
+            areaTransition.animate(centerRect(areaTransition.value), planet.animationTime)
+            alphaTransition.animate(0.0, planet.animationTime)
 
-        fromArea = if (currentArea == null) {
-            animateAlpha = true
-            Rectangle (
-                    area.left + area.width / 2,
-                    area.top + area.height / 2,
-                    0.0,
-                    0.0
-            )
-        } else {
-            animateAlpha = false
-            currentArea
+            return
         }
-        targetArea = area
-        animator.animate(0.0, 1.0)
+
+        val area = Rectangle.fromEdges(pointList).expand(1.0)
+
+        if (alphaTransition.value == 0.0) {
+            areaTransition.resetValue(centerRect(area))
+        }
+
+        areaTransition.animate(area, planet.animationTime)
+        alphaTransition.animate(0.0, planet.animationTime)
     }
+
+    private fun centerRect(rectangle: Rectangle) = Rectangle(
+            rectangle.left + rectangle.width / 2,
+            rectangle.top + rectangle.height / 2,
+            0.0,
+            0.0
+    )
 }
