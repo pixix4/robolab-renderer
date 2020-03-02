@@ -5,6 +5,8 @@ import de.robolab.renderer.drawable.BlankDrawable
 import de.robolab.renderer.interaction.DefaultInteraction
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.drawable.IDrawable
+import de.robolab.renderer.interaction.CompassInteraction
+import de.robolab.renderer.interaction.CompositionInteraction
 import de.robolab.renderer.platform.ITimer
 import de.robolab.renderer.theme.LightTheme
 import de.westermann.kobserve.property.property
@@ -20,7 +22,10 @@ class DefaultPlotter(
 ) {
     private val transformation = Transformation()
 
-    private val interaction = DefaultInteraction(transformation, this)
+    private val interaction = CompositionInteraction(
+            CompassInteraction(transformation),
+            DefaultInteraction(transformation, this)
+    )
 
     private val context = DrawContext(canvas, transformation, LightTheme)
 

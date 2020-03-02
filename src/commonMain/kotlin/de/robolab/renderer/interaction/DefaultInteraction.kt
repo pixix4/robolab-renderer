@@ -16,64 +16,28 @@ class DefaultInteraction(
         private val plotter: DefaultPlotter
 ) : ICanvasListener {
 
-    private var transitionMap = emptyMap<GenericTransition<*>, () -> Unit>()
-
-    fun onUpdate(ms_offset: Double): Boolean {
-        var hasChanges = false
-
-        for ((animatable, lambda) in transitionMap) {
-            if (animatable.update(ms_offset)) {
-                lambda()
-                hasChanges = true
-            }
-        }
-
-        return hasChanges
-    }
-
     private var lastPoint: Point = Point.ZERO
 
-    override fun onMouseDown(event: MouseEvent) {
+    override fun onMouseDown(event: MouseEvent): Boolean {
         lastPoint = event.point
+        return true
     }
 
-    override fun onMouseUp(event: MouseEvent) {
-    }
-
-    override fun onMouseMove(event: MouseEvent) {
+    override fun onMouseMove(event: MouseEvent): Boolean {
         val pointer = transformation.canvasToPlanet(event.point)
         val element = plotter.getObjectAtPosition(pointer)
 
         plotter.pointer = Pointer(pointer, element)
+        return true
     }
 
-    override fun onMouseDrag(event: MouseEvent) {
+    override fun onMouseDrag(event: MouseEvent): Boolean {
         transformation.translateBy(event.point - lastPoint)
         lastPoint = event.point
+        return true
     }
 
-    override fun onMouseClick(event: MouseEvent) {
-        val compassCenter = Point(
-                event.screen.width - CompassDrawable.RIGHT_PADDING,
-                CompassDrawable.TOP_PADDING
-        )
-
-        if (event.point.distance(compassCenter) <= CompassDrawable.RADIUS) {
-            val transition = DoubleTransition((transformation.rotation - PI) % (2 * PI) + PI)
-            transition.animate(0.0, 250.0)
-            transition.onFinish {
-                transitionMap = transitionMap - transition
-            }
-            transitionMap = transitionMap + (transition to {
-                transformation.rotateTo(transition.value, Point(
-                        event.screen.width / 2,
-                        event.screen.height / 2
-                ))
-            })
-        }
-    }
-
-    override fun onScroll(event: ScrollEvent) {
+    override fun onScroll(event: ScrollEvent): Boolean {
         when {
             event.ctrlKey -> {
                 transformation.scaleBy(when {
@@ -93,17 +57,22 @@ class DefaultInteraction(
                 transformation.translateBy(event.delta)
             }
         }
+
+        return true
     }
 
-    override fun onZoom(event: ZoomEvent) {
+    override fun onZoom(event: ZoomEvent): Boolean {
         transformation.scaleBy(event.zoomFactor, event.point)
+        return true
     }
 
-    override fun onRotate(event: RotateEvent) {
+    override fun onRotate(event: RotateEvent): Boolean {
         transformation.rotateBy(event.angle, event.point)
+        return true
     }
 
-    override fun onResize(size: Dimension) {
+    override fun onResize(size: Dimension): Boolean {
         transformation.translateTo(Point(size.width / 2, size.height / 2))
+        return true
     }
 }

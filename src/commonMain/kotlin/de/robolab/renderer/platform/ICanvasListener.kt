@@ -4,21 +4,43 @@ import de.robolab.renderer.data.Dimension
 
 interface ICanvasListener {
 
-    fun onMouseDown(event: MouseEvent)
+    fun onUpdate(ms_offset: Double): Boolean {
+        return false
+    }
 
-    fun onMouseUp(event: MouseEvent)
+    fun onMouseDown(event: MouseEvent): Boolean {
+        return false
+    }
 
-    fun onMouseMove(event: MouseEvent)
+    fun onMouseUp(event: MouseEvent): Boolean {
+        return false
+    }
 
-    fun onMouseDrag(event: MouseEvent)
+    fun onMouseMove(event: MouseEvent): Boolean {
+        return false
+    }
 
-    fun onMouseClick(event: MouseEvent)
+    fun onMouseDrag(event: MouseEvent): Boolean {
+        return false
+    }
 
-    fun onScroll(event: ScrollEvent)
+    fun onMouseClick(event: MouseEvent): Boolean {
+        return false
+    }
 
-    fun onZoom(event: ZoomEvent)
+    fun onScroll(event: ScrollEvent): Boolean {
+        return false
+    }
 
-    fun onRotate(event: RotateEvent)
+    fun onZoom(event: ZoomEvent): Boolean {
+        return false
+    }
 
-    fun onResize(size: Dimension)
+    fun onRotate(event: RotateEvent): Boolean {
+        return false
+    }
+
+    fun onResize(size: Dimension): Boolean {
+        return false
+    }
 }
