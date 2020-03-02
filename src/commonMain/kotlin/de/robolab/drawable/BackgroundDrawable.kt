@@ -50,7 +50,7 @@ class BackgroundDrawable : IDrawable {
         }
 
         areaTransition.animate(area, planet.animationTime)
-        alphaTransition.animate(0.0, planet.animationTime)
+        alphaTransition.animate(1.0, planet.animationTime)
     }
 
     private fun centerRect(rectangle: Rectangle) = Rectangle(

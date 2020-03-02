@@ -53,7 +53,6 @@ class DefaultInteraction(private val transformation: Transformation) : ICanvasLi
             val transition = DoubleTransition((transformation.rotation - PI) % (2 * PI) + PI)
             transition.animate(0.0, 250.0)
             transition.onFinish {
-                println("finished")
                 transitionMap = transitionMap - transition
             }
             transitionMap = transitionMap + (transition to {
