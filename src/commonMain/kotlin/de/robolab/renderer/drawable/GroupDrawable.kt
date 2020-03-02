@@ -1,6 +1,7 @@
 package de.robolab.renderer.drawable
 
 import de.robolab.renderer.DrawContext
+import de.robolab.renderer.data.Point
 
 class GroupDrawable(var drawableList: List<IDrawable>): IDrawable {
 
@@ -22,5 +23,16 @@ class GroupDrawable(var drawableList: List<IDrawable>): IDrawable {
         for (drawable in drawableList) {
             drawable.onDraw(context)
         }
+    }
+
+    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
+        for (drawable in drawableList.asReversed()) {
+            val obj = drawable.getObjectAtPosition(context, position)
+            if (obj != null) {
+                return obj
+            }
+        }
+        
+        return null
     }
 }

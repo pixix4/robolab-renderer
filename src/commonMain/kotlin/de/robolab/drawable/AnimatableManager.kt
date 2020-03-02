@@ -2,6 +2,7 @@ package de.robolab.drawable
 
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
+import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.IDrawable
 
 abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
@@ -26,6 +27,17 @@ abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
         }
     }
 
+    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
+        for (drawable in animatableMap.values) {
+            val obj = drawable.getObjectAtPosition(context, position)
+            if (obj != null) {
+                return obj
+            }
+        }
+
+        return null
+    }
+
     abstract fun getObjectList(planet: Planet): List<T>
     abstract fun createAnimatable(obj: T, planet: Planet): A
 
@@ -37,7 +49,7 @@ abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
 
         for (o in objectsToDelete) {
             animatableMap[o]?.let { a ->
-                a.startExitAnimation(planet.animationTime) {
+                a.startExitAnimation {
                     animatableMap = animatableMap - o
                 }
             }
@@ -50,7 +62,7 @@ abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
         for (o in objectsToCreate) {
             val a = createAnimatable(o, planet)
             animatableMap = animatableMap + (o to a)
-            a.startEnterAnimation(planet.animationTime) {  }
+            a.startEnterAnimation {  }
         }
     }
 }

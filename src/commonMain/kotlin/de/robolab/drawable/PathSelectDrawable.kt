@@ -3,14 +3,17 @@ package de.robolab.drawable
 import de.robolab.model.Direction
 import de.robolab.model.PathSelect
 import de.robolab.model.Planet
+import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Point
 
-class PathSelectDrawable : AnimatableManager<PathSelect, PathSelectDrawable.PathSelectAnimatable>() {
+class PathSelectDrawable(
+        private val plotter: DefaultPlotter
+) : AnimatableManager<PathSelect, PathSelectDrawable.PathSelectAnimatable>() {
 
-    class PathSelectAnimatable(
+    inner class PathSelectAnimatable(
             override var reference: PathSelect
     ) : Animatable<PathSelect>(reference) {
 
@@ -23,21 +26,21 @@ class PathSelectDrawable : AnimatableManager<PathSelect, PathSelectDrawable.Path
 
         private val position = Point(reference.point.first.toDouble(), reference.point.second.toDouble())
 
-        override fun startExitAnimation(animationTime: Double, onFinish: () -> Unit) {
+        override fun startExitAnimation(onFinish: () -> Unit) {
             oldDirections = newDirections
             newDirections = emptyList()
 
             transition.resetValue(0.0)
-            transition.animate(1.0, animationTime / 2, 0.0)
+            transition.animate(1.0, plotter.animationTime / 2, 0.0)
             transition.onFinish.clearListeners()
             transition.onFinish {
                 onFinish()
             }
         }
 
-        override fun startEnterAnimation(animationTime: Double, onFinish: () -> Unit) {
+        override fun startEnterAnimation(onFinish: () -> Unit) {
             transition.resetValue(0.0)
-            transition.animate(1.0, animationTime / 2, animationTime / 2)
+            transition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
             transition.onFinish.clearListeners()
             transition.onFinish {
                 onFinish()
@@ -72,12 +75,16 @@ class PathSelectDrawable : AnimatableManager<PathSelect, PathSelectDrawable.Path
             }
         }
 
+        override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
+            return null
+        }
+
         override fun startUpdateAnimation(obj: PathSelect, planet: Planet) {
             reference = obj
             oldDirections = newDirections
             newDirections = listOf(obj.direction)
 
-            transition.animate(1.0, planet.animationTime / 2, planet.animationTime / 4)
+            transition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 4)
         }
 
     }

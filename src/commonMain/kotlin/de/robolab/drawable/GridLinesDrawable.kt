@@ -54,4 +54,8 @@ object GridLinesDrawable : IDrawable {
             )
         }
     }
+
+    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
+        return null
+    }
 }

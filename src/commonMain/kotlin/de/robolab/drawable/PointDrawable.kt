@@ -1,6 +1,7 @@
 package de.robolab.drawable
 
 import de.robolab.model.Planet
+import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
@@ -10,7 +11,9 @@ import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 
-class PointDrawable : AnimatableManager<Pair<Int, Int>, PointDrawable.PointAnimatable>() {
+class PointDrawable(
+        private val plotter: DefaultPlotter
+) : AnimatableManager<Pair<Int, Int>, PointDrawable.PointAnimatable>() {
 
     data class PointColor(
             val red: Double = 0.0,
@@ -39,7 +42,7 @@ class PointDrawable : AnimatableManager<Pair<Int, Int>, PointDrawable.PointAnima
         )
     }
 
-    class PointAnimatable(
+    inner class PointAnimatable(
             reference: Pair<Int, Int>,
             planet: Planet
     ) : Animatable<Pair<Int, Int>>(reference) {
@@ -66,24 +69,28 @@ class PointDrawable : AnimatableManager<Pair<Int, Int>, PointDrawable.PointAnima
             ), colorTransition.value.toColor(context).a(alphaTransition.value))
         }
 
-        override fun startExitAnimation(animationTime: Double, onFinish: () -> Unit) {
-            sizeTransition.animate(0.0, animationTime / 2, animationTime / 2)
-            sizeTransition.onFinish.clearListeners()
-            sizeTransition.onFinish { onFinish() }
-
-            alphaTransition.animate(0.0, animationTime / 2, animationTime / 2)
+        override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
+            return null
         }
 
-        override fun startEnterAnimation(animationTime: Double, onFinish: () -> Unit) {
-            sizeTransition.animate(1.0, animationTime / 2, animationTime / 2)
+        override fun startExitAnimation(onFinish: () -> Unit) {
+            sizeTransition.animate(0.0, plotter.animationTime / 2, plotter.animationTime / 2)
             sizeTransition.onFinish.clearListeners()
             sizeTransition.onFinish { onFinish() }
 
-            alphaTransition.animate(1.0, animationTime / 2, animationTime / 2)
+            alphaTransition.animate(0.0, plotter.animationTime / 2, plotter.animationTime / 2)
+        }
+
+        override fun startEnterAnimation(onFinish: () -> Unit) {
+            sizeTransition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
+            sizeTransition.onFinish.clearListeners()
+            sizeTransition.onFinish { onFinish() }
+
+            alphaTransition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
         }
 
         override fun startUpdateAnimation(obj: Pair<Int, Int>, planet: Planet) {
-            colorTransition.animate(calcColor(planet), planet.animationTime / 2, planet.animationTime / 4)
+            colorTransition.animate(calcColor(planet), plotter.animationTime / 2, plotter.animationTime / 4)
         }
 
         private fun calcColor(planet: Planet): PointColor {

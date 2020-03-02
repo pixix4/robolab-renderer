@@ -44,6 +44,10 @@ object CompassDrawable : IDrawable {
         context.canvas.fillPolygon(arrowBottom, context.theme.lineColor.a(0.8))
     }
 
+    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
+        return null
+    }
+
     const val RADIUS = 24.0
     
     const val TOP_PADDING = 20.0 + RADIUS

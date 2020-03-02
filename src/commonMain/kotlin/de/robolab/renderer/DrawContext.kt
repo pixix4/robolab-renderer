@@ -6,6 +6,7 @@ import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.ICanvasListener
 import de.robolab.renderer.theme.ITheme
+import kotlin.math.abs
 
 class DrawContext(
         val canvas: ICanvas,
@@ -92,9 +93,28 @@ class DrawContext(
         )
     }
 
+    private fun Point.speedDist(other: Point): Double {
+        return abs(left - other.left) + abs(top - other.top)
+    }
+
     override fun strokeLine(points: List<Point>, color: Color, width: Double) {
+        if (points.isEmpty()) return
+
+        // Dirty bug fix to solve the "mountain" error on paths
+        // Remove overlapping points
+        var last = transformation.planetToCanvas(points.first())
+        val canvasPoints = mutableListOf(last)
+        for (point in points) {
+            val new = transformation.planetToCanvas(point)
+
+            if (new.speedDist(last) >= 1) {
+                canvasPoints += new
+                last = new
+            }
+        }
+
         canvas.strokeLine(
-                points.map(transformation::planetToCanvas),
+                canvasPoints, //points.map(transformation::planetToCanvas),
                 c(color),
                 width * transformation.scaledGridWidth
         )

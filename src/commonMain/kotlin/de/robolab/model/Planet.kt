@@ -5,6 +5,5 @@ data class Planet(
         val isStartBlue: Boolean,
         val pathList: List<Path>,
         val targetList: List<Target> = emptyList(),
-        val pathSelectList: List<PathSelect> = emptyList(),
-        val animationTime: Double = 0.0
+        val pathSelectList: List<PathSelect> = emptyList()
 )

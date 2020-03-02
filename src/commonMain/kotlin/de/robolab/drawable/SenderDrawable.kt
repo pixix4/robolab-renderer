@@ -2,6 +2,7 @@ package de.robolab.drawable
 
 import de.robolab.drawable.utils.Utils
 import de.robolab.model.Planet
+import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
@@ -10,9 +11,11 @@ import de.robolab.renderer.data.Point
 import kotlin.math.PI
 import kotlin.math.max
 
-class SenderDrawable : AnimatableManager<Pair<Int, Int>, SenderDrawable.SenderAnimatable>() {
+class SenderDrawable(
+        private val plotter: DefaultPlotter
+) : AnimatableManager<Pair<Int, Int>, SenderDrawable.SenderAnimatable>() {
 
-    class SenderAnimatable(
+    inner class SenderAnimatable(
             reference: Pair<Int, Int>,
             colors: List<Color>
     ) : Animatable<Pair<Int, Int>>(reference) {
@@ -26,21 +29,21 @@ class SenderDrawable : AnimatableManager<Pair<Int, Int>, SenderDrawable.SenderAn
 
         private val position = Point(reference.first.toDouble(), reference.second.toDouble())
 
-        override fun startExitAnimation(animationTime: Double, onFinish: () -> Unit) {
+        override fun startExitAnimation(onFinish: () -> Unit) {
             oldColors = newColors
             newColors = emptyList()
 
             transition.resetValue(0.0)
-            transition.animate(1.0, animationTime / 2, animationTime / 2)
+            transition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
             transition.onFinish.clearListeners()
             transition.onFinish {
                 onFinish()
             }
         }
 
-        override fun startEnterAnimation(animationTime: Double, onFinish: () -> Unit) {
+        override fun startEnterAnimation(onFinish: () -> Unit) {
             transition.resetValue(0.0)
-            transition.animate(1.0, animationTime / 2, animationTime / 2)
+            transition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
             transition.onFinish.clearListeners()
             transition.onFinish {
                 onFinish()
@@ -78,6 +81,10 @@ class SenderDrawable : AnimatableManager<Pair<Int, Int>, SenderDrawable.SenderAn
             }
         }
 
+        override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
+            return null
+        }
+
         private fun satellite(context: DrawContext, position: Point, start: Double, extend: Double = 90.0, color: Color) {
             context.strokeArc(position, PlottingConstraints.TARGET_RADIUS * 0.4, start, extend, color, PlottingConstraints.LINE_WIDTH)
             context.strokeArc(position, PlottingConstraints.TARGET_RADIUS * 0.7, start, extend, color, PlottingConstraints.LINE_WIDTH)
@@ -90,7 +97,7 @@ class SenderDrawable : AnimatableManager<Pair<Int, Int>, SenderDrawable.SenderAn
             }
 
             transition.resetValue(0.0)
-            transition.animate(1.0, planet.animationTime / 2, planet.animationTime / 4)
+            transition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 4)
 
 
             oldColors = newColors

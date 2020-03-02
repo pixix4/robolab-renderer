@@ -66,4 +66,8 @@ object GridNumbersDrawable : IDrawable {
             context.canvas.fillText(left.toString(), p, context.theme.gridTextColor, fontSize)
         }
     }
+
+    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
+        return null
+    }
 }

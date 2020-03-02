@@ -26,10 +26,10 @@ class MainView : View() {
 
         val canvas = FxCanvas()
         val timer = FxTimer(50.0)
-        val plotter = DefaultPlotter(canvas, timer)
+        val plotter = DefaultPlotter(canvas, timer, animationTime = 1000.0)
 
 
-        val planetDrawable = PlanetDrawable()
+        val planetDrawable = PlanetDrawable(plotter)
         plotter.drawable = planetDrawable
 
         center {
@@ -48,6 +48,8 @@ class MainView : View() {
             planetDrawable.importPlanet(planetList[planetIndex])
             planetIndex = (planetIndex + 1) % planetList.size
         }
+
+        //planetDrawable.importPlanet(planetList.last())
     }
 
 
@@ -71,8 +73,7 @@ class MainView : View() {
                                 Direction.SOUTH,
                                 4
                         )
-                ),
-                animationTime = ANIMATION_TIME
+                )
         )
 
         val PLANET_2 = Planet(
@@ -99,8 +100,7 @@ class MainView : View() {
                                 -1 to 3,
                                 setOf(0 to 0)
                         )
-                ),
-                animationTime = ANIMATION_TIME
+                )
         )
 
         val PLANET_3 = Planet(
@@ -140,8 +140,7 @@ class MainView : View() {
                                 0 to 2,
                                 Direction.NORTH
                         )
-                ),
-                animationTime = ANIMATION_TIME
+                )
         )
         val PLANET_4 = Planet(
                 0 to 0,
@@ -187,8 +186,7 @@ class MainView : View() {
                                 0 to 2,
                                 Direction.NORTH
                         )
-                ),
-                animationTime = ANIMATION_TIME
+                )
         )
 
         val PLANET_5 = Planet(
@@ -243,8 +241,7 @@ class MainView : View() {
                                 0 to 2,
                                 Direction.NORTH
                         )
-                ),
-                animationTime = ANIMATION_TIME
+                )
         )
     }
 }

@@ -22,7 +22,7 @@ abstract class Animatable<T>(
         return hasChanges
     }
 
-    abstract fun startExitAnimation(animationTime: Double, onFinish: () -> Unit)
-    abstract fun startEnterAnimation(animationTime: Double, onFinish: () -> Unit)
+    abstract fun startExitAnimation(onFinish: () -> Unit)
+    abstract fun startEnterAnimation(onFinish: () -> Unit)
     abstract fun startUpdateAnimation(obj: T, planet: Planet)
 }

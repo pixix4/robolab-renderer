@@ -7,15 +7,18 @@ import de.robolab.drawable.utils.shift
 import de.robolab.model.Direction
 import de.robolab.model.Path
 import de.robolab.model.Planet
+import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
+import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 
 
 class PathDrawable(
-        path: Path
+        path: Path,
+        private val plotter: DefaultPlotter
 ) : Animatable<Path>(path) {
 
     val startPoint: Point = path.source.let { Point(it.first.toDouble(), it.second.toDouble()) }
@@ -82,7 +85,7 @@ class PathDrawable(
         return listOf(startPoint) + points.take(index + 1).requireNoNulls() + endPoint
     }
 
-    class PointLengthHelper(
+    data class PointLengthHelper(
             val point: Point,
             var length: Double = 0.0
     )
@@ -177,6 +180,42 @@ class PathDrawable(
         }
     }
 
+    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
+        val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
+
+        val points = when (state) {
+            State.REMOVE, State.NONE -> {
+                getCachedPointHelpers(steps).map { it.point }
+            }
+            State.DRAW -> {
+                val pointHelpers = getCachedPointHelpers(steps)
+
+                val length = pointHelpers.last().length
+                val targetLength = length * transition.value
+
+                val endIndex = pointHelpers.indexOfFirst { it.length > targetLength }
+
+                if (endIndex == 0) {
+                    emptyList()
+                } else {
+                    val p1 = pointHelpers[endIndex - 1]
+                    val p2 = pointHelpers[endIndex]
+
+                    val endPoint = p1.point.interpolate(p2.point, (targetLength - p1.length) / (p2.length - p1.length))
+
+                    val points = pointHelpers.take(endIndex).map { it.point } + endPoint
+                    points
+                }
+            }
+        }
+
+        if (points.any { it.distance(position) < 0.1 }) {
+            return reference
+        }
+
+        return null
+    }
+
     companion object {
         private fun log2(a: Int): Int {
             var x = a
@@ -225,9 +264,9 @@ class PathDrawable(
 
     override val animators = listOf(transition)
 
-    override fun startExitAnimation(animationTime: Double, onFinish: () -> Unit) {
+    override fun startExitAnimation(onFinish: () -> Unit) {
         state = State.REMOVE
-        transition.animate(0.0, animationTime / 3)
+        transition.animate(0.0, plotter.animationTime / 3)
         transition.onFinish.clearListeners()
         transition.onFinish {
             state = State.NONE
@@ -235,9 +274,9 @@ class PathDrawable(
         }
     }
 
-    override fun startEnterAnimation(animationTime: Double, onFinish: () -> Unit) {
+    override fun startEnterAnimation(onFinish: () -> Unit) {
         state = State.DRAW
-        transition.animate(1.0, animationTime)
+        transition.animate(1.0, plotter.animationTime)
         transition.onFinish.clearListeners()
         transition.onFinish {
             state = State.NONE

@@ -1,6 +1,8 @@
 package de.robolab.renderer.interaction
 
 import de.robolab.drawable.CompassDrawable
+import de.robolab.renderer.DefaultPlotter
+import de.robolab.renderer.Pointer
 import de.robolab.renderer.Transformation
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.animation.GenericTransition
@@ -9,7 +11,10 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.platform.*
 import kotlin.math.PI
 
-class DefaultInteraction(private val transformation: Transformation) : ICanvasListener {
+class DefaultInteraction(
+        private val transformation: Transformation,
+        private val plotter: DefaultPlotter
+) : ICanvasListener {
 
     private var transitionMap = emptyMap<GenericTransition<*>, () -> Unit>()
 
@@ -36,6 +41,10 @@ class DefaultInteraction(private val transformation: Transformation) : ICanvasLi
     }
 
     override fun onMouseMove(event: MouseEvent) {
+        val pointer = transformation.canvasToPlanet(event.point)
+        val element = plotter.getObjectAtPosition(pointer)
+
+        plotter.pointer = Pointer(pointer, element)
     }
 
     override fun onMouseDrag(event: MouseEvent) {

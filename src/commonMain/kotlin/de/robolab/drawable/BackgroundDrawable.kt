@@ -1,6 +1,7 @@
 package de.robolab.drawable
 
 import de.robolab.model.Planet
+import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.animation.ValueTransition
@@ -8,7 +9,9 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.IDrawable
 
-class BackgroundDrawable : IDrawable {
+class BackgroundDrawable(
+        private val plotter: DefaultPlotter
+) : IDrawable {
 
     private val areaTransition = ValueTransition(Rectangle.ZERO)
     private val alphaTransition = DoubleTransition(0.0)
@@ -27,6 +30,10 @@ class BackgroundDrawable : IDrawable {
         context.fillRect(areaTransition.value, context.theme.primaryBackgroundColor.a(alphaTransition.value))
     }
 
+    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
+        return null
+    }
+
     fun importPlanet(planet: Planet) {
         val pointList = (
                 planet.pathList.flatMap { listOf(it.source, it.target) } +
@@ -37,8 +44,8 @@ class BackgroundDrawable : IDrawable {
         }
 
         if (pointList.isEmpty()) {
-            areaTransition.animate(centerRect(areaTransition.value), planet.animationTime)
-            alphaTransition.animate(0.0, planet.animationTime)
+            areaTransition.animate(centerRect(areaTransition.value), plotter.animationTime)
+            alphaTransition.animate(0.0, plotter.animationTime)
 
             return
         }
@@ -49,8 +56,8 @@ class BackgroundDrawable : IDrawable {
             areaTransition.resetValue(centerRect(area))
         }
 
-        areaTransition.animate(area, planet.animationTime)
-        alphaTransition.animate(1.0, planet.animationTime)
+        areaTransition.animate(area, plotter.animationTime)
+        alphaTransition.animate(1.0, plotter.animationTime)
     }
 
     private fun centerRect(rectangle: Rectangle) = Rectangle(
