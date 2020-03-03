@@ -2,10 +2,9 @@ package de.robolab.drawable
 
 import de.robolab.model.Path
 import de.robolab.model.Planet
-import de.robolab.renderer.DefaultPlotter
 
 class PathListDrawable(
-        private val plotter: DefaultPlotter
+        private val plotter: IAnimationTime
 ) : AnimatableManager<Path, PathDrawable>() {
 
     override fun getObjectList(planet: Planet): List<Path> {

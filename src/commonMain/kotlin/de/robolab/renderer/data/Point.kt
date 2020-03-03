@@ -9,6 +9,8 @@ data class Point(
         val left: Double,
         val top: Double
 ): IInterpolatable<Point> {
+    
+    constructor(left: Number, top: Number): this(left.toDouble(), top.toDouble())
 
     operator fun plus(other: Point) = Point(left + other.left, top + other.top)
     operator fun minus(other: Point) = Point(left - other.left, top - other.top)

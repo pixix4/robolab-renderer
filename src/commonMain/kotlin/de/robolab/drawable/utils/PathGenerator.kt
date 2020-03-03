@@ -1,18 +1,17 @@
 package de.robolab.drawable.utils
 
-import de.robolab.drawable.PathDrawable
 import de.robolab.model.Direction
 import de.robolab.renderer.data.Point
 
 object PathGenerator {
-    fun generateControlPoints(pathDrawable: PathDrawable): List<Point> {
+    fun generateControlPoints(startPoint: Point, startDirection: Direction, endPoint: Point, endDirection: Direction): List<Point> {
         val firstList = generateControlPointsPart(
-                PointVector(pathDrawable.startPoint, pathDrawable.startDirection, Direction::turnHigh, Direction::turnLow),
-                PointVector(pathDrawable.endPoint, pathDrawable.endDirection, Direction::turnHigh, Direction::turnLow)
+                PointVector(startPoint, startDirection, Direction::turnHigh, Direction::turnLow),
+                PointVector(endPoint, endDirection, Direction::turnHigh, Direction::turnLow)
         )
         val secondList = generateControlPointsPart(
-                PointVector(pathDrawable.endPoint, pathDrawable.endDirection, Direction::turnLow, Direction::turnHigh),
-                PointVector(pathDrawable.startPoint, pathDrawable.startDirection, Direction::turnLow, Direction::turnHigh)
+                PointVector(endPoint, endDirection, Direction::turnLow, Direction::turnHigh),
+                PointVector(startPoint, startDirection, Direction::turnLow, Direction::turnHigh)
         )
         return firstList.zip(secondList.asReversed()) { a, b ->
             a.midpoint(b)
@@ -108,7 +107,9 @@ object PathGenerator {
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
-            if (javaClass != other?.javaClass) return false
+
+            if (other == null) return false
+            if (this::class != other::class) return false
 
             other as PointVector
 

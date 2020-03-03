@@ -5,8 +5,11 @@ import de.robolab.renderer.drawable.BlankDrawable
 import de.robolab.renderer.interaction.DefaultInteraction
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.drawable.IDrawable
+import de.robolab.renderer.drawable.IRootDrawable
 import de.robolab.renderer.interaction.CompassInteraction
 import de.robolab.renderer.interaction.CompositionInteraction
+import de.robolab.renderer.interaction.EditPlanetInteraction
+import de.robolab.renderer.platform.ICanvasListener
 import de.robolab.renderer.platform.ITimer
 import de.robolab.renderer.theme.LightTheme
 import de.westermann.kobserve.property.property
@@ -17,15 +20,30 @@ import de.westermann.kobserve.property.property
 class DefaultPlotter(
         canvas: ICanvas,
         timer: ITimer,
-        var drawable: IDrawable = BlankDrawable,
+        drawable: IRootDrawable = BlankDrawable,
         var animationTime: Double = 0.0
 ) {
-    private val transformation = Transformation()
+    val transformation = Transformation()
+    
+    var drawable: IRootDrawable = BlankDrawable
+        set(value) {
+            field.onDetach(this)
+            field = value
+            field.onAttach(this)
+        }
 
     private val interaction = CompositionInteraction(
             CompassInteraction(transformation),
             DefaultInteraction(transformation, this)
     )
+    
+    fun pushInteraction(interaction: ICanvasListener) {
+        this.interaction.push(interaction)
+    }
+    
+    fun popInteraction() {
+        this.interaction.pop()
+    }
 
     private val context = DrawContext(canvas, transformation, LightTheme)
 
@@ -45,6 +63,8 @@ class DefaultPlotter(
     }
 
     init {
+        this.drawable = drawable
+
         canvas.setListener(interaction)
 
         timer.onRender(this::render)

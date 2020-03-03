@@ -1,7 +1,6 @@
 package de.robolab.drawable
 
 import de.robolab.model.Planet
-import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
@@ -12,7 +11,7 @@ import kotlin.math.ceil
 import kotlin.math.floor
 
 class EditPointDrawable(
-        private val plotter: DefaultPlotter
+        private val plotter: EditPlanetDrawable
 ) : IDrawable {
 
     private val colorTransition = DoubleTransition(0.0)
@@ -40,7 +39,7 @@ class EditPointDrawable(
         if (sizeTransition.value == 0.0 || alphaTransition.value == 0.0) return
 
         val size = Point(PlottingConstraints.POINT_SIZE / 2, PlottingConstraints.POINT_SIZE / 2) * sizeTransition.value
-        
+
         val redColor = context.theme.redColor
                 .interpolate(context.theme.secondaryBackgroundColor, COLOR_OPACITY)
                 .a(alphaTransition.value)

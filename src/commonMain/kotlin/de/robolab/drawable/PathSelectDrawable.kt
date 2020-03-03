@@ -3,14 +3,13 @@ package de.robolab.drawable
 import de.robolab.model.Direction
 import de.robolab.model.PathSelect
 import de.robolab.model.Planet
-import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Point
 
 class PathSelectDrawable(
-        private val plotter: DefaultPlotter
+        private val plotter: IAnimationTime
 ) : AnimatableManager<PathSelect, PathSelectDrawable.PathSelectAnimatable>() {
 
     inner class PathSelectAnimatable(

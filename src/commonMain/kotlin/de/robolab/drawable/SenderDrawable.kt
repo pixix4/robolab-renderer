@@ -2,7 +2,6 @@ package de.robolab.drawable
 
 import de.robolab.drawable.utils.Utils
 import de.robolab.model.Planet
-import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
@@ -12,7 +11,7 @@ import kotlin.math.PI
 import kotlin.math.max
 
 class SenderDrawable(
-        private val plotter: DefaultPlotter
+        private val plotter: IAnimationTime
 ) : AnimatableManager<Pair<Int, Int>, SenderDrawable.SenderAnimatable>() {
 
     inner class SenderAnimatable(

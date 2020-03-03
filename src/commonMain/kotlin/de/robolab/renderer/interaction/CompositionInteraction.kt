@@ -9,11 +9,11 @@ class CompositionInteraction(
 
     constructor(vararg layers: ICanvasListener) : this(layers.toList())
 
-    private fun push(layer: ICanvasListener) {
+    fun push(layer: ICanvasListener) {
         layers = listOf(layer) + layers
     }
 
-    private fun pop(): ICanvasListener {
+    fun pop(): ICanvasListener {
         val layer = layers.first()
         layers = layers.drop(1)
         return layer

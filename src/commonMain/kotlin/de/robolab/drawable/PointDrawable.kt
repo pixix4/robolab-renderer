@@ -1,7 +1,6 @@
 package de.robolab.drawable
 
 import de.robolab.model.Planet
-import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
@@ -12,7 +11,7 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 
 class PointDrawable(
-        private val plotter: DefaultPlotter
+        private val plotter: IAnimationTime
 ) : AnimatableManager<Pair<Int, Int>, PointDrawable.PointAnimatable>() {
 
     data class PointColor(

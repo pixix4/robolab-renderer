@@ -7,18 +7,16 @@ import de.robolab.drawable.utils.shift
 import de.robolab.model.Direction
 import de.robolab.model.Path
 import de.robolab.model.Planet
-import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
-import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 
 
 class PathDrawable(
         path: Path,
-        private val plotter: DefaultPlotter
+        private val plotter: IAnimationTime
 ) : Animatable<Path>(path) {
 
     val startPoint: Point = path.source.let { Point(it.first.toDouble(), it.second.toDouble()) }
@@ -29,15 +27,9 @@ class PathDrawable(
 
     private var state = State.NONE
 
-    private val linePoints: List<Point> = null ?: PathGenerator.generateControlPoints(this)
+    private val linePoints: List<Point> = null ?: PathGenerator.generateControlPoints(startPoint, startDirection, endPoint, endDirection)
 
-    private val controlPoints: List<Point> = listOfNotNull(
-            startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
-            if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(startPoint, startDirection, linePoints.first())) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
-            *linePoints.toTypedArray(),
-            if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(endPoint, endDirection, linePoints.last())) null else endPoint.shift(endDirection, PlottingConstraints.CURVE_SECOND_POINT),
-            endPoint.shift(endDirection, PlottingConstraints.CURVE_FIRST_POINT)
-    )
+    private val controlPoints = linePointsToControlPoints(linePoints, startPoint, startDirection, endPoint, endDirection)
 
     val area by lazy {
         Rectangle.fromEdges(startPoint, endPoint, *this.controlPoints.toTypedArray())
@@ -217,7 +209,7 @@ class PathDrawable(
     }
 
     companion object {
-        private fun log2(a: Int): Int {
+        fun log2(a: Int): Int {
             var x = a
             var pow = 0
             if (x >= 1 shl 16) {
@@ -243,7 +235,7 @@ class PathDrawable(
             return pow
         }
 
-        private fun power2(exp: Int): Int {
+        fun power2(exp: Int): Int {
             var x = 2
             var y = exp
             var result = 1
@@ -258,6 +250,20 @@ class PathDrawable(
             }
             return result
         }
+        
+        fun linePointsToControlPoints(
+                linePoints: List<Point>,
+                startPoint: Point,
+                startDirection: Direction,
+                endPoint: Point,
+                endDirection: Direction
+        ) = listOfNotNull(
+                startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
+                if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(startPoint, startDirection, linePoints.first())) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
+                *linePoints.toTypedArray(),
+                if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(endPoint, endDirection, linePoints.last())) null else endPoint.shift(endDirection, PlottingConstraints.CURVE_SECOND_POINT),
+                endPoint.shift(endDirection, PlottingConstraints.CURVE_FIRST_POINT)
+        )
     }
 
     private val transition = DoubleTransition(0.0)

@@ -1,5 +1,6 @@
 package de.robolab.renderer.drawable
 
+import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.data.Point
 
@@ -7,7 +8,7 @@ import de.robolab.renderer.data.Point
  * This object does nothing...
  * It is the default drawable of a plotter that only shows the background.
  */
-object BlankDrawable: IDrawable {
+object BlankDrawable: IRootDrawable {
     override fun onUpdate(ms_offset: Double): Boolean {
         return false
     }
@@ -17,5 +18,11 @@ object BlankDrawable: IDrawable {
 
     override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
         return null
+    }
+
+    override fun onAttach(plotter: DefaultPlotter) {
+    }
+
+    override fun onDetach(plotter: DefaultPlotter) {
     }
 }

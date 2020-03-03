@@ -3,23 +3,21 @@ package de.robolab.drawable
 import de.robolab.drawable.utils.Utils
 import de.robolab.model.Planet
 import de.robolab.model.Target
-import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
-import de.robolab.renderer.animation.GenericTransition
 import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import kotlin.math.PI
 
 class TargetDrawable(
-        private val plotter: DefaultPlotter
+        private val plotter: IAnimationTime
 ) : AnimatableManager<Target, TargetDrawable.TargetAnimatable>() {
 
     inner class TargetAnimatable(
             override var reference: Target,
-            private  val initColor: Color
+            private val initColor: Color
     ) : Animatable<Target>(reference) {
 
         private val position = Point(reference.target.first.toDouble(), reference.target.second.toDouble())
