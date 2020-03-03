@@ -9,7 +9,7 @@ import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.IDrawable
 
 class BackgroundDrawable(
-        private val plotter: IAnimationTime
+        private val plotter: PlanetDrawable
 ) : IDrawable {
 
     private val areaTransition = ValueTransition(Rectangle.ZERO)

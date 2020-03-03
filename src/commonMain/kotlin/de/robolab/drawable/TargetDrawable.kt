@@ -12,7 +12,7 @@ import de.robolab.renderer.data.Point
 import kotlin.math.PI
 
 class TargetDrawable(
-        private val plotter: IAnimationTime
+        private val plotter: PlanetDrawable
 ) : AnimatableManager<Target, TargetDrawable.TargetAnimatable>() {
 
     inner class TargetAnimatable(

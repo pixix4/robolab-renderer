@@ -7,7 +7,6 @@ import de.robolab.jfx.adapter.FxTimer
 import de.robolab.model.*
 import de.robolab.model.Target
 import de.robolab.renderer.DefaultPlotter
-import de.robolab.renderer.interaction.EditPlanetInteraction
 import javafx.application.Platform
 import javafx.scene.layout.BorderPane
 import tornadofx.*
@@ -61,7 +60,7 @@ class MainView : View() {
 
         val planetDrawable = EditPlanetDrawable()
 
-        planetDrawable.callback = object : EditPlanetInteraction.ICallback {
+        planetDrawable.editCallback = object : EditPlanetDrawable.IEditCallback {
             override fun onDrawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction) {
                 planet = planet.copy(
                         pathList = planet.pathList + Path(

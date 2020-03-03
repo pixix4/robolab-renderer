@@ -1,5 +1,6 @@
 package de.robolab.renderer.interaction
 
+import de.robolab.drawable.EditPlanetDrawable
 import de.robolab.model.Direction
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.Transformation
@@ -10,7 +11,7 @@ import kotlin.math.roundToInt
 
 class EditPlanetInteraction(
         private val transformation: Transformation,
-        val callback: ICallback
+        private val editCallback: EditPlanetDrawable.IEditCallback
 ) : ICanvasListener {
 
     data class PointEnd(
@@ -69,7 +70,7 @@ class EditPlanetInteraction(
 
             startEnd?.let { (startX, startY, startDirection) ->
                 targetEnd?.let { (endX, endY, endDirection) ->
-                    callback.onDrawPath(
+                    editCallback.onDrawPath(
                             startX to startY,
                             startDirection,
                             endX to endY,
@@ -105,9 +106,5 @@ class EditPlanetInteraction(
         }
 
         return false
-    }
-
-    interface ICallback {
-        fun onDrawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction)
     }
 }

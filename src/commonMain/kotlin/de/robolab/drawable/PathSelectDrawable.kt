@@ -9,7 +9,7 @@ import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Point
 
 class PathSelectDrawable(
-        private val plotter: IAnimationTime
+        private val plotter: PlanetDrawable
 ) : AnimatableManager<PathSelect, PathSelectDrawable.PathSelectAnimatable>() {
 
     inner class PathSelectAnimatable(

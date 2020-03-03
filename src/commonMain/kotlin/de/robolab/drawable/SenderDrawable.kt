@@ -11,7 +11,7 @@ import kotlin.math.PI
 import kotlin.math.max
 
 class SenderDrawable(
-        private val plotter: IAnimationTime
+        private val plotter: PlanetDrawable
 ) : AnimatableManager<Pair<Int, Int>, SenderDrawable.SenderAnimatable>() {
 
     inner class SenderAnimatable(

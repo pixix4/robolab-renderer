@@ -16,7 +16,7 @@ import de.robolab.renderer.data.Rectangle
 
 class PathDrawable(
         path: Path,
-        private val plotter: IAnimationTime
+        private val plotter: PlanetDrawable
 ) : Animatable<Path>(path) {
 
     val startPoint: Point = path.source.let { Point(it.first.toDouble(), it.second.toDouble()) }
@@ -27,7 +27,8 @@ class PathDrawable(
 
     private var state = State.NONE
 
-    private val linePoints: List<Point> = null ?: PathGenerator.generateControlPoints(startPoint, startDirection, endPoint, endDirection)
+    private val linePoints: List<Point> = null
+            ?: PathGenerator.generateControlPoints(startPoint, startDirection, endPoint, endDirection)
 
     private val controlPoints = linePointsToControlPoints(linePoints, startPoint, startDirection, endPoint, endDirection)
 
@@ -100,7 +101,11 @@ class PathDrawable(
 
         when (state) {
             State.REMOVE -> {
-                context.strokeLine(getCachedPointHelpers(steps).map { it.point }, context.theme.lineColor.a(transition.value), PlottingConstraints.LINE_WIDTH)
+                val points = getCachedPointHelpers(steps).map { it.point }
+                if (hoverTransition.value > 0) {
+                    context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH * hoverTransition.value)
+                }
+                context.strokeLine(points, context.theme.lineColor.a(transition.value), PlottingConstraints.LINE_WIDTH)
             }
             State.DRAW -> {
                 val pointHelpers = getCachedPointHelpers(steps)
@@ -118,10 +123,17 @@ class PathDrawable(
                 val endPoint = p1.point.interpolate(p2.point, (targetLength - p1.length) / (p2.length - p1.length))
 
                 val points = pointHelpers.take(endIndex).map { it.point } + endPoint
+                if (hoverTransition.value > 0) {
+                    context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH * hoverTransition.value)
+                }
                 context.strokeLine(points, context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
             }
             State.NONE -> {
-                context.strokeLine(getCachedPointHelpers(steps).map { it.point }, context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
+                val points = getCachedPointHelpers(steps).map { it.point }
+                if (hoverTransition.value > 0) {
+                    context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH * hoverTransition.value)
+                }
+                context.strokeLine(points, context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
             }
         }
     }
@@ -250,7 +262,7 @@ class PathDrawable(
             }
             return result
         }
-        
+
         fun linePointsToControlPoints(
                 linePoints: List<Point>,
                 startPoint: Point,
@@ -267,12 +279,14 @@ class PathDrawable(
     }
 
     private val transition = DoubleTransition(0.0)
+    private val hoverTransition = DoubleTransition(0.0)
 
-    override val animators = listOf(transition)
+    override val animators = listOf(transition, hoverTransition)
 
     override fun startExitAnimation(onFinish: () -> Unit) {
         state = State.REMOVE
         transition.animate(0.0, plotter.animationTime / 3)
+        hoverTransition.animate(0.0, plotter.animationTime / 3)
         transition.onFinish.clearListeners()
         transition.onFinish {
             state = State.NONE
@@ -292,6 +306,9 @@ class PathDrawable(
 
     override fun startUpdateAnimation(obj: Path, planet: Planet) {
         weight = obj.weight
+
+        val hoverValue = if (obj in plotter.hoveredElements) 1.0 else 0.0
+        hoverTransition.animate(hoverValue, plotter.animationTime / 3)
     }
 
     enum class State {

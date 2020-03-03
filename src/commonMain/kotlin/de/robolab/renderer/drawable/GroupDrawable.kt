@@ -3,7 +3,7 @@ package de.robolab.renderer.drawable
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.data.Point
 
-class GroupDrawable(var drawableList: List<IDrawable>): IDrawable {
+class GroupDrawable(private var drawableList: List<IDrawable>): IDrawable {
 
     constructor(vararg drawableList: IDrawable): this(drawableList.toList())
 

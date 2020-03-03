@@ -1,20 +1,38 @@
 package de.robolab.drawable
 
+import de.robolab.model.Path
 import de.robolab.model.Planet
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.GroupDrawable
 import de.robolab.renderer.drawable.IRootDrawable
+import de.westermann.kobserve.event.EventListener
 
-class PlanetDrawable() : IRootDrawable, IAnimationTime {
+@Suppress("LeakingThis")
+open class PlanetDrawable() : IRootDrawable {
 
-    lateinit var plotter: DefaultPlotter
+    interface ISelectionCallback {
+        fun onPathHoverEnter(path: Path)
+        fun onPathHoverExit(path: Path)
+    }
 
-    override val animationTime: Double
-        get() = plotter.animationTime
+    var selectionCallback: ISelectionCallback = object : ISelectionCallback {
+        override fun onPathHoverEnter(path: Path) {
 
-    private val planetBackground = BackgroundDrawable(this)
+        }
+
+        override fun onPathHoverExit(path: Path) {
+
+        }
+    }
+
+    var plotter: DefaultPlotter? = null
+
+    val animationTime: Double
+        get() = plotter?.animationTime ?: 0.0
+
+    protected val planetBackground = BackgroundDrawable(this)
 
     private val pointDrawable = PointDrawable(this)
     private val pathDrawable = PathListDrawable(this)
@@ -22,7 +40,7 @@ class PlanetDrawable() : IRootDrawable, IAnimationTime {
     private val senderDrawable = SenderDrawable(this)
     private val pathSelectDrawable = PathSelectDrawable(this)
 
-    private val planetForeground = GroupDrawable(
+    protected val planetForeground = GroupDrawable(
             targetDrawable,
             senderDrawable,
             pathDrawable,
@@ -30,27 +48,42 @@ class PlanetDrawable() : IRootDrawable, IAnimationTime {
             pointDrawable
     )
 
-    private val viewBackground = GroupDrawable(
+    protected val viewBackground = GroupDrawable(
             GridLinesDrawable
     )
 
-    private val viewForeground = GroupDrawable(
+    protected val viewForeground = GroupDrawable(
             GridNumbersDrawable,
             CompassDrawable
     )
 
-    private val drawable = GroupDrawable(
+    open val drawable = GroupDrawable(
             planetBackground,
             viewBackground,
             planetForeground,
             viewForeground
     )
 
+    private lateinit var pointerListener: EventListener<*>
+    var hoveredElements: Set<Any> = emptySet()
     override fun onAttach(plotter: DefaultPlotter) {
         this.plotter = plotter
+        pointerListener = plotter.pointerProperty.onChange.reference {
+            val newElements = if (plotter.pointer.objectUnderPointer == null) {
+                emptySet()
+            } else {
+                listOfNotNull(plotter.pointer.objectUnderPointer).toSet()
+            }
+
+            if (newElements != hoveredElements) {
+                hoveredElements = newElements
+                importPlanet()
+            }
+        }
     }
 
     override fun onDetach(plotter: DefaultPlotter) {
+        pointerListener.detach()
     }
 
     override fun onUpdate(ms_offset: Double): Boolean {
@@ -65,7 +98,16 @@ class PlanetDrawable() : IRootDrawable, IAnimationTime {
         return drawable.getObjectAtPosition(context, position)
     }
 
-    fun importPlanet(planet: Planet) {
+    private var lastPlanet: Planet? = null
+    private fun importPlanet() {
+        lastPlanet?.let {
+            importPlanet(it)
+        }
+    }
+
+
+    open fun importPlanet(planet: Planet) {
+        lastPlanet = planet
         planetBackground.importPlanet(planet)
         pointDrawable.importPlanet(planet)
         pathDrawable.importPlanet(planet)

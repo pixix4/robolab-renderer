@@ -11,7 +11,7 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 
 class PointDrawable(
-        private val plotter: IAnimationTime
+        private val plotter: PlanetDrawable
 ) : AnimatableManager<Pair<Int, Int>, PointDrawable.PointAnimatable>() {
 
     data class PointColor(

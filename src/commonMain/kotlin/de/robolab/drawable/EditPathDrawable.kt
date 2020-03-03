@@ -73,7 +73,7 @@ class EditPathDrawable(
                 Direction.SOUTH -> Point(0.0, -PlottingConstraints.POINT_SIZE / 2)
                 Direction.WEST -> Point(-PlottingConstraints.POINT_SIZE / 2, 0.0)
             }
-            val endPoint = plotter.plotter.pointer.position
+            val endPoint = plotter.pointer.position
 
             context.strokeLine(listOf(startPointEdge, endPoint), context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
         } else {
