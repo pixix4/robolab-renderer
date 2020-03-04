@@ -10,7 +10,7 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.IDrawable
 
 
-class EditPathDrawable(
+class EditDrawPathDrawable(
         private val plotter: EditPlanetDrawable
 ) : IDrawable {
 
@@ -85,7 +85,6 @@ class EditPathDrawable(
             val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
             val p = multiEval(steps, startPoint, endPoint, controlPoints)
             context.strokeLine(p, context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
-
         }
     }
 

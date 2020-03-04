@@ -2,13 +2,11 @@ package de.robolab.renderer
 
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.BlankDrawable
-import de.robolab.renderer.interaction.DefaultInteraction
-import de.robolab.renderer.platform.ICanvas
-import de.robolab.renderer.drawable.IDrawable
 import de.robolab.renderer.drawable.IRootDrawable
 import de.robolab.renderer.interaction.CompassInteraction
 import de.robolab.renderer.interaction.CompositionInteraction
-import de.robolab.renderer.interaction.EditPlanetInteraction
+import de.robolab.renderer.interaction.DefaultInteraction
+import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.ICanvasListener
 import de.robolab.renderer.platform.ITimer
 import de.robolab.renderer.theme.LightTheme
@@ -24,7 +22,7 @@ class DefaultPlotter(
         var animationTime: Double = 0.0
 ) {
     val transformation = Transformation()
-    
+
     var drawable: IRootDrawable = BlankDrawable
         set(value) {
             field.onDetach(this)
@@ -36,11 +34,11 @@ class DefaultPlotter(
             CompassInteraction(transformation),
             DefaultInteraction(transformation, this)
     )
-    
+
     fun pushInteraction(interaction: ICanvasListener) {
         this.interaction.push(interaction)
     }
-    
+
     fun popInteraction() {
         this.interaction.pop()
     }

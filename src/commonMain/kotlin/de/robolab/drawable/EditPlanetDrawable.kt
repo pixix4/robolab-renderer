@@ -1,11 +1,13 @@
 package de.robolab.drawable
 
 import de.robolab.model.Direction
+import de.robolab.model.Path
 import de.robolab.model.Planet
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.Pointer
 import de.robolab.renderer.drawable.GroupDrawable
 import de.robolab.renderer.interaction.EditPlanetInteraction
+import de.westermann.kobserve.property.property
 
 class EditPlanetDrawable() : PlanetDrawable() {
 
@@ -22,9 +24,12 @@ class EditPlanetDrawable() : PlanetDrawable() {
         get() = plotter?.pointer ?: Pointer()
 
     private val editPointDrawable = EditPointDrawable(this)
-    private val editPathDrawable = EditPathDrawable(this)
+    private val editPathDrawable = EditDrawPathDrawable(this)
 
     lateinit var interaction: EditPlanetInteraction
+    
+    val selectedPathProperty = property<Path?>(null)
+    var selectedPath by selectedPathProperty
 
     override val drawable = GroupDrawable(
             planetBackground,
@@ -41,7 +46,7 @@ class EditPlanetDrawable() : PlanetDrawable() {
 
         if (shouldStartAnimation) editPointDrawable.startEnterAnimation { }
 
-        interaction = EditPlanetInteraction(plotter.transformation, editCallback)
+        interaction = EditPlanetInteraction(plotter.transformation, this)
         plotter.pushInteraction(interaction)
     }
 
