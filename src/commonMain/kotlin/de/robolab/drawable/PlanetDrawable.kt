@@ -13,16 +13,16 @@ import de.westermann.kobserve.event.EventListener
 open class PlanetDrawable() : IRootDrawable {
 
     interface ISelectionCallback {
-        fun onPathHoverEnter(path: Path)
-        fun onPathHoverExit(path: Path)
+        fun onPathHoverEnter(path: Set<Path>)
+        fun onPathHoverExit()
     }
 
     var selectionCallback: ISelectionCallback = object : ISelectionCallback {
-        override fun onPathHoverEnter(path: Path) {
+        override fun onPathHoverEnter(path: Set<Path>) {
 
         }
 
-        override fun onPathHoverExit(path: Path) {
+        override fun onPathHoverExit() {
 
         }
     }
@@ -78,7 +78,25 @@ open class PlanetDrawable() : IRootDrawable {
             if (newElements != hoveredElements) {
                 hoveredElements = newElements
                 importPlanet()
+
+                if (newElements.isEmpty()) {
+                    selectionCallback.onPathHoverExit()
+                } else {
+                    val elem = newElements.filterIsInstance<Path>()
+                    selectionCallback.onPathHoverEnter(elem.toSet())
+                }
             }
+        }
+    }
+
+    fun hoverPaths(paths: Set<Path>) {
+        if (hoveredElements.isNotEmpty()) {
+            selectionCallback.onPathHoverExit()
+        }
+
+        if (paths.isNotEmpty()) {
+            hoveredElements = paths
+            selectionCallback.onPathHoverEnter(paths)
         }
     }
 
