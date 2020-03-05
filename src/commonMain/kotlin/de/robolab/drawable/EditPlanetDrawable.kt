@@ -25,6 +25,7 @@ class EditPlanetDrawable() : PlanetDrawable() {
 
     private val editPointDrawable = EditPointDrawable(this)
     private val editPathDrawable = EditDrawPathDrawable(this)
+    private val editDrawEndDrawable = EditDrawEndDrawable(this)
 
     lateinit var interaction: EditPlanetInteraction
     
@@ -36,6 +37,7 @@ class EditPlanetDrawable() : PlanetDrawable() {
             viewBackground,
             editPointDrawable,
             planetForeground,
+            editDrawEndDrawable,
             editPathDrawable,
             viewForeground
     )

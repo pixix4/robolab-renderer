@@ -50,6 +50,8 @@ class EditPlanetInteraction(
     var startEnd: PointEnd? = null
     var targetEnd: PointEnd? = null
     private var hasMoved = false
+    
+    var currentPointEnd: PointEnd? = null
 
     override fun onMouseDown(event: MouseEvent): Boolean {
         if (startEnd == null) {
@@ -98,10 +100,11 @@ class EditPlanetInteraction(
     }
 
     override fun onMouseDrag(event: MouseEvent): Boolean {
+        currentPointEnd = pointEndFromEvent(event)
         hasMoved = true
 
         if (startEnd != null) {
-            targetEnd = pointEndFromEvent(event)
+            targetEnd = currentPointEnd
 
             return false
         }
