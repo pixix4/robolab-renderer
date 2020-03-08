@@ -1,27 +1,36 @@
 package de.robolab.drawable
 
 import de.robolab.model.Direction
+import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.IDrawable
-import de.robolab.renderer.interaction.EditPlanetInteraction
 import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 class EditDrawEndDrawable(
-        private val plotter: EditPlanetDrawable
+        private val editPlanet: EditPlanetDrawable
 ) : IDrawable {
+
+    data class PointEnd(
+            val point: Pair<Int, Int>,
+            val direction: Direction
+    )
 
     override fun onUpdate(ms_offset: Double): Boolean {
         return false
     }
 
-    private fun drawPointEnd(pointEnd: EditPlanetInteraction.PointEnd?, context: DrawContext) {
+    private fun drawPointEnd(context: DrawContext, pointEnd: PointEnd) {
+        val p0 = Point(pointEnd.point.first, pointEnd.point.second)
 
-        val (left, top, direction) = pointEnd ?: return
-        val p0 = Point(left, top)
+        if (editPlanet.selectedPathControlPoints?.any { it.distance(editPlanet.pointer.position) < PlottingConstraints.POINT_SIZE / 2 } == true) {
+            return
+        }
 
-        val d = when (direction) {
+        val d = when (pointEnd.direction) {
             Direction.NORTH -> Point(0.0, 1.0)
             Direction.EAST -> Point(1.0, 0.0)
             Direction.SOUTH -> Point(0.0, -1.0)
@@ -36,21 +45,52 @@ class EditDrawEndDrawable(
     }
 
     override fun onDraw(context: DrawContext) {
-        drawPointEnd(plotter.interaction.startEnd, context)
-        drawPointEnd(plotter.interaction.targetEnd, context)
-        drawPointEnd(plotter.interaction.currentPointEnd, context)
+        val pointEnd = editPlanet.pointer.findObjectUnderPointer<PointEnd>()
+        if (pointEnd != null) {
+            drawPointEnd(context, pointEnd)
+        }
+
+        val startPointEnd = editPlanet.interaction.startEnd
+        if (startPointEnd != null) {
+            drawPointEnd(context, startPointEnd)
+        }
     }
 
-    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
-        return null
+    private var planet = Planet.EMPTY
+    fun importPlanet(planet: Planet) {
+        this.planet = planet
+    }
+
+    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        val col = (position.left).roundToInt()
+        val dx = abs(position.left - col)
+        val row = (position.top).roundToInt()
+        val dy = abs(position.top - row)
+
+        if (
+                (dx < PlottingConstraints.POINT_SIZE && dy < PlottingConstraints.TARGET_RADIUS) ||
+                (dx < PlottingConstraints.TARGET_RADIUS && dy < PlottingConstraints.POINT_SIZE)
+        ) {
+            val direction = when {
+                position.left - col > PlottingConstraints.POINT_SIZE / 2 -> Direction.EAST
+                col - position.left > PlottingConstraints.POINT_SIZE / 2 -> Direction.WEST
+                position.top - row > PlottingConstraints.POINT_SIZE / 2 -> Direction.NORTH
+                row - position.top > PlottingConstraints.POINT_SIZE / 2 -> Direction.SOUTH
+                else -> return emptyList()
+            }
+
+            val point = col to row
+
+            if (planet.pathList.any {
+                        it.source == point && it.sourceDirection == direction ||
+                                it.target == point && it.targetDirection == direction
+                    }) {
+                return emptyList()
+            }
+
+            return listOf(PointEnd(point, direction))
+        }
+
+        return emptyList()
     }
 }
-
-
-
-
-
-
-
-
-

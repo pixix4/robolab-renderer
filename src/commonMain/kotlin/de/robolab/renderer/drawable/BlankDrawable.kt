@@ -16,8 +16,8 @@ object BlankDrawable: IRootDrawable {
     override fun onDraw(context: DrawContext) {
     }
 
-    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
-        return null
+    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        return emptyList()
     }
 
     override fun onAttach(plotter: DefaultPlotter) {

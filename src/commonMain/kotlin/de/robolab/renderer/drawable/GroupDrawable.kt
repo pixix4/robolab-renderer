@@ -25,14 +25,7 @@ class GroupDrawable(private var drawableList: List<IDrawable>): IDrawable {
         }
     }
 
-    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
-        for (drawable in drawableList.asReversed()) {
-            val obj = drawable.getObjectAtPosition(context, position)
-            if (obj != null) {
-                return obj
-            }
-        }
-        
-        return null
+    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        return drawableList.asReversed().flatMap { it.getObjectsAtPosition(context, position) }
     }
 }

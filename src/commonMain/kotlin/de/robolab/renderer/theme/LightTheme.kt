@@ -14,4 +14,5 @@ object LightTheme: ITheme {
 
     override val lineColor = Color(20, 20, 20)
     override val highlightColor = Color(243, 156, 18)
+    override val editColor = Color(142, 68, 173)
 }

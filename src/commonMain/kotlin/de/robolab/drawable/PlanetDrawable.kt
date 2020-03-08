@@ -8,24 +8,16 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.GroupDrawable
 import de.robolab.renderer.drawable.IRootDrawable
 import de.westermann.kobserve.event.EventListener
+import de.westermann.kobserve.property.property
 
 @Suppress("LeakingThis")
 open class PlanetDrawable() : IRootDrawable {
 
-    interface ISelectionCallback {
-        fun onPathHoverEnter(path: Set<Path>)
-        fun onPathHoverExit()
-    }
+    val hoveredPathsProperty = property(emptySet<Path>())
+    var hoveredPaths by hoveredPathsProperty
 
-    var selectionCallback: ISelectionCallback = object : ISelectionCallback {
-        override fun onPathHoverEnter(path: Set<Path>) {
-
-        }
-
-        override fun onPathHoverExit() {
-
-        }
-    }
+    val selectedPathProperty = property<Path?>(null)
+    var selectedPath by selectedPathProperty
 
     var plotter: DefaultPlotter? = null
 
@@ -65,38 +57,18 @@ open class PlanetDrawable() : IRootDrawable {
     )
 
     private lateinit var pointerListener: EventListener<*>
-    var hoveredElements: Set<Any> = emptySet()
+
     override fun onAttach(plotter: DefaultPlotter) {
         this.plotter = plotter
         pointerListener = plotter.pointerProperty.onChange.reference {
-            val newElements = if (plotter.pointer.objectUnderPointer == null) {
+            val path = plotter.pointer.findObjectUnderPointer<Path>()
+            val newElements = if (path == null) {
                 emptySet()
             } else {
-                listOfNotNull(plotter.pointer.objectUnderPointer).toSet()
+                setOf(path)
             }
 
-            if (newElements != hoveredElements) {
-                hoveredElements = newElements
-                importPlanet()
-
-                if (newElements.isEmpty()) {
-                    selectionCallback.onPathHoverExit()
-                } else {
-                    val elem = newElements.filterIsInstance<Path>()
-                    selectionCallback.onPathHoverEnter(elem.toSet())
-                }
-            }
-        }
-    }
-
-    fun hoverPaths(paths: Set<Path>) {
-        if (hoveredElements.isNotEmpty()) {
-            selectionCallback.onPathHoverExit()
-        }
-
-        if (paths.isNotEmpty()) {
-            hoveredElements = paths
-            selectionCallback.onPathHoverEnter(paths)
+            hoveredPaths = newElements
         }
     }
 
@@ -112,8 +84,8 @@ open class PlanetDrawable() : IRootDrawable {
         drawable.onDraw(context)
     }
 
-    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
-        return drawable.getObjectAtPosition(context, position)
+    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        return drawable.getObjectsAtPosition(context, position)
     }
 
     private var lastPlanet: Planet? = null
@@ -132,5 +104,14 @@ open class PlanetDrawable() : IRootDrawable {
         targetDrawable.importPlanet(planet)
         senderDrawable.importPlanet(planet)
         pathSelectDrawable.importPlanet(planet)
+    }
+
+    init {
+        hoveredPathsProperty.onChange {
+            importPlanet()
+        }
+        selectedPathProperty.onChange {
+            importPlanet()
+        }
     }
 }

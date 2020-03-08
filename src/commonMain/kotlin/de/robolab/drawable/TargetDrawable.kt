@@ -12,7 +12,7 @@ import de.robolab.renderer.data.Point
 import kotlin.math.PI
 
 class TargetDrawable(
-        private val plotter: PlanetDrawable
+        private val planet: PlanetDrawable
 ) : AnimatableManager<Target, TargetDrawable.TargetAnimatable>() {
 
     inner class TargetAnimatable(
@@ -31,20 +31,20 @@ class TargetDrawable(
         )
 
         override fun startExitAnimation(onFinish: () -> Unit) {
-            sizeTransition.animate(0.0, plotter.animationTime / 2, plotter.animationTime / 2)
+            sizeTransition.animate(0.0, planet.animationTime / 2, planet.animationTime / 2)
             sizeTransition.onFinish.clearListeners()
             sizeTransition.onFinish { onFinish() }
 
-            colorTransition.animate(Color.TRANSPARENT, plotter.animationTime / 2, plotter.animationTime / 2)
+            colorTransition.animate(Color.TRANSPARENT, planet.animationTime / 2, planet.animationTime / 2)
         }
 
         override fun startEnterAnimation(onFinish: () -> Unit) {
-            sizeTransition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
+            sizeTransition.animate(1.0, planet.animationTime / 2, planet.animationTime / 2)
             sizeTransition.onFinish.clearListeners()
             sizeTransition.onFinish { onFinish() }
 
 
-            colorTransition.animate(initColor, plotter.animationTime / 2, plotter.animationTime / 2)
+            colorTransition.animate(initColor, planet.animationTime / 2, planet.animationTime / 2)
         }
 
         override fun onDraw(context: DrawContext) {
@@ -57,8 +57,8 @@ class TargetDrawable(
             )
         }
 
-        override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
-            return null
+        override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+            return emptyList()
         }
 
         override fun startUpdateAnimation(obj: Target, planet: Planet) {
@@ -66,9 +66,9 @@ class TargetDrawable(
                 Utils.getColorByIndex(i)
             }
 
-            sizeTransition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
+            sizeTransition.animate(1.0, this@TargetDrawable.planet.animationTime / 2, this@TargetDrawable.planet.animationTime / 2)
             colorTransition.animate(senderGrouping[obj.exposure]
-                    ?: Color.TRANSPARENT, plotter.animationTime / 2, plotter.animationTime / 4)
+                    ?: Color.TRANSPARENT, this@TargetDrawable.planet.animationTime / 2, this@TargetDrawable.planet.animationTime / 4)
         }
     }
 

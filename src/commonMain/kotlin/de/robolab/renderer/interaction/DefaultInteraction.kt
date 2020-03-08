@@ -24,28 +24,33 @@ class DefaultInteraction(
 
     override fun onMouseUp(event: MouseEvent): Boolean {
         isMouseDown = false
+
         return false
     }
 
     override fun onMouseMove(event: MouseEvent): Boolean {
         val pointer = transformation.canvasToPlanet(event.point)
-        val element = plotter.getObjectAtPosition(pointer)
+        val elements = plotter.getObjectsAtPosition(pointer)
 
-        plotter.pointer = Pointer(pointer, element)
+        plotter.pointer = Pointer(pointer, elements)
         return false
     }
 
     override fun onMouseDrag(event: MouseEvent): Boolean {
         val pointer = transformation.canvasToPlanet(event.point)
-        val element = plotter.getObjectAtPosition(pointer)
+        val elements = plotter.getObjectsAtPosition(pointer)
 
-        plotter.pointer = Pointer(pointer, element)
+        plotter.pointer = Pointer(pointer, elements)
 
         if (!isMouseDown) return false
 
         transformation.translateBy(event.point - lastPoint)
         lastPoint = event.point
         return true
+    }
+
+    override fun onMouseClick(event: MouseEvent): Boolean {
+        return false
     }
 
     override fun onScroll(event: ScrollEvent): Boolean {
@@ -69,21 +74,37 @@ class DefaultInteraction(
             }
         }
 
+        val pointer = transformation.canvasToPlanet(event.point)
+        val elements = plotter.getObjectsAtPosition(pointer)
+
+        plotter.pointer = Pointer(pointer, elements)
+
         return true
     }
 
     override fun onZoom(event: ZoomEvent): Boolean {
         transformation.scaleBy(event.zoomFactor, event.point)
+
+        val pointer = transformation.canvasToPlanet(event.point)
+        val elements = plotter.getObjectsAtPosition(pointer)
+
+        plotter.pointer = Pointer(pointer, elements)
         return true
     }
 
     override fun onRotate(event: RotateEvent): Boolean {
         transformation.rotateBy(event.angle, event.point)
+
+        val pointer = transformation.canvasToPlanet(event.point)
+        val elements = plotter.getObjectsAtPosition(pointer)
+
+        plotter.pointer = Pointer(pointer, elements)
         return true
     }
 
     override fun onResize(size: Dimension): Boolean {
         transformation.translateTo(Point(size.width / 2, size.height / 2))
+
         return true
     }
 }

@@ -9,5 +9,5 @@ interface IDrawable {
 
     fun onDraw(context: DrawContext)
 
-    fun getObjectAtPosition(context: DrawContext, position: Point): Any?
+    fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any>
 }

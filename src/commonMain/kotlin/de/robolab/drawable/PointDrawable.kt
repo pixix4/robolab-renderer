@@ -11,7 +11,7 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 
 class PointDrawable(
-        private val plotter: PlanetDrawable
+        private val planet: PlanetDrawable
 ) : AnimatableManager<Pair<Int, Int>, PointDrawable.PointAnimatable>() {
 
     data class PointColor(
@@ -68,28 +68,28 @@ class PointDrawable(
             ), colorTransition.value.toColor(context).a(alphaTransition.value))
         }
 
-        override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
-            return null
+        override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+            return emptyList()
         }
 
         override fun startExitAnimation(onFinish: () -> Unit) {
-            sizeTransition.animate(0.0, plotter.animationTime / 2, plotter.animationTime / 2)
+            sizeTransition.animate(0.0, planet.animationTime / 2, planet.animationTime / 2)
             sizeTransition.onFinish.clearListeners()
             sizeTransition.onFinish { onFinish() }
 
-            alphaTransition.animate(0.0, plotter.animationTime / 2, plotter.animationTime / 2)
+            alphaTransition.animate(0.0, planet.animationTime / 2, planet.animationTime / 2)
         }
 
         override fun startEnterAnimation(onFinish: () -> Unit) {
-            sizeTransition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
+            sizeTransition.animate(1.0, planet.animationTime / 2, planet.animationTime / 2)
             sizeTransition.onFinish.clearListeners()
             sizeTransition.onFinish { onFinish() }
 
-            alphaTransition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
+            alphaTransition.animate(1.0, planet.animationTime / 2, planet.animationTime / 2)
         }
 
         override fun startUpdateAnimation(obj: Pair<Int, Int>, planet: Planet) {
-            colorTransition.animate(calcColor(planet), plotter.animationTime / 2, plotter.animationTime / 4)
+            colorTransition.animate(calcColor(planet), this@PointDrawable.planet.animationTime / 2, this@PointDrawable.planet.animationTime / 4)
         }
 
         private fun calcColor(planet: Planet): PointColor {

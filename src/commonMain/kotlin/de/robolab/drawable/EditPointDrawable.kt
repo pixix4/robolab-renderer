@@ -11,7 +11,7 @@ import kotlin.math.ceil
 import kotlin.math.floor
 
 class EditPointDrawable(
-        private val plotter: EditPlanetDrawable
+        private val editPlanet: EditPlanetDrawable
 ) : IDrawable {
 
     private val colorTransition = DoubleTransition(0.0)
@@ -79,24 +79,24 @@ class EditPointDrawable(
         }
     }
 
-    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
-        return null
+    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        return emptyList()
     }
 
     fun startExitAnimation(onFinish: () -> Unit) {
-        sizeTransition.animate(0.0, plotter.animationTime / 2, plotter.animationTime / 2)
+        sizeTransition.animate(0.0, editPlanet.animationTime / 2, editPlanet.animationTime / 2)
         sizeTransition.onFinish.clearListeners()
         sizeTransition.onFinish { onFinish() }
 
-        alphaTransition.animate(0.0, plotter.animationTime / 2, plotter.animationTime / 2)
+        alphaTransition.animate(0.0, editPlanet.animationTime / 2, editPlanet.animationTime / 2)
     }
 
     fun startEnterAnimation(onFinish: () -> Unit) {
-        sizeTransition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
+        sizeTransition.animate(1.0, editPlanet.animationTime / 2, editPlanet.animationTime / 2)
         sizeTransition.onFinish.clearListeners()
         sizeTransition.onFinish { onFinish() }
 
-        alphaTransition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
+        alphaTransition.animate(1.0, editPlanet.animationTime / 2, editPlanet.animationTime / 2)
     }
 
     fun importPlanet(planet: Planet) {
@@ -108,7 +108,7 @@ class EditPointDrawable(
         }
 
         colorTransition.resetValue(0.0)
-        colorTransition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 4)
+        colorTransition.animate(1.0, editPlanet.animationTime / 2, editPlanet.animationTime / 4)
     }
 
     companion object {

@@ -67,7 +67,7 @@ object GridNumbersDrawable : IDrawable {
         }
     }
 
-    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
-        return null
+    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        return emptyList()
     }
 }

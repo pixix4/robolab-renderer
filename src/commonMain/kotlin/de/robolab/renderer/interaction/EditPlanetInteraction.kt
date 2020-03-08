@@ -1,63 +1,21 @@
 package de.robolab.renderer.interaction
 
+import de.robolab.drawable.EditDrawEndDrawable
 import de.robolab.drawable.EditPlanetDrawable
-import de.robolab.model.Direction
-import de.robolab.model.Path
-import de.robolab.renderer.PlottingConstraints
-import de.robolab.renderer.Transformation
 import de.robolab.renderer.platform.ICanvasListener
 import de.robolab.renderer.platform.MouseEvent
-import kotlin.math.abs
-import kotlin.math.roundToInt
 
 class EditPlanetInteraction(
-        private val transformation: Transformation,
         private val editPlanet: EditPlanetDrawable
 ) : ICanvasListener {
 
-    data class PointEnd(
-            val left: Int,
-            val top: Int,
-            val direction: Direction
-    )
-
-    private fun pointEndFromEvent(event: MouseEvent): PointEnd? {
-        val point = transformation.canvasToPlanet(event.point)
-        val col = (point.left).roundToInt()
-        val dx = abs(point.left - col)
-        val row = (point.top).roundToInt()
-        val dy = abs(point.top - row)
-
-        // clicked on direction stub of point (for path editing)
-        if (
-                (dx < PlottingConstraints.POINT_SIZE && dy < PlottingConstraints.TARGET_RADIUS) ||
-                (dx < PlottingConstraints.TARGET_RADIUS && dy < PlottingConstraints.POINT_SIZE)
-        ) {
-            val direction = when {
-                point.left - col > PlottingConstraints.POINT_SIZE / 2 -> Direction.EAST
-                col - point.left > PlottingConstraints.POINT_SIZE / 2 -> Direction.WEST
-                point.top - row > PlottingConstraints.POINT_SIZE / 2 -> Direction.NORTH
-                row - point.top > PlottingConstraints.POINT_SIZE / 2 -> Direction.SOUTH
-                else -> return null
-            }
-
-            return PointEnd(col, row, direction)
-        }
-
-        return null
-    }
-
-    var startEnd: PointEnd? = null
-    var targetEnd: PointEnd? = null
+    var startEnd: EditDrawEndDrawable.PointEnd? = null
     private var hasMoved = false
-    
-    var currentPointEnd: PointEnd? = null
 
     override fun onMouseDown(event: MouseEvent): Boolean {
         if (startEnd == null) {
-            startEnd = pointEndFromEvent(event)
+            startEnd = editPlanet.pointer.findObjectUnderPointer()
             if (startEnd != null) {
-                targetEnd = null
                 hasMoved = false
 
                 return true
@@ -69,21 +27,20 @@ class EditPlanetInteraction(
 
     override fun onMouseUp(event: MouseEvent): Boolean {
         if (startEnd != null && hasMoved) {
-            targetEnd = pointEndFromEvent(event)
+            val targetEnd = editPlanet.pointer.findObjectUnderPointer<EditDrawEndDrawable.PointEnd>()
 
-            startEnd?.let { (startX, startY, startDirection) ->
-                targetEnd?.let { (endX, endY, endDirection) ->
+            startEnd?.let { (start, startDirection) ->
+                targetEnd?.let { (end, endDirection) ->
                     editPlanet.editCallback.onDrawPath(
-                            startX to startY,
+                            start,
                             startDirection,
-                            endX to endY,
+                            end,
                             endDirection
                     )
                 }
             }
 
             startEnd = null
-            targetEnd = null
             hasMoved = false
             return true
         }
@@ -100,21 +57,12 @@ class EditPlanetInteraction(
     }
 
     override fun onMouseDrag(event: MouseEvent): Boolean {
-        currentPointEnd = pointEndFromEvent(event)
         hasMoved = true
-
-        if (startEnd != null) {
-            targetEnd = currentPointEnd
-
-            return false
-        }
 
         return false
     }
 
     override fun onMouseClick(event: MouseEvent): Boolean {
-        editPlanet.selectedPath = editPlanet.pointer.objectUnderPointer as? Path?
-
         return false
     }
 }

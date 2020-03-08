@@ -16,7 +16,7 @@ import de.robolab.renderer.data.Rectangle
 
 class PathDrawable(
         path: Path,
-        private val plotter: PlanetDrawable
+        private val planet: PlanetDrawable
 ) : Animatable<Path>(path) {
 
     val startPoint: Point = path.source.let { Point(it.first.toDouble(), it.second.toDouble()) }
@@ -184,7 +184,7 @@ class PathDrawable(
         }
     }
 
-    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
+    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
         val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
 
         val points = when (state) {
@@ -214,10 +214,10 @@ class PathDrawable(
         }
 
         if (points.any { it.distance(position) < 0.1 }) {
-            return reference
+            return listOf(reference)
         }
 
-        return null
+        return emptyList()
     }
 
     companion object {
@@ -285,8 +285,8 @@ class PathDrawable(
 
     override fun startExitAnimation(onFinish: () -> Unit) {
         state = State.REMOVE
-        transition.animate(0.0, plotter.animationTime / 3)
-        hoverTransition.animate(0.0, plotter.animationTime / 3)
+        transition.animate(0.0, planet.animationTime / 3)
+        hoverTransition.animate(0.0, planet.animationTime / 3)
         transition.onFinish.clearListeners()
         transition.onFinish {
             state = State.NONE
@@ -296,7 +296,7 @@ class PathDrawable(
 
     override fun startEnterAnimation(onFinish: () -> Unit) {
         state = State.DRAW
-        transition.animate(1.0, plotter.animationTime)
+        transition.animate(1.0, planet.animationTime)
         transition.onFinish.clearListeners()
         transition.onFinish {
             state = State.NONE
@@ -307,8 +307,8 @@ class PathDrawable(
     override fun startUpdateAnimation(obj: Path, planet: Planet) {
         weight = obj.weight
 
-        val hoverValue = if (obj in plotter.hoveredElements) 1.0 else 0.0
-        hoverTransition.animate(hoverValue, plotter.animationTime / 3)
+        val hoverValue = if (obj in this.planet.hoveredPaths || obj == this.planet.selectedPath) 1.0 else 0.0
+        hoverTransition.animate(hoverValue, this.planet.animationTime / 3)
     }
 
     enum class State {

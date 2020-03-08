@@ -27,15 +27,8 @@ abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
         }
     }
 
-    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
-        for (drawable in animatableMap.values) {
-            val obj = drawable.getObjectAtPosition(context, position)
-            if (obj != null) {
-                return obj
-            }
-        }
-
-        return null
+    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        return animatableMap.values.flatMap { it.getObjectsAtPosition(context, position) }
     }
 
     abstract fun getObjectList(planet: Planet): List<T>

@@ -56,8 +56,8 @@ class DefaultPlotter(
         drawable.onDraw(context)
     }
 
-    fun getObjectAtPosition(position: Point): Any? {
-        return drawable.getObjectAtPosition(context, position)
+    fun getObjectsAtPosition(position: Point): List<Any> {
+        return drawable.getObjectsAtPosition(context, position)
     }
 
     init {

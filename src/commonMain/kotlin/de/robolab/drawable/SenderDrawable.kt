@@ -11,7 +11,7 @@ import kotlin.math.PI
 import kotlin.math.max
 
 class SenderDrawable(
-        private val plotter: PlanetDrawable
+        private val planet: PlanetDrawable
 ) : AnimatableManager<Pair<Int, Int>, SenderDrawable.SenderAnimatable>() {
 
     inner class SenderAnimatable(
@@ -33,7 +33,7 @@ class SenderDrawable(
             newColors = emptyList()
 
             transition.resetValue(0.0)
-            transition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
+            transition.animate(1.0, planet.animationTime / 2, planet.animationTime / 2)
             transition.onFinish.clearListeners()
             transition.onFinish {
                 onFinish()
@@ -42,7 +42,7 @@ class SenderDrawable(
 
         override fun startEnterAnimation(onFinish: () -> Unit) {
             transition.resetValue(0.0)
-            transition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 2)
+            transition.animate(1.0, planet.animationTime / 2, planet.animationTime / 2)
             transition.onFinish.clearListeners()
             transition.onFinish {
                 onFinish()
@@ -80,8 +80,8 @@ class SenderDrawable(
             }
         }
 
-        override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
-            return null
+        override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+            return emptyList()
         }
 
         private fun satellite(context: DrawContext, position: Point, start: Double, extend: Double = 90.0, color: Color) {
@@ -96,7 +96,7 @@ class SenderDrawable(
             }
 
             transition.resetValue(0.0)
-            transition.animate(1.0, plotter.animationTime / 2, plotter.animationTime / 4)
+            transition.animate(1.0, this@SenderDrawable.planet.animationTime / 2, this@SenderDrawable.planet.animationTime / 4)
 
 
             oldColors = newColors

@@ -1,13 +1,14 @@
 package de.robolab.drawable
 
+import de.robolab.drawable.utils.PathGenerator
 import de.robolab.model.Direction
-import de.robolab.model.Path
 import de.robolab.model.Planet
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.Pointer
+import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.GroupDrawable
 import de.robolab.renderer.interaction.EditPlanetInteraction
-import de.westermann.kobserve.property.property
+import de.westermann.kobserve.property.mapBinding
 
 class EditPlanetDrawable() : PlanetDrawable() {
 
@@ -26,11 +27,34 @@ class EditPlanetDrawable() : PlanetDrawable() {
     private val editPointDrawable = EditPointDrawable(this)
     private val editPathDrawable = EditDrawPathDrawable(this)
     private val editDrawEndDrawable = EditDrawEndDrawable(this)
+    private val editControlPointsDrawable = EditControlPointsDrawable(this)
 
     lateinit var interaction: EditPlanetInteraction
-    
-    val selectedPathProperty = property<Path?>(null)
-    var selectedPath by selectedPathProperty
+
+    val selectedPathControlPointsProperty = selectedPathProperty.mapBinding { nullablePath ->
+        val path = nullablePath ?: return@mapBinding null
+
+        val startPoint = Point(path.source.first, path.source.second)
+        val startDirection = path.sourceDirection
+        val endPoint = Point(path.target.first, path.target.second)
+        val endDirection = path.targetDirection
+
+        val linePoints = null ?: PathGenerator.generateControlPoints(
+                startPoint,
+                startDirection,
+                endPoint,
+                endDirection
+        )
+
+        PathDrawable.linePointsToControlPoints(
+                linePoints,
+                startPoint,
+                startDirection,
+                endPoint,
+                endDirection
+        ).dropLast(1).drop(1)
+    }
+    val selectedPathControlPoints by selectedPathControlPointsProperty
 
     override val drawable = GroupDrawable(
             planetBackground,
@@ -39,6 +63,7 @@ class EditPlanetDrawable() : PlanetDrawable() {
             planetForeground,
             editDrawEndDrawable,
             editPathDrawable,
+            editControlPointsDrawable,
             viewForeground
     )
 
@@ -48,7 +73,7 @@ class EditPlanetDrawable() : PlanetDrawable() {
 
         if (shouldStartAnimation) editPointDrawable.startEnterAnimation { }
 
-        interaction = EditPlanetInteraction(plotter.transformation, this)
+        interaction = EditPlanetInteraction(this)
         plotter.pushInteraction(interaction)
     }
 
@@ -60,5 +85,6 @@ class EditPlanetDrawable() : PlanetDrawable() {
     override fun importPlanet(planet: Planet) {
         super.importPlanet(planet)
         editPointDrawable.importPlanet(planet)
+        editDrawEndDrawable.importPlanet(planet)
     }
 }

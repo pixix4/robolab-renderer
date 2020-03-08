@@ -11,24 +11,20 @@ import de.robolab.renderer.drawable.IDrawable
 
 
 class EditDrawPathDrawable(
-        private val plotter: EditPlanetDrawable
+        private val editPlanet: EditPlanetDrawable
 ) : IDrawable {
 
-    fun controlPoints(startPoint: Point, startDirection: Direction, endPoint: Point, endDirection: Direction): List<Point> {
+    private fun controlPoints(startPoint: Point, startDirection: Direction, endPoint: Point, endDirection: Direction): List<Point> {
         val linePoints = PathGenerator.generateControlPoints(startPoint, startDirection, endPoint, endDirection)
         return PathDrawable.linePointsToControlPoints(linePoints, startPoint, startDirection, endPoint, endDirection)
     }
     
-    fun calcDistance(startPoint: Point, endPoint: Point, controlPoints: List<Point>): Double =
+    private fun calcDistance(startPoint: Point, endPoint: Point, controlPoints: List<Point>): Double =
             (listOf(startPoint) + controlPoints + endPoint).windowed(2, 1).sumByDouble { (p1, p2) ->
                 p1.distance(p2)
             }
 
     private val curve: Curve = BSpline
-
-    private fun eval(t: Double, controlPoints: List<Point>): Point {
-        return curve.eval(t, controlPoints)
-    }
 
     private fun multiEval(count: Int, startPoint: Point, endPoint: Point, controlPoints: List<Point>): List<Point> {
         val realCount = PathDrawable.power2(PathDrawable.log2(count - 1) + 1)
@@ -60,10 +56,10 @@ class EditDrawPathDrawable(
     }
 
     override fun onDraw(context: DrawContext) {
-        val startEnd = plotter.interaction.startEnd ?: return
-        val endEnd = plotter.interaction.targetEnd
+        val startEnd = editPlanet.interaction.startEnd ?: return
+        val endEnd = editPlanet.pointer.findObjectUnderPointer<EditDrawEndDrawable.PointEnd>()
 
-        val startPoint = Point(startEnd.left, startEnd.top)
+        val startPoint = Point(startEnd.point.first, startEnd.point.second)
         val startDirection = startEnd.direction
 
         if (endEnd == null) {
@@ -73,11 +69,11 @@ class EditDrawPathDrawable(
                 Direction.SOUTH -> Point(0.0, -PlottingConstraints.POINT_SIZE / 2)
                 Direction.WEST -> Point(-PlottingConstraints.POINT_SIZE / 2, 0.0)
             }
-            val endPoint = plotter.pointer.position
+            val endPoint = editPlanet.pointer.position
 
             context.strokeLine(listOf(startPointEdge, endPoint), context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
         } else {
-            val endPoint = Point(endEnd.left, endEnd.top)
+            val endPoint = Point(endEnd.point.first, endEnd.point.second)
             val endDirection = endEnd.direction
 
             val controlPoints = controlPoints(startPoint, startDirection, endPoint, endDirection)
@@ -88,7 +84,7 @@ class EditDrawPathDrawable(
         }
     }
 
-    override fun getObjectAtPosition(context: DrawContext, position: Point): Any? {
-        return null
+    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        return emptyList()
     }
 }
