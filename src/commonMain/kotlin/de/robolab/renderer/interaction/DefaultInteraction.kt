@@ -15,32 +15,39 @@ class DefaultInteraction(
 
     private var lastPoint: Point = Point.ZERO
     private var isMouseDown = false
+    
+    private fun updatePointer(point: Point) {
+        val pointer = transformation.canvasToPlanet(point)
+        val elements = plotter.getObjectsAtPosition(pointer)
+
+        plotter.pointer = Pointer(pointer, elements)
+    }
 
     override fun onMouseDown(event: MouseEvent): Boolean {
+        updatePointer(event.point)
+
         lastPoint = event.point
         isMouseDown = true
+
         return true
     }
 
     override fun onMouseUp(event: MouseEvent): Boolean {
+        updatePointer(event.point)
+
         isMouseDown = false
 
         return false
     }
 
     override fun onMouseMove(event: MouseEvent): Boolean {
-        val pointer = transformation.canvasToPlanet(event.point)
-        val elements = plotter.getObjectsAtPosition(pointer)
+        updatePointer(event.point)
 
-        plotter.pointer = Pointer(pointer, elements)
         return false
     }
 
     override fun onMouseDrag(event: MouseEvent): Boolean {
-        val pointer = transformation.canvasToPlanet(event.point)
-        val elements = plotter.getObjectsAtPosition(pointer)
-
-        plotter.pointer = Pointer(pointer, elements)
+        updatePointer(event.point)
 
         if (!isMouseDown) return false
 
@@ -74,10 +81,7 @@ class DefaultInteraction(
             }
         }
 
-        val pointer = transformation.canvasToPlanet(event.point)
-        val elements = plotter.getObjectsAtPosition(pointer)
-
-        plotter.pointer = Pointer(pointer, elements)
+        updatePointer(event.point)
 
         return true
     }
@@ -85,20 +89,16 @@ class DefaultInteraction(
     override fun onZoom(event: ZoomEvent): Boolean {
         transformation.scaleBy(event.zoomFactor, event.point)
 
-        val pointer = transformation.canvasToPlanet(event.point)
-        val elements = plotter.getObjectsAtPosition(pointer)
+        updatePointer(event.point)
 
-        plotter.pointer = Pointer(pointer, elements)
         return true
     }
 
     override fun onRotate(event: RotateEvent): Boolean {
         transformation.rotateBy(event.angle, event.point)
 
-        val pointer = transformation.canvasToPlanet(event.point)
-        val elements = plotter.getObjectsAtPosition(pointer)
+        updatePointer(event.point)
 
-        plotter.pointer = Pointer(pointer, elements)
         return true
     }
 

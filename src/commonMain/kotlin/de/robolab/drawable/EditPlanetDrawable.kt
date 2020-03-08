@@ -52,7 +52,7 @@ class EditPlanetDrawable() : PlanetDrawable() {
                 startDirection,
                 endPoint,
                 endDirection
-        ).dropLast(1).drop(1)
+        )
     }
     val selectedPathControlPoints by selectedPathControlPointsProperty
 

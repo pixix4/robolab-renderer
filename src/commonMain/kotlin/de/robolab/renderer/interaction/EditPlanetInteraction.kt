@@ -1,7 +1,9 @@
 package de.robolab.renderer.interaction
 
+import de.robolab.drawable.EditControlPointsDrawable
 import de.robolab.drawable.EditDrawEndDrawable
 import de.robolab.drawable.EditPlanetDrawable
+import de.robolab.renderer.data.Point
 import de.robolab.renderer.platform.ICanvasListener
 import de.robolab.renderer.platform.MouseEvent
 
@@ -10,14 +12,18 @@ class EditPlanetInteraction(
 ) : ICanvasListener {
 
     var startEnd: EditDrawEndDrawable.PointEnd? = null
-    private var hasMoved = false
+    private var hasMovedWhileDown = false
+    private var shouldCreatePath = false
 
     override fun onMouseDown(event: MouseEvent): Boolean {
+        hasMovedWhileDown = false
+
         if (startEnd == null) {
+            if (editPlanet.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>() != null) return false
+
             startEnd = editPlanet.pointer.findObjectUnderPointer()
             if (startEnd != null) {
-                hasMoved = false
-
+                shouldCreatePath = false
                 return true
             }
         }
@@ -26,7 +32,7 @@ class EditPlanetInteraction(
     }
 
     override fun onMouseUp(event: MouseEvent): Boolean {
-        if (startEnd != null && hasMoved) {
+        if (startEnd != null && shouldCreatePath) {
             val targetEnd = editPlanet.pointer.findObjectUnderPointer<EditDrawEndDrawable.PointEnd>()
 
             startEnd?.let { (start, startDirection) ->
@@ -41,13 +47,11 @@ class EditPlanetInteraction(
             }
 
             startEnd = null
-            hasMoved = false
-            return true
+
+            return false
         }
 
-        if (!hasMoved) {
-            hasMoved = true
-        }
+        shouldCreatePath = true
 
         return false
     }
@@ -57,12 +61,17 @@ class EditPlanetInteraction(
     }
 
     override fun onMouseDrag(event: MouseEvent): Boolean {
-        hasMoved = true
+        hasMovedWhileDown = true
+        shouldCreatePath = true
 
         return false
     }
 
     override fun onMouseClick(event: MouseEvent): Boolean {
+        if (!hasMovedWhileDown) {
+            editPlanet.selectedPath = editPlanet.pointer.findObjectUnderPointer()
+        }
+
         return false
     }
 }

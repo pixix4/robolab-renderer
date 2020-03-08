@@ -25,8 +25,12 @@ class EditControlPointsDrawable(
 
         context.strokeLine(controlPoints, context.theme.editColor, PlottingConstraints.LINE_WIDTH / 2)
 
-        for (point in controlPoints) {
-            val divider = if (editPlanet.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) 2 else 4
+        for ((i, point) in controlPoints.withIndex()) {
+            val divider = if (
+                    i > 1 &&
+                    i < controlPoints.size - 2 &&
+                    editPlanet.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2
+            ) 2 else 4
             context.fillArc(point, PlottingConstraints.POINT_SIZE / divider, 0.0, 2.0 * PI, context.theme.editColor)
         }
     }
@@ -36,7 +40,11 @@ class EditControlPointsDrawable(
         val controlPoints = editPlanet.selectedPathControlPoints ?: return emptyList()
 
         for ((i, point) in controlPoints.withIndex()) {
-            if (editPlanet.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) {
+            if (
+                    i > 1 &&
+                    i < controlPoints.size - 2 &&
+                    editPlanet.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2
+            ) {
                 return listOf(ControlPoint(
                         path, i
                 ))

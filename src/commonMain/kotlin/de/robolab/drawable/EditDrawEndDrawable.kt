@@ -24,7 +24,7 @@ class EditDrawEndDrawable(
     }
 
     private fun drawPointEnd(context: DrawContext, pointEnd: PointEnd) {
-        val p0 = Point(pointEnd.point.first, pointEnd.point.second)
+        val p = Point(pointEnd.point.first, pointEnd.point.second)
 
         if (editPlanet.selectedPathControlPoints?.any { it.distance(editPlanet.pointer.position) < PlottingConstraints.POINT_SIZE / 2 } == true) {
             return
@@ -37,7 +37,8 @@ class EditDrawEndDrawable(
             Direction.WEST -> Point(-1.0, 0.0)
         }
 
-        val p1 = p0 + d * (PlottingConstraints.TARGET_RADIUS - PlottingConstraints.LINE_WIDTH * 2)
+        val p0 = p + d * (PlottingConstraints.POINT_SIZE / 2)
+        val p1 = p + d * (PlottingConstraints.TARGET_RADIUS - PlottingConstraints.LINE_WIDTH * 2)
         val p2 = p1 + d * PlottingConstraints.LINE_WIDTH
 
         context.strokeLine(listOf(p0, p1), context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
