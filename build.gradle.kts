@@ -59,6 +59,8 @@ kotlin {
 val mainClassName = "de.robolab.jfx.Launcher"
 
 val jvmJar = tasks.named<Jar>("jvmJar") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     manifest {
         attributes("Main-Class" to mainClassName)
     }
