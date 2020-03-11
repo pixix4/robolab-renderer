@@ -11,6 +11,7 @@ data class Point(
 ): IInterpolatable<Point> {
     
     constructor(left: Number, top: Number): this(left.toDouble(), top.toDouble())
+    constructor(point: Pair<Number, Number>): this(point.first.toDouble(), point.second.toDouble())
 
     operator fun plus(other: Point) = Point(left + other.left, top + other.top)
     operator fun minus(other: Point) = Point(left - other.left, top - other.top)
@@ -52,6 +53,13 @@ data class Point(
             left * cos(rotation) - top * sin(rotation),
             left * sin(rotation) + top * cos(rotation)
     )
+    
+    fun dotProduct(other: Point) = left * other.left + top * other.top
+
+    fun projectOnto(basis: Point): Point {
+        val distance = this.dotProduct(basis) / (basis.left * basis.left + basis.top * basis.top)
+        return basis * distance
+    }
 
     val width: Double
         get() = left

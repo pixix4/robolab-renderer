@@ -18,7 +18,7 @@ class EditDrawPathDrawable(
         val linePoints = PathGenerator.generateControlPoints(startPoint, startDirection, endPoint, endDirection)
         return PathDrawable.linePointsToControlPoints(linePoints, startPoint, startDirection, endPoint, endDirection)
     }
-    
+
     private fun calcDistance(startPoint: Point, endPoint: Point, controlPoints: List<Point>): Double =
             (listOf(startPoint) + controlPoints + endPoint).windowed(2, 1).sumByDouble { (p1, p2) ->
                 p1.distance(p2)
@@ -27,28 +27,9 @@ class EditDrawPathDrawable(
     private val curve: Curve = BSpline
 
     private fun multiEval(count: Int, startPoint: Point, endPoint: Point, controlPoints: List<Point>): List<Point> {
-        val realCount = PathDrawable.power2(PathDrawable.log2(count - 1) + 1)
-
-        val points = arrayOfNulls<Point>(realCount + 1)
-
-        val step = 1.0 / realCount
-        var t = 2 * step
-
-        points[0] = controlPoints.first()
-
-        var index = 1
-        while (t < 1.0) {
-            points[index] = curve.eval(t - step, controlPoints)
-            t += step
-            index += 1
+        return PathDrawable.multiEval(count, controlPoints, startPoint, endPoint) {
+            curve.eval(it, controlPoints)
         }
-
-        points[index] = controlPoints.last()
-
-        val startPointEdge = startPoint + (controlPoints.first() - startPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
-        val endPointEdge = endPoint + (controlPoints.last() - endPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
-
-        return listOf(startPointEdge) + points.take(index + 1).requireNoNulls() + endPointEdge
     }
 
     override fun onUpdate(ms_offset: Double): Boolean {

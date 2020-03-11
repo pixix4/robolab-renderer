@@ -15,67 +15,31 @@ import de.robolab.renderer.data.Rectangle
 
 
 class PathDrawable(
-        path: Path,
+        override var reference: Path,
         private val planet: PlanetDrawable
-) : Animatable<Path>(path) {
+) : Animatable<Path>(reference) {
 
-    val startPoint: Point = path.source.let { Point(it.first.toDouble(), it.second.toDouble()) }
-    val startDirection: Direction = path.sourceDirection
-    val endPoint: Point = path.target.let { Point(it.first.toDouble(), it.second.toDouble()) }
-    val endDirection: Direction = path.targetDirection
-    private var weight: Int = path.weight
+    private val startPoint: Point = reference.source.let { Point(it.first.toDouble(), it.second.toDouble()) }
+    private val startDirection: Direction = reference.sourceDirection
+    private val endPoint: Point = reference.target.let { Point(it.first.toDouble(), it.second.toDouble()) }
+    private var weight: Int = reference.weight
 
     private var state = State.NONE
 
-    private val linePoints: List<Point> = null
-            ?: PathGenerator.generateControlPoints(startPoint, startDirection, endPoint, endDirection)
-
-    private val controlPoints = linePointsToControlPoints(linePoints, startPoint, startDirection, endPoint, endDirection)
-
-    val area by lazy {
-        Rectangle.fromEdges(startPoint, endPoint, *this.controlPoints.toTypedArray())
-    }
-
-    private val distance by lazy {
-        (listOf(startPoint) + this.controlPoints + endPoint).windowed(2, 1).sumByDouble { (p1, p2) ->
-            p1.distance(p2)
-        }
+    private var controlPoints = getControlPointsFromPath(reference)
+    private var area = Rectangle.fromEdges(startPoint, endPoint, *controlPoints.toTypedArray())
+    private var distance = controlPoints.windowed(2, 1).sumByDouble { (p1, p2) ->
+        p1.distance(p2)
     }
 
     private val curve: Curve = BSpline
 
-    private val cache: MutableMap<Double, Point> = mutableMapOf()
     private fun eval(t: Double): Point {
-        return cache.getOrPut(t) {
-            curve.eval(t, controlPoints)
-        }
+        return curve.eval(t, controlPoints)
     }
 
     private fun multiEval(count: Int): List<Point> {
-        val realCount = power2(log2(count - 1) + 1)
-
-        val points = arrayOfNulls<Point>(realCount + 1)
-
-        val step = 1.0 / realCount
-        var t = 2 * step
-
-        points[0] = controlPoints.first()
-
-        var index = 1
-        while (t < 1.0) {
-            points[index] = (cache.getOrPut(t) {
-                curve.eval(t - step, controlPoints)
-            })
-            t += step
-            index += 1
-        }
-
-        points[index] = (controlPoints.last())
-
-        val startPoint = startPoint + (controlPoints.first() - startPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
-        val endPoint = endPoint + (controlPoints.last() - endPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
-
-        return listOf(startPoint) + points.take(index + 1).requireNoNulls() + endPoint
+        return Companion.multiEval(count, controlPoints, startPoint, endPoint, this::eval)
     }
 
     data class PointLengthHelper(
@@ -99,11 +63,13 @@ class PathDrawable(
     private fun interpolate(context: DrawContext) {
         val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
 
+        val isHover = reference in this.planet.hoveredPaths || reference == this.planet.selectedPath
+
         when (state) {
             State.REMOVE -> {
                 val points = getCachedPointHelpers(steps).map { it.point }
-                if (hoverTransition.value > 0) {
-                    context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH * hoverTransition.value)
+                if (isHover) {
+                    context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
                 context.strokeLine(points, context.theme.lineColor.a(transition.value), PlottingConstraints.LINE_WIDTH)
             }
@@ -123,15 +89,15 @@ class PathDrawable(
                 val endPoint = p1.point.interpolate(p2.point, (targetLength - p1.length) / (p2.length - p1.length))
 
                 val points = pointHelpers.take(endIndex).map { it.point } + endPoint
-                if (hoverTransition.value > 0) {
-                    context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH * hoverTransition.value)
+                if (isHover) {
+                    context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
                 context.strokeLine(points, context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
             }
             State.NONE -> {
                 val points = getCachedPointHelpers(steps).map { it.point }
-                if (hoverTransition.value > 0) {
-                    context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH * hoverTransition.value)
+                if (isHover) {
+                    context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
                 context.strokeLine(points, context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
             }
@@ -276,17 +242,66 @@ class PathDrawable(
                 if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(endPoint, endDirection, linePoints.last())) null else endPoint.shift(endDirection, PlottingConstraints.CURVE_SECOND_POINT),
                 endPoint.shift(endDirection, PlottingConstraints.CURVE_FIRST_POINT)
         )
+
+        fun getControlPointsFromPath(path: Path): List<Point> {
+            val startPoint = Point(path.source.first, path.source.second)
+            val startDirection = path.sourceDirection
+            val endPoint = Point(path.target.first, path.target.second)
+            val endDirection = path.targetDirection
+
+            val linePoints = if (path.controlPoints.isNotEmpty()) {
+                path.controlPoints.map { Point(it.first, it.second) }
+            } else {
+                PathGenerator.generateControlPoints(
+                        startPoint,
+                        startDirection,
+                        endPoint,
+                        endDirection
+                )
+            }
+
+            return linePointsToControlPoints(
+                    linePoints,
+                    startPoint,
+                    startDirection,
+                    endPoint,
+                    endDirection
+            )
+        }
+
+        inline fun multiEval(count: Int, controlPoints: List<Point>, startPoint: Point, endPoint: Point, eval: (Double) -> Point): List<Point> {
+            val realCount = power2(log2(count - 1) + 1)
+
+            val points = arrayOfNulls<Point>(realCount + 1)
+
+            val step = 1.0 / realCount
+            var t = 2 * step
+
+            points[0] = controlPoints.first()
+
+            var index = 1
+            while (t < 1.0) {
+                points[index] = eval(t - step)
+                t += step
+                index += 1
+            }
+
+            points[index] = (controlPoints.last())
+
+            val startPointEdge = startPoint + (controlPoints.first() - startPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
+            val endPointEdge = endPoint + (controlPoints.last() - endPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
+
+            return listOf(startPointEdge) + points.take(index + 1).requireNoNulls() + endPointEdge
+        }
     }
 
     private val transition = DoubleTransition(0.0)
-    private val hoverTransition = DoubleTransition(0.0)
 
-    override val animators = listOf(transition, hoverTransition)
+    override val animators = listOf(transition)
 
     override fun startExitAnimation(onFinish: () -> Unit) {
         state = State.REMOVE
         transition.animate(0.0, planet.animationTime / 3)
-        hoverTransition.animate(0.0, planet.animationTime / 3)
         transition.onFinish.clearListeners()
         transition.onFinish {
             state = State.NONE
@@ -305,10 +320,17 @@ class PathDrawable(
     }
 
     override fun startUpdateAnimation(obj: Path, planet: Planet) {
+        if (obj == reference) return
         weight = obj.weight
+        reference = obj
+        controlPoints = getControlPointsFromPath(obj)
 
-        val hoverValue = if (obj in this.planet.hoveredPaths || obj == this.planet.selectedPath) 1.0 else 0.0
-        hoverTransition.animate(hoverValue, this.planet.animationTime / 3)
+        area = Rectangle.fromEdges(startPoint, endPoint, *controlPoints.toTypedArray())
+        distance = controlPoints.windowed(2, 1).sumByDouble { (p1, p2) ->
+            p1.distance(p2)
+        }
+
+        pointHelperCache.clear()
     }
 
     enum class State {

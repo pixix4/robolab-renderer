@@ -72,6 +72,16 @@ class MainView : View() {
 
                 planetDrawable.importPlanet(planet)
             }
+
+            override fun onUpdateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>) {
+                val newPath = path.copy(controlPoints = controlPoints)
+
+                val pathList = planet.pathList - path + newPath
+
+                planet = planet.copy(pathList = pathList)
+
+                planetDrawable.importPlanet(planet)
+            }
         }
 
         plotter.drawable = planetDrawable

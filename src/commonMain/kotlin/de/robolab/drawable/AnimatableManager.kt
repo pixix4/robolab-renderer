@@ -7,7 +7,7 @@ import de.robolab.renderer.drawable.IDrawable
 
 abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
 
-    private var animatableMap = mapOf<T, A>()
+    protected var animatableMap = mapOf<T, A>()
 
     override fun onUpdate(ms_offset: Double): Boolean {
         var hasChanges = false
@@ -34,7 +34,7 @@ abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
     abstract fun getObjectList(planet: Planet): List<T>
     abstract fun createAnimatable(obj: T, planet: Planet): A
 
-    fun importPlanet(planet: Planet) {
+    open fun importPlanet(planet: Planet) {
         val newReferenceList = getObjectList(planet)
 
         val objectsToDelete = animatableMap.keys - newReferenceList

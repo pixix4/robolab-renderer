@@ -4,6 +4,7 @@ import de.robolab.model.Path
 import de.robolab.model.Planet
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
+import de.robolab.renderer.Pointer
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.GroupDrawable
 import de.robolab.renderer.drawable.IRootDrawable
@@ -88,30 +89,21 @@ open class PlanetDrawable() : IRootDrawable {
         return drawable.getObjectsAtPosition(context, position)
     }
 
-    private var lastPlanet: Planet? = null
-    private fun importPlanet() {
-        lastPlanet?.let {
-            importPlanet(it)
-        }
-    }
-
-
     open fun importPlanet(planet: Planet) {
-        lastPlanet = planet
         planetBackground.importPlanet(planet)
         pointDrawable.importPlanet(planet)
         pathDrawable.importPlanet(planet)
         targetDrawable.importPlanet(planet)
         senderDrawable.importPlanet(planet)
         pathSelectDrawable.importPlanet(planet)
-    }
 
-    init {
-        hoveredPathsProperty.onChange {
-            importPlanet()
+        val currentSelectedPath = selectedPath ?: return
+        for (path in planet.pathList) {
+            if (path.equalPath(currentSelectedPath)) {
+                selectedPath = path
+            }
         }
-        selectedPathProperty.onChange {
-            importPlanet()
-        }
+
+        plotter?.updatePointer()
     }
 }

@@ -1,11 +1,10 @@
 package de.robolab.drawable
 
-import de.robolab.drawable.utils.PathGenerator
 import de.robolab.model.Direction
+import de.robolab.model.Path
 import de.robolab.model.Planet
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.Pointer
-import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.GroupDrawable
 import de.robolab.renderer.interaction.EditPlanetInteraction
 import de.westermann.kobserve.property.mapBinding
@@ -14,10 +13,15 @@ class EditPlanetDrawable() : PlanetDrawable() {
 
     interface IEditCallback {
         fun onDrawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction)
+
+        fun onUpdateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>)
     }
 
     var editCallback: IEditCallback = object : IEditCallback {
         override fun onDrawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction) {
+        }
+
+        override fun onUpdateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>) {
         }
     }
 
@@ -34,25 +38,7 @@ class EditPlanetDrawable() : PlanetDrawable() {
     val selectedPathControlPointsProperty = selectedPathProperty.mapBinding { nullablePath ->
         val path = nullablePath ?: return@mapBinding null
 
-        val startPoint = Point(path.source.first, path.source.second)
-        val startDirection = path.sourceDirection
-        val endPoint = Point(path.target.first, path.target.second)
-        val endDirection = path.targetDirection
-
-        val linePoints = null ?: PathGenerator.generateControlPoints(
-                startPoint,
-                startDirection,
-                endPoint,
-                endDirection
-        )
-
-        PathDrawable.linePointsToControlPoints(
-                linePoints,
-                startPoint,
-                startDirection,
-                endPoint,
-                endDirection
-        )
+        PathDrawable.getControlPointsFromPath(path)
     }
     val selectedPathControlPoints by selectedPathControlPointsProperty
 

@@ -11,7 +11,13 @@ repositories {
 }
 
 kotlin {
-    jvm()
+    jvm {
+        val main by compilations.getting {
+            kotlinOptions {
+                jvmTarget = "11"
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -73,6 +79,6 @@ tasks.create<JavaExec>("run") {
 
     group = "application"
     main = mainClassName
-    classpath(configurations["jvmRuntimeClasspath"], jvmJar)
+    classpath(jvmJar)
     args()
 }

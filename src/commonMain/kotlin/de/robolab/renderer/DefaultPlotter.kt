@@ -60,6 +60,12 @@ class DefaultPlotter(
         return drawable.getObjectsAtPosition(context, position)
     }
 
+    fun updatePointer() {
+        pointer = pointer.copy(
+                objectsUnderPointer = getObjectsAtPosition(pointer.position)
+        )
+    }
+
     init {
         this.drawable = drawable
 
