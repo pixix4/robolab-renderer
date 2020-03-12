@@ -40,21 +40,16 @@ class EditDrawPathDrawable(
         val startEnd = editPlanet.interaction.startEnd ?: return
         val endEnd = editPlanet.pointer.findObjectUnderPointer<EditDrawEndDrawable.PointEnd>()
 
-        val startPoint = Point(startEnd.point.first, startEnd.point.second)
+        val startPoint = Point(startEnd.point)
         val startDirection = startEnd.direction
 
         if (endEnd == null) {
-            val startPointEdge = startPoint + when (startDirection) {
-                Direction.NORTH -> Point(0.0, PlottingConstraints.POINT_SIZE / 2)
-                Direction.EAST -> Point(PlottingConstraints.POINT_SIZE / 2, 0.0)
-                Direction.SOUTH -> Point(0.0, -PlottingConstraints.POINT_SIZE / 2)
-                Direction.WEST -> Point(-PlottingConstraints.POINT_SIZE / 2, 0.0)
-            }
+            val startPointEdge = startPoint + startDirection.toVector() * (PlottingConstraints.POINT_SIZE / 2)
             val endPoint = editPlanet.pointer.position
 
             context.strokeLine(listOf(startPointEdge, endPoint), context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
         } else {
-            val endPoint = Point(endEnd.point.first, endEnd.point.second)
+            val endPoint = Point(endEnd.point)
             val endDirection = endEnd.direction
 
             val controlPoints = controlPoints(startPoint, startDirection, endPoint, endDirection)

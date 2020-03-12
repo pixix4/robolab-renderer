@@ -1,5 +1,7 @@
 package de.robolab.drawable
 
+import de.robolab.drawable.curve.BSpline
+import de.robolab.drawable.curve.Curve
 import de.robolab.model.Path
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
@@ -14,16 +16,31 @@ class EditControlPointsDrawable(
 
     data class ControlPoint(
             val path: Path,
-            val point: Int
+            val point: Int,
+            val newPoint: Point? = null
     )
 
     override fun onUpdate(ms_offset: Double): Boolean {
         return false
     }
 
+    private fun calcDistance(startPoint: Point, endPoint: Point, controlPoints: List<Point>): Double =
+            (listOf(startPoint) + controlPoints + endPoint).windowed(2, 1).sumByDouble { (p1, p2) ->
+                p1.distance(p2)
+            }
+
+    private val curve: Curve = BSpline
+
+    private fun multiEval(count: Int, startPoint: Point, endPoint: Point, controlPoints: List<Point>): List<Point> {
+        return PathDrawable.multiEval(count, controlPoints, startPoint, endPoint) {
+            curve.eval(it, controlPoints)
+        }
+    }
+
     override fun onDraw(context: DrawContext) {
+        val path = editPlanet.selectedPath ?: return
         val controlPoints = editPlanet.selectedPathControlPoints ?: return
-        
+
         val first = controlPoints.first().let {
             Point(it.left.roundToInt(), it.top.roundToInt())
         }.interpolate(controlPoints.first(), 1.0 - (PlottingConstraints.POINT_SIZE / 2) / PlottingConstraints.CURVE_SECOND_POINT)
@@ -33,15 +50,27 @@ class EditControlPointsDrawable(
 
         context.strokeLine(listOf(first) + controlPoints + last, context.theme.editColor, PlottingConstraints.LINE_WIDTH / 2)
 
+        var mouseUsed = false
+
         for ((i, point) in controlPoints.withIndex()) {
             if (i == 0 || i == controlPoints.size - 1) {
                 continue
             }
 
-            val divider = if (editPlanet.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) 2 else 4
+            val divider = if (editPlanet.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) {
+                mouseUsed = true
+                2
+            } else 4
 
             context.fillArc(point, PlottingConstraints.POINT_SIZE / divider, 0.0, 2.0 * PI, context.theme.editColor)
             context.fillText(i.toString(), point, context.theme.primaryBackgroundColor, 4.0)
+        }
+
+        val p = editPlanet.pointer.findObjectUnderPointer<ControlPoint>() ?: return
+
+        if (p.newPoint != null) {
+            context.fillArc(p.newPoint, PlottingConstraints.POINT_SIZE / 4, 0.0, 2.0 * PI, context.theme.editColor)
+            context.fillText("+${p.point}", p.newPoint, context.theme.primaryBackgroundColor, 4.0)
         }
     }
 
@@ -59,6 +88,24 @@ class EditControlPointsDrawable(
                         path, i
                 ))
             }
+        }
+
+        val startPoint = Point(path.source)
+        val endPoint = Point(path.target)
+
+        val distance = calcDistance(startPoint, endPoint, controlPoints)
+        val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
+        val p = multiEval(steps, startPoint, endPoint, controlPoints).mapIndexed { index, point ->
+            Triple(point, index, point.distance(editPlanet.pointer.position))
+        }
+
+        val (minPoint, minIndex, minDist) = p.minBy { it.third } ?: return emptyList()
+
+        if (minDist < PlottingConstraints.POINT_SIZE / 2) {
+            val i = ((controlPoints.size - 3) * (minIndex.toDouble() / p.size.toDouble())).toInt() + 2
+            return listOf(ControlPoint(
+                    path, i, minPoint
+            ))
         }
 
         return emptyList()

@@ -15,7 +15,7 @@ class EditPlanetInteraction(
 ) : ICanvasListener {
 
     var startEnd: EditDrawEndDrawable.PointEnd? = null
-    var controlPoint: EditControlPointsDrawable.ControlPoint? = null
+    private var controlPoint: EditControlPointsDrawable.ControlPoint? = null
     private var hasMovedWhileDown = false
     private var shouldCreatePath = false
 
@@ -23,8 +23,18 @@ class EditPlanetInteraction(
         hasMovedWhileDown = false
 
         if (startEnd == null) {
-            controlPoint = editPlanet.pointer.findObjectUnderPointer()
-            if (controlPoint != null) {
+            val c = editPlanet.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>()
+            if (c != null) {
+                if (c.newPoint != null) {
+                    val allControlPoints = editPlanet.selectedPathControlPoints ?: return false
+                    val controlPoints = allControlPoints.drop(1).dropLast(1).toMutableList()
+
+                    controlPoints.add(c.point - 1, c.newPoint)
+                    editPlanet.editCallback.onUpdateControlPoints(c.path, controlPoints.map { it.left to it.top })
+                }
+
+                controlPoint = c
+
                 return true
             }
 
