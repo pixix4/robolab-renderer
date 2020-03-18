@@ -63,7 +63,9 @@ class MainView : View() {
         val planetDrawable = EditPlanetDrawable()
 
         planetDrawable.editCallback = object : EditPlanetDrawable.IEditCallback {
+            var lastUpdateControlPoints: Pair<Path, List<Pair<Double, Double>>>? = null
             override fun onDrawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction) {
+                lastUpdateControlPoints = null
                 planet = planet.copy(
                         pathList = planet.pathList + Path(
                                 startPoint, startDirection,
@@ -74,6 +76,7 @@ class MainView : View() {
             }
 
             override fun onDeletePath(path: Path) {
+                lastUpdateControlPoints = null
                 val pathList = planet.pathList - path
 
                 planet = planet.copy(pathList = pathList)
@@ -81,17 +84,25 @@ class MainView : View() {
 
             override fun onUpdateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>) {
                 val newPath = path.copy(controlPoints = controlPoints)
-
                 val pathList = planet.pathList - path + newPath
+                val newPlanet = planet.copy(pathList = pathList)
 
-                planet = planet.copy(pathList = pathList)
+                val lastUpdate = lastUpdateControlPoints
+                if (lastUpdate != null && lastUpdate.first.equalPath(path) && lastUpdate.second.size == controlPoints.size) {
+                    planetHistory.replace(newPlanet)
+                }else {
+                    planet = newPlanet
+                }
+                lastUpdateControlPoints = path to controlPoints
             }
 
             override fun undo() {
+                lastUpdateControlPoints = null
                 planetHistory.undo()
             }
 
             override fun redo() {
+                lastUpdateControlPoints = null
                 planetHistory.redo()
             }
         }

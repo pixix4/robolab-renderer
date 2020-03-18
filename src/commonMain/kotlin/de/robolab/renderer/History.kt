@@ -10,16 +10,17 @@ class History<T : Any>(initValue: T) {
     private var historyIndex by historyIndexProperty
     private var historyList = listOf<T>(initValue)
 
+    private val readOnlyValueProperty = historyIndexProperty.mapBinding { historyList[it] }
     val valueProperty = property(object : FunctionAccessor<T> {
         override fun get(): T {
-            return historyList[historyIndex]
+            return readOnlyValueProperty.get()
         }
 
         override fun set(value: T): Boolean {
             push(value)
             return true
         }
-    }, historyIndexProperty)
+    }, readOnlyValueProperty)
     val value by valueProperty
 
     fun undo() {
@@ -40,11 +41,16 @@ class History<T : Any>(initValue: T) {
             historyList = listOf(value)
             historyIndex = 0
             if (lastIndex == historyIndex) {
-                valueProperty.invalidate()
+                readOnlyValueProperty.invalidate()
             }
         } else {
             historyList = historyList.take(historyIndex + 1) + value
             historyIndex += 1
         }
+    }
+
+    fun replace(value: T) {
+        historyList = historyList.take(historyIndex) + value
+        readOnlyValueProperty.invalidate()
     }
 }
