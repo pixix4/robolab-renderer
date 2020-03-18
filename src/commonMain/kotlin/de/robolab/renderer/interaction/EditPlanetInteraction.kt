@@ -162,7 +162,7 @@ class EditPlanetInteraction(
 
                     editPlanet.editCallback.onUpdateControlPoints(path, controlPoints.map { it.left to it.top })
                     controlPoint = null
-                } else {
+                } else if (editPlanet.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>() == null) {
                     editPlanet.editCallback.onDeletePath(path)
                 }
             }
