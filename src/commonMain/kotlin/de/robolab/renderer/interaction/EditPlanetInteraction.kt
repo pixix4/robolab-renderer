@@ -166,11 +166,18 @@ class EditPlanetInteraction(
                     editPlanet.editCallback.onDeletePath(path)
                 }
             }
+            KeyCode.UNDO -> {
+                editPlanet.editCallback.undo()
+            }
             KeyCode.AGAIN -> {
                 editPlanet.editCallback.redo()
             }
-            KeyCode.UNDO -> {
-                editPlanet.editCallback.undo()
+            KeyCode.Z -> if (event.ctrlKey) {
+                if (event.shiftKey) {
+                    editPlanet.editCallback.redo()
+                } else {
+                    editPlanet.editCallback.undo()
+                }
             }
             else -> {
                 return false
