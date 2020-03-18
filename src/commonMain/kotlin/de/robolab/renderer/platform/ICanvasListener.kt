@@ -43,4 +43,12 @@ interface ICanvasListener {
     fun onResize(size: Dimension): Boolean {
         return false
     }
+
+    fun onKeyDown(event: KeyEvent): Boolean {
+        return false
+    }
+
+    fun onKeyUp(event: KeyEvent): Boolean {
+        return false
+    }
 }

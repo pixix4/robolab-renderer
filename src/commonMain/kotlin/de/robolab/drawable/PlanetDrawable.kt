@@ -98,6 +98,7 @@ open class PlanetDrawable() : IRootDrawable {
         pathSelectDrawable.importPlanet(planet)
 
         val currentSelectedPath = selectedPath ?: return
+        selectedPath = null
         for (path in planet.pathList) {
             if (path.equalPath(currentSelectedPath)) {
                 selectedPath = path

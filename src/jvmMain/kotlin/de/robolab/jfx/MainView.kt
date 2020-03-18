@@ -7,6 +7,7 @@ import de.robolab.jfx.adapter.FxTimer
 import de.robolab.model.*
 import de.robolab.model.Target
 import de.robolab.renderer.DefaultPlotter
+import de.robolab.renderer.History
 import javafx.application.Platform
 import javafx.scene.layout.BorderPane
 import tornadofx.*
@@ -56,7 +57,8 @@ class MainView : View() {
     }
 
     private fun initEditPlanet(plotter: DefaultPlotter) {
-        var planet = PLANET_4
+        val planetHistory = History(PLANET_4)
+        var planet by planetHistory.valueProperty
 
         val planetDrawable = EditPlanetDrawable()
 
@@ -69,8 +71,12 @@ class MainView : View() {
                                 1
                         )
                 )
+            }
 
-                planetDrawable.importPlanet(planet)
+            override fun onDeletePath(path: Path) {
+                val pathList = planet.pathList - path
+
+                planet = planet.copy(pathList = pathList)
             }
 
             override fun onUpdateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>) {
@@ -79,12 +85,22 @@ class MainView : View() {
                 val pathList = planet.pathList - path + newPath
 
                 planet = planet.copy(pathList = pathList)
+            }
 
-                planetDrawable.importPlanet(planet)
+            override fun undo() {
+                planetHistory.undo()
+            }
+
+            override fun redo() {
+                planetHistory.redo()
             }
         }
 
         plotter.drawable = planetDrawable
+
+        planetHistory.valueProperty.onChange {
+            planetDrawable.importPlanet(planet)
+        }
 
         planetDrawable.importPlanet(planet)
     }

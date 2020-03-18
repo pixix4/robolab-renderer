@@ -13,8 +13,14 @@ class EditPlanetDrawable() : PlanetDrawable() {
 
     interface IEditCallback {
         fun onDrawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction)
+        
+        fun onDeletePath(path: Path)
 
         fun onUpdateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>)
+
+        fun undo()
+        
+        fun redo()
     }
 
     var editCallback: IEditCallback = object : IEditCallback {
@@ -22,6 +28,15 @@ class EditPlanetDrawable() : PlanetDrawable() {
         }
 
         override fun onUpdateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>) {
+        }
+
+        override fun onDeletePath(path: Path) {
+        }
+
+        override fun undo() {
+        }
+
+        override fun redo() {
         }
     }
 

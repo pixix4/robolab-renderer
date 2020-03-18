@@ -14,6 +14,7 @@ class DefaultInteraction(
 ) : ICanvasListener {
 
     private var lastPoint: Point = Point.ZERO
+    private var lastDimension: Dimension = Dimension.ZERO
     private var isMouseDown = false
     
     private fun updatePointer(point: Point) {
@@ -35,6 +36,7 @@ class DefaultInteraction(
     override fun onMouseUp(event: MouseEvent): Boolean {
         updatePointer(event.point)
 
+        lastPoint = event.point
         isMouseDown = false
 
         return false
@@ -42,6 +44,7 @@ class DefaultInteraction(
 
     override fun onMouseMove(event: MouseEvent): Boolean {
         updatePointer(event.point)
+        lastPoint = event.point
 
         return false
     }
@@ -57,6 +60,7 @@ class DefaultInteraction(
     }
 
     override fun onMouseClick(event: MouseEvent): Boolean {
+        lastPoint = event.point
         return false
     }
 
@@ -82,6 +86,7 @@ class DefaultInteraction(
         }
 
         updatePointer(event.point)
+        lastPoint = event.point
 
         return true
     }
@@ -90,6 +95,7 @@ class DefaultInteraction(
         transformation.scaleBy(event.zoomFactor, event.point)
 
         updatePointer(event.point)
+        lastPoint = event.point
 
         return true
     }
@@ -98,13 +104,62 @@ class DefaultInteraction(
         transformation.rotateBy(event.angle, event.point)
 
         updatePointer(event.point)
+        lastPoint = event.point
 
         return true
     }
 
     override fun onResize(size: Dimension): Boolean {
         transformation.translateTo(Point(size.width / 2, size.height / 2))
+        lastDimension = size
 
         return true
+    }
+
+    override fun onKeyDown(event: KeyEvent): Boolean {
+        when (event.keyCode) {
+            KeyCode.UP -> {
+                transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION))
+                updatePointer(lastPoint)
+            }
+            KeyCode.DOWN -> {
+                transformation.translateBy(Point(0.0, -KEYBOARD_TRANSLATION))
+                updatePointer(lastPoint)
+            }
+            KeyCode.LEFT -> {
+                if (event.altKey) {
+                    transformation.rotateBy(KEYBOARD_ROTATION, lastDimension/ 2)
+                }else {
+                    transformation.translateBy(Point(KEYBOARD_TRANSLATION, 0.0))
+                }
+                updatePointer(lastPoint)
+            }
+            KeyCode.RIGHT -> {
+                if (event.altKey) {
+                    transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension/ 2)
+                }else {
+                    transformation.translateBy(Point(-KEYBOARD_TRANSLATION, 0.0))
+                }
+                updatePointer(lastPoint)
+            }
+            KeyCode.EQUALS -> {
+                transformation.scaleBy(KEYBOARD_SCALE, lastDimension / 2.0)
+                updatePointer(lastPoint)
+            }
+            KeyCode.MINUS -> {
+                transformation.scaleBy(1.0 / KEYBOARD_SCALE, lastDimension / 2.0)
+                updatePointer(lastPoint)
+            }
+            else -> return false
+        }
+
+        return true
+    }
+
+    companion object {
+        const val KEYBOARD_TRANSLATION = 20.0
+        const val KEYBOARD_SCALE = 1.2
+        const val KEYBOARD_ROTATION = PI / 16.0
+
     }
 }

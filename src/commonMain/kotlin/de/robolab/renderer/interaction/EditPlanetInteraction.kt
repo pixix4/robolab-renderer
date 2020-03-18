@@ -7,6 +7,8 @@ import de.robolab.model.Direction
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.platform.ICanvasListener
+import de.robolab.renderer.platform.KeyCode
+import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.MouseEvent
 import kotlin.math.roundToInt
 
@@ -49,6 +51,7 @@ class EditPlanetInteraction(
     }
 
     override fun onMouseUp(event: MouseEvent): Boolean {
+        controlPoint = null
         if (startEnd != null && shouldCreatePath) {
             val targetEnd = editPlanet.pointer.findObjectUnderPointer<EditDrawEndDrawable.PointEnd>()
 
@@ -140,5 +143,39 @@ class EditPlanetInteraction(
         }
 
         return false
+    }
+
+    override fun onKeyDown(event: KeyEvent): Boolean {
+        when (event.keyCode) {
+            KeyCode.DELETE -> {
+                val path = editPlanet.selectedPath ?: return false
+
+                if (controlPoint != null) {
+                    val (_, indexP) = controlPoint ?: return false
+                    val allControlPoints = editPlanet.selectedPathControlPoints ?: return false
+                    val controlPoints = allControlPoints.drop(1).dropLast(1).toMutableList()
+                    val index = indexP - 1
+
+                    if (index <= 0 || index >= controlPoints.lastIndex) return false
+
+                    controlPoints.removeAt(index)
+
+                    editPlanet.editCallback.onUpdateControlPoints(path, controlPoints.map { it.left to it.top })
+                    controlPoint = null
+                } else {
+                    editPlanet.editCallback.onDeletePath(path)
+                }
+            }
+            KeyCode.AGAIN -> {
+                editPlanet.editCallback.redo()
+            }
+            KeyCode.UNDO -> {
+                editPlanet.editCallback.undo()
+            }
+            else -> {
+                return false
+            }
+        }
+        return true
     }
 }

@@ -120,4 +120,24 @@ class CompositionInteraction(
 
         return false
     }
+
+    override fun onKeyDown(event: KeyEvent): Boolean {
+        for (layer in layers) {
+            if (layer.onKeyDown(event)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    override fun onKeyUp(event: KeyEvent): Boolean {
+        for (layer in layers) {
+            if (layer.onKeyUp(event)) {
+                return true
+            }
+        }
+
+        return false
+    }
 }
