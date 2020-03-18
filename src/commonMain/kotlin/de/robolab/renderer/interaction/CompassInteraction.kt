@@ -25,4 +25,22 @@ class CompassInteraction(
 
         return false
     }
+
+    override fun onMouseDown(event: MouseEvent): Boolean {
+        val compassCenter = Point(
+                event.screen.width - CompassDrawable.RIGHT_PADDING,
+                CompassDrawable.TOP_PADDING
+        )
+
+        return event.point.distance(compassCenter) <= CompassDrawable.RADIUS
+    }
+
+    override fun onMouseUp(event: MouseEvent): Boolean {
+        val compassCenter = Point(
+                event.screen.width - CompassDrawable.RIGHT_PADDING,
+                CompassDrawable.TOP_PADDING
+        )
+
+        return event.point.distance(compassCenter) <= CompassDrawable.RADIUS
+    }
 }
