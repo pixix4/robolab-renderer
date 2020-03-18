@@ -78,7 +78,9 @@ open class PlanetDrawable() : IRootDrawable {
     }
 
     override fun onUpdate(ms_offset: Double): Boolean {
-        return drawable.onUpdate(ms_offset)
+        val hsc = hasSelectedChanged
+        hasSelectedChanged = false
+        return drawable.onUpdate(ms_offset) || hsc
     }
 
     override fun onDraw(context: DrawContext) {
@@ -88,6 +90,8 @@ open class PlanetDrawable() : IRootDrawable {
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
         return drawable.getObjectsAtPosition(context, position)
     }
+
+    private var hasSelectedChanged = false
 
     open fun importPlanet(planet: Planet) {
         planetBackground.importPlanet(planet)
@@ -106,5 +110,14 @@ open class PlanetDrawable() : IRootDrawable {
         }
 
         plotter?.updatePointer()
+    }
+
+    init {
+        selectedPathProperty.onChange {
+            hasSelectedChanged = true
+        }
+        hoveredPathsProperty.onChange {
+            hasSelectedChanged = true
+        }
     }
 }

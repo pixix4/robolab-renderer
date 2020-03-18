@@ -142,7 +142,7 @@ class DefaultInteraction(
                 }
                 updatePointer(lastPoint)
             }
-            KeyCode.EQUALS -> {
+            KeyCode.PLUS, KeyCode.EQUALS -> {
                 transformation.scaleBy(KEYBOARD_SCALE, lastDimension / 2.0, ANIMATION_TIME)
                 updatePointer(lastPoint)
             }

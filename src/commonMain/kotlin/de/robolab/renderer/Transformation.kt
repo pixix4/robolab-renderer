@@ -24,6 +24,8 @@ open class Transformation {
     val scaledGridWidth: Double
         get() = PIXEL_PER_UNIT * scale
 
+    private var hasChanges = false
+
     fun translateBy(point: Point, duration: Double = 0.0) {
         translateTo(translationTransition.targetValue + point, duration)
     }
@@ -31,10 +33,13 @@ open class Transformation {
     fun translateTo(point: Point, duration: Double = 0.0) {
         translationTransition.animate(point, duration)
         onViewChange.emit(Unit)
+        hasChanges = true
     }
 
     fun setTranslation(point: Point) {
         translationTransition.resetValue(point)
+        onViewChange.emit(Unit)
+        hasChanges = true
     }
 
     fun rotateBy(angle: Double, center: Point, duration: Double = 0.0) {
@@ -53,6 +58,8 @@ open class Transformation {
 
     fun setRotationAngle(angle: Double) {
         rotationTransition.resetValue((angle - PI) % (2 * PI) + PI)
+        onViewChange.emit(Unit)
+        hasChanges = true
     }
 
     fun scaleBy(factor: Double, center: Point, duration: Double = 0.0) {
@@ -71,27 +78,31 @@ open class Transformation {
 
     fun setScaleFactor(scale: Double) {
         scaleTransition.resetValue(max(min(scale, 40.0), 0.1))
+        onViewChange.emit(Unit)
+        hasChanges = true
     }
 
     fun update(ms_offset: Double): Boolean {
-        var changes = translationTransition.update(ms_offset)
+        var changes = hasChanges
+        hasChanges = false
 
-        var planetPoint = canvasToPlanet(rotationCenter)
+        if (translationTransition.update(ms_offset)) {
+            onViewChange.emit(Unit)
+            changes = true
+        }
+
+        val rotationPlanetPoint = canvasToPlanet(rotationCenter)
         if (rotationTransition.update(ms_offset)) {
-            val newCenter = planetToCanvas(planetPoint)
+            val newCenter = planetToCanvas(rotationPlanetPoint)
             translateBy(rotationCenter - newCenter)
             changes = true
         }
 
-        planetPoint = canvasToPlanet(scaleCenter)
+        val scalePlanetPoint = canvasToPlanet(scaleCenter)
         if (scaleTransition.update(ms_offset)) {
-            val newCenter = planetToCanvas(planetPoint)
+            val newCenter = planetToCanvas(scalePlanetPoint)
             translateBy(scaleCenter - newCenter)
             changes = true
-        }
-
-        if (changes) {
-            onViewChange.emit(Unit)
         }
 
         return changes

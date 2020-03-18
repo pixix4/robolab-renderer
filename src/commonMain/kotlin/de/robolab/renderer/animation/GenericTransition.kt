@@ -68,7 +68,7 @@ open class GenericTransition<T>(
         return false
     }
 
-    inner class TransitionHelper(
+    private inner class TransitionHelper(
             val toValue: T,
             duration: Double,
             private val offset: Double

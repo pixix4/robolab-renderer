@@ -19,16 +19,36 @@ class EditDrawEndDrawable(
             val direction: Direction
     )
 
+    private val pointEndsToDraw = mutableListOf<PointEnd>()
+
     override fun onUpdate(ms_offset: Double): Boolean {
-        return false
+        var changes = false
+        if (editPlanet.selectedPathControlPoints?.any { it.distance(editPlanet.pointer.position) < PlottingConstraints.POINT_SIZE / 2 } == true) {
+            if (pointEndsToDraw.isNotEmpty()) {
+                pointEndsToDraw.clear()
+                changes = true
+            }
+        } else {
+            val old = pointEndsToDraw.hashCode()
+            pointEndsToDraw.clear()
+            val pointEnd = editPlanet.pointer.findObjectUnderPointer<PointEnd>()
+            if (pointEnd != null) {
+                pointEndsToDraw += pointEnd
+            }
+
+            val startPointEnd = editPlanet.interaction.startEnd
+            if (startPointEnd != null) {
+                pointEndsToDraw += startPointEnd
+            }
+
+            changes = pointEndsToDraw.hashCode() != old
+        }
+
+        return changes
     }
 
     private fun drawPointEnd(context: DrawContext, pointEnd: PointEnd) {
         val p = Point(pointEnd.point.first, pointEnd.point.second)
-
-        if (editPlanet.selectedPathControlPoints?.any { it.distance(editPlanet.pointer.position) < PlottingConstraints.POINT_SIZE / 2 } == true) {
-            return
-        }
 
         val d = when (pointEnd.direction) {
             Direction.NORTH -> Point(0.0, 1.0)
@@ -46,14 +66,8 @@ class EditDrawEndDrawable(
     }
 
     override fun onDraw(context: DrawContext) {
-        val pointEnd = editPlanet.pointer.findObjectUnderPointer<PointEnd>()
-        if (pointEnd != null) {
-            drawPointEnd(context, pointEnd)
-        }
-
-        val startPointEnd = editPlanet.interaction.startEnd
-        if (startPointEnd != null) {
-            drawPointEnd(context, startPointEnd)
+        for (p in pointEndsToDraw) {
+            drawPointEnd(context, p)
         }
     }
 

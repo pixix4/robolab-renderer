@@ -33,7 +33,7 @@ class EditDrawPathDrawable(
     }
 
     override fun onUpdate(ms_offset: Double): Boolean {
-        return false
+        return editPlanet.interaction.startEnd != null
     }
 
     override fun onDraw(context: DrawContext) {

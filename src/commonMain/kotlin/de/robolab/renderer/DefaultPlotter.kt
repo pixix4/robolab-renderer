@@ -49,11 +49,13 @@ class DefaultPlotter(
     var pointer by pointerProperty
 
     private fun render(ms_offset: Double) {
-        context.clear(context.theme.secondaryBackgroundColor)
+        var changes = drawable.onUpdate(ms_offset)
+        changes = transformation.update(ms_offset) || changes
 
-        drawable.onUpdate(ms_offset)
-        transformation.update(ms_offset)
-        drawable.onDraw(context)
+        if (changes) {
+            context.clear(context.theme.secondaryBackgroundColor)
+            drawable.onDraw(context)
+        }
     }
 
     fun getObjectsAtPosition(position: Point): List<Any> {

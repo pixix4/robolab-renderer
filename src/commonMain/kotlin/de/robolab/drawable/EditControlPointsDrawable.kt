@@ -20,8 +20,12 @@ class EditControlPointsDrawable(
             val newPoint: Point? = null
     )
 
+    private var areControlPointsNull = false
     override fun onUpdate(ms_offset: Double): Boolean {
-        return false
+        val h = editPlanet.selectedPathControlPoints == null
+        val changes = areControlPointsNull != h || !h
+        areControlPointsNull = h
+        return changes
     }
 
     private fun calcDistance(startPoint: Point, endPoint: Point, controlPoints: List<Point>): Double =
@@ -38,7 +42,6 @@ class EditControlPointsDrawable(
     }
 
     override fun onDraw(context: DrawContext) {
-        val path = editPlanet.selectedPath ?: return
         val controlPoints = editPlanet.selectedPathControlPoints ?: return
 
         val first = controlPoints.first().let {
@@ -50,17 +53,12 @@ class EditControlPointsDrawable(
 
         context.strokeLine(listOf(first) + controlPoints + last, context.theme.editColor, PlottingConstraints.LINE_WIDTH / 2)
 
-        var mouseUsed = false
-
         for ((i, point) in controlPoints.withIndex()) {
             if (i == 0 || i == controlPoints.size - 1) {
                 continue
             }
 
-            val divider = if (editPlanet.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) {
-                mouseUsed = true
-                2
-            } else 4
+            val divider = if (editPlanet.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) 2 else 4
 
             context.fillArc(point, PlottingConstraints.POINT_SIZE / divider, 0.0, 2.0 * PI, context.theme.editColor)
             context.fillText(i.toString(), point, context.theme.primaryBackgroundColor, 4.0)
