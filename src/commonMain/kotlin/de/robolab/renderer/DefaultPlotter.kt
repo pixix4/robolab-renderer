@@ -52,7 +52,7 @@ class DefaultPlotter(
         context.clear(context.theme.secondaryBackgroundColor)
 
         drawable.onUpdate(ms_offset)
-        interaction.onUpdate(ms_offset)
+        transformation.update(ms_offset)
         drawable.onDraw(context)
     }
 

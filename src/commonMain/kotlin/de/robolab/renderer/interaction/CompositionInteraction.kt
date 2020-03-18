@@ -19,18 +19,6 @@ class CompositionInteraction(
         return layer
     }
 
-    override fun onUpdate(ms_offset: Double): Boolean {
-        var changes = false
-
-        for (layer in layers) {
-            if (layer.onUpdate(ms_offset)) {
-                changes = true
-            }
-        }
-
-        return changes
-    }
-
     override fun onMouseDown(event: MouseEvent): Boolean {
         for (layer in layers) {
             if (layer.onMouseDown(event)) {

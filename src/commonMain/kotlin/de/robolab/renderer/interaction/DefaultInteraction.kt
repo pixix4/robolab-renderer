@@ -71,17 +71,17 @@ class DefaultInteraction(
                     event.delta.top > 0 -> 1.1
                     event.delta.top < 0 -> 0.9
                     else -> 1.0
-                }, event.point)
+                }, event.point, ANIMATION_TIME)
             }
             event.altKey -> {
                 transformation.rotateBy(when {
                     event.delta.top > 0 -> PI / 32
                     event.delta.top < 0 -> -PI / 32
                     else -> 0.0
-                }, event.point)
+                }, event.point, ANIMATION_TIME)
             }
             else -> {
-                transformation.translateBy(event.delta)
+                transformation.translateBy(event.delta, ANIMATION_TIME)
             }
         }
 
@@ -119,35 +119,35 @@ class DefaultInteraction(
     override fun onKeyDown(event: KeyEvent): Boolean {
         when (event.keyCode) {
             KeyCode.UP -> {
-                transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION))
+                transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION), ANIMATION_TIME)
                 updatePointer(lastPoint)
             }
             KeyCode.DOWN -> {
-                transformation.translateBy(Point(0.0, -KEYBOARD_TRANSLATION))
+                transformation.translateBy(Point(0.0, -KEYBOARD_TRANSLATION), ANIMATION_TIME)
                 updatePointer(lastPoint)
             }
             KeyCode.LEFT -> {
                 if (event.altKey) {
-                    transformation.rotateBy(KEYBOARD_ROTATION, lastDimension/ 2)
+                    transformation.rotateBy(KEYBOARD_ROTATION, lastDimension/ 2, ANIMATION_TIME)
                 }else {
-                    transformation.translateBy(Point(KEYBOARD_TRANSLATION, 0.0))
+                    transformation.translateBy(Point(KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
                 }
                 updatePointer(lastPoint)
             }
             KeyCode.RIGHT -> {
                 if (event.altKey) {
-                    transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension/ 2)
+                    transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension/ 2, ANIMATION_TIME)
                 }else {
-                    transformation.translateBy(Point(-KEYBOARD_TRANSLATION, 0.0))
+                    transformation.translateBy(Point(-KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
                 }
                 updatePointer(lastPoint)
             }
             KeyCode.EQUALS -> {
-                transformation.scaleBy(KEYBOARD_SCALE, lastDimension / 2.0)
+                transformation.scaleBy(KEYBOARD_SCALE, lastDimension / 2.0, ANIMATION_TIME)
                 updatePointer(lastPoint)
             }
             KeyCode.MINUS -> {
-                transformation.scaleBy(1.0 / KEYBOARD_SCALE, lastDimension / 2.0)
+                transformation.scaleBy(1.0 / KEYBOARD_SCALE, lastDimension / 2.0, ANIMATION_TIME)
                 updatePointer(lastPoint)
             }
             else -> return false
@@ -157,9 +157,10 @@ class DefaultInteraction(
     }
 
     companion object {
-        const val KEYBOARD_TRANSLATION = 20.0
+        const val KEYBOARD_TRANSLATION = 40.0
         const val KEYBOARD_SCALE = 1.2
         const val KEYBOARD_ROTATION = PI / 16.0
 
+        const val ANIMATION_TIME = 250.0
     }
 }

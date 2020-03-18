@@ -1,65 +1,100 @@
 package de.robolab.renderer
 
+import de.robolab.renderer.animation.DoubleTransition
+import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Point
 import de.westermann.kobserve.event.EventHandler
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.sin
+import kotlin.math.*
 
-class Transformation {
+open class Transformation {
 
     val onViewChange = EventHandler<Unit>()
 
-    var translation: Point = Point.ZERO
-        private set
-    var rotation: Double = 0.0
-        private set
-    var scale: Double = 1.0
-        private set
+    private val translationTransition = ValueTransition(Point.ZERO)
+    val translation by translationTransition.valueProperty
+
+    private var rotationCenter = Point.ZERO
+    private val rotationTransition = DoubleTransition(0.0)
+    val rotation by rotationTransition.valueProperty
+
+    private var scaleCenter = Point.ZERO
+    private val scaleTransition = DoubleTransition(1.0)
+    val scale by scaleTransition.valueProperty
 
     val scaledGridWidth: Double
         get() = PIXEL_PER_UNIT * scale
 
-    fun translateBy(point: Point) {
-        translateTo(translation + point)
+    fun translateBy(point: Point, duration: Double = 0.0) {
+        translateTo(translationTransition.targetValue + point, duration)
     }
 
-    fun translateTo(point: Point) {
-        translation = point
+    fun translateTo(point: Point, duration: Double = 0.0) {
+        translationTransition.animate(point, duration)
         onViewChange.emit(Unit)
     }
 
-    fun rotateBy(angle: Double, center: Point) {
-        rotateTo(rotation + angle, center)
+    fun setTranslation(point: Point) {
+        translationTransition.resetValue(point)
     }
 
-    fun rotateTo(angle: Double, center: Point) {
-        val planetPoint = canvasToPlanet(center)
-        rotation = angle
+    fun rotateBy(angle: Double, center: Point, duration: Double = 0.0) {
+        rotateTo(rotationTransition.targetValue + angle, center, duration)
+    }
+
+    fun rotateTo(angle: Double, center: Point, duration: Double = 0.0) {
+        rotationCenter = center
+
+        val planetPoint = canvasToPlanet(rotationCenter)
+        rotationTransition.animate(angle, duration)
         val newCenter = planetToCanvas(planetPoint)
 
-        translateBy(center - newCenter)
+        translateBy(rotationCenter - newCenter)
     }
 
     fun setRotationAngle(angle: Double) {
-        rotation = angle
+        rotationTransition.resetValue((angle - PI) % (2 * PI) + PI)
     }
 
-    fun scaleBy(factor: Double, center: Point) {
-        scaleTo(scale * factor, center)
+    fun scaleBy(factor: Double, center: Point, duration: Double = 0.0) {
+        scaleTo(scaleTransition.targetValue * factor, center, duration)
     }
 
-    fun scaleTo(scale: Double, center: Point) {
-        val planetPoint = canvasToPlanet(center)
-        this.scale = max(min(scale, 40.0), 0.1)
+    fun scaleTo(scale: Double, center: Point, duration: Double = 0.0) {
+        scaleCenter = center
+
+        val planetPoint = canvasToPlanet(scaleCenter)
+        scaleTransition.animate(max(min(scale, 40.0), 0.1), duration)
         val newCenter = planetToCanvas(planetPoint)
 
-        translateBy(center - newCenter)
+        translateBy(scaleCenter - newCenter)
     }
 
     fun setScaleFactor(scale: Double) {
-        this.scale = scale
+        scaleTransition.resetValue(max(min(scale, 40.0), 0.1))
+    }
+
+    fun update(ms_offset: Double): Boolean {
+        var changes = translationTransition.update(ms_offset)
+
+        var planetPoint = canvasToPlanet(rotationCenter)
+        if (rotationTransition.update(ms_offset)) {
+            val newCenter = planetToCanvas(planetPoint)
+            translateBy(rotationCenter - newCenter)
+            changes = true
+        }
+
+        planetPoint = canvasToPlanet(scaleCenter)
+        if (scaleTransition.update(ms_offset)) {
+            val newCenter = planetToCanvas(planetPoint)
+            translateBy(scaleCenter - newCenter)
+            changes = true
+        }
+
+        if (changes) {
+            onViewChange.emit(Unit)
+        }
+
+        return changes
     }
 
     fun canvasToPlanet(canvasCoordinate: Point): Point {

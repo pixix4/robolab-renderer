@@ -24,7 +24,7 @@ object CompassDrawable : IDrawable {
                 context.theme.lineColor.a(0.25)
         )
 
-        transformation.translateTo(center)
+        transformation.setTranslation(center)
         transformation.setScaleFactor(0.2)
         transformation.setRotationAngle(context.transformation.rotation)
 

@@ -4,10 +4,6 @@ import de.robolab.renderer.data.Dimension
 
 interface ICanvasListener {
 
-    fun onUpdate(ms_offset: Double): Boolean {
-        return false
-    }
-
     fun onMouseDown(event: MouseEvent): Boolean {
         return false
     }
