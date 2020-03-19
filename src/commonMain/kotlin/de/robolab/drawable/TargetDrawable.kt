@@ -43,7 +43,6 @@ class TargetDrawable(
             sizeTransition.onFinish.clearListeners()
             sizeTransition.onFinish { onFinish() }
 
-
             colorTransition.animate(initColor, planetDrawable.animationTime / 2, planetDrawable.animationTime / 2)
         }
 
@@ -62,13 +61,10 @@ class TargetDrawable(
         }
 
         override fun startUpdateAnimation(obj: Target, planet: Planet) {
-            val senderGrouping = Utils.getSenderGrouping(planet).mapValues { (_, i) ->
-                Utils.getColorByIndex(i)
-            }
+            val color = Utils.getSenderGrouping(planet)[obj.exposure]?.let { Utils.getColorByIndex(it) } ?: Color.TRANSPARENT
 
             sizeTransition.animate(1.0, this@TargetDrawable.planetDrawable.animationTime / 2, this@TargetDrawable.planetDrawable.animationTime / 2)
-            colorTransition.animate(senderGrouping[obj.exposure]
-                    ?: Color.TRANSPARENT, this@TargetDrawable.planetDrawable.animationTime / 2, this@TargetDrawable.planetDrawable.animationTime / 4)
+            colorTransition.animate(color, this@TargetDrawable.planetDrawable.animationTime / 2, this@TargetDrawable.planetDrawable.animationTime / 4)
         }
     }
 

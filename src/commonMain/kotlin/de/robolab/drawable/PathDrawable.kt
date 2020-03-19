@@ -331,7 +331,6 @@ class PathDrawable(
     }
 
     override fun startUpdateAnimation(obj: Path, planet: Planet) {
-        if (obj == reference) return
         weight = obj.weight
         reference = obj
         controlPoints = getControlPointsFromPath(obj)
@@ -349,7 +348,7 @@ class PathDrawable(
         pointHelperCache.clear()
     }
 
-    fun getColor(planet: Planet, path: Path): Color? {
+    private fun getColor(planet: Planet, path: Path): Color? {
         if (path.exposure.isEmpty()) {
             return null
         }

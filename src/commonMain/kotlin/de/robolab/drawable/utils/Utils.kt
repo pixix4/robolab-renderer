@@ -5,7 +5,9 @@ import de.robolab.renderer.data.Color
 
 object Utils {
     fun getSenderGrouping(planet: Planet) =
-            (planet.targetList.map { it.exposure } + planet.pathList.map { it.exposure }).asSequence().distinct().withIndex().associate { (index, set) -> set to index }
+            (planet.targetList.map { it.exposure } + planet.pathList.map { it.exposure }).asSequence().distinct().sortedBy {
+                it.hashCode()
+            }.withIndex().associate { (index, set) -> set to index }
 
 
     fun getColorByIndex(index: Int): Color {
