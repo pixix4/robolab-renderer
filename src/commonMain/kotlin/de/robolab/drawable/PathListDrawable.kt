@@ -4,7 +4,7 @@ import de.robolab.model.Path
 import de.robolab.model.Planet
 
 class PathListDrawable(
-        private val planet: PlanetDrawable
+        private val planetDrawable: PlanetDrawable
 ) : AnimatableManager<Path, PathDrawable>() {
 
     override fun getObjectList(planet: Planet): List<Path> {
@@ -12,7 +12,7 @@ class PathListDrawable(
     }
 
     override fun createAnimatable(obj: Path, planet: Planet): PathDrawable {
-        return PathDrawable(obj, this.planet)
+        return PathDrawable(obj, planetDrawable, planet)
     }
 
     override fun importPlanet(planet: Planet) {

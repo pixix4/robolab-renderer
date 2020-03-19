@@ -12,7 +12,7 @@ import de.robolab.renderer.data.Point
 import kotlin.math.PI
 
 class TargetDrawable(
-        private val planet: PlanetDrawable
+        private val planetDrawable: PlanetDrawable
 ) : AnimatableManager<Target, TargetDrawable.TargetAnimatable>() {
 
     inner class TargetAnimatable(
@@ -31,20 +31,20 @@ class TargetDrawable(
         )
 
         override fun startExitAnimation(onFinish: () -> Unit) {
-            sizeTransition.animate(0.0, planet.animationTime / 2, planet.animationTime / 2)
+            sizeTransition.animate(0.0, planetDrawable.animationTime / 2, planetDrawable.animationTime / 2)
             sizeTransition.onFinish.clearListeners()
             sizeTransition.onFinish { onFinish() }
 
-            colorTransition.animate(Color.TRANSPARENT, planet.animationTime / 2, planet.animationTime / 2)
+            colorTransition.animate(Color.TRANSPARENT, planetDrawable.animationTime / 2, planetDrawable.animationTime / 2)
         }
 
         override fun startEnterAnimation(onFinish: () -> Unit) {
-            sizeTransition.animate(1.0, planet.animationTime / 2, planet.animationTime / 2)
+            sizeTransition.animate(1.0, planetDrawable.animationTime / 2, planetDrawable.animationTime / 2)
             sizeTransition.onFinish.clearListeners()
             sizeTransition.onFinish { onFinish() }
 
 
-            colorTransition.animate(initColor, planet.animationTime / 2, planet.animationTime / 2)
+            colorTransition.animate(initColor, planetDrawable.animationTime / 2, planetDrawable.animationTime / 2)
         }
 
         override fun onDraw(context: DrawContext) {
@@ -66,9 +66,9 @@ class TargetDrawable(
                 Utils.getColorByIndex(i)
             }
 
-            sizeTransition.animate(1.0, this@TargetDrawable.planet.animationTime / 2, this@TargetDrawable.planet.animationTime / 2)
+            sizeTransition.animate(1.0, this@TargetDrawable.planetDrawable.animationTime / 2, this@TargetDrawable.planetDrawable.animationTime / 2)
             colorTransition.animate(senderGrouping[obj.exposure]
-                    ?: Color.TRANSPARENT, this@TargetDrawable.planet.animationTime / 2, this@TargetDrawable.planet.animationTime / 4)
+                    ?: Color.TRANSPARENT, this@TargetDrawable.planetDrawable.animationTime / 2, this@TargetDrawable.planetDrawable.animationTime / 4)
         }
     }
 

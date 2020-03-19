@@ -11,7 +11,7 @@ import kotlin.math.PI
 import kotlin.math.max
 
 class SenderDrawable(
-        private val planet: PlanetDrawable
+        private val planetDrawable: PlanetDrawable
 ) : AnimatableManager<Pair<Int, Int>, SenderDrawable.SenderAnimatable>() {
 
     inner class SenderAnimatable(
@@ -19,8 +19,8 @@ class SenderDrawable(
             colors: List<Color>
     ) : Animatable<Pair<Int, Int>>(reference) {
 
-        var oldColors: List<Color> = emptyList()
-        var newColors: List<Color> = colors
+        private var oldColors: List<Color> = emptyList()
+        private var newColors: List<Color> = colors
 
         private val transition = DoubleTransition(0.0)
 
@@ -33,7 +33,7 @@ class SenderDrawable(
             newColors = emptyList()
 
             transition.resetValue(0.0)
-            transition.animate(1.0, planet.animationTime / 2, planet.animationTime / 2)
+            transition.animate(1.0, planetDrawable.animationTime / 2, planetDrawable.animationTime / 2)
             transition.onFinish.clearListeners()
             transition.onFinish {
                 onFinish()
@@ -42,7 +42,7 @@ class SenderDrawable(
 
         override fun startEnterAnimation(onFinish: () -> Unit) {
             transition.resetValue(0.0)
-            transition.animate(1.0, planet.animationTime / 2, planet.animationTime / 2)
+            transition.animate(1.0, planetDrawable.animationTime / 2, planetDrawable.animationTime / 2)
             transition.onFinish.clearListeners()
             transition.onFinish {
                 onFinish()
@@ -96,7 +96,7 @@ class SenderDrawable(
             }
 
             transition.resetValue(0.0)
-            transition.animate(1.0, this@SenderDrawable.planet.animationTime / 2, this@SenderDrawable.planet.animationTime / 4)
+            transition.animate(1.0, this@SenderDrawable.planetDrawable.animationTime / 2, this@SenderDrawable.planetDrawable.animationTime / 4)
 
 
             oldColors = newColors

@@ -19,6 +19,9 @@ open class PlanetDrawable() : IRootDrawable {
 
     val selectedPathProperty = property<Path?>(null)
     var selectedPath by selectedPathProperty
+    
+    val selectedPointProperty = property<Pair<Int, Int>?>(null)
+    var selectedPoint by selectedPointProperty
 
     var plotter: DefaultPlotter? = null
 
@@ -63,7 +66,8 @@ open class PlanetDrawable() : IRootDrawable {
         this.plotter = plotter
         pointerListener = plotter.pointerProperty.onChange.reference {
             val path = plotter.pointer.findObjectUnderPointer<Path>()
-            val newElements = if (path == null) {
+            val point = plotter.pointer.objectsUnderPointer.firstOrNull() as? Pair<*, *>
+            val newElements = if (path == null || point != null) {
                 emptySet()
             } else {
                 setOf(path)
@@ -114,6 +118,9 @@ open class PlanetDrawable() : IRootDrawable {
 
     init {
         selectedPathProperty.onChange {
+            hasSelectedChanged = true
+        }
+        selectedPointProperty.onChange {
             hasSelectedChanged = true
         }
         hoveredPathsProperty.onChange {

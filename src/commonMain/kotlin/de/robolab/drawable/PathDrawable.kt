@@ -3,6 +3,7 @@ package de.robolab.drawable
 import de.robolab.drawable.curve.BSpline
 import de.robolab.drawable.curve.Curve
 import de.robolab.drawable.utils.PathGenerator
+import de.robolab.drawable.utils.Utils
 import de.robolab.drawable.utils.shift
 import de.robolab.model.Direction
 import de.robolab.model.Path
@@ -10,13 +11,15 @@ import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
+import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 
 
 class PathDrawable(
         override var reference: Path,
-        private val planet: PlanetDrawable
+        private val planetDrawable: PlanetDrawable,
+        planet: Planet
 ) : Animatable<Path>(reference) {
 
     private val startPoint: Point = reference.source.let { Point(it.first.toDouble(), it.second.toDouble()) }
@@ -63,7 +66,11 @@ class PathDrawable(
     private fun interpolate(context: DrawContext) {
         val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
 
-        val isHover = reference in this.planet.hoveredPaths || reference == this.planet.selectedPath
+        val isHover = reference in this.planetDrawable.hoveredPaths || reference == this.planetDrawable.selectedPath
+
+        val oc = oldColor ?: context.theme.lineColor
+        val nc = newColor ?: context.theme.lineColor
+        val color = oc.interpolate(nc, colorTransition.value)
 
         when (state) {
             State.REMOVE -> {
@@ -71,7 +78,7 @@ class PathDrawable(
                 if (isHover) {
                     context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
-                context.strokeLine(points, context.theme.lineColor.a(transition.value), PlottingConstraints.LINE_WIDTH)
+                context.strokeLine(points, color.a(transition.value), PlottingConstraints.LINE_WIDTH)
             }
             State.DRAW -> {
                 val pointHelpers = getCachedPointHelpers(steps)
@@ -92,14 +99,14 @@ class PathDrawable(
                 if (isHover) {
                     context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
-                context.strokeLine(points, context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
+                context.strokeLine(points, color, PlottingConstraints.LINE_WIDTH)
             }
             State.NONE -> {
                 val points = getCachedPointHelpers(steps).map { it.point }
                 if (isHover) {
                     context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
-                context.strokeLine(points, context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
+                context.strokeLine(points, color, PlottingConstraints.LINE_WIDTH)
             }
         }
     }
@@ -295,13 +302,17 @@ class PathDrawable(
         }
     }
 
+    private var oldColor: Color? = getColor(planet, reference)
+    private var newColor: Color? = oldColor
+
+    private var colorTransition = DoubleTransition(0.0)
     private val transition = DoubleTransition(0.0)
 
-    override val animators = listOf(transition)
+    override val animators = listOf(transition, colorTransition)
 
     override fun startExitAnimation(onFinish: () -> Unit) {
         state = State.REMOVE
-        transition.animate(0.0, planet.animationTime / 3)
+        transition.animate(0.0, planetDrawable.animationTime / 3)
         transition.onFinish.clearListeners()
         transition.onFinish {
             state = State.NONE
@@ -311,7 +322,7 @@ class PathDrawable(
 
     override fun startEnterAnimation(onFinish: () -> Unit) {
         state = State.DRAW
-        transition.animate(1.0, planet.animationTime)
+        transition.animate(1.0, planetDrawable.animationTime)
         transition.onFinish.clearListeners()
         transition.onFinish {
             state = State.NONE
@@ -325,12 +336,24 @@ class PathDrawable(
         reference = obj
         controlPoints = getControlPointsFromPath(obj)
 
+        oldColor = newColor
+        newColor = getColor(planet, obj)
+        colorTransition.resetValue(0.0)
+        colorTransition.animate(1.0, this.planetDrawable.animationTime)
+
         area = Rectangle.fromEdges(startPoint, endPoint, *controlPoints.toTypedArray())
         distance = controlPoints.windowed(2, 1).sumByDouble { (p1, p2) ->
             p1.distance(p2)
         }
 
         pointHelperCache.clear()
+    }
+
+    fun getColor(planet: Planet, path: Path): Color? {
+        if (path.exposure.isEmpty()) {
+            return null
+        }
+        return Utils.getColorByIndex(Utils.getSenderGrouping(planet).getValue(path.exposure))
     }
 
     enum class State {

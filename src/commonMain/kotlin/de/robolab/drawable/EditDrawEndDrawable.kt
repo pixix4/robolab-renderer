@@ -11,7 +11,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 class EditDrawEndDrawable(
-        private val editPlanet: EditPlanetDrawable
+        private val editPlanetDrawable: EditPlanetDrawable
 ) : IDrawable {
 
     data class PointEnd(
@@ -23,7 +23,7 @@ class EditDrawEndDrawable(
 
     override fun onUpdate(ms_offset: Double): Boolean {
         var changes = false
-        if (editPlanet.selectedPathControlPoints?.any { it.distance(editPlanet.pointer.position) < PlottingConstraints.POINT_SIZE / 2 } == true) {
+        if (editPlanetDrawable.selectedPathControlPoints?.any { it.distance(editPlanetDrawable.pointer.position) < PlottingConstraints.POINT_SIZE / 2 } == true) {
             if (pointEndsToDraw.isNotEmpty()) {
                 pointEndsToDraw.clear()
                 changes = true
@@ -31,12 +31,12 @@ class EditDrawEndDrawable(
         } else {
             val old = pointEndsToDraw.hashCode()
             pointEndsToDraw.clear()
-            val pointEnd = editPlanet.pointer.findObjectUnderPointer<PointEnd>()
+            val pointEnd = editPlanetDrawable.pointer.findObjectUnderPointer<PointEnd>()
             if (pointEnd != null) {
                 pointEndsToDraw += pointEnd
             }
 
-            val startPointEnd = editPlanet.interaction.startEnd
+            val startPointEnd = editPlanetDrawable.interaction.startEnd
             if (startPointEnd != null) {
                 pointEndsToDraw += startPointEnd
             }

@@ -12,33 +12,36 @@ import de.westermann.kobserve.property.mapBinding
 class EditPlanetDrawable() : PlanetDrawable() {
 
     interface IEditCallback {
-        fun onDrawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction)
-        
-        fun onDeletePath(path: Path)
+        fun drawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction) {
+            println("Plotter action 'drawPath' is not supported!")
+        }
 
-        fun onUpdateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>)
+        fun deletePath(path: Path) {
+            println("Plotter action 'deletePath' is not supported!")
+        }
 
-        fun undo()
-        
-        fun redo()
+        fun updateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>) {
+            println("Plotter action 'updateControlPoints' is not supported!")
+        }
+
+        fun toggleTargetSend(sender: Pair<Int, Int>, target: Pair<Int, Int>) {
+            println("Plotter action 'toggleTargetSend' is not supported!")
+        }
+
+        fun togglePathSend(sender: Pair<Int, Int>, path: Path) {
+            println("Plotter action 'togglePathSend' is not supported!")
+        }
+
+        fun undo() {
+            println("Plotter action 'undo' is not supported!")
+        }
+
+        fun redo() {
+            println("Plotter action 'redo' is not supported!")
+        }
     }
 
-    var editCallback: IEditCallback = object : IEditCallback {
-        override fun onDrawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction) {
-        }
-
-        override fun onUpdateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>) {
-        }
-
-        override fun onDeletePath(path: Path) {
-        }
-
-        override fun undo() {
-        }
-
-        override fun redo() {
-        }
-    }
+    var editCallback: IEditCallback = object : IEditCallback {}
 
     val pointer: Pointer
         get() = plotter?.pointer ?: Pointer()

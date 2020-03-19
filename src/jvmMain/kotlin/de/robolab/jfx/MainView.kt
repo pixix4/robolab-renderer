@@ -64,7 +64,7 @@ class MainView : View() {
 
         planetDrawable.editCallback = object : EditPlanetDrawable.IEditCallback {
             var lastUpdateControlPoints: Pair<Path, List<Pair<Double, Double>>>? = null
-            override fun onDrawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction) {
+            override fun drawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction) {
                 lastUpdateControlPoints = null
                 planet = planet.copy(
                         pathList = planet.pathList + Path(
@@ -75,14 +75,14 @@ class MainView : View() {
                 )
             }
 
-            override fun onDeletePath(path: Path) {
+            override fun deletePath(path: Path) {
                 lastUpdateControlPoints = null
                 val pathList = planet.pathList - path
 
                 planet = planet.copy(pathList = pathList)
             }
 
-            override fun onUpdateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>) {
+            override fun updateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>) {
                 val newPath = path.copy(controlPoints = controlPoints)
                 val pathList = planet.pathList - path + newPath
                 val newPlanet = planet.copy(pathList = pathList)
@@ -90,10 +90,55 @@ class MainView : View() {
                 val lastUpdate = lastUpdateControlPoints
                 if (lastUpdate != null && lastUpdate.first.equalPath(path) && lastUpdate.second.size == controlPoints.size) {
                     planetHistory.replace(newPlanet)
-                }else {
+                } else {
                     planet = newPlanet
                 }
                 lastUpdateControlPoints = path to controlPoints
+            }
+
+            override fun toggleTargetSend(sender: Pair<Int, Int>, target: Pair<Int, Int>) {
+                lastUpdateControlPoints = null
+                val currentTargets = planet.targetList.toMutableList()
+                val t = currentTargets.find { it.target == target }
+                if (t == null) {
+                    currentTargets += Target(target, setOf(sender))
+                } else {
+                    currentTargets.remove(t)
+
+                    if (sender in t.exposure) {
+                        if (t.exposure.size > 1) {
+                            currentTargets += t.copy(
+                                    exposure = t.exposure - sender
+                            )
+                        }
+                    } else {
+                        currentTargets += t.copy(
+                                exposure = t.exposure + sender
+                        )
+                    }
+                }
+                planet = planet.copy(targetList = currentTargets)
+            }
+
+            override fun togglePathSend(sender: Pair<Int, Int>, path: Path) {
+                lastUpdateControlPoints = null
+                val currentPaths = planet.pathList.toMutableList()
+                val p = currentPaths.find { it.equalPath(path) } ?: return
+
+                currentPaths.remove(p)
+
+                if (sender in p.exposure) {
+                    currentPaths += p.copy(
+                            exposure = p.exposure - sender
+                    )
+
+                } else {
+                    currentPaths += p.copy(
+                            exposure = p.exposure + sender
+                    )
+                }
+
+                planet = planet.copy(pathList = currentPaths)
             }
 
             override fun undo() {

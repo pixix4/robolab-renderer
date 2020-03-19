@@ -9,9 +9,10 @@ import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.IDrawable
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.roundToInt
 
 class EditPointDrawable(
-        private val editPlanet: EditPlanetDrawable
+        private val editPlanetDrawable: EditPlanetDrawable
 ) : IDrawable {
 
     private val colorTransition = DoubleTransition(0.0)
@@ -49,6 +50,8 @@ class EditPointDrawable(
         val greyColor = context.theme.gridTextColor
                 .interpolate(context.theme.secondaryBackgroundColor, COLOR_OPACITY)
                 .a(alphaTransition.value)
+        
+        val selectedPoint = editPlanetDrawable.selectedPoint
 
         for (x in floor(context.area.left).toInt()..ceil(context.area.right).toInt()) {
             for (y in floor(context.area.top).toInt()..ceil(context.area.bottom).toInt()) {
@@ -71,6 +74,14 @@ class EditPointDrawable(
                     }
                 } ?: greyColor
 
+                if (selectedPoint?.first == x && selectedPoint.second == y) {
+                    val selectedSize = size + Point(PlottingConstraints.HOVER_WIDTH, PlottingConstraints.HOVER_WIDTH)
+                    context.fillRect(Rectangle.fromEdges(
+                            position - selectedSize,
+                            position + selectedSize
+                    ), context.theme.highlightColor)
+                }
+
                 context.fillRect(Rectangle.fromEdges(
                         position - size,
                         position + size
@@ -80,23 +91,28 @@ class EditPointDrawable(
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        val point = Point(position.left.roundToInt(), position.top.roundToInt())
+        if (position.distance(point) < PlottingConstraints.POINT_SIZE / 2) {
+            return listOf(point.left.toInt() to point.top.toInt())
+        }
+
         return emptyList()
     }
 
     fun startExitAnimation(onFinish: () -> Unit) {
-        sizeTransition.animate(0.0, editPlanet.animationTime / 2, editPlanet.animationTime / 2)
+        sizeTransition.animate(0.0, editPlanetDrawable.animationTime / 2, editPlanetDrawable.animationTime / 2)
         sizeTransition.onFinish.clearListeners()
         sizeTransition.onFinish { onFinish() }
 
-        alphaTransition.animate(0.0, editPlanet.animationTime / 2, editPlanet.animationTime / 2)
+        alphaTransition.animate(0.0, editPlanetDrawable.animationTime / 2, editPlanetDrawable.animationTime / 2)
     }
 
     fun startEnterAnimation(onFinish: () -> Unit) {
-        sizeTransition.animate(1.0, editPlanet.animationTime / 2, editPlanet.animationTime / 2)
+        sizeTransition.animate(1.0, editPlanetDrawable.animationTime / 2, editPlanetDrawable.animationTime / 2)
         sizeTransition.onFinish.clearListeners()
         sizeTransition.onFinish { onFinish() }
 
-        alphaTransition.animate(1.0, editPlanet.animationTime / 2, editPlanet.animationTime / 2)
+        alphaTransition.animate(1.0, editPlanetDrawable.animationTime / 2, editPlanetDrawable.animationTime / 2)
     }
 
     fun importPlanet(planet: Planet) {
@@ -108,7 +124,7 @@ class EditPointDrawable(
         }
 
         colorTransition.resetValue(0.0)
-        colorTransition.animate(1.0, editPlanet.animationTime / 2, editPlanet.animationTime / 4)
+        colorTransition.animate(1.0, editPlanetDrawable.animationTime / 2, editPlanetDrawable.animationTime / 4)
     }
 
     companion object {

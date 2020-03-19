@@ -11,7 +11,7 @@ import de.robolab.renderer.drawable.IDrawable
 
 
 class EditDrawPathDrawable(
-        private val editPlanet: EditPlanetDrawable
+        private val editPlanetDrawable: EditPlanetDrawable
 ) : IDrawable {
 
     private fun controlPoints(startPoint: Point, startDirection: Direction, endPoint: Point, endDirection: Direction): List<Point> {
@@ -33,19 +33,19 @@ class EditDrawPathDrawable(
     }
 
     override fun onUpdate(ms_offset: Double): Boolean {
-        return editPlanet.interaction.startEnd != null
+        return editPlanetDrawable.interaction.startEnd != null
     }
 
     override fun onDraw(context: DrawContext) {
-        val startEnd = editPlanet.interaction.startEnd ?: return
-        val endEnd = editPlanet.pointer.findObjectUnderPointer<EditDrawEndDrawable.PointEnd>()
+        val startEnd = editPlanetDrawable.interaction.startEnd ?: return
+        val endEnd = editPlanetDrawable.pointer.findObjectUnderPointer<EditDrawEndDrawable.PointEnd>()
 
         val startPoint = Point(startEnd.point)
         val startDirection = startEnd.direction
 
         if (endEnd == null) {
             val startPointEdge = startPoint + startDirection.toVector() * (PlottingConstraints.POINT_SIZE / 2)
-            val endPoint = editPlanet.pointer.position
+            val endPoint = editPlanetDrawable.pointer.position
 
             context.strokeLine(listOf(startPointEdge, endPoint), context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
         } else {

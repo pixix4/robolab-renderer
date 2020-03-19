@@ -4,6 +4,7 @@ import de.robolab.drawable.EditControlPointsDrawable
 import de.robolab.drawable.EditDrawEndDrawable
 import de.robolab.drawable.EditPlanetDrawable
 import de.robolab.model.Direction
+import de.robolab.model.Path
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.platform.ICanvasListener
@@ -32,7 +33,7 @@ class EditPlanetInteraction(
                     val controlPoints = allControlPoints.drop(1).dropLast(1).toMutableList()
 
                     controlPoints.add(c.point - 1, c.newPoint)
-                    editPlanet.editCallback.onUpdateControlPoints(c.path, controlPoints.map { it.left to it.top })
+                    editPlanet.editCallback.updateControlPoints(c.path, controlPoints.map { it.left to it.top })
                 }
 
                 controlPoint = c
@@ -57,7 +58,7 @@ class EditPlanetInteraction(
 
             startEnd?.let { (start, startDirection) ->
                 targetEnd?.let { (end, endDirection) ->
-                    editPlanet.editCallback.onDrawPath(
+                    editPlanet.editCallback.drawPath(
                             start,
                             startDirection,
                             end,
@@ -130,7 +131,7 @@ class EditPlanetInteraction(
             }
 
             if (oldControlPoints != controlPoints) {
-                editPlanet.editCallback.onUpdateControlPoints(path, controlPoints.map { it.left to it.top })
+                editPlanet.editCallback.updateControlPoints(path, controlPoints.map { it.left to it.top })
             }
         }
 
@@ -139,7 +140,24 @@ class EditPlanetInteraction(
 
     override fun onMouseClick(event: MouseEvent): Boolean {
         if (!hasMovedWhileDown) {
-            editPlanet.selectedPath = editPlanet.pointer.findObjectUnderPointer()
+            val currentPoint = editPlanet.pointer.findObjectUnderPointer<Pair<Int, Int>>()
+            val currentPath = editPlanet.pointer.findObjectUnderPointer<Path>()
+
+            val selectedPoint = editPlanet.selectedPoint
+            if (selectedPoint != null && (event.ctrlKey || event.altKey)) {
+                if (currentPoint != null) {
+                    editPlanet.editCallback.toggleTargetSend(selectedPoint, currentPoint)
+                } else if (currentPath != null) {
+                    editPlanet.editCallback.togglePathSend(selectedPoint, currentPath)
+                }
+            } else {
+                editPlanet.selectedPoint = currentPoint
+                editPlanet.selectedPath = if (editPlanet.selectedPoint == null) {
+                    currentPath
+                } else {
+                    null
+                }
+            }
         }
 
         return false
@@ -160,10 +178,10 @@ class EditPlanetInteraction(
 
                     controlPoints.removeAt(index)
 
-                    editPlanet.editCallback.onUpdateControlPoints(path, controlPoints.map { it.left to it.top })
+                    editPlanet.editCallback.updateControlPoints(path, controlPoints.map { it.left to it.top })
                     controlPoint = null
                 } else if (editPlanet.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>() == null) {
-                    editPlanet.editCallback.onDeletePath(path)
+                    editPlanet.editCallback.deletePath(path)
                 }
             }
             KeyCode.UNDO -> {

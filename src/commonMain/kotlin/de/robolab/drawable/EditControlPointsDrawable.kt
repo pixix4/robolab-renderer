@@ -11,7 +11,7 @@ import kotlin.math.PI
 import kotlin.math.roundToInt
 
 class EditControlPointsDrawable(
-        private val editPlanet: EditPlanetDrawable
+        private val editPlanetDrawable: EditPlanetDrawable
 ) : IDrawable {
 
     data class ControlPoint(
@@ -22,7 +22,7 @@ class EditControlPointsDrawable(
 
     private var areControlPointsNull = false
     override fun onUpdate(ms_offset: Double): Boolean {
-        val h = editPlanet.selectedPathControlPoints == null
+        val h = editPlanetDrawable.selectedPathControlPoints == null
         val changes = areControlPointsNull != h || !h
         areControlPointsNull = h
         return changes
@@ -42,7 +42,7 @@ class EditControlPointsDrawable(
     }
 
     override fun onDraw(context: DrawContext) {
-        val controlPoints = editPlanet.selectedPathControlPoints ?: return
+        val controlPoints = editPlanetDrawable.selectedPathControlPoints ?: return
 
         val first = controlPoints.first().let {
             Point(it.left.roundToInt(), it.top.roundToInt())
@@ -58,13 +58,13 @@ class EditControlPointsDrawable(
                 continue
             }
 
-            val divider = if (editPlanet.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) 2 else 4
+            val divider = if (editPlanetDrawable.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) 2 else 4
 
             context.fillArc(point, PlottingConstraints.POINT_SIZE / divider, 0.0, 2.0 * PI, context.theme.editColor)
             context.fillText(i.toString(), point, context.theme.primaryBackgroundColor, 4.0)
         }
 
-        val p = editPlanet.pointer.findObjectUnderPointer<ControlPoint>() ?: return
+        val p = editPlanetDrawable.pointer.findObjectUnderPointer<ControlPoint>() ?: return
 
         if (p.newPoint != null) {
             context.fillArc(p.newPoint, PlottingConstraints.POINT_SIZE / 4, 0.0, 2.0 * PI, context.theme.editColor)
@@ -73,15 +73,15 @@ class EditControlPointsDrawable(
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
-        val path = editPlanet.selectedPath ?: return emptyList()
-        val controlPoints = editPlanet.selectedPathControlPoints ?: return emptyList()
+        val path = editPlanetDrawable.selectedPath ?: return emptyList()
+        val controlPoints = editPlanetDrawable.selectedPathControlPoints ?: return emptyList()
 
         for ((i, point) in controlPoints.withIndex()) {
             if (i == 0 || i == controlPoints.size - 1) {
                 continue
             }
 
-            if (editPlanet.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) {
+            if (editPlanetDrawable.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) {
                 return listOf(ControlPoint(
                         path, i
                 ))
@@ -94,7 +94,7 @@ class EditControlPointsDrawable(
         val distance = calcDistance(startPoint, endPoint, controlPoints)
         val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
         val p = multiEval(steps, startPoint, endPoint, controlPoints).mapIndexed { index, point ->
-            Triple(point, index, point.distance(editPlanet.pointer.position))
+            Triple(point, index, point.distance(editPlanetDrawable.pointer.position))
         }
 
         val (minPoint, minIndex, minDist) = p.minBy { it.third } ?: return emptyList()

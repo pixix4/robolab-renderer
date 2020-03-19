@@ -9,7 +9,7 @@ import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Point
 
 class PathSelectDrawable(
-        private val editPlanet: PlanetDrawable
+        private val planetDrawable: PlanetDrawable
 ) : AnimatableManager<PathSelect, PathSelectDrawable.PathSelectAnimatable>() {
 
     inner class PathSelectAnimatable(
@@ -30,7 +30,7 @@ class PathSelectDrawable(
             newDirections = emptyList()
 
             transition.resetValue(0.0)
-            transition.animate(1.0, editPlanet.animationTime / 2, 0.0)
+            transition.animate(1.0, planetDrawable.animationTime / 2, 0.0)
             transition.onFinish.clearListeners()
             transition.onFinish {
                 onFinish()
@@ -39,7 +39,7 @@ class PathSelectDrawable(
 
         override fun startEnterAnimation(onFinish: () -> Unit) {
             transition.resetValue(0.0)
-            transition.animate(1.0, editPlanet.animationTime / 2, editPlanet.animationTime / 2)
+            transition.animate(1.0, planetDrawable.animationTime / 2, planetDrawable.animationTime / 2)
             transition.onFinish.clearListeners()
             transition.onFinish {
                 onFinish()
@@ -83,7 +83,7 @@ class PathSelectDrawable(
             oldDirections = newDirections
             newDirections = listOf(obj.direction)
 
-            transition.animate(1.0, editPlanet.animationTime / 2, editPlanet.animationTime / 4)
+            transition.animate(1.0, planetDrawable.animationTime / 2, planetDrawable.animationTime / 4)
         }
 
     }
