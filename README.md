@@ -5,7 +5,7 @@ Rewrite of the robolab rendering egnine.
 ## Features
 
 - [x] Visualise planets
-- [ ] Planet editor
+- [x] Planet editor
 - [x] Animation support **new**
 - [x] Multiplatform support (ui abstraction) **new** 
 
