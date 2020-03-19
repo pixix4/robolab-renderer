@@ -31,6 +31,10 @@ class EditPlanetDrawable() : PlanetDrawable() {
         fun togglePathSend(sender: Pair<Int, Int>, path: Path) {
             println("Plotter action 'togglePathSend' is not supported!")
         }
+        
+        fun togglePathSelect(point: Pair<Int, Int>, direction: Direction) {
+            println("Plotter action 'togglePathSelect' is not supported!")
+        }
 
         fun undo() {
             println("Plotter action 'undo' is not supported!")
@@ -50,6 +54,7 @@ class EditPlanetDrawable() : PlanetDrawable() {
     private val editPathDrawable = EditDrawPathDrawable(this)
     private val editDrawEndDrawable = EditDrawEndDrawable(this)
     private val editControlPointsDrawable = EditControlPointsDrawable(this)
+    private val editPathSelectDrawable = EditPathSelectDrawable(this)
 
     lateinit var interaction: EditPlanetInteraction
 
@@ -66,6 +71,7 @@ class EditPlanetDrawable() : PlanetDrawable() {
             editPointDrawable,
             planetForeground,
             editDrawEndDrawable,
+            editPathSelectDrawable,
             editPathDrawable,
             editControlPointsDrawable,
             viewForeground
@@ -90,5 +96,6 @@ class EditPlanetDrawable() : PlanetDrawable() {
         super.importPlanet(planet)
         editPointDrawable.importPlanet(planet)
         editDrawEndDrawable.importPlanet(planet)
+        editPathSelectDrawable.importPlanet(planet)
     }
 }

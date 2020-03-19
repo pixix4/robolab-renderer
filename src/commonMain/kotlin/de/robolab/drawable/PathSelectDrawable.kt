@@ -7,6 +7,7 @@ import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Point
+import kotlin.math.PI
 
 class PathSelectDrawable(
         private val planetDrawable: PlanetDrawable
@@ -46,31 +47,17 @@ class PathSelectDrawable(
             }
         }
 
-        private fun getArrow(direction: Direction): List<Point> {
-            val rotation = when (direction) {
-                Direction.NORTH -> 0.0
-                Direction.EAST -> 0.0
-                Direction.SOUTH -> 0.0
-                Direction.WEST -> 0.0
-            }
-            return listOf(
-                    Point(PlottingConstraints.POINT_SIZE / 8, PlottingConstraints.POINT_SIZE / 2),
-                    Point(3 * PlottingConstraints.POINT_SIZE / 8, PlottingConstraints.POINT_SIZE / 2),
-                    Point(PlottingConstraints.POINT_SIZE / 4, PlottingConstraints.POINT_SIZE * 1.25)
-            ).map { it.rotate(rotation) + position }
-        }
-
         override fun onDraw(context: DrawContext) {
             for (dir in oldDirections - newDirections) {
-                context.fillPolygon(getArrow(dir), context.theme.gridTextColor.a(1 - transition.value))
+                context.fillPolygon(getArrow(position, dir), context.theme.gridTextColor.a(1 - transition.value))
             }
 
             for (dir in newDirections - oldDirections) {
-                context.fillPolygon(getArrow(dir), context.theme.gridTextColor.a(transition.value))
+                context.fillPolygon(getArrow(position, dir), context.theme.gridTextColor.a(transition.value))
             }
 
             for (dir in newDirections - (newDirections - oldDirections)) {
-                context.fillPolygon(getArrow(dir), context.theme.gridTextColor)
+                context.fillPolygon(getArrow(position, dir), context.theme.gridTextColor)
             }
         }
 
@@ -91,4 +78,20 @@ class PathSelectDrawable(
     override fun getObjectList(planet: Planet) = planet.pathSelectList
 
     override fun createAnimatable(obj: PathSelect, planet: Planet) = PathSelectAnimatable(obj)
+    
+    companion object {
+        fun getArrow(position: Point, direction: Direction): List<Point> {
+            val rotation = when (direction) {
+                Direction.NORTH -> 0.0
+                Direction.WEST -> PI / 2
+                Direction.SOUTH -> PI
+                Direction.EAST -> 3 * PI / 2
+            }
+            return listOf(
+                    Point(PlottingConstraints.POINT_SIZE / 8, PlottingConstraints.POINT_SIZE / 2),
+                    Point(3 * PlottingConstraints.POINT_SIZE / 8, PlottingConstraints.POINT_SIZE / 2),
+                    Point(PlottingConstraints.POINT_SIZE / 4, PlottingConstraints.POINT_SIZE * 1.25)
+            ).map { it.rotate(rotation) + position }
+        }
+    }
 }

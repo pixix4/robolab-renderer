@@ -23,7 +23,7 @@ class EditDrawEndDrawable(
 
     override fun onUpdate(ms_offset: Double): Boolean {
         var changes = false
-        if (editPlanetDrawable.selectedPathControlPoints?.any { it.distance(editPlanetDrawable.pointer.position) < PlottingConstraints.POINT_SIZE / 2 } == true) {
+        if (editPlanetDrawable.selectedPathControlPoints?.any { it.distance(editPlanetDrawable.pointer.position) < PlottingConstraints.POINT_SIZE / 2 } == true ) {
             if (pointEndsToDraw.isNotEmpty()) {
                 pointEndsToDraw.clear()
                 changes = true
@@ -77,6 +77,10 @@ class EditDrawEndDrawable(
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        if (editPlanetDrawable.selectedPoint != null) {
+            return emptyList()
+        }
+
         val col = (position.left).roundToInt()
         val dx = abs(position.left - col)
         val row = (position.top).roundToInt()

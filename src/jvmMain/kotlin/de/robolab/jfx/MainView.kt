@@ -141,6 +141,20 @@ class MainView : View() {
                 planet = planet.copy(pathList = currentPaths)
             }
 
+            override fun togglePathSelect(point: Pair<Int, Int>, direction: Direction) {
+                lastUpdateControlPoints = null
+                val currentPathSelects = planet.pathSelectList.toMutableList()
+                val p = currentPathSelects.find { it.point == point }
+
+                currentPathSelects.remove(p)
+
+                if (direction != p?.direction) {
+                    currentPathSelects += PathSelect(point, direction)
+                }
+
+                planet = planet.copy(pathSelectList = currentPathSelects)
+            }
+
             override fun undo() {
                 lastUpdateControlPoints = null
                 planetHistory.undo()

@@ -2,6 +2,7 @@ package de.robolab.renderer.interaction
 
 import de.robolab.drawable.EditControlPointsDrawable
 import de.robolab.drawable.EditDrawEndDrawable
+import de.robolab.drawable.EditPathSelectDrawable
 import de.robolab.drawable.EditPlanetDrawable
 import de.robolab.model.Direction
 import de.robolab.model.Path
@@ -140,6 +141,12 @@ class EditPlanetInteraction(
 
     override fun onMouseClick(event: MouseEvent): Boolean {
         if (!hasMovedWhileDown) {
+            val currentPathSelect = editPlanet.pointer.findObjectUnderPointer<EditPathSelectDrawable.PointSelect>()
+            if (currentPathSelect != null) {
+                editPlanet.editCallback.togglePathSelect(currentPathSelect.point, currentPathSelect.direction)
+                return true
+            }
+            
             val currentPoint = editPlanet.pointer.findObjectUnderPointer<Pair<Int, Int>>()
             val currentPath = editPlanet.pointer.findObjectUnderPointer<Path>()
 
@@ -150,6 +157,7 @@ class EditPlanetInteraction(
                 } else if (currentPath != null) {
                     editPlanet.editCallback.togglePathSend(selectedPoint, currentPath)
                 }
+                return true
             } else {
                 editPlanet.selectedPoint = currentPoint
                 editPlanet.selectedPath = if (editPlanet.selectedPoint == null) {
@@ -180,8 +188,11 @@ class EditPlanetInteraction(
 
                     editPlanet.editCallback.updateControlPoints(path, controlPoints.map { it.left to it.top })
                     controlPoint = null
-                } else if (editPlanet.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>() == null) {
-                    editPlanet.editCallback.deletePath(path)
+                } else {
+                    val cp = editPlanet.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>()
+                    if (cp == null || cp.newPoint != null) {
+                        editPlanet.editCallback.deletePath(path)
+                    }
                 }
             }
             KeyCode.UNDO -> {
@@ -196,6 +207,9 @@ class EditPlanetInteraction(
                 } else {
                     editPlanet.editCallback.undo()
                 }
+            }
+            KeyCode.ESCAPE -> {
+                startEnd = null
             }
             else -> {
                 return false
