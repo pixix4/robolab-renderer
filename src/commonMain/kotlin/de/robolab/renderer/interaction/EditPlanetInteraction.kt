@@ -22,9 +22,11 @@ class EditPlanetInteraction(
     private var controlPoint: EditControlPointsDrawable.ControlPoint? = null
     private var hasMovedWhileDown = false
     private var shouldCreatePath = false
+    private var controlPointsGroupHistory = false
 
     override fun onMouseDown(event: MouseEvent): Boolean {
         hasMovedWhileDown = false
+        controlPointsGroupHistory = false
 
         if (startEnd == null) {
             val c = editPlanet.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>()
@@ -34,7 +36,7 @@ class EditPlanetInteraction(
                     val controlPoints = allControlPoints.drop(1).dropLast(1).toMutableList()
 
                     controlPoints.add(c.point - 1, c.newPoint)
-                    editPlanet.editCallback.updateControlPoints(c.path, controlPoints.map { it.left to it.top })
+                    editPlanet.editCallback.updateControlPoints(c.path, controlPoints.map { it.left to it.top }, false)
                 }
 
                 controlPoint = c
@@ -132,7 +134,8 @@ class EditPlanetInteraction(
             }
 
             if (oldControlPoints != controlPoints) {
-                editPlanet.editCallback.updateControlPoints(path, controlPoints.map { it.left to it.top })
+                editPlanet.editCallback.updateControlPoints(path, controlPoints.map { it.left to it.top }, controlPointsGroupHistory)
+                controlPointsGroupHistory = true
             }
         }
 
@@ -186,7 +189,7 @@ class EditPlanetInteraction(
 
                     controlPoints.removeAt(index)
 
-                    editPlanet.editCallback.updateControlPoints(path, controlPoints.map { it.left to it.top })
+                    editPlanet.editCallback.updateControlPoints(path, controlPoints.map { it.left to it.top }, false)
                     controlPoint = null
                 } else {
                     val cp = editPlanet.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>()

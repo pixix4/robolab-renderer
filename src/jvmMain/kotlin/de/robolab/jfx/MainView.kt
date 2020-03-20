@@ -14,9 +14,6 @@ import tornadofx.*
 import java.time.LocalDate
 import kotlin.system.exitProcess
 
-/**
- * @author leon
- */
 class MainView : View() {
 
     override val root: BorderPane = borderpane {
@@ -82,13 +79,13 @@ class MainView : View() {
                 planet = planet.copy(pathList = pathList)
             }
 
-            override fun updateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>) {
+            override fun updateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>, groupHistory: Boolean) {
                 val newPath = path.copy(controlPoints = controlPoints)
                 val pathList = planet.pathList - path + newPath
                 val newPlanet = planet.copy(pathList = pathList)
 
                 val lastUpdate = lastUpdateControlPoints
-                if (lastUpdate != null && lastUpdate.first.equalPath(path) && lastUpdate.second.size == controlPoints.size) {
+                if (groupHistory && lastUpdate != null && lastUpdate.first.equalPath(path) && lastUpdate.second.size == controlPoints.size) {
                     planetHistory.replace(newPlanet)
                 } else {
                     planet = newPlanet

@@ -20,7 +20,7 @@ class EditPlanetDrawable() : PlanetDrawable() {
             println("Plotter action 'deletePath' is not supported!")
         }
 
-        fun updateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>) {
+        fun updateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>, groupHistory: Boolean) {
             println("Plotter action 'updateControlPoints' is not supported!")
         }
 

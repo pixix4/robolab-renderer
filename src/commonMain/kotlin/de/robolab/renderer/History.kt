@@ -44,6 +44,7 @@ class History<T : Any>(initValue: T) {
                 readOnlyValueProperty.invalidate()
             }
         } else {
+            if (value == this.value) return
             historyList = historyList.take(historyIndex + 1) + value
             historyIndex += 1
         }

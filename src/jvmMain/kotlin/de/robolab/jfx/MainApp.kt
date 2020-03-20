@@ -2,9 +2,6 @@ package de.robolab.jfx
 
 import tornadofx.*
 
-/**
- * @author leon
- */
 class MainApp : App(MainView::class) {
 
     companion object {
