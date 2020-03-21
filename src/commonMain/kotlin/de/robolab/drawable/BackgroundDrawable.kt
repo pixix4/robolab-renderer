@@ -1,5 +1,6 @@
 package de.robolab.drawable
 
+import de.robolab.drawable.curve.BSpline
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.animation.DoubleTransition
@@ -7,6 +8,9 @@ import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.IDrawable
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.round
 
 class BackgroundDrawable(
         private val planetDrawable: PlanetDrawable
@@ -34,22 +38,62 @@ class BackgroundDrawable(
     }
 
     fun importPlanet(planet: Planet) {
-        val pointList = (
-                planet.pathList.flatMap { listOf(it.source, it.target) } +
-                        planet.targetList.map { it.target } +
-                        planet.targetList.flatMap { it.exposure }
-                ).distinct().map { (left, top) ->
-            Point(left.toDouble(), top.toDouble())
+        var minX = Double.MAX_VALUE
+        var minY = Double.MAX_VALUE
+        var maxX = Double.MIN_VALUE
+        var maxY = Double.MIN_VALUE
+        var found = false
+
+        fun update(x: Double, y: Double) {
+            minX = min(minX, x)
+            minY = min(minY, y)
+            maxX = max(maxX, x)
+            maxY = max(maxY, y)
+            found = true
         }
 
-        if (pointList.isEmpty()) {
+        for (p in planet.pathList) {
+            update(p.source.first.toDouble(), p.source.second.toDouble())
+            update(p.target.first.toDouble(), p.target.second.toDouble())
+
+            for (e in p.exposure) {
+                update(e.first.toDouble(), e.second.toDouble())
+            }
+
+            val controlPoints = PathDrawable.getControlPointsFromPath(p)
+            val points = PathDrawable.multiEval(16, controlPoints, Point(p.source), Point(p.target)) {
+                BSpline.eval(it, controlPoints)
+            }
+            for (c in points) {
+                update(c.left, c.top)
+            }
+        }
+
+        for (t in planet.targetList) {
+            update(t.target.first.toDouble(), t.target.second.toDouble())
+
+            for (e in t.exposure) {
+                update(e.first.toDouble(), e.second.toDouble())
+            }
+        }
+
+        for (p in planet.pathSelectList) {
+            update(p.point.first.toDouble(), p.point.second.toDouble())
+        }
+
+        if (!found) {
             areaTransition.animate(centerRect(areaTransition.value), this.planetDrawable.animationTime)
             alphaTransition.animate(0.0, this.planetDrawable.animationTime)
 
             return
         }
 
-        val area = Rectangle.fromEdges(pointList).expand(1.0)
+        minX = round(minX * 20.0) / 20.0
+        minY = round(minY * 20.0) / 20.0
+        maxX = round(maxX * 20.0) / 20.0
+        maxY = round(maxY * 20.0) / 20.0
+
+        val area = Rectangle(minX, minY, maxX - minX, maxY - minY).expand(1.0)
 
         if (alphaTransition.value == 0.0) {
             areaTransition.resetValue(centerRect(area))
