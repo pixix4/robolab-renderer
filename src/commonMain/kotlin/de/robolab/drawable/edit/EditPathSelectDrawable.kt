@@ -1,5 +1,6 @@
-package de.robolab.drawable
+package de.robolab.drawable.edit
 
+import de.robolab.drawable.PathSelectDrawable
 import de.robolab.model.Direction
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
@@ -42,6 +43,8 @@ class EditPathSelectDrawable(
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        if (!editPlanetDrawable.editable) return emptyList()
+
         val selectedPoint = editPlanetDrawable.selectedPoint ?: return emptyList()
 
         val dx = abs(position.left - selectedPoint.first)

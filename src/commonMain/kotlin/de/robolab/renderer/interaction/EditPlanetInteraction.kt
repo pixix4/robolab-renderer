@@ -1,9 +1,9 @@
 package de.robolab.renderer.interaction
 
-import de.robolab.drawable.EditControlPointsDrawable
-import de.robolab.drawable.EditDrawEndDrawable
-import de.robolab.drawable.EditPathSelectDrawable
-import de.robolab.drawable.EditPlanetDrawable
+import de.robolab.drawable.edit.EditControlPointsDrawable
+import de.robolab.drawable.edit.EditDrawEndDrawable
+import de.robolab.drawable.edit.EditPathSelectDrawable
+import de.robolab.drawable.edit.EditPlanetDrawable
 import de.robolab.model.Direction
 import de.robolab.model.Path
 import de.robolab.renderer.PlottingConstraints
@@ -25,6 +25,8 @@ class EditPlanetInteraction(
     private var controlPointsGroupHistory = false
 
     override fun onMouseDown(event: MouseEvent): Boolean {
+        if (!editPlanet.editable) return false
+
         hasMovedWhileDown = false
         controlPointsGroupHistory = false
 
@@ -55,6 +57,8 @@ class EditPlanetInteraction(
     }
 
     override fun onMouseUp(event: MouseEvent): Boolean {
+        if (!editPlanet.editable) return false
+
         controlPoint = null
         if (startEnd != null && shouldCreatePath) {
             val targetEnd = editPlanet.pointer.findObjectUnderPointer<EditDrawEndDrawable.PointEnd>()
@@ -81,6 +85,8 @@ class EditPlanetInteraction(
     }
 
     override fun onMouseMove(event: MouseEvent): Boolean {
+        if (!editPlanet.editable) return false
+
         hasMovedWhileDown = true
         shouldCreatePath = true
 
@@ -102,6 +108,8 @@ class EditPlanetInteraction(
     }
 
     override fun onMouseDrag(event: MouseEvent): Boolean {
+        if (!editPlanet.editable) return false
+
         hasMovedWhileDown = true
         shouldCreatePath = true
 
@@ -143,6 +151,8 @@ class EditPlanetInteraction(
     }
 
     override fun onMouseClick(event: MouseEvent): Boolean {
+        if (!editPlanet.editable) return false
+
         if (!hasMovedWhileDown) {
             val currentPathSelect = editPlanet.pointer.findObjectUnderPointer<EditPathSelectDrawable.PointSelect>()
             if (currentPathSelect != null) {
@@ -175,6 +185,8 @@ class EditPlanetInteraction(
     }
 
     override fun onKeyDown(event: KeyEvent): Boolean {
+        if (!editPlanet.editable) return false
+
         when (event.keyCode) {
             KeyCode.DELETE -> {
                 val path = editPlanet.selectedPath ?: return false

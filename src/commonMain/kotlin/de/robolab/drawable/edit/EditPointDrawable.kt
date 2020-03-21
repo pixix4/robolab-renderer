@@ -1,4 +1,4 @@
-package de.robolab.drawable
+package de.robolab.drawable.edit
 
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
@@ -91,6 +91,8 @@ class EditPointDrawable(
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        if (!editPlanetDrawable.editable) return emptyList()
+
         val point = Point(position.left.roundToInt(), position.top.roundToInt())
         if (position.distance(point) < PlottingConstraints.POINT_SIZE / 2) {
             return listOf(point.left.toInt() to point.top.toInt())

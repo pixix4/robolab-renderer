@@ -8,7 +8,7 @@ class History<T : Any>(initValue: T) {
 
     private var historyIndexProperty = property(0)
     private var historyIndex by historyIndexProperty
-    private var historyList = listOf<T>(initValue)
+    private var historyList = listOf(initValue)
 
     private val readOnlyValueProperty = historyIndexProperty.mapBinding { historyList[it] }
     val valueProperty = property(object : FunctionAccessor<T> {
@@ -23,14 +23,20 @@ class History<T : Any>(initValue: T) {
     }, readOnlyValueProperty)
     val value by valueProperty
 
+    val canUndoProperty = readOnlyValueProperty.mapBinding { historyIndex > 0 }
+    val canUndo by canUndoProperty
+
+    val canRedoProperty = readOnlyValueProperty.mapBinding {historyIndex < historyList.lastIndex }
+    val canRedo by canRedoProperty
+
     fun undo() {
-        if (historyIndex > 0) {
+        if (canUndo) {
             historyIndex -= 1
         }
     }
 
     fun redo() {
-        if (historyIndex < historyList.lastIndex) {
+        if (canRedo) {
             historyIndex += 1
         }
     }

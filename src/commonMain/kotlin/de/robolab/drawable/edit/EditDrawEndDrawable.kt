@@ -1,4 +1,4 @@
-package de.robolab.drawable
+package de.robolab.drawable.edit
 
 import de.robolab.model.Direction
 import de.robolab.model.Planet
@@ -77,6 +77,8 @@ class EditDrawEndDrawable(
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        if (!editPlanetDrawable.editable) return emptyList()
+
         if (editPlanetDrawable.selectedPoint != null) {
             return emptyList()
         }

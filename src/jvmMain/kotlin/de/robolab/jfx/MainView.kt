@@ -1,20 +1,130 @@
 package de.robolab.jfx
 
-import de.robolab.drawable.EditPlanetDrawable
-import de.robolab.drawable.PlanetDrawable
+import de.robolab.drawable.edit.EditPlanetDrawable
+import de.robolab.drawable.edit.IEditCallback
 import de.robolab.jfx.adapter.FxCanvas
 import de.robolab.jfx.adapter.FxTimer
+import de.robolab.jfx.adapter.toProperty
 import de.robolab.model.*
 import de.robolab.model.Target
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.History
+import de.westermann.kobserve.property.mapBinding
 import javafx.application.Platform
+import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.BorderPane
+import javafx.scene.layout.Priority
 import tornadofx.*
 import java.time.LocalDate
 import kotlin.system.exitProcess
 
 class MainView : View() {
+
+    class EditCallback(private val history: History<Planet>) : IEditCallback {
+        private var planet by history.valueProperty
+
+        private var lastUpdateControlPoints: Pair<Path, List<Pair<Double, Double>>>? = null
+        override fun drawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction) {
+            lastUpdateControlPoints = null
+            planet = planet.copy(
+                    pathList = planet.pathList + Path(
+                            startPoint, startDirection,
+                            endPoint, endDirection,
+                            1
+                    )
+            )
+        }
+
+        override fun deletePath(path: Path) {
+            lastUpdateControlPoints = null
+            val pathList = planet.pathList - path
+
+            planet = planet.copy(pathList = pathList)
+        }
+
+        override fun updateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>, groupHistory: Boolean) {
+            val newPath = path.copy(controlPoints = controlPoints)
+            val pathList = planet.pathList - path + newPath
+            val newPlanet = planet.copy(pathList = pathList)
+
+            val lastUpdate = lastUpdateControlPoints
+            if (groupHistory && lastUpdate != null && lastUpdate.first.equalPath(path) && lastUpdate.second.size == controlPoints.size) {
+                history.replace(newPlanet)
+            } else {
+                planet = newPlanet
+            }
+            lastUpdateControlPoints = path to controlPoints
+        }
+
+        override fun toggleTargetSend(sender: Pair<Int, Int>, target: Pair<Int, Int>) {
+            lastUpdateControlPoints = null
+            val currentTargets = planet.targetList.toMutableList()
+            val t = currentTargets.find { it.target == target }
+            if (t == null) {
+                currentTargets += Target(target, setOf(sender))
+            } else {
+                currentTargets.remove(t)
+
+                if (sender in t.exposure) {
+                    if (t.exposure.size > 1) {
+                        currentTargets += t.copy(
+                                exposure = t.exposure - sender
+                        )
+                    }
+                } else {
+                    currentTargets += t.copy(
+                            exposure = t.exposure + sender
+                    )
+                }
+            }
+            planet = planet.copy(targetList = currentTargets)
+        }
+
+        override fun togglePathSend(sender: Pair<Int, Int>, path: Path) {
+            lastUpdateControlPoints = null
+            val currentPaths = planet.pathList.toMutableList()
+            val p = currentPaths.find { it.equalPath(path) } ?: return
+
+            currentPaths.remove(p)
+
+            if (sender in p.exposure) {
+                currentPaths += p.copy(
+                        exposure = p.exposure - sender
+                )
+
+            } else {
+                currentPaths += p.copy(
+                        exposure = p.exposure + sender
+                )
+            }
+
+            planet = planet.copy(pathList = currentPaths)
+        }
+
+        override fun togglePathSelect(point: Pair<Int, Int>, direction: Direction) {
+            lastUpdateControlPoints = null
+            val currentPathSelects = planet.pathSelectList.toMutableList()
+            val p = currentPathSelects.find { it.point == point }
+
+            currentPathSelects.remove(p)
+
+            if (direction != p?.direction) {
+                currentPathSelects += PathSelect(point, direction)
+            }
+
+            planet = planet.copy(pathSelectList = currentPathSelects)
+        }
+
+        override fun undo() {
+            lastUpdateControlPoints = null
+            history.undo()
+        }
+
+        override fun redo() {
+            lastUpdateControlPoints = null
+            history.redo()
+        }
+    }
 
     override val root: BorderPane = borderpane {
         title = headerText
@@ -27,151 +137,77 @@ class MainView : View() {
         val timer = FxTimer(50.0)
         val plotter = DefaultPlotter(canvas, timer, animationTime = 1000.0)
 
-        center {
-            add(canvas.canvas)
-            canvas.canvas.widthProperty().bind(widthProperty())
-            canvas.canvas.heightProperty().bind(heightProperty())
-        }
-
-        // initAnimatedPlanet(plotter)
-        initEditPlanet(plotter)
-    }
-
-    private fun initAnimatedPlanet(plotter: DefaultPlotter) {
-        val planetDrawable = PlanetDrawable()
+        val planetDrawable = EditPlanetDrawable()
         plotter.drawable = planetDrawable
 
-        val planetList = listOf(PLANET_1, PLANET_2, PLANET_3, PLANET_4, PLANET_5)
-        var planetIndex = 0
+        val history = History(PLANET_1)
+        history.push(PLANET_2)
+        history.push(PLANET_3)
+        history.push(PLANET_4)
+        history.push(PLANET_5)
+
+        planetDrawable.editCallback = EditCallback(history)
+
+        var isUndoPhase = false
 
         val anim = FxTimer(1000 / (ANIMATION_TIME * 1.25))
-        anim.start()
         anim.onRender {
-            println("Render planet index $planetIndex")
-            planetDrawable.importPlanet(planetList[planetIndex])
-            planetIndex = (planetIndex + 1) % planetList.size
+            if (isUndoPhase && !history.canUndo) {
+                isUndoPhase = false
+            } else if (!isUndoPhase && !history.canRedo) {
+                isUndoPhase = true
+            }
+            if (isUndoPhase) {
+                history.undo()
+            } else {
+                history.redo()
+            }
         }
-    }
 
-    private fun initEditPlanet(plotter: DefaultPlotter) {
-        val planetHistory = History(PLANET_4)
-        var planet by planetHistory.valueProperty
+        history.valueProperty.onChange {
+            planetDrawable.importPlanet(history.value)
+        }
 
-        val planetDrawable = EditPlanetDrawable()
+        history.undo()
 
-        planetDrawable.editCallback = object : EditPlanetDrawable.IEditCallback {
-            var lastUpdateControlPoints: Pair<Path, List<Pair<Double, Double>>>? = null
-            override fun drawPath(startPoint: Pair<Int, Int>, startDirection: Direction, endPoint: Pair<Int, Int>, endDirection: Direction) {
-                lastUpdateControlPoints = null
-                planet = planet.copy(
-                        pathList = planet.pathList + Path(
-                                startPoint, startDirection,
-                                endPoint, endDirection,
-                                1
-                        )
-                )
-            }
+        center {
+            vbox {
+                vgrow = Priority.ALWAYS
+                hgrow = Priority.ALWAYS
 
-            override fun deletePath(path: Path) {
-                lastUpdateControlPoints = null
-                val pathList = planet.pathList - path
-
-                planet = planet.copy(pathList = pathList)
-            }
-
-            override fun updateControlPoints(path: Path, controlPoints: List<Pair<Double, Double>>, groupHistory: Boolean) {
-                val newPath = path.copy(controlPoints = controlPoints)
-                val pathList = planet.pathList - path + newPath
-                val newPlanet = planet.copy(pathList = pathList)
-
-                val lastUpdate = lastUpdateControlPoints
-                if (groupHistory && lastUpdate != null && lastUpdate.first.equalPath(path) && lastUpdate.second.size == controlPoints.size) {
-                    planetHistory.replace(newPlanet)
-                } else {
-                    planet = newPlanet
-                }
-                lastUpdateControlPoints = path to controlPoints
-            }
-
-            override fun toggleTargetSend(sender: Pair<Int, Int>, target: Pair<Int, Int>) {
-                lastUpdateControlPoints = null
-                val currentTargets = planet.targetList.toMutableList()
-                val t = currentTargets.find { it.target == target }
-                if (t == null) {
-                    currentTargets += Target(target, setOf(sender))
-                } else {
-                    currentTargets.remove(t)
-
-                    if (sender in t.exposure) {
-                        if (t.exposure.size > 1) {
-                            currentTargets += t.copy(
-                                    exposure = t.exposure - sender
-                            )
+                toolbar {
+                    val toggleGroup = ToggleGroup()
+                    togglebutton("Animate", toggleGroup, false) {
+                        selectedProperty().onChange {
+                            if (it) {
+                                anim.start()
+                            } else {
+                                anim.stop()
+                            }
                         }
-                    } else {
-                        currentTargets += t.copy(
-                                exposure = t.exposure + sender
-                        )
+                    }
+                    togglebutton("Editable", toggleGroup, false) {
+                        selectedProperty().toProperty().bindBidirectional(planetDrawable.editableProperty)
                     }
                 }
-                planet = planet.copy(targetList = currentTargets)
-            }
 
-            override fun togglePathSend(sender: Pair<Int, Int>, path: Path) {
-                lastUpdateControlPoints = null
-                val currentPaths = planet.pathList.toMutableList()
-                val p = currentPaths.find { it.equalPath(path) } ?: return
+                hbox {
+                    vgrow = Priority.ALWAYS
+                    hgrow = Priority.ALWAYS
 
-                currentPaths.remove(p)
-
-                if (sender in p.exposure) {
-                    currentPaths += p.copy(
-                            exposure = p.exposure - sender
-                    )
-
-                } else {
-                    currentPaths += p.copy(
-                            exposure = p.exposure + sender
-                    )
+                    add(canvas.canvas)
+                    canvas.canvas.widthProperty().bind(widthProperty())
+                    canvas.canvas.heightProperty().bind(heightProperty())
                 }
 
-                planet = planet.copy(pathList = currentPaths)
-            }
-
-            override fun togglePathSelect(point: Pair<Int, Int>, direction: Direction) {
-                lastUpdateControlPoints = null
-                val currentPathSelects = planet.pathSelectList.toMutableList()
-                val p = currentPathSelects.find { it.point == point }
-
-                currentPathSelects.remove(p)
-
-                if (direction != p?.direction) {
-                    currentPathSelects += PathSelect(point, direction)
+                hbox {
+                    label {
+                        textProperty().toProperty().bind(plotter.pointerProperty.mapBinding { it.position.toString() + " | " + it.objectsUnderPointer })
+                    }
                 }
-
-                planet = planet.copy(pathSelectList = currentPathSelects)
-            }
-
-            override fun undo() {
-                lastUpdateControlPoints = null
-                planetHistory.undo()
-            }
-
-            override fun redo() {
-                lastUpdateControlPoints = null
-                planetHistory.redo()
             }
         }
-
-        plotter.drawable = planetDrawable
-
-        planetHistory.valueProperty.onChange {
-            planetDrawable.importPlanet(planet)
-        }
-
-        planetDrawable.importPlanet(planet)
     }
-
 
     override fun onUndock() {
         exitProcess(0)

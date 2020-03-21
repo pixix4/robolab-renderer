@@ -1,5 +1,6 @@
-package de.robolab.drawable
+package de.robolab.drawable.edit
 
+import de.robolab.drawable.PathDrawable
 import de.robolab.drawable.curve.BSpline
 import de.robolab.drawable.curve.Curve
 import de.robolab.drawable.utils.PathGenerator
