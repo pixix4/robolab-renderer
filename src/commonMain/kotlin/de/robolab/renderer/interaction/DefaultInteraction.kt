@@ -59,18 +59,10 @@ class DefaultInteraction(
     override fun onScroll(event: ScrollEvent): Boolean {
         when {
             event.ctrlKey -> {
-                transformation.scaleBy(when {
-                    event.delta.top > 0 -> 1.1
-                    event.delta.top < 0 -> 0.9
-                    else -> 1.0
-                }, event.point, ANIMATION_TIME)
+                transformation.scaleBy(1.0 + event.delta.top / 40.0 * 0.1, event.point, ANIMATION_TIME)
             }
             event.altKey -> {
-                transformation.rotateBy(when {
-                    event.delta.top > 0 -> PI / 32
-                    event.delta.top < 0 -> -PI / 32
-                    else -> 0.0
-                }, event.point, ANIMATION_TIME)
+                transformation.rotateBy(event.delta.top / 40.0 * PI / 32, event.point, ANIMATION_TIME)
             }
             else -> {
                 transformation.translateBy(event.delta, ANIMATION_TIME)

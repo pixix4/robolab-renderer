@@ -23,7 +23,7 @@ class FxCanvas : ICanvas {
         canvas.setOnMousePressed { event ->
             canvas.requestFocus()
             when (event.button) {
-                MouseButton.FORWARD ->  listener.onKeyDown(KeyEvent(
+                MouseButton.FORWARD -> listener.onKeyDown(KeyEvent(
                         KeyCode.AGAIN,
                         "",
                         event.isControlDown,
@@ -49,7 +49,7 @@ class FxCanvas : ICanvas {
         }
         canvas.setOnMouseReleased { event ->
             when (event.button) {
-                MouseButton.FORWARD ->  listener.onKeyUp(KeyEvent(
+                MouseButton.FORWARD -> listener.onKeyUp(KeyEvent(
                         KeyCode.AGAIN,
                         "",
                         event.isControlDown,
@@ -64,11 +64,11 @@ class FxCanvas : ICanvas {
                         event.isShiftDown
                 ))
                 else -> listener.onMouseUp(MouseEvent(
-                    Point(event.x, event.y),
-                    Dimension(width, height),
-                    event.isControlDown,
-                    event.isAltDown,
-                    event.isShiftDown
+                        Point(event.x, event.y),
+                        Dimension(width, height),
+                        event.isControlDown,
+                        event.isAltDown,
+                        event.isShiftDown
                 ))
             }
         }
