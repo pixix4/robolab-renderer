@@ -8,4 +8,7 @@ object PlottingConstraints {
     const val TARGET_RADIUS = 0.25
     const val CURVE_FIRST_POINT = 0.15
     const val CURVE_SECOND_POINT = 0.3
+
+    const val PRECISION = 0.05
+    const val PRECISION_FACTOR = 1.0 / PRECISION
 }

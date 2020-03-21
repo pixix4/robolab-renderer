@@ -12,6 +12,7 @@ import de.robolab.renderer.platform.ICanvasListener
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.MouseEvent
+import kotlin.math.round
 import kotlin.math.roundToInt
 
 class EditPlanetInteraction(
@@ -136,8 +137,8 @@ class EditPlanetInteraction(
                 else -> editPlanet.pointer.position
             }.let {
                 Point(
-                        (it.left * 10).roundToInt() / 10.0,
-                        (it.top * 10).roundToInt() / 10.0
+                        round(it.left * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR,
+                        round(it.top * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
                 )
             }
 

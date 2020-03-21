@@ -202,7 +202,9 @@ class MainView : View() {
 
                 hbox {
                     label {
-                        textProperty().toProperty().bind(plotter.pointerProperty.mapBinding { it.position.toString() + " | " + it.objectsUnderPointer })
+                        textProperty().toProperty().bind(plotter.pointerProperty.mapBinding {
+                            it.roundedPosition.toString() + " | " + it.objectsUnderPointer
+                        })
                     }
                 }
             }

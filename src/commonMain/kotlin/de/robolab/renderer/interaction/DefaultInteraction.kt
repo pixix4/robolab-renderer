@@ -1,7 +1,6 @@
 package de.robolab.renderer.interaction
 
 import de.robolab.renderer.DefaultPlotter
-import de.robolab.renderer.Pointer
 import de.robolab.renderer.Transformation
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
@@ -16,16 +15,9 @@ class DefaultInteraction(
     private var lastPoint: Point = Point.ZERO
     private var lastDimension: Dimension = Dimension.ZERO
     private var isMouseDown = false
-    
-    private fun updatePointer(point: Point) {
-        val pointer = transformation.canvasToPlanet(point)
-        val elements = plotter.getObjectsAtPosition(pointer)
-
-        plotter.pointer = Pointer(pointer, elements)
-    }
 
     override fun onMouseDown(event: MouseEvent): Boolean {
-        updatePointer(event.point)
+        plotter.updatePointer(event.point)
 
         lastPoint = event.point
         isMouseDown = true
@@ -34,7 +26,7 @@ class DefaultInteraction(
     }
 
     override fun onMouseUp(event: MouseEvent): Boolean {
-        updatePointer(event.point)
+        plotter.updatePointer(event.point)
 
         lastPoint = event.point
         isMouseDown = false
@@ -43,14 +35,14 @@ class DefaultInteraction(
     }
 
     override fun onMouseMove(event: MouseEvent): Boolean {
-        updatePointer(event.point)
+        plotter.updatePointer(event.point)
         lastPoint = event.point
 
         return false
     }
 
     override fun onMouseDrag(event: MouseEvent): Boolean {
-        updatePointer(event.point)
+        plotter.updatePointer(event.point)
 
         if (!isMouseDown) return false
 
@@ -85,7 +77,7 @@ class DefaultInteraction(
             }
         }
 
-        updatePointer(event.point)
+        plotter.updatePointer(event.point)
         lastPoint = event.point
 
         return true
@@ -94,7 +86,7 @@ class DefaultInteraction(
     override fun onZoom(event: ZoomEvent): Boolean {
         transformation.scaleBy(event.zoomFactor, event.point)
 
-        updatePointer(event.point)
+        plotter.updatePointer(event.point)
         lastPoint = event.point
 
         return true
@@ -103,7 +95,7 @@ class DefaultInteraction(
     override fun onRotate(event: RotateEvent): Boolean {
         transformation.rotateBy(event.angle, event.point)
 
-        updatePointer(event.point)
+        plotter.updatePointer(event.point)
         lastPoint = event.point
 
         return true
@@ -120,35 +112,35 @@ class DefaultInteraction(
         when (event.keyCode) {
             KeyCode.UP -> {
                 transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION), ANIMATION_TIME)
-                updatePointer(lastPoint)
+                plotter.updatePointer(lastPoint)
             }
             KeyCode.DOWN -> {
                 transformation.translateBy(Point(0.0, -KEYBOARD_TRANSLATION), ANIMATION_TIME)
-                updatePointer(lastPoint)
+                plotter.updatePointer(lastPoint)
             }
             KeyCode.LEFT -> {
                 if (event.altKey) {
-                    transformation.rotateBy(KEYBOARD_ROTATION, lastDimension/ 2, ANIMATION_TIME)
-                }else {
+                    transformation.rotateBy(KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
+                } else {
                     transformation.translateBy(Point(KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
                 }
-                updatePointer(lastPoint)
+                plotter.updatePointer(lastPoint)
             }
             KeyCode.RIGHT -> {
                 if (event.altKey) {
-                    transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension/ 2, ANIMATION_TIME)
-                }else {
+                    transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
+                } else {
                     transformation.translateBy(Point(-KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
                 }
-                updatePointer(lastPoint)
+                plotter.updatePointer(lastPoint)
             }
             KeyCode.PLUS, KeyCode.EQUALS -> {
                 transformation.scaleBy(KEYBOARD_SCALE, lastDimension / 2.0, ANIMATION_TIME)
-                updatePointer(lastPoint)
+                plotter.updatePointer(lastPoint)
             }
             KeyCode.MINUS -> {
                 transformation.scaleBy(1.0 / KEYBOARD_SCALE, lastDimension / 2.0, ANIMATION_TIME)
-                updatePointer(lastPoint)
+                plotter.updatePointer(lastPoint)
             }
             else -> return false
         }

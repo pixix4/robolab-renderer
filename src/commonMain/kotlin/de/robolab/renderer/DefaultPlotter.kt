@@ -11,6 +11,7 @@ import de.robolab.renderer.platform.ICanvasListener
 import de.robolab.renderer.platform.ITimer
 import de.robolab.renderer.theme.LightTheme
 import de.westermann.kobserve.property.property
+import kotlin.math.round
 
 /**
  * @author lars
@@ -61,20 +62,22 @@ class DefaultPlotter(
     fun getObjectsAtPosition(position: Point): List<Any> {
         return drawable.getObjectsAtPosition(context, position)
     }
+    
+    fun updatePointer(mousePosition: Point = pointer.mousePosition) {
+        val position = transformation.canvasToPlanet(mousePosition)
+        val elements = getObjectsAtPosition(position)
 
-    fun updatePointer() {
-        pointer = pointer.copy(
-                objectsUnderPointer = getObjectsAtPosition(pointer.position)
-        )
+        pointer = Pointer(position, mousePosition, elements)
     }
 
     init {
         this.drawable = drawable
-
         canvas.setListener(interaction)
+        transformation.onViewChange {
+            updatePointer()
+        }
 
         timer.onRender(this::render)
-
         timer.start()
     }
 }

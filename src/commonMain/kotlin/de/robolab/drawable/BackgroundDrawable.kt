@@ -3,6 +3,7 @@ package de.robolab.drawable
 import de.robolab.drawable.curve.BSpline
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
+import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Point
@@ -88,10 +89,10 @@ class BackgroundDrawable(
             return
         }
 
-        minX = round(minX * 20.0) / 20.0
-        minY = round(minY * 20.0) / 20.0
-        maxX = round(maxX * 20.0) / 20.0
-        maxY = round(maxY * 20.0) / 20.0
+        minX = round(minX * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
+        minY = round(minY * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
+        maxX = round(maxX * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
+        maxY = round(maxY * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
 
         val area = Rectangle(minX, minY, maxX - minX, maxY - minY).expand(1.0)
 
