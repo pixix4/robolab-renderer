@@ -14,9 +14,11 @@ class Main(val canvas: ICanvas) {
     private val timer = CommonTimer(50.0)
     private val plotter = DefaultPlotter(canvas, timer, animationTime = 1000.0)
     private val planetDrawable = EditPlanetDrawable()
+    
+    private val animationTimer = CommonTimer(1000 / (ANIMATION_TIME * 1.25))
 
-    val editableProperty = planetDrawable.editableProperty
     val animateProperty = property(false)
+    val editableProperty = planetDrawable.editableProperty
     val pointerProperty = plotter.pointerProperty.mapBinding {
         it.roundedPosition.toString() + " | " + it.objectsUnderPointer
     }
@@ -28,10 +30,11 @@ class Main(val canvas: ICanvas) {
             if (animateProperty.value) {
                 editableProperty.value = false
             }
+
             if (animateProperty.value) {
-                timer.start()
+                animationTimer.start()
             } else {
-                timer.stop()
+                animationTimer.stop()
             }
         }
         editableProperty.onChange {
@@ -50,8 +53,7 @@ class Main(val canvas: ICanvas) {
 
         var isUndoPhase = false
 
-        val anim = CommonTimer(1000 / (ANIMATION_TIME * 1.25))
-        anim.onRender {
+        animationTimer.onRender {
             if (isUndoPhase && !history.canUndo) {
                 isUndoPhase = false
             } else if (!isUndoPhase && !history.canRedo) {
