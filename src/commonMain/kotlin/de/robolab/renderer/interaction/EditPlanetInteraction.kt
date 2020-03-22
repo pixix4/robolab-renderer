@@ -13,7 +13,6 @@ import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.MouseEvent
 import kotlin.math.round
-import kotlin.math.roundToInt
 
 class EditPlanetInteraction(
         private val editPlanet: EditPlanetDrawable
@@ -160,7 +159,7 @@ class EditPlanetInteraction(
                 editPlanet.editCallback.togglePathSelect(currentPathSelect.point, currentPathSelect.direction)
                 return true
             }
-            
+
             val currentPoint = editPlanet.pointer.findObjectUnderPointer<Pair<Int, Int>>()
             val currentPath = editPlanet.pointer.findObjectUnderPointer<Path>()
 
@@ -214,7 +213,7 @@ class EditPlanetInteraction(
             KeyCode.UNDO -> {
                 editPlanet.editCallback.undo()
             }
-            KeyCode.AGAIN -> {
+            KeyCode.REDO -> {
                 editPlanet.editCallback.redo()
             }
             KeyCode.Z -> if (event.ctrlKey) {

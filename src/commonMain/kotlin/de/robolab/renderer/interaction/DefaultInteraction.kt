@@ -102,15 +102,15 @@ class DefaultInteraction(
 
     override fun onKeyDown(event: KeyEvent): Boolean {
         when (event.keyCode) {
-            KeyCode.UP -> {
+            KeyCode.ARROW_UP -> {
                 transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION), ANIMATION_TIME)
                 plotter.updatePointer(lastPoint)
             }
-            KeyCode.DOWN -> {
+            KeyCode.ARROW_DOWN -> {
                 transformation.translateBy(Point(0.0, -KEYBOARD_TRANSLATION), ANIMATION_TIME)
                 plotter.updatePointer(lastPoint)
             }
-            KeyCode.LEFT -> {
+            KeyCode.ARROW_LEFT -> {
                 if (event.altKey) {
                     transformation.rotateBy(KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
@@ -118,7 +118,7 @@ class DefaultInteraction(
                 }
                 plotter.updatePointer(lastPoint)
             }
-            KeyCode.RIGHT -> {
+            KeyCode.ARROW_RIGHT -> {
                 if (event.altKey) {
                     transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {

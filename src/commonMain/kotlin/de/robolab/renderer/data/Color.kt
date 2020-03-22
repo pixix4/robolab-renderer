@@ -9,12 +9,11 @@ data class Color(
         val green: Int,
         val blue: Int,
         val alpha: Double = 1.0
-): IInterpolatable<Color> {
+) : IInterpolatable<Color> {
     fun r(red: Int) = copy(red = red)
     fun g(green: Int) = copy(green = green)
     fun b(blue: Int) = copy(blue = blue)
     fun a(alpha: Double) = copy(alpha = alpha)
-
 
     override fun interpolate(toValue: Color, progress: Double) = Color(
             (red * (1 - progress) + toValue.red * progress).roundToInt(),
@@ -22,6 +21,17 @@ data class Color(
             (blue * (1 - progress) + toValue.blue * progress).roundToInt(),
             alpha * (1 - progress) + toValue.alpha * progress
     )
+
+    override fun toString(): String {
+        if (alpha >= 1.0) {
+            val r = red.toString(16).padStart(2, '0')
+            val g = green.toString(16).padStart(2, '0')
+            val b = blue.toString(16).padStart(2, '0')
+            return "#$r$g$b"
+        }
+
+        return "rgba($red, $green, $blue, $alpha)"
+    }
 
     companion object {
         val TRANSPARENT = Color(0, 0, 0, 0.0)
@@ -82,12 +92,12 @@ data class Color(
                     (blue * 255).roundToInt()
             )
         }
-        
-        fun mix(colors: Map<Color, Double>) : Color {
+
+        fun mix(colors: Map<Color, Double>): Color {
             if (colors.isEmpty()) return TRANSPARENT
-            
+
             val sum = colors.values.sum()
-            
+
             return colors.entries.fold(TRANSPARENT) { acc, (c, d) ->
                 Color(
                         (acc.red + c.red * (d / sum)).roundToInt(),

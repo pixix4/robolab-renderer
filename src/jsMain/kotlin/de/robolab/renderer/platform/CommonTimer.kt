@@ -1,10 +1,9 @@
-package de.robolab.jfx.adapter
+package de.robolab.renderer.platform
 
-import de.robolab.renderer.platform.ITimer
 import de.westermann.kobserve.event.EventHandler
-import javafx.animation.AnimationTimer
+import kotlin.browser.window
 
-class FxTimer(fps: Double) : ITimer {
+actual class CommonTimer actual constructor(fps: Double) : ITimer {
 
     private var currentFps = 0.0
     private var thresholdMs = 0.0
@@ -19,16 +18,19 @@ class FxTimer(fps: Double) : ITimer {
             fpsBufferPointer = 0
         }
 
-    private val timer: AnimationTimer
+    private var requestId: Int? = null
 
     override val onRender = EventHandler<Double>()
 
     override fun start() {
-        timer.start()
+        if (requestId == null) {
+            requestId = window.requestAnimationFrame(this::callback)
+        }
     }
 
     override fun stop() {
-        timer.stop()
+        val id = requestId ?: return
+        window.cancelAnimationFrame(id)
     }
 
     private fun updateBuffer(ms_offset: Double) {
@@ -44,30 +46,25 @@ class FxTimer(fps: Double) : ITimer {
         }
     }
 
-    init {
-        this.fps = fps
+    private var lastTime = 0.0
+    private fun callback(msTime: Double) {
+        if (lastTime == 0.0) {
+            lastTime = msTime
+            onRender.emit(0.0)
+        } else {
+            val diff = msTime - lastTime
+            if (diff >= thresholdMs) {
+                lastTime = msTime
 
-        timer = object : AnimationTimer() {
-
-            private var lastTime = 0.0
-
-            override fun handle(nanoTime: Long) {
-                val msTime = nanoTime / 1_000_000.0
-
-                if (lastTime == 0.0) {
-                    lastTime = msTime
-                    onRender.emit(0.0)
-                    return
-                }
-
-                val diff = msTime - lastTime
-                if (diff >= thresholdMs) {
-                    lastTime = msTime
-
-                    updateBuffer(diff)
-                    onRender.emit(diff)
-                }
+                updateBuffer(diff)
+                onRender.emit(diff)
             }
         }
+
+        requestId = window.requestAnimationFrame(this::callback)
+    }
+
+    init {
+        this.fps = fps
     }
 }
