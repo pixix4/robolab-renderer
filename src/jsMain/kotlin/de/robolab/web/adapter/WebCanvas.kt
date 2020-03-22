@@ -8,6 +8,7 @@ import de.robolab.renderer.platform.*
 import de.westermann.kwebview.components.Canvas
 import de.westermann.kwebview.get
 import org.w3c.dom.*
+import kotlin.math.PI
 
 class WebCanvas(private val canvas: Canvas) : ICanvas {
 
@@ -294,8 +295,9 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
                 center.left,
                 center.top,
                 radius,
-                startAngle,
-                startAngle + extendAngle
+                2.0 * PI - startAngle,
+                2.0 * PI - (startAngle + extendAngle),
+                anticlockwise = true
         )
 
         context.fill()
@@ -306,13 +308,14 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         context.lineWidth = width
 
         context.beginPath()
-
+        
         context.arc(
                 center.left,
                 center.top,
                 radius,
-                startAngle,
-                startAngle + extendAngle
+                2.0 * PI - startAngle,
+                2.0 * PI - (startAngle + extendAngle),
+                anticlockwise = true
         )
 
         context.stroke()
