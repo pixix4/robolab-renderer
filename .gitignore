@@ -7,3 +7,5 @@ magic_draw/*
 .gradle/*
 robolab.conf
 export/*
+web/website/
+node_modules/

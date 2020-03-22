@@ -2,6 +2,8 @@
 
 plugins {
     kotlin("multiplatform") version "1.3.70"
+    id("com.github.node-gradle.node") version "2.2.3"
+    id("org.kravemir.gradle.sass") version "1.2.4"
 }
 
 repositories {
@@ -18,6 +20,7 @@ kotlin {
             }
         }
     }
+    js()
 
     sourceSets {
         val commonMain by getting {
@@ -59,6 +62,19 @@ kotlin {
                 implementation(kotlin("test-junit"))
             }
         }
+        val jsMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib-js"))
+
+                implementation("de.westermann:KObserve-js:0.9.3")
+            }
+        }
+        val jsTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(kotlin("test-junit"))
+            }
+        }
     }
 }
 
@@ -74,11 +90,44 @@ val jvmJar = tasks.named<Jar>("jvmJar") {
     from(Callable { configurations["jvmRuntimeClasspath"].map { if (it.isDirectory) it else zipTree(it) } })
 }
 
-tasks.create<JavaExec>("run") {
+tasks.create<JavaExec>("jvmRun") {
     dependsOn("jvmJar")
 
     group = "application"
     main = mainClassName
     classpath(jvmJar)
     args()
+}
+
+sass {
+    create("main") {
+        srcDir = file("$projectDir/src/jsMain/resources/public/stylesheets")
+        outDir = file("$buildDir/processedResources/js/main/public/stylesheets/")
+    }
+}
+
+val jsJar = tasks.named<Jar>("jsJar") {
+    dependsOn("mainSass")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from(Callable { configurations["jsRuntimeClasspath"].map { if (it.isDirectory) it else zipTree(it) } })
+}
+
+val jsSync = tasks.create<Sync>("jsSync") {
+    dependsOn("jsJar")
+
+    from(Callable { zipTree(jsJar.get().archiveFile) })
+    into("${projectDir}/web/website")
+}
+
+tasks.create<com.moowork.gradle.node.task.NodeTask>("jsRun") {
+    dependsOn("jsSync", "npmInstall")
+    setScript(file("web/index.js"))
+}
+
+node {
+    download = true
+    workDir = file("${project.projectDir}/build/node")
+    npmWorkDir = file("${project.projectDir}/web")
+    nodeModulesDir = file("${project.projectDir}/web")
 }
