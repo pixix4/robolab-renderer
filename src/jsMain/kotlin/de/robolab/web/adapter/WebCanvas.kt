@@ -107,7 +107,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
             event.preventDefault()
             listener.onScroll(ScrollEvent(
                     Point(event.x - canvas.offsetLeft, event.y - canvas.offsetTop),
-                    Point(event.deltaX, event.deltaY),
+                    Point(event.deltaX * WHEEL_FACTOR, event.deltaY * WHEEL_FACTOR),
                     Dimension(width, height),
                     event.ctrlKey,
                     event.altKey,
@@ -142,7 +142,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
 
         hammer.onPanStart {
             listener.onMouseDown(MouseEvent(
-                    Point(it.center.x, it.center.y),
+                    Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
                     Dimension(width, height),
                     ctrlKey = false,
                     altKey = false,
@@ -153,7 +153,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         }
         hammer.onPanMove {
             listener.onMouseDrag(MouseEvent(
-                    Point(it.center.x, it.center.y),
+                    Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
                     Dimension(width, height),
                     ctrlKey = false,
                     altKey = false,
@@ -164,7 +164,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         }
         hammer.onPanEnd {
             listener.onMouseUp(MouseEvent(
-                    Point(it.center.x, it.center.y),
+                    Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
                     Dimension(width, height),
                     ctrlKey = false,
                     altKey = false,
@@ -176,7 +176,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
 
         hammer.onTap {
             listener.onMouseClick(MouseEvent(
-                    Point(it.center.x, it.center.y),
+                    Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
                     Dimension(width, height),
                     ctrlKey = false,
                     altKey = false,
@@ -188,7 +188,6 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
 
         var lastScale = 0.0
         hammer.onPinchStart {
-            console.log(it)
             lastScale = it.scale
 
             it.preventDefault()
@@ -196,7 +195,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         hammer.onPinchMove {
             val delta = 1.0 - (lastScale - it.scale)
             listener.onZoom(ZoomEvent(
-                    Point(it.center.x, it.center.y),
+                    Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
                     delta,
                     Dimension(width, height),
                     ctrlKey = false,
@@ -220,7 +219,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         hammer.onRotateMove {
             val delta = (it.rotation - lastRotation) / 180.0 * PI
             listener.onRotate(RotateEvent(
-                    Point(it.center.x, it.center.y),
+                    Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
                     delta,
                     Dimension(width, height),
                     ctrlKey = false,
@@ -236,6 +235,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         }
 
         canvas.onResize {
+            context.translate(0.5, 0.5)
             listener.onResize(Dimension(width, height))
         }
     }
@@ -379,6 +379,8 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
     companion object {
         const val MOUSE_BUTTON_BACK: Short = 3
         const val MOUSE_BUTTON_FORWARD: Short = 4
+        
+        const val WHEEL_FACTOR = -4.0
     }
 }
 
