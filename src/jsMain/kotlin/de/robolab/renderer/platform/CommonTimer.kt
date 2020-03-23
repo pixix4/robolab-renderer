@@ -31,6 +31,7 @@ actual class CommonTimer actual constructor(fps: Double) : ITimer {
     override fun stop() {
         val id = requestId ?: return
         window.cancelAnimationFrame(id)
+        requestId = null
     }
 
     private fun updateBuffer(ms_offset: Double) {
