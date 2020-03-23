@@ -45,7 +45,6 @@ class FxCanvas : ICanvas {
                         event.isShiftDown
                 ))
             }
-
         }
         canvas.setOnMouseReleased { event ->
             when (event.button) {

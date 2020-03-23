@@ -15,76 +15,13 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
     private val hammer = Hammer(canvas.html, object {})
 
     override fun setListener(listener: ICanvasListener) {
-        canvas.onMouseDown { event ->
-            event.stopPropagation()
-            event.preventDefault()
-            when (event.button) {
-                MOUSE_BUTTON_FORWARD -> listener.onKeyDown(KeyEvent(
-                        KeyCode.REDO,
-                        "",
-                        event.ctrlKey,
-                        event.altKey,
-                        event.shiftKey
-                ))
-                MOUSE_BUTTON_BACK -> listener.onKeyDown(KeyEvent(
-                        KeyCode.UNDO,
-                        "",
-                        event.ctrlKey,
-                        event.altKey,
-                        event.shiftKey
-                ))
-                else -> listener.onMouseDown(MouseEvent(
-                        Point(event.x - canvas.offsetLeft, event.y - canvas.offsetTop),
-                        Dimension(width, height),
-                        event.ctrlKey,
-                        event.altKey,
-                        event.shiftKey
-                ))
-            }
-
-            canvas.focus()
-        }
-        canvas.onMouseUp { event ->
-            event.stopPropagation()
-            event.preventDefault()
-            when (event.button) {
-                MOUSE_BUTTON_FORWARD -> listener.onKeyUp(KeyEvent(
-                        KeyCode.REDO,
-                        "",
-                        event.ctrlKey,
-                        event.altKey,
-                        event.shiftKey
-                ))
-                MOUSE_BUTTON_BACK -> listener.onKeyUp(KeyEvent(
-                        KeyCode.UNDO,
-                        "",
-                        event.ctrlKey,
-                        event.altKey,
-                        event.shiftKey
-                ))
-                else -> listener.onMouseUp(MouseEvent(
-                        Point(event.x - canvas.offsetLeft, event.y - canvas.offsetTop),
-                        Dimension(width, height),
-                        event.ctrlKey,
-                        event.altKey,
-                        event.shiftKey
-                ))
-            }
-        }
         canvas.onMouseMove { event ->
-            event.stopPropagation()
-            event.preventDefault()
-            if (event.buttons != 0.toShort()) {
-                listener.onMouseDrag(MouseEvent(
-                        Point(event.x - canvas.offsetLeft, event.y - canvas.offsetTop),
-                        Dimension(width, height),
-                        event.ctrlKey,
-                        event.altKey,
-                        event.shiftKey
-                ))
-            } else {
+            if (event.buttons == 0.toShort()) {
+                event.stopPropagation()
+                event.preventDefault()
+
                 listener.onMouseMove(MouseEvent(
-                        Point(event.x - canvas.offsetLeft, event.y - canvas.offsetTop),
+                        Point(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop),
                         Dimension(width, height),
                         event.ctrlKey,
                         event.altKey,
@@ -96,7 +33,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
             event.stopPropagation()
             event.preventDefault()
             listener.onMouseClick(MouseEvent(
-                    Point(event.x - canvas.offsetLeft, event.y - canvas.offsetTop),
+                    Point(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop),
                     Dimension(width, height),
                     event.ctrlKey,
                     event.altKey,
@@ -107,7 +44,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
             event.stopPropagation()
             event.preventDefault()
             listener.onScroll(ScrollEvent(
-                    Point(event.x - canvas.offsetLeft, event.y - canvas.offsetTop),
+                    Point(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop),
                     Point(event.deltaX * WHEEL_FACTOR, event.deltaY * WHEEL_FACTOR),
                     Dimension(width, height),
                     event.ctrlKey,
@@ -492,18 +429,18 @@ private fun String.toCommon() = when (this.toLowerCase()) {
     "copy" -> KeyCode.COPY
     "paste" -> KeyCode.PASTE
     "find" -> KeyCode.FIND
-    "f1" -> KeyCode.F1
-    "f2" -> KeyCode.F2
-    "f3" -> KeyCode.F3
-    "f4" -> KeyCode.F4
-    "f5" -> KeyCode.F5
-    "f6" -> KeyCode.F6
-    "f7" -> KeyCode.F7
-    "f8" -> KeyCode.F8
-    "f9" -> KeyCode.F9
-    "f10" -> KeyCode.F10
-    "f11" -> KeyCode.F11
-    "f12" -> KeyCode.F12
+    // "f1" -> KeyCode.F1
+    // "f2" -> KeyCode.F2
+    // "f3" -> KeyCode.F3
+    // "f4" -> KeyCode.F4
+    // "f5" -> KeyCode.F5
+    // "f6" -> KeyCode.F6
+    // "f7" -> KeyCode.F7
+    // "f8" -> KeyCode.F8
+    // "f9" -> KeyCode.F9
+    // "f10" -> KeyCode.F10
+    // "f11" -> KeyCode.F11
+    // "f12" -> KeyCode.F12
     else -> {
         println("Unsupported keyCode: $this")
         null
