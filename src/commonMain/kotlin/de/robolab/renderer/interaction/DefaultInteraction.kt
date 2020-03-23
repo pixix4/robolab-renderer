@@ -112,7 +112,7 @@ class DefaultInteraction(
             }
             KeyCode.ARROW_LEFT -> {
                 if (event.altKey) {
-                    transformation.rotateBy(KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
+                    transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
                     transformation.translateBy(Point(KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
                 }
@@ -120,7 +120,7 @@ class DefaultInteraction(
             }
             KeyCode.ARROW_RIGHT -> {
                 if (event.altKey) {
-                    transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
+                    transformation.rotateBy(KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
                     transformation.translateBy(Point(-KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
                 }

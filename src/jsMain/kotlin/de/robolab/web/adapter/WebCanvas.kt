@@ -42,6 +42,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
                 ))
             }
 
+            canvas.focus()
         }
         canvas.onMouseUp { event ->
             event.stopPropagation()
@@ -115,6 +116,18 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
             ))
         }
 
+        canvas.onKeyDown { event ->
+            val code = event.key.toCommon() ?: return@onKeyDown
+            event.stopPropagation()
+            event.preventDefault()
+            listener.onKeyDown(KeyEvent(
+                    code,
+                    event.key,
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
+            ))
+        }
         canvas.onKeyPress { event ->
             val code = event.key.toCommon() ?: return@onKeyPress
             event.stopPropagation()
@@ -374,6 +387,8 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         hammer.enablePan()
         hammer.enablePinch()
         hammer.enableRotate()
+
+        canvas.html.tabIndex = 0
     }
 
     companion object {
