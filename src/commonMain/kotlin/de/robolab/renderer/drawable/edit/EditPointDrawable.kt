@@ -1,4 +1,4 @@
-package de.robolab.drawable.edit
+package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
@@ -50,7 +50,7 @@ class EditPointDrawable(
         val greyColor = context.theme.gridTextColor
                 .interpolate(context.theme.secondaryBackgroundColor, COLOR_OPACITY)
                 .a(alphaTransition.value)
-        
+
         val selectedPoint = editPlanetDrawable.selectedPoint
 
         for (x in floor(context.area.left).toInt()..ceil(context.area.right).toInt()) {

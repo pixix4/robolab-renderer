@@ -1,4 +1,4 @@
-package de.robolab.drawable.curve
+package de.robolab.renderer.drawable.curve
 
 import de.robolab.renderer.data.Point
 import kotlin.math.min

@@ -1,7 +1,7 @@
 package de.westermann.kwebview
 
-import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.property
 import org.w3c.dom.DOMRect
 import org.w3c.dom.HTMLElement

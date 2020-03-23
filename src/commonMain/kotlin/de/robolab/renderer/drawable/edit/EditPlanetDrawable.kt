@@ -1,11 +1,11 @@
-package de.robolab.drawable.edit
+package de.robolab.renderer.drawable.edit
 
-import de.robolab.drawable.PathDrawable
-import de.robolab.drawable.PlanetDrawable
 import de.robolab.model.Planet
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.Pointer
 import de.robolab.renderer.drawable.GroupDrawable
+import de.robolab.renderer.drawable.PathDrawable
+import de.robolab.renderer.drawable.PlanetDrawable
 import de.robolab.renderer.interaction.EditPlanetInteraction
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property

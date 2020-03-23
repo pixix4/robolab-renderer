@@ -1,10 +1,5 @@
-package de.robolab.drawable
+package de.robolab.renderer.drawable
 
-import de.robolab.drawable.curve.BSpline
-import de.robolab.drawable.curve.Curve
-import de.robolab.drawable.utils.PathGenerator
-import de.robolab.drawable.utils.Utils
-import de.robolab.drawable.utils.shift
 import de.robolab.model.Direction
 import de.robolab.model.Path
 import de.robolab.model.Planet
@@ -14,6 +9,11 @@ import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
+import de.robolab.renderer.drawable.curve.BSpline
+import de.robolab.renderer.drawable.curve.Curve
+import de.robolab.renderer.drawable.utils.PathGenerator
+import de.robolab.renderer.drawable.utils.Utils
+import de.robolab.renderer.drawable.utils.shift
 
 
 class PathDrawable(

@@ -11,7 +11,7 @@ interface ITheme {
 
     val redColor: Color
     val blueColor: Color
-    
+
     val lineColor: Color
     val highlightColor: Color
     val editColor: Color

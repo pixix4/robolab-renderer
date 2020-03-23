@@ -10,13 +10,13 @@ open class GenericTransition<T>(
         initialValue: T,
         private val interpolate: (from: T, to: T, progress: Double) -> T
 ) {
-    
+
     private var fromValue = initialValue
     val sourceValue: T
         get() = fromValue
-    
+
     private val transitionList = mutableListOf<TransitionHelper>()
-    
+
     val targetValue: T
         get() = transitionList.lastOrNull()?.toValue ?: fromValue
 

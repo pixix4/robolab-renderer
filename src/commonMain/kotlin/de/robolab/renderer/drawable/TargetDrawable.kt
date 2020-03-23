@@ -1,6 +1,5 @@
-package de.robolab.drawable
+package de.robolab.renderer.drawable
 
-import de.robolab.drawable.utils.Utils
 import de.robolab.model.Planet
 import de.robolab.model.Target
 import de.robolab.renderer.DrawContext
@@ -9,6 +8,7 @@ import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
+import de.robolab.renderer.drawable.utils.Utils
 import kotlin.math.PI
 
 class TargetDrawable(
@@ -61,7 +61,8 @@ class TargetDrawable(
         }
 
         override fun startUpdateAnimation(obj: Target, planet: Planet) {
-            val color = Utils.getSenderGrouping(planet)[obj.exposure]?.let { Utils.getColorByIndex(it) } ?: Color.TRANSPARENT
+            val color = Utils.getSenderGrouping(planet)[obj.exposure]?.let { Utils.getColorByIndex(it) }
+                    ?: Color.TRANSPARENT
 
             sizeTransition.animate(1.0, this@TargetDrawable.planetDrawable.animationTime / 2, this@TargetDrawable.planetDrawable.animationTime / 2)
             colorTransition.animate(color, this@TargetDrawable.planetDrawable.animationTime / 2, this@TargetDrawable.planetDrawable.animationTime / 4)

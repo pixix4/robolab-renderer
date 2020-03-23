@@ -26,7 +26,7 @@ class History<T : Any>(initValue: T) {
     val canUndoProperty = readOnlyValueProperty.mapBinding { historyIndex > 0 }
     val canUndo by canUndoProperty
 
-    val canRedoProperty = readOnlyValueProperty.mapBinding {historyIndex < historyList.lastIndex }
+    val canRedoProperty = readOnlyValueProperty.mapBinding { historyIndex < historyList.lastIndex }
     val canRedo by canRedoProperty
 
     fun undo() {

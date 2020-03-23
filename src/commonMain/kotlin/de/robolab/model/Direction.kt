@@ -28,8 +28,8 @@ enum class Direction {
         SOUTH -> EAST
         WEST -> NORTH
     }
-    
-    fun toVector() = when(this) {
+
+    fun toVector() = when (this) {
         NORTH -> Point(0.0, 1.0)
         EAST -> Point(1.0, 0.0)
         SOUTH -> Point(0.0, -1.0)

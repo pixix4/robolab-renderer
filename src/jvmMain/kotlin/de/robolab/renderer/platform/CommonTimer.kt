@@ -3,7 +3,7 @@ package de.robolab.renderer.platform
 import de.westermann.kobserve.event.EventHandler
 import javafx.animation.AnimationTimer
 
-actual class CommonTimer actual constructor(fps: Double): ITimer {
+actual class CommonTimer actual constructor(fps: Double) : ITimer {
 
     private var currentFps = 0.0
     private var thresholdMs = 0.0

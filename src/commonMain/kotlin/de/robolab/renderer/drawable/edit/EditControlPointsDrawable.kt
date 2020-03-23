@@ -1,13 +1,13 @@
-package de.robolab.drawable.edit
+package de.robolab.renderer.drawable.edit
 
-import de.robolab.drawable.PathDrawable
-import de.robolab.drawable.curve.BSpline
-import de.robolab.drawable.curve.Curve
 import de.robolab.model.Path
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.IDrawable
+import de.robolab.renderer.drawable.PathDrawable
+import de.robolab.renderer.drawable.curve.BSpline
+import de.robolab.renderer.drawable.curve.Curve
 import kotlin.math.PI
 import kotlin.math.roundToInt
 

@@ -3,9 +3,9 @@ package de.robolab.renderer.drawable
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.data.Point
 
-class GroupDrawable(private var drawableList: List<IDrawable>): IDrawable {
+class GroupDrawable(private var drawableList: List<IDrawable>) : IDrawable {
 
-    constructor(vararg drawableList: IDrawable): this(drawableList.toList())
+    constructor(vararg drawableList: IDrawable) : this(drawableList.toList())
 
     override fun onUpdate(ms_offset: Double): Boolean {
         var hasChanges = false
@@ -15,7 +15,7 @@ class GroupDrawable(private var drawableList: List<IDrawable>): IDrawable {
                 hasChanges = true
             }
         }
-        
+
         return hasChanges
     }
 

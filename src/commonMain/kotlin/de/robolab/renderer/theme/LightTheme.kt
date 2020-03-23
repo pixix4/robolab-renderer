@@ -2,7 +2,7 @@ package de.robolab.renderer.theme
 
 import de.robolab.renderer.data.Color
 
-object LightTheme: ITheme {
+object LightTheme : ITheme {
     override val primaryBackgroundColor = Color(255, 255, 255)
     override val secondaryBackgroundColor = Color(240, 240, 240)
 

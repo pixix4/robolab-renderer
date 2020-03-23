@@ -1,8 +1,8 @@
 package de.robolab.renderer.interaction
 
-import de.robolab.drawable.CompassDrawable
 import de.robolab.renderer.Transformation
 import de.robolab.renderer.data.Point
+import de.robolab.renderer.drawable.CompassDrawable
 import de.robolab.renderer.platform.ICanvasListener
 import de.robolab.renderer.platform.MouseEvent
 import kotlin.math.PI

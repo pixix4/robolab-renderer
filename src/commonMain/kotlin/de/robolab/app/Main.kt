@@ -1,9 +1,9 @@
 package de.robolab.app
 
-import de.robolab.drawable.edit.EditPlanetDrawable
 import de.robolab.model.*
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.History
+import de.robolab.renderer.drawable.edit.EditPlanetDrawable
 import de.robolab.renderer.platform.CommonTimer
 import de.robolab.renderer.platform.ICanvas
 import de.westermann.kobserve.property.mapBinding
@@ -14,7 +14,7 @@ class Main(val canvas: ICanvas) {
     private val timer = CommonTimer(50.0)
     private val plotter = DefaultPlotter(canvas, timer, animationTime = 1000.0)
     private val planetDrawable = EditPlanetDrawable()
-    
+
     private val animationTimer = CommonTimer(1000 / (ANIMATION_TIME * 1.25))
 
     val animateProperty = property(false)
@@ -22,7 +22,7 @@ class Main(val canvas: ICanvas) {
     val pointerProperty = plotter.pointerProperty.mapBinding {
         it.roundedPosition.toString() + " | " + it.objectsUnderPointer
     }
-    
+
     init {
         plotter.drawable = planetDrawable
 

@@ -1,6 +1,5 @@
-package de.robolab.drawable
+package de.robolab.renderer.drawable
 
-import de.robolab.drawable.curve.BSpline
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
@@ -8,7 +7,7 @@ import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
-import de.robolab.renderer.drawable.IDrawable
+import de.robolab.renderer.drawable.curve.BSpline
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round

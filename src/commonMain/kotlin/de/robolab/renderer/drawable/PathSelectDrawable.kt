@@ -1,4 +1,4 @@
-package de.robolab.drawable
+package de.robolab.renderer.drawable
 
 import de.robolab.model.Direction
 import de.robolab.model.PathSelect
@@ -78,7 +78,7 @@ class PathSelectDrawable(
     override fun getObjectList(planet: Planet) = planet.pathSelectList
 
     override fun createAnimatable(obj: PathSelect, planet: Planet) = PathSelectAnimatable(obj)
-    
+
     companion object {
         fun getArrow(position: Point, direction: Direction): List<Point> {
             val rotation = when (direction) {

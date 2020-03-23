@@ -1,4 +1,4 @@
-package de.robolab.drawable.utils
+package de.robolab.renderer.drawable.utils
 
 import de.robolab.model.Direction
 import de.robolab.renderer.data.Point
@@ -124,6 +124,7 @@ object PathGenerator {
 
         companion object {
             const val STEP_WIDTH = 0.7
+
             // const val STEP_WIDTH_SQUARE = STEP_WIDTH * STEP_WIDTH
             const val MAX_ITERATIONS = 10
         }

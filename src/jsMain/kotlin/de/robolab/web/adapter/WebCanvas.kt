@@ -394,7 +394,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
     companion object {
         const val MOUSE_BUTTON_BACK: Short = 3
         const val MOUSE_BUTTON_FORWARD: Short = 4
-        
+
         const val WHEEL_FACTOR = -4.0
     }
 }

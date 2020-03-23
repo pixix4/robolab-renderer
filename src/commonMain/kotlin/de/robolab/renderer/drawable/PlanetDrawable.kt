@@ -1,13 +1,10 @@
-package de.robolab.drawable
+package de.robolab.renderer.drawable
 
 import de.robolab.model.Path
 import de.robolab.model.Planet
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
-import de.robolab.renderer.Pointer
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.GroupDrawable
-import de.robolab.renderer.drawable.IRootDrawable
 import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.property.property
 
@@ -19,7 +16,7 @@ open class PlanetDrawable() : IRootDrawable {
 
     val selectedPathProperty = property<Path?>(null)
     var selectedPath by selectedPathProperty
-    
+
     val selectedPointProperty = property<Pair<Int, Int>?>(null)
     var selectedPoint by selectedPointProperty
 

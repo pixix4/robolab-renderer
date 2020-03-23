@@ -1,12 +1,12 @@
-package de.robolab.drawable.edit
+package de.robolab.renderer.drawable.edit
 
-import de.robolab.drawable.PathSelectDrawable
 import de.robolab.model.Direction
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.IDrawable
+import de.robolab.renderer.drawable.PathSelectDrawable
 import kotlin.math.abs
 
 class EditPathSelectDrawable(

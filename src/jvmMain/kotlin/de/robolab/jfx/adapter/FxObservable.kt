@@ -6,7 +6,7 @@ import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.event.EventHandler
 import javafx.beans.value.ObservableValue
 
-open class FxObservable<T>(private val prop: ObservableValue<T>): ReadOnlyProperty<T> {
+open class FxObservable<T>(private val prop: ObservableValue<T>) : ReadOnlyProperty<T> {
     override val onChange = EventHandler<Unit>()
 
     override fun get(): T {
@@ -20,14 +20,15 @@ open class FxObservable<T>(private val prop: ObservableValue<T>): ReadOnlyProper
     }
 }
 
-fun<T> ObservableValue<T>.toReadOnlyProperty(): ReadOnlyProperty<T> = FxObservable(this)
+fun <T> ObservableValue<T>.toReadOnlyProperty(): ReadOnlyProperty<T> = FxObservable(this)
 
-class FxProperty<T>(private val prop: javafx.beans.property.Property<T>): FxObservable<T>(prop), Property<T> {
+class FxProperty<T>(private val prop: javafx.beans.property.Property<T>) : FxObservable<T>(prop), Property<T> {
     override fun set(value: T) {
         super.set(value)
         prop.value = value
     }
+
     override var binding: Binding<T> = Binding.Unbound()
 }
 
-fun<T> javafx.beans.property.Property<T>.toProperty(): Property<T> = FxProperty(this)
+fun <T> javafx.beans.property.Property<T>.toProperty(): Property<T> = FxProperty(this)

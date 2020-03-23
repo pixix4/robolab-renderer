@@ -1,4 +1,4 @@
-package de.robolab.drawable.utils
+package de.robolab.renderer.drawable.utils
 
 import de.robolab.model.Planet
 import de.robolab.renderer.data.Color

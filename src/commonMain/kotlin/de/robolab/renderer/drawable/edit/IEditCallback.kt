@@ -1,4 +1,4 @@
-package de.robolab.drawable.edit
+package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Direction
 import de.robolab.model.Path

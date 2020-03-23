@@ -3,7 +3,6 @@ package de.robolab.jfx
 import de.robolab.app.Main
 import de.robolab.jfx.adapter.FxCanvas
 import de.robolab.jfx.adapter.toProperty
-import de.westermann.kobserve.property.mapBinding
 import javafx.application.Platform
 import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.BorderPane

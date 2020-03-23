@@ -1,4 +1,4 @@
-package de.robolab.drawable
+package de.robolab.renderer.drawable
 
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext

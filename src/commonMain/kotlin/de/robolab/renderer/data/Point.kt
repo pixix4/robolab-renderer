@@ -8,10 +8,10 @@ import kotlin.math.sqrt
 data class Point(
         val left: Double,
         val top: Double
-): IInterpolatable<Point> {
-    
-    constructor(left: Number, top: Number): this(left.toDouble(), top.toDouble())
-    constructor(point: Pair<Number, Number>): this(point.first.toDouble(), point.second.toDouble())
+) : IInterpolatable<Point> {
+
+    constructor(left: Number, top: Number) : this(left.toDouble(), top.toDouble())
+    constructor(point: Pair<Number, Number>) : this(point.first.toDouble(), point.second.toDouble())
 
     operator fun plus(other: Point) = Point(left + other.left, top + other.top)
     operator fun minus(other: Point) = Point(left - other.left, top - other.top)
@@ -27,11 +27,11 @@ data class Point(
         return sqrt(l * l + r * r)
     }
 
-    fun midpoint(other: Point) = Point (
+    fun midpoint(other: Point) = Point(
             (left + other.left) / 2,
             (top + other.top) / 2
     )
-    
+
     fun magnitude() = sqrt(left * left + top * top)
 
     fun normalize(): Point {
@@ -49,11 +49,11 @@ data class Point(
             top * (1 - progress) + toValue.top * progress
     )
 
-    fun rotate(rotation: Double) = Point (
+    fun rotate(rotation: Double) = Point(
             left * cos(rotation) - top * sin(rotation),
             left * sin(rotation) + top * cos(rotation)
     )
-    
+
     fun dotProduct(other: Point) = left * other.left + top * other.top
 
     fun projectOnto(basis: Point): Point {

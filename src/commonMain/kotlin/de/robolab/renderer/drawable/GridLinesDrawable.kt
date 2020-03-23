@@ -1,8 +1,7 @@
-package de.robolab.drawable
+package de.robolab.renderer.drawable
 
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.IDrawable
 import kotlin.math.ceil
 import kotlin.math.floor
 

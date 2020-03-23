@@ -1,9 +1,8 @@
-package de.robolab.drawable
+package de.robolab.renderer.drawable
 
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.Transformation
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.IDrawable
 import kotlin.math.PI
 
 object CompassDrawable : IDrawable {
@@ -49,7 +48,7 @@ object CompassDrawable : IDrawable {
     }
 
     const val RADIUS = 24.0
-    
+
     const val TOP_PADDING = 20.0 + RADIUS
     const val RIGHT_PADDING = 20.0 + RADIUS
 }

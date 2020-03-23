@@ -1,4 +1,4 @@
-package de.robolab.drawable.edit
+package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Direction
 import de.robolab.model.Planet
@@ -23,7 +23,7 @@ class EditDrawEndDrawable(
 
     override fun onUpdate(ms_offset: Double): Boolean {
         var changes = false
-        if (editPlanetDrawable.selectedPathControlPoints?.any { it.distance(editPlanetDrawable.pointer.position) < PlottingConstraints.POINT_SIZE / 2 } == true ) {
+        if (editPlanetDrawable.selectedPathControlPoints?.any { it.distance(editPlanetDrawable.pointer.position) < PlottingConstraints.POINT_SIZE / 2 } == true) {
             if (pointEndsToDraw.isNotEmpty()) {
                 pointEndsToDraw.clear()
                 changes = true

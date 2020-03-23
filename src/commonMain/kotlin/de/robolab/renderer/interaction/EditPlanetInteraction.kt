@@ -1,13 +1,13 @@
 package de.robolab.renderer.interaction
 
-import de.robolab.drawable.edit.EditControlPointsDrawable
-import de.robolab.drawable.edit.EditDrawEndDrawable
-import de.robolab.drawable.edit.EditPathSelectDrawable
-import de.robolab.drawable.edit.EditPlanetDrawable
 import de.robolab.model.Direction
 import de.robolab.model.Path
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
+import de.robolab.renderer.drawable.edit.EditControlPointsDrawable
+import de.robolab.renderer.drawable.edit.EditDrawEndDrawable
+import de.robolab.renderer.drawable.edit.EditPathSelectDrawable
+import de.robolab.renderer.drawable.edit.EditPlanetDrawable
 import de.robolab.renderer.platform.ICanvasListener
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent

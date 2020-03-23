@@ -2,7 +2,7 @@ package de.robolab.renderer.drawable
 
 import de.robolab.renderer.DefaultPlotter
 
-interface IRootDrawable: IDrawable {
+interface IRootDrawable : IDrawable {
 
     fun onAttach(plotter: DefaultPlotter)
 

@@ -3,14 +3,13 @@ package de.robolab.renderer.data
 import de.robolab.renderer.animation.IInterpolatable
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
 
 data class Rectangle(
         val left: Double,
         val top: Double,
         val width: Double,
         val height: Double
-): IInterpolatable<Rectangle> {
+) : IInterpolatable<Rectangle> {
 
     val right: Double by lazy { left + width }
     val bottom: Double by lazy { top + height }

@@ -12,8 +12,8 @@ import org.w3c.dom.HTMLLabelElement
  * @author lars
  */
 class Label(
-    inputElement: ViewForLabel,
-    value: String = ""
+        inputElement: ViewForLabel,
+        value: String = ""
 ) : View(createHtmlView<HTMLLabelElement>()) {
 
     override val html = super.html as HTMLLabelElement
@@ -44,8 +44,8 @@ class Label(
 
 @KWebViewDsl
 fun ViewCollection<in Label>.label(inputElement: ViewForLabel, text: String = "", init: Label.() -> Unit = {}) =
-    Label(inputElement, text).also(this::append).also(init)
+        Label(inputElement, text).also(this::append).also(init)
 
 @KWebViewDsl
 fun ViewCollection<in Label>.label(inputElement: ViewForLabel, text: ReadOnlyProperty<String>, init: Label.() -> Unit = {}) =
-    Label(inputElement, text.value).also(this::append).also { it.bind(text) }.also(init)
+        Label(inputElement, text.value).also(this::append).also { it.bind(text) }.also(init)

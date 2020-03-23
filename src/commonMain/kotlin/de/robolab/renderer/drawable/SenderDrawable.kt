@@ -1,12 +1,12 @@
-package de.robolab.drawable
+package de.robolab.renderer.drawable
 
-import de.robolab.drawable.utils.Utils
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
+import de.robolab.renderer.drawable.utils.Utils
 import kotlin.math.PI
 import kotlin.math.max
 

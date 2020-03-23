@@ -6,10 +6,10 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.async
 
 fun <T, V : View> ViewCollection<in V>.listFactory(
-    list: ObservableReadOnlyList<T>,
-    factory: (T) -> V,
-    animateAdd: Int? = null,
-    animateRemove: Int? = null
+        list: ObservableReadOnlyList<T>,
+        factory: (T) -> V,
+        animateAdd: Int? = null,
+        animateRemove: Int? = null
 ) {
     for (element in list) {
         +factory(element)
@@ -51,12 +51,12 @@ fun <T, V : View> ViewCollection<in V>.listFactory(
 }
 
 fun <V : View> ViewCollection<in V>.listFactory(
-    list: ObservableReadOnlyList<V>,
-    animateAdd: Int? = null,
-    animateRemove: Int? = null
+        list: ObservableReadOnlyList<V>,
+        animateAdd: Int? = null,
+        animateRemove: Int? = null
 ) = listFactory(
-    list,
-    { it },
-    animateAdd,
-    animateRemove
+        list,
+        { it },
+        animateAdd,
+        animateRemove
 )

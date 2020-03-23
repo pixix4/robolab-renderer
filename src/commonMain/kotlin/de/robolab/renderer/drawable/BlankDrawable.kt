@@ -8,7 +8,7 @@ import de.robolab.renderer.data.Point
  * This object does nothing...
  * It is the default drawable of a plotter that only shows the background.
  */
-object BlankDrawable: IRootDrawable {
+object BlankDrawable : IRootDrawable {
     override fun onUpdate(ms_offset: Double): Boolean {
         return false
     }
