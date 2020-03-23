@@ -43,7 +43,7 @@ open class Transformation {
     }
 
     fun rotateBy(angle: Double, center: Point, duration: Double = 0.0) {
-        rotateTo(rotationTransition.targetValue + angle, center, duration)
+        rotateTo(rotationTransition.targetValue - angle, center, duration)
     }
 
     fun rotateTo(angle: Double, center: Point, duration: Double = 0.0) {

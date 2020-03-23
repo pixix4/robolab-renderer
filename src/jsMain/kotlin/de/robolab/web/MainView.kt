@@ -1,7 +1,7 @@
 package de.robolab.web
 
 import de.robolab.app.Main
-import de.robolab.jfx.adapter.WebCanvas
+import de.robolab.web.adapter.WebCanvas
 import de.westermann.kwebview.async
 import de.westermann.kwebview.components.*
 

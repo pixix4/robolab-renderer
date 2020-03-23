@@ -1,4 +1,4 @@
-package de.robolab.jfx.adapter
+package de.robolab.web.adapter
 
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Dimension
@@ -6,13 +6,13 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.*
 import de.westermann.kwebview.components.Canvas
-import de.westermann.kwebview.get
 import org.w3c.dom.*
 import kotlin.math.PI
 
 class WebCanvas(private val canvas: Canvas) : ICanvas {
 
     private val context = canvas.context
+    private val hammer = Hammer(canvas.html, object {})
 
     override fun setListener(listener: ICanvasListener) {
         canvas.onMouseDown { event ->
@@ -91,55 +91,6 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
                 ))
             }
         }
-        canvas.onTouchStart { event ->
-            event.stopPropagation()
-            event.preventDefault()
-            val touch = event.changedTouches[0] ?: return@onTouchStart
-            listener.onMouseDown(MouseEvent(
-                    Point(touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop),
-                    Dimension(width, height),
-                    ctrlKey = false,
-                    altKey = false,
-                    shiftKey = false
-            ))
-        }
-        canvas.onTouchEnd { event ->
-            event.stopPropagation()
-            event.preventDefault()
-            val touch = event.changedTouches[0] ?: return@onTouchEnd
-            listener.onMouseUp(MouseEvent(
-                    Point(touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop),
-                    Dimension(width, height),
-                    ctrlKey = false,
-                    altKey = false,
-                    shiftKey = false
-            ))
-
-        }
-        canvas.onTouchCancel { event ->
-            event.stopPropagation()
-            event.preventDefault()
-            val touch = event.changedTouches[0] ?: return@onTouchCancel
-            listener.onMouseUp(MouseEvent(
-                    Point(touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop),
-                    Dimension(width, height),
-                    ctrlKey = false,
-                    altKey = false,
-                    shiftKey = false
-            ))
-        }
-        canvas.onTouchMove { event ->
-            event.stopPropagation()
-            event.preventDefault()
-            val touch = event.changedTouches[0] ?: return@onTouchMove
-            listener.onMouseDrag(MouseEvent(
-                    Point(touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop),
-                    Dimension(width, height),
-                    ctrlKey = false,
-                    altKey = false,
-                    shiftKey = false
-            ))
-        }
         canvas.onClick { event ->
             event.stopPropagation()
             event.preventDefault()
@@ -163,6 +114,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
                     event.shiftKey
             ))
         }
+
         canvas.onKeyPress { event ->
             val code = event.key.toCommon() ?: return@onKeyPress
             event.stopPropagation()
@@ -186,6 +138,101 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
                     event.altKey,
                     event.shiftKey
             ))
+        }
+
+        hammer.onPanStart {
+            listener.onMouseDown(MouseEvent(
+                    Point(it.center.x, it.center.y),
+                    Dimension(width, height),
+                    ctrlKey = false,
+                    altKey = false,
+                    shiftKey = false
+            ))
+
+            it.preventDefault()
+        }
+        hammer.onPanMove {
+            listener.onMouseDrag(MouseEvent(
+                    Point(it.center.x, it.center.y),
+                    Dimension(width, height),
+                    ctrlKey = false,
+                    altKey = false,
+                    shiftKey = false
+            ))
+
+            it.preventDefault()
+        }
+        hammer.onPanEnd {
+            listener.onMouseUp(MouseEvent(
+                    Point(it.center.x, it.center.y),
+                    Dimension(width, height),
+                    ctrlKey = false,
+                    altKey = false,
+                    shiftKey = false
+            ))
+
+            it.preventDefault()
+        }
+
+        hammer.onTap {
+            listener.onMouseClick(MouseEvent(
+                    Point(it.center.x, it.center.y),
+                    Dimension(width, height),
+                    ctrlKey = false,
+                    altKey = false,
+                    shiftKey = false
+            ))
+
+            it.preventDefault()
+        }
+
+        var lastScale = 0.0
+        hammer.onPinchStart {
+            console.log(it)
+            lastScale = it.scale
+
+            it.preventDefault()
+        }
+        hammer.onPinchMove {
+            val delta = 1.0 - (lastScale - it.scale)
+            listener.onZoom(ZoomEvent(
+                    Point(it.center.x, it.center.y),
+                    delta,
+                    Dimension(width, height),
+                    ctrlKey = false,
+                    altKey = false,
+                    shiftKey = false
+            ))
+            lastScale = it.scale
+
+            it.preventDefault()
+        }
+        hammer.onPinchEnd {
+            it.preventDefault()
+        }
+
+        var lastRotation = 0.0
+        hammer.onRotateStart {
+            lastRotation = it.rotation
+
+            it.preventDefault()
+        }
+        hammer.onRotateMove {
+            val delta = (it.rotation - lastRotation) / 180.0 * PI
+            listener.onRotate(RotateEvent(
+                    Point(it.center.x, it.center.y),
+                    delta,
+                    Dimension(width, height),
+                    ctrlKey = false,
+                    altKey = false,
+                    shiftKey = false
+            ))
+            lastRotation = it.rotation
+
+            it.preventDefault()
+        }
+        hammer.onRotateEnd {
+            it.preventDefault()
         }
 
         canvas.onResize {
@@ -308,7 +355,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         context.lineWidth = width
 
         context.beginPath()
-        
+
         context.arc(
                 center.left,
                 center.top,
@@ -323,6 +370,10 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
 
     init {
         context.lineCap = CanvasLineCap.BUTT
+
+        hammer.enablePan()
+        hammer.enablePinch()
+        hammer.enableRotate()
     }
 
     companion object {
