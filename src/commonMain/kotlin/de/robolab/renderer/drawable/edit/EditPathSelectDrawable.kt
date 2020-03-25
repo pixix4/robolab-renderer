@@ -1,5 +1,6 @@
 package de.robolab.renderer.drawable.edit
 
+import de.robolab.model.Coordinate
 import de.robolab.model.Direction
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
@@ -14,7 +15,7 @@ class EditPathSelectDrawable(
 ) : IDrawable {
 
     data class PointSelect(
-            val point: Pair<Int, Int>,
+            val point: Coordinate,
             val direction: Direction
     )
 
@@ -47,18 +48,18 @@ class EditPathSelectDrawable(
 
         val selectedPoint = editPlanetDrawable.selectedPoint ?: return emptyList()
 
-        val dx = abs(position.left - selectedPoint.first)
-        val dy = abs(position.top - selectedPoint.second)
+        val dx = abs(position.left - selectedPoint.x)
+        val dy = abs(position.top - selectedPoint.y)
 
         if (
                 (dx < PlottingConstraints.POINT_SIZE && dy < PlottingConstraints.TARGET_RADIUS) ||
                 (dx < PlottingConstraints.TARGET_RADIUS && dy < PlottingConstraints.POINT_SIZE)
         ) {
             val direction = when {
-                position.left - selectedPoint.first > PlottingConstraints.POINT_SIZE / 2 -> Direction.EAST
-                selectedPoint.first - position.left > PlottingConstraints.POINT_SIZE / 2 -> Direction.WEST
-                position.top - selectedPoint.second > PlottingConstraints.POINT_SIZE / 2 -> Direction.NORTH
-                selectedPoint.second - position.top > PlottingConstraints.POINT_SIZE / 2 -> Direction.SOUTH
+                position.left - selectedPoint.y > PlottingConstraints.POINT_SIZE / 2 -> Direction.EAST
+                selectedPoint.y - position.left > PlottingConstraints.POINT_SIZE / 2 -> Direction.WEST
+                position.top - selectedPoint.x > PlottingConstraints.POINT_SIZE / 2 -> Direction.NORTH
+                selectedPoint.x - position.top > PlottingConstraints.POINT_SIZE / 2 -> Direction.SOUTH
                 else -> return emptyList()
             }
 

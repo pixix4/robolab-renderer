@@ -1,13 +1,15 @@
 package de.robolab.model
 
+import de.robolab.renderer.data.Point
+
 data class Path(
-        val source: Pair<Int, Int>,
+        val source: Coordinate,
         val sourceDirection: Direction,
-        val target: Pair<Int, Int>,
+        val target: Coordinate,
         val targetDirection: Direction,
         val weight: Int,
-        val exposure: Set<Pair<Int, Int>> = emptySet(),
-        val controlPoints: List<Pair<Double, Double>> = emptyList()
+        val exposure: Set<Coordinate>,
+        val controlPoints: List<Point>
 ) {
 
     fun equalPath(other: Path): Boolean {

@@ -24,7 +24,7 @@ class PathSelectDrawable(
         private var oldDirections = emptyList<Direction>()
         private var newDirections = listOf(reference.direction)
 
-        private val position = Point(reference.point.first.toDouble(), reference.point.second.toDouble())
+        private val position = Point(reference.point.x.toDouble(), reference.point.y.toDouble())
 
         override fun startExitAnimation(onFinish: () -> Unit) {
             oldDirections = newDirections

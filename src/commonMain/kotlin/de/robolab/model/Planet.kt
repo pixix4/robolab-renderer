@@ -1,16 +1,20 @@
 package de.robolab.model
 
 data class Planet(
-        val startPoint: Pair<Int, Int>,
-        val isStartBlue: Boolean,
+        val name: String,
+        val startPoint: StartPoint?,
+        val bluePoint: Coordinate?,
         val pathList: List<Path>,
-        val targetList: List<Target> = emptyList(),
-        val pathSelectList: List<PathSelect> = emptyList()
+        val targetList: List<TargetPoint>,
+        val pathSelectList: List<PathSelect>
 ) {
     companion object {
         val EMPTY = Planet(
-                0 to 0,
-                true,
+                "",
+                null,
+                null,
+                emptyList(),
+                emptyList(),
                 emptyList()
         )
     }

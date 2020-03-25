@@ -13,6 +13,7 @@ data class Rectangle(
 
     val right: Double by lazy { left + width }
     val bottom: Double by lazy { top + height }
+    val center: Point by lazy { Point(left + width / 2, top + height / 2) }
 
     fun intersects(other: Rectangle): Boolean {
         return other.right > left && other.bottom > top && other.left < right && other.top < bottom;
@@ -31,6 +32,7 @@ data class Rectangle(
             width * (1 - progress) + toValue.width * progress,
             height * (1 - progress) + toValue.height * progress
     )
+
 
     companion object {
         val ZERO = Rectangle(0.0, 0.0, 0.0, 0.0)

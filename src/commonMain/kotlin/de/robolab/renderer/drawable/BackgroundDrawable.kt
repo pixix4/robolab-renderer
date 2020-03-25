@@ -38,62 +38,14 @@ class BackgroundDrawable(
     }
 
     fun importPlanet(planet: Planet) {
-        var minX = Double.MAX_VALUE
-        var minY = Double.MAX_VALUE
-        var maxX = Double.MIN_VALUE
-        var maxY = Double.MIN_VALUE
-        var found = false
+        val area = calcPlanetArea(planet)?.expand(1.0)
 
-        fun update(x: Double, y: Double) {
-            minX = min(minX, x)
-            minY = min(minY, y)
-            maxX = max(maxX, x)
-            maxY = max(maxY, y)
-            found = true
-        }
-
-        for (p in planet.pathList) {
-            update(p.source.first.toDouble(), p.source.second.toDouble())
-            update(p.target.first.toDouble(), p.target.second.toDouble())
-
-            for (e in p.exposure) {
-                update(e.first.toDouble(), e.second.toDouble())
-            }
-
-            val controlPoints = PathDrawable.getControlPointsFromPath(p)
-            val points = PathDrawable.multiEval(16, controlPoints, Point(p.source), Point(p.target)) {
-                BSpline.eval(it, controlPoints)
-            }
-            for (c in points) {
-                update(c.left, c.top)
-            }
-        }
-
-        for (t in planet.targetList) {
-            update(t.target.first.toDouble(), t.target.second.toDouble())
-
-            for (e in t.exposure) {
-                update(e.first.toDouble(), e.second.toDouble())
-            }
-        }
-
-        for (p in planet.pathSelectList) {
-            update(p.point.first.toDouble(), p.point.second.toDouble())
-        }
-
-        if (!found) {
+        if (area == null) {
             areaTransition.animate(centerRect(areaTransition.value), this.planetDrawable.animationTime)
             alphaTransition.animate(0.0, this.planetDrawable.animationTime)
 
             return
         }
-
-        minX = round(minX * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
-        minY = round(minY * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
-        maxX = round(maxX * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
-        maxY = round(maxY * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
-
-        val area = Rectangle(minX, minY, maxX - minX, maxY - minY).expand(1.0)
 
         if (alphaTransition.value == 0.0) {
             areaTransition.resetValue(centerRect(area))
@@ -103,10 +55,60 @@ class BackgroundDrawable(
         alphaTransition.animate(1.0, this.planetDrawable.animationTime)
     }
 
-    private fun centerRect(rectangle: Rectangle) = Rectangle(
-            rectangle.left + rectangle.width / 2,
-            rectangle.top + rectangle.height / 2,
-            0.0,
-            0.0
-    )
+    private fun centerRect(rectangle: Rectangle) = Rectangle.fromEdges(rectangle.center)
+    
+    companion object {
+        fun calcPlanetArea(planet: Planet): Rectangle? {
+            var minX = Double.MAX_VALUE
+            var minY = Double.MAX_VALUE
+            var maxX = Double.MIN_VALUE
+            var maxY = Double.MIN_VALUE
+            var found = false
+
+            fun update(x: Double, y: Double) {
+                minX = min(minX, x)
+                minY = min(minY, y)
+                maxX = max(maxX, x)
+                maxY = max(maxY, y)
+                found = true
+            }
+
+            for (p in planet.pathList) {
+                update(p.source.x.toDouble(), p.source.y.toDouble())
+                update(p.target.x.toDouble(), p.target.y.toDouble())
+
+                for (e in p.exposure) {
+                    update(e.x.toDouble(), e.y.toDouble())
+                }
+
+                val controlPoints = PathDrawable.getControlPointsFromPath(p)
+                val points = PathDrawable.multiEval(16, controlPoints, Point(p.source), Point(p.target)) {
+                    BSpline.eval(it, controlPoints)
+                }
+                for (c in points) {
+                    update(c.left, c.top)
+                }
+            }
+
+            for (t in planet.targetList) {
+                update(t.target.x.toDouble(), t.target.y.toDouble())
+                update(t.exposure.x.toDouble(), t.exposure.y.toDouble())
+            }
+
+            for (p in planet.pathSelectList) {
+                update(p.point.x.toDouble(), p.point.y.toDouble())
+            }
+
+            if (!found) {
+                return null
+            }
+
+            minX = round(minX * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
+            minY = round(minY * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
+            maxX = round(maxX * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
+            maxY = round(maxY * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
+
+            return Rectangle(minX, minY, maxX - minX, maxY - minY)
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package de.robolab.renderer.drawable
 
+import de.robolab.model.Coordinate
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
@@ -12,12 +13,12 @@ import kotlin.math.max
 
 class SenderDrawable(
         private val planetDrawable: PlanetDrawable
-) : AnimatableManager<Pair<Int, Int>, SenderDrawable.SenderAnimatable>() {
+) : AnimatableManager<Coordinate, SenderDrawable.SenderAnimatable>() {
 
     inner class SenderAnimatable(
-            reference: Pair<Int, Int>,
+            reference: Coordinate,
             colors: List<Color>
-    ) : Animatable<Pair<Int, Int>>(reference) {
+    ) : Animatable<Coordinate>(reference) {
 
         private var oldColors: List<Color> = emptyList()
         private var newColors: List<Color> = colors
@@ -26,7 +27,7 @@ class SenderDrawable(
 
         override val animators = listOf(transition)
 
-        private val position = Point(reference.first.toDouble(), reference.second.toDouble())
+        private val position = Point(reference.x.toDouble(), reference.y.toDouble())
 
         override fun startExitAnimation(onFinish: () -> Unit) {
             oldColors = newColors
@@ -90,7 +91,7 @@ class SenderDrawable(
             context.strokeArc(position, PlottingConstraints.TARGET_RADIUS * 1.0, start, extend, color, PlottingConstraints.LINE_WIDTH)
         }
 
-        override fun startUpdateAnimation(obj: Pair<Int, Int>, planet: Planet) {
+        override fun startUpdateAnimation(obj: Coordinate, planet: Planet) {
             val senderGrouping = Utils.getSenderGrouping(planet).mapValues { (_, i) ->
                 Utils.getColorByIndex(i)
             }
@@ -105,11 +106,11 @@ class SenderDrawable(
 
     }
 
-    override fun getObjectList(planet: Planet): List<Pair<Int, Int>> {
+    override fun getObjectList(planet: Planet): List<Coordinate> {
         return Utils.getSenderGrouping(planet).keys.flatten().distinct()
     }
 
-    override fun createAnimatable(obj: Pair<Int, Int>, planet: Planet): SenderAnimatable {
+    override fun createAnimatable(obj: Coordinate, planet: Planet): SenderAnimatable {
         val senderGrouping = Utils.getSenderGrouping(planet).mapValues { (_, i) ->
             Utils.getColorByIndex(i)
         }

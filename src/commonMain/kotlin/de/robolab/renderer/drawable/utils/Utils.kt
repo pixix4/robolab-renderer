@@ -1,17 +1,23 @@
 package de.robolab.renderer.drawable.utils
 
+import de.robolab.model.Coordinate
 import de.robolab.model.Planet
+import de.robolab.model.TargetPoint
 import de.robolab.renderer.data.Color
 
 object Utils {
-    fun getSenderGrouping(planet: Planet) =
-            (planet.targetList.map { it.exposure } + planet.pathList.map { it.exposure })
-                    .filterNot { it.isEmpty() }
-                    .asSequence()
-                    .distinct()
-                    .withIndex()
-                    .associate { (index, set) -> set to index }
+    fun getSenderGrouping(planet: Planet): Map<Set<Coordinate>, Int> {
+        return (planet.targetList.map { getTargetExposure(it, planet) } + planet.pathList.map { it.exposure })
+                .filterNot { it.isEmpty() }
+                .asSequence()
+                .distinct()
+                .withIndex()
+                .associate { (index, set) -> set to index }
+    }
 
+    fun getTargetExposure(target: TargetPoint, planet: Planet): Set<Coordinate> {
+        return planet.targetList.filter { it.target == target.target }.map { it.exposure }.toSet()
+    }
 
     fun getColorByIndex(index: Int): Color {
         if (index < colorList.size) {

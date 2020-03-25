@@ -1,8 +1,8 @@
 package de.robolab.app
 
-import de.robolab.model.*
+import de.robolab.file.PlanetFile
+import de.robolab.file.demoFile
 import de.robolab.renderer.DefaultPlotter
-import de.robolab.renderer.History
 import de.robolab.renderer.drawable.edit.EditPlanetDrawable
 import de.robolab.renderer.platform.CommonTimer
 import de.robolab.renderer.platform.ICanvas
@@ -43,220 +43,32 @@ class Main(val canvas: ICanvas) {
             }
         }
 
-        val history = History(PLANET_1)
-        history.push(PLANET_2)
-        history.push(PLANET_3)
-        history.push(PLANET_4)
-        history.push(PLANET_5)
-
-        planetDrawable.editCallback = EditCallback(history)
+        val planetFile = PlanetFile(demoFile)
+        planetDrawable.editCallback = planetFile
 
         var isUndoPhase = false
 
         animationTimer.onRender {
-            if (isUndoPhase && !history.canUndo) {
+            if (isUndoPhase && !planetFile.history.canUndo) {
                 isUndoPhase = false
-            } else if (!isUndoPhase && !history.canRedo) {
+            } else if (!isUndoPhase && !planetFile.history.canRedo) {
                 isUndoPhase = true
             }
             if (isUndoPhase) {
-                history.undo()
+                planetFile.history.undo()
             } else {
-                history.redo()
+                planetFile.history.redo()
             }
         }
 
-        history.valueProperty.onChange {
-            planetDrawable.importPlanet(history.value)
+        planetFile.history.valueProperty.onChange {
+            planetDrawable.importPlanet(planetFile.planet.value)
         }
 
-        history.undo()
+        planetDrawable.importPlanet(planetFile.planet.value)
     }
 
     companion object {
-
         const val ANIMATION_TIME = 1000.0
-
-        val PLANET_1 = Planet(
-                0 to 0,
-                false,
-                listOf(
-                        Path(
-                                0 to 0,
-                                Direction.NORTH,
-                                0 to 1,
-                                Direction.SOUTH,
-                                4
-                        )
-                )
-        )
-
-        val PLANET_2 = Planet(
-                0 to 0,
-                false,
-                listOf(
-                        Path(
-                                0 to 0,
-                                Direction.NORTH,
-                                0 to 1,
-                                Direction.SOUTH,
-                                4
-                        ),
-                        Path(
-                                0 to 1,
-                                Direction.NORTH,
-                                0 to 2,
-                                Direction.SOUTH,
-                                2
-                        )
-                ),
-                listOf(
-                        Target(
-                                -1 to 3,
-                                setOf(0 to 0)
-                        )
-                )
-        )
-
-        val PLANET_3 = Planet(
-                0 to 0,
-                false,
-                listOf(
-                        Path(
-                                0 to 0,
-                                Direction.NORTH,
-                                0 to 1,
-                                Direction.SOUTH,
-                                4
-                        ),
-                        Path(
-                                0 to 1,
-                                Direction.NORTH,
-                                0 to 2,
-                                Direction.SOUTH,
-                                2
-                        ),
-                        Path(
-                                0 to 2,
-                                Direction.EAST,
-                                1 to 2,
-                                Direction.WEST,
-                                1
-                        )
-                ),
-                listOf(
-                        Target(
-                                -1 to 3,
-                                setOf(0 to 0)
-                        )
-                ),
-                listOf(
-                        PathSelect(
-                                0 to 2,
-                                Direction.NORTH
-                        )
-                )
-        )
-        val PLANET_4 = Planet(
-                0 to 0,
-                false,
-                listOf(
-                        Path(
-                                0 to 0,
-                                Direction.NORTH,
-                                0 to 1,
-                                Direction.SOUTH,
-                                4
-                        ),
-                        Path(
-                                0 to 1,
-                                Direction.NORTH,
-                                0 to 2,
-                                Direction.SOUTH,
-                                2
-                        ),
-                        Path(
-                                0 to 2,
-                                Direction.EAST,
-                                1 to 2,
-                                Direction.WEST,
-                                1
-                        ),
-                        Path(
-                                1 to 2,
-                                Direction.SOUTH,
-                                0 to 1,
-                                Direction.EAST,
-                                4
-                        )
-                ),
-                listOf(
-                        Target(
-                                -1 to 3,
-                                setOf(0 to 0)
-                        )
-                ),
-                listOf(
-                        PathSelect(
-                                0 to 2,
-                                Direction.NORTH
-                        )
-                )
-        )
-
-        val PLANET_5 = Planet(
-                0 to 0,
-                false,
-                listOf(
-                        Path(
-                                0 to 0,
-                                Direction.NORTH,
-                                0 to 1,
-                                Direction.SOUTH,
-                                4
-                        ),
-                        Path(
-                                0 to 1,
-                                Direction.NORTH,
-                                0 to 2,
-                                Direction.SOUTH,
-                                2
-                        ),
-                        Path(
-                                0 to 2,
-                                Direction.EAST,
-                                1 to 2,
-                                Direction.WEST,
-                                1
-                        ),
-                        Path(
-                                1 to 2,
-                                Direction.SOUTH,
-                                0 to 1,
-                                Direction.EAST,
-                                4
-                        ),
-                        Path(
-                                0 to 0,
-                                Direction.WEST,
-                                0 to 1,
-                                Direction.WEST,
-                                1
-                        ),
-                        Path(
-                                0 to 1,
-                                Direction.WEST,
-                                0 to 2,
-                                Direction.WEST,
-                                4
-                        )
-                ),
-                pathSelectList = listOf(
-                        PathSelect(
-                                0 to 2,
-                                Direction.NORTH
-                        )
-                )
-        )
     }
 }

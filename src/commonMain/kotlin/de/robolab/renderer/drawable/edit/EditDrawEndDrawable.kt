@@ -1,5 +1,6 @@
 package de.robolab.renderer.drawable.edit
 
+import de.robolab.model.Coordinate
 import de.robolab.model.Direction
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
@@ -15,7 +16,7 @@ class EditDrawEndDrawable(
 ) : IDrawable {
 
     data class PointEnd(
-            val point: Pair<Int, Int>,
+            val point: Coordinate,
             val direction: Direction
     )
 
@@ -48,7 +49,7 @@ class EditDrawEndDrawable(
     }
 
     private fun drawPointEnd(context: DrawContext, pointEnd: PointEnd) {
-        val p = Point(pointEnd.point.first, pointEnd.point.second)
+        val p = Point(pointEnd.point.x, pointEnd.point.y)
 
         val d = when (pointEnd.direction) {
             Direction.NORTH -> Point(0.0, 1.0)
@@ -100,7 +101,7 @@ class EditDrawEndDrawable(
                 else -> return emptyList()
             }
 
-            val point = col to row
+            val point = Coordinate(col, row)
 
             if (planet.pathList.any {
                         it.source == point && it.sourceDirection == direction ||

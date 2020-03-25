@@ -1,5 +1,6 @@
 package de.robolab.renderer.interaction
 
+import de.robolab.model.Coordinate
 import de.robolab.model.Direction
 import de.robolab.model.Path
 import de.robolab.renderer.PlottingConstraints
@@ -38,7 +39,7 @@ class EditPlanetInteraction(
                     val controlPoints = allControlPoints.drop(1).dropLast(1).toMutableList()
 
                     controlPoints.add(c.point - 1, c.newPoint)
-                    editPlanet.editCallback.updateControlPoints(c.path, controlPoints.map { it.left to it.top }, false)
+                    editPlanet.editCallback.updateControlPoints(c.path, controlPoints, false)
                 }
 
                 controlPoint = c
@@ -142,7 +143,7 @@ class EditPlanetInteraction(
             }
 
             if (oldControlPoints != controlPoints) {
-                editPlanet.editCallback.updateControlPoints(path, controlPoints.map { it.left to it.top }, controlPointsGroupHistory)
+                editPlanet.editCallback.updateControlPoints(path, controlPoints, controlPointsGroupHistory)
                 controlPointsGroupHistory = true
             }
         }
@@ -160,15 +161,15 @@ class EditPlanetInteraction(
                 return true
             }
 
-            val currentPoint = editPlanet.pointer.findObjectUnderPointer<Pair<Int, Int>>()
+            val currentPoint = editPlanet.pointer.findObjectUnderPointer<Coordinate>()
             val currentPath = editPlanet.pointer.findObjectUnderPointer<Path>()
 
             val selectedPoint = editPlanet.selectedPoint
             if (selectedPoint != null && (event.ctrlKey || event.altKey)) {
                 if (currentPoint != null) {
-                    editPlanet.editCallback.toggleTargetSend(selectedPoint, currentPoint)
+                    editPlanet.editCallback.toggleTargetExposure(currentPoint, selectedPoint)
                 } else if (currentPath != null) {
-                    editPlanet.editCallback.togglePathSend(selectedPoint, currentPath)
+                    editPlanet.editCallback.togglePathExposure(currentPath, selectedPoint)
                 }
                 return true
             } else {
@@ -201,7 +202,7 @@ class EditPlanetInteraction(
 
                     controlPoints.removeAt(index)
 
-                    editPlanet.editCallback.updateControlPoints(path, controlPoints.map { it.left to it.top }, false)
+                    editPlanet.editCallback.updateControlPoints(path, controlPoints, false)
                     controlPoint = null
                 } else {
                     val cp = editPlanet.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>()

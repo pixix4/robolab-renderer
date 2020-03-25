@@ -1,7 +1,7 @@
 package de.robolab.renderer.drawable
 
 import de.robolab.model.Planet
-import de.robolab.model.Target
+import de.robolab.model.TargetPoint
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
@@ -13,14 +13,14 @@ import kotlin.math.PI
 
 class TargetDrawable(
         private val planetDrawable: PlanetDrawable
-) : AnimatableManager<Target, TargetDrawable.TargetAnimatable>() {
+) : AnimatableManager<TargetPoint, TargetDrawable.TargetAnimatable>() {
 
     inner class TargetAnimatable(
-            override var reference: Target,
+            override var reference: TargetPoint,
             private val initColor: Color
-    ) : Animatable<Target>(reference) {
+    ) : Animatable<TargetPoint>(reference) {
 
-        private val position = Point(reference.target.first.toDouble(), reference.target.second.toDouble())
+        private val position = Point(reference.target.x.toDouble(), reference.target.y.toDouble())
 
         private val colorTransition = ValueTransition(Color.TRANSPARENT)
         private val sizeTransition = DoubleTransition(0.0)
@@ -60,8 +60,8 @@ class TargetDrawable(
             return emptyList()
         }
 
-        override fun startUpdateAnimation(obj: Target, planet: Planet) {
-            val color = Utils.getSenderGrouping(planet)[obj.exposure]?.let { Utils.getColorByIndex(it) }
+        override fun startUpdateAnimation(obj: TargetPoint, planet: Planet) {
+            val color = Utils.getSenderGrouping(planet)[Utils.getTargetExposure(obj, planet)]?.let { Utils.getColorByIndex(it) }
                     ?: Color.TRANSPARENT
 
             sizeTransition.animate(1.0, this@TargetDrawable.planetDrawable.animationTime / 2, this@TargetDrawable.planetDrawable.animationTime / 2)
@@ -69,16 +69,16 @@ class TargetDrawable(
         }
     }
 
-    override fun getObjectList(planet: Planet): List<Target> {
-        return planet.targetList
+    override fun getObjectList(planet: Planet): List<TargetPoint> {
+        return planet.targetList.distinctBy { it.target }
     }
 
-    override fun createAnimatable(obj: Target, planet: Planet): TargetAnimatable {
+    override fun createAnimatable(obj: TargetPoint, planet: Planet): TargetAnimatable {
         val senderGrouping = Utils.getSenderGrouping(planet).mapValues { (_, i) ->
             Utils.getColorByIndex(i)
         }
 
-        val color = senderGrouping[obj.exposure]
+        val color = senderGrouping[Utils.getTargetExposure(obj, planet)]
 
         return TargetAnimatable(
                 obj,

@@ -74,7 +74,7 @@ class EditPointDrawable(
                     }
                 } ?: greyColor
 
-                if (selectedPoint?.first == x && selectedPoint.second == y) {
+                if (selectedPoint?.x == x && selectedPoint.y == y) {
                     val selectedSize = size + Point(PlottingConstraints.HOVER_WIDTH, PlottingConstraints.HOVER_WIDTH)
                     context.fillRect(Rectangle.fromEdges(
                             position - selectedSize,
@@ -119,10 +119,8 @@ class EditPointDrawable(
 
     fun importPlanet(planet: Planet) {
         oldPlanetIsEvenBlue = planetIsEvenBlue
-        planetIsEvenBlue = if (planet.isStartBlue) {
-            (planet.startPoint.first + planet.startPoint.second) % 2 == 0
-        } else {
-            (planet.startPoint.first + planet.startPoint.second) % 2 == 1
+        planetIsEvenBlue = planet.bluePoint?.let {
+            (it.x + it.y) % 2 == 0
         }
 
         colorTransition.resetValue(0.0)

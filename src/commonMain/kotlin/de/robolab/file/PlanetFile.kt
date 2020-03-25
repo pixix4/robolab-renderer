@@ -1,0 +1,115 @@
+package de.robolab.file
+
+import de.robolab.model.*
+import de.robolab.renderer.History
+import de.robolab.renderer.data.Point
+import de.robolab.renderer.drawable.edit.IEditCallback
+import de.westermann.kobserve.property.mapBinding
+
+class PlanetFile(fileContent: String) : IEditCallback {
+
+    val history = History(parseFileContent(fileContent))
+    var lines by history.valueProperty
+
+    val planet = history.valueProperty.mapBinding { lines ->
+        val buildAccumulator = FileLine.BuildAccumulator()
+        for (line in lines) {
+            try {
+                line.buildPlanet(buildAccumulator)
+            } catch (e: Exception) {
+                println(e)
+            }
+        }
+        buildAccumulator.planet
+    }
+
+    private fun parseFileContent(fileContent: String) = fileContent.split('\n').map { parseLine(it) }
+
+    fun setContent(fileContent: String) {
+        lines = parseFileContent(fileContent)
+    }
+
+    override fun drawPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction) {
+        lines = lines + FileLine.PathLine.create(Path(
+                startPoint, startDirection,
+                endPoint, endDirection,
+                1,
+                emptySet(),
+                emptyList()
+        ))
+    }
+
+    override fun deletePath(path: Path) {
+        lines = lines - lines.filter {
+            it.isAssociatedTo(path)
+        }
+    }
+
+    override fun updateControlPoints(path: Path, controlPoints: List<Point>, groupHistory: Boolean) {
+        val newLines = lines.toMutableList()
+        val newLine = FileLine.SplineLine.create(controlPoints)
+
+        val index = newLines.indexOfFirst { it is FileLine.SplineLine && it.associatedPath?.equalPath(path) == true }
+        if (index < 0) {
+            val pathIndex = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) }
+            newLines.add(pathIndex + 1, newLine)
+        } else {
+            newLines[index] = newLine
+        }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
+    override fun toggleTargetExposure(target: Coordinate, exposure: Coordinate) {
+        val targetPoint = TargetPoint(target, exposure)
+        val senderLines =  lines.filter { it.isAssociatedTo(targetPoint) }
+
+        lines = if (senderLines.isEmpty()) {
+            lines + FileLine.TargetLine.create(targetPoint)
+        } else {
+            lines - senderLines
+        }
+    }
+
+    override fun togglePathExposure(path: Path, exposure: Coordinate) {
+        val newLines = lines.toMutableList()
+        
+        val index = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) }
+        if (index < 0) {
+            return
+        }
+
+        val p = newLines[index].data as? Path ?: return
+
+        newLines[index] = FileLine.PathLine.create(if (exposure in p.exposure) {
+            p.copy(exposure = p.exposure - exposure)
+        } else {
+            p.copy(exposure = p.exposure + exposure)
+        })
+
+        lines = newLines
+    }
+
+    override fun togglePathSelect(point: Coordinate, direction: Direction) {
+        val pathSelect = PathSelect(point, direction)
+        val pathSelectLine =  lines.filter { it.isAssociatedTo(pathSelect) }
+
+        lines = if (pathSelectLine.isEmpty()) {
+            lines + FileLine.PathSelectLine.create(pathSelect)
+        } else {
+            lines - pathSelectLine
+        }
+    }
+
+    override fun undo() {
+        history.undo()
+    }
+
+    override fun redo() {
+        history.redo()
+    }
+}

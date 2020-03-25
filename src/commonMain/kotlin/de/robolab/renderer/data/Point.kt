@@ -1,5 +1,6 @@
 package de.robolab.renderer.data
 
+import de.robolab.model.Coordinate
 import de.robolab.renderer.animation.IInterpolatable
 import kotlin.math.cos
 import kotlin.math.sin
@@ -12,6 +13,7 @@ data class Point(
 
     constructor(left: Number, top: Number) : this(left.toDouble(), top.toDouble())
     constructor(point: Pair<Number, Number>) : this(point.first.toDouble(), point.second.toDouble())
+    constructor(point: Coordinate) : this(point.x.toDouble(), point.y.toDouble())
 
     operator fun plus(other: Point) = Point(left + other.left, top + other.top)
     operator fun minus(other: Point) = Point(left - other.left, top - other.top)

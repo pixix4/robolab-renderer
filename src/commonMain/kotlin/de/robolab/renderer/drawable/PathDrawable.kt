@@ -22,9 +22,9 @@ class PathDrawable(
         planet: Planet
 ) : Animatable<Path>(reference) {
 
-    private val startPoint: Point = reference.source.let { Point(it.first.toDouble(), it.second.toDouble()) }
+    private val startPoint: Point = reference.source.let { Point(it.x.toDouble(), it.y.toDouble()) }
     private val startDirection: Direction = reference.sourceDirection
-    private val endPoint: Point = reference.target.let { Point(it.first.toDouble(), it.second.toDouble()) }
+    private val endPoint: Point = reference.target.let { Point(it.x.toDouble(), it.y.toDouble()) }
     private var weight: Int = reference.weight
 
     private var state = State.NONE
@@ -251,13 +251,13 @@ class PathDrawable(
         )
 
         fun getControlPointsFromPath(path: Path): List<Point> {
-            val startPoint = Point(path.source.first, path.source.second)
+            val startPoint = Point(path.source.x, path.source.y)
             val startDirection = path.sourceDirection
-            val endPoint = Point(path.target.first, path.target.second)
+            val endPoint = Point(path.target.x, path.target.y)
             val endDirection = path.targetDirection
 
             val linePoints = if (path.controlPoints.isNotEmpty()) {
-                path.controlPoints.map { Point(it.first, it.second) }
+                path.controlPoints.map { Point(it.x, it.y) }
             } else {
                 PathGenerator.generateControlPoints(
                         startPoint,

@@ -1,5 +1,6 @@
 package de.robolab.renderer.drawable
 
+import de.robolab.model.Coordinate
 import de.robolab.model.Path
 import de.robolab.model.Planet
 import de.robolab.renderer.DefaultPlotter
@@ -17,7 +18,7 @@ open class PlanetDrawable() : IRootDrawable {
     val selectedPathProperty = property<Path?>(null)
     var selectedPath by selectedPathProperty
 
-    val selectedPointProperty = property<Pair<Int, Int>?>(null)
+    val selectedPointProperty = property<Coordinate?>(null)
     var selectedPoint by selectedPointProperty
 
     var plotter: DefaultPlotter? = null
@@ -93,6 +94,12 @@ open class PlanetDrawable() : IRootDrawable {
     }
 
     private var hasSelectedChanged = false
+    
+    private var center = Point.ZERO
+    
+    fun centerPlanet() {
+        plotter?.transformation?.translateTo(center)
+    }
 
     open fun importPlanet(planet: Planet) {
         planetBackground.importPlanet(planet)
@@ -101,6 +108,8 @@ open class PlanetDrawable() : IRootDrawable {
         targetDrawable.importPlanet(planet)
         senderDrawable.importPlanet(planet)
         pathSelectDrawable.importPlanet(planet)
+
+        center = BackgroundDrawable.calcPlanetArea(planet)?.center ?: Point.ZERO
 
         val currentSelectedPath = selectedPath ?: return
         selectedPath = null

@@ -1,7 +1,7 @@
 @file:Suppress("UNUSED_VARIABLE")
 
 plugins {
-    kotlin("multiplatform") version "1.3.70"
+    kotlin("multiplatform") version "1.3.71"
     id("com.github.node-gradle.node") version "2.2.3"
     id("org.kravemir.gradle.sass") version "1.2.4"
 }
