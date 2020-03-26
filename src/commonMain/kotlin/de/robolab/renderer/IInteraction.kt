@@ -1,5 +1,6 @@
 package de.robolab.renderer
 
+import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.platform.*
 
 interface IInteraction {
@@ -26,4 +27,6 @@ interface IInteraction {
     fun onKeyPress(event: KeyEvent): Boolean {
         return false
     }
+    
+    fun onResize(size: Dimension) {}
 }

@@ -1,5 +1,6 @@
 package de.robolab.renderer
 
+import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.BlankDrawable
 import de.robolab.renderer.drawable.base.IDrawable
@@ -27,6 +28,8 @@ class DefaultPlotter(
         }
 
     private val interaction = TransformationInteraction(this)
+    val size: Dimension
+        get() = interaction.lastDimension
 
     private val context = DrawContext(canvas, transformation, LightTheme)
 
@@ -53,7 +56,7 @@ class DefaultPlotter(
 
         pointer = Pointer(position, mousePosition, elements)
     }
-    
+
     init {
         this.drawable = drawable
         canvas.setListener(interaction)

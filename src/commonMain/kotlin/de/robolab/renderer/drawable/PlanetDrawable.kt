@@ -5,6 +5,7 @@ import de.robolab.model.Path
 import de.robolab.model.Planet
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
+import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.GroupDrawable
 import de.robolab.renderer.drawable.base.IDrawable
@@ -92,7 +93,11 @@ open class PlanetDrawable() : GroupDrawable() {
     private var center = Point.ZERO
     
     fun centerPlanet() {
-        plotter?.transformation?.translateTo(center)
+        val transformation = plotter?.transformation ?: return
+        val canvasCenter = center * transformation.scaledGridWidth * Point(-1.0, 1.0)
+        val size = (plotter?.size ?: Dimension.ZERO) / 2
+
+        transformation.translateTo(canvasCenter + size)
     }
 
     open fun importPlanet(planet: Planet) {
@@ -126,5 +131,9 @@ open class PlanetDrawable() : GroupDrawable() {
         hoveredPathsProperty.onChange {
             hasSelectedChanged = true
         }
+    }
+
+    override fun onResize(size: Dimension) {
+        centerPlanet()
     }
 }

@@ -59,12 +59,14 @@ class EditPathSelectDrawable(
                 (dx < PlottingConstraints.TARGET_RADIUS && dy < PlottingConstraints.POINT_SIZE)
         ) {
             val direction = when {
-                position.left - selectedPoint.y > PlottingConstraints.POINT_SIZE / 2 -> Direction.EAST
-                selectedPoint.y - position.left > PlottingConstraints.POINT_SIZE / 2 -> Direction.WEST
-                position.top - selectedPoint.x > PlottingConstraints.POINT_SIZE / 2 -> Direction.NORTH
-                selectedPoint.x - position.top > PlottingConstraints.POINT_SIZE / 2 -> Direction.SOUTH
+                position.left - selectedPoint.x > PlottingConstraints.POINT_SIZE / 2 -> Direction.EAST
+                selectedPoint.x - position.left > PlottingConstraints.POINT_SIZE / 2 -> Direction.WEST
+                position.top - selectedPoint.y > PlottingConstraints.POINT_SIZE / 2 -> Direction.NORTH
+                selectedPoint.y - position.top > PlottingConstraints.POINT_SIZE / 2 -> Direction.SOUTH
                 else -> return emptyList()
             }
+
+            println("Path selct at $selectedPoint to $position is $direction")
 
             return listOf(PointSelect(selectedPoint, direction))
         }
@@ -72,6 +74,12 @@ class EditPathSelectDrawable(
         return emptyList()
     }
 
+    override fun onPointerDown(event: PointerEvent): Boolean {
+        if (!editPlanetDrawable.editable) return false
+
+        return editPlanetDrawable.pointer.findObjectUnderPointer<PointSelect>() != null
+    }
+    
     override fun onPointerUp(event: PointerEvent): Boolean {
         if (!editPlanetDrawable.editable || event.hasMoved) return false
 

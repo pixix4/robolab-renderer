@@ -11,7 +11,7 @@ class TransformationInteraction(
     private val transformation = plotter.transformation
 
     private var lastPoint: Point = Point.ZERO
-    private var lastDimension: Dimension = Dimension.ZERO
+    var lastDimension: Dimension = Dimension.ZERO
     private var hasMovedSinceDown = false
 
     override fun onPointerDown(event: PointerEvent): Boolean {
@@ -112,8 +112,8 @@ class TransformationInteraction(
     }
 
     override fun onResize(size: Dimension): Boolean {
-        transformation.translateTo(Point(size.width / 2, size.height / 2))
         lastDimension = size
+        plotter.drawable.onResize(size)
 
         return true
     }

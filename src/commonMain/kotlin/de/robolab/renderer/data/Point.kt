@@ -18,6 +18,7 @@ data class Point(
     operator fun plus(other: Point) = Point(left + other.left, top + other.top)
     operator fun minus(other: Point) = Point(left - other.left, top - other.top)
     operator fun times(factor: Number) = Point(left * factor.toDouble(), top * factor.toDouble())
+    operator fun times(other: Point) = Point(left * other.left, top * other.top)
     operator fun div(factor: Number) = Point(left / factor.toDouble(), top / factor.toDouble())
     operator fun unaryMinus() = Point(-left, -top)
     operator fun unaryPlus() = this
