@@ -66,9 +66,8 @@ open class PlanetDrawable() : GroupDrawable() {
     override fun onAttach(plotter: DefaultPlotter) {
         this.plotter = plotter
         pointerListener = plotter.pointerProperty.onChange.reference {
-            val path = plotter.pointer.findObjectUnderPointer<Path>()
-            val point = plotter.pointer.objectsUnderPointer.firstOrNull() as? Pair<*, *>
-            val newElements = if (path == null || point != null) {
+            val path = plotter.pointer.findObjectUnderPointer<Path>(true)
+            val newElements = if (path == null) {
                 emptySet()
             } else {
                 setOf(path)

@@ -13,10 +13,13 @@ data class Pointer(
             round(position.top * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
     )
 
-    inline fun <reified T : Any> findObjectUnderPointer(): T? {
+    inline fun <reified T : Any> findObjectUnderPointer(onlyTop: Boolean = false): T? {
         for (elem in objectsUnderPointer) {
             if (elem is T) {
                 return elem
+            }
+            if (onlyTop) {
+                return null
             }
         }
 

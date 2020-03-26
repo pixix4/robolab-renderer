@@ -66,8 +66,6 @@ class EditPathSelectDrawable(
                 else -> return emptyList()
             }
 
-            println("Path selct at $selectedPoint to $position is $direction")
-
             return listOf(PointSelect(selectedPoint, direction))
         }
 
