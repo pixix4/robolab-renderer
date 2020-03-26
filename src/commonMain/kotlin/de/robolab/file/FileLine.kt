@@ -92,7 +92,8 @@ interface FileLine<T> {
                     match.groupValues[5].toInt(),
                     match.groupValues.getOrNull(6)?.split(" ")?.filter { it.isNotBlank() }?.map { parseCoordinate(it) }?.toSet()
                             ?: emptySet(),
-                    emptyList()
+                    emptyList(),
+                    false
             )
         }
 
@@ -438,6 +439,57 @@ interface FileLine<T> {
         }
     }
 
+    class HiddenLine(override val line: String) : FileLine<Unit> {
+
+        override val data = Unit
+
+        var associatedPath: Path? = null
+
+        override lateinit var blockMode: BlockMode
+
+        override fun buildPlanet(builder: BuildAccumulator) {
+            val previousBlockHead = builder.previousBlockHead
+            if (previousBlockHead == null || previousBlockHead !is PathLine) {
+                throw IllegalArgumentException()
+            }
+            blockMode = BlockMode.Append(previousBlockHead)
+
+            val path = builder.planet.pathList.last().copy(
+                    hidden = true
+            )
+            associatedPath = path
+            builder.planet = builder.planet.copy(
+                    pathList = builder.planet.pathList.dropLast(1) + path
+            )
+        }
+
+        override fun isAssociatedTo(obj: Any): Boolean {
+            if (obj is List<*>) {
+                return obj == data
+            }
+
+            return super.isAssociatedTo(obj)
+        }
+
+        companion object : Parser {
+            override val name = "Hidden line parser"
+            private val REGEX =
+                    """^#\s*(HIDDEN|hidden)\s*(?:#.*?)?$""".toRegex()
+
+            override fun testLine(line: String): Boolean {
+                return REGEX.containsMatchIn(line)
+            }
+
+            override fun createInstance(line: String): FileLine<*> {
+                return HiddenLine(line)
+            }
+
+            fun serialize() = "# hidden"
+
+            fun create() = createInstance(serialize())
+        }
+    }
+
     class ErrorLine(override val line: String, override val data: String) : FileLine<String> {
 
         override lateinit var blockMode: BlockMode
@@ -484,6 +536,7 @@ private val parserList = listOf(
         FileLine.TargetLine.Companion,
         FileLine.NameLine.Companion,
         FileLine.SplineLine.Companion,
+        FileLine.HiddenLine.Companion,
         FileLine.BlankLine.Companion
 )
 

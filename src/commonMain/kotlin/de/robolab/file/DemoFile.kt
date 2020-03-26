@@ -53,4 +53,13 @@ val demoFile = """
     15,5,E 15,5,N 1 13,4
     13,2,S 13,2,S -1 blocked
     13,8,W 13,8,W -1 blocked
+    12,6,S 12,5,N 4
+    # hidden
+    11,7,S 11,5,N 4
+    # hidden
+    11,7,W 11,5,W 4
+    # hidden
+    11,7,N 11,7,E 4
+    # hidden
+    11,5,S 11,5,E 4
 """.trimIndent()

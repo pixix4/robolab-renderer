@@ -5,7 +5,7 @@ import de.robolab.renderer.animation.GenericTransition
 import de.robolab.renderer.drawable.base.IDrawable
 
 abstract class Animatable<T>(
-        open val reference: T
+        open var reference: T
 ) : IDrawable {
 
     abstract val animators: List<GenericTransition<*>>

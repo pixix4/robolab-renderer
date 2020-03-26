@@ -79,7 +79,7 @@ class EditPathSelectDrawable(
 
         return editPlanetDrawable.pointer.findObjectUnderPointer<PointSelect>() != null
     }
-    
+
     override fun onPointerUp(event: PointerEvent): Boolean {
         if (!editPlanetDrawable.editable || event.hasMoved) return false
 

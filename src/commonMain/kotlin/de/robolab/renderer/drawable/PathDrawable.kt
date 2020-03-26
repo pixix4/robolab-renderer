@@ -72,13 +72,21 @@ class PathDrawable(
         val nc = newColor ?: context.theme.lineColor
         val color = oc.interpolate(nc, colorTransition.value)
 
+        fun draw(points: List<Point>, color: Color, weight: Double) {
+            if (reference.hidden) {
+                context.dashLine(points, color, weight, PlottingConstraints.DASHES, PlottingConstraints.DASH_OFFSET)
+            } else {
+                context.strokeLine(points,color,weight)
+            }
+        }
+
         when (state) {
             State.REMOVE -> {
                 val points = getCachedPointHelpers(steps).map { it.point }
                 if (isHover) {
                     context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
-                context.strokeLine(points, color.a(transition.value), PlottingConstraints.LINE_WIDTH)
+                draw(points, color.a(transition.value), PlottingConstraints.LINE_WIDTH)
             }
             State.DRAW -> {
                 val pointHelpers = getCachedPointHelpers(steps)
@@ -99,14 +107,14 @@ class PathDrawable(
                 if (isHover) {
                     context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
-                context.strokeLine(points, color, PlottingConstraints.LINE_WIDTH)
+                draw(points, color, PlottingConstraints.LINE_WIDTH)
             }
             State.NONE -> {
                 val points = getCachedPointHelpers(steps).map { it.point }
                 if (isHover) {
                     context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
-                context.strokeLine(points, color, PlottingConstraints.LINE_WIDTH)
+                draw(points, color, PlottingConstraints.LINE_WIDTH)
             }
         }
     }

@@ -35,7 +35,8 @@ class PlanetFile(fileContent: String) : IEditCallback {
                 endPoint, endDirection,
                 1,
                 emptySet(),
-                emptyList()
+                emptyList(),
+                false
         ))
     }
 

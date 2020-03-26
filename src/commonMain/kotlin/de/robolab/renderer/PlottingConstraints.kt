@@ -11,4 +11,7 @@ object PlottingConstraints {
 
     const val PRECISION = 0.05
     const val PRECISION_FACTOR = 1.0 / PRECISION
+
+    val DASHES = listOf(0.14, 0.06)
+    val DASH_OFFSET = 0.07
 }

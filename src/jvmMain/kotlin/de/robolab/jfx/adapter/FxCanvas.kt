@@ -204,6 +204,26 @@ class FxCanvas : ICanvas {
         context.stroke()
     }
 
+    override fun dashLine(points: List<Point>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
+        context.stroke = color.fx()
+        context.lineWidth = width
+        context.setLineDashes(*dashes.toDoubleArray())
+        context.lineDashOffset = dashOffset
+
+        context.beginPath()
+        val first = points.firstOrNull() ?: return
+        context.moveTo(first.left, first.top)
+
+        points.asSequence().drop(1).forEach {
+            context.lineTo(it.left, it.top)
+        }
+
+        context.stroke()
+
+        context.setLineDashes()
+        context.lineDashOffset = 0.0
+    }
+
     override fun fillText(text: String, position: Point, color: Color, fontSize: Double) {
         context.fill = color.fx()
         context.textAlign = TextAlignment.CENTER

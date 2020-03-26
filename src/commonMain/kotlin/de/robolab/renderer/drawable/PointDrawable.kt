@@ -13,7 +13,27 @@ import de.robolab.renderer.data.Rectangle
 
 class PointDrawable(
         private val planetDrawable: PlanetDrawable
-) : AnimatableManager<Coordinate, PointDrawable.PointAnimatable>() {
+) : AnimatableManager<PointDrawable.AttributePoint, PointDrawable.PointAnimatable>() {
+
+    class AttributePoint(
+            val coordinate: Coordinate,
+            val hidden: Boolean
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as AttributePoint
+
+            if (coordinate != other.coordinate) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return coordinate.hashCode()
+        }
+    }
 
     data class PointColor(
             val red: Double = 0.0,
@@ -43,11 +63,11 @@ class PointDrawable(
     }
 
     inner class PointAnimatable(
-            reference: Coordinate,
+            reference: AttributePoint,
             planet: Planet
-    ) : Animatable<Coordinate>(reference) {
+    ) : Animatable<AttributePoint>(reference) {
 
-        private val position = Point(reference)
+        private val position = Point(reference.coordinate)
 
         private val colorTransition = ValueTransition(calcColor(planet))
         private val sizeTransition = DoubleTransition(0.0)
@@ -62,24 +82,40 @@ class PointDrawable(
         override fun onDraw(context: DrawContext) {
             val size = Point(PlottingConstraints.POINT_SIZE / 2, PlottingConstraints.POINT_SIZE / 2) * sizeTransition.value
 
-            if (reference == planetDrawable.selectedPoint) {
-                val selectedSize = size + Point(PlottingConstraints.HOVER_WIDTH, PlottingConstraints.HOVER_WIDTH)
+            if (reference.coordinate == planetDrawable.selectedPoint) {
+                val selectedSize = size + Point(PlottingConstraints.HOVER_WIDTH / 2, PlottingConstraints.HOVER_WIDTH / 2)
 
-                context.fillRect(Rectangle.fromEdges(
+                val rect = Rectangle.fromEdges(
                         position - selectedSize,
                         position + selectedSize
-                ), context.theme.highlightColor.a(alphaTransition.value))
+                )
+
+                context.strokeRect(
+                        rect,
+                        context.theme.highlightColor.a(alphaTransition.value),
+                        PlottingConstraints.HOVER_WIDTH
+                )
             }
 
-            context.fillRect(Rectangle.fromEdges(
+            val rect = Rectangle.fromEdges(
                     position - size,
                     position + size
-            ), colorTransition.value.toColor(context).a(alphaTransition.value))
+            )
+
+            if (reference.hidden) {
+                context.strokeRect(
+                        rect.expand(-PlottingConstraints.LINE_WIDTH / 2),
+                        colorTransition.value.toColor(context).a(alphaTransition.value),
+                        PlottingConstraints.LINE_WIDTH
+                )
+            } else {
+                context.fillRect(rect, colorTransition.value.toColor(context).a(alphaTransition.value))
+            }
         }
 
         override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
             if (position.distance(this.position) < PlottingConstraints.POINT_SIZE / 2) {
-                return listOf(reference)
+                return listOf(reference.coordinate)
             }
 
             return emptyList()
@@ -101,13 +137,14 @@ class PointDrawable(
             alphaTransition.animate(1.0, planetDrawable.animationTime / 2, planetDrawable.animationTime / 2)
         }
 
-        override fun startUpdateAnimation(obj: Coordinate, planet: Planet) {
-            startEnterAnimation {  }
+        override fun startUpdateAnimation(obj: AttributePoint, planet: Planet) {
+            startEnterAnimation { }
+            reference = obj
             colorTransition.animate(calcColor(planet), this@PointDrawable.planetDrawable.animationTime / 2, this@PointDrawable.planetDrawable.animationTime / 4)
         }
 
         private fun calcColor(planet: Planet): PointColor {
-            return when (reference.getColor(planet.bluePoint)) {
+            return when (reference.coordinate.getColor(planet.bluePoint)) {
                 Coordinate.Color.RED -> PointColor.RED
                 Coordinate.Color.BLUE -> PointColor.BLUE
                 Coordinate.Color.UNKNOWN -> PointColor.GREY
@@ -115,15 +152,18 @@ class PointDrawable(
         }
     }
 
-    override fun getObjectList(planet: Planet): List<Coordinate> {
+    override fun getObjectList(planet: Planet): List<AttributePoint> {
         return (
                 planet.pathList.flatMap { listOf(it.source, it.target) + it.exposure } +
                         planet.targetList.flatMap { listOf(it.exposure, it.target) } +
                         planet.pathSelectList.map { it.point }
-                ).distinct()
+                ).distinct().map { point ->
+                    val pathList = planet.pathList.filter { it.source == point || it.target == point }
+                    AttributePoint(point, pathList.all { it.hidden })
+                }
     }
 
-    override fun createAnimatable(obj: Coordinate, planet: Planet): PointAnimatable {
+    override fun createAnimatable(obj: AttributePoint, planet: Planet): PointAnimatable {
         return PointAnimatable(obj, planet)
     }
 }

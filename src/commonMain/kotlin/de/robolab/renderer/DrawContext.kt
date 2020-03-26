@@ -97,9 +97,7 @@ class DrawContext(
         return abs(left - other.left) + abs(top - other.top)
     }
 
-    override fun strokeLine(points: List<Point>, color: Color, width: Double) {
-        if (points.isEmpty()) return
-
+    private fun prepareLine(points: List<Point>): List<Point> {
         // Dirty bug fix to solve the "mountain" error on paths
         // Remove overlapping points
         var last = transformation.planetToCanvas(points.first())
@@ -113,10 +111,28 @@ class DrawContext(
             }
         }
 
+        return canvasPoints
+    }
+
+    override fun strokeLine(points: List<Point>, color: Color, width: Double) {
+        if (points.isEmpty()) return
+
         canvas.strokeLine(
-                canvasPoints, //points.map(transformation::planetToCanvas),
+                prepareLine(points), //points.map(transformation::planetToCanvas),
                 c(color),
                 width * transformation.scaledGridWidth
+        )
+    }
+
+    override fun dashLine(points: List<Point>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
+        if (points.isEmpty()) return
+
+        canvas.dashLine(
+                prepareLine(points), //points.map(transformation::planetToCanvas),
+                c(color),
+                width * transformation.scaledGridWidth,
+                dashes.map { it * transformation.scaledGridWidth },
+                dashOffset * transformation.scaledGridWidth
         )
     }
 

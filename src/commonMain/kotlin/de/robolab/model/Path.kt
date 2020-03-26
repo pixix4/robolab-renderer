@@ -9,7 +9,8 @@ data class Path(
         val targetDirection: Direction,
         val weight: Int,
         val exposure: Set<Coordinate>,
-        val controlPoints: List<Point>
+        val controlPoints: List<Point>,
+        val hidden: Boolean
 ) {
 
     fun equalPath(other: Path): Boolean {

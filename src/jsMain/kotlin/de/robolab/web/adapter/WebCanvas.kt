@@ -77,18 +77,6 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
                     event.shiftKey
             ))
         }
-        canvas.onKeyUp { event ->
-            val code = event.key.toCommon() ?: return@onKeyUp
-            event.stopPropagation()
-            event.preventDefault()
-            listener.onKeyUp(KeyEvent(
-                    code,
-                    event.key,
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-            ))
-        }
 
         hammer.onPanStart {
             listener.onPointerDown(PointerEvent(
@@ -272,6 +260,26 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         }
 
         context.stroke()
+    }
+
+    override fun dashLine(points: List<Point>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
+        context.strokeStyle = color.toString()
+        context.lineWidth = width
+        context.setLineDash(dashes.toTypedArray())
+        context.lineDashOffset = dashOffset
+
+        context.beginPath()
+        val first = points.firstOrNull() ?: return
+        context.moveTo(first.left, first.top)
+
+        points.asSequence().drop(1).forEach {
+            context.lineTo(it.left, it.top)
+        }
+
+        context.stroke()
+
+        context.setLineDash(arrayOf())
+        context.lineDashOffset = 0.0
     }
 
     override fun fillText(text: String, position: Point, color: Color, fontSize: Double) {
