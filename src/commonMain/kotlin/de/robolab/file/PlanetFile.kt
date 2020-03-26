@@ -29,7 +29,7 @@ class PlanetFile(fileContent: String) : IEditCallback {
         lines = parseFileContent(fileContent)
     }
 
-    override fun drawPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction) {
+    override fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, groupHistory: Boolean) {
         lines = lines + FileLine.PathLine.create(Path(
                 startPoint, startDirection,
                 endPoint, endDirection,
@@ -39,13 +39,13 @@ class PlanetFile(fileContent: String) : IEditCallback {
         ))
     }
 
-    override fun deletePath(path: Path) {
+    override fun deletePath(path: Path, groupHistory: Boolean) {
         lines = lines - lines.filter {
             it.isAssociatedTo(path)
         }
     }
 
-    override fun updateControlPoints(path: Path, controlPoints: List<Point>, groupHistory: Boolean) {
+    override fun updatePathControlPoints(path: Path, controlPoints: List<Point>, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
         val newLine = FileLine.SplineLine.create(controlPoints)
 
@@ -64,9 +64,9 @@ class PlanetFile(fileContent: String) : IEditCallback {
         }
     }
 
-    override fun toggleTargetExposure(target: Coordinate, exposure: Coordinate) {
+    override fun toggleTargetExposure(target: Coordinate, exposure: Coordinate, groupHistory: Boolean) {
         val targetPoint = TargetPoint(target, exposure)
-        val senderLines =  lines.filter { it.isAssociatedTo(targetPoint) }
+        val senderLines = lines.filter { it.isAssociatedTo(targetPoint) }
 
         lines = if (senderLines.isEmpty()) {
             lines + FileLine.TargetLine.create(targetPoint)
@@ -75,9 +75,9 @@ class PlanetFile(fileContent: String) : IEditCallback {
         }
     }
 
-    override fun togglePathExposure(path: Path, exposure: Coordinate) {
+    override fun togglePathExposure(path: Path, exposure: Coordinate, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
-        
+
         val index = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) }
         if (index < 0) {
             return
@@ -94,9 +94,9 @@ class PlanetFile(fileContent: String) : IEditCallback {
         lines = newLines
     }
 
-    override fun togglePathSelect(point: Coordinate, direction: Direction) {
+    override fun togglePathSelect(point: Coordinate, direction: Direction, groupHistory: Boolean) {
         val pathSelect = PathSelect(point, direction)
-        val pathSelectLine =  lines.filter { it.isAssociatedTo(pathSelect) }
+        val pathSelectLine = lines.filter { it.isAssociatedTo(pathSelect) }
 
         lines = if (pathSelectLine.isEmpty()) {
             lines + FileLine.PathSelectLine.create(pathSelect)

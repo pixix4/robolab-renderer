@@ -378,7 +378,7 @@ interface FileLine<T> {
     class SplineLine(override val line: String) : FileLine<List<Point>> {
 
         override val data = REGEX.matchEntire(line.trim())!!.let { match ->
-            match.groupValues[2].split('|').mapNotNull { p ->
+            match.groupValues[3].split('|').mapNotNull { p ->
                 val h = p.split(',').map { it.trim().toDouble() }
                 if (h.size < 2) null else Point(h[0], h[1])
             }

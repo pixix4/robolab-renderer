@@ -3,9 +3,11 @@ package de.robolab.renderer.drawable
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.Transformation
 import de.robolab.renderer.data.Point
+import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.platform.PointerEvent
 import kotlin.math.PI
 
-object CompassDrawable : IDrawable {
+class CompassDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
 
     override fun onUpdate(ms_offset: Double): Boolean {
         return false
@@ -47,8 +49,35 @@ object CompassDrawable : IDrawable {
         return emptyList()
     }
 
-    const val RADIUS = 24.0
+    override fun onPointerDown(event: PointerEvent): Boolean {
+        val compassCenter = Point(
+                event.screen.width - RIGHT_PADDING,
+                TOP_PADDING
+        )
 
-    const val TOP_PADDING = 20.0 + RADIUS
-    const val RIGHT_PADDING = 20.0 + RADIUS
+        return event.point.distance(compassCenter) <= RADIUS
+    }
+
+    override fun onPointerUp(event: PointerEvent): Boolean {
+        val compassCenter = Point(
+                event.screen.width - RIGHT_PADDING,
+                TOP_PADDING
+        )
+
+        if (event.point.distance(compassCenter) <= RADIUS) {
+            planetDrawable.plotter?.transformation?.rotateTo((transformation.rotation - PI) % (2 * PI) + PI, event.screen / 2)
+            planetDrawable.plotter?.transformation?.rotateTo(0.0, event.screen / 2, 250.0)
+            planetDrawable.centerPlanet()
+            return true
+        }
+
+        return false
+    }
+
+    companion object {
+        const val RADIUS = 24.0
+
+        const val TOP_PADDING = 20.0 + RADIUS
+        const val RIGHT_PADDING = 20.0 + RADIUS
+    }
 }

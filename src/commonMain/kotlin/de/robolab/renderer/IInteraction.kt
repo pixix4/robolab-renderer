@@ -1,9 +1,8 @@
-package de.robolab.renderer.platform
+package de.robolab.renderer
 
-import de.robolab.renderer.data.Dimension
+import de.robolab.renderer.platform.*
 
-interface ICanvasListener {
-
+interface IInteraction {
     fun onPointerDown(event: PointerEvent): Boolean {
         return false
     }
@@ -21,22 +20,6 @@ interface ICanvasListener {
     }
 
     fun onPointerSecondaryAction(event: PointerEvent): Boolean {
-        return false
-    }
-
-    fun onScroll(event: ScrollEvent): Boolean {
-        return false
-    }
-
-    fun onZoom(event: ZoomEvent): Boolean {
-        return false
-    }
-
-    fun onRotate(event: RotateEvent): Boolean {
-        return false
-    }
-
-    fun onResize(size: Dimension): Boolean {
         return false
     }
 

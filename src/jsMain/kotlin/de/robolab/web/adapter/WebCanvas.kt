@@ -20,7 +20,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
                 event.stopPropagation()
                 event.preventDefault()
 
-                listener.onMouseMove(MouseEvent(
+                listener.onPointerMove(PointerEvent(
                         Point(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop),
                         Dimension(width, height),
                         event.ctrlKey,
@@ -32,7 +32,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         canvas.onClick { event ->
             event.stopPropagation()
             event.preventDefault()
-            listener.onMouseClick(MouseEvent(
+            listener.onPointerSecondaryAction(PointerEvent(
                     Point(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop),
                     Dimension(width, height),
                     event.ctrlKey,
@@ -57,7 +57,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
             val code = event.key.toCommon() ?: return@onKeyDown
             event.stopPropagation()
             event.preventDefault()
-            listener.onKeyDown(KeyEvent(
+            listener.onKeyPress(KeyEvent(
                     code,
                     event.key,
                     event.ctrlKey,
@@ -69,7 +69,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
             val code = event.key.toCommon() ?: return@onKeyPress
             event.stopPropagation()
             event.preventDefault()
-            listener.onKeyDown(KeyEvent(
+            listener.onKeyPress(KeyEvent(
                     code,
                     event.key,
                     event.ctrlKey,
@@ -91,7 +91,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         }
 
         hammer.onPanStart {
-            listener.onMouseDown(MouseEvent(
+            listener.onPointerDown(PointerEvent(
                     Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
                     Dimension(width, height),
                     ctrlKey = false,
@@ -102,7 +102,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
             it.preventDefault()
         }
         hammer.onPanMove {
-            listener.onMouseDrag(MouseEvent(
+            listener.onPointerDrag(PointerEvent(
                     Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
                     Dimension(width, height),
                     ctrlKey = false,
@@ -113,7 +113,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
             it.preventDefault()
         }
         hammer.onPanEnd {
-            listener.onMouseUp(MouseEvent(
+            listener.onPointerUp(PointerEvent(
                     Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
                     Dimension(width, height),
                     ctrlKey = false,
@@ -125,7 +125,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         }
 
         hammer.onTap {
-            listener.onMouseClick(MouseEvent(
+            listener.onPointerSecondaryAction(PointerEvent(
                     Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
                     Dimension(width, height),
                     ctrlKey = false,

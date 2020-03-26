@@ -2,6 +2,7 @@ package de.robolab.renderer.drawable
 
 import de.robolab.model.Planet
 import de.robolab.renderer.animation.GenericTransition
+import de.robolab.renderer.drawable.base.IDrawable
 
 abstract class Animatable<T>(
         open val reference: T

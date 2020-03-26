@@ -6,11 +6,13 @@ import de.robolab.model.Planet
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.data.Point
+import de.robolab.renderer.drawable.base.GroupDrawable
+import de.robolab.renderer.drawable.base.IDrawable
 import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.property.property
 
 @Suppress("LeakingThis")
-open class PlanetDrawable() : IRootDrawable {
+open class PlanetDrawable() : GroupDrawable() {
 
     val hoveredPathsProperty = property(emptySet<Path>())
     var hoveredPaths by hoveredPathsProperty
@@ -34,7 +36,7 @@ open class PlanetDrawable() : IRootDrawable {
     private val senderDrawable = SenderDrawable(this)
     private val pathSelectDrawable = PathSelectDrawable(this)
 
-    protected val planetForeground = GroupDrawable(
+    protected val planetForeground = listOf<IDrawable>(
             targetDrawable,
             senderDrawable,
             pathDrawable,
@@ -42,20 +44,20 @@ open class PlanetDrawable() : IRootDrawable {
             pointDrawable
     )
 
-    protected val viewBackground = GroupDrawable(
+    protected val viewBackground = listOf<IDrawable>(
             GridLinesDrawable
     )
 
-    protected val viewForeground = GroupDrawable(
+    protected val viewForeground = listOf<IDrawable>(
             GridNumbersDrawable,
-            CompassDrawable
+            CompassDrawable(this)
     )
 
-    open val drawable = GroupDrawable(
+    override val drawableList = listOf(
             planetBackground,
-            viewBackground,
-            planetForeground,
-            viewForeground
+            *viewBackground.toTypedArray(),
+            *planetForeground.toTypedArray(),
+            *viewForeground.toTypedArray()
     )
 
     private lateinit var pointerListener: EventListener<*>
@@ -82,15 +84,7 @@ open class PlanetDrawable() : IRootDrawable {
     override fun onUpdate(ms_offset: Double): Boolean {
         val hsc = hasSelectedChanged
         hasSelectedChanged = false
-        return drawable.onUpdate(ms_offset) || hsc
-    }
-
-    override fun onDraw(context: DrawContext) {
-        drawable.onDraw(context)
-    }
-
-    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
-        return drawable.getObjectsAtPosition(context, position)
+        return super.onUpdate(ms_offset) || hsc
     }
 
     private var hasSelectedChanged = false

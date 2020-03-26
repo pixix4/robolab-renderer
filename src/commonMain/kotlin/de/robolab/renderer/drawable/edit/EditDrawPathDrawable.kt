@@ -4,11 +4,14 @@ import de.robolab.model.Direction
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.IDrawable
 import de.robolab.renderer.drawable.PathDrawable
+import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.drawable.curve.BSpline
 import de.robolab.renderer.drawable.curve.Curve
 import de.robolab.renderer.drawable.utils.PathGenerator
+import de.robolab.renderer.platform.KeyCode
+import de.robolab.renderer.platform.KeyEvent
+import de.robolab.renderer.platform.PointerEvent
 
 
 class EditDrawPathDrawable(
@@ -34,11 +37,11 @@ class EditDrawPathDrawable(
     }
 
     override fun onUpdate(ms_offset: Double): Boolean {
-        return editPlanetDrawable.interaction.startEnd != null
+        return editPlanetDrawable.selectedPointEnd != null
     }
 
     override fun onDraw(context: DrawContext) {
-        val startEnd = editPlanetDrawable.interaction.startEnd ?: return
+        val startEnd = editPlanetDrawable.selectedPointEnd ?: return
         val endEnd = editPlanetDrawable.pointer.findObjectUnderPointer<EditDrawEndDrawable.PointEnd>()
 
         val startPoint = Point(startEnd.point)
@@ -63,5 +66,25 @@ class EditDrawPathDrawable(
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
         return emptyList()
+    }
+
+
+    override fun onKeyPress(event: KeyEvent): Boolean {
+        if (!editPlanetDrawable.editable) return false
+
+        when (event.keyCode) {
+            KeyCode.DELETE -> {
+                val path = editPlanetDrawable.selectedPath ?: return false
+
+                val cp = editPlanetDrawable.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>()
+                if (cp == null || cp.newPoint != null) {
+                    editPlanetDrawable.editCallback.deletePath(path)
+                }
+            }
+            else -> {
+                return false
+            }
+        }
+        return true
     }
 }

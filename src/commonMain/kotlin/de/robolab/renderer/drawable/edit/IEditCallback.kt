@@ -6,27 +6,27 @@ import de.robolab.model.Path
 import de.robolab.renderer.data.Point
 
 interface IEditCallback {
-    fun drawPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction) {
+    fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, groupHistory: Boolean = false) {
         println("Plotter action 'drawPath' is not supported!")
     }
 
-    fun deletePath(path: Path) {
-        println("Plotter action 'deletePath' is not supported!")
-    }
-
-    fun updateControlPoints(path: Path, controlPoints: List<Point>, groupHistory: Boolean) {
+    fun updatePathControlPoints(path: Path, controlPoints: List<Point>, groupHistory: Boolean) {
         println("Plotter action 'updateControlPoints' is not supported!")
     }
 
-    fun toggleTargetExposure(target: Coordinate, exposure: Coordinate) {
+    fun deletePath(path: Path, groupHistory: Boolean = false) {
+        println("Plotter action 'deletePath' is not supported!")
+    }
+
+    fun toggleTargetExposure(target: Coordinate, exposure: Coordinate, groupHistory: Boolean = false) {
         println("Plotter action 'toggleTargetSend' is not supported!")
     }
 
-    fun togglePathExposure(path: Path, exposure: Coordinate) {
+    fun togglePathExposure(path: Path, exposure: Coordinate, groupHistory: Boolean = false) {
         println("Plotter action 'togglePathSend' is not supported!")
     }
 
-    fun togglePathSelect(point: Coordinate, direction: Direction) {
+    fun togglePathSelect(point: Coordinate, direction: Direction, groupHistory: Boolean = false) {
         println("Plotter action 'togglePathSelect' is not supported!")
     }
 

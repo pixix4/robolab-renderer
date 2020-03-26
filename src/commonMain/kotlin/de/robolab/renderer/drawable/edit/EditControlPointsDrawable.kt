@@ -4,11 +4,16 @@ import de.robolab.model.Path
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.IDrawable
 import de.robolab.renderer.drawable.PathDrawable
+import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.drawable.curve.BSpline
 import de.robolab.renderer.drawable.curve.Curve
+import de.robolab.renderer.drawable.utils.Utils
+import de.robolab.renderer.platform.KeyCode
+import de.robolab.renderer.platform.KeyEvent
+import de.robolab.renderer.platform.PointerEvent
 import kotlin.math.PI
+import kotlin.math.round
 import kotlin.math.roundToInt
 
 class EditControlPointsDrawable(
@@ -110,5 +115,96 @@ class EditControlPointsDrawable(
         }
 
         return emptyList()
+    }
+
+
+    private var selectedControlPoint: ControlPoint? = null
+    private var groupHistory = false
+
+    override fun onPointerDown(event: PointerEvent): Boolean {
+        if (!editPlanetDrawable.editable) return false
+
+        selectedControlPoint = null
+        val c = editPlanetDrawable.pointer.findObjectUnderPointer<ControlPoint>() ?: return false
+
+        if (c.newPoint != null) {
+            val allControlPoints = editPlanetDrawable.selectedPathControlPoints ?: return false
+            val controlPoints = allControlPoints.drop(1).dropLast(1).toMutableList()
+
+            controlPoints.add(c.point - 1, c.newPoint)
+            editPlanetDrawable.editCallback.updatePathControlPoints(c.path, controlPoints, false)
+        }
+
+        selectedControlPoint = c
+        groupHistory = false
+
+        return true
+
+    }
+
+    override fun onPointerDrag(event: PointerEvent): Boolean {
+        if (!editPlanetDrawable.editable) return false
+
+        val (_, indexP) = selectedControlPoint ?: return false
+        val path = editPlanetDrawable.selectedPath ?: return false
+
+        val allControlPoints = editPlanetDrawable.selectedPathControlPoints ?: return false
+        val oldControlPoints = allControlPoints.drop(1).dropLast(1)
+        val controlPoints = oldControlPoints.toMutableList()
+        val index = indexP - 1
+
+        if (index < 0 || index > controlPoints.lastIndex) return false
+
+        controlPoints[index] = when (index) {
+            0 -> Utils.calculateProjection(
+                    editPlanetDrawable.pointer.position,
+                    allControlPoints.first(),
+                    path.sourceDirection
+            )
+            controlPoints.lastIndex -> Utils.calculateProjection(
+                    editPlanetDrawable.pointer.position,
+                    allControlPoints.last(),
+                    path.targetDirection
+            )
+            else -> editPlanetDrawable.pointer.position
+        }.let {
+            Point(
+                    round(it.left * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR,
+                    round(it.top * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
+            )
+        }
+
+        if (oldControlPoints != controlPoints) {
+            editPlanetDrawable.editCallback.updatePathControlPoints(path, controlPoints, groupHistory)
+            groupHistory = true
+        }
+
+        return true
+    }
+
+    override fun onKeyPress(event: KeyEvent): Boolean {
+        if (!editPlanetDrawable.editable) return false
+
+        when (event.keyCode) {
+            KeyCode.DELETE -> {
+                val path = editPlanetDrawable.selectedPath ?: return false
+                val (_, indexP) = selectedControlPoint ?: return false
+
+                val allControlPoints = editPlanetDrawable.selectedPathControlPoints ?: return false
+                val controlPoints = allControlPoints.drop(1).dropLast(1).toMutableList()
+                val index = indexP - 1
+
+                if (index <= 0 || index >= controlPoints.lastIndex) return false
+
+                controlPoints.removeAt(index)
+
+                editPlanetDrawable.editCallback.updatePathControlPoints(path, controlPoints, false)
+                selectedControlPoint = null
+            }
+            else -> {
+                return false
+            }
+        }
+        return true
     }
 }

@@ -1,57 +1,75 @@
-package de.robolab.renderer.interaction
+package de.robolab.renderer
 
-import de.robolab.renderer.DefaultPlotter
-import de.robolab.renderer.Transformation
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.platform.*
 import kotlin.math.PI
 
-class DefaultInteraction(
-        private val transformation: Transformation,
+class TransformationInteraction(
         private val plotter: DefaultPlotter
 ) : ICanvasListener {
+    private val transformation = plotter.transformation
 
     private var lastPoint: Point = Point.ZERO
     private var lastDimension: Dimension = Dimension.ZERO
-    private var isMouseDown = false
+    private var hasMovedSinceDown = false
 
-    override fun onMouseDown(event: MouseEvent): Boolean {
+    override fun onPointerDown(event: PointerEvent): Boolean {
         plotter.updatePointer(event.point)
 
+        if (plotter.drawable.onPointerDown(event)) {
+            return true
+        }
+
         lastPoint = event.point
-        isMouseDown = true
+        hasMovedSinceDown = false
 
         return true
     }
 
-    override fun onMouseUp(event: MouseEvent): Boolean {
+    override fun onPointerUp(event: PointerEvent): Boolean {
         plotter.updatePointer(event.point)
 
+        event.hasMoved = hasMovedSinceDown
+        hasMovedSinceDown = false
+        val returnValue = plotter.drawable.onPointerUp(event)
+
         lastPoint = event.point
-        isMouseDown = false
+
+        return returnValue
+    }
+
+    override fun onPointerMove(event: PointerEvent): Boolean {
+        plotter.updatePointer(event.point)
+
+        if (plotter.drawable.onPointerMove(event)) {
+            return true
+        }
+
+        lastPoint = event.point
 
         return false
     }
 
-    override fun onMouseMove(event: MouseEvent): Boolean {
-        plotter.updatePointer(event.point)
-        lastPoint = event.point
-
-        return false
-    }
-
-    override fun onMouseDrag(event: MouseEvent): Boolean {
+    override fun onPointerDrag(event: PointerEvent): Boolean {
         plotter.updatePointer(event.point)
 
-        if (!isMouseDown) return false
+        event.hasMoved = hasMovedSinceDown
+        hasMovedSinceDown = true
+        if (plotter.drawable.onPointerDrag(event)) {
+            return true
+        }
 
         transformation.translateBy(event.point - lastPoint)
         lastPoint = event.point
         return true
     }
 
-    override fun onMouseClick(event: MouseEvent): Boolean {
+    override fun onPointerSecondaryAction(event: PointerEvent): Boolean {
+        if (plotter.drawable.onPointerSecondaryAction(event)) {
+            return true
+        }
+
         lastPoint = event.point
         return false
     }
@@ -100,7 +118,11 @@ class DefaultInteraction(
         return true
     }
 
-    override fun onKeyDown(event: KeyEvent): Boolean {
+    override fun onKeyPress(event: KeyEvent): Boolean {
+        if (plotter.drawable.onKeyPress(event)) {
+            return true
+        }
+
         when (event.keyCode) {
             KeyCode.ARROW_UP -> {
                 transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION), ANIMATION_TIME)

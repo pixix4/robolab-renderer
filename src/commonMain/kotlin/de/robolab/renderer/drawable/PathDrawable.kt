@@ -152,7 +152,7 @@ class PathDrawable(
                             topRightCenter
                     ),
                     context.theme.redColor.a(alpha),
-                    4.0
+                    PlottingConstraints.LINE_WIDTH * 1.5
             )
         }
     }

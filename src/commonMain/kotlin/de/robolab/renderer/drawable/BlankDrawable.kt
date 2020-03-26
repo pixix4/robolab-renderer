@@ -3,12 +3,13 @@ package de.robolab.renderer.drawable
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.data.Point
+import de.robolab.renderer.drawable.base.IDrawable
 
 /**
  * This object does nothing...
  * It is the default drawable of a plotter that only shows the background.
  */
-object BlankDrawable : IRootDrawable {
+object BlankDrawable : IDrawable {
     override fun onUpdate(ms_offset: Double): Boolean {
         return false
     }

@@ -7,6 +7,7 @@ import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
+import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.drawable.curve.BSpline
 import kotlin.math.max
 import kotlin.math.min

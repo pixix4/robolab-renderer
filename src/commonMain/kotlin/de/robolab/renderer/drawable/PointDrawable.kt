@@ -102,6 +102,7 @@ class PointDrawable(
         }
 
         override fun startUpdateAnimation(obj: Coordinate, planet: Planet) {
+            startEnterAnimation {  }
             colorTransition.animate(calcColor(planet), this@PointDrawable.planetDrawable.animationTime / 2, this@PointDrawable.planetDrawable.animationTime / 4)
         }
 

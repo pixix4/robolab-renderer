@@ -1,12 +1,11 @@
 package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Planet
-import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.Pointer
-import de.robolab.renderer.drawable.GroupDrawable
 import de.robolab.renderer.drawable.PathDrawable
 import de.robolab.renderer.drawable.PlanetDrawable
-import de.robolab.renderer.interaction.EditPlanetInteraction
+import de.robolab.renderer.platform.KeyCode
+import de.robolab.renderer.platform.KeyEvent
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
@@ -26,40 +25,25 @@ class EditPlanetDrawable() : PlanetDrawable() {
     val editableProperty = property(false)
     val editable by editableProperty
 
-    lateinit var interaction: EditPlanetInteraction
-
     private val selectedPathControlPointsProperty = selectedPathProperty.mapBinding { nullablePath ->
         val path = nullablePath ?: return@mapBinding null
 
         PathDrawable.getControlPointsFromPath(path)
     }
     val selectedPathControlPoints by selectedPathControlPointsProperty
+    var selectedPointEnd: EditDrawEndDrawable.PointEnd? = null
 
-    override val drawable = GroupDrawable(
+    override val drawableList = listOf(
             planetBackground,
-            viewBackground,
+            *viewBackground.toTypedArray(),
             editPointDrawable,
-            planetForeground,
+            *planetForeground.toTypedArray(),
             editDrawEndDrawable,
             editPathSelectDrawable,
             editPathDrawable,
             editControlPointsDrawable,
-            viewForeground
+            *viewForeground.toTypedArray()
     )
-
-    override fun onAttach(plotter: DefaultPlotter) {
-        super.onAttach(plotter)
-
-        if (!this::interaction.isInitialized) {
-            interaction = EditPlanetInteraction(this)
-        }
-        plotter.pushInteraction(interaction)
-    }
-
-    override fun onDetach(plotter: DefaultPlotter) {
-        plotter.popInteraction()
-        super.onDetach(plotter)
-    }
 
     override fun importPlanet(planet: Planet) {
         super.importPlanet(planet)
@@ -76,5 +60,30 @@ class EditPlanetDrawable() : PlanetDrawable() {
                 editPointDrawable.startExitAnimation { }
             }
         }
+    }
+
+    override fun onKeyPress(event: KeyEvent): Boolean {
+        if (super.onKeyPress(event)) return true
+        if (!editable) return false
+
+        when (event.keyCode) {
+            KeyCode.UNDO -> {
+                editCallback.undo()
+            }
+            KeyCode.REDO -> {
+                editCallback.redo()
+            }
+            KeyCode.Z -> if (event.ctrlKey) {
+                if (event.shiftKey) {
+                    editCallback.redo()
+                } else {
+                    editCallback.undo()
+                }
+            }
+            else -> {
+                return false
+            }
+        }
+        return true
     }
 }

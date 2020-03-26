@@ -6,7 +6,8 @@ import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.IDrawable
+import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.platform.PointerEvent
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -37,7 +38,7 @@ class EditDrawEndDrawable(
                 pointEndsToDraw += pointEnd
             }
 
-            val startPointEnd = editPlanetDrawable.interaction.startEnd
+            val startPointEnd = editPlanetDrawable.selectedPointEnd
             if (startPointEnd != null) {
                 pointEndsToDraw += startPointEnd
             }
@@ -101,18 +102,80 @@ class EditDrawEndDrawable(
                 else -> return emptyList()
             }
 
-            val point = Coordinate(col, row)
-
-            if (planet.pathList.any {
-                        it.source == point && it.sourceDirection == direction ||
-                                it.target == point && it.targetDirection == direction
-                    }) {
-                return emptyList()
-            }
-
-            return listOf(PointEnd(point, direction))
+            return listOf(PointEnd(Coordinate(col, row), direction))
         }
 
         return emptyList()
+    }
+
+    private var allowClickCreate = false
+    override fun onPointerDown(event: PointerEvent): Boolean {
+        allowClickCreate = false
+        val currentPointEnd = editPlanetDrawable.pointer.findObjectUnderPointer<PointEnd>()
+
+        if (currentPointEnd == null) {
+            editPlanetDrawable.selectedPointEnd = null
+            return false
+        }
+
+        if (editPlanetDrawable.selectedPointEnd != null) {
+            allowClickCreate = true
+            return true
+        }
+
+        val path = planet.pathList.find {
+            it.source == currentPointEnd.point && it.sourceDirection == currentPointEnd.direction ||
+                    it.target == currentPointEnd.point && it.targetDirection == currentPointEnd.direction
+        }
+
+        if (path != null) {
+            if (path.source == currentPointEnd.point && path.sourceDirection == currentPointEnd.direction) {
+                editPlanetDrawable.selectedPointEnd = PointEnd(path.target, path.targetDirection)
+            } else {
+                editPlanetDrawable.selectedPointEnd = PointEnd(path.source, path.sourceDirection)
+            }
+        } else {
+            editPlanetDrawable.selectedPointEnd = currentPointEnd
+        }
+
+        return true
+    }
+
+    override fun onPointerDrag(event: PointerEvent): Boolean {
+        return editPlanetDrawable.selectedPointEnd != null
+    }
+
+    override fun onPointerUp(event: PointerEvent): Boolean {
+        if (!editPlanetDrawable.editable) return false
+
+        if (editPlanetDrawable.selectedPointEnd != null && (event.hasMoved || allowClickCreate)) {
+            val sourceEnd = editPlanetDrawable.selectedPointEnd ?: return false
+            editPlanetDrawable.selectedPointEnd = null
+            val targetEnd = editPlanetDrawable.pointer.findObjectUnderPointer<PointEnd>() ?: return false
+
+            var groupHistory = false
+
+            for (end in sequenceOf(sourceEnd, targetEnd)) {
+                val path = planet.pathList.find {
+                    it.source == end.point && it.sourceDirection == end.direction ||
+                            it.target == end.point && it.targetDirection == end.direction
+                } ?: continue
+
+                editPlanetDrawable.editCallback.deletePath(path, groupHistory)
+                groupHistory = true
+            }
+
+            editPlanetDrawable.editCallback.createPath(
+                    sourceEnd.point,
+                    sourceEnd.direction,
+                    targetEnd.point,
+                    targetEnd.direction,
+                    groupHistory
+            )
+
+            return true
+        }
+
+        return false
     }
 }

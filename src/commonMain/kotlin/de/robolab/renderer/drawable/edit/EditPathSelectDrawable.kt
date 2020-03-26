@@ -6,8 +6,11 @@ import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.IDrawable
 import de.robolab.renderer.drawable.PathSelectDrawable
+import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.platform.KeyCode
+import de.robolab.renderer.platform.KeyEvent
+import de.robolab.renderer.platform.PointerEvent
 import kotlin.math.abs
 
 class EditPathSelectDrawable(
@@ -67,5 +70,25 @@ class EditPathSelectDrawable(
         }
 
         return emptyList()
+    }
+
+    override fun onPointerUp(event: PointerEvent): Boolean {
+        if (!editPlanetDrawable.editable || event.hasMoved) return false
+
+        val currentPathSelect = editPlanetDrawable.pointer.findObjectUnderPointer<PointSelect>() ?: return false
+        editPlanetDrawable.editCallback.togglePathSelect(currentPathSelect.point, currentPathSelect.direction)
+        return true
+    }
+
+    override fun onKeyPress(event: KeyEvent): Boolean {
+        when (event.keyCode) {
+            KeyCode.ESCAPE -> {
+                editPlanetDrawable.selectedPointEnd = null
+            }
+            else -> {
+                return false
+            }
+        }
+        return false
     }
 }

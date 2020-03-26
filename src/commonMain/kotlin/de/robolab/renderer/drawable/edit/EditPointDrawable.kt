@@ -1,12 +1,15 @@
 package de.robolab.renderer.drawable.edit
 
+import de.robolab.model.Coordinate
+import de.robolab.model.Path
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
-import de.robolab.renderer.drawable.IDrawable
+import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.platform.PointerEvent
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -129,5 +132,31 @@ class EditPointDrawable(
 
     companion object {
         private const val COLOR_OPACITY = 0.85
+    }
+
+    override fun onPointerUp(event: PointerEvent): Boolean {
+        if (!editPlanetDrawable.editable || event.hasMoved) return false
+
+        val currentPoint = editPlanetDrawable.pointer.findObjectUnderPointer<Coordinate>()
+        val currentPath = editPlanetDrawable.pointer.findObjectUnderPointer<Path>()
+
+        val selectedPoint = editPlanetDrawable.selectedPoint
+        if (selectedPoint != null && (event.ctrlKey || event.altKey)) {
+            if (currentPoint != null) {
+                editPlanetDrawable.editCallback.toggleTargetExposure(currentPoint, selectedPoint)
+            } else if (currentPath != null) {
+                editPlanetDrawable.editCallback.togglePathExposure(currentPath, selectedPoint)
+            }
+            return true
+        } else {
+            editPlanetDrawable.selectedPoint = currentPoint
+            editPlanetDrawable.selectedPath = if (editPlanetDrawable.selectedPoint == null) {
+                currentPath
+            } else {
+                null
+            }
+        }
+
+        return false
     }
 }
