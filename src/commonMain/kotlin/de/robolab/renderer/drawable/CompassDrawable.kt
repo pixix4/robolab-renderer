@@ -6,6 +6,7 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.platform.PointerEvent
 import kotlin.math.PI
+import kotlin.math.round
 
 class CompassDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
 
@@ -65,9 +66,14 @@ class CompassDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
         )
 
         if (event.point.distance(compassCenter) <= RADIUS) {
-            planetDrawable.plotter?.transformation?.rotateTo((transformation.rotation - PI) % (2 * PI) + PI, event.screen / 2)
-            planetDrawable.plotter?.transformation?.rotateTo(0.0, event.screen / 2, 250.0)
-            planetDrawable.centerPlanet()
+            val currentAngle = round(transformation.rotation / PI * 180.0 * 100.0) / 100.0
+            val newAngle = ((currentAngle - 180.0) % 360.0 + 180.0) % 360.0
+            planetDrawable.plotter?.transformation?.rotateTo(newAngle / 180.0 * PI, event.screen / 2)
+            if (newAngle != 0.0) {
+                planetDrawable.plotter?.transformation?.rotateTo(0.0, event.screen / 2, 250.0)
+            } else {
+                planetDrawable.centerPlanet(255.0)
+            }
             return true
         }
 
