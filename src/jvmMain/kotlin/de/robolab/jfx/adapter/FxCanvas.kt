@@ -22,22 +22,8 @@ class FxCanvas : ICanvas {
     override fun setListener(listener: ICanvasListener) {
         canvas.setOnMousePressed { event ->
             canvas.requestFocus()
-            when (event.button) {
-                MouseButton.FORWARD -> listener.onKeyPress(KeyEvent(
-                        KeyCode.REDO,
-                        "",
-                        event.isControlDown,
-                        event.isAltDown,
-                        event.isShiftDown
-                ))
-                MouseButton.BACK -> listener.onKeyPress(KeyEvent(
-                        KeyCode.UNDO,
-                        "",
-                        event.isControlDown,
-                        event.isAltDown,
-                        event.isShiftDown
-                ))
-                else -> listener.onPointerDown(PointerEvent(
+            if (event.button == MouseButton.PRIMARY) {
+                listener.onPointerDown(PointerEvent(
                         Point(event.x, event.y),
                         Dimension(width, height),
                         event.isControlDown,
@@ -47,9 +33,8 @@ class FxCanvas : ICanvas {
             }
         }
         canvas.setOnMouseReleased { event ->
-            when (event.button) {
-                MouseButton.FORWARD, MouseButton.BACK -> {}
-                else -> listener.onPointerUp(PointerEvent(
+            if (event.button == MouseButton.PRIMARY) {
+                listener.onPointerUp(PointerEvent(
                         Point(event.x, event.y),
                         Dimension(width, height),
                         event.isControlDown,
@@ -77,13 +62,30 @@ class FxCanvas : ICanvas {
             ))
         }
         canvas.setOnMouseClicked { event ->
-            listener.onPointerSecondaryAction(PointerEvent(
-                    Point(event.x, event.y),
-                    Dimension(width, height),
-                    event.isControlDown,
-                    event.isAltDown,
-                    event.isShiftDown
-            ))
+            when (event.button) {
+                MouseButton.SECONDARY -> listener.onPointerSecondaryAction(PointerEvent(
+                        Point(event.x, event.y),
+                        Dimension(width, height),
+                        event.isControlDown,
+                        event.isAltDown,
+                        event.isShiftDown
+                ))
+                MouseButton.FORWARD -> listener.onKeyPress(KeyEvent(
+                        KeyCode.REDO,
+                        "",
+                        event.isControlDown,
+                        event.isAltDown,
+                        event.isShiftDown
+                ))
+                MouseButton.BACK -> listener.onKeyPress(KeyEvent(
+                        KeyCode.UNDO,
+                        "",
+                        event.isControlDown,
+                        event.isAltDown,
+                        event.isShiftDown
+                ))
+                else -> {}
+            }
         }
         canvas.setOnScroll { event ->
             listener.onScroll(ScrollEvent(

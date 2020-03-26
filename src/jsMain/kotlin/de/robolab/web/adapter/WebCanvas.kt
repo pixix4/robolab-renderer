@@ -16,29 +16,49 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
 
     override fun setListener(listener: ICanvasListener) {
         canvas.onMouseMove { event ->
-            if (event.buttons == 0.toShort()) {
-                event.stopPropagation()
-                event.preventDefault()
-
-                listener.onPointerMove(PointerEvent(
-                        Point(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop),
-                        Dimension(width, height),
-                        event.ctrlKey,
-                        event.altKey,
-                        event.shiftKey
-                ))
-            }
-        }
-        canvas.onClick { event ->
             event.stopPropagation()
             event.preventDefault()
-            listener.onPointerSecondaryAction(PointerEvent(
+
+            listener.onPointerMove(PointerEvent(
                     Point(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop),
                     Dimension(width, height),
                     event.ctrlKey,
                     event.altKey,
                     event.shiftKey
             ))
+        }
+        canvas.onClick { event ->
+            when (event.button) {
+                MOUSE_BUTTON_SECONDARY -> {
+                    event.stopPropagation()
+                    event.preventDefault()
+                    listener.onPointerSecondaryAction(PointerEvent(
+                            Point(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop),
+                            Dimension(width, height),
+                            event.ctrlKey,
+                            event.altKey,
+                            event.shiftKey
+                    ))
+                }
+                MOUSE_BUTTON_FORWARD -> {
+                    listener.onKeyPress(KeyEvent(
+                            KeyCode.REDO,
+                            "",
+                            event.ctrlKey,
+                            event.altKey,
+                            event.shiftKey
+                    ))
+                }
+                MOUSE_BUTTON_BACK -> {
+                    listener.onKeyPress(KeyEvent(
+                            KeyCode.UNDO,
+                            "",
+                            event.ctrlKey,
+                            event.altKey,
+                            event.shiftKey
+                    ))
+                }
+            }
         }
         canvas.onWheel { event ->
             event.stopPropagation()
@@ -113,6 +133,25 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         }
 
         hammer.onTap {
+            listener.onPointerDown(PointerEvent(
+                    Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
+                    Dimension(width, height),
+                    ctrlKey = false,
+                    altKey = false,
+                    shiftKey = false
+            ))
+            listener.onPointerUp(PointerEvent(
+                    Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
+                    Dimension(width, height),
+                    ctrlKey = false,
+                    altKey = false,
+                    shiftKey = false
+            ))
+
+            it.preventDefault()
+        }
+
+        hammer.onPress {
             listener.onPointerSecondaryAction(PointerEvent(
                     Point(it.center.x - canvas.offsetLeft, it.center.y - canvas.offsetTop),
                     Dimension(width, height),
@@ -337,6 +376,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
     }
 
     companion object {
+        const val MOUSE_BUTTON_SECONDARY: Short = 2
         const val MOUSE_BUTTON_BACK: Short = 3
         const val MOUSE_BUTTON_FORWARD: Short = 4
 

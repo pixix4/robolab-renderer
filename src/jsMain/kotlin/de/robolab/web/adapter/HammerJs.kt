@@ -30,6 +30,10 @@ fun Hammer.onTap(callback: (HammerEvent) -> Unit) {
     on("tap", callback)
 }
 
+fun Hammer.onPress(callback: (HammerEvent) -> Unit) {
+    on("press", callback)
+}
+
 fun Hammer.onPanStart(callback: (HammerEvent) -> Unit) {
     on("panstart", callback)
 }
