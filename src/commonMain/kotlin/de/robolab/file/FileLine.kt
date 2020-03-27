@@ -26,14 +26,14 @@ interface FileLine<T> {
                 val blockHead: FileLine<*>,
                 previousBlockHead: FileLine<*>?
         ) : BlockMode(previousBlockHead) {
-            constructor(blockHead: FileLine<*>): this(blockHead, blockHead.blockMode.previousBlockHead)
+            constructor(blockHead: FileLine<*>) : this(blockHead, blockHead.blockMode.previousBlockHead)
         }
 
         class Skip(
                 previousBlockHead: FileLine<*>?
         ) : BlockMode(previousBlockHead)
     }
-    
+
     class BuildAccumulator(
             var planet: Planet = Planet.EMPTY,
             var previousBlockHead: FileLine<*>? = null
@@ -134,12 +134,14 @@ interface FileLine<T> {
                 append(serializeCoordinate(path.target))
                 append(',')
                 append(serializeDirection(path.targetDirection))
-                if (path.weight != null) {
+                append(' ')
+                append(path.weight ?: 1)
+                for (exposure in path.exposure) {
                     append(' ')
-                    append(path.weight)
-                    if (path.weight < 0) {
-                        append(" blocked")
-                    }
+                    append(serializeCoordinate(exposure))
+                }
+                if (path.weight != null && path.weight < 0) {
+                    append(" blocked")
                 }
             }
 
@@ -398,7 +400,8 @@ interface FileLine<T> {
         override lateinit var blockMode: BlockMode
 
         override fun buildPlanet(builder: BuildAccumulator) {
-            val previousBlockHead = builder.previousBlockHead ?:throw IllegalArgumentException("Spline line: previous block is null")
+            val previousBlockHead = builder.previousBlockHead
+                    ?: throw IllegalArgumentException("Spline line: previous block is null")
             blockMode = BlockMode.Append(previousBlockHead)
 
             if (previousBlockHead is PathLine) {
@@ -412,7 +415,8 @@ interface FileLine<T> {
                 return
             }
             if (previousBlockHead is StartPointLine) {
-                val startPoint = builder.planet.startPoint ?:throw IllegalArgumentException("Spline line: start point is null")
+                val startPoint = builder.planet.startPoint
+                        ?: throw IllegalArgumentException("Spline line: start point is null")
                 associatedPath = previousBlockHead.data.path
                 builder.planet = builder.planet.copy(
                         startPoint = startPoint.copy(

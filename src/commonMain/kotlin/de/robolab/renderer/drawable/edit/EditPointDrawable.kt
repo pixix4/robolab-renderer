@@ -139,6 +139,7 @@ class EditPointDrawable(
 
         val currentPoint = editPlanetDrawable.pointer.findObjectUnderPointer<Coordinate>()
         val currentPath = editPlanetDrawable.pointer.findObjectUnderPointer<Path>()
+        val pointSelect = editPlanetDrawable.pointer.findObjectUnderPointer<EditPathSelectDrawable.PointSelect>()
 
         val selectedPoint = editPlanetDrawable.selectedPoint
         if (selectedPoint != null && (event.ctrlKey || event.altKey)) {
@@ -149,11 +150,13 @@ class EditPointDrawable(
             }
             return true
         } else {
-            editPlanetDrawable.selectedPoint = currentPoint
-            editPlanetDrawable.selectedPath = if (editPlanetDrawable.selectedPoint == null) {
-                currentPath
-            } else {
-                null
+            if (pointSelect == null) {
+                editPlanetDrawable.selectedPoint = currentPoint
+                editPlanetDrawable.selectedPath = if (editPlanetDrawable.selectedPoint == null) {
+                    currentPath
+                } else {
+                    null
+                }
             }
         }
 

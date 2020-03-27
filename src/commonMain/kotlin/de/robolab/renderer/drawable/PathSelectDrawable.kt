@@ -49,15 +49,18 @@ class PathSelectDrawable(
 
         override fun onDraw(context: DrawContext) {
             for (dir in oldDirections - newDirections) {
-                context.fillPolygon(getArrow(position, dir), context.theme.gridTextColor.a(1 - transition.value))
+                val (bottom, top) = getArrow(position, dir)
+                PathDrawable.drawArrow(context, bottom, top, context.theme.lineColor.a(1 - transition.value))
             }
 
             for (dir in newDirections - oldDirections) {
-                context.fillPolygon(getArrow(position, dir), context.theme.gridTextColor.a(transition.value))
+                val (bottom, top) = getArrow(position, dir)
+                PathDrawable.drawArrow(context, bottom, top, context.theme.lineColor.a(transition.value))
             }
 
             for (dir in newDirections - (newDirections - oldDirections)) {
-                context.fillPolygon(getArrow(position, dir), context.theme.gridTextColor)
+                val (bottom, top) = getArrow(position, dir)
+                PathDrawable.drawArrow(context, bottom, top, context.theme.lineColor)
             }
         }
 
@@ -88,9 +91,8 @@ class PathSelectDrawable(
                 Direction.EAST -> 3 * PI / 2
             }
             return listOf(
-                    Point(PlottingConstraints.POINT_SIZE / 8, PlottingConstraints.POINT_SIZE / 2),
-                    Point(3 * PlottingConstraints.POINT_SIZE / 8, PlottingConstraints.POINT_SIZE / 2),
-                    Point(PlottingConstraints.POINT_SIZE / 4, PlottingConstraints.POINT_SIZE * 1.25)
+                    Point(PlottingConstraints.POINT_SIZE * 0.35, PlottingConstraints.POINT_SIZE * 0.6),
+                    Point(PlottingConstraints.POINT_SIZE * 0.35, PlottingConstraints.POINT_SIZE * 0.6 + PlottingConstraints.ARROW_LENGTH)
             ).map { it.rotate(rotation) + position }
         }
     }

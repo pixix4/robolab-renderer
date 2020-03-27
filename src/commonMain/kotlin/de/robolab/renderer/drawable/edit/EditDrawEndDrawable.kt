@@ -7,6 +7,8 @@ import de.robolab.renderer.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.platform.KeyCode
+import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.PointerEvent
 import kotlin.math.PI
 import kotlin.math.abs
@@ -176,6 +178,18 @@ class EditDrawEndDrawable(
             return true
         }
 
+        return false
+    }
+
+    override fun onKeyPress(event: KeyEvent): Boolean {
+        when (event.keyCode) {
+            KeyCode.ESCAPE -> {
+                editPlanetDrawable.selectedPointEnd = null
+            }
+            else -> {
+                return false
+            }
+        }
         return false
     }
 }

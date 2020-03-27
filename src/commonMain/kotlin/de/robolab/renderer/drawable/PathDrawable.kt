@@ -157,23 +157,6 @@ class PathDrawable(
             else -> (transition.value - rangeStart) / (rangeEnd - rangeStart)
         }
     }
-    
-    private fun drawArrow(context: DrawContext, bottom: Point, top: Point, color: Color) {
-        context.strokeLine(
-                listOf(bottom, top.interpolate(bottom, 0.3)),
-                color,
-                PlottingConstraints.LINE_WIDTH / 2
-        )
-
-        val arrowMiddle = top.interpolate(bottom, 0.4)
-        val vector = (arrowMiddle - top) * 0.7
-        val left = arrowMiddle + Point(vector.top, -vector.left)
-        val right = arrowMiddle + Point(-vector.top, vector.left)
-        context.fillPolygon(
-                listOf(top, left, right),
-                color
-        )
-    }
 
     override fun onDraw(context: DrawContext) {
         if (!context.area.intersects(area)) return
@@ -190,7 +173,7 @@ class PathDrawable(
 
             val alpha = if (isOneWayPath) getAlpha(0.8, 1.0) else getAlpha(0.4, 0.6)
 
-            val top = topRightCenter + (downLeftCenter - topRightCenter).let { Point(it.top, -it.left) } / 2
+            val top = topRightCenter + (downLeftCenter - topRightCenter).let { Point(it.top, -it.left) }.normalize() * PlottingConstraints.ARROW_LENGTH
             drawArrow(context, topRightCenter, top, context.theme.lineColor.a(alpha))
             return
         }
@@ -364,6 +347,23 @@ class PathDrawable(
 
             val endPointEdge = endPoint + (controlPoints.last() - endPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
             return listOf(startPointEdge) + points.take(index + 1).requireNoNulls() + endPointEdge
+        }
+
+        fun drawArrow(context: DrawContext, bottom: Point, top: Point, color: Color) {
+            context.strokeLine(
+                    listOf(bottom, top.interpolate(bottom, 0.3)),
+                    color,
+                    PlottingConstraints.LINE_WIDTH * 0.65
+            )
+
+            val arrowMiddle = top.interpolate(bottom, 0.4)
+            val vector = (arrowMiddle - top) * 0.7
+            val left = arrowMiddle + Point(vector.top, -vector.left)
+            val right = arrowMiddle + Point(-vector.top, vector.left)
+            context.fillPolygon(
+                    listOf(top, left, right),
+                    color
+            )
         }
     }
 

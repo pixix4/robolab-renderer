@@ -85,16 +85,4 @@ class EditPathSelectDrawable(
         editPlanetDrawable.editCallback.togglePathSelect(currentPathSelect.point, currentPathSelect.direction)
         return true
     }
-
-    override fun onKeyPress(event: KeyEvent): Boolean {
-        when (event.keyCode) {
-            KeyCode.ESCAPE -> {
-                editPlanetDrawable.selectedPointEnd = null
-            }
-            else -> {
-                return false
-            }
-        }
-        return false
-    }
 }
