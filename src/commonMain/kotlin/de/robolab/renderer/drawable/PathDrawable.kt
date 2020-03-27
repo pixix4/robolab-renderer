@@ -21,7 +21,7 @@ class PathDrawable(
     private val startPoint: Point = reference.source.let { Point(it.x.toDouble(), it.y.toDouble()) }
     private val startDirection: Direction = reference.sourceDirection
     private val endPoint: Point = reference.target.let { Point(it.x.toDouble(), it.y.toDouble()) }
-    private var weight: Int = reference.weight
+    private var weight = reference.weight
     private val isOneWayPath = reference.source == reference.target && reference.sourceDirection == reference.targetDirection
     private val evalEndPoint = if (isOneWayPath) null else endPoint
 
@@ -61,6 +61,15 @@ class PathDrawable(
         }
     }
 
+    private fun interpolateLineEnd(pointHelpers: List<PointLengthHelper>, endIndex: Int, targetLength: Double): List<Point> {
+        val p1 = pointHelpers[endIndex - 1]
+        val p2 = pointHelpers[endIndex]
+
+        val endPoint = p1.point.interpolate(p2.point, (targetLength - p1.length) / (p2.length - p1.length))
+
+        return pointHelpers.take(endIndex).map { it.point } + endPoint
+    }
+
     private fun interpolate(context: DrawContext) {
         val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
 
@@ -96,12 +105,7 @@ class PathDrawable(
 
                 if (endIndex == 0) return
 
-                val p1 = pointHelpers[endIndex - 1]
-                val p2 = pointHelpers[endIndex]
-
-                val endPoint = p1.point.interpolate(p2.point, (targetLength - p1.length) / (p2.length - p1.length))
-
-                val points = pointHelpers.take(endIndex).map { it.point } + endPoint
+                val points = interpolateLineEnd(pointHelpers, endIndex, targetLength)
                 if (isHover) {
                     context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
@@ -117,11 +121,11 @@ class PathDrawable(
         }
     }
 
-    private fun calcCenterAt(before: Double, center: Double, after: Double? = null): Pair<Point, Point> {
+    private fun calcCenterAt(before: Double, center: Double, after: Double? = null, swap: Boolean = true): Pair<Point, Point> {
 
         val beforeCenter = eval(before)
         val centerPoint = eval(center)
-        
+
         val diffPoint = if (after == null) {
             centerPoint
         } else {
@@ -141,8 +145,34 @@ class PathDrawable(
             } else h
         } * 0.1
         return ((centerPoint - centerDirection) to (centerPoint + centerDirection)).let {
-            if (it.first < it.second) it else it.second to it.first
+            if (it.first < it.second && swap) it else it.second to it.first
         }
+    }
+
+    private fun getAlpha(rangeStart: Double, rangeEnd: Double): Double {
+        return when {
+            state == State.REMOVE -> transition.value
+            transition.value <= rangeStart -> 0.0
+            transition.value >= rangeEnd -> 1.0
+            else -> (transition.value - rangeStart) / (rangeEnd - rangeStart)
+        }
+    }
+    
+    private fun drawArrow(context: DrawContext, bottom: Point, top: Point, color: Color) {
+        context.strokeLine(
+                listOf(bottom, top.interpolate(bottom, 0.3)),
+                color,
+                PlottingConstraints.LINE_WIDTH / 2
+        )
+
+        val arrowMiddle = top.interpolate(bottom, 0.4)
+        val vector = (arrowMiddle - top) * 0.7
+        val left = arrowMiddle + Point(vector.top, -vector.left)
+        val right = arrowMiddle + Point(-vector.top, vector.left)
+        context.fillPolygon(
+                listOf(top, left, right),
+                color
+        )
     }
 
     override fun onDraw(context: DrawContext) {
@@ -150,23 +180,34 @@ class PathDrawable(
 
         interpolate(context)
 
-        val alpha = when {
-            state == State.REMOVE -> transition.value
-            transition.value <= 0.4 -> return
-            transition.value >= 0.6 -> 1.0
-            else -> (transition.value - 0.4) * 5
-        }
+        val weight = weight
+        if (weight == null) {
+            val (downLeftCenter, topRightCenter) = if (isOneWayPath) {
+                calcCenterAt(0.995, 1.0, swap = false)
+            } else {
+                calcCenterAt(0.49, 0.5, 0.51, swap = false)
+            }
 
+            val alpha = if (isOneWayPath) getAlpha(0.8, 1.0) else getAlpha(0.4, 0.6)
+
+            val top = topRightCenter + (downLeftCenter - topRightCenter).let { Point(it.top, -it.left) } / 2
+            drawArrow(context, topRightCenter, top, context.theme.lineColor.a(alpha))
+            return
+        }
 
         if (weight >= 0) {
             val (downLeftCenter, _) = calcCenterAt(0.49, 0.5, 0.51)
+            val alpha = getAlpha(0.4, 0.6)
             context.fillText(weight.toString(), downLeftCenter, context.theme.gridTextColor.a(alpha), 12.0)
         } else {
             val (downLeftCenter, topRightCenter) = if (isOneWayPath) {
-                calcCenterAt(0.995,  1.0)
+                calcCenterAt(0.995, 1.0)
             } else {
                 calcCenterAt(0.49, 0.5, 0.51)
             }
+
+            val alpha = if (isOneWayPath) getAlpha(0.8, 1.0) else getAlpha(0.4, 0.6)
+
             context.strokeLine(
                     listOf(
                             downLeftCenter,
@@ -196,13 +237,7 @@ class PathDrawable(
                 if (endIndex == 0) {
                     emptyList()
                 } else {
-                    val p1 = pointHelpers[endIndex - 1]
-                    val p2 = pointHelpers[endIndex]
-
-                    val endPoint = p1.point.interpolate(p2.point, (targetLength - p1.length) / (p2.length - p1.length))
-
-                    val points = pointHelpers.take(endIndex).map { it.point } + endPoint
-                    points
+                    interpolateLineEnd(pointHelpers, endIndex, targetLength)
                 }
             }
         }

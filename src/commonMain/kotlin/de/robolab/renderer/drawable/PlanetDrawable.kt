@@ -115,6 +115,9 @@ open class PlanetDrawable() : GroupDrawable() {
                 selectedPath = path
             }
         }
+        if (planet.startPoint?.path?.equalPath(currentSelectedPath) == true) {
+            selectedPath = planet.startPoint.path
+        }
 
         plotter?.updatePointer()
     }

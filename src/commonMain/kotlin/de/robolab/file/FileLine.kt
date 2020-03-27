@@ -134,10 +134,12 @@ interface FileLine<T> {
                 append(serializeCoordinate(path.target))
                 append(',')
                 append(serializeDirection(path.targetDirection))
-                append(' ')
-                append(path.weight)
-                if (path.weight < 0) {
-                    append(" blocked")
+                if (path.weight != null) {
+                    append(' ')
+                    append(path.weight)
+                    if (path.weight < 0) {
+                        append(" blocked")
+                    }
                 }
             }
 
@@ -150,7 +152,8 @@ interface FileLine<T> {
         override val data = REGEX.matchEntire(line.trim())!!.let { match ->
             StartPoint(
                     parseCoordinate(match.groupValues[1]),
-                    parseDirection(match.groupValues[3]) ?: Direction.NORTH
+                    parseDirection(match.groupValues[3]) ?: Direction.NORTH,
+                    emptyList()
             )
         }
 
@@ -165,6 +168,11 @@ interface FileLine<T> {
         }
 
         override fun isAssociatedTo(obj: Any): Boolean {
+            if (obj is Path) {
+                if (obj.equalPath(data.path)) {
+                    return true
+                }
+            }
             if (obj !is StartPoint) return false
 
             return obj == data
@@ -390,19 +398,31 @@ interface FileLine<T> {
         override lateinit var blockMode: BlockMode
 
         override fun buildPlanet(builder: BuildAccumulator) {
-            val previousBlockHead = builder.previousBlockHead
-            if (previousBlockHead == null || previousBlockHead !is PathLine) {
-                throw IllegalArgumentException()
-            }
+            val previousBlockHead = builder.previousBlockHead ?:throw IllegalArgumentException("Spline line: previous block is null")
             blockMode = BlockMode.Append(previousBlockHead)
 
-            val path = builder.planet.pathList.last().copy(
-                    controlPoints = data
-            )
-            associatedPath = path
-            builder.planet = builder.planet.copy(
-                    pathList = builder.planet.pathList.dropLast(1) + path
-            )
+            if (previousBlockHead is PathLine) {
+                val path = builder.planet.pathList.last().copy(
+                        controlPoints = data
+                )
+                associatedPath = path
+                builder.planet = builder.planet.copy(
+                        pathList = builder.planet.pathList.dropLast(1) + path
+                )
+                return
+            }
+            if (previousBlockHead is StartPointLine) {
+                val startPoint = builder.planet.startPoint ?:throw IllegalArgumentException("Spline line: start point is null")
+                associatedPath = previousBlockHead.data.path
+                builder.planet = builder.planet.copy(
+                        startPoint = startPoint.copy(
+                                controlPoints = data
+                        )
+                )
+                return
+            }
+
+            throw IllegalArgumentException("Spline line: previous block is ${previousBlockHead::class.simpleName}")
         }
 
         override fun isAssociatedTo(obj: Any): Boolean {
@@ -450,7 +470,7 @@ interface FileLine<T> {
         override fun buildPlanet(builder: BuildAccumulator) {
             val previousBlockHead = builder.previousBlockHead
             if (previousBlockHead == null || previousBlockHead !is PathLine) {
-                throw IllegalArgumentException()
+                throw IllegalArgumentException("Hidden line: previous block is not a path")
             }
             blockMode = BlockMode.Append(previousBlockHead)
 

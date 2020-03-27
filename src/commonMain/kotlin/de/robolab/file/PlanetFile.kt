@@ -64,7 +64,7 @@ class PlanetFile(fileContent: String) : IEditCallback {
 
         val index = newLines.indexOfFirst { it is FileLine.SplineLine && it.associatedPath?.equalPath(path) == true }
         if (index < 0) {
-            val pathIndex = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) }
+            val pathIndex = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) || it is FileLine.StartPointLine && it.data.path.equalPath(path) }
             newLines.add(pathIndex + 1, newLine)
         } else {
             newLines[index] = newLine

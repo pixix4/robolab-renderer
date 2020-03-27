@@ -8,7 +8,11 @@ class PathListDrawable(
 ) : AnimatableManager<Path, PathDrawable>() {
 
     override fun getObjectList(planet: Planet): List<Path> {
-        return planet.pathList
+        if (planet.startPoint == null) {
+            return planet.pathList
+        }
+
+        return planet.pathList + planet.startPoint.path
     }
 
     override fun createAnimatable(obj: Path, planet: Planet): PathDrawable {

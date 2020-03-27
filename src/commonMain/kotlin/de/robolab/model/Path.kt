@@ -7,7 +7,7 @@ data class Path(
         val sourceDirection: Direction,
         val target: Coordinate,
         val targetDirection: Direction,
-        val weight: Int,
+        val weight: Int?,
         val exposure: Set<Coordinate>,
         val controlPoints: List<Point>,
         val hidden: Boolean
