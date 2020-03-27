@@ -6,8 +6,8 @@ import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.PathDrawable
 import de.robolab.renderer.drawable.base.IDrawable
-import de.robolab.renderer.drawable.curve.BSpline
-import de.robolab.renderer.drawable.curve.Curve
+import de.robolab.renderer.drawable.utils.BSpline
+import de.robolab.renderer.drawable.utils.Curve
 import de.robolab.renderer.drawable.utils.Utils
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
@@ -26,11 +26,11 @@ class EditControlPointsDrawable(
             val newPoint: Point? = null
     )
 
-    private var areControlPointsNull = false
+    private var areSelectedControlPointsNull = false
     override fun onUpdate(ms_offset: Double): Boolean {
         val h = editPlanetDrawable.selectedPathControlPoints == null
-        val changes = areControlPointsNull != h || !h
-        areControlPointsNull = h
+        val changes = areSelectedControlPointsNull != h || !h
+        areSelectedControlPointsNull = h
         return changes
     }
 
@@ -49,18 +49,21 @@ class EditControlPointsDrawable(
 
     override fun onDraw(context: DrawContext) {
         val controlPoints = editPlanetDrawable.selectedPathControlPoints ?: return
+        val path = editPlanetDrawable.selectedPath ?: return
+        
+        val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 
         val first = controlPoints.first().let {
             Point(it.left.roundToInt(), it.top.roundToInt())
         }.interpolate(controlPoints.first(), 1.0 - (PlottingConstraints.POINT_SIZE / 2) / PlottingConstraints.CURVE_SECOND_POINT)
-        val last = controlPoints.last().let {
+        val last = if (isOneWayPath) emptyList() else listOf(controlPoints.last().let {
             Point(it.left.roundToInt(), it.top.roundToInt())
-        }.interpolate(controlPoints.last(), 1.0 - (PlottingConstraints.POINT_SIZE / 2) / PlottingConstraints.CURVE_SECOND_POINT)
+        }.interpolate(controlPoints.last(), 1.0 - (PlottingConstraints.POINT_SIZE / 2) / PlottingConstraints.CURVE_SECOND_POINT))
 
         context.strokeLine(listOf(first) + controlPoints + last, context.theme.editColor, PlottingConstraints.LINE_WIDTH / 2)
 
         for ((i, point) in controlPoints.withIndex()) {
-            if (i == 0 || i == controlPoints.size - 1) {
+            if (i == 0 || (i == controlPoints.lastIndex && !isOneWayPath)) {
                 continue
             }
 
@@ -83,9 +86,10 @@ class EditControlPointsDrawable(
 
         val path = editPlanetDrawable.selectedPath ?: return emptyList()
         val controlPoints = editPlanetDrawable.selectedPathControlPoints ?: return emptyList()
+        val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 
         for ((i, point) in controlPoints.withIndex()) {
-            if (i == 0 || i == controlPoints.size - 1) {
+            if (i == 0 || (i == controlPoints.lastIndex && !isOneWayPath)) {
                 continue
             }
 
@@ -126,10 +130,13 @@ class EditControlPointsDrawable(
 
         selectedControlPoint = null
         val c = editPlanetDrawable.pointer.findObjectUnderPointer<ControlPoint>() ?: return false
+        val path = c.path
+        val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 
         if (c.newPoint != null) {
             val allControlPoints = editPlanetDrawable.selectedPathControlPoints ?: return false
-            val controlPoints = allControlPoints.drop(1).dropLast(1).toMutableList()
+            val dropLast = if(isOneWayPath) 0 else 1
+            val controlPoints = allControlPoints.drop(1).dropLast(dropLast).toMutableList()
 
             controlPoints.add(c.point - 1, c.newPoint)
             editPlanetDrawable.editCallback.updatePathControlPoints(c.path, controlPoints, false)
@@ -147,21 +154,23 @@ class EditControlPointsDrawable(
 
         val (_, indexP) = selectedControlPoint ?: return false
         val path = editPlanetDrawable.selectedPath ?: return false
+        val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 
         val allControlPoints = editPlanetDrawable.selectedPathControlPoints ?: return false
-        val oldControlPoints = allControlPoints.drop(1).dropLast(1)
+        val dropLast = if(isOneWayPath) 0 else 1
+        val oldControlPoints = allControlPoints.drop(1).dropLast(dropLast)
         val controlPoints = oldControlPoints.toMutableList()
         val index = indexP - 1
 
         if (index < 0 || index > controlPoints.lastIndex) return false
 
-        controlPoints[index] = when (index) {
-            0 -> Utils.calculateProjection(
+        controlPoints[index] = when {
+            index == 0 -> Utils.calculateProjection(
                     editPlanetDrawable.pointer.position,
                     allControlPoints.first(),
                     path.sourceDirection
             )
-            controlPoints.lastIndex -> Utils.calculateProjection(
+            index == controlPoints.lastIndex && !isOneWayPath -> Utils.calculateProjection(
                     editPlanetDrawable.pointer.position,
                     allControlPoints.last(),
                     path.targetDirection
@@ -189,9 +198,11 @@ class EditControlPointsDrawable(
             KeyCode.DELETE -> {
                 val path = editPlanetDrawable.selectedPath ?: return false
                 val (_, indexP) = selectedControlPoint ?: return false
+                val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 
                 val allControlPoints = editPlanetDrawable.selectedPathControlPoints ?: return false
-                val controlPoints = allControlPoints.drop(1).dropLast(1).toMutableList()
+                val dropLast = if(isOneWayPath) 0 else 1
+                val controlPoints = allControlPoints.drop(1).dropLast(dropLast).toMutableList()
                 val index = indexP - 1
 
                 if (index <= 0 || index >= controlPoints.lastIndex) return false

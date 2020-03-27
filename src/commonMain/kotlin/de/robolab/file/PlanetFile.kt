@@ -30,7 +30,7 @@ class PlanetFile(fileContent: String) : IEditCallback {
     }
 
     override fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, groupHistory: Boolean) {
-        lines = lines + FileLine.PathLine.create(Path(
+        val newLines = lines + FileLine.PathLine.create(Path(
                 startPoint, startDirection,
                 endPoint, endDirection,
                 1,
@@ -38,11 +38,23 @@ class PlanetFile(fileContent: String) : IEditCallback {
                 emptyList(),
                 false
         ))
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
     }
 
     override fun deletePath(path: Path, groupHistory: Boolean) {
-        lines = lines - lines.filter {
+        val newLines = lines - lines.filter {
             it.isAssociatedTo(path)
+        }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
         }
     }
 
@@ -69,10 +81,16 @@ class PlanetFile(fileContent: String) : IEditCallback {
         val targetPoint = TargetPoint(target, exposure)
         val senderLines = lines.filter { it.isAssociatedTo(targetPoint) }
 
-        lines = if (senderLines.isEmpty()) {
+        val newLines = if (senderLines.isEmpty()) {
             lines + FileLine.TargetLine.create(targetPoint)
         } else {
             lines - senderLines
+        }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
         }
     }
 
@@ -92,17 +110,27 @@ class PlanetFile(fileContent: String) : IEditCallback {
             p.copy(exposure = p.exposure + exposure)
         })
 
-        lines = newLines
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
     }
 
     override fun togglePathSelect(point: Coordinate, direction: Direction, groupHistory: Boolean) {
         val pathSelect = PathSelect(point, direction)
         val pathSelectLine = lines.filter { it.isAssociatedTo(pathSelect) }
 
-        lines = if (pathSelectLine.isEmpty()) {
+        val newLines = if (pathSelectLine.isEmpty()) {
             lines + FileLine.PathSelectLine.create(pathSelect)
         } else {
             lines - pathSelectLine
+        }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
         }
     }
 

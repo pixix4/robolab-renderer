@@ -1,4 +1,4 @@
-package de.robolab.renderer.drawable.curve
+package de.robolab.renderer.drawable.utils
 
 import de.robolab.renderer.data.Point
 import kotlin.math.min
@@ -9,8 +9,11 @@ import kotlin.math.min
 object BSpline : Curve {
     override fun eval(t: Double, points: List<Point>): Point = eval(t, min(DEFAULT_DEGREE, points.size - 1), points)
 
-    override fun eval(t: Double, degree: Int, points: List<Point>): Point = vector(degree, points.size).let { v ->
-        coxDeBoor(
+    override fun eval(t: Double, degree: Int, points: List<Point>): Point {
+        if (t == 0.0) return points.first()
+        if (t == 1.0) return points.last()
+        val v = vector(degree, points.size)
+        return coxDeBoor(
                 v.indexOfLast {
                     it <= (t * (points.size - degree))
                 },

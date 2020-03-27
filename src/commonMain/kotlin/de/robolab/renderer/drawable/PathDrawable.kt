@@ -9,11 +9,7 @@ import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
-import de.robolab.renderer.drawable.curve.BSpline
-import de.robolab.renderer.drawable.curve.Curve
-import de.robolab.renderer.drawable.utils.PathGenerator
-import de.robolab.renderer.drawable.utils.Utils
-import de.robolab.renderer.drawable.utils.shift
+import de.robolab.renderer.drawable.utils.*
 
 
 class PathDrawable(
@@ -26,6 +22,8 @@ class PathDrawable(
     private val startDirection: Direction = reference.sourceDirection
     private val endPoint: Point = reference.target.let { Point(it.x.toDouble(), it.y.toDouble()) }
     private var weight: Int = reference.weight
+    private val isOneWayPath = reference.source == reference.target && reference.sourceDirection == reference.targetDirection
+    private val evalEndPoint = if (isOneWayPath) null else endPoint
 
     private var state = State.NONE
 
@@ -42,7 +40,7 @@ class PathDrawable(
     }
 
     private fun multiEval(count: Int): List<Point> {
-        return Companion.multiEval(count, controlPoints, startPoint, endPoint, this::eval)
+        return Companion.multiEval(count, controlPoints, startPoint, evalEndPoint, this::eval)
     }
 
     data class PointLengthHelper(
@@ -76,7 +74,7 @@ class PathDrawable(
             if (reference.hidden) {
                 context.dashLine(points, color, weight, PlottingConstraints.DASHES, PlottingConstraints.DASH_OFFSET)
             } else {
-                context.strokeLine(points,color,weight)
+                context.strokeLine(points, color, weight)
             }
         }
 
@@ -119,6 +117,34 @@ class PathDrawable(
         }
     }
 
+    private fun calcCenterAt(before: Double, center: Double, after: Double? = null): Pair<Point, Point> {
+
+        val beforeCenter = eval(before)
+        val centerPoint = eval(center)
+        
+        val diffPoint = if (after == null) {
+            centerPoint
+        } else {
+            eval(after)
+        }
+
+        val centerDirection = (diffPoint - beforeCenter).let {
+            val h = Point(it.y, -it.x).normalize()
+            if (h == Point.ZERO) {
+                val h2 = Point(centerPoint.y - beforeCenter.y, beforeCenter.x - centerPoint.x).normalize()
+                if (h2 == Point.ZERO) {
+                    when (startDirection) {
+                        Direction.NORTH, Direction.SOUTH -> Point(1.0, 0.0)
+                        else -> Point(0.0, 1.0)
+                    }
+                } else h2
+            } else h
+        } * 0.1
+        return ((centerPoint - centerDirection) to (centerPoint + centerDirection)).let {
+            if (it.first < it.second) it else it.second to it.first
+        }
+    }
+
     override fun onDraw(context: DrawContext) {
         if (!context.area.intersects(area)) return
 
@@ -131,29 +157,16 @@ class PathDrawable(
             else -> (transition.value - 0.4) * 5
         }
 
-        val beforeCenter = eval(0.49)
-        val center = eval(0.5)
-        val afterCenter = eval(0.51)
-
-        val centerDirection = (beforeCenter - afterCenter).let {
-            val h = Point(it.y, -it.x).normalize()
-            if (h == Point.ZERO) {
-                val h2 = Point(center.y - afterCenter.y, afterCenter.x - center.x).normalize()
-                if (h2 == Point.ZERO) {
-                    when (startDirection) {
-                        Direction.NORTH, Direction.SOUTH -> Point(1.0, 0.0)
-                        else -> Point(0.0, 1.0)
-                    }
-                } else h2
-            } else h
-        } * 0.1
-        val (downLeftCenter, topRightCenter) = ((center - centerDirection) to (center + centerDirection)).let {
-            if (it.first < it.second) it else it.second to it.first
-        }
 
         if (weight >= 0) {
+            val (downLeftCenter, _) = calcCenterAt(0.49, 0.5, 0.51)
             context.fillText(weight.toString(), downLeftCenter, context.theme.gridTextColor.a(alpha), 12.0)
         } else {
+            val (downLeftCenter, topRightCenter) = if (isOneWayPath) {
+                calcCenterAt(0.995,  1.0)
+            } else {
+                calcCenterAt(0.49, 0.5, 0.51)
+            }
             context.strokeLine(
                     listOf(
                             downLeftCenter,
@@ -244,19 +257,6 @@ class PathDrawable(
             return result
         }
 
-        fun linePointsToControlPoints(
-                linePoints: List<Point>,
-                startPoint: Point,
-                startDirection: Direction,
-                endPoint: Point,
-                endDirection: Direction
-        ) = listOfNotNull(
-                startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
-                if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(startPoint, startDirection, linePoints.first())) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
-                *linePoints.toTypedArray(),
-                if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(endPoint, endDirection, linePoints.last())) null else endPoint.shift(endDirection, PlottingConstraints.CURVE_SECOND_POINT),
-                endPoint.shift(endDirection, PlottingConstraints.CURVE_FIRST_POINT)
-        )
 
         fun getControlPointsFromPath(path: Path): List<Point> {
             val startPoint = Point(path.source.x, path.source.y)
@@ -264,8 +264,26 @@ class PathDrawable(
             val endPoint = Point(path.target.x, path.target.y)
             val endDirection = path.targetDirection
 
-            val linePoints = if (path.controlPoints.isNotEmpty()) {
-                path.controlPoints.map { Point(it.x, it.y) }
+            return getControlPointsFromPath(startPoint, startDirection, endPoint, endDirection, path.controlPoints.map { Point(it.x, it.y) })
+        }
+
+        fun getControlPointsFromPath(startPoint: Point, startDirection: Direction, endPoint: Point, endDirection: Direction, controlPoints: List<Point> = emptyList()): List<Point> {
+            if (startPoint == endPoint && startDirection == endDirection) {
+                val linePoints = if (controlPoints.isNotEmpty()) {
+                    controlPoints
+                } else {
+                    listOf(startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT))
+                }
+
+                return listOfNotNull(
+                        startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
+                        if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(startPoint, startDirection, linePoints.first())) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
+                        *linePoints.toTypedArray()
+                )
+            }
+
+            val linePoints = if (controlPoints.isNotEmpty()) {
+                controlPoints
             } else {
                 PathGenerator.generateControlPoints(
                         startPoint,
@@ -275,16 +293,16 @@ class PathDrawable(
                 )
             }
 
-            return linePointsToControlPoints(
-                    linePoints,
-                    startPoint,
-                    startDirection,
-                    endPoint,
-                    endDirection
+            return listOfNotNull(
+                    startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
+                    if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(startPoint, startDirection, linePoints.first())) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
+                    *linePoints.toTypedArray(),
+                    if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(endPoint, endDirection, linePoints.last())) null else endPoint.shift(endDirection, PlottingConstraints.CURVE_SECOND_POINT),
+                    endPoint.shift(endDirection, PlottingConstraints.CURVE_FIRST_POINT)
             )
         }
 
-        inline fun multiEval(count: Int, controlPoints: List<Point>, startPoint: Point, endPoint: Point, eval: (Double) -> Point): List<Point> {
+        inline fun multiEval(count: Int, controlPoints: List<Point>, startPoint: Point, endPoint: Point?, eval: (Double) -> Point): List<Point> {
             val realCount = power2(log2(count - 1) + 1)
 
             val points = arrayOfNulls<Point>(realCount + 1)
@@ -304,8 +322,12 @@ class PathDrawable(
             points[index] = (controlPoints.last())
 
             val startPointEdge = startPoint + (controlPoints.first() - startPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
-            val endPointEdge = endPoint + (controlPoints.last() - endPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
 
+            if (endPoint == null) {
+                return listOf(startPointEdge) + points.take(index + 1).requireNoNulls()
+            }
+
+            val endPointEdge = endPoint + (controlPoints.last() - endPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
             return listOf(startPointEdge) + points.take(index + 1).requireNoNulls() + endPointEdge
         }
     }

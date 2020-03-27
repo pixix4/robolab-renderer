@@ -6,12 +6,11 @@ import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.PathDrawable
 import de.robolab.renderer.drawable.base.IDrawable
-import de.robolab.renderer.drawable.curve.BSpline
-import de.robolab.renderer.drawable.curve.Curve
+import de.robolab.renderer.drawable.utils.BSpline
+import de.robolab.renderer.drawable.utils.Curve
 import de.robolab.renderer.drawable.utils.PathGenerator
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
-import de.robolab.renderer.platform.PointerEvent
 
 
 class EditDrawPathDrawable(
@@ -19,8 +18,7 @@ class EditDrawPathDrawable(
 ) : IDrawable {
 
     private fun controlPoints(startPoint: Point, startDirection: Direction, endPoint: Point, endDirection: Direction): List<Point> {
-        val linePoints = PathGenerator.generateControlPoints(startPoint, startDirection, endPoint, endDirection)
-        return PathDrawable.linePointsToControlPoints(linePoints, startPoint, startDirection, endPoint, endDirection)
+        return PathDrawable.getControlPointsFromPath(startPoint, startDirection, endPoint, endDirection)
     }
 
     private fun calcDistance(startPoint: Point, endPoint: Point, controlPoints: List<Point>): Double =

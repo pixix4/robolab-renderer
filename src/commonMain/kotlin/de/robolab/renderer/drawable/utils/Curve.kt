@@ -1,4 +1,4 @@
-package de.robolab.renderer.drawable.curve
+package de.robolab.renderer.drawable.utils
 
 import de.robolab.renderer.data.Point
 
