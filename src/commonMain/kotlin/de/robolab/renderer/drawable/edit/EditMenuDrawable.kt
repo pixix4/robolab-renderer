@@ -73,7 +73,7 @@ class EditMenuDrawable(
 
     class TransformationOverlay(private val transformation: ITransformation, private val reference: Point) : ITransformation {
         private val referenceCanvas = planetToCanvas(reference, Point.ZERO, 1.0, 0.0)
-        
+
         override val translationProperty: ReadOnlyProperty<Point> = transformation.translationProperty.mapBinding {
             val p1 = transformation.planetToCanvas(reference)
             p1 - referenceCanvas

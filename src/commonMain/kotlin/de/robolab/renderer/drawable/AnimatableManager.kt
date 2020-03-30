@@ -39,6 +39,10 @@ abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
 
         val objectsToDelete = animatableMap.keys - newReferenceList
         val objectsToCreate = newReferenceList - animatableMap.keys
+        
+        val updateMap = (animatableMap.keys - objectsToDelete).associateWith { o1 ->
+            newReferenceList.find { o1 == it } ?: o1
+        }
 
         for (o in objectsToDelete) {
             animatableMap[o]?.let { a ->
@@ -48,8 +52,11 @@ abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
             }
         }
 
-        for (o in animatableMap.keys - objectsToDelete) {
-            animatableMap[o]?.startUpdateAnimation(o, planet)
+        for ((old, new) in updateMap) {
+            val elem = animatableMap[old] ?: continue
+            animatableMap - old
+            elem.startUpdateAnimation(new, planet)
+            animatableMap = animatableMap + (new to elem)
         }
 
         for (o in objectsToCreate) {
