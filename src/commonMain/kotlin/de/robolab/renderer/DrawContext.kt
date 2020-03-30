@@ -136,12 +136,13 @@ class DrawContext(
         )
     }
 
-    override fun fillText(text: String, position: Point, color: Color, fontSize: Double) {
+    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment) {
         canvas.fillText(
                 text,
                 transformation.planetToCanvas(position),
                 c(color),
-                fontSize * transformation.scale
+                fontSize * transformation.scale,
+                alignment
         )
     }
 

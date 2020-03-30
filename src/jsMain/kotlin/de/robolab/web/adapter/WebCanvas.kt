@@ -60,6 +60,17 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
                 }
             }
         }
+        canvas.onContext { event ->
+            event.preventDefault()
+            event.stopPropagation()
+            listener.onPointerSecondaryAction(PointerEvent(
+                    Point(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop),
+                    Dimension(width, height),
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
+            ))
+        }
         canvas.onWheel { event ->
             event.stopPropagation()
             event.preventDefault()
@@ -321,9 +332,13 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         context.lineDashOffset = 0.0
     }
 
-    override fun fillText(text: String, position: Point, color: Color, fontSize: Double) {
+    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment) {
         context.fillStyle = color.toString()
-        context.textAlign = CanvasTextAlign.CENTER
+        context.textAlign = when(alignment) {
+            ICanvas.FontAlignment.LEFT -> CanvasTextAlign.LEFT
+            ICanvas.FontAlignment.CENTER -> CanvasTextAlign.CENTER
+            ICanvas.FontAlignment.RIGHT -> CanvasTextAlign.RIGHT
+        }
         context.textBaseline = CanvasTextBaseline.MIDDLE
         context.font = "${fontSize}px sans-serif"
 

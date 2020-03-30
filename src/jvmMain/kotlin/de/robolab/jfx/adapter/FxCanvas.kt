@@ -226,9 +226,13 @@ class FxCanvas : ICanvas {
         context.lineDashOffset = 0.0
     }
 
-    override fun fillText(text: String, position: Point, color: Color, fontSize: Double) {
+    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment) {
         context.fill = color.fx()
-        context.textAlign = TextAlignment.CENTER
+        context.textAlign = when(alignment) {
+            ICanvas.FontAlignment.LEFT -> TextAlignment.LEFT
+            ICanvas.FontAlignment.CENTER -> TextAlignment.CENTER
+            ICanvas.FontAlignment.RIGHT -> TextAlignment.RIGHT
+        }
         context.textBaseline = VPos.CENTER
         context.font = Font.font(fontSize)
 

@@ -10,6 +10,7 @@ import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.utils.*
+import de.robolab.renderer.platform.ICanvas
 
 
 class PathDrawable(
@@ -181,7 +182,7 @@ class PathDrawable(
         if (weight >= 0) {
             val (downLeftCenter, _) = calcCenterAt(0.49, 0.5, 0.51)
             val alpha = getAlpha(0.4, 0.6)
-            context.fillText(weight.toString(), downLeftCenter, context.theme.gridTextColor.a(alpha), 12.0)
+            context.fillText(weight.toString(), downLeftCenter, context.theme.gridTextColor.a(alpha), 12.0, alignment = ICanvas.FontAlignment.CENTER)
         } else {
             val (downLeftCenter, topRightCenter) = if (isOneWayPath) {
                 calcCenterAt(0.995, 1.0)

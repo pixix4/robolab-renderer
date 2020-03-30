@@ -2,6 +2,7 @@ package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Planet
 import de.robolab.renderer.Pointer
+import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.PathDrawable
 import de.robolab.renderer.drawable.PlanetDrawable
 import de.robolab.renderer.platform.KeyCode
@@ -21,9 +22,25 @@ class EditPlanetDrawable() : PlanetDrawable() {
     private val editDrawEndDrawable = EditDrawEndDrawable(this)
     private val editControlPointsDrawable = EditControlPointsDrawable(this)
     private val editPathSelectDrawable = EditPathSelectDrawable(this)
+    private val editMenuDrawable = EditMenuDrawable(this)
 
     val editableProperty = property(false)
     val editable by editableProperty
+
+    val menuProperty = property<Menu?>(null)
+    var menu by menuProperty
+
+    fun menu(name: String, init: MenuBuilder.() -> Unit) {
+        val menuBuilder = MenuBuilder()
+        init(menuBuilder)
+        menu = Menu(
+                pointer.position,
+                MenuList(
+                        name,
+                        menuBuilder.entries
+                )
+        )
+    }
 
     private val selectedPathControlPointsProperty = selectedPathProperty.mapBinding { nullablePath ->
         val path = nullablePath ?: return@mapBinding null
@@ -42,7 +59,8 @@ class EditPlanetDrawable() : PlanetDrawable() {
             editPathSelectDrawable,
             editPathDrawable,
             editControlPointsDrawable,
-            *viewForeground.toTypedArray()
+            *viewForeground.toTypedArray(),
+            editMenuDrawable
     )
 
     override fun importPlanet(planet: Planet) {

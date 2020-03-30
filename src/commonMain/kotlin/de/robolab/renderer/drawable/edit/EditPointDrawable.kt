@@ -1,6 +1,7 @@
 package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Coordinate
+import de.robolab.model.Direction
 import de.robolab.model.Path
 import de.robolab.model.Planet
 import de.robolab.renderer.DrawContext
@@ -98,7 +99,7 @@ class EditPointDrawable(
 
         val point = Point(position.left.roundToInt(), position.top.roundToInt())
         if (position.distance(point) < PlottingConstraints.POINT_SIZE / 2) {
-            return listOf(point.left.toInt() to point.top.toInt())
+            return listOf(Coordinate(point.left.toInt(), point.top.toInt()))
         }
 
         return emptyList()
@@ -120,7 +121,9 @@ class EditPointDrawable(
         alphaTransition.animate(1.0, editPlanetDrawable.animationTime / 2, editPlanetDrawable.animationTime / 2)
     }
 
+    private var planet = Planet.EMPTY
     fun importPlanet(planet: Planet) {
+        this.planet = planet
         oldPlanetIsEvenBlue = planetIsEvenBlue
         planetIsEvenBlue = planet.bluePoint?.let {
             (it.x + it.y) % 2 == 0
@@ -161,5 +164,162 @@ class EditPointDrawable(
         }
 
         return false
+    }
+
+    override fun onPointerSecondaryAction(event: PointerEvent): Boolean {
+        if (!editPlanetDrawable.editable) return false
+
+        val coordinate = editPlanetDrawable.pointer.findObjectUnderPointer<Coordinate>()
+        if (coordinate != null) {
+            showPointContextMenu(coordinate)
+            return true
+        }
+
+        val controlPoint = editPlanetDrawable.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>()
+        if (controlPoint != null && controlPoint.newPoint == null) {
+            showControlPointContextMenu(controlPoint)
+        }
+
+        val path = editPlanetDrawable.pointer.findObjectUnderPointer<Path>()
+        if (path != null) {
+            showPathContextMenu(path)
+        }
+
+        return false
+    }
+
+    private fun showPointContextMenu(coordinate: Coordinate) {
+        val pathList = planet.pathList.filter { it.source == coordinate || it.target == coordinate }
+        val pathExposureList = planet.pathList.filter { coordinate in it.exposure }
+        val targetList = planet.targetList.filter { it.target == coordinate || it.exposure == coordinate }
+        val pathSelectList = planet.pathSelectList.filter { it.point == coordinate }
+        val isStartPoint = planet.startPoint?.point == coordinate
+
+        editPlanetDrawable.menu("Point ${coordinate.x}, ${coordinate.y}") {
+            if (isStartPoint) {
+                action("Remove start edge") {
+                    editPlanetDrawable.editCallback.deleteStartPoint(false)
+                }
+            } else {
+                val openDirections = (Direction.values().toList() - pathList.flatMap { listOf(it.source to it.sourceDirection, it.target to it.targetDirection) }.filter { it.first == coordinate }.map { it.second.opposite() })
+
+                if (openDirections.isNotEmpty()) {
+                    menu("Add start edge") {
+                        for (direction in openDirections) {
+                            action(direction.name.toLowerCase().capitalize()) {
+                                editPlanetDrawable.editCallback.setStartPoint(coordinate, direction)
+                            }
+                        }
+                    }
+                }
+            }
+
+            menu("Toggle path select") {
+                for (direction in Direction.values()) {
+                    action(direction.name.toLowerCase().capitalize()) {
+                        editPlanetDrawable.editCallback.togglePathSelect(coordinate, direction)
+                    }
+                }
+            }
+
+            when (coordinate.getColor(planet.bluePoint)) {
+                Coordinate.Color.RED -> {
+                    action("Mark as blue") {
+                        editPlanetDrawable.editCallback.setBluePoint(coordinate)
+                    }
+                }
+                Coordinate.Color.BLUE -> {
+                    action("Mark as red") {
+                        editPlanetDrawable.editCallback.setBluePoint(Coordinate(coordinate.x + 1, coordinate.y))
+                    }
+                }
+                Coordinate.Color.UNKNOWN -> {
+                    action("Mark as blue") {
+                        editPlanetDrawable.editCallback.setBluePoint(coordinate)
+                    }
+                    action("Mark as red") {
+                        editPlanetDrawable.editCallback.setBluePoint(Coordinate(coordinate.x + 1, coordinate.y))
+                    }
+                }
+            }
+
+            action("Delete") {
+                var grouping = false
+                for (path in pathExposureList) {
+                    editPlanetDrawable.editCallback.togglePathExposure(path, coordinate, grouping)
+                    grouping = true
+                }
+                for (target in targetList) {
+                    editPlanetDrawable.editCallback.toggleTargetExposure(target.target, target.exposure, grouping)
+                    grouping = true
+                }
+                for (pathSelect in pathSelectList) {
+                    editPlanetDrawable.editCallback.togglePathSelect(pathSelect.point, pathSelect.direction, grouping)
+                    grouping = true
+                }
+                for (path in pathList) {
+                    editPlanetDrawable.editCallback.deletePath(path, grouping)
+                    grouping = true
+                }
+                if (isStartPoint) {
+                    editPlanetDrawable.editCallback.deleteStartPoint(grouping)
+                }
+            }
+        }
+    }
+
+    private fun showControlPointContextMenu(controlPoint: EditControlPointsDrawable.ControlPoint) {
+        editPlanetDrawable.menu("Control point ${controlPoint.point}") {
+            action("Delete") {
+                val path = editPlanetDrawable.selectedPath ?: return@action
+                val (_, indexP) = controlPoint
+                val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
+
+                val allControlPoints = editPlanetDrawable.selectedPathControlPoints ?: return@action
+                val dropLast = if (isOneWayPath) 0 else 1
+                val controlPoints = allControlPoints.drop(1).dropLast(dropLast).toMutableList()
+                val index = indexP - 1
+
+                if (index <= 0 || index >= controlPoints.lastIndex) return@action
+
+                controlPoints.removeAt(index)
+
+                editPlanetDrawable.editCallback.updatePathControlPoints(path, controlPoints, false)
+            }
+        }
+    }
+
+    private fun showPathContextMenu(path: Path) {
+        editPlanetDrawable.menu(
+                "Path (${path.source.x}, ${path.source.y}, ${path.sourceDirection.name.first()}) -> (${path.target.x}, ${path.target.y}, ${path.targetDirection.name.first()})"
+        ) {
+            action("Reset control points") {
+                editPlanetDrawable.editCallback.updatePathControlPoints(path, emptyList())
+            }
+
+            action(if (path.hidden) "Mark path as visible" else "Mark path as hidden") {
+                editPlanetDrawable.editCallback.togglePathHiddenState(path)
+            }
+
+            if (path.weight != null) {
+                action(if (path.weight < 0) "Unblock path" else "Block path") {
+                    editPlanetDrawable.editCallback.setPathWeight(path, if (path.weight < 0) 1 else -1)
+                }
+            }
+
+            if (path.exposure.isNotEmpty()) {
+                action("Remove path sender points") {
+                    var grouping = false
+                    for (exposure in path.exposure) {
+                        editPlanetDrawable.editCallback.togglePathExposure(path, exposure, grouping)
+                        grouping = true
+                    }
+                }
+            }
+
+            action("Delete") {
+                editPlanetDrawable.editCallback.deletePath(path)
+            }
+        }
     }
 }

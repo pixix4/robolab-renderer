@@ -26,9 +26,13 @@ interface ICanvas {
 
     fun dashLine(points: List<Point>, color: Color, width: Double = 1.0, dashes: List<Double> = emptyList(), dashOffset: Double = 0.0)
 
-    fun fillText(text: String, position: Point, color: Color, fontSize: Double = 12.0)
+    fun fillText(text: String, position: Point, color: Color, fontSize: Double = 12.0, alignment: FontAlignment = FontAlignment.LEFT)
 
     fun fillArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color)
 
     fun strokeArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color, width: Double = 1.0)
+
+    enum class FontAlignment {
+        LEFT, CENTER, RIGHT
+    }
 }

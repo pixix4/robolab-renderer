@@ -3,6 +3,7 @@ package de.robolab.renderer.drawable
 import de.robolab.renderer.DrawContext
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.platform.ICanvas
 import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.floor
@@ -43,7 +44,7 @@ object GridNumbersDrawable : IDrawable {
                 Point(x3, y3)
             }
 
-            context.canvas.fillText(top.toString(), p, context.theme.gridTextColor, fontSize)
+            context.canvas.fillText(top.toString(), p, context.theme.gridTextColor, fontSize, alignment = ICanvas.FontAlignment.CENTER)
         }
 
         val startLeft = ceil(rectangle.left).toInt()
@@ -63,7 +64,7 @@ object GridNumbersDrawable : IDrawable {
                 Point(x3, y3)
             }
 
-            context.canvas.fillText(left.toString(), p, context.theme.gridTextColor, fontSize)
+            context.canvas.fillText(left.toString(), p, context.theme.gridTextColor, fontSize, alignment = ICanvas.FontAlignment.CENTER)
         }
     }
 

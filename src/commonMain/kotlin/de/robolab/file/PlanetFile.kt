@@ -60,14 +60,21 @@ class PlanetFile(fileContent: String) : IEditCallback {
 
     override fun updatePathControlPoints(path: Path, controlPoints: List<Point>, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
-        val newLine = FileLine.SplineLine.create(controlPoints)
 
         val index = newLines.indexOfFirst { it is FileLine.SplineLine && it.associatedPath?.equalPath(path) == true }
-        if (index < 0) {
-            val pathIndex = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) || it is FileLine.StartPointLine && it.data.path.equalPath(path) }
-            newLines.add(pathIndex + 1, newLine)
+        if (controlPoints.isEmpty()) {
+            if (index >= 0) {
+                newLines.removeAt(index)
+            }
         } else {
-            newLines[index] = newLine
+            val newLine = FileLine.SplineLine.create(controlPoints)
+
+            if (index < 0) {
+                val pathIndex = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) || it is FileLine.StartPointLine && it.data.path.equalPath(path) }
+                newLines.add(pathIndex + 1, newLine)
+            } else {
+                newLines[index] = newLine
+            }
         }
 
         if (groupHistory) {
@@ -126,6 +133,104 @@ class PlanetFile(fileContent: String) : IEditCallback {
         } else {
             lines - pathSelectLine
         }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
+    override fun setStartPoint(point: Coordinate, orientation: Direction, groupHistory: Boolean) {
+        val startPoint = StartPoint(point, orientation, emptyList())
+
+        val index = lines.indexOfFirst { it is FileLine.StartPointLine }
+
+        val newLines = if (index < 0) {
+            listOf(FileLine.StartPointLine.create(startPoint)) + lines
+        } else {
+            val list = lines.toMutableList()
+            val old = planet.value.startPoint
+            if (old != null) {
+                list.retainAll { !it.isAssociatedTo(old) }
+            }
+            list.add(index, FileLine.StartPointLine.create(startPoint))
+            list
+        }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
+    override fun deleteStartPoint(groupHistory: Boolean) {
+        val newLines = lines.toMutableList()
+        val startPoint = planet.value.startPoint ?: return
+        newLines.retainAll { !it.isAssociatedTo(startPoint) }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
+    override fun setBluePoint(point: Coordinate, groupHistory: Boolean) {
+        val index = lines.indexOfFirst { it is FileLine.BluePointLine }
+
+        val newLines = lines.toMutableList()
+        if (index < 0) {
+            newLines.add(FileLine.BluePointLine.create(point))
+        } else {
+            newLines[index] = FileLine.BluePointLine.create(point)
+        }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
+    override fun togglePathHiddenState(path: Path, groupHistory: Boolean) {
+        val newLines = lines.toMutableList()
+
+        val index = newLines.indexOfFirst { it is FileLine.HiddenLine && it.associatedPath?.equalPath(path) == true }
+        if (path.hidden) {
+            if (index >= 0) {
+                newLines.removeAt(index)
+            }
+        } else {
+            val newLine = FileLine.HiddenLine.create()
+
+            if (index < 0) {
+                val pathIndex = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) }
+                newLines.add(pathIndex + 1, newLine)
+            } else {
+                newLines[index] = newLine
+            }
+        }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
+    override fun setPathWeight(path: Path, weight: Int, groupHistory: Boolean) {
+        val newLines = lines.toMutableList()
+
+        val index = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) }
+        if (index < 0) {
+            return
+        }
+
+        val p = newLines[index].data as? Path ?: return
+
+        newLines[index] = FileLine.PathLine.create(p.copy(weight = weight))
 
         if (groupHistory) {
             history.replace(newLines)

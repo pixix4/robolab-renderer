@@ -9,6 +9,7 @@ import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.drawable.utils.BSpline
 import de.robolab.renderer.drawable.utils.Curve
 import de.robolab.renderer.drawable.utils.Utils
+import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.PointerEvent
@@ -70,14 +71,14 @@ class EditControlPointsDrawable(
             val divider = if (editPlanetDrawable.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) 2 else 4
 
             context.fillArc(point, PlottingConstraints.POINT_SIZE / divider, 0.0, 2.0 * PI, context.theme.editColor)
-            context.fillText(i.toString(), point, context.theme.primaryBackgroundColor, 4.0)
+            context.fillText(i.toString(), point, context.theme.primaryBackgroundColor, 4.0, alignment = ICanvas.FontAlignment.CENTER)
         }
 
         val p = editPlanetDrawable.pointer.findObjectUnderPointer<ControlPoint>() ?: return
 
         if (p.newPoint != null) {
             context.fillArc(p.newPoint, PlottingConstraints.POINT_SIZE / 4, 0.0, 2.0 * PI, context.theme.editColor)
-            context.fillText("+${p.point}", p.newPoint, context.theme.primaryBackgroundColor, 4.0)
+            context.fillText("+${p.point}", p.newPoint, context.theme.primaryBackgroundColor, 4.0, alignment = ICanvas.FontAlignment.CENTER)
         }
     }
 

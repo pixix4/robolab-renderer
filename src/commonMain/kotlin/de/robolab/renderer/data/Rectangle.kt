@@ -18,6 +18,10 @@ data class Rectangle(
     fun intersects(other: Rectangle): Boolean {
         return other.right > left && other.bottom > top && other.left < right && other.top < bottom;
     }
+    
+    operator fun contains(point: Point) : Boolean {
+        return point.left > left && point.top > top && point.left < right && point.top < bottom;
+    }
 
     fun expand(size: Double) = Rectangle(
             left - size,
