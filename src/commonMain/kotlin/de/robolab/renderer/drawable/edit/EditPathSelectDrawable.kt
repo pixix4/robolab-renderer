@@ -3,13 +3,11 @@ package de.robolab.renderer.drawable.edit
 import de.robolab.model.Coordinate
 import de.robolab.model.Direction
 import de.robolab.model.Planet
-import de.robolab.renderer.DrawContext
+import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.PathSelectDrawable
 import de.robolab.renderer.drawable.base.IDrawable
-import de.robolab.renderer.platform.KeyCode
-import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.PointerEvent
 import kotlin.math.abs
 

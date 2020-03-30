@@ -1,6 +1,6 @@
 package de.robolab.renderer.drawable.base
 
-import de.robolab.renderer.DrawContext
+import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.PointerEvent

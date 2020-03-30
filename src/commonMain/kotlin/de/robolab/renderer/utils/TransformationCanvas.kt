@@ -1,79 +1,24 @@
-package de.robolab.renderer
+package de.robolab.renderer.utils
 
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.ICanvas
-import de.robolab.renderer.platform.ICanvasListener
-import de.robolab.renderer.theme.ITheme
 import kotlin.math.abs
 
-class DrawContext(
-        val canvas: ICanvas,
-        val transformation: Transformation,
-        val theme: ITheme
-) : ICanvas {
-
-    private var alphaFactor: Double = 1.0
-    private fun c(color: Color): Color {
-        return if (alphaFactor > 1.0) {
-            color.a(color.alpha * alphaFactor)
-        } else color
-    }
-
-    fun withAlpha(alphaFactor: Double, block: () -> Unit) {
-        val oldAlphaFactor = alphaFactor
-        this.alphaFactor = alphaFactor
-        block()
-        this.alphaFactor = oldAlphaFactor
-    }
-
-    override fun setListener(listener: ICanvasListener) {
-        canvas.setListener(listener)
-    }
-
-    var area: Rectangle = Rectangle.ZERO
-        private set
-
-    private fun updateArea() {
-        area = Rectangle.fromEdges(
-                transformation.canvasToPlanet(Point(0.0, 0.0)),
-                transformation.canvasToPlanet(Point(canvas.width, 0.0)),
-                transformation.canvasToPlanet(Point(0.0, canvas.height)),
-                transformation.canvasToPlanet(Point(canvas.width, canvas.height))
-        )
-    }
-
-    override val width: Double
-        get() = canvas.width
-    override val height: Double
-        get() = canvas.height
-
-    override fun clear(color: Color) {
-        canvas.clear(c(color))
-    }
+class TransformationCanvas(private val canvas: ICanvas, private val transformation: ITransformation) : ICanvas by canvas {
 
     override fun fillRect(rectangle: Rectangle, color: Color) {
         fillPolygon(
-                listOf(
-                        Point(rectangle.left, rectangle.top),
-                        Point(rectangle.right, rectangle.top),
-                        Point(rectangle.right, rectangle.bottom),
-                        Point(rectangle.left, rectangle.bottom)
-                ),
-                c(color)
+                rectangle.toEdgeList(),
+                color
         )
     }
 
     override fun strokeRect(rectangle: Rectangle, color: Color, width: Double) {
         strokePolygon(
-                listOf(
-                        Point(rectangle.left, rectangle.top),
-                        Point(rectangle.right, rectangle.top),
-                        Point(rectangle.right, rectangle.bottom),
-                        Point(rectangle.left, rectangle.bottom)
-                ),
-                c(color),
+                rectangle.toEdgeList(),
+                color,
                 width
         )
     }
@@ -81,14 +26,14 @@ class DrawContext(
     override fun fillPolygon(points: List<Point>, color: Color) {
         canvas.fillPolygon(
                 points.map(transformation::planetToCanvas),
-                c(color)
+                color
         )
     }
 
     override fun strokePolygon(points: List<Point>, color: Color, width: Double) {
         canvas.strokePolygon(
                 points.map(transformation::planetToCanvas),
-                c(color),
+                color,
                 width * transformation.scaledGridWidth
         )
     }
@@ -119,7 +64,7 @@ class DrawContext(
 
         canvas.strokeLine(
                 prepareLine(points), //points.map(transformation::planetToCanvas),
-                c(color),
+                color,
                 width * transformation.scaledGridWidth
         )
     }
@@ -129,7 +74,7 @@ class DrawContext(
 
         canvas.dashLine(
                 prepareLine(points), //points.map(transformation::planetToCanvas),
-                c(color),
+                color,
                 width * transformation.scaledGridWidth,
                 dashes.map { it * transformation.scaledGridWidth },
                 dashOffset * transformation.scaledGridWidth
@@ -140,7 +85,7 @@ class DrawContext(
         canvas.fillText(
                 text,
                 transformation.planetToCanvas(position),
-                c(color),
+                color,
                 fontSize * transformation.scale,
                 alignment
         )
@@ -152,7 +97,7 @@ class DrawContext(
                 radius * transformation.scaledGridWidth,
                 startAngle + transformation.rotation,
                 extendAngle,
-                c(color)
+                color
         )
     }
 
@@ -162,14 +107,8 @@ class DrawContext(
                 radius * transformation.scaledGridWidth,
                 startAngle + transformation.rotation,
                 extendAngle,
-                c(color),
+                color,
                 width * transformation.scaledGridWidth
         )
-    }
-
-    init {
-        transformation.onViewChange {
-            updateArea()
-        }
     }
 }

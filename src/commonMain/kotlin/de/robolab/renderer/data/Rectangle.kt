@@ -37,6 +37,12 @@ data class Rectangle(
             height * (1 - progress) + toValue.height * progress
     )
 
+    fun toEdgeList() = listOf(
+            Point(left, top),
+            Point(right, top),
+            Point(right, bottom),
+            Point(left, bottom)
+    )
 
     companion object {
         val ZERO = Rectangle(0.0, 0.0, 0.0, 0.0)

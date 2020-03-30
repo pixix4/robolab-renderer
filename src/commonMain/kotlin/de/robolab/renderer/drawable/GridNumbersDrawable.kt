@@ -1,6 +1,6 @@
 package de.robolab.renderer.drawable
 
-import de.robolab.renderer.DrawContext
+import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.platform.ICanvas

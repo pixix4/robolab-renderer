@@ -1,6 +1,5 @@
 package de.robolab.renderer.drawable.edit
 
-import de.robolab.renderer.DrawContext
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
@@ -9,6 +8,12 @@ import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.PointerEvent
+import de.robolab.renderer.utils.DrawContext
+import de.robolab.renderer.utils.ITransformation
+import de.robolab.renderer.utils.TransformationCanvas
+import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.property.constProperty
+import de.westermann.kobserve.property.mapBinding
 import kotlin.math.max
 
 class EditMenuDrawable(
@@ -16,9 +21,20 @@ class EditMenuDrawable(
 ) : IDrawable {
 
     class DrawMenuEntry(val menu: Menu, val list: MenuList) {
-        internal val rect: Rectangle
-        internal val polygon: List<Point>
-        internal val entryAreas: List<Pair<MenuEntry, Rectangle>>
+        val rect: Rectangle
+        val polygon: List<Point>
+        val entryAreas: List<Pair<MenuEntry, Rectangle>>
+
+        lateinit var transformation: ITransformation
+        lateinit var canvas: ICanvas
+
+        fun getCanvas(context: DrawContext): ICanvas {
+            if (!this::canvas.isInitialized) {
+                transformation = TransformationOverlay(context.transformation, menu.position)
+                canvas = TransformationCanvas(context.canvas, transformation)
+            }
+            return canvas
+        }
 
         init {
             val width = max(list.label.length + 2, list.entries.asSequence().map { it.label.length }.max()
@@ -55,6 +71,24 @@ class EditMenuDrawable(
         }
     }
 
+    class TransformationOverlay(private val transformation: ITransformation, private val reference: Point) : ITransformation {
+        private val referenceCanvas = planetToCanvas(reference, Point.ZERO, 1.0, 0.0)
+        
+        override val translationProperty: ReadOnlyProperty<Point> = transformation.translationProperty.mapBinding {
+            val p1 = transformation.planetToCanvas(reference)
+            p1 - referenceCanvas
+        }
+        override val translation by translationProperty
+
+        override val scaleProperty = constProperty(1.0)
+        override val scale by scaleProperty
+
+        override val rotationProperty = constProperty(0.0)
+        override val rotation by rotationProperty
+
+        override val gridWidth = transformation.gridWidth
+    }
+
     private var hoveredEntry: MenuEntry? = null
     private var entryStack = emptyList<DrawMenuEntry>()
     private var lastTop: DrawMenuEntry? = null
@@ -80,7 +114,7 @@ class EditMenuDrawable(
             changes = true
             entryStack = listOf(DrawMenuEntry(currentMenu, currentMenu.entry))
         }
-        
+
         if (lastTop != entryStack.lastOrNull()) {
             lastTop = entryStack.lastOrNull()
             changes = true
@@ -97,20 +131,21 @@ class EditMenuDrawable(
 
     override fun onDraw(context: DrawContext) {
         val menuEntry = entryStack.lastOrNull() ?: return
+        val canvas = menuEntry.getCanvas(context)
 
-        context.fillPolygon(menuEntry.polygon, context.theme.primaryBackgroundColor)
+        canvas.fillPolygon(menuEntry.polygon, context.theme.primaryBackgroundColor)
 
         val topLeft = menuEntry.polygon.last()
         val topRight = menuEntry.polygon[menuEntry.polygon.lastIndex - 1]
         if (menuEntry.entryAreas.isNotEmpty()) {
-            context.strokeLine(listOf(
+            canvas.strokeLine(listOf(
                     Point(topLeft.left, topLeft.top - LINE_HEIGHT),
                     Point(topRight.left, topRight.top - LINE_HEIGHT)
             ), context.theme.gridColor, 0.01)
         }
 
         val origin = menuEntry.polygon.last()
-        context.fillText(
+        canvas.fillText(
                 menuEntry.list.label,
                 origin + Point(0.1, -LINE_HEIGHT / 2),
                 context.theme.lineColor,
@@ -118,12 +153,14 @@ class EditMenuDrawable(
         )
 
         for ((entry, rect) in menuEntry.entryAreas) {
-
             if (hoveredEntry == entry) {
-                context.fillRect(rect, context.theme.highlightColor.a(0.1))
+                canvas.fillPolygon(
+                        rect.toEdgeList(),
+                        context.theme.highlightColor.a(0.1)
+                )
             }
 
-            context.fillText(
+            canvas.fillText(
                     entry.label,
                     Point(rect.left + 0.1, rect.top + LINE_HEIGHT / 2),
                     context.theme.lineColor,
@@ -131,7 +168,7 @@ class EditMenuDrawable(
             )
 
             if (entry is MenuList) {
-                context.fillText(
+                canvas.fillText(
                         "▶",
                         Point(rect.right - 0.1, rect.top + LINE_HEIGHT / 2),
                         context.theme.gridTextColor,
@@ -140,18 +177,20 @@ class EditMenuDrawable(
             }
         }
 
-        context.strokePolygon(menuEntry.polygon, context.theme.gridColor, 0.01)
+        canvas.strokePolygon(menuEntry.polygon, context.theme.gridColor, 0.01)
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
         val menuEntry = entryStack.lastOrNull() ?: return emptyList()
+        val pointer = context.transformation.planetToCanvas(position)
+        val p = menuEntry.transformation.canvasToPlanet(pointer)
 
-        if (position !in menuEntry.rect) {
+        if (p !in menuEntry.rect) {
             return emptyList()
         }
 
         for ((entry, rect) in menuEntry.entryAreas) {
-            if (position in rect) {
+            if (p in rect) {
                 return listOf(entry, menuEntry.menu)
             }
         }
@@ -184,7 +223,10 @@ class EditMenuDrawable(
                 editPlanetDrawable.menu = null
                 selected.action()
             } else if (selected is MenuList) {
-                entryStack = entryStack + DrawMenuEntry(menuEntry.menu, selected)
+                val entry = DrawMenuEntry(menuEntry.menu, selected)
+                entry.canvas = menuEntry.canvas
+                entry.transformation = menuEntry.transformation
+                entryStack = entryStack + entry
             }
         }
         return true
