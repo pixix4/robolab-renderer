@@ -2,6 +2,7 @@ package de.robolab.renderer.data
 
 import de.robolab.model.Coordinate
 import de.robolab.renderer.animation.IInterpolatable
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -28,6 +29,10 @@ data class Point(
         val l = left - other.left
         val r = top - other.top
         return sqrt(l * l + r * r)
+    }
+
+    fun manhattan_distance(other: Point): Double {
+        return abs(left - other.left) + abs(top - other.top)
     }
 
     fun midpoint(other: Point) = Point(

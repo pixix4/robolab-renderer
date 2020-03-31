@@ -2,17 +2,23 @@ package de.robolab.app
 
 import de.robolab.file.PlanetFile
 import de.robolab.file.demoFile
+import de.robolab.file.toFixed
+import de.robolab.model.Coordinate
+import de.robolab.model.Path
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.ExportPlotter
+import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.BackgroundDrawable
 import de.robolab.renderer.drawable.PlanetDrawable
-import de.robolab.renderer.drawable.edit.EditPlanetDrawable
+import de.robolab.renderer.drawable.edit.*
 import de.robolab.renderer.platform.CommonTimer
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.Transformation
 import de.robolab.svg.SvgCanvas
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import kotlin.math.PI
+import kotlin.math.roundToInt
 
 class Main(val canvas: ICanvas) {
 
@@ -24,10 +30,29 @@ class Main(val canvas: ICanvas) {
 
     val animateProperty = property(false)
     val editableProperty = planetDrawable.editableProperty
-    val pointerProperty = plotter.pointerProperty.mapBinding {
-        it.roundedPosition.toString() + " | " + it.objectsUnderPointer
+    val pointerProperty = plotter.pointerProperty.mapBinding { pointer ->
+        val list = mutableListOf<String>()
+        list.add("Pointer: ${format(pointer.roundedPosition)}")
+        if (plotter.transformation.scale != 1.0) {
+            list.add("Zoom: ${(plotter.transformation.scale * 100).roundToInt()}%")
+        }
+        if (plotter.transformation.rotation != 0.0) {
+            list.add("Rotation: ${((plotter.transformation.rotation / PI * 180) % 360).roundToInt()}%")
+        }
+        list.addAll(pointer.objectsUnderPointer.map(this::format))
+        list.filter { it.isNotBlank() }
     }
-    
+
+    private fun format(obj: Any): String = when (obj) {
+        is Path -> "Path(${obj.source.x},${obj.source.y},${obj.sourceDirection.name.first()} -> ${obj.target.x},${obj.target.y},${obj.targetDirection.name.first()})"
+        is Coordinate -> "Coordinate(${obj.x},${obj.y})"
+        is Point -> "${obj.left.toFixed(2)},${obj.top.toFixed(2)}"
+        is EditDrawEndDrawable.PointEnd -> "PointEnd(${obj.point.x},${obj.point.y} -> ${obj.direction.name.first()})"
+        is EditControlPointsDrawable.ControlPoint -> "ControlPoint(index ${obj.point} of ${format(obj.path)})"
+        is Menu, is MenuList, is MenuAction -> ""
+        else -> obj.toString()
+    }
+
     private val planetFile = PlanetFile(demoFile)
 
     init {

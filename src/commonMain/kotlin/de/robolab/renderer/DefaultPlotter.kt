@@ -55,7 +55,7 @@ class DefaultPlotter(
 
     override fun updatePointer(mousePosition: Point) {
         val position = transformation.canvasToPlanet(mousePosition)
-        val elements = getObjectsAtPosition(position)
+        val elements = getObjectsAtPosition(position).distinct()
 
         pointer = Pointer(position, mousePosition, elements)
     }

@@ -2,6 +2,7 @@ package de.robolab.web
 
 import de.robolab.app.Main
 import de.robolab.web.adapter.WebCanvas
+import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.async
 import de.westermann.kwebview.components.*
 
@@ -34,12 +35,21 @@ fun main() {
         boxView("main") {
             add(canvas)
         }
-        boxView("statusbar") {
-            textView(main.pointerProperty)
+        val statusBar = boxView("statusbar")
+        updateStatusBar(statusBar, main.pointerProperty.value)
+        main.pointerProperty.onChange {
+            updateStatusBar(statusBar, main.pointerProperty.value)
         }
 
         async {
             canvas.updateSize()
         }
+    }
+}
+
+fun updateStatusBar(statusBar: BoxView, content: List<String>) {
+    statusBar.clear()
+    for (item in content) {
+        statusBar.textView(item)
     }
 }

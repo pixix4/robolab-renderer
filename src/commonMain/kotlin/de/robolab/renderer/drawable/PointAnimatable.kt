@@ -74,7 +74,7 @@ class PointAnimatable(
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
-        if (position.distance(this.position) < PlottingConstraints.POINT_SIZE / 2) {
+        if (position.manhattan_distance(this.position) < PlottingConstraints.POINT_SIZE / 2) {
             return listOf(reference.coordinate)
         }
 

@@ -36,6 +36,15 @@ class PathAnimatable(
         p1.distance(p2)
     }
 
+    private var oldColor: Color? = getColor(planet, reference)
+    private var newColor: Color? = oldColor
+
+    private val colorTransition = DoubleTransition(0.0)
+    private val transition = DoubleTransition(0.0)
+    private val hiddenTransition = DoubleTransition(if (reference.hidden) 1.0 else 0.0)
+
+    override val animators = listOf(transition, colorTransition, hiddenTransition)
+
     private val curve: Curve = BSpline
 
     private fun eval(t: Double): Point {
@@ -132,7 +141,6 @@ class PathAnimatable(
     }
 
     private fun calcCenterAt(before: Double, center: Double, after: Double? = null, swap: Boolean = true): Pair<Point, Point> {
-
         val beforeCenter = eval(before)
         val centerPoint = eval(center)
 
@@ -213,6 +221,10 @@ class PathAnimatable(
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+        if (startPoint.manhattan_distance(position) <= PlottingConstraints.POINT_SIZE / 2 || endPoint.manhattan_distance(position) <= PlottingConstraints.POINT_SIZE / 2) {
+            return emptyList()
+        }
+        
         val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
 
         val points = when (state) {
@@ -240,6 +252,56 @@ class PathAnimatable(
         }
 
         return emptyList()
+    }
+
+    override fun startExitAnimation(onFinish: () -> Unit) {
+        state = State.REMOVE
+        transition.animate(0.0, planetDrawable.animationTime / 3)
+        transition.onFinish.clearListeners()
+        transition.onFinish {
+            state = State.NONE
+            onFinish()
+        }
+    }
+
+    override fun startEnterAnimation(onFinish: () -> Unit) {
+        state = State.DRAW
+        transition.animate(1.0, planetDrawable.animationTime)
+        transition.onFinish.clearListeners()
+        transition.onFinish {
+            state = State.NONE
+            onFinish()
+        }
+    }
+
+    override fun startUpdateAnimation(obj: Path, planet: Planet) {
+        weight = obj.weight
+        reference = obj
+        controlPoints = getControlPointsFromPath(obj)
+
+        oldColor = newColor
+        newColor = getColor(planet, obj)
+        colorTransition.resetValue(0.0)
+        colorTransition.animate(1.0, planetDrawable.animationTime)
+        hiddenTransition.animate(if (reference.hidden) 1.0 else 0.0, planetDrawable.animationTime)
+
+        area = Rectangle.fromEdges(startPoint, endPoint, *controlPoints.toTypedArray())
+        distance = controlPoints.windowed(2, 1).sumByDouble { (p1, p2) ->
+            p1.distance(p2)
+        }
+
+        pointHelperCache.clear()
+    }
+
+    private fun getColor(planet: Planet, path: Path): Color? {
+        if (path.exposure.isEmpty()) {
+            return null
+        }
+        return Utils.getColorByIndex(Utils.getSenderGrouping(planet).getValue(path.exposure))
+    }
+
+    enum class State {
+        DRAW, REMOVE, NONE
     }
 
     companion object {
@@ -375,64 +437,5 @@ class PathAnimatable(
                     color
             )
         }
-    }
-
-    private var oldColor: Color? = getColor(planet, reference)
-    private var newColor: Color? = oldColor
-
-    private val colorTransition = DoubleTransition(0.0)
-    private val transition = DoubleTransition(0.0)
-    private val hiddenTransition = DoubleTransition(if (reference.hidden) 1.0 else 0.0)
-
-    override val animators = listOf(transition, colorTransition, hiddenTransition)
-
-    override fun startExitAnimation(onFinish: () -> Unit) {
-        state = State.REMOVE
-        transition.animate(0.0, planetDrawable.animationTime / 3)
-        transition.onFinish.clearListeners()
-        transition.onFinish {
-            state = State.NONE
-            onFinish()
-        }
-    }
-
-    override fun startEnterAnimation(onFinish: () -> Unit) {
-        state = State.DRAW
-        transition.animate(1.0, planetDrawable.animationTime)
-        transition.onFinish.clearListeners()
-        transition.onFinish {
-            state = State.NONE
-            onFinish()
-        }
-    }
-
-    override fun startUpdateAnimation(obj: Path, planet: Planet) {
-        weight = obj.weight
-        reference = obj
-        controlPoints = getControlPointsFromPath(obj)
-
-        oldColor = newColor
-        newColor = getColor(planet, obj)
-        colorTransition.resetValue(0.0)
-        colorTransition.animate(1.0, planetDrawable.animationTime)
-        hiddenTransition.animate(if (reference.hidden) 1.0 else 0.0, planetDrawable.animationTime)
-
-        area = Rectangle.fromEdges(startPoint, endPoint, *controlPoints.toTypedArray())
-        distance = controlPoints.windowed(2, 1).sumByDouble { (p1, p2) ->
-            p1.distance(p2)
-        }
-
-        pointHelperCache.clear()
-    }
-
-    private fun getColor(planet: Planet, path: Path): Color? {
-        if (path.exposure.isEmpty()) {
-            return null
-        }
-        return Utils.getColorByIndex(Utils.getSenderGrouping(planet).getValue(path.exposure))
-    }
-
-    enum class State {
-        DRAW, REMOVE, NONE
     }
 }

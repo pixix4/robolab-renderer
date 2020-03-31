@@ -38,10 +38,6 @@ class TransformationCanvas(private val canvas: ICanvas, private val transformati
         )
     }
 
-    private fun Point.speedDist(other: Point): Double {
-        return abs(left - other.left) + abs(top - other.top)
-    }
-
     private fun prepareLine(points: List<Point>): List<Point> {
         // Dirty bug fix to solve the "mountain" error on paths
         // Remove overlapping points
@@ -50,7 +46,7 @@ class TransformationCanvas(private val canvas: ICanvas, private val transformati
         for (point in points) {
             val new = transformation.planetToCanvas(point)
 
-            if (new.speedDist(last) >= 1) {
+            if (new.manhattan_distance(last) >= 1) {
                 canvasPoints += new
                 last = new
             }
