@@ -35,6 +35,8 @@ data class Color(
 
     companion object {
         val TRANSPARENT = Color(0, 0, 0, 0.0)
+        val BLACK = Color(0, 0, 0, 1.0)
+        val WHITE = Color(255, 255, 255, 1.0)
 
         fun hsb(hue: Double, saturation: Double, brightness: Double): Color {
             val var6 = (hue % 360.0 + 360.0) % 360.0

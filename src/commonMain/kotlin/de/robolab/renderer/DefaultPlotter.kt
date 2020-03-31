@@ -4,12 +4,13 @@ import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.BlankDrawable
 import de.robolab.renderer.drawable.base.IDrawable
-import de.robolab.renderer.utils.DrawContext
-import de.robolab.renderer.utils.Transformation
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.ITimer
+import de.robolab.renderer.theme.ITheme
 import de.robolab.renderer.theme.LightTheme
+import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.utils.Pointer
+import de.robolab.renderer.utils.Transformation
 import de.westermann.kobserve.property.property
 
 /**
@@ -20,7 +21,7 @@ class DefaultPlotter(
         timer: ITimer,
         drawable: IDrawable = BlankDrawable,
         override var animationTime: Double = 0.0
-): IPlotter {
+) : IPlotter {
     override val transformation = Transformation()
 
     var drawable: IDrawable = BlankDrawable
@@ -36,12 +37,24 @@ class DefaultPlotter(
 
     private val context = DrawContext(canvas, transformation, LightTheme)
 
+    private var themeChanged = false
+    var theme: ITheme
+        get() = context.theme
+        set(value) {
+            context.theme = value
+            themeChanged = true
+        }
+
     override val pointerProperty = property(Pointer())
     override var pointer by pointerProperty
 
     override fun render(ms_offset: Double) {
         var changes = drawable.onUpdate(ms_offset)
         changes = transformation.update(ms_offset) || changes
+        if (themeChanged) {
+            themeChanged = false
+            changes = true
+        }
 
         if (changes) {
             context.clear(context.theme.secondaryBackgroundColor)

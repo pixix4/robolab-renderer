@@ -38,6 +38,21 @@ class MainView : View() {
                     togglebutton("Editable", toggleGroup, false) {
                         selectedProperty().toProperty().bindBidirectional(main.editableProperty)
                     }
+                    separator()
+                    val themeGroup = ToggleGroup()
+                    togglebutton("Light theme", themeGroup) {
+                        selectedProperty().toProperty().bindBidirectional(main.lightThemeProperty)
+                        selectedProperty().onChange {
+                            isSelected = main.lightThemeProperty.value
+                        }
+                    }
+                    togglebutton("Dark theme", themeGroup) {
+                        selectedProperty().toProperty().bindBidirectional(main.darkThemeProperty)
+                        selectedProperty().onChange {
+                            isSelected = main.darkThemeProperty.value
+                        }
+                    }
+                    separator()
                     button("Export SVG") {
                         setOnAction {
                             val export = main.exportSVG()

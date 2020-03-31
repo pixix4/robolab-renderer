@@ -9,7 +9,7 @@ import de.robolab.renderer.theme.ITheme
 class DrawContext(
         val canvas: ICanvas,
         val transformation: Transformation,
-        val theme: ITheme
+        var theme: ITheme
 ) : ICanvas by TransformationCanvas(ColorCanvas(canvas, { it }), transformation) {
 
     private var alphaFactor: Double = 1.0

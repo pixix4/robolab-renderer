@@ -5,6 +5,7 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.BlankDrawable
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.platform.ICanvas
+import de.robolab.renderer.theme.ITheme
 import de.robolab.renderer.theme.LightTheme
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.utils.Pointer
@@ -16,7 +17,8 @@ import de.westermann.kobserve.property.property
  */
 class ExportPlotter(
         private val canvas: ICanvas,
-        drawable: IDrawable = BlankDrawable
+        drawable: IDrawable = BlankDrawable,
+        theme: ITheme = LightTheme
 ) : IPlotter {
 
     override val animationTime = 0.0
@@ -32,7 +34,13 @@ class ExportPlotter(
             field.onAttach(this)
         }
 
-    private val context = DrawContext(canvas, transformation, LightTheme)
+    private val context = DrawContext(canvas, transformation, theme)
+
+    var theme: ITheme
+        get() = context.theme
+        set(value) {
+            context.theme = value
+        }
 
     override val pointerProperty = property(Pointer())
     override var pointer by pointerProperty

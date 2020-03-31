@@ -27,6 +27,7 @@ body {
     left: 0;
     width: 100%;
     z-index: 1;
+    user-select: none;
 
     input[type="checkbox"] {
         display: none;
@@ -47,6 +48,16 @@ body {
     input[type="checkbox"]:checked + label {
         background: darkturquoise;
     }
+
+    .divider {
+        height: 2rem;
+        line-height: 2rem;
+        width: 0;
+        display: inline-block;
+        border-right: solid 1px #ccc;
+        margin-left: 0.5rem;
+        color: transparent;
+    }
 }
 
 .main {
@@ -55,6 +66,7 @@ body {
     bottom: 2.5rem;
     left: 0;
     width: 100%;
+    user-select: none;
 
     canvas {
         width: 100%;
@@ -71,6 +83,7 @@ body {
     left: 0;
     width: 100%;
     z-index: 1;
+    user-select: none;
 
     .text-view {
         background-color: #fff;

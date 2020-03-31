@@ -2,9 +2,11 @@ package de.robolab.web
 
 import de.robolab.app.Main
 import de.robolab.web.adapter.WebCanvas
-import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.async
 import de.westermann.kwebview.components.*
+import org.w3c.dom.get
+import org.w3c.dom.set
+import kotlin.browser.window
 
 fun main() {
     init {
@@ -15,12 +17,39 @@ fun main() {
 
         val main = Main(webCanvas)
 
+        if (window.localStorage["theme"] == "DARK") {
+            main.darkThemeProperty.value = true
+        }
+        main.themeProperty.onChange {
+            window.localStorage["theme"] = main.themeProperty.value.name
+        }
+
         boxView("toolbar") {
             val animateBox = checkbox(main.animateProperty)
             label(animateBox, "Animate")
 
             val editableBox = checkbox(main.editableProperty)
             label(editableBox, "Editable")
+
+            textView("|") {
+                classList += "divider"
+            }
+
+            val lightThemeBox = checkbox(main.lightThemeProperty)
+            label(lightThemeBox, "Light theme")
+            lightThemeBox.checkedProperty.onChange {
+                lightThemeBox.checked = main.lightThemeProperty.value
+            }
+
+            val darkThemeBox = checkbox(main.darkThemeProperty)
+            label(darkThemeBox, "Dark theme")
+            darkThemeBox.checkedProperty.onChange {
+                darkThemeBox.checked = main.darkThemeProperty.value
+            }
+
+            textView("|") {
+                classList += "divider"
+            }
 
             button("Export SVG") {
                 onClick {

@@ -13,14 +13,19 @@ import de.robolab.renderer.drawable.PlanetDrawable
 import de.robolab.renderer.drawable.edit.*
 import de.robolab.renderer.platform.CommonTimer
 import de.robolab.renderer.platform.ICanvas
+import de.robolab.renderer.theme.DarkTheme
+import de.robolab.renderer.theme.ITheme
+import de.robolab.renderer.theme.LightTheme
 import de.robolab.renderer.utils.Transformation
 import de.robolab.svg.SvgCanvas
+import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlin.math.PI
 import kotlin.math.roundToInt
 
 class Main(val canvas: ICanvas) {
+
 
     private val timer = CommonTimer(50.0)
     private val plotter = DefaultPlotter(canvas, timer, animationTime = 1000.0)
@@ -55,8 +60,32 @@ class Main(val canvas: ICanvas) {
 
     private val planetFile = PlanetFile(demoFile)
 
+    val themeProperty = property(Theme.LIGHT)
+    val lightThemeProperty = property(object : FunctionAccessor<Boolean> {
+        override fun get() = themeProperty.value == Theme.LIGHT
+
+        override fun set(value: Boolean): Boolean {
+            themeProperty.value = Theme.LIGHT
+            return true
+        }
+
+    }, themeProperty)
+    val darkThemeProperty = property(object : FunctionAccessor<Boolean> {
+        override fun get() = themeProperty.value == Theme.DARK
+
+        override fun set(value: Boolean): Boolean {
+            themeProperty.value = Theme.DARK
+            return true
+        }
+
+    }, themeProperty)
+
     init {
         plotter.drawable = planetDrawable
+        plotter.theme = themeProperty.value.theme
+        themeProperty.onChange {
+            plotter.theme = themeProperty.value.theme
+        }
 
         animateProperty.onChange {
             if (animateProperty.value) {
@@ -117,5 +146,10 @@ class Main(val canvas: ICanvas) {
 
     companion object {
         const val ANIMATION_TIME = 1000.0
+    }
+
+    enum class Theme(val theme: ITheme) {
+        LIGHT(LightTheme),
+        DARK(DarkTheme)
     }
 }
