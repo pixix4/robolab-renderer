@@ -12,6 +12,7 @@ import de.robolab.renderer.drawable.base.Animatable
 import de.robolab.renderer.drawable.utils.*
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.DrawContext
+import kotlin.math.max
 
 
 class PathAnimatable(
@@ -330,7 +331,7 @@ class PathAnimatable(
         }
 
         inline fun multiEval(count: Int, controlPoints: List<Point>, startPoint: Point, endPoint: Point?, eval: (Double) -> Point): List<Point> {
-            val realCount = power2(log2(count - 1) + 1)
+            val realCount = max(16, power2(log2(count - 1) + 1))
 
             val points = arrayOfNulls<Point>(realCount + 1)
 
