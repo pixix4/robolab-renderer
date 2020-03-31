@@ -83,7 +83,7 @@ class PathAnimatable(
     }
 
     private fun interpolate(context: DrawContext) {
-        val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
+        val steps = ((distance * context.transformation.scaledGridWidth) / 5).toInt()
 
         val isHover = reference in this.planetDrawable.hoveredPaths || reference == this.planetDrawable.selectedPath
 

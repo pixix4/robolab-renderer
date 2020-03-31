@@ -10,6 +10,7 @@ import javafx.geometry.VPos
 import javafx.scene.input.MouseButton
 import javafx.scene.shape.ArcType
 import javafx.scene.shape.StrokeLineCap
+import javafx.scene.shape.StrokeLineJoin
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.TextAlignment
@@ -275,6 +276,7 @@ class FxCanvas : ICanvas {
 
     init {
         context.lineCap = StrokeLineCap.BUTT
+        context.lineJoin = StrokeLineJoin.MITER
         canvas.isFocusTraversable = true
     }
 }

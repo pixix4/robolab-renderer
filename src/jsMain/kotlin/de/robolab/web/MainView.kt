@@ -53,11 +53,20 @@ fun main() {
 
             button("Export SVG") {
                 onClick {
-                    val export = main.exportSVG()
+                    triggerDownload("export.svg", main.exportSVG())
+                }
+            }
+            button("Export PNG") {
+                onClick {
+                    val dimension = main.exportGetSize()
+                    val exportCanvas = Canvas()
+                    exportCanvas.updateSize(dimension.width.toInt(), dimension.height.toInt(), Main.EXPORT_SCALE)
 
-                    if (export != null) {
-                        triggerDownload("export.svg", export)
-                    }
+                    val exportWebCanvas = WebCanvas(exportCanvas)
+
+                    main.exportRender(exportWebCanvas)
+
+                    triggerDownloadPNG("export.png", exportCanvas)
                 }
             }
         }

@@ -228,10 +228,10 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
     }
 
     override val width: Double
-        get() = canvas.clientWidth.toDouble()
+        get() = canvas.fixedWidth.toDouble()
 
     override val height: Double
-        get() = canvas.clientHeight.toDouble()
+        get() = canvas.fixedHeight.toDouble()
 
     override fun clear(color: Color) {
         fillRect(Rectangle(
@@ -371,6 +371,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
 
     init {
         context.lineCap = CanvasLineCap.BUTT
+        context.lineJoin = CanvasLineJoin.MITER
 
         hammer.enablePan()
         hammer.enablePinch()

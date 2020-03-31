@@ -34,6 +34,13 @@ class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
         val width = html.parentElement?.clientWidth ?: clientWidth
         val height = html.parentElement?.clientHeight ?: clientHeight
 
+        updateSize(width, height, window.devicePixelRatio)
+    }
+
+    var fixedWidth = clientWidth
+    var fixedHeight = clientHeight
+    
+    fun updateSize(width: Int, height: Int, dpi: Double) {
         // Copy image to prevent screen flickering
         val tempCanvas = document.createElement("canvas") as HTMLCanvasElement
         tempCanvas.width = context.canvas.width
@@ -42,8 +49,8 @@ class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
         tempContext.drawImage(context.canvas, 0.0, 0.0)
 
         // Resize canvas
-        html.width = ceil(width * window.devicePixelRatio).toInt()
-        html.height = ceil(height * window.devicePixelRatio).toInt()
+        html.width = ceil(width * dpi).toInt()
+        html.height = ceil(height * dpi).toInt()
         html.style.width = "${width}px"
         html.style.height = "${height}px"
 
@@ -51,14 +58,17 @@ class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
         context.drawImage(tempContext.canvas, 0.0, 0.0);
 
         // Apply transformations
-        context.scale(window.devicePixelRatio, window.devicePixelRatio)
+        context.scale(dpi, dpi)
         context.translate(0.5, 0.5)
 
         // Update media query listener
         lastQuery?.removeListener(this::eventListener)
-        val query = window.matchMedia("(resolution: ${window.devicePixelRatio}dppx)")
+        val query = window.matchMedia("(resolution: ${dpi}dppx)")
         query.addListener(this::eventListener)
         lastQuery = query
+
+        fixedWidth = width
+        fixedHeight = height
 
         onResize.emit(Unit)
     }

@@ -1,6 +1,7 @@
 package de.robolab.jfx
 
 import de.robolab.app.Main
+import de.robolab.jfx.adapter.AwtCanvas
 import de.robolab.jfx.adapter.FxCanvas
 import de.robolab.jfx.adapter.toProperty
 import de.westermann.kobserve.property.mapBinding
@@ -55,13 +56,17 @@ class MainView : View() {
                     separator()
                     button("Export SVG") {
                         setOnAction {
-                            val export = main.exportSVG()
+                            File("export.svg").writeText(main.exportSVG())
+                        }
+                    }
+                    button("Export PNG") {
+                        setOnAction {
+                            val dimension = main.exportGetSize()
+                            val exportCanvas = AwtCanvas(dimension.width, dimension.height, Main.EXPORT_SCALE)
 
-                            if (export != null) {
-                                val file = File("export.svg")
-                                println("Export 'export.svg'")
-                                file.writeText(export)
-                            }
+                            main.exportRender(exportCanvas)
+
+                            exportCanvas.writePNG(File("export.png"))
                         }
                     }
                 }

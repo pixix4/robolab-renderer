@@ -7,7 +7,9 @@ import de.robolab.model.Coordinate
 import de.robolab.model.Path
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.ExportPlotter
+import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
+import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.BackgroundDrawable
 import de.robolab.renderer.drawable.PlanetDrawable
 import de.robolab.renderer.drawable.edit.*
@@ -128,24 +130,34 @@ class Main(val canvas: ICanvas) {
         planetDrawable.importPlanet(planetFile.planet.value)
     }
 
-    fun exportSVG(): String? {
-        val planet = planetFile.planet.value
-        val rect = BackgroundDrawable.calcPlanetArea(planet)?.expand(0.99) ?: return null
+    fun exportSVG(): String {
+        val dimension = exportGetSize()
+        val canvas = SvgCanvas(dimension.width, dimension.height)
 
+        exportRender(canvas)
+
+        return canvas.buildFile()
+    }
+
+    fun exportGetSize(): Dimension {
+        val rect = BackgroundDrawable.calcPlanetArea(planetFile.planet.value)?.expand(0.99) ?: Rectangle.ZERO
+        return Dimension(rect.width * Transformation.PIXEL_PER_UNIT, rect.height * Transformation.PIXEL_PER_UNIT)
+    }
+
+    fun exportRender(canvas: ICanvas) {
         val drawable = PlanetDrawable(drawCompass = false, drawName = true)
-        drawable.importPlanet(planet)
+        drawable.importPlanet(planetFile.planet.value)
 
-        val canvas = SvgCanvas(rect.width * Transformation.PIXEL_PER_UNIT, rect.height * Transformation.PIXEL_PER_UNIT)
         val plotter = ExportPlotter(canvas, drawable)
 
         drawable.centerPlanet()
 
         plotter.render(0.0)
-        return canvas.buildFile()
     }
 
     companion object {
         const val ANIMATION_TIME = 1000.0
+        const val EXPORT_SCALE = 4.0
     }
 
     enum class Theme(val theme: ITheme) {

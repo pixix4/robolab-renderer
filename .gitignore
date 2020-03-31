@@ -1,6 +1,7 @@
 .idea/*
 *.iml
 *.svg
+*.png
 **/target/*
 **/out/*
 **/build/*

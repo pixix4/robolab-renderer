@@ -115,6 +115,6 @@ class SvgCanvas(
     }
 
     companion object {
-        private const val STROKE_CONST = """stroke-linecap="butt" stroke-linejoin="round""""
+        private const val STROKE_CONST = """stroke-linecap="butt" stroke-linejoin="miter""""
     }
 }
