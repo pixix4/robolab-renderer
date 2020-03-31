@@ -264,10 +264,8 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
                 rectangle.height
         )
     }
-
-    override fun fillPolygon(points: List<Point>, color: Color) {
-        context.fillStyle = color.toString()
-
+    
+    private fun drawPath(points: List<Point>) {
         context.beginPath()
         val first = points.firstOrNull() ?: return
         context.moveTo(first.left, first.top)
@@ -275,7 +273,13 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         points.asSequence().drop(1).forEach {
             context.lineTo(it.left, it.top)
         }
-        context.lineTo(first.left, first.top)
+    }
+
+    override fun fillPolygon(points: List<Point>, color: Color) {
+        context.fillStyle = color.toString()
+
+        drawPath(points)
+        context.closePath()
 
         context.fill()
     }
@@ -284,14 +288,8 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         context.strokeStyle = color.toString()
         context.lineWidth = width
 
-        context.beginPath()
-        val first = points.firstOrNull() ?: return
-        context.moveTo(first.left, first.top)
-
-        points.asSequence().drop(1).forEach {
-            context.lineTo(it.left, it.top)
-        }
-        context.lineTo(first.left, first.top)
+        drawPath(points)
+        context.closePath()
 
         context.stroke()
     }
@@ -300,13 +298,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         context.strokeStyle = color.toString()
         context.lineWidth = width
 
-        context.beginPath()
-        val first = points.firstOrNull() ?: return
-        context.moveTo(first.left, first.top)
-
-        points.asSequence().drop(1).forEach {
-            context.lineTo(it.left, it.top)
-        }
+        drawPath(points)
 
         context.stroke()
     }
@@ -317,13 +309,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         context.setLineDash(dashes.toTypedArray())
         context.lineDashOffset = dashOffset
 
-        context.beginPath()
-        val first = points.firstOrNull() ?: return
-        context.moveTo(first.left, first.top)
-
-        points.asSequence().drop(1).forEach {
-            context.lineTo(it.left, it.top)
-        }
+        drawPath(points)
 
         context.stroke()
 
