@@ -7,6 +7,7 @@ import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.MediaQueryList
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
+import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -32,17 +33,31 @@ class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
     }
 
     fun updateSize() {
+        // Get size from parent cause this is fixed via css
         val width = html.parentElement?.clientWidth ?: clientWidth
         val height = html.parentElement?.clientHeight ?: clientHeight
 
+        // Copy image to prevent screen flickering
+        val tempCanvas = document.createElement("canvas") as HTMLCanvasElement
+        tempCanvas.width = context.canvas.width
+        tempCanvas.height = context.canvas.height
+        val tempContext = tempCanvas.getContext("2d") as CanvasRenderingContext2D
+        tempContext.drawImage(context.canvas, 0.0, 0.0)
+
+        // Resize canvas
         html.width = ceil(width * window.devicePixelRatio).toInt()
         html.height = ceil(height * window.devicePixelRatio).toInt()
         html.style.width = "${width}px"
         html.style.height = "${height}px"
 
+        // Redraw cached image
+        context.drawImage(tempContext.canvas, 0.0, 0.0);
+
+        // Apply transformations
         context.scale(window.devicePixelRatio, window.devicePixelRatio)
         context.translate(0.5, 0.5)
 
+        // Update media query listener
         lastQuery?.removeListener(eventListener)
         val query = window.matchMedia("(resolution: ${window.devicePixelRatio}dppx)")
         query.addListener(eventListener)
