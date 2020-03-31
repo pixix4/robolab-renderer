@@ -10,7 +10,6 @@ import org.w3c.dom.events.EventListener
 import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.math.ceil
-import kotlin.math.roundToInt
 
 /**
  * Represents a html label element.
@@ -24,12 +23,10 @@ class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
     val context = html.getContext("2d") as CanvasRenderingContext2D
 
     val onResize = EventHandler<Unit>()
-    
+
     private var lastQuery: MediaQueryList? = null
-    private val eventListener= object : EventListener {
-        override fun handleEvent(event: Event) {
-            updateSize()
-        }
+    private fun eventListener(@Suppress("UNUSED_PARAMETER") event: Event) {
+        updateSize()
     }
 
     fun updateSize() {
@@ -58,9 +55,9 @@ class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
         context.translate(0.5, 0.5)
 
         // Update media query listener
-        lastQuery?.removeListener(eventListener)
+        lastQuery?.removeListener(this::eventListener)
         val query = window.matchMedia("(resolution: ${window.devicePixelRatio}dppx)")
-        query.addListener(eventListener)
+        query.addListener(this::eventListener)
         lastQuery = query
 
         onResize.emit(Unit)
