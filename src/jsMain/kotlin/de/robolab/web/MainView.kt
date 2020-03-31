@@ -29,7 +29,9 @@ fun main() {
             label(animateBox, "Animate")
 
             val editableBox = checkbox(main.editableProperty)
-            label(editableBox, "Editable")
+            label(editableBox, "Editable") {
+                classList += "group"
+            }
 
             textView("|") {
                 classList += "divider"
@@ -42,7 +44,9 @@ fun main() {
             }
 
             val darkThemeBox = checkbox(main.darkThemeProperty)
-            label(darkThemeBox, "Dark theme")
+            label(darkThemeBox, "Dark theme"){
+                classList += "group"
+            }
             darkThemeBox.checkedProperty.onChange {
                 darkThemeBox.checked = main.darkThemeProperty.value
             }
