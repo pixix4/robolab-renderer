@@ -4,6 +4,7 @@ import de.westermann.kobserve.event.EventHandler
 import de.westermann.kwebview.*
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
+import org.w3c.dom.MediaQueryList
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
 import kotlin.browser.window
@@ -22,6 +23,13 @@ class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
     val context = html.getContext("2d") as CanvasRenderingContext2D
 
     val onResize = EventHandler<Unit>()
+    
+    private var lastQuery: MediaQueryList? = null
+    private val eventListener= object : EventListener {
+        override fun handleEvent(event: Event) {
+            updateSize()
+        }
+    }
 
     fun updateSize() {
         val width = html.parentElement?.clientWidth ?: clientWidth
@@ -34,6 +42,11 @@ class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
 
         context.scale(window.devicePixelRatio, window.devicePixelRatio)
         context.translate(0.5, 0.5)
+
+        lastQuery?.removeListener(eventListener)
+        val query = window.matchMedia("(resolution: ${window.devicePixelRatio}dppx)")
+        query.addListener(eventListener)
+        lastQuery = query
 
         onResize.emit(Unit)
     }
