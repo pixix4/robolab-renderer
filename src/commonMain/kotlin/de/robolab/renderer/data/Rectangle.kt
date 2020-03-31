@@ -29,6 +29,7 @@ data class Rectangle(
             width + 2 * size,
             height + 2 * size
     )
+    fun shrink(size: Double) = expand(-size)
 
     override fun interpolate(toValue: Rectangle, progress: Double) = Rectangle(
             left * (1 - progress) + toValue.left * progress,

@@ -3,7 +3,6 @@ package de.robolab.renderer.drawable
 import de.robolab.model.Direction
 import de.robolab.model.Path
 import de.robolab.model.Planet
-import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Color
@@ -11,6 +10,7 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.utils.*
 import de.robolab.renderer.platform.ICanvas
+import de.robolab.renderer.utils.DrawContext
 
 
 class PathDrawable(
@@ -81,8 +81,12 @@ class PathDrawable(
         val color = oc.interpolate(nc, colorTransition.value)
 
         fun draw(points: List<Point>, color: Color, weight: Double) {
-            if (reference.hidden) {
-                context.dashLine(points, color, weight, PlottingConstraints.DASHES, PlottingConstraints.DASH_OFFSET)
+            if (hiddenTransition.value > 0.0) {
+                val dashes = listOf(
+                        PlottingConstraints.DASH_SEGMENT_LENGTH - PlottingConstraints.DASH_SPACING * hiddenTransition.value,
+                        PlottingConstraints.DASH_SPACING * hiddenTransition.value
+                )
+                context.dashLine(points, color, weight, dashes, dashes.first() / 2)
             } else {
                 context.strokeLine(points, color, weight)
             }
@@ -371,10 +375,11 @@ class PathDrawable(
     private var oldColor: Color? = getColor(planet, reference)
     private var newColor: Color? = oldColor
 
-    private var colorTransition = DoubleTransition(0.0)
+    private val colorTransition = DoubleTransition(0.0)
     private val transition = DoubleTransition(0.0)
+    private val hiddenTransition = DoubleTransition(if (reference.hidden) 1.0 else 0.0)
 
-    override val animators = listOf(transition, colorTransition)
+    override val animators = listOf(transition, colorTransition, hiddenTransition)
 
     override fun startExitAnimation(onFinish: () -> Unit) {
         state = State.REMOVE
@@ -405,6 +410,7 @@ class PathDrawable(
         newColor = getColor(planet, obj)
         colorTransition.resetValue(0.0)
         colorTransition.animate(1.0, this.planetDrawable.animationTime)
+        hiddenTransition.animate(if (reference.hidden) 1.0 else 0.0, this.planetDrawable.animationTime)
 
         area = Rectangle.fromEdges(startPoint, endPoint, *controlPoints.toTypedArray())
         distance = controlPoints.windowed(2, 1).sumByDouble { (p1, p2) ->
