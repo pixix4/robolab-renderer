@@ -223,7 +223,6 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         }
 
         canvas.onResize {
-            context.translate(0.5, 0.5)
             listener.onResize(Dimension(width, height))
         }
     }

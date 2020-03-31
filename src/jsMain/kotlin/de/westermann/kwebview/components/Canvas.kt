@@ -7,6 +7,8 @@ import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
 import kotlin.browser.window
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 /**
  * Represents a html label element.
@@ -22,8 +24,16 @@ class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
     val onResize = EventHandler<Unit>()
 
     fun updateSize() {
-        html.width = clientWidth
-        html.height = clientHeight
+        val width = html.parentElement?.clientWidth ?: clientWidth
+        val height = html.parentElement?.clientHeight ?: clientHeight
+
+        html.width = ceil(width * window.devicePixelRatio).toInt()
+        html.height = ceil(height * window.devicePixelRatio).toInt()
+        html.style.width = "${width}px"
+        html.style.height = "${height}px"
+
+        context.scale(window.devicePixelRatio, window.devicePixelRatio)
+        context.translate(0.5, 0.5)
 
         onResize.emit(Unit)
     }

@@ -5,7 +5,7 @@ import de.robolab.web.adapter.WebCanvas
 import de.westermann.kwebview.async
 import de.westermann.kwebview.components.*
 
-fun main(args: Array<String>) {
+fun main() {
     init {
         clear()
 
