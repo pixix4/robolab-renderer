@@ -20,6 +20,16 @@ fun main(args: Array<String>) {
 
             val editableBox = checkbox(main.editableProperty)
             label(editableBox, "Editable")
+
+            button("Export SVG") {
+                onClick {
+                    val export = main.exportSVG()
+
+                    if (export != null) {
+                        triggerDownload("export.svg", export)
+                    }
+                }
+            }
         }
         boxView("main") {
             add(canvas)

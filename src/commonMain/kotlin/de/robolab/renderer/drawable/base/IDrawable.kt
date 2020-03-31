@@ -1,11 +1,11 @@
 package de.robolab.renderer.drawable.base
 
-import de.robolab.renderer.DefaultPlotter
-import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.IInteraction
+import de.robolab.renderer.IPlotter
 import de.robolab.renderer.data.Point
+import de.robolab.renderer.utils.DrawContext
 
-interface IDrawable: IInteraction {
+interface IDrawable : IInteraction {
 
     fun onUpdate(ms_offset: Double): Boolean
 
@@ -13,11 +13,11 @@ interface IDrawable: IInteraction {
 
     fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any>
 
-    fun onAttach(plotter: DefaultPlotter) {
+    fun onAttach(plotter: IPlotter) {
 
     }
 
-    fun onDetach(plotter: DefaultPlotter) {
+    fun onDetach(plotter: IPlotter) {
 
     }
 }

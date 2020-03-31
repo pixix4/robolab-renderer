@@ -1,7 +1,7 @@
 package de.robolab.file
 
 import de.robolab.model.*
-import de.robolab.renderer.History
+import de.robolab.renderer.utils.History
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.edit.IEditCallback
 import de.westermann.kobserve.property.mapBinding

@@ -11,6 +11,7 @@ import javafx.scene.input.MouseButton
 import javafx.scene.shape.ArcType
 import javafx.scene.shape.StrokeLineCap
 import javafx.scene.text.Font
+import javafx.scene.text.FontWeight
 import javafx.scene.text.TextAlignment
 import kotlin.math.PI
 
@@ -84,7 +85,8 @@ class FxCanvas : ICanvas {
                         event.isAltDown,
                         event.isShiftDown
                 ))
-                else -> {}
+                else -> {
+                }
             }
         }
         canvas.setOnScroll { event ->
@@ -226,15 +228,18 @@ class FxCanvas : ICanvas {
         context.lineDashOffset = 0.0
     }
 
-    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment) {
+    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment, fontWeight: ICanvas.FontWeight) {
         context.fill = color.fx()
-        context.textAlign = when(alignment) {
+        context.textAlign = when (alignment) {
             ICanvas.FontAlignment.LEFT -> TextAlignment.LEFT
             ICanvas.FontAlignment.CENTER -> TextAlignment.CENTER
             ICanvas.FontAlignment.RIGHT -> TextAlignment.RIGHT
         }
         context.textBaseline = VPos.CENTER
-        context.font = Font.font(fontSize)
+        context.font = when (fontWeight) {
+            ICanvas.FontWeight.NORMAL -> Font.font(fontSize)
+            ICanvas.FontWeight.BOLD -> Font.font(null, FontWeight.BOLD, fontSize)
+        }
 
         context.fillText(text, position.left, position.top)
     }

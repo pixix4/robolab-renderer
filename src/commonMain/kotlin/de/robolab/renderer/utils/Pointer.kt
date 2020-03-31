@@ -1,5 +1,6 @@
-package de.robolab.renderer
+package de.robolab.renderer.utils
 
+import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import kotlin.math.round
 

@@ -108,9 +108,11 @@ class PathAnimatable(
                 val length = pointHelpers.last().length
                 val targetLength = length * transition.value
 
-                val endIndex = pointHelpers.indexOfFirst { it.length > targetLength }
+                val endIndex = pointHelpers.indexOfFirst { it.length >= targetLength }
 
-                if (endIndex == 0) return
+                if (endIndex <= 0) {
+                    return
+                }
 
                 val points = interpolateLineEnd(pointHelpers, endIndex, targetLength)
                 if (isHover) {

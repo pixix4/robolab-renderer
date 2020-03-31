@@ -86,13 +86,13 @@ open class GenericTransition<T>(
             get() = progress >= 1.0
 
         fun update(fromValue: T, ms_offset: Double): T {
-            if (progress >= 1.0) {
+            if (isFinished) {
                 return toValue
             }
 
             progress = max(0.0, min(1.0, progress + ms_offset / total))
 
-            if (progress >= 1.0) {
+            if (isFinished) {
                 return toValue
             }
 

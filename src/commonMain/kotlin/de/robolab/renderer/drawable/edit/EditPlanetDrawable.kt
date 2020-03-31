@@ -1,7 +1,7 @@
 package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Planet
-import de.robolab.renderer.Pointer
+import de.robolab.renderer.utils.Pointer
 import de.robolab.renderer.drawable.PathAnimatable
 import de.robolab.renderer.drawable.PlanetDrawable
 import de.robolab.renderer.platform.KeyCode

@@ -1,9 +1,9 @@
 package de.robolab.renderer.drawable
 
-import de.robolab.renderer.DefaultPlotter
-import de.robolab.renderer.utils.DrawContext
+import de.robolab.renderer.IPlotter
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.utils.DrawContext
 
 /**
  * This object does nothing...
@@ -21,9 +21,9 @@ object BlankDrawable : IDrawable {
         return emptyList()
     }
 
-    override fun onAttach(plotter: DefaultPlotter) {
+    override fun onAttach(plotter: IPlotter) {
     }
 
-    override fun onDetach(plotter: DefaultPlotter) {
+    override fun onDetach(plotter: IPlotter) {
     }
 }

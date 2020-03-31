@@ -81,13 +81,14 @@ class TransformationCanvas(private val canvas: ICanvas, private val transformati
         )
     }
 
-    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment) {
+    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment, fontWeight: ICanvas.FontWeight) {
         canvas.fillText(
                 text,
                 transformation.planetToCanvas(position),
                 color,
                 fontSize * transformation.scale,
-                alignment
+                alignment,
+                fontWeight
         )
     }
 

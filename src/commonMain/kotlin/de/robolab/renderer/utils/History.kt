@@ -1,4 +1,4 @@
-package de.robolab.renderer
+package de.robolab.renderer.utils
 
 import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.mapBinding

@@ -73,13 +73,14 @@ class ColorCanvas(private val canvas: ICanvas, private val colorAdapter: (Color)
         )
     }
 
-    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment) {
+    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment, fontWeight: ICanvas.FontWeight) {
         canvas.fillText(
                 text,
                 position,
                 colorAdapter(color),
                 fontSize,
-                alignment
+                alignment,
+                fontWeight
         )
     }
 

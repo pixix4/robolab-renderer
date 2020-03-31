@@ -358,7 +358,7 @@ interface FileLine<T> {
             blockMode = BlockMode.Head(builder.previousBlockHead)
             builder.previousBlockHead = this
             builder.planet = builder.planet.copy(
-                    name = ""
+                    name = data
             )
         }
 

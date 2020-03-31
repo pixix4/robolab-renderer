@@ -3,9 +3,14 @@ package de.robolab.app
 import de.robolab.file.PlanetFile
 import de.robolab.file.demoFile
 import de.robolab.renderer.DefaultPlotter
+import de.robolab.renderer.ExportPlotter
+import de.robolab.renderer.drawable.BackgroundDrawable
+import de.robolab.renderer.drawable.PlanetDrawable
 import de.robolab.renderer.drawable.edit.EditPlanetDrawable
 import de.robolab.renderer.platform.CommonTimer
 import de.robolab.renderer.platform.ICanvas
+import de.robolab.renderer.utils.Transformation
+import de.robolab.svg.SvgCanvas
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
@@ -22,6 +27,8 @@ class Main(val canvas: ICanvas) {
     val pointerProperty = plotter.pointerProperty.mapBinding {
         it.roundedPosition.toString() + " | " + it.objectsUnderPointer
     }
+    
+    private val planetFile = PlanetFile(demoFile)
 
     init {
         plotter.drawable = planetDrawable
@@ -43,7 +50,6 @@ class Main(val canvas: ICanvas) {
             }
         }
 
-        val planetFile = PlanetFile(demoFile)
         planetDrawable.editCallback = planetFile
 
         var isUndoPhase = false
@@ -66,6 +72,22 @@ class Main(val canvas: ICanvas) {
         }
 
         planetDrawable.importPlanet(planetFile.planet.value)
+    }
+
+    fun exportSVG(): String? {
+        val planet = planetFile.planet.value
+        val rect = BackgroundDrawable.calcPlanetArea(planet)?.expand(0.99) ?: return null
+
+        val drawable = PlanetDrawable(drawCompass = false, drawName = true)
+        drawable.importPlanet(planet)
+
+        val canvas = SvgCanvas(rect.width * Transformation.PIXEL_PER_UNIT, rect.height * Transformation.PIXEL_PER_UNIT)
+        val plotter = ExportPlotter(canvas, drawable)
+
+        drawable.centerPlanet()
+
+        plotter.render(0.0)
+        return canvas.buildFile()
     }
 
     companion object {

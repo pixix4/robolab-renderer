@@ -17,6 +17,8 @@ class CompassDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
     private val transformation = Transformation()
 
     override fun onDraw(context: DrawContext) {
+        if (!planetDrawable.drawCompass) return
+        
         val center = Point(context.width - RIGHT_PADDING, TOP_PADDING)
         context.canvas.fillArc(
                 center,
@@ -51,6 +53,8 @@ class CompassDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
     }
 
     override fun onPointerDown(event: PointerEvent): Boolean {
+        if (!planetDrawable.drawCompass) return false
+
         val compassCenter = Point(
                 event.screen.width - RIGHT_PADDING,
                 TOP_PADDING
@@ -60,6 +64,8 @@ class CompassDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
     }
 
     override fun onPointerUp(event: PointerEvent): Boolean {
+        if (!planetDrawable.drawCompass) return false
+
         val compassCenter = Point(
                 event.screen.width - RIGHT_PADDING,
                 TOP_PADDING

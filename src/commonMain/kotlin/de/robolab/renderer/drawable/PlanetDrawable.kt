@@ -4,6 +4,7 @@ import de.robolab.model.Coordinate
 import de.robolab.model.Path
 import de.robolab.model.Planet
 import de.robolab.renderer.DefaultPlotter
+import de.robolab.renderer.IPlotter
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.GroupDrawable
@@ -12,7 +13,10 @@ import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.property.property
 
 @Suppress("LeakingThis")
-open class PlanetDrawable() : GroupDrawable() {
+open class PlanetDrawable(
+        var drawCompass: Boolean = true,
+        var drawName: Boolean = false
+) : GroupDrawable() {
 
     val hoveredPathsProperty = property(emptySet<Path>())
     var hoveredPaths by hoveredPathsProperty
@@ -23,7 +27,7 @@ open class PlanetDrawable() : GroupDrawable() {
     val selectedPointProperty = property<Coordinate?>(null)
     var selectedPoint by selectedPointProperty
 
-    var plotter: DefaultPlotter? = null
+    var plotter: IPlotter? = null
 
     val animationTime: Double
         get() = plotter?.animationTime ?: 0.0
@@ -35,6 +39,7 @@ open class PlanetDrawable() : GroupDrawable() {
     private val targetDrawable = TargetAnimatableManager(this)
     private val senderDrawable = SenderAnimatableManager(this)
     private val pathSelectDrawable = PathSelectAnimatableManager(this)
+    private val nameDrawable = NameDrawable(this)
 
     protected val planetForeground = listOf<IDrawable>(
             targetDrawable,
@@ -50,7 +55,8 @@ open class PlanetDrawable() : GroupDrawable() {
 
     protected val viewForeground = listOf<IDrawable>(
             GridNumbersDrawable,
-            CompassDrawable(this)
+            CompassDrawable(this),
+            nameDrawable
     )
 
     override val drawableList = listOf(
@@ -62,7 +68,7 @@ open class PlanetDrawable() : GroupDrawable() {
 
     private lateinit var pointerListener: EventListener<*>
 
-    override fun onAttach(plotter: DefaultPlotter) {
+    override fun onAttach(plotter: IPlotter) {
         this.plotter = plotter
         pointerListener = plotter.pointerProperty.onChange.reference {
             val path = plotter.pointer.findObjectUnderPointer<Path>(true)
@@ -76,7 +82,7 @@ open class PlanetDrawable() : GroupDrawable() {
         }
     }
 
-    override fun onDetach(plotter: DefaultPlotter) {
+    override fun onDetach(plotter: IPlotter) {
         pointerListener.detach()
     }
 
@@ -105,6 +111,7 @@ open class PlanetDrawable() : GroupDrawable() {
         targetDrawable.importPlanet(planet)
         senderDrawable.importPlanet(planet)
         pathSelectDrawable.importPlanet(planet)
+        nameDrawable.importPlanet(planet)
 
         center = BackgroundDrawable.calcPlanetArea(planet)?.center ?: Point.ZERO
 

@@ -8,6 +8,7 @@ import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
 import tornadofx.*
+import java.io.File
 import java.time.LocalDate
 import kotlin.system.exitProcess
 
@@ -35,6 +36,17 @@ class MainView : View() {
                     }
                     togglebutton("Editable", toggleGroup, false) {
                         selectedProperty().toProperty().bindBidirectional(main.editableProperty)
+                    }
+                    button("Export SVG") {
+                        setOnAction {
+                            val export = main.exportSVG()
+
+                            if (export != null) {
+                                val file = File("export.svg")
+                                println("Export 'export.svg'")
+                                file.writeText(export)
+                            }
+                        }
                     }
                 }
 

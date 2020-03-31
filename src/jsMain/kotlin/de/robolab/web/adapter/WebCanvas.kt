@@ -332,7 +332,7 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
         context.lineDashOffset = 0.0
     }
 
-    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment) {
+    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment, fontWeight: ICanvas.FontWeight) {
         context.fillStyle = color.toString()
         context.textAlign = when(alignment) {
             ICanvas.FontAlignment.LEFT -> CanvasTextAlign.LEFT
@@ -340,7 +340,11 @@ class WebCanvas(private val canvas: Canvas) : ICanvas {
             ICanvas.FontAlignment.RIGHT -> CanvasTextAlign.RIGHT
         }
         context.textBaseline = CanvasTextBaseline.MIDDLE
-        context.font = "${fontSize}px sans-serif"
+        val weight = when(fontWeight) {
+            ICanvas.FontWeight.NORMAL -> ""
+            ICanvas.FontWeight.BOLD -> "bold "
+        }
+        context.font = "$weight${fontSize}px sans-serif"
 
         context.fillText(text, position.left, position.top)
     }

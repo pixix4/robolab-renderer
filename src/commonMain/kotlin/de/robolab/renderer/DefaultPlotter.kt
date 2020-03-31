@@ -9,6 +9,7 @@ import de.robolab.renderer.utils.Transformation
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.ITimer
 import de.robolab.renderer.theme.LightTheme
+import de.robolab.renderer.utils.Pointer
 import de.westermann.kobserve.property.property
 
 /**
@@ -18,9 +19,9 @@ class DefaultPlotter(
         canvas: ICanvas,
         timer: ITimer,
         drawable: IDrawable = BlankDrawable,
-        var animationTime: Double = 0.0
-) {
-    val transformation = Transformation()
+        override var animationTime: Double = 0.0
+): IPlotter {
+    override val transformation = Transformation()
 
     var drawable: IDrawable = BlankDrawable
         set(value) {
@@ -30,15 +31,15 @@ class DefaultPlotter(
         }
 
     private val interaction = TransformationInteraction(this)
-    val size: Dimension
+    override val size: Dimension
         get() = interaction.lastDimension
 
     private val context = DrawContext(canvas, transformation, LightTheme)
 
-    val pointerProperty = property(Pointer())
-    var pointer by pointerProperty
+    override val pointerProperty = property(Pointer())
+    override var pointer by pointerProperty
 
-    private fun render(ms_offset: Double) {
+    override fun render(ms_offset: Double) {
         var changes = drawable.onUpdate(ms_offset)
         changes = transformation.update(ms_offset) || changes
 
@@ -52,7 +53,7 @@ class DefaultPlotter(
         return drawable.getObjectsAtPosition(context, position)
     }
 
-    fun updatePointer(mousePosition: Point = pointer.mousePosition) {
+    override fun updatePointer(mousePosition: Point) {
         val position = transformation.canvasToPlanet(mousePosition)
         val elements = getObjectsAtPosition(position)
 
