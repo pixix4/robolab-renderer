@@ -8,13 +8,14 @@ import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
+import de.robolab.renderer.drawable.base.Animatable
 import de.robolab.renderer.drawable.utils.*
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.DrawContext
 
 
-class PathDrawable(
-        override var reference: Path,
+class PathAnimatable(
+        reference: Path,
         private val planetDrawable: PlanetDrawable,
         planet: Planet
 ) : Animatable<Path>(reference) {
@@ -82,9 +83,10 @@ class PathDrawable(
 
         fun draw(points: List<Point>, color: Color, weight: Double) {
             if (hiddenTransition.value > 0.0) {
+                val spacingLength = PlottingConstraints.DASH_SPACING * hiddenTransition.value
                 val dashes = listOf(
-                        PlottingConstraints.DASH_SEGMENT_LENGTH - PlottingConstraints.DASH_SPACING * hiddenTransition.value,
-                        PlottingConstraints.DASH_SPACING * hiddenTransition.value
+                        PlottingConstraints.DASH_SEGMENT_LENGTH - spacingLength,
+                        spacingLength
                 )
                 context.dashLine(points, color, weight, dashes, dashes.first() / 2)
             } else {
@@ -409,8 +411,8 @@ class PathDrawable(
         oldColor = newColor
         newColor = getColor(planet, obj)
         colorTransition.resetValue(0.0)
-        colorTransition.animate(1.0, this.planetDrawable.animationTime)
-        hiddenTransition.animate(if (reference.hidden) 1.0 else 0.0, this.planetDrawable.animationTime)
+        colorTransition.animate(1.0, planetDrawable.animationTime)
+        hiddenTransition.animate(if (reference.hidden) 1.0 else 0.0, planetDrawable.animationTime)
 
         area = Rectangle.fromEdges(startPoint, endPoint, *controlPoints.toTypedArray())
         distance = controlPoints.windowed(2, 1).sumByDouble { (p1, p2) ->

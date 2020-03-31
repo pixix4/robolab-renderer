@@ -4,7 +4,7 @@ import de.robolab.model.Direction
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.PathDrawable
+import de.robolab.renderer.drawable.PathAnimatable
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.drawable.utils.BSpline
 import de.robolab.renderer.drawable.utils.Curve
@@ -17,7 +17,7 @@ class EditDrawPathDrawable(
 ) : IDrawable {
 
     private fun controlPoints(startPoint: Point, startDirection: Direction, endPoint: Point, endDirection: Direction): List<Point> {
-        return PathDrawable.getControlPointsFromPath(startPoint, startDirection, endPoint, endDirection)
+        return PathAnimatable.getControlPointsFromPath(startPoint, startDirection, endPoint, endDirection)
     }
 
     private fun calcDistance(startPoint: Point, endPoint: Point, controlPoints: List<Point>): Double =
@@ -28,7 +28,7 @@ class EditDrawPathDrawable(
     private val curve: Curve = BSpline
 
     private fun multiEval(count: Int, startPoint: Point, endPoint: Point, controlPoints: List<Point>): List<Point> {
-        return PathDrawable.multiEval(count, controlPoints, startPoint, endPoint) {
+        return PathAnimatable.multiEval(count, controlPoints, startPoint, endPoint) {
             curve.eval(it, controlPoints)
         }
     }

@@ -2,7 +2,7 @@ package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Planet
 import de.robolab.renderer.Pointer
-import de.robolab.renderer.drawable.PathDrawable
+import de.robolab.renderer.drawable.PathAnimatable
 import de.robolab.renderer.drawable.PlanetDrawable
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
@@ -36,7 +36,7 @@ class EditPlanetDrawable() : PlanetDrawable() {
     private val selectedPathControlPointsProperty = selectedPathProperty.mapBinding { nullablePath ->
         val path = nullablePath ?: return@mapBinding null
 
-        PathDrawable.getControlPointsFromPath(path)
+        PathAnimatable.getControlPointsFromPath(path)
     }
     val selectedPathControlPoints by selectedPathControlPointsProperty
     var selectedPointEnd: EditDrawEndDrawable.PointEnd? = null

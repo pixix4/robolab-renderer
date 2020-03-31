@@ -82,8 +82,8 @@ class BackgroundDrawable(
                     update(e.x.toDouble(), e.y.toDouble())
                 }
 
-                val controlPoints = PathDrawable.getControlPointsFromPath(p)
-                val points = PathDrawable.multiEval(16, controlPoints, Point(p.source), Point(p.target)) {
+                val controlPoints = PathAnimatable.getControlPointsFromPath(p)
+                val points = PathAnimatable.multiEval(16, controlPoints, Point(p.source), Point(p.target)) {
                     BSpline.eval(it, controlPoints)
                 }
                 for (c in points) {

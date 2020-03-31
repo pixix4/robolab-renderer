@@ -1,11 +1,10 @@
-package de.robolab.renderer.drawable
+package de.robolab.renderer.drawable.base
 
 import de.robolab.model.Planet
 import de.robolab.renderer.animation.GenericTransition
-import de.robolab.renderer.drawable.base.IDrawable
 
 abstract class Animatable<T>(
-        open var reference: T
+        var reference: T
 ) : IDrawable {
 
     abstract val animators: List<GenericTransition<*>>

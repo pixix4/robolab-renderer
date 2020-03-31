@@ -2,10 +2,11 @@ package de.robolab.renderer.drawable
 
 import de.robolab.model.Path
 import de.robolab.model.Planet
+import de.robolab.renderer.drawable.base.AnimatableManager
 
-class PathListDrawable(
+class PathAnimatableManager(
         private val planetDrawable: PlanetDrawable
-) : AnimatableManager<Path, PathDrawable>() {
+) : AnimatableManager<Path, PathAnimatable>() {
 
     override fun getObjectList(planet: Planet): List<Path> {
         if (planet.startPoint == null) {
@@ -15,8 +16,8 @@ class PathListDrawable(
         return planet.pathList + planet.startPoint.path
     }
 
-    override fun createAnimatable(obj: Path, planet: Planet): PathDrawable {
-        return PathDrawable(obj, planetDrawable, planet)
+    override fun createAnimatable(obj: Path, planet: Planet): PathAnimatable {
+        return PathAnimatable(obj, planetDrawable, planet)
     }
 
     override fun importPlanet(planet: Planet) {

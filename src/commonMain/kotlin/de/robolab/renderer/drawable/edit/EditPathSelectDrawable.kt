@@ -6,7 +6,7 @@ import de.robolab.model.Planet
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.PathSelectDrawable
+import de.robolab.renderer.drawable.PathSelectAnimatableManager
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.platform.PointerEvent
 import kotlin.math.abs
@@ -36,7 +36,7 @@ class EditPathSelectDrawable(
 
     override fun onDraw(context: DrawContext) {
         val d = pathSelectToDraw ?: return
-        context.fillPolygon(PathSelectDrawable.getArrow(Point(d.point), d.direction), context.theme.gridTextColor)
+        context.fillPolygon(PathSelectAnimatableManager.getArrow(Point(d.point), d.direction), context.theme.gridTextColor)
     }
 
     private var planet = Planet.EMPTY

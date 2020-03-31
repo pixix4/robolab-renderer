@@ -1,9 +1,8 @@
-package de.robolab.renderer.drawable
+package de.robolab.renderer.drawable.base
 
 import de.robolab.model.Planet
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.base.IDrawable
 
 abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
 

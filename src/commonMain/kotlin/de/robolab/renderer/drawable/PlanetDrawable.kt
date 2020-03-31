@@ -30,11 +30,11 @@ open class PlanetDrawable() : GroupDrawable() {
 
     protected val planetBackground = BackgroundDrawable(this)
 
-    private val pointDrawable = PointDrawable(this)
-    private val pathDrawable = PathListDrawable(this)
-    private val targetDrawable = TargetDrawable(this)
-    private val senderDrawable = SenderDrawable(this)
-    private val pathSelectDrawable = PathSelectDrawable(this)
+    private val pointDrawable = PointAnimatableManager(this)
+    private val pathDrawable = PathAnimatableManager(this)
+    private val targetDrawable = TargetAnimatableManager(this)
+    private val senderDrawable = SenderAnimatableManager(this)
+    private val pathSelectDrawable = PathSelectAnimatableManager(this)
 
     protected val planetForeground = listOf<IDrawable>(
             targetDrawable,
