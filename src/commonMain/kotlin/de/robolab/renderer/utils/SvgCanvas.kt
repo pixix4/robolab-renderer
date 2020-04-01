@@ -1,4 +1,4 @@
-package de.robolab.svg
+package de.robolab.renderer.utils
 
 import de.robolab.file.toFixed
 import de.robolab.renderer.data.Color
@@ -8,7 +8,6 @@ import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.ICanvasListener
 import kotlin.math.PI
 import kotlin.math.cos
-import kotlin.math.roundToInt
 import kotlin.math.sin
 
 class SvgCanvas(

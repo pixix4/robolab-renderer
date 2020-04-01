@@ -4,6 +4,7 @@ import de.robolab.app.Main
 import de.robolab.jfx.adapter.AwtCanvas
 import de.robolab.jfx.adapter.FxCanvas
 import de.robolab.jfx.adapter.toProperty
+import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.property.mapBinding
 import javafx.application.Platform
 import javafx.scene.control.ToggleGroup
@@ -62,7 +63,7 @@ class MainView : View() {
                     button("Export PNG") {
                         setOnAction {
                             val dimension = main.exportGetSize()
-                            val exportCanvas = AwtCanvas(dimension.width, dimension.height, Main.EXPORT_SCALE)
+                            val exportCanvas = AwtCanvas(dimension.width, dimension.height, PreferenceStorage.exportScale)
 
                             main.exportRender(exportCanvas)
 

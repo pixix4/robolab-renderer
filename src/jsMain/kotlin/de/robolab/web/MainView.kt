@@ -1,12 +1,9 @@
 package de.robolab.web
 
 import de.robolab.app.Main
+import de.robolab.utils.PreferenceStorage
 import de.robolab.web.adapter.WebCanvas
-import de.westermann.kwebview.async
 import de.westermann.kwebview.components.*
-import org.w3c.dom.get
-import org.w3c.dom.set
-import kotlin.browser.window
 
 fun main() {
     init {
@@ -16,13 +13,6 @@ fun main() {
         val webCanvas = WebCanvas(canvas)
 
         val main = Main(webCanvas)
-
-        if (window.localStorage["theme"] == "DARK") {
-            main.darkThemeProperty.value = true
-        }
-        main.themeProperty.onChange {
-            window.localStorage["theme"] = main.themeProperty.value.name
-        }
 
         boxView("toolbar") {
             val animateBox = checkbox(main.animateProperty)
@@ -44,7 +34,7 @@ fun main() {
             }
 
             val darkThemeBox = checkbox(main.darkThemeProperty)
-            label(darkThemeBox, "Dark theme"){
+            label(darkThemeBox, "Dark theme") {
                 classList += "group"
             }
             darkThemeBox.checkedProperty.onChange {
@@ -64,7 +54,7 @@ fun main() {
                 onClick {
                     val dimension = main.exportGetSize()
                     val exportCanvas = Canvas()
-                    exportCanvas.updateSize(dimension.width.toInt(), dimension.height.toInt(), Main.EXPORT_SCALE)
+                    exportCanvas.updateSize(dimension.width.toInt(), dimension.height.toInt(), PreferenceStorage.exportScale)
 
                     val exportWebCanvas = WebCanvas(exportCanvas)
 
@@ -81,10 +71,6 @@ fun main() {
         updateStatusBar(statusBar, main.pointerProperty.value)
         main.pointerProperty.onChange {
             updateStatusBar(statusBar, main.pointerProperty.value)
-        }
-
-        async {
-            canvas.updateSize()
         }
     }
 }

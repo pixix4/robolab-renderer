@@ -19,7 +19,8 @@ import de.robolab.renderer.theme.DarkTheme
 import de.robolab.renderer.theme.ITheme
 import de.robolab.renderer.theme.LightTheme
 import de.robolab.renderer.utils.Transformation
-import de.robolab.svg.SvgCanvas
+import de.robolab.renderer.utils.SvgCanvas
+import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -27,7 +28,6 @@ import kotlin.math.PI
 import kotlin.math.roundToInt
 
 class Main(val canvas: ICanvas) {
-
 
     private val timer = CommonTimer(50.0)
     private val plotter = DefaultPlotter(canvas, timer, animationTime = 1000.0)
@@ -62,7 +62,7 @@ class Main(val canvas: ICanvas) {
 
     private val planetFile = PlanetFile(demoFile)
 
-    val themeProperty = property(Theme.LIGHT)
+    val themeProperty = PreferenceStorage.selectedThemeProperty
     val lightThemeProperty = property(object : FunctionAccessor<Boolean> {
         override fun get() = themeProperty.value == Theme.LIGHT
 
@@ -157,7 +157,6 @@ class Main(val canvas: ICanvas) {
 
     companion object {
         const val ANIMATION_TIME = 1000.0
-        const val EXPORT_SCALE = 4.0
     }
 
     enum class Theme(val theme: ITheme) {
