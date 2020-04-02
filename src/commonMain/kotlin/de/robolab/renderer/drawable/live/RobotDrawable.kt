@@ -9,13 +9,16 @@ import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.animation.IInterpolatable
 import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Point
+import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.PathAnimatable
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.drawable.base.IPlanetDrawable
 import de.robolab.renderer.drawable.utils.BSpline
+import de.robolab.renderer.drawable.utils.SegmentDrawer
 import de.robolab.renderer.drawable.utils.shift
 import de.robolab.renderer.utils.DrawContext
 import kotlin.math.PI
+import kotlin.math.absoluteValue
 import kotlin.math.atan2
 
 class RobotDrawable(
@@ -25,7 +28,8 @@ class RobotDrawable(
     data class Robot(
             val point: Coordinate,
             val direction: Direction,
-            val beforePoint: Boolean
+            val beforePoint: Boolean,
+            val groupNumber: Int?
     ) {
         val afterPoint: Boolean = !beforePoint
     }
@@ -35,6 +39,7 @@ class RobotDrawable(
     inner class DrawRobot(
             val position: Point,
             val orientation: Double,
+            val groupNumber: Int?,
             private val robot: Robot?
     ) : IInterpolatable<DrawRobot> {
 
@@ -50,6 +55,7 @@ class RobotDrawable(
                     return DrawRobot(
                             position.interpolate(toValue.position, progress),
                             orientation + orientationDelta * progress,
+                            groupNumber,
                             null
                     )
                 }
@@ -75,6 +81,7 @@ class RobotDrawable(
                 return DrawRobot(
                         position,
                         d.toAngle(),
+                        groupNumber,
                         null
                 )
             }
@@ -82,6 +89,7 @@ class RobotDrawable(
             return DrawRobot(
                     position.interpolate(toValue.position, progress),
                     orientation + orientationDelta * progress,
+                    groupNumber,
                     null
             )
         }
@@ -95,11 +103,12 @@ class RobotDrawable(
         return DrawRobot(
                 Point(robot.point).shift(robot.direction, PlottingConstraints.CURVE_FIRST_POINT),
                 if (robot.beforePoint) robot.direction.opposite().toAngle() else robot.direction.toAngle(),
+                robot.groupNumber,
                 robot
         )
     }
 
-    private val robotTransition = ValueTransition(DrawRobot(Point.ZERO, 0.0, null))
+    private val robotTransition = ValueTransition(DrawRobot(Point.ZERO, 0.0, null, null))
     private val alphaTransition = DoubleTransition(0.0)
 
     override fun onUpdate(ms_offset: Double): Boolean {
@@ -127,7 +136,7 @@ class RobotDrawable(
         context.fillPolygon(ROBOT_BLOCK.map(trans), context.theme.robotMainColor.a(a))
         context.fillPolygon(ROBOT_DISPLAY.map(trans), context.theme.robotDisplayColor.a(a))
 
-        context.fillPolygon(ROBOT_SENSOR.map(trans), context.theme.robotSensorColor)
+        context.fillPolygon(ROBOT_SENSOR.map(trans), context.theme.robotSensorColor.a(a))
 
         val c = context.theme.robotButtonColor.a(a)
         context.fillPolygon(ROBOT_CROSS_TOP.map(trans), c)
@@ -135,8 +144,34 @@ class RobotDrawable(
         context.fillPolygon(ROBOT_CROSS_LEFT.map(trans), c)
         context.fillPolygon(ROBOT_CROSS_RIGHT.map(trans), c)
 
-        context.fillPolygon(ROBOT_EYE_LEFT.map(trans), c)
-        context.fillPolygon(ROBOT_EYE_RIGHT.map(trans), c)
+        if (r.groupNumber == null) {
+            context.fillPolygon(ROBOT_EYE_LEFT.map(trans), c)
+            context.fillPolygon(ROBOT_EYE_RIGHT.map(trans), c)
+        } else {
+            val str = r.groupNumber.absoluteValue.toString().padStart(3, '0')
+
+            SegmentDrawer.drawCharacter(
+                    context,
+                    str[0],
+                    c
+            ) { point ->
+                trans(point * ROBOT_DISPLAY_CHAR_SIZE + ROBOT_DISPLAY_CHAR_1)
+            }
+            SegmentDrawer.drawCharacter(
+                    context,
+                    str[1],
+                    c
+            ) { point ->
+                trans(point * ROBOT_DISPLAY_CHAR_SIZE + ROBOT_DISPLAY_CHAR_2)
+            }
+            SegmentDrawer.drawCharacter(
+                    context,
+                    str[2],
+                    c
+            ) { point ->
+                trans(point * ROBOT_DISPLAY_CHAR_SIZE + ROBOT_DISPLAY_CHAR_3)
+            }
+        }
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
@@ -180,6 +215,11 @@ class RobotDrawable(
                 Point(0.35, 0.0),
                 Point(-0.35, 0.0)
         )
+        const val ROBOT_DISPLAY_CHAR_SIZE = 0.25
+        val ROBOT_DISPLAY_CHAR_2 = Rectangle.fromEdges(ROBOT_DISPLAY).center - Point(ROBOT_DISPLAY_CHAR_SIZE / 2, ROBOT_DISPLAY_CHAR_SIZE / 2)
+        val ROBOT_DISPLAY_CHAR_1 = ROBOT_DISPLAY_CHAR_2 - Point(ROBOT_DISPLAY_CHAR_SIZE * 0.8, 0.0)
+        val ROBOT_DISPLAY_CHAR_3 = ROBOT_DISPLAY_CHAR_2 + Point(ROBOT_DISPLAY_CHAR_SIZE * 0.8, 0.0)
+
         val ROBOT_SENSOR = listOf(
                 Point(-0.3, 0.6),
                 Point(-0.2, 0.7),

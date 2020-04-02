@@ -2,6 +2,7 @@ package de.robolab.app
 
 import de.robolab.model.Planet
 import de.robolab.renderer.drawable.live.RobotDrawable
+import kotlin.random.Random
 
 class PlanetAnimator(private val referencePlanet: Planet) {
 
@@ -27,7 +28,8 @@ class PlanetAnimator(private val referencePlanet: Planet) {
                 robot = RobotDrawable.Robot(
                         referencePlanet.startPoint.point,
                         referencePlanet.startPoint.orientation.opposite(),
-                        true
+                        true,
+                        Random.nextInt()
                 )
                 return
             }
@@ -72,13 +74,15 @@ class PlanetAnimator(private val referencePlanet: Planet) {
                 RobotDrawable.Robot(
                         r.point,
                         next.sourceDirection,
-                        false
+                        false,
+                        r.groupNumber
                 )
             } else {
                 RobotDrawable.Robot(
                         r.point,
                         next.targetDirection,
-                        false
+                        false,
+                        r.groupNumber
                 )
             }
         } else {
@@ -95,13 +99,15 @@ class PlanetAnimator(private val referencePlanet: Planet) {
                 RobotDrawable.Robot(
                         path.target,
                         path.targetDirection,
-                        true
+                        true,
+                        r.groupNumber
                 )
             } else {
                 RobotDrawable.Robot(
                         path.source,
                         path.sourceDirection,
-                        true
+                        true,
+                        r.groupNumber
                 )
             }
         }
