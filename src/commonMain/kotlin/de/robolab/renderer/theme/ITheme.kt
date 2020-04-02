@@ -15,4 +15,10 @@ interface ITheme {
     val lineColor: Color
     val highlightColor: Color
     val editColor: Color
+
+    val robotMainColor: Color
+    val robotDisplayColor: Color
+    val robotWheelColor: Color
+    val robotSensorColor: Color
+    val robotButtonColor: Color
 }

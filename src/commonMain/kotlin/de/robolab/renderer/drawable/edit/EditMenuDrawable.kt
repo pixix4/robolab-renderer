@@ -10,6 +10,7 @@ import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.PointerEvent
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.utils.ITransformation
+import de.robolab.renderer.utils.Transformation
 import de.robolab.renderer.utils.TransformationCanvas
 import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.property.constProperty
@@ -87,6 +88,8 @@ class EditMenuDrawable(
         override val rotation by rotationProperty
 
         override val gridWidth = transformation.gridWidth
+
+        override val pixelPerUnitDimension = Transformation.PIXEL_PER_UNIT_DIMENSION
     }
 
     private var hoveredEntry: MenuEntry? = null

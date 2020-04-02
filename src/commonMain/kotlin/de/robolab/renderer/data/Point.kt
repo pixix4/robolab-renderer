@@ -83,6 +83,7 @@ data class Point(
 
     companion object {
         val ZERO = Point(0.0, 0.0)
+        val ONE = Point(1.0, 1.0)
     }
 }
 

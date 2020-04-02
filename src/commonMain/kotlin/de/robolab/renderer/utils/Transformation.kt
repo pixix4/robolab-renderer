@@ -2,25 +2,31 @@ package de.robolab.renderer.utils
 
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.animation.ValueTransition
+import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.westermann.kobserve.event.EventHandler
 import kotlin.math.PI
 import kotlin.math.max
 import kotlin.math.min
 
-class Transformation : ITransformation {
+class Transformation(
+        initTranslation: Point = Point.ZERO,
+        initScale: Double = 1.0,
+        initRotation: Double = 0.0,
+        override val pixelPerUnitDimension: Dimension = PIXEL_PER_UNIT_DIMENSION
+) : ITransformation {
 
     val onViewChange = EventHandler<Unit>()
 
-    override val translationProperty = ValueTransition(Point.ZERO)
+    override val translationProperty = ValueTransition(initTranslation)
     override val translation by translationProperty
 
     private var rotationCenter = Point.ZERO
-    override val rotationProperty = DoubleTransition(0.0)
+    override val rotationProperty = DoubleTransition(initRotation)
     override val rotation by rotationProperty
 
     private var scaleCenter = Point.ZERO
-    override val scaleProperty = DoubleTransition(1.0)
+    override val scaleProperty = DoubleTransition(initScale)
     override val scale by scaleProperty
 
     override val gridWidth = PIXEL_PER_UNIT
@@ -111,5 +117,6 @@ class Transformation : ITransformation {
 
     companion object {
         const val PIXEL_PER_UNIT: Double = 100.0
+        val PIXEL_PER_UNIT_DIMENSION = Dimension(PIXEL_PER_UNIT, -PIXEL_PER_UNIT)
     }
 }

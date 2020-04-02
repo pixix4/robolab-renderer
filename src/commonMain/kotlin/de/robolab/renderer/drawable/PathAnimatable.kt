@@ -74,12 +74,13 @@ class PathAnimatable(
     }
 
     private fun interpolateLineEnd(pointHelpers: List<PointLengthHelper>, endIndex: Int, targetLength: Double): List<Point> {
-        val p1 = pointHelpers[endIndex - 1]
-        val p2 = pointHelpers[endIndex]
+        val index = if (endIndex >= 1) endIndex else pointHelpers.lastIndex
+        val p1 = pointHelpers[index - 1]
+        val p2 = pointHelpers[index]
 
         val endPoint = p1.point.interpolate(p2.point, (targetLength - p1.length) / (p2.length - p1.length))
 
-        return pointHelpers.take(endIndex).map { it.point } + endPoint
+        return pointHelpers.take(index).map { it.point } + endPoint
     }
 
     private fun interpolate(context: DrawContext) {
@@ -224,7 +225,7 @@ class PathAnimatable(
         if (startPoint.manhattan_distance(position) <= PlottingConstraints.POINT_SIZE / 2 || endPoint.manhattan_distance(position) <= PlottingConstraints.POINT_SIZE / 2) {
             return emptyList()
         }
-        
+
         val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
 
         val points = when (state) {

@@ -43,14 +43,14 @@ class EditPlanetDrawable() : PlanetDrawable() {
 
     override val drawableList = listOf(
             planetBackground,
-            *viewBackground.toTypedArray(),
+            viewBackground,
             editPointDrawable,
-            *planetForeground.toTypedArray(),
+            planetForeground,
             editDrawEndDrawable,
             editPathSelectDrawable,
             editPathDrawable,
             editControlPointsDrawable,
-            *viewForeground.toTypedArray(),
+            viewForeground,
             editMenuDrawable
     )
 

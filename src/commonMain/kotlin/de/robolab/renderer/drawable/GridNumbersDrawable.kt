@@ -1,20 +1,22 @@
 package de.robolab.renderer.drawable
 
-import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.platform.ICanvas
+import de.robolab.renderer.utils.DrawContext
 import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.floor
 
-object GridNumbersDrawable : IDrawable {
+class GridNumbersDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
 
     override fun onUpdate(ms_offset: Double): Boolean {
         return false
     }
 
     override fun onDraw(context: DrawContext) {
+        if (!planetDrawable.drawGridNumbers) return
+
         val fontSize = 16.0
 
         val rectangle = context.area

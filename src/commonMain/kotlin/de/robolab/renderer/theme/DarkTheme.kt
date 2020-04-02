@@ -15,4 +15,10 @@ object DarkTheme : ITheme {
     override val lineColor = Color(255, 255, 255).interpolate(secondaryBackgroundColor, 0.1)
     override val highlightColor = Color(243, 156, 18).interpolate(secondaryBackgroundColor, 0.4)
     override val editColor = Color(46, 204, 113)
+
+    override val robotMainColor = Color(243, 156, 18)
+    override val robotDisplayColor = Color(240, 240, 240)
+    override val robotWheelColor = lineColor
+    override val robotSensorColor = robotWheelColor.interpolate(LightTheme.robotMainColor, 0.1)
+    override val robotButtonColor = Color(49, 31, 4)
 }

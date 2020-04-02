@@ -1,13 +1,15 @@
 package de.robolab.renderer.drawable.base
 
+import de.robolab.renderer.IPlotter
+import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.PointerEvent
 
-abstract class GroupDrawable() : IDrawable {
+open class GroupDrawable(vararg drawables: IDrawable) : IDrawable {
 
-    abstract val drawableList: List<IDrawable>
+    open val drawableList: List<IDrawable> = drawables.toList()
 
     override fun onUpdate(ms_offset: Double): Boolean {
         var hasChanges = false
@@ -90,5 +92,23 @@ abstract class GroupDrawable() : IDrawable {
         }
 
         return false
+    }
+
+    override fun onResize(size: Dimension) {
+        for (drawable in drawableList) {
+            drawable.onResize(size)
+        }
+    }
+
+    override fun onAttach(plotter: IPlotter) {
+        for (drawable in drawableList) {
+            drawable.onAttach(plotter)
+        }
+    }
+
+    override fun onDetach(plotter: IPlotter) {
+        for (drawable in drawableList) {
+            drawable.onDetach(plotter)
+        }
     }
 }

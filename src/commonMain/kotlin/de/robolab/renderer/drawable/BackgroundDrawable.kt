@@ -8,13 +8,14 @@ import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.drawable.base.IPlanetDrawable
 import de.robolab.renderer.drawable.utils.BSpline
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 
 class BackgroundDrawable(
-        private val planetDrawable: PlanetDrawable
+        private val planetDrawable: IPlanetDrawable
 ) : IDrawable {
 
     private val areaTransition = ValueTransition(Rectangle.ZERO)
@@ -38,12 +39,22 @@ class BackgroundDrawable(
         return emptyList()
     }
 
-    fun importPlanet(planet: Planet) {
-        val area = calcPlanetArea(planet)?.expand(1.0)
+    fun importPlanet(vararg planet: Planet) = importPlanet(planet.toList())
+    
+    fun importPlanet(planetList: List<Planet>) {
+        val areaList = planetList.mapNotNull { calcPlanetArea(it)?.expand(1.0) }
+        
+        val area = if (areaList.isEmpty()) {
+            null
+        } else {
+            areaList.reduce { acc, rectangle ->
+                acc.union(rectangle)
+            }
+        }
 
         if (area == null) {
-            areaTransition.animate(centerRect(areaTransition.value), this.planetDrawable.animationTime)
-            alphaTransition.animate(0.0, this.planetDrawable.animationTime)
+            areaTransition.animate(centerRect(areaTransition.value), planetDrawable.animationTime)
+            alphaTransition.animate(0.0, planetDrawable.animationTime)
 
             return
         }

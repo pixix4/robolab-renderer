@@ -22,4 +22,14 @@ data class Path(
 
         return thisP0 == otherP0 && thisP1 == otherP1 || thisP0 == otherP1 && thisP1 == otherP0
     }
+
+    fun reversed(): Path {
+        return copy(
+                source = target,
+                sourceDirection = targetDirection,
+                target = source,
+                targetDirection = sourceDirection,
+                controlPoints = controlPoints.reversed()
+        )
+    }
 }

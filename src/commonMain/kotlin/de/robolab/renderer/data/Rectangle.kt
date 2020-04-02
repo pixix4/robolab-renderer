@@ -30,6 +30,10 @@ data class Rectangle(
             height + 2 * size
     )
     fun shrink(size: Double) = expand(-size)
+    
+    fun union(other: Rectangle): Rectangle {
+        return fromEdges(toEdgeList() + other.toEdgeList())
+    }
 
     override fun interpolate(toValue: Rectangle, progress: Double) = Rectangle(
             left * (1 - progress) + toValue.left * progress,

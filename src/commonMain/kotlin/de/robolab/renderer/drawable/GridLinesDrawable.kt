@@ -6,13 +6,15 @@ import de.robolab.renderer.drawable.base.IDrawable
 import kotlin.math.ceil
 import kotlin.math.floor
 
-object GridLinesDrawable : IDrawable {
+class GridLinesDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
 
     override fun onUpdate(ms_offset: Double): Boolean {
         return false
     }
 
     override fun onDraw(context: DrawContext) {
+        if (!planetDrawable.drawGridLines) return
+
         val fontSize = 16.0
 
         val rectangle = context.area

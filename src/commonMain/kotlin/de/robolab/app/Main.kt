@@ -5,6 +5,7 @@ import de.robolab.file.demoFile
 import de.robolab.file.toFixed
 import de.robolab.model.Coordinate
 import de.robolab.model.Path
+import de.robolab.model.Planet
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.ExportPlotter
 import de.robolab.renderer.data.Dimension
@@ -13,13 +14,14 @@ import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.BackgroundDrawable
 import de.robolab.renderer.drawable.PlanetDrawable
 import de.robolab.renderer.drawable.edit.*
+import de.robolab.renderer.drawable.live.LivePlanetDrawable
 import de.robolab.renderer.platform.CommonTimer
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.theme.DarkTheme
 import de.robolab.renderer.theme.ITheme
 import de.robolab.renderer.theme.LightTheme
-import de.robolab.renderer.utils.Transformation
 import de.robolab.renderer.utils.SvgCanvas
+import de.robolab.renderer.utils.Transformation
 import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.mapBinding
@@ -31,12 +33,14 @@ class Main(val canvas: ICanvas) {
 
     private val timer = CommonTimer(50.0)
     private val plotter = DefaultPlotter(canvas, timer, animationTime = 1000.0)
-    private val planetDrawable = EditPlanetDrawable()
+    private val editPlanetDrawable = EditPlanetDrawable()
+    private val livePlanetDrawable = LivePlanetDrawable()
+    private var planetAnimator = PlanetAnimator(Planet.EMPTY)
 
     private val animationTimer = CommonTimer(1000 / (ANIMATION_TIME * 1.25))
 
     val animateProperty = property(false)
-    val editableProperty = planetDrawable.editableProperty
+    val editableProperty = editPlanetDrawable.editableProperty
     val pointerProperty = plotter.pointerProperty.mapBinding { pointer ->
         val list = mutableListOf<String>()
         list.add("Pointer: ${format(pointer.roundedPosition)}")
@@ -83,7 +87,7 @@ class Main(val canvas: ICanvas) {
     }, themeProperty)
 
     init {
-        plotter.drawable = planetDrawable
+        plotter.drawable = editPlanetDrawable
         plotter.theme = themeProperty.value.theme
         themeProperty.onChange {
             plotter.theme = themeProperty.value.theme
@@ -92,6 +96,12 @@ class Main(val canvas: ICanvas) {
         animateProperty.onChange {
             if (animateProperty.value) {
                 editableProperty.value = false
+
+                plotter.drawable = livePlanetDrawable
+                planetAnimator = PlanetAnimator(planetFile.planet.value)
+                livePlanetDrawable.importForegroundPlanet(planetAnimator.planet, planetAnimator.robot)
+            } else {
+                plotter.drawable = editPlanetDrawable
             }
 
             if (animateProperty.value) {
@@ -106,28 +116,22 @@ class Main(val canvas: ICanvas) {
             }
         }
 
-        planetDrawable.editCallback = planetFile
+        editPlanetDrawable.editCallback = planetFile
 
-        var isUndoPhase = false
 
         animationTimer.onRender {
-            if (isUndoPhase && !planetFile.history.canUndo) {
-                isUndoPhase = false
-            } else if (!isUndoPhase && !planetFile.history.canRedo) {
-                isUndoPhase = true
-            }
-            if (isUndoPhase) {
-                planetFile.history.undo()
-            } else {
-                planetFile.history.redo()
-            }
+            planetAnimator.update()
+            livePlanetDrawable.importForegroundPlanet(planetAnimator.planet, planetAnimator.robot)
         }
 
         planetFile.history.valueProperty.onChange {
-            planetDrawable.importPlanet(planetFile.planet.value)
+            editPlanetDrawable.importPlanet(planetFile.planet.value)
+            livePlanetDrawable.importBackgroundPlanet(planetFile.planet.value)
         }
 
-        planetDrawable.importPlanet(planetFile.planet.value)
+        editPlanetDrawable.importPlanet(planetFile.planet.value)
+        livePlanetDrawable.importBackgroundPlanet(planetFile.planet.value)
+        livePlanetDrawable.importForegroundPlanet(planetAnimator.planet, planetAnimator.robot)
     }
 
     fun exportSVG(): String {
