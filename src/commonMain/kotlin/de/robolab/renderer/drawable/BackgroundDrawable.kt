@@ -73,8 +73,8 @@ class BackgroundDrawable(
         fun calcPlanetArea(planet: Planet): Rectangle? {
             var minX = Double.MAX_VALUE
             var minY = Double.MAX_VALUE
-            var maxX = Double.MIN_VALUE
-            var maxY = Double.MIN_VALUE
+            var maxX = -Double.MAX_VALUE
+            var maxY = -Double.MAX_VALUE
             var found = false
 
             fun update(x: Double, y: Double) {
@@ -86,6 +86,8 @@ class BackgroundDrawable(
             }
 
             for (p in planet.pathList) {
+                if (p.hidden) continue
+
                 update(p.source.x.toDouble(), p.source.y.toDouble())
                 update(p.target.x.toDouble(), p.target.y.toDouble())
 
@@ -102,6 +104,7 @@ class BackgroundDrawable(
                 }
             }
 
+            /*
             for (t in planet.targetList) {
                 update(t.target.x.toDouble(), t.target.y.toDouble())
                 update(t.exposure.x.toDouble(), t.exposure.y.toDouble())
@@ -110,6 +113,7 @@ class BackgroundDrawable(
             for (p in planet.pathSelectList) {
                 update(p.point.x.toDouble(), p.point.y.toDouble())
             }
+             */
 
             if (!found) {
                 return null

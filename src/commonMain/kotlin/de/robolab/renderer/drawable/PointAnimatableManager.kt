@@ -58,14 +58,20 @@ class PointAnimatableManager(
         )
     }
 
+    private fun isPointHidden(point: Coordinate, planet: Planet): Boolean {
+        var hidden = point != planet.startPoint?.point
+        hidden = hidden && planet.pathList.asSequence().filter { it.source == point || it.target == point }.all { it.hidden }
+        return hidden
+    }
+
     override fun getObjectList(planet: Planet): List<AttributePoint> {
         return (
                 planet.pathList.flatMap { listOf(it.source, it.target) + it.exposure } +
                         planet.targetList.flatMap { listOf(it.exposure, it.target) } +
-                        planet.pathSelectList.map { it.point }
+                        planet.pathSelectList.map { it.point } +
+                        listOfNotNull(planet.startPoint?.point)
                 ).distinct().map { point ->
-                    val pathList = planet.pathList.filter { it.source == point || it.target == point }
-                    AttributePoint(point, pathList.all { it.hidden })
+                    AttributePoint(point, isPointHidden(point, planet))
                 }
     }
 

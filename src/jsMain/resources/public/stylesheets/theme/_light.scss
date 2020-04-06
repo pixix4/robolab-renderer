@@ -1,0 +1,33 @@
+$_primary-background: #FBFBFB;
+$_primary-hover-background: #FFFFFF;
+
+$_secondary-background: #EEEEEE;
+$_secondary-hover-background: #F5F5F5;
+
+$_tertiary-background: #E0E0E0;
+$_tertiary-hover-background: #E9E9E9;
+
+$_primary-text-color: #333333;
+
+$_theme-color: #c0392b;
+$_theme-text: #FFFFFF;
+
+$_border-color: #D0D0D0;
+
+:root {
+    --primary-background: #{$_primary-background};
+    --primary-hover-background: #{$_primary-hover-background};
+
+    --secondary-background: #{$_secondary-background};
+    --secondary-hover-background: #{$_secondary-hover-background};
+
+    --tertiary-background: #{$_tertiary-background};
+    --tertiary-hover-background: #{$_tertiary-hover-background};
+
+    --primary-text-color: #{$_primary-text-color};
+
+    --theme-color: #{$_theme-color};
+    --theme-text: #{$_theme-text};
+
+    --border-color: #{$_border-color};
+}

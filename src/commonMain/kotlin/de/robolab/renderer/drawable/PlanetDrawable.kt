@@ -83,6 +83,8 @@ open class PlanetDrawable(
 
             hoveredPaths = newElements
         }
+
+        centerPlanet()
     }
 
     override fun onDetach(plotter: IPlotter) {

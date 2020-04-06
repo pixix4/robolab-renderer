@@ -9,7 +9,7 @@ import de.westermann.kwebview.components.Canvas
 import org.w3c.dom.*
 import kotlin.math.PI
 
-class WebCanvas(private val canvas: Canvas) : ICanvas {
+class WebCanvas(val canvas: Canvas) : ICanvas {
 
     private val context = canvas.context
     private val hammer = Hammer(canvas.html, object {})

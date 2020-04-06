@@ -1,0 +1,52 @@
+@use '../utils';
+
+input, button, a {
+    outline: 0;
+
+    &::-moz-focus-inner {
+        border: 0;
+    }
+}
+
+.button {
+    @include utils.radius;
+    background-color: var(--tertiary-background);
+    border: solid 1px var(--border-color);
+    line-height: 2rem;
+    padding: 0 1rem;
+    font-size: 1rem;
+    margin: 0 0.2rem;
+
+    &:hover {
+        background-color: var(--tertiary-hover-background);
+    }
+
+    &:active, &:focus {
+        background-color: var(--secondary-background);
+    }
+
+    &.active {
+        background-color: var(--primary-background);
+        font-weight: bold;
+        color: var(--theme-color);
+
+        &:hover, &:active, &:focus {
+            background-color: var(--primary-hover-background);
+        }
+    }
+}
+
+.button-group {
+    .button:not(:last-child) {
+        margin-right: 0;
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0;
+    }
+
+    .button:not(:first-child) {
+        margin-left: 0;
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+        border-left: none;
+    }
+}

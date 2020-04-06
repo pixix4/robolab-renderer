@@ -1,0 +1,137 @@
+@use '../utils';
+
+.side-bar {
+    position: absolute;
+    left: calc(-100% + 4rem);
+    top: 0;
+    bottom: 0;
+    width: calc(100% - 4rem);
+    z-index: 2;
+    border-right: solid 1px var(--border-color);
+    user-select: none;
+    transition: left 200ms;
+    background-color: var(--secondary-background);
+
+    &.active {
+        left: 0;
+
+        &::after {
+            content: '';
+            display: block;
+            position: absolute;
+            width: 4rem;
+            height: 100%;
+            top: 0;
+            left: 100%;
+        }
+    }
+}
+
+@include utils.desktop {
+    .side-bar {
+        left: 0;
+        width: 20rem;
+
+        &.active {
+            &::after {
+                content: none;
+            }
+        }
+    }
+}
+
+.side-bar-header {
+    line-height: 3rem;
+    height: 3rem;
+    width: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    border-bottom: solid 1px var(--border-color);
+
+    .button-group {
+        display: flex;
+        margin: 0 0.5rem;
+        align-items: center;
+        align-content: center;
+        height: 3rem;
+
+        .button {
+            flex-grow: 1;
+            flex-shrink: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0;
+        }
+    }
+}
+
+.side-bar-content {
+    position: absolute;
+    top: 3rem;
+    left: 0;
+    width: 100%;
+    bottom: calc(2rem - 1px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.side-bar-footer {
+    height: 2rem;
+    line-height: 1.9rem;
+    border-top: solid 1px var(--border-color);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+    user-select: none;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.side-bar-entry {
+    padding: 0.8rem 1rem;
+    border-bottom: solid 1px var(--border-color);
+
+    .text-view:nth-child(1) {
+        font-weight: bold;
+        display: block;
+    }
+    .text-view:nth-child(2) {
+        display: block;
+        font-size: 0.8rem;
+    }
+
+    &:hover {
+        background-color: var(--secondary-hover-background);
+    }
+
+    &.active {
+        background-color: var(--primary-background);
+
+        &:hover {
+            background-color: var(--primary-hover-background);
+        }
+    }
+}
+
+.side-bar-empty {
+    position: absolute;
+    top: 3rem;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+    display: none;
+    align-content: center;
+    align-items: center;
+
+    .text-view {
+        flex-grow: 1;
+        text-align: center;
+    }
+}
+
+.side-bar-content:empty ~ .side-bar-empty {
+    display: flex;
+}

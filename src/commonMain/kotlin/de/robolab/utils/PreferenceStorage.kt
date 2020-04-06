@@ -1,6 +1,7 @@
 package de.robolab.utils
 
-import de.robolab.app.Main
+import de.robolab.app.controller.SideBarController
+import de.robolab.renderer.theme.Theme
 import de.westermann.kobserve.Binding
 import de.westermann.kobserve.Property
 import de.westermann.kobserve.event.EventHandler
@@ -8,11 +9,13 @@ import de.westermann.kobserve.event.EventHandler
 object PreferenceStorage {
     private val storage = KeyValueStorage()
 
-    val selectedThemeProperty = item("THEME", Main.Theme.LIGHT)
+    val selectedThemeProperty = item("THEME", Theme.LIGHT)
     var selectedTheme by selectedThemeProperty
 
     val exportScaleProperty = item("EXPORT_SCALE", 4.0)
     var exportScale by exportScaleProperty
+
+    val selectedSideBarTab = item("SIDE_BAR_TAB", SideBarController.Tab.FILE)
 
     private abstract class Item<T>(private val key: String, private val default: T) : Property<T> {
         abstract fun serialize(value: T): String?

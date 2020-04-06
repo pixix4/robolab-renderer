@@ -1,4 +1,4 @@
-package de.robolab.file
+package de.robolab.app.model.file
 
 import de.robolab.model.*
 import de.robolab.renderer.data.Point

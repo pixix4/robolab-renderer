@@ -1,6 +1,6 @@
 package de.robolab.renderer.utils
 
-import de.robolab.file.toFixed
+import de.robolab.app.model.file.toFixed
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle

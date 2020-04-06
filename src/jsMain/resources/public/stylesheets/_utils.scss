@@ -1,0 +1,9 @@
+@mixin desktop {
+    @media only screen and (min-width: 800px) {
+        @content
+    }
+}
+
+@mixin radius {
+    border-radius: 0.3rem;
+}

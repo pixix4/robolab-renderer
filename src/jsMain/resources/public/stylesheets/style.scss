@@ -1,107 +1,20 @@
-html {
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-}
+@use 'theme/_light';
 
-body {
-    background: #eee;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    font-family: Roboto, Arial, sans-serif;
-    overflow: hidden;
-}
+@use 'components/_exports';
 
-* {
-    box-sizing: border-box;
-}
-
-.toolbar {
-    height: 3rem;
-    line-height: 2.9rem;
-    border-bottom: solid 2px #ccc;
-    position: absolute;
+body, html {
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 1;
-    user-select: none;
-    overflow-x: auto;
-    white-space: nowrap;
-
-    input[type="checkbox"] {
-        display: none;
-    }
-
-    label, button {
-        line-height: 2rem;
-        padding: 0 1rem;
-        border: solid 1px #ddd;
-        display: inline-block;
-        margin-left: 0.5rem;
-        background-color: #f3f3f3;
-        font-size: 1rem;
-        font-weight: normal;
-        font-family: Roboto, Arial, sans-serif;
-    }
-
-    input[type="checkbox"]:checked + label {
-        background: darkturquoise;
-    }
-
-    .divider {
-        height: 2rem;
-        line-height: 2rem;
-        width: 0;
-        display: inline-block;
-        border-right: solid 1px #ccc;
-        margin-left: 0.5rem;
-        color: transparent;
-    }
-
-    .group {
-        margin-left: 0;
-        border-left: none;
-    }
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    color: var(--primary-text-color);
+    background: var(--secondary-background);
+    font-family: Roboto, sans-serif;
+    overscroll-behavior-y: contain;
 }
-
-.main {
-    position: absolute;
-    top: 3rem;
-    bottom: 2.5rem;
-    left: 0;
-    width: 100%;
-    user-select: none;
-
-    canvas {
-        width: 100%;
-        height: 100%;
-    }
-}
-
-.statusbar {
-    height: 2.5rem;
-    line-height: 2.4rem;
-    border-top: solid 2px #ccc;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1;
-    user-select: none;
-    overflow-x: auto;
-    white-space: nowrap;
-
-    .text-view {
-        background-color: #fff;
-        height: 1.5rem;
-        line-height: 1.5rem;
-        border-radius: 0.75rem;
-        padding: 0 0.5rem;
-        display: inline-block;
-        margin-left: 0.5rem;
-    }
+* {
+    box-sizing: border-box;
 }
