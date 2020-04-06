@@ -9,35 +9,6 @@ import javafx.collections.ObservableList
 import javafx.collections.ObservableListBase
 import tornadofx.*
 
-/*
-open class FxObservable<T>(private val prop: ObservableValue<T>) : ReadOnlyProperty<T> {
-    override val onChange = EventHandler<Unit>()
-
-    override fun get(): T {
-        return prop.value
-    }
-
-    init {
-        prop.addListener { _ ->
-            onChange.emit(Unit)
-        }
-    }
-}
-
-fun <T> ObservableValue<T>.toReadOnlyProperty(): ReadOnlyProperty<T> = FxObservable(this)
-
-class FxProperty<T>(private val prop: javafx.beans.property.Property<T>) : FxObservable<T>(prop), Property<T> {
-    override fun set(value: T) {
-        super.set(value)
-        prop.value = value
-    }
-
-    override var binding: Binding<T> = Binding.Unbound()
-}
-
-fun <T> javafx.beans.property.Property<T>.toProperty(): Property<T> = FxProperty(this)
-*/
-
 class FxObservableValue<T>(private val property: ReadOnlyProperty<T>) : ObservableValueBase<T>() {
     override fun getValue(): T {
         return property.value

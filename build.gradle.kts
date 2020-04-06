@@ -145,7 +145,7 @@ tasks.create<com.moowork.gradle.node.task.NodeTask>("jsRun") {
 }
 
 node {
-    download = true
+    download = false
     workDir = file("${project.projectDir}/build/node")
     npmWorkDir = file("${project.projectDir}/web")
     nodeModulesDir = file("${project.projectDir}/web")
