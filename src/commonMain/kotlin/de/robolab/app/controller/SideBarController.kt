@@ -22,7 +22,7 @@ class SideBarController(
         when (tabProperty.value) {
             Tab.GROUP -> observableListOf()
             Tab.PLANET -> observableListOf()
-            Tab.FILE -> filePlanetProvider.planetList
+            Tab.FILE -> filePlanetProvider.sortedPlanetList
         }
     }
 

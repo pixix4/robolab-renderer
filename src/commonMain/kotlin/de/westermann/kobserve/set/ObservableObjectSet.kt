@@ -3,7 +3,7 @@ package de.westermann.kobserve.set
 import de.westermann.kobserve.event.EventHandler
 
 class ObservableObjectSet<T>(
-    private val set: MutableSet<T>
+        private val set: MutableSet<T>
 ) : ObservableSet<T> {
 
     override val onAdd = EventHandler<T>()
@@ -91,8 +91,6 @@ class ObservableObjectSet<T>(
     override fun retainAll(elements: Collection<T>): Boolean {
         var isChanged = false
 
-        var index = 0
-
         val iterator = set.iterator()
         while (iterator.hasNext()) {
             val element = iterator.next()
@@ -162,4 +160,4 @@ class ObservableObjectSet<T>(
 fun <T> setProperty(set: MutableSet<T>): ObservableSet<T> = ObservableObjectSet(set)
 fun <T> MutableSet<T>.observe(): ObservableSet<T> = ObservableObjectSet(this)
 fun <T> observableSetOf(vararg elements: T): ObservableSet<T> =
-    ObservableObjectSet(mutableSetOf(*elements))
+        ObservableObjectSet(mutableSetOf(*elements))
