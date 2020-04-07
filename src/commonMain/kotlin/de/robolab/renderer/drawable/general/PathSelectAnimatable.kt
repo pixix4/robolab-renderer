@@ -1,16 +1,17 @@
-package de.robolab.renderer.drawable
+package de.robolab.renderer.drawable.general
 
 import de.robolab.model.Direction
 import de.robolab.model.PathSelect
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.Animatable
+import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.utils.DrawContext
 
 class PathSelectAnimatable(
         reference: PathSelect,
-        private val planetDrawable: PlanetDrawable
+        private val animationTime: IAnimationTime
 ) : Animatable<PathSelect>(reference) {
 
     private val position = Point(reference.point.x.toDouble(), reference.point.y.toDouble())
@@ -47,7 +48,7 @@ class PathSelectAnimatable(
         newDirections = emptyList()
 
         transition.resetValue(0.0)
-        transition.animate(1.0, planetDrawable.animationTime / 2, 0.0)
+        transition.animate(1.0, animationTime.animationTime / 2, 0.0)
         transition.onFinish.clearListeners()
         transition.onFinish {
             onFinish()
@@ -56,7 +57,7 @@ class PathSelectAnimatable(
 
     override fun startEnterAnimation(onFinish: () -> Unit) {
         transition.resetValue(0.0)
-        transition.animate(1.0, planetDrawable.animationTime / 2, planetDrawable.animationTime / 2)
+        transition.animate(1.0, animationTime.animationTime / 2, animationTime.animationTime / 2)
         transition.onFinish.clearListeners()
         transition.onFinish {
             onFinish()
@@ -68,6 +69,6 @@ class PathSelectAnimatable(
         oldDirections = newDirections
         newDirections = listOf(obj.direction)
 
-        transition.animate(1.0, planetDrawable.animationTime / 2, planetDrawable.animationTime / 4)
+        transition.animate(1.0, animationTime.animationTime / 2, animationTime.animationTime / 4)
     }
 }

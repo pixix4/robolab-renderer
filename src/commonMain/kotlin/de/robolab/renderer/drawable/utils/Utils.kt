@@ -2,7 +2,7 @@ package de.robolab.renderer.drawable.utils
 
 import de.robolab.model.Coordinate
 import de.robolab.model.Direction
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.model.TargetPoint
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Color

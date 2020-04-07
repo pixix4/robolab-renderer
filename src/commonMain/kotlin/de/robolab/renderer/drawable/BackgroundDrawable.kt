@@ -1,21 +1,22 @@
 package de.robolab.renderer.drawable
 
-import de.robolab.model.Planet
-import de.robolab.renderer.utils.DrawContext
+import de.robolab.planet.Planet
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
+import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.base.IDrawable
-import de.robolab.renderer.drawable.base.IPlanetDrawable
+import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.drawable.utils.BSpline
+import de.robolab.renderer.utils.DrawContext
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 
 class BackgroundDrawable(
-        private val planetDrawable: IPlanetDrawable
+        private val planetDrawable: IAnimationTime
 ) : IDrawable {
 
     private val areaTransition = ValueTransition(Rectangle.ZERO)
@@ -40,17 +41,9 @@ class BackgroundDrawable(
     }
 
     fun importPlanet(vararg planet: Planet) = importPlanet(planet.toList())
-    
+
     fun importPlanet(planetList: List<Planet>) {
-        val areaList = planetList.mapNotNull { calcPlanetArea(it)?.expand(1.0) }
-        
-        val area = if (areaList.isEmpty()) {
-            null
-        } else {
-            areaList.reduce { acc, rectangle ->
-                acc.union(rectangle)
-            }
-        }
+        val area = calcPlanetArea(planetList)?.expand(1.0)
 
         if (area == null) {
             areaTransition.animate(centerRect(areaTransition.value), planetDrawable.animationTime)
@@ -68,8 +61,19 @@ class BackgroundDrawable(
     }
 
     private fun centerRect(rectangle: Rectangle) = Rectangle.fromEdges(rectangle.center)
-    
+
     companion object {
+        fun calcPlanetArea(planetList: List<Planet>): Rectangle? {
+            val areaList = planetList.mapNotNull { calcPlanetArea(it) }
+            return if (areaList.isEmpty()) {
+                null
+            } else {
+                areaList.reduce { acc, rectangle ->
+                    acc.union(rectangle)
+                }
+            }
+        }
+        
         fun calcPlanetArea(planet: Planet): Rectangle? {
             var minX = Double.MAX_VALUE
             var minY = Double.MAX_VALUE
@@ -103,17 +107,6 @@ class BackgroundDrawable(
                     update(c.left, c.top)
                 }
             }
-
-            /*
-            for (t in planet.targetList) {
-                update(t.target.x.toDouble(), t.target.y.toDouble())
-                update(t.exposure.x.toDouble(), t.exposure.y.toDouble())
-            }
-
-            for (p in planet.pathSelectList) {
-                update(p.point.x.toDouble(), p.point.y.toDouble())
-            }
-             */
 
             if (!found) {
                 return null

@@ -1,6 +1,6 @@
 package de.robolab.app
 
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.renderer.drawable.live.RobotDrawable
 import kotlin.random.Random
 

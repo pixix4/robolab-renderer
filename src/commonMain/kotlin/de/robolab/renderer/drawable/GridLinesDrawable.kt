@@ -1,20 +1,18 @@
 package de.robolab.renderer.drawable
 
-import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.utils.DrawContext
 import kotlin.math.ceil
 import kotlin.math.floor
 
-class GridLinesDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
+object GridLinesDrawable : IDrawable {
 
     override fun onUpdate(ms_offset: Double): Boolean {
         return false
     }
 
     override fun onDraw(context: DrawContext) {
-        if (!planetDrawable.drawGridLines) return
-
         val rectangle = context.area
 
         val startTop = ceil(rectangle.top).toInt()

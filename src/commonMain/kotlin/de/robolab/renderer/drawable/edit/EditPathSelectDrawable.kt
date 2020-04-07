@@ -2,12 +2,15 @@ package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Coordinate
 import de.robolab.model.Direction
-import de.robolab.model.Planet
+import de.robolab.model.Path
+import de.robolab.planet.Planet
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.PathSelectAnimatableManager
+import de.robolab.renderer.drawable.general.PathSelectAnimatableManager
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.drawable.base.selectedElement
+import de.robolab.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.renderer.platform.PointerEvent
 import kotlin.math.abs
 
@@ -47,7 +50,7 @@ class EditPathSelectDrawable(
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
         if (!editPlanetDrawable.editable) return emptyList()
 
-        val selectedPoint = editPlanetDrawable.selectedPoint ?: return emptyList()
+        val selectedPoint = editPlanetDrawable.selectedElement<Coordinate>() ?: return emptyList()
 
         val dx = abs(position.left - selectedPoint.x)
         val dy = abs(position.top - selectedPoint.y)

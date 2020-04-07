@@ -4,11 +4,12 @@ import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.utils.Transformation
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.renderer.platform.PointerEvent
 import kotlin.math.PI
 import kotlin.math.round
 
-class CompassDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
+class CompassDrawable(private val planetDrawable: AbsPlanetDrawable) : IDrawable {
 
     override fun onUpdate(ms_offset: Double): Boolean {
         return false
@@ -17,8 +18,6 @@ class CompassDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
     private val transformation = Transformation()
 
     override fun onDraw(context: DrawContext) {
-        if (!planetDrawable.drawCompass) return
-        
         val center = Point(context.width - RIGHT_PADDING, TOP_PADDING)
         context.canvas.fillArc(
                 center,
@@ -53,8 +52,6 @@ class CompassDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
     }
 
     override fun onPointerDown(event: PointerEvent): Boolean {
-        if (!planetDrawable.drawCompass) return false
-
         val compassCenter = Point(
                 event.screen.width - RIGHT_PADDING,
                 TOP_PADDING
@@ -64,8 +61,6 @@ class CompassDrawable(private val planetDrawable: PlanetDrawable) : IDrawable {
     }
 
     override fun onPointerUp(event: PointerEvent): Boolean {
-        if (!planetDrawable.drawCompass) return false
-
         val compassCenter = Point(
                 event.screen.width - RIGHT_PADDING,
                 TOP_PADDING

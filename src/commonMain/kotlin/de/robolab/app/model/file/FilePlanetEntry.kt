@@ -5,8 +5,8 @@ import de.robolab.renderer.ExportPlotter
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.BackgroundDrawable
-import de.robolab.renderer.drawable.PlanetDrawable
-import de.robolab.renderer.drawable.edit.EditPlanetDrawable
+import de.robolab.renderer.drawable.planet.EditPlanetDrawable
+import de.robolab.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.SvgCanvas
 import de.robolab.renderer.utils.Transformation
@@ -72,7 +72,9 @@ class FilePlanetEntry(private val filename: String, content: String) : IPlottabl
     }
 
     private fun exportRender(canvas: ICanvas) {
-        val drawable = PlanetDrawable(drawCompass = false, drawName = true)
+        val drawable = SimplePlanetDrawable()
+        drawable.drawCompass = false
+        drawable.drawName = true
         drawable.importPlanet(planetFile.planet.value)
 
         val plotter = ExportPlotter(canvas, drawable)
@@ -95,5 +97,5 @@ class FilePlanetEntry(private val filename: String, content: String) : IPlottabl
 }
 
 expect fun exportPNGCanvas(dimension: Dimension): ICanvas
-expect fun saveExportSVG(name:String, content: String)
-expect fun saveExportPNG(name:String, canvas: ICanvas)
+expect fun saveExportSVG(name: String, content: String)
+expect fun saveExportPNG(name: String, canvas: ICanvas)

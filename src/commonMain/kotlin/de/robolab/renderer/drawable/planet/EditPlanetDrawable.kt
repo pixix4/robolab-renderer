@@ -1,15 +1,17 @@
-package de.robolab.renderer.drawable.edit
+package de.robolab.renderer.drawable.planet
 
-import de.robolab.model.Planet
-import de.robolab.renderer.utils.Pointer
-import de.robolab.renderer.drawable.PathAnimatable
-import de.robolab.renderer.drawable.PlanetDrawable
+import de.robolab.model.Path
+import de.robolab.planet.Planet
+import de.robolab.renderer.drawable.base.selectedElement
+import de.robolab.renderer.drawable.edit.*
+import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
+import de.robolab.renderer.utils.Pointer
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
-class EditPlanetDrawable() : PlanetDrawable() {
+class EditPlanetDrawable() : AbsPlanetDrawable() {
 
     var editCallback: IEditCallback = object : IEditCallback {}
 
@@ -33,32 +35,24 @@ class EditPlanetDrawable() : PlanetDrawable() {
         menu = menu(pointer.position, name, init)
     }
 
-    private val selectedPathControlPointsProperty = selectedPathProperty.mapBinding { nullablePath ->
-        val path = nullablePath ?: return@mapBinding null
+    private val selectedPathControlPointsProperty = selectedElementsProperty.mapBinding {
+        val path = selectedElement<Path>() ?: return@mapBinding null
 
         PathAnimatable.getControlPointsFromPath(path)
     }
     val selectedPathControlPoints by selectedPathControlPointsProperty
     var selectedPointEnd: EditDrawEndDrawable.PointEnd? = null
 
-    override val drawableList = listOf(
-            planetBackground,
-            viewBackground,
-            editPointDrawable,
-            planetForeground,
-            editDrawEndDrawable,
-            editPathSelectDrawable,
-            editPathDrawable,
-            editControlPointsDrawable,
-            viewForeground,
-            editMenuDrawable
-    )
+    private val planetLayer = PlanetLayer(this)
 
-    override fun importPlanet(planet: Planet) {
-        super.importPlanet(planet)
+    fun importPlanet(planet: Planet) {
+        planetLayer.importPlanet(planet)
+
         editPointDrawable.importPlanet(planet)
         editDrawEndDrawable.importPlanet(planet)
         editPathSelectDrawable.importPlanet(planet)
+
+        importPlanets()
     }
 
     init {
@@ -69,6 +63,21 @@ class EditPlanetDrawable() : PlanetDrawable() {
                 editPointDrawable.startExitAnimation { }
             }
         }
+
+
+        buildDrawableList(
+                planetLayers = listOf(
+                        planetLayer
+                ),
+                overlays = listOf(
+                        editPointDrawable,
+                        editDrawEndDrawable,
+                        editPathSelectDrawable,
+                        editPathDrawable,
+                        editControlPointsDrawable,
+                        editMenuDrawable
+                )
+        )
     }
 
     override fun onKeyPress(event: KeyEvent): Boolean {

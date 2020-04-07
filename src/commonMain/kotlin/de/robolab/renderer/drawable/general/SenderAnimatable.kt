@@ -1,12 +1,13 @@
-package de.robolab.renderer.drawable
+package de.robolab.renderer.drawable.general
 
 import de.robolab.model.Coordinate
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.Animatable
+import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.utils.Utils
 import de.robolab.renderer.utils.DrawContext
 import kotlin.math.PI
@@ -15,7 +16,7 @@ import kotlin.math.max
 class SenderAnimatable(
         reference: Coordinate,
         colors: List<Color>,
-        private val planetDrawable: PlanetDrawable
+        private val animationTime: IAnimationTime
 ) : Animatable<Coordinate>(reference) {
 
     private val position = Point(reference.x.toDouble(), reference.y.toDouble())
@@ -72,7 +73,7 @@ class SenderAnimatable(
         newColors = emptyList()
 
         transition.resetValue(0.0)
-        transition.animate(1.0, planetDrawable.animationTime / 2, planetDrawable.animationTime / 2)
+        transition.animate(1.0, animationTime.animationTime / 2, animationTime.animationTime / 2)
         transition.onFinish.clearListeners()
         transition.onFinish {
             onFinish()
@@ -81,7 +82,7 @@ class SenderAnimatable(
 
     override fun startEnterAnimation(onFinish: () -> Unit) {
         transition.resetValue(0.0)
-        transition.animate(1.0, planetDrawable.animationTime / 2, planetDrawable.animationTime / 2)
+        transition.animate(1.0, animationTime.animationTime / 2, animationTime.animationTime / 2)
         transition.onFinish.clearListeners()
         transition.onFinish {
             onFinish()
@@ -94,7 +95,7 @@ class SenderAnimatable(
         }
 
         transition.resetValue(0.0)
-        transition.animate(1.0, planetDrawable.animationTime / 2, planetDrawable.animationTime / 4)
+        transition.animate(1.0, animationTime.animationTime / 2, animationTime.animationTime / 4)
 
 
         oldColors = newColors

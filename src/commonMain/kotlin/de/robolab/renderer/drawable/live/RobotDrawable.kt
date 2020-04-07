@@ -3,16 +3,16 @@ package de.robolab.renderer.drawable.live
 import de.robolab.model.Coordinate
 import de.robolab.model.Direction
 import de.robolab.model.Path
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.animation.IInterpolatable
 import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
-import de.robolab.renderer.drawable.PathAnimatable
+import de.robolab.renderer.drawable.base.IAnimationTime
+import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.drawable.base.IDrawable
-import de.robolab.renderer.drawable.base.IPlanetDrawable
 import de.robolab.renderer.drawable.utils.BSpline
 import de.robolab.renderer.drawable.utils.SegmentDrawer
 import de.robolab.renderer.drawable.utils.shift
@@ -22,7 +22,7 @@ import kotlin.math.absoluteValue
 import kotlin.math.atan2
 
 class RobotDrawable(
-        private val planetDrawable: IPlanetDrawable
+        private val planetDrawable: IAnimationTime
 ) : IDrawable {
 
     data class Robot(

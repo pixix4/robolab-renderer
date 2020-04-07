@@ -2,14 +2,16 @@ package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Coordinate
 import de.robolab.model.Direction
-import de.robolab.model.Planet
-import de.robolab.renderer.utils.DrawContext
+import de.robolab.planet.Planet
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.drawable.base.selectedElement
+import de.robolab.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.PointerEvent
+import de.robolab.renderer.utils.DrawContext
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -83,7 +85,7 @@ class EditDrawEndDrawable(
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
         if (!editPlanetDrawable.editable) return emptyList()
 
-        if (editPlanetDrawable.selectedPoint != null) {
+        if (editPlanetDrawable.selectedElement<Coordinate>() != null) {
             return emptyList()
         }
 

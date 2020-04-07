@@ -1,6 +1,6 @@
 package de.robolab.renderer.drawable.base
 
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.renderer.animation.GenericTransition
 
 abstract class Animatable<T>(

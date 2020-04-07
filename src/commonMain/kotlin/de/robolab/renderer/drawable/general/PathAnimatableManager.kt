@@ -1,11 +1,12 @@
-package de.robolab.renderer.drawable
+package de.robolab.renderer.drawable.general
 
 import de.robolab.model.Path
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.renderer.drawable.base.AnimatableManager
+import de.robolab.renderer.drawable.base.IAnimationTime
 
 class PathAnimatableManager(
-        private val planetDrawable: PlanetDrawable
+        private val animationTime: IAnimationTime
 ) : AnimatableManager<Path, PathAnimatable>() {
 
     override fun getObjectList(planet: Planet): List<Path> {
@@ -17,7 +18,7 @@ class PathAnimatableManager(
     }
 
     override fun createAnimatable(obj: Path, planet: Planet): PathAnimatable {
-        return PathAnimatable(obj, planetDrawable, planet)
+        return PathAnimatable(obj, animationTime, planet)
     }
 
     override fun importPlanet(planet: Planet) {

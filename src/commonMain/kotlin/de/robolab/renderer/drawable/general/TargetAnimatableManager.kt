@@ -1,13 +1,14 @@
-package de.robolab.renderer.drawable
+package de.robolab.renderer.drawable.general
 
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.model.TargetPoint
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.drawable.base.AnimatableManager
+import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.utils.Utils
 
 class TargetAnimatableManager(
-        private val planetDrawable: PlanetDrawable
+        private val animationTime: IAnimationTime
 ) : AnimatableManager<TargetPoint, TargetAnimatable>() {
 
     override fun getObjectList(planet: Planet): List<TargetPoint> {
@@ -24,7 +25,7 @@ class TargetAnimatableManager(
         return TargetAnimatable(
                 obj,
                 color ?: Color.TRANSPARENT,
-                planetDrawable
+                animationTime
         )
     }
 }

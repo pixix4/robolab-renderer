@@ -1,11 +1,14 @@
 package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Direction
+import de.robolab.model.Path
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.PathAnimatable
+import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.drawable.base.selectedElement
+import de.robolab.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.renderer.drawable.utils.BSpline
 import de.robolab.renderer.drawable.utils.Curve
 import de.robolab.renderer.platform.KeyCode
@@ -71,7 +74,7 @@ class EditDrawPathDrawable(
 
         when (event.keyCode) {
             KeyCode.DELETE -> {
-                val path = editPlanetDrawable.selectedPath ?: return false
+                val path = editPlanetDrawable.selectedElement<Path>() ?: return false
 
                 val cp = editPlanetDrawable.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>()
                 if (cp == null || cp.newPoint != null) {

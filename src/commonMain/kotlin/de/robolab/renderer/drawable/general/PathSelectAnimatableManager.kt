@@ -1,21 +1,21 @@
-package de.robolab.renderer.drawable
+package de.robolab.renderer.drawable.general
 
 import de.robolab.model.Direction
 import de.robolab.model.PathSelect
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.AnimatableManager
+import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.live.toAngle
-import kotlin.math.PI
 
 class PathSelectAnimatableManager(
-        private val planetDrawable: PlanetDrawable
+        private val animationTime: IAnimationTime
 ) : AnimatableManager<PathSelect, PathSelectAnimatable>() {
 
     override fun getObjectList(planet: Planet) = planet.pathSelectList
 
-    override fun createAnimatable(obj: PathSelect, planet: Planet) = PathSelectAnimatable(obj, planetDrawable)
+    override fun createAnimatable(obj: PathSelect, planet: Planet) = PathSelectAnimatable(obj, animationTime)
 
     companion object {
         fun getArrow(position: Point, direction: Direction): List<Point> {

@@ -4,8 +4,10 @@ import de.robolab.model.Path
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.PathAnimatable
+import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.drawable.base.selectedElement
+import de.robolab.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.renderer.drawable.utils.BSpline
 import de.robolab.renderer.drawable.utils.Curve
 import de.robolab.renderer.drawable.utils.Utils
@@ -50,7 +52,7 @@ class EditControlPointsDrawable(
 
     override fun onDraw(context: DrawContext) {
         val controlPoints = editPlanetDrawable.selectedPathControlPoints ?: return
-        val path = editPlanetDrawable.selectedPath ?: return
+        val path = editPlanetDrawable.selectedElement<Path>() ?: return
         
         val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 
@@ -85,7 +87,7 @@ class EditControlPointsDrawable(
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
         if (!editPlanetDrawable.editable) return emptyList()
 
-        val path = editPlanetDrawable.selectedPath ?: return emptyList()
+        val path = editPlanetDrawable.selectedElement<Path>() ?: return emptyList()
         val controlPoints = editPlanetDrawable.selectedPathControlPoints ?: return emptyList()
         val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 
@@ -154,7 +156,7 @@ class EditControlPointsDrawable(
         if (!editPlanetDrawable.editable) return false
 
         val (_, indexP) = selectedControlPoint ?: return false
-        val path = editPlanetDrawable.selectedPath ?: return false
+        val path = editPlanetDrawable.selectedElement<Path>() ?: return false
         val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 
         val allControlPoints = editPlanetDrawable.selectedPathControlPoints ?: return false
@@ -197,7 +199,7 @@ class EditControlPointsDrawable(
 
         when (event.keyCode) {
             KeyCode.DELETE -> {
-                val path = editPlanetDrawable.selectedPath ?: return false
+                val path = editPlanetDrawable.selectedElement<Path>() ?: return false
                 val (_, indexP) = selectedControlPoint ?: return false
                 val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 

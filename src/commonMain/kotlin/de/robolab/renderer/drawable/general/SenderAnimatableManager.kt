@@ -1,12 +1,13 @@
-package de.robolab.renderer.drawable
+package de.robolab.renderer.drawable.general
 
 import de.robolab.model.Coordinate
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.renderer.drawable.base.AnimatableManager
+import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.utils.Utils
 
 class SenderAnimatableManager(
-        private val planetDrawable: PlanetDrawable
+        private val animationTime: IAnimationTime
 ) : AnimatableManager<Coordinate, SenderAnimatable>() {
 
     override fun getObjectList(planet: Planet): List<Coordinate> {
@@ -20,6 +21,6 @@ class SenderAnimatableManager(
 
         val colors = senderGrouping.filterKeys { obj in it }.values.toList()
 
-        return SenderAnimatable(obj, colors, planetDrawable)
+        return SenderAnimatable(obj, colors, animationTime)
     }
 }

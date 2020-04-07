@@ -1,14 +1,15 @@
-package de.robolab.renderer.drawable
+package de.robolab.renderer.drawable.general
 
 import de.robolab.model.Direction
 import de.robolab.model.Path
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.base.Animatable
+import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.utils.*
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.DrawContext
@@ -17,7 +18,7 @@ import kotlin.math.max
 
 class PathAnimatable(
         reference: Path,
-        private val planetDrawable: PlanetDrawable,
+        private val animationTime: IAnimationTime,
         planet: Planet
 ) : Animatable<Path>(reference) {
 
@@ -52,7 +53,7 @@ class PathAnimatable(
     }
 
     private fun multiEval(count: Int): List<Point> {
-        return Companion.multiEval(count, controlPoints, startPoint, evalEndPoint, this::eval)
+        return multiEval(count, controlPoints, startPoint, evalEndPoint, this::eval)
     }
 
     data class PointLengthHelper(
@@ -86,7 +87,7 @@ class PathAnimatable(
     private fun interpolate(context: DrawContext) {
         val steps = ((distance * context.transformation.scaledGridWidth) / 5).toInt()
 
-        val isHover = reference in this.planetDrawable.hoveredPaths || reference == this.planetDrawable.selectedPath
+        val isHover = reference in this.animationTime.selectedElements
 
         val oc = oldColor ?: context.theme.lineColor
         val nc = newColor ?: context.theme.lineColor
@@ -257,7 +258,7 @@ class PathAnimatable(
 
     override fun startExitAnimation(onFinish: () -> Unit) {
         state = State.REMOVE
-        transition.animate(0.0, planetDrawable.animationTime / 3)
+        transition.animate(0.0, animationTime.animationTime / 3)
         transition.onFinish.clearListeners()
         transition.onFinish {
             state = State.NONE
@@ -267,7 +268,7 @@ class PathAnimatable(
 
     override fun startEnterAnimation(onFinish: () -> Unit) {
         state = State.DRAW
-        transition.animate(1.0, planetDrawable.animationTime)
+        transition.animate(1.0, animationTime.animationTime)
         transition.onFinish.clearListeners()
         transition.onFinish {
             state = State.NONE
@@ -283,8 +284,8 @@ class PathAnimatable(
         oldColor = newColor
         newColor = getColor(planet, obj)
         colorTransition.resetValue(0.0)
-        colorTransition.animate(1.0, planetDrawable.animationTime)
-        hiddenTransition.animate(if (reference.hidden) 1.0 else 0.0, planetDrawable.animationTime)
+        colorTransition.animate(1.0, animationTime.animationTime)
+        hiddenTransition.animate(if (reference.hidden) 1.0 else 0.0, animationTime.animationTime)
 
         area = Rectangle.fromEdges(startPoint, endPoint, *controlPoints.toTypedArray())
         distance = controlPoints.windowed(2, 1).sumByDouble { (p1, p2) ->

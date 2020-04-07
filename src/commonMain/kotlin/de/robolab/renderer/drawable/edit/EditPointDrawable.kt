@@ -3,13 +3,15 @@ package de.robolab.renderer.drawable.edit
 import de.robolab.model.Coordinate
 import de.robolab.model.Direction
 import de.robolab.model.Path
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.drawable.base.selectedElement
+import de.robolab.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.renderer.platform.PointerEvent
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -55,7 +57,7 @@ class EditPointDrawable(
                 .interpolate(context.theme.secondaryBackgroundColor, COLOR_OPACITY)
                 .a(alphaTransition.value)
 
-        val selectedPoint = editPlanetDrawable.selectedPoint
+        val selectedPoint = editPlanetDrawable.selectedElement<Coordinate>()
 
         for (x in floor(context.area.left).toInt()..ceil(context.area.right).toInt()) {
             for (y in floor(context.area.top).toInt()..ceil(context.area.bottom).toInt()) {
@@ -144,7 +146,7 @@ class EditPointDrawable(
         val currentPath = editPlanetDrawable.pointer.findObjectUnderPointer<Path>()
         val pointSelect = editPlanetDrawable.pointer.findObjectUnderPointer<EditPathSelectDrawable.PointSelect>()
 
-        val selectedPoint = editPlanetDrawable.selectedPoint
+        val selectedPoint = editPlanetDrawable.selectedElement<Coordinate>()
         if (selectedPoint != null && (event.ctrlKey || event.altKey)) {
             if (currentPoint != null) {
                 editPlanetDrawable.editCallback.toggleTargetExposure(currentPoint, selectedPoint)
@@ -154,12 +156,14 @@ class EditPointDrawable(
             return true
         } else {
             if (pointSelect == null) {
-                editPlanetDrawable.selectedPoint = currentPoint
-                editPlanetDrawable.selectedPath = if (editPlanetDrawable.selectedPoint == null) {
-                    currentPath
-                } else {
-                    null
-                }
+                editPlanetDrawable.selectedElements = listOfNotNull(
+                        currentPoint,
+                        if (editPlanetDrawable.selectedElement<Coordinate>() == null) {
+                            currentPath
+                        } else {
+                            null
+                        }
+                )
             }
         }
 
@@ -271,7 +275,7 @@ class EditPointDrawable(
     private fun showControlPointContextMenu(controlPoint: EditControlPointsDrawable.ControlPoint) {
         editPlanetDrawable.menu("Control point ${controlPoint.point}") {
             action("Delete") {
-                val path = editPlanetDrawable.selectedPath ?: return@action
+                val path = editPlanetDrawable.selectedElement<Path>() ?: return@action
                 val (_, indexP) = controlPoint
                 val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 

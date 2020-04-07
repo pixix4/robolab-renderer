@@ -1,14 +1,15 @@
-package de.robolab.renderer.drawable
+package de.robolab.renderer.drawable.general
 
 import de.robolab.model.Coordinate
-import de.robolab.model.Planet
+import de.robolab.planet.Planet
 import de.robolab.renderer.animation.IInterpolatable
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.drawable.base.AnimatableManager
+import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.utils.DrawContext
 
 class PointAnimatableManager(
-        private val planetDrawable: PlanetDrawable
+        private val animationTime: IAnimationTime
 ) : AnimatableManager<PointAnimatableManager.AttributePoint, PointAnimatable>() {
 
     class AttributePoint(
@@ -76,6 +77,6 @@ class PointAnimatableManager(
     }
 
     override fun createAnimatable(obj: AttributePoint, planet: Planet): PointAnimatable {
-        return PointAnimatable(obj, planet, planetDrawable)
+        return PointAnimatable(obj, planet, animationTime)
     }
 }
