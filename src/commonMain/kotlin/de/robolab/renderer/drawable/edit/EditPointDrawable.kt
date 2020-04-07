@@ -139,12 +139,12 @@ class EditPointDrawable(
         private const val COLOR_OPACITY = 0.85
     }
 
-    override fun onPointerUp(event: PointerEvent): Boolean {
+    override fun onPointerUp(event: PointerEvent, position: Point): Boolean {
         if (!editPlanetDrawable.editable || event.hasMoved) return false
 
-        val currentPoint = editPlanetDrawable.pointer.findObjectUnderPointer<Coordinate>()
-        val currentPath = editPlanetDrawable.pointer.findObjectUnderPointer<Path>()
-        val pointSelect = editPlanetDrawable.pointer.findObjectUnderPointer<EditPathSelectDrawable.PointSelect>()
+        val currentPoint = editPlanetDrawable.pointer?.findObjectUnderPointer<Coordinate>()
+        val currentPath = editPlanetDrawable.pointer?.findObjectUnderPointer<Path>()
+        val pointSelect = editPlanetDrawable.pointer?.findObjectUnderPointer<EditPathSelectDrawable.PointSelect>()
 
         val selectedPoint = editPlanetDrawable.selectedElement<Coordinate>()
         if (selectedPoint != null && (event.ctrlKey || event.altKey)) {
@@ -170,21 +170,21 @@ class EditPointDrawable(
         return false
     }
 
-    override fun onPointerSecondaryAction(event: PointerEvent): Boolean {
+    override fun onPointerSecondaryAction(event: PointerEvent, position: Point): Boolean {
         if (!editPlanetDrawable.editable) return false
 
-        val coordinate = editPlanetDrawable.pointer.findObjectUnderPointer<Coordinate>()
+        val coordinate = editPlanetDrawable.pointer?.findObjectUnderPointer<Coordinate>()
         if (coordinate != null) {
             showPointContextMenu(coordinate)
             return true
         }
 
-        val controlPoint = editPlanetDrawable.pointer.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>()
+        val controlPoint = editPlanetDrawable.pointer?.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>()
         if (controlPoint != null && controlPoint.newPoint == null) {
             showControlPointContextMenu(controlPoint)
         }
 
-        val path = editPlanetDrawable.pointer.findObjectUnderPointer<Path>()
+        val path = editPlanetDrawable.pointer?.findObjectUnderPointer<Path>()
         if (path != null) {
             showPathContextMenu(path)
         }

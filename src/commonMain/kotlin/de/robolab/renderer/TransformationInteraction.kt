@@ -15,9 +15,9 @@ class TransformationInteraction(
     private var hasMovedSinceDown = false
 
     override fun onPointerDown(event: PointerEvent): Boolean {
-        plotter.updatePointer(event.point)
+        val position = plotter.updatePointer(event.point)
 
-        if (plotter.drawable.onPointerDown(event)) {
+        if (position != null && plotter.drawable.onPointerDown(event, position)) {
             return true
         }
 
@@ -28,11 +28,11 @@ class TransformationInteraction(
     }
 
     override fun onPointerUp(event: PointerEvent): Boolean {
-        plotter.updatePointer(event.point)
+        val position = plotter.updatePointer(event.point)
 
         event.hasMoved = hasMovedSinceDown
         hasMovedSinceDown = false
-        val returnValue = plotter.drawable.onPointerUp(event)
+        val returnValue = position != null && plotter.drawable.onPointerUp(event, position)
 
         lastPoint = event.point
 
@@ -40,9 +40,9 @@ class TransformationInteraction(
     }
 
     override fun onPointerMove(event: PointerEvent): Boolean {
-        plotter.updatePointer(event.point)
+        val position = plotter.updatePointer(event.point)
 
-        if (plotter.drawable.onPointerMove(event)) {
+        if (position != null && plotter.drawable.onPointerMove(event, position)) {
             return true
         }
 
@@ -52,11 +52,11 @@ class TransformationInteraction(
     }
 
     override fun onPointerDrag(event: PointerEvent): Boolean {
-        plotter.updatePointer(event.point)
+        val position = plotter.updatePointer(event.point)
 
         event.hasMoved = hasMovedSinceDown
         hasMovedSinceDown = true
-        if (plotter.drawable.onPointerDrag(event)) {
+        if (position != null && plotter.drawable.onPointerDrag(event, position)) {
             return true
         }
 
@@ -66,11 +66,26 @@ class TransformationInteraction(
     }
 
     override fun onPointerSecondaryAction(event: PointerEvent): Boolean {
-        if (plotter.drawable.onPointerSecondaryAction(event)) {
+        val position = plotter.updatePointer(event.point)
+
+        if (position != null && plotter.drawable.onPointerSecondaryAction(event, position)) {
             return true
         }
 
         lastPoint = event.point
+        return false
+    }
+
+    override fun onPointerEnter(event: PointerEvent): Boolean {
+        plotter.updatePointer(event.point)
+
+        lastPoint = event.point
+        return false
+    }
+
+    override fun onPointerLeave(event: PointerEvent): Boolean {
+        plotter.updatePointer(null)
+
         return false
     }
 

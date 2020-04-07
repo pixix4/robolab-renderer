@@ -124,7 +124,7 @@ class EditMenuDrawable(
             changes = true
         }
 
-        val hovered = editPlanetDrawable.pointer.findObjectUnderPointer<MenuEntry>()
+        val hovered = editPlanetDrawable.pointer?.findObjectUnderPointer<MenuEntry>()
         if (hovered != hoveredEntry) {
             hoveredEntry = hovered
             changes = true
@@ -202,17 +202,17 @@ class EditMenuDrawable(
         return listOf(menuEntry.menu)
     }
 
-    override fun onPointerDown(event: PointerEvent): Boolean {
-        if (editPlanetDrawable.pointer.findObjectUnderPointer<Menu>() != null) {
+    override fun onPointerDown(event: PointerEvent, position: Point): Boolean {
+        if (editPlanetDrawable.pointer?.findObjectUnderPointer<Menu>() != null) {
             return true
         }
         return false
     }
 
-    override fun onPointerUp(event: PointerEvent): Boolean {
+    override fun onPointerUp(event: PointerEvent, position: Point): Boolean {
         val menuEntry = entryStack.lastOrNull() ?: return false
 
-        if (editPlanetDrawable.pointer.findObjectUnderPointer<Menu>() == null) {
+        if (editPlanetDrawable.pointer?.findObjectUnderPointer<Menu>() == null) {
             if (!event.hasMoved) {
                 editPlanetDrawable.menu = null
                 return true

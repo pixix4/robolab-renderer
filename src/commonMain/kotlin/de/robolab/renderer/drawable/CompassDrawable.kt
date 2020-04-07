@@ -51,7 +51,7 @@ class CompassDrawable(private val planetDrawable: AbsPlanetDrawable) : IDrawable
         return emptyList()
     }
 
-    override fun onPointerDown(event: PointerEvent): Boolean {
+    override fun onPointerDown(event: PointerEvent, position: Point): Boolean {
         val compassCenter = Point(
                 event.screen.width - RIGHT_PADDING,
                 TOP_PADDING
@@ -60,7 +60,7 @@ class CompassDrawable(private val planetDrawable: AbsPlanetDrawable) : IDrawable
         return event.point.distance(compassCenter) <= RADIUS
     }
 
-    override fun onPointerUp(event: PointerEvent): Boolean {
+    override fun onPointerUp(event: PointerEvent, position: Point): Boolean {
         val compassCenter = Point(
                 event.screen.width - RIGHT_PADDING,
                 TOP_PADDING

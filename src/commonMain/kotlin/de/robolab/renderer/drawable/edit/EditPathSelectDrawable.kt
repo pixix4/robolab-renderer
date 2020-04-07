@@ -2,16 +2,15 @@ package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Coordinate
 import de.robolab.model.Direction
-import de.robolab.model.Path
 import de.robolab.planet.Planet
-import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.general.PathSelectAnimatableManager
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.drawable.base.selectedElement
+import de.robolab.renderer.drawable.general.PathSelectAnimatableManager
 import de.robolab.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.renderer.platform.PointerEvent
+import de.robolab.renderer.utils.DrawContext
 import kotlin.math.abs
 
 class EditPathSelectDrawable(
@@ -28,10 +27,11 @@ class EditPathSelectDrawable(
     override fun onUpdate(ms_offset: Double): Boolean {
         val oldPathSelectToDraw = pathSelectToDraw
 
-        pathSelectToDraw = if (editPlanetDrawable.selectedPathControlPoints?.any { it.distance(editPlanetDrawable.pointer.position) < PlottingConstraints.POINT_SIZE / 2 } == true) {
+        val position = editPlanetDrawable.pointer?.position
+        pathSelectToDraw = if (position != null && editPlanetDrawable.selectedPathControlPoints?.any { it.distance(position) < PlottingConstraints.POINT_SIZE / 2 } == true) {
             null
         } else {
-            editPlanetDrawable.pointer.findObjectUnderPointer()
+            editPlanetDrawable.pointer?.findObjectUnderPointer()
         }
 
         return pathSelectToDraw != oldPathSelectToDraw
@@ -73,16 +73,16 @@ class EditPathSelectDrawable(
         return emptyList()
     }
 
-    override fun onPointerDown(event: PointerEvent): Boolean {
+    override fun onPointerDown(event: PointerEvent, position: Point): Boolean {
         if (!editPlanetDrawable.editable) return false
 
-        return editPlanetDrawable.pointer.findObjectUnderPointer<PointSelect>() != null
+        return editPlanetDrawable.pointer?.findObjectUnderPointer<PointSelect>() != null
     }
 
-    override fun onPointerUp(event: PointerEvent): Boolean {
+    override fun onPointerUp(event: PointerEvent, position: Point): Boolean {
         if (!editPlanetDrawable.editable || event.hasMoved) return false
 
-        val currentPathSelect = editPlanetDrawable.pointer.findObjectUnderPointer<PointSelect>() ?: return false
+        val currentPathSelect = editPlanetDrawable.pointer?.findObjectUnderPointer<PointSelect>() ?: return false
         editPlanetDrawable.editCallback.togglePathSelect(currentPathSelect.point, currentPathSelect.direction)
         return true
     }

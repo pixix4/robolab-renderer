@@ -24,6 +24,14 @@ interface ICanvasListener {
         return false
     }
 
+    fun onPointerEnter(event: PointerEvent): Boolean {
+        return false
+    }
+
+    fun onPointerLeave(event: PointerEvent): Boolean {
+        return false
+    }
+
     fun onScroll(event: ScrollEvent): Boolean {
         return false
     }

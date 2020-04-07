@@ -42,8 +42,8 @@ class ExportPlotter(
             context.theme = value
         }
 
-    override val pointerProperty = property(Pointer())
-    override var pointer by pointerProperty
+    override val pointerProperty = property<Pointer?>(null)
+    override val pointer by pointerProperty
 
     override fun render(ms_offset: Double) {
         drawable.onUpdate(ms_offset)
@@ -53,7 +53,8 @@ class ExportPlotter(
         drawable.onDraw(context)
     }
 
-    override fun updatePointer(mousePosition: Point) {
+    override fun updatePointer(mousePosition: Point?): Point? {
+        return null
     }
 
     init {

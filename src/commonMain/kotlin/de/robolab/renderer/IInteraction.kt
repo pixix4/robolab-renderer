@@ -1,26 +1,27 @@
 package de.robolab.renderer
 
 import de.robolab.renderer.data.Dimension
+import de.robolab.renderer.data.Point
 import de.robolab.renderer.platform.*
 
 interface IInteraction {
-    fun onPointerDown(event: PointerEvent): Boolean {
+    fun onPointerDown(event: PointerEvent, position: Point): Boolean {
         return false
     }
 
-    fun onPointerUp(event: PointerEvent): Boolean {
+    fun onPointerUp(event: PointerEvent, position: Point): Boolean {
         return false
     }
 
-    fun onPointerMove(event: PointerEvent): Boolean {
+    fun onPointerMove(event: PointerEvent, position: Point): Boolean {
         return false
     }
 
-    fun onPointerDrag(event: PointerEvent): Boolean {
+    fun onPointerDrag(event: PointerEvent, position: Point): Boolean {
         return false
     }
 
-    fun onPointerSecondaryAction(event: PointerEvent): Boolean {
+    fun onPointerSecondaryAction(event: PointerEvent, position: Point): Boolean {
         return false
     }
 

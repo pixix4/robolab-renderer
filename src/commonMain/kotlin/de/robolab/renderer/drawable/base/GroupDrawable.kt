@@ -33,9 +33,9 @@ open class GroupDrawable(vararg drawables: IDrawable) : IDrawable {
         return drawableList.asReversed().flatMap { it.getObjectsAtPosition(context, position) }
     }
 
-    override fun onPointerDown(event: PointerEvent): Boolean {
+    override fun onPointerDown(event: PointerEvent, position: Point): Boolean {
         for (drawable in drawableList.asReversed()) {
-            if (drawable.onPointerDown(event)) {
+            if (drawable.onPointerDown(event, position)) {
                 return true
             }
         }
@@ -43,10 +43,10 @@ open class GroupDrawable(vararg drawables: IDrawable) : IDrawable {
         return false
     }
 
-    override fun onPointerUp(event: PointerEvent): Boolean {
+    override fun onPointerUp(event: PointerEvent, position: Point): Boolean {
         var returnValue = false
         for (drawable in drawableList.asReversed()) {
-            if (drawable.onPointerUp(event)) {
+            if (drawable.onPointerUp(event, position)) {
                 returnValue = true
             }
         }
@@ -54,9 +54,9 @@ open class GroupDrawable(vararg drawables: IDrawable) : IDrawable {
         return returnValue
     }
 
-    override fun onPointerMove(event: PointerEvent): Boolean {
+    override fun onPointerMove(event: PointerEvent, position: Point): Boolean {
         for (drawable in drawableList.asReversed()) {
-            if (drawable.onPointerMove(event)) {
+            if (drawable.onPointerMove(event, position)) {
                 return true
             }
         }
@@ -64,9 +64,9 @@ open class GroupDrawable(vararg drawables: IDrawable) : IDrawable {
         return false
     }
 
-    override fun onPointerDrag(event: PointerEvent): Boolean {
+    override fun onPointerDrag(event: PointerEvent, position: Point): Boolean {
         for (drawable in drawableList.asReversed()) {
-            if (drawable.onPointerDrag(event)) {
+            if (drawable.onPointerDrag(event, position)) {
                 return true
             }
         }
@@ -74,9 +74,9 @@ open class GroupDrawable(vararg drawables: IDrawable) : IDrawable {
         return false
     }
 
-    override fun onPointerSecondaryAction(event: PointerEvent): Boolean {
+    override fun onPointerSecondaryAction(event: PointerEvent, position: Point): Boolean {
         for (drawable in drawableList.asReversed()) {
-            if (drawable.onPointerSecondaryAction(event)) {
+            if (drawable.onPointerSecondaryAction(event, position)) {
                 return true
             }
         }

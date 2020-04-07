@@ -71,6 +71,28 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                     event.shiftKey
             ))
         }
+        canvas.onMouseEnter { event ->
+            event.preventDefault()
+            event.stopPropagation()
+            listener.onPointerEnter(PointerEvent(
+                    Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
+                    Dimension(width, height),
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
+            ))
+        }
+        canvas.onMouseLeave { event ->
+            event.preventDefault()
+            event.stopPropagation()
+            listener.onPointerLeave(PointerEvent(
+                    Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
+                    Dimension(width, height),
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
+            ))
+        }
         canvas.onWheel { event ->
             event.stopPropagation()
             event.preventDefault()

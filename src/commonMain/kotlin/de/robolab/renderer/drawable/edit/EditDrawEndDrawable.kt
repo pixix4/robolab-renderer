@@ -29,7 +29,8 @@ class EditDrawEndDrawable(
 
     override fun onUpdate(ms_offset: Double): Boolean {
         var changes = false
-        if (editPlanetDrawable.selectedPathControlPoints?.any { it.distance(editPlanetDrawable.pointer.position) < PlottingConstraints.POINT_SIZE / 2 } == true) {
+        val position = editPlanetDrawable.pointer?.position
+        if (position != null && editPlanetDrawable.selectedPathControlPoints?.any { it.distance(position) < PlottingConstraints.POINT_SIZE / 2 } == true) {
             if (pointEndsToDraw.isNotEmpty()) {
                 pointEndsToDraw.clear()
                 changes = true
@@ -37,7 +38,7 @@ class EditDrawEndDrawable(
         } else {
             val old = pointEndsToDraw.hashCode()
             pointEndsToDraw.clear()
-            val pointEnd = editPlanetDrawable.pointer.findObjectUnderPointer<PointEnd>()
+            val pointEnd = editPlanetDrawable.pointer?.findObjectUnderPointer<PointEnd>()
             if (pointEnd != null) {
                 pointEndsToDraw += pointEnd
             }
@@ -113,9 +114,9 @@ class EditDrawEndDrawable(
     }
 
     private var allowClickCreate = false
-    override fun onPointerDown(event: PointerEvent): Boolean {
+    override fun onPointerDown(event: PointerEvent, position: Point): Boolean {
         allowClickCreate = false
-        val currentPointEnd = editPlanetDrawable.pointer.findObjectUnderPointer<PointEnd>()
+        val currentPointEnd = editPlanetDrawable.pointer?.findObjectUnderPointer<PointEnd>()
 
         if (currentPointEnd == null) {
             editPlanetDrawable.selectedPointEnd = null
@@ -145,17 +146,17 @@ class EditDrawEndDrawable(
         return true
     }
 
-    override fun onPointerDrag(event: PointerEvent): Boolean {
+    override fun onPointerDrag(event: PointerEvent, position: Point): Boolean {
         return editPlanetDrawable.selectedPointEnd != null
     }
 
-    override fun onPointerUp(event: PointerEvent): Boolean {
+    override fun onPointerUp(event: PointerEvent, position: Point): Boolean {
         if (!editPlanetDrawable.editable) return false
 
         if (editPlanetDrawable.selectedPointEnd != null && (event.hasMoved || allowClickCreate)) {
             val sourceEnd = editPlanetDrawable.selectedPointEnd ?: return false
             editPlanetDrawable.selectedPointEnd = null
-            val targetEnd = editPlanetDrawable.pointer.findObjectUnderPointer<PointEnd>() ?: return false
+            val targetEnd = editPlanetDrawable.pointer?.findObjectUnderPointer<PointEnd>() ?: return false
 
             var groupHistory = false
 

@@ -45,7 +45,7 @@ class DefaultPlotter(
             themeChanged = true
         }
 
-    override val pointerProperty = property(Pointer())
+    override val pointerProperty = property<Pointer?>(null)
     override var pointer by pointerProperty
 
     override fun render(ms_offset: Double) {
@@ -66,11 +66,17 @@ class DefaultPlotter(
         return drawable.getObjectsAtPosition(context, position)
     }
 
-    override fun updatePointer(mousePosition: Point) {
+    override fun updatePointer(mousePosition: Point?): Point? {
+        if (mousePosition == null) {
+            pointer = null
+            return null
+        }
+
         val position = transformation.canvasToPlanet(mousePosition)
         val elements = getObjectsAtPosition(position).distinct()
 
         pointer = Pointer(position, mousePosition, elements)
+        return position
     }
 
     init {

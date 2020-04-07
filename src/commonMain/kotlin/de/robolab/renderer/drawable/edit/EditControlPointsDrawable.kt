@@ -1,12 +1,11 @@
 package de.robolab.renderer.drawable.edit
 
 import de.robolab.model.Path
-import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.drawable.base.selectedElement
+import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.renderer.drawable.utils.BSpline
 import de.robolab.renderer.drawable.utils.Curve
@@ -15,6 +14,7 @@ import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.PointerEvent
+import de.robolab.renderer.utils.DrawContext
 import kotlin.math.PI
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -53,7 +53,7 @@ class EditControlPointsDrawable(
     override fun onDraw(context: DrawContext) {
         val controlPoints = editPlanetDrawable.selectedPathControlPoints ?: return
         val path = editPlanetDrawable.selectedElement<Path>() ?: return
-        
+
         val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 
         val first = controlPoints.first().let {
@@ -70,13 +70,14 @@ class EditControlPointsDrawable(
                 continue
             }
 
-            val divider = if (editPlanetDrawable.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) 2 else 4
+            val position = editPlanetDrawable.pointer?.position
+            val divider = if (position != null && position.distance(point) < PlottingConstraints.POINT_SIZE / 2) 2 else 4
 
             context.fillArc(point, PlottingConstraints.POINT_SIZE / divider, 0.0, 2.0 * PI, context.theme.editColor)
             context.fillText(i.toString(), point, context.theme.primaryBackgroundColor, 4.0, alignment = ICanvas.FontAlignment.CENTER)
         }
 
-        val p = editPlanetDrawable.pointer.findObjectUnderPointer<ControlPoint>() ?: return
+        val p = editPlanetDrawable.pointer?.findObjectUnderPointer<ControlPoint>() ?: return
 
         if (p.newPoint != null) {
             context.fillArc(p.newPoint, PlottingConstraints.POINT_SIZE / 4, 0.0, 2.0 * PI, context.theme.editColor)
@@ -96,7 +97,7 @@ class EditControlPointsDrawable(
                 continue
             }
 
-            if (editPlanetDrawable.pointer.position.distance(point) < PlottingConstraints.POINT_SIZE / 2) {
+            if (position.distance(point) < PlottingConstraints.POINT_SIZE / 2) {
                 return listOf(ControlPoint(
                         path, i
                 ))
@@ -109,7 +110,7 @@ class EditControlPointsDrawable(
         val distance = calcDistance(startPoint, endPoint, controlPoints)
         val steps = ((distance * context.transformation.scaledGridWidth) / 10).toInt()
         val p = multiEval(steps, startPoint, endPoint, controlPoints).mapIndexed { index, point ->
-            Triple(point, index, point.distance(editPlanetDrawable.pointer.position))
+            Triple(point, index, point.distance(position))
         }
 
         val (minPoint, minIndex, minDist) = p.minBy { it.third } ?: return emptyList()
@@ -128,17 +129,17 @@ class EditControlPointsDrawable(
     private var selectedControlPoint: ControlPoint? = null
     private var groupHistory = false
 
-    override fun onPointerDown(event: PointerEvent): Boolean {
+    override fun onPointerDown(event: PointerEvent, position: Point): Boolean {
         if (!editPlanetDrawable.editable) return false
 
         selectedControlPoint = null
-        val c = editPlanetDrawable.pointer.findObjectUnderPointer<ControlPoint>() ?: return false
+        val c = editPlanetDrawable.pointer?.findObjectUnderPointer<ControlPoint>() ?: return false
         val path = c.path
         val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 
         if (c.newPoint != null) {
             val allControlPoints = editPlanetDrawable.selectedPathControlPoints ?: return false
-            val dropLast = if(isOneWayPath) 0 else 1
+            val dropLast = if (isOneWayPath) 0 else 1
             val controlPoints = allControlPoints.drop(1).dropLast(dropLast).toMutableList()
 
             controlPoints.add(c.point - 1, c.newPoint)
@@ -152,7 +153,7 @@ class EditControlPointsDrawable(
 
     }
 
-    override fun onPointerDrag(event: PointerEvent): Boolean {
+    override fun onPointerDrag(event: PointerEvent, position: Point): Boolean {
         if (!editPlanetDrawable.editable) return false
 
         val (_, indexP) = selectedControlPoint ?: return false
@@ -160,7 +161,7 @@ class EditControlPointsDrawable(
         val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 
         val allControlPoints = editPlanetDrawable.selectedPathControlPoints ?: return false
-        val dropLast = if(isOneWayPath) 0 else 1
+        val dropLast = if (isOneWayPath) 0 else 1
         val oldControlPoints = allControlPoints.drop(1).dropLast(dropLast)
         val controlPoints = oldControlPoints.toMutableList()
         val index = indexP - 1
@@ -169,16 +170,16 @@ class EditControlPointsDrawable(
 
         controlPoints[index] = when {
             index == 0 -> Utils.calculateProjection(
-                    editPlanetDrawable.pointer.position,
+                    position,
                     allControlPoints.first(),
                     path.sourceDirection
             )
             index == controlPoints.lastIndex && !isOneWayPath -> Utils.calculateProjection(
-                    editPlanetDrawable.pointer.position,
+                    position,
                     allControlPoints.last(),
                     path.targetDirection
             )
-            else -> editPlanetDrawable.pointer.position
+            else -> position
         }.let {
             Point(
                     round(it.left * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR,
@@ -204,7 +205,7 @@ class EditControlPointsDrawable(
                 val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection
 
                 val allControlPoints = editPlanetDrawable.selectedPathControlPoints ?: return false
-                val dropLast = if(isOneWayPath) 0 else 1
+                val dropLast = if (isOneWayPath) 0 else 1
                 val controlPoints = allControlPoints.drop(1).dropLast(dropLast).toMutableList()
                 val index = indexP - 1
 

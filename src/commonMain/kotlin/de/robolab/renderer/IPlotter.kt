@@ -9,9 +9,9 @@ import de.westermann.kobserve.Property
 interface IPlotter {
     fun render(ms_offset: Double)
 
-    val pointerProperty: Property<Pointer>
-    val pointer: Pointer
-    fun updatePointer(mousePosition: Point = pointer.mousePosition)
+    val pointerProperty: Property<Pointer?>
+    val pointer: Pointer?
+    fun updatePointer(mousePosition: Point? = pointer?.mousePosition): Point?
 
     val size: Dimension
     val transformation: Transformation

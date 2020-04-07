@@ -87,7 +87,7 @@ class PathAnimatable(
     private fun interpolate(context: DrawContext) {
         val steps = ((distance * context.transformation.scaledGridWidth) / 5).toInt()
 
-        val isHover = reference in this.animationTime.selectedElements
+        val isHover = isHovered || reference in this.animationTime.selectedElements
 
         val oc = oldColor ?: context.theme.lineColor
         val nc = newColor ?: context.theme.lineColor
@@ -176,6 +176,14 @@ class PathAnimatable(
             transition.value >= rangeEnd -> 1.0
             else -> (transition.value - rangeStart) / (rangeEnd - rangeStart)
         }
+    }
+
+    private var isHovered = false
+    override fun onUpdate(ms_offset: Double): Boolean {
+        val newIsHovered = animationTime.pointer?.findObjectUnderPointer<Path>(true) == reference
+        val changes = isHovered != newIsHovered
+        isHovered = newIsHovered
+        return super.onUpdate(ms_offset) || changes
     }
 
     override fun onDraw(context: DrawContext) {

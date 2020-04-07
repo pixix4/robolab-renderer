@@ -5,6 +5,7 @@ import de.robolab.renderer.drawable.base.GroupDrawable
 import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.drawable.general.*
+import de.robolab.renderer.utils.Pointer
 
 class PlanetLayer(private val planetDrawable: AbsPlanetDrawable) : GroupDrawable(), IAnimationTime {
 
@@ -13,6 +14,9 @@ class PlanetLayer(private val planetDrawable: AbsPlanetDrawable) : GroupDrawable
 
     override val selectedElements: List<Any>
         get() = planetDrawable.selectedElements
+
+    override val pointer: Pointer?
+        get() = planetDrawable.pointer
 
     private val targetDrawable = TargetAnimatableManager(this)
     private val senderDrawable = SenderAnimatableManager(this)

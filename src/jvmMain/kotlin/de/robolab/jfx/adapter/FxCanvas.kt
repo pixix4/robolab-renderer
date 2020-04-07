@@ -90,6 +90,24 @@ class FxCanvas : ICanvas {
                 }
             }
         }
+        canvas.setOnMouseEntered { event ->
+            listener.onPointerEnter(PointerEvent(
+                    Point(event.x, event.y),
+                    Dimension(width, height),
+                    event.isControlDown,
+                    event.isAltDown,
+                    event.isShiftDown
+            ))
+        }
+        canvas.setOnMouseExited { event ->
+            listener.onPointerLeave(PointerEvent(
+                    Point(event.x, event.y),
+                    Dimension(width, height),
+                    event.isControlDown,
+                    event.isAltDown,
+                    event.isShiftDown
+            ))
+        }
         canvas.setOnScroll { event ->
             listener.onScroll(ScrollEvent(
                     Point(event.x, event.y),

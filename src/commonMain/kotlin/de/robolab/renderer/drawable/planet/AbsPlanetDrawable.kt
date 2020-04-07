@@ -9,6 +9,7 @@ import de.robolab.renderer.drawable.*
 import de.robolab.renderer.drawable.base.GroupDrawable
 import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.utils.Pointer
 import de.robolab.renderer.utils.Transformation
 import de.westermann.kobserve.property.property
 
@@ -28,6 +29,9 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
     var drawGridNumbers by drawGridNumbersProperty
 
     var plotter: IPlotter? = null
+
+    override val pointer: Pointer?
+        get() = plotter?.pointer
 
     val selectedElementsProperty = property(emptyList<Any>())
     override var selectedElements by selectedElementsProperty

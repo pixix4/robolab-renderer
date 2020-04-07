@@ -7,16 +7,12 @@ import de.robolab.renderer.drawable.edit.*
 import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
-import de.robolab.renderer.utils.Pointer
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
 class EditPlanetDrawable() : AbsPlanetDrawable() {
 
     var editCallback: IEditCallback = object : IEditCallback {}
-
-    val pointer: Pointer
-        get() = plotter?.pointer ?: Pointer()
 
     private val editPointDrawable = EditPointDrawable(this)
     private val editPathDrawable = EditDrawPathDrawable(this)
@@ -32,7 +28,8 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
     var menu by menuProperty
 
     fun menu(name: String, init: MenuBuilder.() -> Unit) {
-        menu = menu(pointer.position, name, init)
+        val position = pointer?.position ?: return
+        menu = menu(position, name, init)
     }
 
     private val selectedPathControlPointsProperty = selectedElementsProperty.mapBinding {
