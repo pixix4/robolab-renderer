@@ -76,7 +76,7 @@ class RobotDrawable(
 
                 val points = PathAnimatable.getControlPointsFromPath(path)
                 val position = BSpline.eval(progress, points)
-                val d = BSpline.evalD(progress, points)
+                val d = BSpline.evalGradient(progress, points)
 
                 return DrawRobot(
                         position,

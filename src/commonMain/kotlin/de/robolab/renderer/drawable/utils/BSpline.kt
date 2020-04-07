@@ -7,7 +7,7 @@ import kotlin.math.min
  * @author lars
  */
 object BSpline : Curve {
-    override fun eval(t: Double, points: List<Point>): Point = eval(t, min(DEFAULT_DEGREE, points.size - 1), points)
+    override fun eval(t: Double, points: List<Point>): Point = eval(t, min(DEFAULT_DEGREE, points.lastIndex), points)
 
     override fun eval(t: Double, degree: Int, points: List<Point>): Point {
         if (t == 0.0) return points.first()

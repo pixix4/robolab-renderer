@@ -306,49 +306,6 @@ class PathAnimatable(
     }
 
     companion object {
-        fun log2(a: Int): Int {
-            var x = a
-            var pow = 0
-            if (x >= 1 shl 16) {
-                x = x shr 16
-                pow += 16
-            }
-            if (x >= 1 shl 8) {
-                x = x shr 8
-                pow += 8
-            }
-            if (x >= 1 shl 4) {
-                x = x shr 4
-                pow += 4
-            }
-            if (x >= 1 shl 2) {
-                x = x shr 2
-                pow += 2
-            }
-            if (x >= 1 shl 1) {
-                //x = x shr 1
-                pow += 1
-            }
-            return pow
-        }
-
-        fun power2(exp: Int): Int {
-            var x = 2
-            var y = exp
-            var result = 1
-            while (y > 0) {
-                if (y and 1 == 0) {
-                    x *= x
-                    y = y ushr 1
-                } else {
-                    result *= x
-                    y--
-                }
-            }
-            return result
-        }
-
-
         fun getControlPointsFromPath(path: Path): List<Point> {
             val startPoint = Point(path.source.x, path.source.y)
             val startDirection = path.sourceDirection

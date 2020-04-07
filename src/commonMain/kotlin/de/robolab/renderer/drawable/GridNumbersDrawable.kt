@@ -2,6 +2,8 @@ package de.robolab.renderer.drawable
 
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.drawable.utils.log2
+import de.robolab.renderer.drawable.utils.power2
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.DrawContext
 import kotlin.math.ceil
@@ -17,16 +19,14 @@ class GridNumbersDrawable(private val planetDrawable: PlanetDrawable) : IDrawabl
     override fun onDraw(context: DrawContext) {
         if (!planetDrawable.drawGridNumbers) return
 
-        val fontSize = 16.0
-
         val rectangle = context.area
-        val lineModulo = ceil((fontSize * 1.5) / context.transformation.scaledGridWidth).toInt()
         val isDefaultAxesOrientation = cos(context.transformation.rotation * 2) >= 0.0
 
         val startTop = ceil(rectangle.top).toInt()
         val stopTop = floor(rectangle.bottom).toInt()
         for (top in startTop..stopTop) {
-            if (top % lineModulo != 0) continue
+            val alpha = alphaOfLine(top, context.transformation.scaledGridWidth)
+            if (alpha == 0.0) continue
 
             val (x1, y1) = context.transformation.planetToCanvas(Point(rectangle.left, top.toDouble()))
             val (x2, y2) = context.transformation.planetToCanvas(Point(rectangle.right, top.toDouble()))
@@ -46,13 +46,14 @@ class GridNumbersDrawable(private val planetDrawable: PlanetDrawable) : IDrawabl
                 Point(x3, y3)
             }
 
-            context.canvas.fillText(top.toString(), p, context.theme.gridTextColor, fontSize, alignment = ICanvas.FontAlignment.CENTER)
+            context.canvas.fillText(top.toString(), p, context.theme.gridTextColor.a(alpha), FONT_SIZE, alignment = ICanvas.FontAlignment.CENTER)
         }
 
         val startLeft = ceil(rectangle.left).toInt()
         val stopLeft = floor(rectangle.right).toInt()
         for (left in startLeft..stopLeft) {
-            if (left % lineModulo != 0) continue
+            val alpha = alphaOfLine(left, context.transformation.scaledGridWidth)
+            if (alpha == 0.0) continue
 
             val (x1, y1) = context.transformation.planetToCanvas(Point(left.toDouble(), rectangle.top))
             val (x2, y2) = context.transformation.planetToCanvas(Point(left.toDouble(), rectangle.bottom))
@@ -66,11 +67,39 @@ class GridNumbersDrawable(private val planetDrawable: PlanetDrawable) : IDrawabl
                 Point(x3, y3)
             }
 
-            context.canvas.fillText(left.toString(), p, context.theme.gridTextColor, fontSize, alignment = ICanvas.FontAlignment.CENTER)
+            context.canvas.fillText(left.toString(), p, context.theme.gridTextColor.a(alpha), FONT_SIZE, alignment = ICanvas.FontAlignment.CENTER)
         }
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
         return emptyList()
+    }
+
+    companion object {
+        const val FONT_SIZE = 16.0
+
+        fun alphaOfLine(index: Int, scaledGridWidth: Double): Double {
+            val lineCountPerCell = ((FONT_SIZE * 2.0) / scaledGridWidth)
+            if (lineCountPerCell <= 1.0) {
+                return 1.0
+            }
+
+            val lineModulo = power2(log2(ceil(lineCountPerCell).toInt() - 1) + 1)
+            if (index % lineModulo == 0) {
+                return 1.0
+            }
+
+            val prevLineModulo = power2(log2(ceil(lineCountPerCell).toInt() - 1))
+            if (index % prevLineModulo != 0) {
+                return 0.0
+            }
+
+            val lineDiff = lineCountPerCell - prevLineModulo
+            if (lineDiff < 0.2) {
+                return 1.0 - lineDiff / 0.2
+            }
+
+            return 0.0
+        }
     }
 }

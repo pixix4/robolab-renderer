@@ -15,15 +15,13 @@ class GridLinesDrawable(private val planetDrawable: PlanetDrawable) : IDrawable 
     override fun onDraw(context: DrawContext) {
         if (!planetDrawable.drawGridLines) return
 
-        val fontSize = 16.0
-
         val rectangle = context.area
-        val lineModulo = ceil((fontSize * 1.5) / context.transformation.scaledGridWidth).toInt()
 
         val startTop = ceil(rectangle.top).toInt()
         val stopTop = floor(rectangle.bottom).toInt()
         for (top in startTop..stopTop) {
-            if (top % lineModulo != 0) continue
+            val alpha = GridNumbersDrawable.alphaOfLine(top, context.transformation.scaledGridWidth)
+            if (alpha == 0.0) continue
 
             val p1 = context.transformation.planetToCanvas(Point(rectangle.left, top.toDouble()))
             val p2 = context.transformation.planetToCanvas(Point(rectangle.right, top.toDouble()))
@@ -33,7 +31,7 @@ class GridLinesDrawable(private val planetDrawable: PlanetDrawable) : IDrawable 
                             p1,
                             p2
                     ),
-                    context.theme.gridColor,
+                    context.theme.gridColor.a(alpha),
                     1.0
             )
         }
@@ -41,7 +39,8 @@ class GridLinesDrawable(private val planetDrawable: PlanetDrawable) : IDrawable 
         val startLeft = ceil(rectangle.left).toInt()
         val stopLeft = floor(rectangle.right).toInt()
         for (left in startLeft..stopLeft) {
-            if (left % lineModulo != 0) continue
+            val alpha = GridNumbersDrawable.alphaOfLine(left, context.transformation.scaledGridWidth)
+            if (alpha == 0.0) continue
 
             val p1 = context.transformation.planetToCanvas(Point(left.toDouble(), rectangle.top))
             val p2 = context.transformation.planetToCanvas(Point(left.toDouble(), rectangle.bottom))
@@ -51,7 +50,7 @@ class GridLinesDrawable(private val planetDrawable: PlanetDrawable) : IDrawable 
                             p1,
                             p2
                     ),
-                    context.theme.gridColor,
+                    context.theme.gridColor.a(alpha),
                     1.0
             )
         }
