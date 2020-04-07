@@ -9,6 +9,7 @@ import de.robolab.renderer.drawable.*
 import de.robolab.renderer.drawable.base.GroupDrawable
 import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.utils.Transformation
 import de.westermann.kobserve.property.property
 
 @Suppress("LeakingThis")
@@ -77,14 +78,20 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
 
     override var drawableList = emptyList<IDrawable>()
 
+    private var transformationState = Transformation.State.DEFAULT
     override fun onAttach(plotter: IPlotter) {
         this.plotter = plotter
 
-        centerPlanet()
+        plotter.transformation.import(transformationState)
+        if (transformationState.isDefault()) {
+            centerPlanet()
+        }
     }
 
     override fun onDetach(plotter: IPlotter) {
         this.plotter = null
+
+        transformationState = plotter.transformation.export()
     }
 
     override fun onUpdate(ms_offset: Double): Boolean {

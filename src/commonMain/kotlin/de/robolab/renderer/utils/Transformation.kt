@@ -114,9 +114,30 @@ class Transformation(
 
         return changes
     }
+    
+    fun export() = State(translation, scale, rotation)
+    
+    fun import(state: State) {
+        setTranslation(state.translation)
+        setScaleFactor(state.scale)
+        setRotationAngle(state.rotation)
+    }
 
     companion object {
         const val PIXEL_PER_UNIT: Double = 100.0
         val PIXEL_PER_UNIT_DIMENSION = Dimension(PIXEL_PER_UNIT, -PIXEL_PER_UNIT)
+    }
+
+    data class State(
+            val translation: Point,
+            val scale: Double,
+            val rotation: Double
+    ) {
+        
+        fun isDefault() = this == DEFAULT
+
+        companion object {
+            val DEFAULT = State(Point.ZERO, 1.0, 0.0)
+        }
     }
 }
