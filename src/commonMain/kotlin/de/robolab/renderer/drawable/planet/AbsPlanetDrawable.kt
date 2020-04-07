@@ -40,14 +40,17 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
     private val gridNumbersDrawable = GridNumbersDrawable
     private val compassDrawable = CompassDrawable(this)
 
+    private var underlayers: List<IDrawable> = emptyList()
     private var planetLayers: List<PlanetLayer> = emptyList()
-    private var overlays: List<IDrawable> = emptyList()
+    private var overlayers: List<IDrawable> = emptyList()
     protected fun buildDrawableList(
+            underlayers: List<IDrawable> = this.underlayers,
             planetLayers: List<PlanetLayer> = this.planetLayers,
-            overlays: List<IDrawable> = this.overlays
+            overlayers: List<IDrawable> = this.overlayers
     ){
+        this.underlayers = underlayers
         this.planetLayers = planetLayers
-        this.overlays = overlays
+        this.overlayers = overlayers
 
         val list = mutableListOf<IDrawable>(backgroundDrawable)
 
@@ -55,8 +58,9 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
             list += gridLinesDrawable
         }
 
+        list += underlayers
         list += planetLayers
-        list += overlays
+        list += overlayers
 
         if (drawGridNumbersProperty.value) {
             list += gridNumbersDrawable

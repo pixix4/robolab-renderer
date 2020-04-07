@@ -10,6 +10,7 @@ interface IPlottable {
 
     val nameProperty: ReadOnlyProperty<String>
     val statusProperty: ReadOnlyProperty<String>
+    val unsavedChangesProperty: ReadOnlyProperty<Boolean>
 
     val drawable: IDrawable
 

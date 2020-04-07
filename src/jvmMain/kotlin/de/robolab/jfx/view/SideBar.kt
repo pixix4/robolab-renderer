@@ -5,9 +5,12 @@ import de.robolab.jfx.adapter.toFx
 import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import de.jensd.fx.glyphs.materialicons.MaterialIcon
+import de.robolab.jfx.utils.icon
 import javafx.scene.layout.Priority
 import javafx.scene.text.FontWeight
 import tornadofx.*
+import tornadofx.FX.Companion.icon
 
 class SideBar(sideBarController: SideBarController) : View() {
 
@@ -50,6 +53,15 @@ class SideBar(sideBarController: SideBarController) : View() {
                                 }
                             }
                             label(provider.statusProperty.toFx())
+                        }
+                        spacer()
+                        vbox {
+                            spacer()
+                            icon(MaterialIcon.SAVE) {
+                                tooltip("Unsaved changes")
+                                visibleWhen(provider.unsavedChangesProperty.toFx())
+                            }
+                            spacer()
                         }
                     }
 

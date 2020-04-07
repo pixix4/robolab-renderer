@@ -74,6 +74,8 @@ class EditMenuDrawable(
     }
 
     class TransformationOverlay(private val transformation: ITransformation, private val reference: Point) : ITransformation {
+        override val pixelPerUnitDimension = transformation.pixelPerUnitDimension
+
         private val referenceCanvas = planetToCanvas(reference, Point.ZERO, 1.0, 0.0)
 
         override val translationProperty: ReadOnlyProperty<Point> = transformation.translationProperty.mapBinding {
@@ -89,8 +91,6 @@ class EditMenuDrawable(
         override val rotation by rotationProperty
 
         override val gridWidth = transformation.gridWidth
-
-        override val pixelPerUnitDimension = Transformation.PIXEL_PER_UNIT_DIMENSION
     }
 
     private var hoveredEntry: MenuEntry? = null

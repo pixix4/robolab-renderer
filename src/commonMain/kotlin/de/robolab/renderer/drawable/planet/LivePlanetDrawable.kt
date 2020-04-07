@@ -38,7 +38,7 @@ class LivePlanetDrawable() : AbsPlanetDrawable() {
                         mqttLayer,
                         serverLayer
                 ),
-                overlays = listOf(
+                overlayers = listOf(
                         robotDrawable
                 )
         )

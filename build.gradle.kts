@@ -8,6 +8,7 @@ plugins {
 repositories {
     mavenCentral()
     jcenter()
+    maven("https://jitpack.io")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
@@ -53,6 +54,10 @@ kotlin {
                 implementation("org.openjfx:javafx-controls:13:mac")
                 implementation("org.openjfx:javafx-graphics:13:mac")
                 implementation("org.openjfx:javafx-base:13:mac")
+
+                implementation("de.jensd:fontawesomefx-commons:8.15")
+                implementation("de.jensd:fontawesomefx-materialicons:2.2.0-5")
+                implementation("de.jensd:fontawesomefx-fontawesome:4.7.0-5")
             }
         }
         val jvmTest by getting {

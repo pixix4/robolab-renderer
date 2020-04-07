@@ -38,6 +38,8 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                         }
                     }
                 }
+
+                paddingRight = 8
             }
         }
     }

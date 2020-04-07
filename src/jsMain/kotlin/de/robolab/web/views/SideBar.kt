@@ -7,9 +7,7 @@ import de.westermann.kobserve.Property
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
-import de.westermann.kwebview.components.boxView
-import de.westermann.kwebview.components.button
-import de.westermann.kwebview.components.textView
+import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
 
 class SideBar(private val sideBarController: SideBarController, sideBarProperty: Property<Boolean>) : ViewCollection<View>() {
@@ -57,6 +55,10 @@ class SideBarEntry(entry: IPlottable, sideBarController: SideBarController) : Vi
     init {
         textView(entry.nameProperty)
         textView(entry.statusProperty)
+        iconView(MaterialIcon.SAVE) {
+            title = "Unsaved changes"
+            classList.bind("active", entry.unsavedChangesProperty)
+        }
 
         classList.bind("active", selectedProperty)
 

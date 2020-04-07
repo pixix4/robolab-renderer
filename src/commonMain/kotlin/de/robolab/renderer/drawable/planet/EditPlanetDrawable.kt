@@ -66,11 +66,13 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
 
 
         buildDrawableList(
+                underlayers = listOf(
+                        editPointDrawable
+                ),
                 planetLayers = listOf(
                         planetLayer
                 ),
-                overlays = listOf(
-                        editPointDrawable,
+                overlayers = listOf(
                         editDrawEndDrawable,
                         editPathSelectDrawable,
                         editPathDrawable,
