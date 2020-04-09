@@ -39,7 +39,7 @@ class CanvasController(
         selectedEntryProperty.onChange {
             val plottable = selectedEntryProperty.value
             if (plottable == null) {
-                plotter.drawable = BlankDrawable
+                plotter.drawable = BlankDrawable()
             } else {
                 plotter.drawable = plottable.drawable
             }

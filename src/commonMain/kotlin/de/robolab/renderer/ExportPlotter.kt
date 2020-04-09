@@ -17,7 +17,7 @@ import de.westermann.kobserve.property.property
  */
 class ExportPlotter(
         private val canvas: ICanvas,
-        drawable: IDrawable = BlankDrawable,
+        drawable: IDrawable = BlankDrawable(),
         theme: ITheme = LightTheme
 ) : IPlotter {
 
@@ -27,7 +27,7 @@ class ExportPlotter(
     override val size: Dimension
         get() = Dimension(canvas.width, canvas.height)
 
-    var drawable: IDrawable = BlankDrawable
+    var drawable: IDrawable = BlankDrawable()
         set(value) {
             field.onDetach(this)
             field = value

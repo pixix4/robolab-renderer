@@ -1,16 +1,16 @@
 package de.robolab.renderer.drawable
 
+import de.robolab.renderer.ITransformationReference
 import de.robolab.renderer.TransformationInteraction
-import de.robolab.renderer.utils.DrawContext
-import de.robolab.renderer.utils.Transformation
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
-import de.robolab.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.renderer.platform.PointerEvent
+import de.robolab.renderer.utils.DrawContext
+import de.robolab.renderer.utils.Transformation
 import kotlin.math.PI
 import kotlin.math.round
 
-class CompassDrawable(private val planetDrawable: AbsPlanetDrawable) : IDrawable {
+class CompassDrawable(private val transformationReference: ITransformationReference) : IDrawable {
 
     override fun onUpdate(ms_offset: Double): Boolean {
         return false
@@ -70,12 +70,12 @@ class CompassDrawable(private val planetDrawable: AbsPlanetDrawable) : IDrawable
         if (event.point.distance(compassCenter) <= RADIUS) {
             val currentAngle = round(transformation.rotation / PI * 180.0 * 100.0) / 100.0
             val newAngle = ((currentAngle - 180.0) % 360.0 + 180.0) % 360.0
-            planetDrawable.plotter?.transformation?.rotateTo(newAngle / 180.0 * PI, event.screen / 2)
+            transformationReference.transformation?.rotateTo(newAngle / 180.0 * PI, event.screen / 2)
             if (newAngle != 0.0) {
-                planetDrawable.plotter?.transformation?.rotateTo(0.0, event.screen / 2, 250.0)
+                transformationReference.transformation?.rotateTo(0.0, event.screen / 2, 250.0)
             } else {
-                planetDrawable.autoCentering = true
-                planetDrawable.centerPlanet(TransformationInteraction.ANIMATION_TIME)
+                transformationReference.autoCentering = true
+                transformationReference.centerPlanet(TransformationInteraction.ANIMATION_TIME)
             }
             return true
         }

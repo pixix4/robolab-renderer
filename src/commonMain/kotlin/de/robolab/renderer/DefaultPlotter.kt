@@ -21,12 +21,12 @@ import de.westermann.kobserve.property.property
 class DefaultPlotter(
         canvas: ICanvas,
         timer: ITimer,
-        drawable: IDrawable = BlankDrawable,
+        drawable: IDrawable = BlankDrawable(),
         override var animationTime: Double = 0.0
 ) : IPlotter {
     override val transformation = Transformation()
 
-    var drawable: IDrawable = BlankDrawable
+    var drawable: IDrawable = BlankDrawable()
         set(value) {
             field.onDetach(this)
             field = value

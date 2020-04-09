@@ -3,6 +3,7 @@ package de.robolab.renderer.drawable.planet
 import de.robolab.planet.Path
 import de.robolab.planet.Planet
 import de.robolab.renderer.IPlotter
+import de.robolab.renderer.ITransformationReference
 import de.robolab.renderer.TransformationInteraction
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
@@ -15,7 +16,7 @@ import de.robolab.renderer.utils.Transformation
 import de.westermann.kobserve.property.property
 
 @Suppress("LeakingThis")
-abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
+abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransformationReference {
 
     val drawCompassProperty = property(true)
     var drawCompass by drawCompassProperty
@@ -30,6 +31,9 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
     var drawGridNumbers by drawGridNumbersProperty
 
     var plotter: IPlotter? = null
+
+    override val transformation: Transformation?
+        get() = plotter?.transformation
 
     override val pointer: Pointer?
         get() = plotter?.pointer
@@ -109,8 +113,8 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
 
     private var centerOfPlanets = Point.ZERO
 
-    var autoCentering = true
-    fun centerPlanet(duration: Double = 0.0) {
+    override var autoCentering = true
+    override fun centerPlanet(duration: Double) {
         val transformation = plotter?.transformation ?: return
         val canvasCenter = centerOfPlanets * transformation.scaledGridWidth * Point(-1.0, 1.0)
         val size = (plotter?.size ?: Dimension.ZERO) / 2
