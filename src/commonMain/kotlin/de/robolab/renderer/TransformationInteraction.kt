@@ -128,7 +128,9 @@ class TransformationInteraction(
 
     override fun onResize(size: Dimension): Boolean {
         lastDimension = size
+        transformation.onViewChange.emit(Unit)
         plotter.drawable.onResize(size)
+        plotter.forceRedraw = true
 
         return true
     }

@@ -11,6 +11,8 @@ import de.robolab.renderer.theme.LightTheme
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.utils.Pointer
 import de.robolab.renderer.utils.Transformation
+import de.robolab.utils.runAfterTimeout
+import de.robolab.utils.runAsync
 import de.westermann.kobserve.property.property
 
 /**
@@ -37,12 +39,12 @@ class DefaultPlotter(
 
     private val context = DrawContext(canvas, transformation, LightTheme)
 
-    private var themeChanged = false
+    var forceRedraw = false
     var theme: ITheme
         get() = context.theme
         set(value) {
             context.theme = value
-            themeChanged = true
+            forceRedraw = true
         }
 
     override val pointerProperty = property<Pointer?>(null)
@@ -51,8 +53,8 @@ class DefaultPlotter(
     override fun render(ms_offset: Double) {
         var changes = drawable.onUpdate(ms_offset)
         changes = transformation.update(ms_offset) || changes
-        if (themeChanged) {
-            themeChanged = false
+        if (forceRedraw) {
+            forceRedraw = false
             changes = true
         }
 
