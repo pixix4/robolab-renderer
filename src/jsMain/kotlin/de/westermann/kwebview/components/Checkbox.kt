@@ -35,6 +35,8 @@ class Checkbox(
 
     val checkedProperty: Property<Boolean> = property(this::checked)
 
+    val disabledProperty = property(html::disabled)
+
     init {
         checked = initValue
         html.type = "checkbox"

@@ -3,6 +3,7 @@ package de.robolab.renderer.drawable.planet
 import de.robolab.model.Path
 import de.robolab.planet.Planet
 import de.robolab.renderer.IPlotter
+import de.robolab.renderer.TransformationInteraction
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.*
@@ -117,6 +118,7 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
         transformation.translateTo(canvasCenter + size, duration)
     }
 
+    private var isFirstImport = true
     protected fun importPlanets() {
         val planetList = planetLayers.map { it.planet }
 
@@ -143,10 +145,11 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
         }
 
         if (autoCentering) {
-            centerPlanet()
+            centerPlanet(if (isFirstImport) 0.0 else TransformationInteraction.ANIMATION_TIME)
         }
 
         plotter?.updatePointer()
+        isFirstImport = false
     }
     
     @Suppress("UNUSED_PARAMETER")

@@ -69,6 +69,9 @@ class SelectView<T : Any>(
             readonlyInternal = if (value) "readonly" else null
         }
 
+
+    val disabledProperty = property(html::disabled)
+
     var tabindex by AttributeDelegate()
     fun preventTabStop() {
         tabindex = "-1"

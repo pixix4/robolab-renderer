@@ -1,6 +1,8 @@
 @use '../utils';
 
 .status-bar {
+    @include utils.prevent-user-select();
+
     height: 2rem;
     line-height: 1.9rem;
     border-top: solid 1px var(--border-color);
@@ -9,7 +11,6 @@
     left: 0;
     width: 100%;
     z-index: 1;
-    user-select: none;
     overflow-x: auto;
     white-space: nowrap;
 

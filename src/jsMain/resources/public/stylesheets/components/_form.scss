@@ -34,6 +34,11 @@ input, button, a {
             background-color: var(--primary-hover-background);
         }
     }
+
+    &:disabled {
+        background-color: var(--secondary-background);
+        color: var(--secondary-text-color);
+    }
 }
 
 .button-group {

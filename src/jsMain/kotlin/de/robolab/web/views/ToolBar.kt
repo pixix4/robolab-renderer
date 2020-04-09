@@ -2,12 +2,12 @@ package de.robolab.web.views
 
 import de.robolab.app.controller.ToolBarController
 import de.robolab.web.views.utils.buttonGroup
+import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
-import de.westermann.kwebview.extra.listFactory
 
 class ToolBar(private val toolBarController: ToolBarController) : ViewCollection<View>() {
 
@@ -38,6 +38,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
             button {
                 classList += "menu"
                 iconView(MaterialIcon.MENU)
+                title = "Open menu"
 
                 onClick {
                     sideBarActiveProperty.value = !sideBarActiveProperty.value
@@ -57,17 +58,47 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
 
         boxView("tool-bar-right") {
             buttonGroup {
-                button("-") {
+                button {
+                    iconView(MaterialIcon.UNDO)
+                    title = "Undo last action"
+
+                    disabledProperty.bind(!toolBarController.canUndoProperty)
+
+                    onClick {
+                        toolBarController.undo()
+                    }
+                }
+                button {
+                    iconView(MaterialIcon.REDO)
+                    title = "Redo last action"
+
+                    disabledProperty.bind(!toolBarController.canRedoProperty)
+
+                    onClick {
+                        toolBarController.redo()
+                    }
+                }
+            }
+            buttonGroup {
+                button {
+                    iconView(MaterialIcon.REMOVE)
+                    title = "Zoom out"
+
                     onClick {
                         toolBarController.zoomOut()
                     }
                 }
                 button(toolBarController.zoomProperty) {
+                    title = "Reset zoom"
+
                     onClick {
                         toolBarController.resetZoom()
                     }
                 }
-                button("+") {
+                button {
+                    iconView(MaterialIcon.ADD)
+                    title = "Zoom in"
+
                     onClick {
                         toolBarController.zoomIn()
                     }

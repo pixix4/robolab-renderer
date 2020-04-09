@@ -44,12 +44,12 @@ class SideBar(private val sideBarController: SideBarController, sideBarProperty:
                     sideBarController.closeGroup()
                 }
             }
-            boxView {
+            boxView("side-bar-list") {
                 listFactory(sideBarController.entryListProperty, this@SideBar::createEntry)
             }
-        }
-        boxView("side-bar-empty") {
-            textView("Nothing to show!")
+            boxView("side-bar-empty") {
+                textView("Nothing to show!")
+            }
         }
         boxView("side-bar-footer") {
             classList.bind("success", sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.SUCCESS })

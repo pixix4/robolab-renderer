@@ -1,6 +1,8 @@
 @use '../utils';
 
 .side-bar {
+    @include utils.prevent-user-select();
+
     position: absolute;
     left: calc(-100% + 4rem);
     top: 0;
@@ -8,7 +10,6 @@
     width: calc(100% - 4rem);
     z-index: 2;
     border-right: solid 1px var(--border-color);
-    user-select: none;
     transition: left 200ms;
     background-color: var(--secondary-background);
 
@@ -41,7 +42,7 @@
 }
 
 .side-bar-header {
-    line-height: 3rem;
+    line-height: 2.8rem;
     height: 3rem;
     width: 100%;
     top: 0;
@@ -62,6 +63,8 @@
             overflow: hidden;
             text-overflow: ellipsis;
             padding: 0;
+            height: 2.1rem;
+            vertical-align: middle;
         }
     }
 }
@@ -77,6 +80,8 @@
 }
 
 .side-bar-footer {
+    @include utils.prevent-user-select();
+
     height: 2rem;
     line-height: 1.9rem;
     border-top: solid 1px var(--border-color);
@@ -85,7 +90,6 @@
     left: 0;
     width: 100%;
     z-index: 1;
-    user-select: none;
     overflow-x: auto;
     white-space: nowrap;
     padding: 0 1rem;
@@ -166,6 +170,7 @@
 
     &.active {
         background-color: var(--primary-background);
+        color: var(--theme-color);
 
         &:hover {
             background-color: var(--primary-hover-background);
@@ -193,6 +198,6 @@
     }
 }
 
-.side-bar-content:empty ~ .side-bar-empty {
+.side-bar-list:empty ~ .side-bar-empty {
     display: flex;
 }

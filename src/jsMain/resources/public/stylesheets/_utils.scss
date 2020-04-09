@@ -7,3 +7,10 @@
 @mixin radius {
     border-radius: 0.3rem;
 }
+
+@mixin prevent-user-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

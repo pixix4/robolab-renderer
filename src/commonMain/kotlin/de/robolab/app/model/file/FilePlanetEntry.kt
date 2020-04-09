@@ -11,6 +11,7 @@ import de.robolab.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.SvgCanvas
 import de.robolab.renderer.utils.Transformation
+import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.property
 
@@ -50,6 +51,16 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
                     }
             )
     )
+
+    override val canUndoProperty = planetFile.history.canUndoProperty
+    override fun undo() {
+        planetFile.history.undo()
+    }
+
+    override val canRedoProperty = planetFile.history.canRedoProperty
+    override fun redo() {
+        planetFile.history.redo()
+    }
 
     override fun onOpen() {
         if (!enabledProperty.value) {
@@ -122,7 +133,6 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
         planetFile.history.onChange {
             drawable.importPlanet(planetFile.planet)
         }
-        drawable.importPlanet(planetFile.planet)
     }
 }
 

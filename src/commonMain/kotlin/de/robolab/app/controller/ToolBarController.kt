@@ -2,6 +2,7 @@ package de.robolab.app.controller
 
 import de.robolab.app.model.ISideBarPlottable
 import de.westermann.kobserve.Property
+import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
 import de.westermann.kobserve.property.mapBinding
 import kotlin.math.roundToInt
@@ -29,4 +30,16 @@ class ToolBarController(
     fun resetZoom() {
         canvasController.resetZoom()
     }
+
+
+    val canUndoProperty = selectedEntryProperty.flatMapReadOnlyNullableBinding { it?.canUndoProperty }.mapBinding { it ?: false }
+    fun undo() {
+        selectedEntryProperty.value?.undo()
+    }
+
+    val canRedoProperty = selectedEntryProperty.flatMapReadOnlyNullableBinding { it?.canRedoProperty }.mapBinding { it ?: false }
+    fun redo() {
+        selectedEntryProperty.value?.redo()
+    }
+
 }

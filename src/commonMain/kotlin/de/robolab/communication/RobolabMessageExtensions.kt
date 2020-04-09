@@ -5,8 +5,8 @@ import de.robolab.planet.Planet
 import de.robolab.renderer.drawable.live.RobotDrawable
 
 
-fun List<RobolabMessage>.toServerPlanet(maximumIndex: Int? = null): Planet {
-    val messageList = if (maximumIndex != null) this.subList(0, maximumIndex + 1) else this
+fun List<RobolabMessage>.toServerPlanet(): Planet {
+    val messageList = this
     val (name, startPoint, startOrientation) =
             (firstOrNull { it is RobolabMessage.PlanetMessage } as? RobolabMessage.PlanetMessage)?.let {
                 Triple(it.planetName, it.startPoint, it.startOrientation)
@@ -93,8 +93,8 @@ fun List<RobolabMessage>.toServerPlanet(maximumIndex: Int? = null): Planet {
     )
 }
 
-fun List<RobolabMessage>.toMqttPlanet(maximumIndex: Int? = null): Planet {
-    val messageList = if (maximumIndex != null) this.subList(0, maximumIndex + 1) else this
+fun List<RobolabMessage>.toMqttPlanet(): Planet {
+    val messageList = this
     val (name, startPoint, startOrientation) =
             (firstOrNull { it is RobolabMessage.PlanetMessage } as? RobolabMessage.PlanetMessage)?.let {
                 Triple(it.planetName, it.startPoint, it.startOrientation)
@@ -181,8 +181,9 @@ fun List<RobolabMessage>.toMqttPlanet(maximumIndex: Int? = null): Planet {
     )
 }
 
-fun List<RobolabMessage>.toRobot(groupNumber: Int?, maximumIndex: Int? = null): RobotDrawable.Robot? {
-    val messageList = if (maximumIndex != null) this.subList(0, maximumIndex + 1) else this
+fun List<RobolabMessage>.toRobot(groupNumber: Int?): RobotDrawable.Robot? {
+    val messageList = this
+
     val (name, startPoint, startOrientation) =
             (firstOrNull { it is RobolabMessage.PlanetMessage } as? RobolabMessage.PlanetMessage)?.let {
                 Triple(it.planetName, it.startPoint, it.startOrientation)

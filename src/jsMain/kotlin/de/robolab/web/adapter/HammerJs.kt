@@ -11,12 +11,20 @@ fun Hammer.enablePan() {
     get("pan").set(object {
         val enable = true
         val direction = js("Hammer.DIRECTION_ALL")
+        val threshold = 10
     })
 }
 
 fun Hammer.enablePinch() {
     get("pinch").set(object {
         val enable = true
+    })
+}
+
+fun Hammer.enablePress() {
+    get("press").set(object {
+        val enable = true
+        val threshold = 9
     })
 }
 

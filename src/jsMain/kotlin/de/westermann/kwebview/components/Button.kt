@@ -38,6 +38,8 @@ class Button() : ViewCollection<View>(createHtmlView<HTMLButtonElement>()) {
         }
 
     val textProperty: Property<String> = property(this::text)
+
+    val disabledProperty = property(html::disabled)
 }
 
 @KWebViewDsl

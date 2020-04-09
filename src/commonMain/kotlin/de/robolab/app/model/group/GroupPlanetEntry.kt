@@ -3,19 +3,20 @@ package de.robolab.app.model.group
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
 import de.robolab.app.model.ISideBarEntry
-import de.robolab.app.model.ISideBarPlottable
 import de.robolab.app.model.ISideBarGroup
+import de.robolab.app.model.ISideBarPlottable
 import de.robolab.communication.RobolabMessage
 import de.robolab.communication.toMqttPlanet
 import de.robolab.communication.toServerPlanet
 import de.robolab.renderer.drawable.planet.LivePlanetDrawable
-import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.list.ObservableReadOnlyList
 import de.westermann.kobserve.list.mapObservable
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.constProperty
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import kotlin.math.max
+import kotlin.math.min
 
 class GroupPlanetEntry(val groupName: String) : ISideBarGroup {
 
@@ -75,18 +76,63 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
 
     override val drawable = LivePlanetDrawable()
 
-    val maximumIndexProperty = property<Int?>(null)
+    val selectedIndexProperty = property<Int?>(null)
 
     private fun update() {
-        println("Render ${messages.size} messages")
-        println(messages)
-        drawable.importServerPlanet(messages.toServerPlanet(maximumIndexProperty.value))
-        drawable.importMqttPlanet(messages.toMqttPlanet(maximumIndexProperty.value))
+        val selectedIndex = selectedIndexProperty.value
+        val m = if (selectedIndex == null) messages else messages.subList(0, selectedIndex - 1)
+
+        println("Render ${m.size} messages")
+
+        drawable.importServerPlanet(m.toServerPlanet())
+        drawable.importMqttPlanet(m.toMqttPlanet())
+    }
+
+    override val canUndoProperty = property(selectedIndexProperty, messages) {
+        val selectedIndex = selectedIndexProperty.value
+        val lastIndex = messages.lastIndex
+
+        if (selectedIndex == null) {
+            lastIndex > 0
+        } else {
+            selectedIndex > 0
+        }
+    }
+
+    override fun undo() {
+        val selectedIndex = selectedIndexProperty.value
+        val lastIndex = messages.lastIndex
+
+        if (selectedIndex == null) {
+            selectedIndexProperty.value = max(0, lastIndex - 1)
+        } else {
+            selectedIndexProperty.value = max(0, selectedIndex - 1)
+        }
+    }
+
+    override val canRedoProperty = property(selectedIndexProperty, messages) {
+        val selectedIndex = selectedIndexProperty.value
+        val lastIndex = messages.lastIndex
+
+        selectedIndex != null && selectedIndex < lastIndex
+    }
+
+    override fun redo() {
+        val selectedIndex = selectedIndexProperty.value
+        val lastIndex = messages.lastIndex
+
+        if (selectedIndex != null) {
+            if (selectedIndex >= lastIndex) {
+                selectedIndexProperty.value = null
+            } else {
+                selectedIndexProperty.value = min(lastIndex, selectedIndex + 1)
+            }
+        }
     }
 
     init {
         messages.onChange { update() }
-        maximumIndexProperty.onChange { update() }
+        selectedIndexProperty.onChange { update() }
     }
 
     companion object {

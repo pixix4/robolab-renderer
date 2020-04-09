@@ -398,6 +398,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         hammer.enablePan()
         hammer.enablePinch()
         hammer.enableRotate()
+        hammer.enablePress()
 
         canvas.html.tabIndex = 0
     }

@@ -88,6 +88,8 @@ class InputView(
             stepInternal = value?.toString()
         }
 
+    val disabledProperty = property(html::disabled)
+
     val selectionStart: Int?
         get() = html.selectionStart
     val selectionEnd: Int?
