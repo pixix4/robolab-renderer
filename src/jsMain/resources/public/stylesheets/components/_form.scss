@@ -16,6 +16,7 @@ input, button, a {
     padding: 0 1rem;
     font-size: 1rem;
     margin: 0 0.2rem;
+    touch-action: manipulation;
 
     &:hover {
         background-color: var(--tertiary-hover-background);

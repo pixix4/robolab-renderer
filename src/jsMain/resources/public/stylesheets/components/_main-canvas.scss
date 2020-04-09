@@ -8,6 +8,7 @@
     bottom: 2rem;
     z-index: 0;
     overflow: hidden;
+    touch-action: manipulation;
 
     canvas {
         width: 100%;
