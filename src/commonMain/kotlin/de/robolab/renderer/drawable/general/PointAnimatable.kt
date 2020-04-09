@@ -1,6 +1,6 @@
 package de.robolab.renderer.drawable.general
 
-import de.robolab.model.Coordinate
+import de.robolab.planet.Coordinate
 import de.robolab.planet.Planet
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
@@ -80,7 +80,7 @@ class PointAnimatable(
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
-        if (position.manhattan_distance(this.position) < PlottingConstraints.POINT_SIZE / 2) {
+        if (position.manhattanDistance(this.position) < PlottingConstraints.POINT_SIZE / 2) {
             return listOf(reference.coordinate)
         }
 

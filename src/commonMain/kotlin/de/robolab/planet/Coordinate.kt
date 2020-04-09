@@ -1,8 +1,8 @@
-package de.robolab.model
+package de.robolab.planet
 
 data class Coordinate(val x: Int, val y: Int) {
 
-    fun getColor(bluePoint: Coordinate?): Coordinate.Color {
+    fun getColor(bluePoint: Coordinate?): Color {
         if (bluePoint == null) {
             return Color.UNKNOWN
         }

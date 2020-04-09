@@ -1,7 +1,7 @@
 package de.robolab.renderer.drawable.general
 
-import de.robolab.model.Direction
-import de.robolab.model.Path
+import de.robolab.planet.Direction
+import de.robolab.planet.Path
 import de.robolab.planet.Planet
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
@@ -231,7 +231,7 @@ class PathAnimatable(
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
-        if (startPoint.manhattan_distance(position) <= PlottingConstraints.POINT_SIZE / 2 || endPoint.manhattan_distance(position) <= PlottingConstraints.POINT_SIZE / 2) {
+        if (startPoint.manhattanDistance(position) <= PlottingConstraints.POINT_SIZE / 2 || endPoint.manhattanDistance(position) <= PlottingConstraints.POINT_SIZE / 2) {
             return emptyList()
         }
 

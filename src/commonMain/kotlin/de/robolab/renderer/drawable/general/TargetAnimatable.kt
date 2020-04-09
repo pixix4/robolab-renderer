@@ -1,7 +1,7 @@
 package de.robolab.renderer.drawable.general
 
 import de.robolab.planet.Planet
-import de.robolab.model.TargetPoint
+import de.robolab.planet.TargetPoint
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.animation.ValueTransition

@@ -1,6 +1,6 @@
 package de.robolab.renderer.drawable.edit
 
-import de.robolab.model.Path
+import de.robolab.planet.Path
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable

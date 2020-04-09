@@ -1,8 +1,8 @@
 package de.robolab.communication
 
 import de.robolab.app.model.file.parseDirection
-import de.robolab.model.Coordinate
-import de.robolab.model.Path
+import de.robolab.planet.Coordinate
+import de.robolab.planet.Path
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

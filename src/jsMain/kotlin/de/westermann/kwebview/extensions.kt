@@ -47,10 +47,7 @@ inline fun <reified T> EventHandler<T>.bind(element: EventTarget, event: String)
     updateState()
 }
 
-fun MouseEvent.toPoint(): Point = Point(clientX, clientY)
 fun DOMRect.toDimension(): Dimension = Dimension(x, y, width, height)
-
-fun Number.format(digits: Int): String = this.asDynamic().toFixed(digits)
 
 external fun delete(p: dynamic): Boolean = definedExternally
 

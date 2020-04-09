@@ -1,6 +1,6 @@
 package de.robolab.renderer.data
 
-import de.robolab.model.Coordinate
+import de.robolab.planet.Coordinate
 import de.robolab.renderer.animation.IInterpolatable
 import kotlin.math.abs
 import kotlin.math.cos
@@ -31,7 +31,7 @@ data class Point(
         return sqrt(l * l + r * r)
     }
 
-    fun manhattan_distance(other: Point): Double {
+    fun manhattanDistance(other: Point): Double {
         return abs(left - other.left) + abs(top - other.top)
     }
 

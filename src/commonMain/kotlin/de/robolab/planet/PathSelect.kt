@@ -1,4 +1,7 @@
-package de.robolab.model
+package de.robolab.planet
+
+import de.robolab.planet.Coordinate
+import de.robolab.planet.Direction
 
 data class PathSelect(
         val point: Coordinate,

@@ -1,7 +1,5 @@
 package de.robolab.planet
 
-import de.robolab.model.*
-
 data class Planet(
         val name: String,
         val startPoint: StartPoint?,

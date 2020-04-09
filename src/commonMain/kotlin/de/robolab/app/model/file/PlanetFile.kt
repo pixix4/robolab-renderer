@@ -1,6 +1,6 @@
 package de.robolab.app.model.file
 
-import de.robolab.model.*
+import de.robolab.planet.*
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.edit.IEditCallback
 import de.robolab.renderer.utils.History

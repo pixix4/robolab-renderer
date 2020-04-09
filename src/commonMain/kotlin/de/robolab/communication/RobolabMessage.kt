@@ -2,9 +2,9 @@ package de.robolab.communication
 
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
-import de.robolab.model.Coordinate
-import de.robolab.model.Direction
-import de.robolab.model.Path
+import de.robolab.planet.Coordinate
+import de.robolab.planet.Direction
+import de.robolab.planet.Path
 
 /**
  * @author leon

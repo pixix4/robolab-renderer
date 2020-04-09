@@ -1,4 +1,4 @@
-package de.robolab.model
+package de.robolab.planet
 
 import de.robolab.renderer.data.Point
 

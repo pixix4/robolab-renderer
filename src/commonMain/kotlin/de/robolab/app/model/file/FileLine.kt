@@ -1,7 +1,6 @@
 package de.robolab.app.model.file
 
-import de.robolab.model.*
-import de.robolab.planet.Planet
+import de.robolab.planet.*
 import de.robolab.renderer.data.Point
 import kotlin.math.absoluteValue
 import kotlin.math.pow

@@ -4,7 +4,6 @@ import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.ICanvas
-import kotlin.math.abs
 
 class TransformationCanvas(private val canvas: ICanvas, private val transformation: ITransformation) : ICanvas by canvas {
 
@@ -46,7 +45,7 @@ class TransformationCanvas(private val canvas: ICanvas, private val transformati
         for (point in points) {
             val new = transformation.planetToCanvas(point)
 
-            if (new.manhattan_distance(last) >= 1) {
+            if (new.manhattanDistance(last) >= 1) {
                 canvasPoints += new
                 last = new
             }

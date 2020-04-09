@@ -1,6 +1,6 @@
 package de.robolab.renderer.drawable.planet
 
-import de.robolab.model.Path
+import de.robolab.planet.Path
 import de.robolab.planet.Planet
 import de.robolab.renderer.drawable.base.selectedElement
 import de.robolab.renderer.drawable.edit.*

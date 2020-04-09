@@ -1,11 +1,11 @@
 package de.robolab.communication
 
-import de.robolab.model.*
-import de.robolab.planet.Planet
+import de.robolab.planet.*
 import de.robolab.renderer.drawable.live.RobotDrawable
 
 
 fun List<RobolabMessage>.toServerPlanet(): Planet {
+    /*
     val messageList = this
     val (name, startPoint, startOrientation) =
             (firstOrNull { it is RobolabMessage.PlanetMessage } as? RobolabMessage.PlanetMessage)?.let {
@@ -91,9 +91,13 @@ fun List<RobolabMessage>.toServerPlanet(): Planet {
             targets,
             pathSelects
     )
+     */
+
+    return Planet.EMPTY
 }
 
 fun List<RobolabMessage>.toMqttPlanet(): Planet {
+    /*
     val messageList = this
     val (name, startPoint, startOrientation) =
             (firstOrNull { it is RobolabMessage.PlanetMessage } as? RobolabMessage.PlanetMessage)?.let {
@@ -179,9 +183,13 @@ fun List<RobolabMessage>.toMqttPlanet(): Planet {
             targets,
             pathSelects
     )
+    */
+
+    return Planet.EMPTY
 }
 
 fun List<RobolabMessage>.toRobot(groupNumber: Int?): RobotDrawable.Robot? {
+    /*
     val messageList = this
 
     val (name, startPoint, startOrientation) =
@@ -271,6 +279,7 @@ fun List<RobolabMessage>.toRobot(groupNumber: Int?): RobotDrawable.Robot? {
             robots += RobotDrawable.Robot(robotPosition, robotServerDirection, false, groupNumber)
         }
     }
+    */
 
-    return robots.lastOrNull()
+    return null
 }

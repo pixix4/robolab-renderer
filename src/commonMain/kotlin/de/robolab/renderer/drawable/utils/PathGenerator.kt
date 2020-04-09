@@ -1,6 +1,6 @@
 package de.robolab.renderer.drawable.utils
 
-import de.robolab.model.Direction
+import de.robolab.planet.Direction
 import de.robolab.renderer.data.Point
 
 object PathGenerator {

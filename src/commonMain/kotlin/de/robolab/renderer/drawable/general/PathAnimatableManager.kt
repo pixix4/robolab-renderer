@@ -1,6 +1,6 @@
 package de.robolab.renderer.drawable.general
 
-import de.robolab.model.Path
+import de.robolab.planet.Path
 import de.robolab.planet.Planet
 import de.robolab.renderer.drawable.base.AnimatableManager
 import de.robolab.renderer.drawable.base.IAnimationTime

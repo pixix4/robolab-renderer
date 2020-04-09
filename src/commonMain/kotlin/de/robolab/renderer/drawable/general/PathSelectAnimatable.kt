@@ -1,7 +1,7 @@
 package de.robolab.renderer.drawable.general
 
-import de.robolab.model.Direction
-import de.robolab.model.PathSelect
+import de.robolab.planet.Direction
+import de.robolab.planet.PathSelect
 import de.robolab.planet.Planet
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Point

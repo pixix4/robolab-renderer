@@ -2,8 +2,8 @@ package de.robolab.app.controller
 
 import de.robolab.app.model.ISideBarPlottable
 import de.robolab.app.model.file.toFixed
-import de.robolab.model.Coordinate
-import de.robolab.model.Path
+import de.robolab.planet.Coordinate
+import de.robolab.planet.Path
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.TransformationInteraction
 import de.robolab.renderer.data.Point
