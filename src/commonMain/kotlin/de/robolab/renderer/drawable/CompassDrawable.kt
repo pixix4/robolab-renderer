@@ -1,5 +1,6 @@
 package de.robolab.renderer.drawable
 
+import de.robolab.renderer.TransformationInteraction
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.utils.Transformation
 import de.robolab.renderer.data.Point
@@ -73,7 +74,8 @@ class CompassDrawable(private val planetDrawable: AbsPlanetDrawable) : IDrawable
             if (newAngle != 0.0) {
                 planetDrawable.plotter?.transformation?.rotateTo(0.0, event.screen / 2, 250.0)
             } else {
-                planetDrawable.centerPlanet(255.0)
+                planetDrawable.autoCentering = true
+                planetDrawable.centerPlanet(TransformationInteraction.ANIMATION_TIME)
             }
             return true
         }

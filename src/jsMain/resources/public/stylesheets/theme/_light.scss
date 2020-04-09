@@ -8,6 +8,7 @@ $_tertiary-background: #E0E0E0;
 $_tertiary-hover-background: #E9E9E9;
 
 $_primary-text-color: #333333;
+$_secondary-text-color: #888;
 
 $_theme-color: #c0392b;
 $_theme-text: #FFFFFF;
@@ -35,6 +36,7 @@ $_error-text-color: #FFF;
     --tertiary-hover-background: #{$_tertiary-hover-background};
 
     --primary-text-color: #{$_primary-text-color};
+    --secondary-text-color: #{$_secondary-text-color};
 
     --theme-color: #{$_theme-color};
     --theme-text: #{$_theme-text};

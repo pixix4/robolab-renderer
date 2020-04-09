@@ -1,27 +1,33 @@
 package de.robolab.renderer.utils
 
+import de.westermann.kobserve.Binding
+import de.westermann.kobserve.Property
+import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
-class History<T : Any>(initValue: T) {
+class History<T : Any>(initValue: T): Property<T> {
 
     private var historyIndexProperty = property(0)
     private var historyIndex by historyIndexProperty
     private var historyList = listOf(initValue)
 
     private val readOnlyValueProperty = historyIndexProperty.mapBinding { historyList[it] }
-    val valueProperty = property(object : FunctionAccessor<T> {
-        override fun get(): T {
-            return readOnlyValueProperty.get()
-        }
 
-        override fun set(value: T): Boolean {
-            push(value)
-            return true
-        }
-    }, readOnlyValueProperty)
-    val value by valueProperty
+    override var binding: Binding<T> = Binding.Unbound()
+
+    override fun get(): T {
+        return readOnlyValueProperty.value
+    }
+
+    override fun set(value: T) {
+        super.set(value)
+
+        push(value)
+    }
+
+    override val onChange = EventHandler(readOnlyValueProperty.onChange)
 
     val canUndoProperty = readOnlyValueProperty.mapBinding { historyIndex > 0 }
     val canUndo by canUndoProperty

@@ -171,6 +171,10 @@
             background-color: var(--primary-hover-background);
         }
     }
+
+    &.disabled {
+        color: var(--secondary-text-color)
+    }
 }
 
 .side-bar-empty {

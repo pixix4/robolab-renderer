@@ -30,4 +30,5 @@ interface IInteraction {
     }
     
     fun onResize(size: Dimension) {}
+    fun onUserTransformation() {}
 }

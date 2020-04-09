@@ -5,7 +5,7 @@ import de.robolab.app.model.ISideBarEntry
 import de.robolab.app.model.ISideBarPlottable
 import de.robolab.web.views.utils.buttonGroup
 import de.westermann.kobserve.Property
-import de.westermann.kobserve.property.flatMapBinding
+import de.westermann.kobserve.not
 import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.View
@@ -34,9 +34,11 @@ class SideBar(private val sideBarController: SideBarController, sideBarProperty:
         }
         boxView("side-bar-content") {
             boxView("side-bar-group-head") {
-                textView(sideBarController.selectedGroupProperty.flatMapReadOnlyNullableBinding { it?.tabNameProperty }.mapBinding { it ?: "" })
+                textView(sideBarController.selectedGroupProperty.flatMapReadOnlyNullableBinding { it?.tabNameProperty }.mapBinding {
+                    it ?: ""
+                })
 
-                classList.bind("active", sideBarController.selectedGroupProperty.mapBinding { it !=null })
+                classList.bind("active", sideBarController.selectedGroupProperty.mapBinding { it != null })
 
                 onClick {
                     sideBarController.closeGroup()
@@ -50,10 +52,9 @@ class SideBar(private val sideBarController: SideBarController, sideBarProperty:
             textView("Nothing to show!")
         }
         boxView("side-bar-footer") {
-
-            classList.bind("success", sideBarController.statusColor.mapBinding {it == SideBarController.StatusColor.SUCCESS})
-            classList.bind("warn", sideBarController.statusColor.mapBinding {it == SideBarController.StatusColor.WARN})
-            classList.bind("error", sideBarController.statusColor.mapBinding {it == SideBarController.StatusColor.ERROR})
+            classList.bind("success", sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.SUCCESS })
+            classList.bind("warn", sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.WARN })
+            classList.bind("error", sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.ERROR })
 
             textView(sideBarController.statusMessage)
             textView(sideBarController.statusActionLabel) {
@@ -87,6 +88,10 @@ class SideBarEntry(entry: ISideBarEntry, sideBarController: SideBarController) :
         }
 
         classList.bind("active", selectedProperty)
+
+        if (entry is ISideBarPlottable) {
+            classList.bind("disabled", !entry.enabledProperty)
+        }
 
         onClick {
             sideBarController.open(entry)

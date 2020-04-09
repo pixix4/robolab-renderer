@@ -118,8 +118,10 @@ class EventHandler<E>() {
     var onDetach: () -> Unit = {}
 
     constructor(vararg dependencies: EventHandler<out E>) : this() {
-        dependencies.forEach {
-            it.addListener(this::emit)
+        dependencies.forEach { eventHandler ->
+            eventHandler.addListener { event ->
+                emit(event)
+            }
         }
     }
 

@@ -10,12 +10,23 @@ actual class FilePlanetProvider actual constructor(): IProvider {
     val planetList: ObservableList<FilePlanetEntry> = observableListOf()
     override val entryList: ObservableReadOnlyList<ISideBarEntry> = planetList.sortObservable(compareBy { it.titleProperty.value.toLowerCase() }).mapObservable { it as ISideBarEntry }
 
-    private fun loadPlanet(name: String) {
-        window.fetch("/planet/$name").then {
+    actual fun loadEntry(entry: FilePlanetEntry, onFinish: (String?) -> Unit) {
+        window.fetch(entry.filename).then {
             it.text()
         }.then { content ->
-            planetList += FilePlanetEntry(name, content)
+            onFinish(content)
+        }.catch {
+            onFinish(null)
         }
+    }
+
+    actual fun saveEntry(entry: FilePlanetEntry, onFinish: (Boolean) -> Unit) {
+        onFinish(false)
+    }
+
+    private fun loadPlanet(name: String) {
+        val filename = "/planet/$name"
+        planetList += FilePlanetEntry(filename, this)
     }
 
     private fun loadPlanetList(planets: List<String>) {

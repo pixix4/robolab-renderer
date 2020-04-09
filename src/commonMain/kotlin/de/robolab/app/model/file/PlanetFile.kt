@@ -1,17 +1,17 @@
 package de.robolab.app.model.file
 
 import de.robolab.model.*
-import de.robolab.renderer.utils.History
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.edit.IEditCallback
+import de.robolab.renderer.utils.History
 import de.westermann.kobserve.property.mapBinding
 
 class PlanetFile(fileContent: String) : IEditCallback {
 
     val history = History(parseFileContent(fileContent))
-    var lines by history.valueProperty
+    private var lines by history
 
-    val planet = history.valueProperty.mapBinding { lines ->
+    val planetProperty = history.mapBinding { lines ->
         val buildAccumulator = FileLine.BuildAccumulator()
         for (line in lines) {
             try {
@@ -22,11 +22,17 @@ class PlanetFile(fileContent: String) : IEditCallback {
         }
         buildAccumulator.planet
     }
+    val planet by planetProperty
 
     private fun parseFileContent(fileContent: String) = fileContent.split('\n').map { parseLine(it) }
 
     fun setContent(fileContent: String) {
         lines = parseFileContent(fileContent)
+    }
+
+    fun resetContent(fileContent: String) {
+        history.push(parseFileContent(fileContent), reset = true)
+
     }
 
     override fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, groupHistory: Boolean) {
@@ -150,7 +156,7 @@ class PlanetFile(fileContent: String) : IEditCallback {
             listOf(FileLine.StartPointLine.create(startPoint)) + lines
         } else {
             val list = lines.toMutableList()
-            val old = planet.value.startPoint
+            val old = planet.startPoint
             if (old != null) {
                 list.retainAll { !it.isAssociatedTo(old) }
             }
@@ -167,7 +173,7 @@ class PlanetFile(fileContent: String) : IEditCallback {
 
     override fun deleteStartPoint(groupHistory: Boolean) {
         val newLines = lines.toMutableList()
-        val startPoint = planet.value.startPoint ?: return
+        val startPoint = planet.startPoint ?: return
         newLines.retainAll { !it.isAssociatedTo(startPoint) }
 
         if (groupHistory) {

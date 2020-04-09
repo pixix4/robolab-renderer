@@ -100,6 +100,12 @@ open class GroupDrawable(vararg drawables: IDrawable) : IDrawable {
         }
     }
 
+    override fun onUserTransformation() {
+        for (drawable in drawableList) {
+            drawable.onUserTransformation()
+        }
+    }
+
     override fun onAttach(plotter: IPlotter) {
         for (drawable in drawableList) {
             drawable.onAttach(plotter)

@@ -11,13 +11,14 @@ import de.robolab.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.SvgCanvas
 import de.robolab.renderer.utils.Transformation
-import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.not
-import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.property
 
-class FilePlanetEntry(private val filename: String, content: String) : ISideBarPlottable {
+class FilePlanetEntry(val filename: String, private val provider: FilePlanetProvider) : ISideBarPlottable {
 
-    private val planetFile = PlanetFile(content)
+    private val planetFile = PlanetFile("")
+
+    override val enabledProperty = property(false)
 
     override val drawable = EditPlanetDrawable()
 
@@ -32,7 +33,7 @@ class FilePlanetEntry(private val filename: String, content: String) : ISideBarP
             ),
             listOf(
                     ISideBarPlottable.PlottableAction("Export SVG") {
-                        var name = planetFile.planet.value.name.trim()
+                        var name = planetFile.planet.name.trim()
                         if (name.isEmpty()) {
                             name = "export"
                         }
@@ -41,7 +42,7 @@ class FilePlanetEntry(private val filename: String, content: String) : ISideBarP
             ),
             listOf(
                     ISideBarPlottable.PlottableAction("Export PNG") {
-                        var name = planetFile.planet.value.name.trim()
+                        var name = planetFile.planet.name.trim()
                         if (name.isEmpty()) {
                             name = "export"
                         }
@@ -50,6 +51,16 @@ class FilePlanetEntry(private val filename: String, content: String) : ISideBarP
             )
     )
 
+    override fun onOpen() {
+        if (!enabledProperty.value) {
+            provider.loadEntry(this) { content ->
+                if (content != null) {
+                    planetFile.resetContent(content)
+                    enabledProperty.value = true
+                }
+            }
+        }
+    }
 
     private fun exportSVG(): String {
         val dimension = exportGetSize()
@@ -69,7 +80,7 @@ class FilePlanetEntry(private val filename: String, content: String) : ISideBarP
     }
 
     private fun exportGetSize(): Dimension {
-        val rect = BackgroundDrawable.calcPlanetArea(planetFile.planet.value)?.expand(0.99) ?: Rectangle.ZERO
+        val rect = BackgroundDrawable.calcPlanetArea(planetFile.planet)?.expand(0.99) ?: Rectangle.ZERO
         return Dimension(rect.width * Transformation.PIXEL_PER_UNIT, rect.height * Transformation.PIXEL_PER_UNIT)
     }
 
@@ -77,7 +88,7 @@ class FilePlanetEntry(private val filename: String, content: String) : ISideBarP
         val drawable = SimplePlanetDrawable()
         drawable.drawCompass = false
         drawable.drawName = true
-        drawable.importPlanet(planetFile.planet.value)
+        drawable.importPlanet(planetFile.planet)
 
         val plotter = ExportPlotter(canvas, drawable)
 
@@ -86,9 +97,18 @@ class FilePlanetEntry(private val filename: String, content: String) : ISideBarP
         plotter.render(0.0)
     }
 
-    override val titleProperty = planetFile.planet.mapBinding { it.name }
+    override val titleProperty = property(enabledProperty, planetFile.planetProperty) {
+        if (enabledProperty.value) {
+            val name = planetFile.planet.name
+            if (name.isBlank()) "[Unnamed]" else name
+        } else {
+            filename
+        }
+    }
 
-    override val subtitleProperty = planetFile.planet.mapBinding { "Contains ${it.pathList.size} paths" }
+    override val subtitleProperty = property(enabledProperty, planetFile.planetProperty) {
+        if (enabledProperty.value) "Contains ${planetFile.planet.pathList.size} paths" else "Click to load"
+    }
 
     override val tabNameProperty = titleProperty
 
@@ -99,10 +119,10 @@ class FilePlanetEntry(private val filename: String, content: String) : ISideBarP
     init {
         drawable.editCallback = planetFile
 
-        planetFile.history.valueProperty.onChange {
-            drawable.importPlanet(planetFile.planet.value)
+        planetFile.history.onChange {
+            drawable.importPlanet(planetFile.planet)
         }
-        drawable.importPlanet(planetFile.planet.value)
+        drawable.importPlanet(planetFile.planet)
     }
 }
 

@@ -71,6 +71,8 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     override val actionList = emptyList<List<ISideBarPlottable.PlottableAction>>()
     override val unsavedChangesProperty = constProperty(false)
 
+    override val enabledProperty = constProperty(false)
+
     override val drawable = LivePlanetDrawable()
 
     val maximumIndexProperty = property<Int?>(null)

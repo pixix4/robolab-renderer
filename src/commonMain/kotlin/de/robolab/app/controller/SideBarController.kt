@@ -62,6 +62,7 @@ class SideBarController(
                 }
             }
             is ISideBarPlottable -> {
+                entry.onOpen()
                 selectedEntryProperty.value = entry
             }
         }

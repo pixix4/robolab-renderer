@@ -10,6 +10,9 @@ interface ISideBarPlottable: ISideBarEntry {
 
     val drawable: IDrawable
 
+    val enabledProperty: ReadOnlyProperty<Boolean>
+    fun onOpen() {}
+
     class PlottableAction(
             val nameProperty: ReadOnlyProperty<String>,
             val activeProperty: ReadOnlyProperty<Boolean>,

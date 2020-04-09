@@ -61,7 +61,10 @@ class TransformationInteraction(
         }
 
         transformation.translateBy(event.point - lastPoint)
+        plotter.drawable.onUserTransformation()
+
         lastPoint = event.point
+
         return true
     }
 
@@ -99,6 +102,7 @@ class TransformationInteraction(
             }
             else -> {
                 transformation.translateBy(event.delta, ANIMATION_TIME)
+                plotter.drawable.onUserTransformation()
             }
         }
 
@@ -127,8 +131,13 @@ class TransformationInteraction(
     }
 
     override fun onResize(size: Dimension): Boolean {
+        val oldCenter = transformation.canvasToPlanet(lastDimension / 2)
+        val newCenter = transformation.canvasToPlanet(size / 2)
+        val diff = (oldCenter - newCenter) * transformation.scaledGridWidth
+        transformation.translateBy(diff)
+        
         lastDimension = size
-        transformation.onViewChange.emit(Unit)
+
         plotter.drawable.onResize(size)
         plotter.forceRedraw = true
 
@@ -143,10 +152,12 @@ class TransformationInteraction(
         when (event.keyCode) {
             KeyCode.ARROW_UP -> {
                 transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION), ANIMATION_TIME)
+                plotter.drawable.onUserTransformation()
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.ARROW_DOWN -> {
                 transformation.translateBy(Point(0.0, -KEYBOARD_TRANSLATION), ANIMATION_TIME)
+                plotter.drawable.onUserTransformation()
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.ARROW_LEFT -> {
@@ -154,6 +165,7 @@ class TransformationInteraction(
                     transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
                     transformation.translateBy(Point(KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
+                    plotter.drawable.onUserTransformation()
                 }
                 plotter.updatePointer(lastPoint)
             }
@@ -162,6 +174,7 @@ class TransformationInteraction(
                     transformation.rotateBy(KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
                     transformation.translateBy(Point(-KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
+                    plotter.drawable.onUserTransformation()
                 }
                 plotter.updatePointer(lastPoint)
             }

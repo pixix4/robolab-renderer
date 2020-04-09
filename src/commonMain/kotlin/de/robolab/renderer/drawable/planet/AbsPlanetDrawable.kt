@@ -99,18 +99,19 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
     }
 
     override fun onUpdate(ms_offset: Double): Boolean {
-        val hsc = redraw
+        val changed = redraw
         redraw = false
-        return super.onUpdate(ms_offset) || hsc
+        return super.onUpdate(ms_offset) || changed
     }
 
     private var redraw = false
 
-    private var center = Point.ZERO
+    private var centerOfPlanets = Point.ZERO
 
+    var autoCentering = true
     fun centerPlanet(duration: Double = 0.0) {
         val transformation = plotter?.transformation ?: return
-        val canvasCenter = center * transformation.scaledGridWidth * Point(-1.0, 1.0)
+        val canvasCenter = centerOfPlanets * transformation.scaledGridWidth * Point(-1.0, 1.0)
         val size = (plotter?.size ?: Dimension.ZERO) / 2
 
         transformation.translateTo(canvasCenter + size, duration)
@@ -122,7 +123,7 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
         backgroundDrawable.importPlanet(planetList)
         nameDrawable.importPlanet(planetList.asReversed().firstOrNull { it.name.isNotEmpty() } ?: Planet.EMPTY)
 
-        center = BackgroundDrawable.calcPlanetArea(planetList)?.center ?: Point.ZERO
+        centerOfPlanets = BackgroundDrawable.calcPlanetArea(planetList)?.center ?: Point.ZERO
 
         selectedElements = selectedElements.mapNotNull { current ->
             if (current !is Path) return@mapNotNull current
@@ -139,6 +140,10 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
             }
 
             return@mapNotNull null
+        }
+
+        if (autoCentering) {
+            centerPlanet()
         }
 
         plotter?.updatePointer()
@@ -161,6 +166,12 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime {
     }
 
     override fun onResize(size: Dimension) {
-        centerPlanet()
+        if (autoCentering) {
+            centerPlanet()
+        }
+    }
+
+    override fun onUserTransformation() {
+        autoCentering = false
     }
 }
