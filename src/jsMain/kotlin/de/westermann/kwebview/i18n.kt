@@ -1,5 +1,6 @@
 package de.westermann.kwebview
 
+import de.robolab.utils.runAfterTimeout
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlin.browser.window
@@ -46,7 +47,7 @@ object i18n {
                 locale = data[id] ?: fallbackLocale
                 block()
             } else {
-                async(50) { ready() }
+                runAfterTimeout(50) { ready() }
             }
         }
         ready()

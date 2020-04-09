@@ -14,6 +14,16 @@ $_theme-text: #FFFFFF;
 
 $_border-color: #D0D0D0;
 
+$_success-color: #2ecc71;
+$_success-text-color: #FFF;
+
+$_warn-color: #f1c40f;
+$_warn-text-color: #FFF;
+
+$_error-color: #e74c3c;
+$_error-text-color: #FFF;
+
+
 :root {
     --primary-background: #{$_primary-background};
     --primary-hover-background: #{$_primary-hover-background};
@@ -30,4 +40,13 @@ $_border-color: #D0D0D0;
     --theme-text: #{$_theme-text};
 
     --border-color: #{$_border-color};
+
+    --success-color: #{$_success-color};
+    --success-text-color: #{$_success-text-color};
+
+    --warn-color: #{$_warn-color};
+    --warn-text-color: #{$_warn-text-color};
+
+    --error-color: #{$_error-color};
+    --error-text-color: #{$_error-text-color};
 }

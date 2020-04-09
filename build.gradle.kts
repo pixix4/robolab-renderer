@@ -2,6 +2,7 @@
 
 plugins {
     kotlin("multiplatform") version "1.3.71"
+    kotlin("plugin.serialization") version "1.3.71"
     id("com.github.node-gradle.node") version "2.2.3"
 }
 
@@ -12,6 +13,8 @@ repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
+val serializationVersion  = "0.20.0"
+val klockVersion = "1.8.4"
 kotlin {
     jvm {
         val main by compilations.getting {
@@ -28,6 +31,9 @@ kotlin {
                 implementation(kotlin("stdlib-common"))
 
                 // implementation("de.westermann:KObserve-metadata:0.9.3")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
+                implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
             }
         }
         val commonTest by getting {
@@ -58,6 +64,8 @@ kotlin {
                 implementation("de.jensd:fontawesomefx-commons:8.15")
                 implementation("de.jensd:fontawesomefx-materialicons:2.2.0-5")
                 implementation("de.jensd:fontawesomefx-fontawesome:4.7.0-5")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
             }
         }
         val jvmTest by getting {
@@ -71,6 +79,8 @@ kotlin {
                 implementation(kotlin("stdlib-js"))
 
                 // implementation("de.westermann:KObserve-js:0.9.3")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
             }
         }
         val jsTest by getting {
@@ -103,7 +113,7 @@ tasks.create<JavaExec>("jvmRun") {
     args()
 }
 
-val jsInstallSass = tasks.create<com.moowork.gradle.node.npm.NpmTask>("jsInstallSass") {
+tasks.create<com.moowork.gradle.node.npm.NpmTask>("jsInstallSass") {
     setArgs(listOf("install", "sass"))
 
     outputs.cacheIf { true }
@@ -112,7 +122,7 @@ val jsInstallSass = tasks.create<com.moowork.gradle.node.npm.NpmTask>("jsInstall
 
 }
 
-val jsCompileSass = tasks.create<Exec>("jsCompileSass") {
+tasks.create<Exec>("jsCompileSass") {
     dependsOn("jsInstallSass", "jsProcessResources")
 
     commandLine(
@@ -137,7 +147,7 @@ val jsJar = tasks.named<Jar>("jsJar") {
     from(Callable { configurations["jsRuntimeClasspath"].map { if (it.isDirectory) it else zipTree(it) } })
 }
 
-val jsSync = tasks.create<Sync>("jsSync") {
+tasks.create<Sync>("jsSync") {
     dependsOn("jsJar")
 
     from(Callable { zipTree(jsJar.get().archiveFile) })

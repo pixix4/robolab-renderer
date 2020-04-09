@@ -1,17 +1,17 @@
 package de.robolab.app.model.file
 
-import de.robolab.app.model.IPlottable
-import de.westermann.kobserve.list.ObservableList
-import de.westermann.kobserve.list.ObservableReadOnlyList
-import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.list.sortObservable
+import de.robolab.app.model.IProvider
+import de.robolab.app.model.ISideBarEntry
+import de.robolab.app.model.ISideBarPlottable
+import de.westermann.kobserve.list.*
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
-actual class FilePlanetProvider actual constructor() {
-    actual val planetList: ObservableList<IPlottable> = observableListOf()
-    actual val sortedPlanetList: ObservableReadOnlyList<IPlottable> = planetList.sortObservable(compareBy { it.nameProperty.value.toLowerCase() })
+actual class FilePlanetProvider actual constructor(): IProvider {
+
+    val planetList: ObservableList<ISideBarPlottable> = observableListOf()
+    override val entryList: ObservableReadOnlyList<ISideBarEntry> = planetList.sortObservable(compareBy { it.titleProperty.value.toLowerCase() }).mapObservable { it as ISideBarEntry }
 
     private fun loadFile(file: Path) {
         val name = file.fileName.toString()

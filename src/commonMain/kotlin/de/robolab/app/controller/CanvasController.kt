@@ -1,6 +1,6 @@
 package de.robolab.app.controller
 
-import de.robolab.app.model.IPlottable
+import de.robolab.app.model.ISideBarPlottable
 import de.robolab.app.model.file.toFixed
 import de.robolab.model.Coordinate
 import de.robolab.model.Path
@@ -19,7 +19,7 @@ import de.westermann.kobserve.property.property
 import kotlin.math.*
 
 class CanvasController(
-        val selectedEntryProperty: Property<IPlottable?>
+        val selectedEntryProperty: Property<ISideBarPlottable?>
 ) {
     private val timer = CommonTimer(50.0)
 

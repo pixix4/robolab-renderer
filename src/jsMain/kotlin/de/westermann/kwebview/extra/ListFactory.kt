@@ -1,5 +1,6 @@
 package de.westermann.kwebview.extra
 
+import de.robolab.utils.runAfterTimeout
 import de.westermann.kobserve.Property
 import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.event.EventListener
@@ -8,7 +9,6 @@ import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
-import de.westermann.kwebview.async
 
 class ListFactory<T, V : View>(
         private val container: ViewCollection<in V>,
@@ -19,7 +19,7 @@ class ListFactory<T, V : View>(
 
     constructor(
             container: ViewCollection<in V>,
-            listProperty: ReadOnlyProperty<out ObservableReadOnlyList<T>>,
+            listProperty: ReadOnlyProperty<ObservableReadOnlyList<T>>,
             factory: (T) -> V,
             animateAdd: Int? = null,
             animateRemove: Int? = null
@@ -61,7 +61,7 @@ class ListFactory<T, V : View>(
                 container.classList += "animate-add"
                 view.classList += "active"
 
-                async(animateAdd) {
+                runAfterTimeout(animateAdd) {
                     container.classList -= "animate-add"
                     view.classList -= "active"
                 }
@@ -76,7 +76,7 @@ class ListFactory<T, V : View>(
                 container.classList += "animate-remove"
                 view.classList += "active"
 
-                async(animateRemove) {
+                runAfterTimeout(animateRemove) {
                     container.classList -= "animate-remove"
                     view.classList -= "active"
                     container -= view
@@ -98,14 +98,14 @@ class ListFactory<T, V : View>(
 }
 
 fun <T, V : View> ViewCollection<in V>.listFactory(
-        listProperty: ReadOnlyProperty<out ObservableReadOnlyList<T>>,
+        listProperty: ReadOnlyProperty<ObservableReadOnlyList<T>>,
         factory: (T) -> V,
         animateAdd: Int? = null,
         animateRemove: Int? = null
 ) = ListFactory(this, listProperty, factory, animateAdd, animateRemove)
 
 fun <V : View> ViewCollection<in V>.listFactory(
-        listProperty: ReadOnlyProperty<out ObservableReadOnlyList<V>>,
+        listProperty: ReadOnlyProperty<ObservableReadOnlyList<V>>,
         animateAdd: Int? = null,
         animateRemove: Int? = null
 ) = ListFactory(this, listProperty, { it }, animateAdd, animateRemove)

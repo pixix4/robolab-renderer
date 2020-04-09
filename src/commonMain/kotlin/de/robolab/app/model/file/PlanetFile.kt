@@ -1,6 +1,5 @@
 package de.robolab.app.model.file
 
-import de.robolab.app.model.IPlottable
 import de.robolab.model.*
 import de.robolab.renderer.utils.History
 import de.robolab.renderer.data.Point

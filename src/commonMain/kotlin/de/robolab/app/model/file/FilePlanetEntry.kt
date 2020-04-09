@@ -1,6 +1,7 @@
 package de.robolab.app.model.file
 
-import de.robolab.app.model.IPlottable
+import de.robolab.app.model.ISideBarGroup
+import de.robolab.app.model.ISideBarPlottable
 import de.robolab.renderer.ExportPlotter
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Rectangle
@@ -14,23 +15,23 @@ import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
 
-class FilePlanetEntry(private val filename: String, content: String) : IPlottable {
+class FilePlanetEntry(private val filename: String, content: String) : ISideBarPlottable {
 
     private val planetFile = PlanetFile(content)
 
     override val drawable = EditPlanetDrawable()
 
-    override val actionList: List<List<IPlottable.PlottableAction>> = listOf(
+    override val actionList: List<List<ISideBarPlottable.PlottableAction>> = listOf(
             listOf(
-                    IPlottable.PlottableAction("View", !drawable.editableProperty) {
+                    ISideBarPlottable.PlottableAction("View", !drawable.editableProperty) {
                         drawable.editableProperty.value = false
                     },
-                    IPlottable.PlottableAction("Edit", drawable.editableProperty) {
+                    ISideBarPlottable.PlottableAction("Edit", drawable.editableProperty) {
                         drawable.editableProperty.value = true
                     }
             ),
             listOf(
-                    IPlottable.PlottableAction("Export SVG") {
+                    ISideBarPlottable.PlottableAction("Export SVG") {
                         var name = planetFile.planet.value.name.trim()
                         if (name.isEmpty()) {
                             name = "export"
@@ -39,7 +40,7 @@ class FilePlanetEntry(private val filename: String, content: String) : IPlottabl
                     }
             ),
             listOf(
-                    IPlottable.PlottableAction("Export PNG") {
+                    ISideBarPlottable.PlottableAction("Export PNG") {
                         var name = planetFile.planet.value.name.trim()
                         if (name.isEmpty()) {
                             name = "export"
@@ -85,9 +86,13 @@ class FilePlanetEntry(private val filename: String, content: String) : IPlottabl
         plotter.render(0.0)
     }
 
-    override val nameProperty = planetFile.planet.mapBinding { it.name }
+    override val titleProperty = planetFile.planet.mapBinding { it.name }
 
-    override val statusProperty = planetFile.planet.mapBinding { "Contains ${it.pathList.size} paths" }
+    override val subtitleProperty = planetFile.planet.mapBinding { "Contains ${it.pathList.size} paths" }
+
+    override val tabNameProperty = titleProperty
+
+    override val parent: ISideBarGroup? = null
 
     override val unsavedChangesProperty = planetFile.history.canUndoProperty
 

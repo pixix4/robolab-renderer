@@ -88,6 +88,49 @@
     user-select: none;
     overflow-x: auto;
     white-space: nowrap;
+    padding: 0 1rem;
+
+    &.success {
+        background-color: var(--success-color);
+        color: var(--success-text-color);
+    }
+
+    &.warn {
+        background-color: var(--warn-color);
+        color: var(--warn-text-color);
+    }
+
+    &.error {
+        background-color: var(--error-color);
+        color: var(--error-text-color);
+    }
+
+    .text-view:nth-child(1) {
+    }
+    .text-view:nth-child(2) {
+        float: right;
+        text-decoration: underline;
+    }
+}
+
+.side-bar-group-head {
+    padding: 0.8rem 1rem;
+    border-bottom: solid 1px var(--border-color);
+    position: relative;
+    display: none;
+
+    .text-view {
+        font-weight: bold;
+        display: block;
+    }
+
+    &:hover {
+        background-color: var(--secondary-hover-background);
+    }
+
+    &.active {
+        display: block;
+    }
 }
 
 .side-bar-entry {

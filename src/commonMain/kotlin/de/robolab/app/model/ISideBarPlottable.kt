@@ -4,13 +4,9 @@ import de.robolab.renderer.drawable.base.IDrawable
 import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.property.constProperty
 
-interface IPlottable {
+interface ISideBarPlottable: ISideBarEntry {
 
     val actionList: List<List<PlottableAction>>
-
-    val nameProperty: ReadOnlyProperty<String>
-    val statusProperty: ReadOnlyProperty<String>
-    val unsavedChangesProperty: ReadOnlyProperty<Boolean>
 
     val drawable: IDrawable
 
@@ -23,4 +19,3 @@ interface IPlottable {
         constructor(name: String, onClick: () -> Unit): this(constProperty(name), constProperty(false), onClick)
     }
 }
-

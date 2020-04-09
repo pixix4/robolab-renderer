@@ -1,5 +1,6 @@
 package de.westermann.kobserve.list
 
+import de.robolab.app.model.group.GroupPlanetEntry
 import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.property.property
 
@@ -82,10 +83,10 @@ class SortedList<T>(
     }
 }
 
-fun <T> ObservableReadOnlyList<T>.sortObservable(comparator: Comparator<T>): SortedList<T> =
+fun <T> ObservableReadOnlyList<T>.sortObservable(comparator: Comparator<T>): ObservableReadOnlyList<T> =
     SortedList(this, comparator)
 
-fun <T> ObservableReadOnlyList<T>.sortObservable(comparatorProperty: ReadOnlyProperty<Comparator<T>>): SortedList<T> =
+fun <T> ObservableReadOnlyList<T>.sortObservable(comparatorProperty: ReadOnlyProperty<Comparator<T>>): ObservableReadOnlyList<T> =
     SortedList(this, comparatorProperty.value).also {
         it.comparatorProperty.bind(comparatorProperty)
     }

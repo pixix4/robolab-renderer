@@ -48,10 +48,10 @@ class FilteredList<T>(
     }
 }
 
-fun <T> ObservableReadOnlyList<T>.filterObservable(predicate: (T) -> Boolean): FilteredList<T> =
+fun <T> ObservableReadOnlyList<T>.filterObservable(predicate: (T) -> Boolean): ObservableReadOnlyList<T> =
     FilteredList(this, predicate)
 
-fun <T> ObservableReadOnlyList<T>.filterObservable(predicateProperty: ReadOnlyProperty<(T) -> Boolean>): FilteredList<T> =
+fun <T> ObservableReadOnlyList<T>.filterObservable(predicateProperty: ReadOnlyProperty<(T) -> Boolean>): ObservableReadOnlyList<T> =
     FilteredList(this, predicateProperty.value).also {
         it.predicateProperty.bind(predicateProperty)
     }
@@ -59,7 +59,6 @@ fun <T> ObservableReadOnlyList<T>.filterObservable(predicateProperty: ReadOnlyPr
 fun <T, F> ObservableReadOnlyList<T>.filterObservable(
     filterProperty: ReadOnlyProperty<F>,
     predicate: (element: T, filter: F) -> Boolean
-): FilteredList<T> = FilteredList(this) { predicate(it, filterProperty.value) }.also { list ->
+): ObservableReadOnlyList<T> = FilteredList(this) { predicate(it, filterProperty.value) }.also { list ->
     filterProperty.onChange { list.invalidate() }
 }
-

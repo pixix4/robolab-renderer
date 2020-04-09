@@ -1,16 +1,15 @@
 package de.robolab.jfx.view
 
+import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.robolab.app.controller.SideBarController
 import de.robolab.jfx.adapter.toFx
+import de.robolab.jfx.utils.icon
 import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
-import de.jensd.fx.glyphs.materialicons.MaterialIcon
-import de.robolab.jfx.utils.icon
 import javafx.scene.layout.Priority
 import javafx.scene.text.FontWeight
 import tornadofx.*
-import tornadofx.FX.Companion.icon
 
 class SideBar(sideBarController: SideBarController) : View() {
 
@@ -27,7 +26,7 @@ class SideBar(sideBarController: SideBarController) : View() {
                         }
 
                         override fun get(): Boolean {
-                            return  sideBarController.tabProperty.value == tab
+                            return sideBarController.tabProperty.value == tab
                         }
 
                     }, sideBarController.tabProperty)
@@ -47,12 +46,12 @@ class SideBar(sideBarController: SideBarController) : View() {
                 graphic = vbox {
                     hbox {
                         vbox {
-                            label(provider.nameProperty.toFx()) {
+                            label(provider.titleProperty.toFx()) {
                                 style {
                                     fontWeight = FontWeight.BOLD
                                 }
                             }
-                            label(provider.statusProperty.toFx())
+                            label(provider.subtitleProperty.toFx())
                         }
                         spacer()
                         vbox {
@@ -69,7 +68,7 @@ class SideBar(sideBarController: SideBarController) : View() {
             }
 
             onUserSelect(1) {
-                sideBarController.selectedEntryProperty.value = it
+                sideBarController.open(it)
             }
         }
 

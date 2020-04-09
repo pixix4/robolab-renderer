@@ -1,5 +1,6 @@
 package de.westermann.kwebview.components
 
+import de.robolab.utils.runAsync
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kwebview.*
 import org.w3c.dom.CanvasRenderingContext2D
@@ -80,7 +81,7 @@ class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
             }
         })
 
-        async {
+        runAsync {
             updateSize()
         }
     }

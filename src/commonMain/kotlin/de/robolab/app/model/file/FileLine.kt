@@ -535,7 +535,7 @@ private fun parseCoordinate(str: String): Coordinate {
     return Coordinate(values[0], values[1])
 }
 
-private fun parseDirection(str: String) = when (str.toLowerCase()) {
+fun parseDirection(str: String) = when (str.toLowerCase()) {
     "n", "north" -> Direction.NORTH
     "e", "east" -> Direction.EAST
     "s", "south" -> Direction.SOUTH

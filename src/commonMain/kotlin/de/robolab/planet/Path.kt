@@ -13,6 +13,9 @@ data class Path(
         val hidden: Boolean
 ) {
 
+    val blocked: Boolean
+    get() = weight != null && weight < 0
+
     fun equalPath(other: Path): Boolean {
         val thisP0 = source to sourceDirection
         val thisP1 = target to targetDirection
