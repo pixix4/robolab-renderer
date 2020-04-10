@@ -5,6 +5,7 @@ import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.*
+import de.westermann.kwebview.Document
 import de.westermann.kwebview.components.Canvas
 import org.w3c.dom.*
 import org.w3c.dom.events.MouseEvent
@@ -14,11 +15,9 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
 
     private val context = canvas.context
     private val hammer = Hammer(canvas.html, object {})
-    private val isTouchSupported = js("!!window.TouchEvent") == true
-
 
     private fun shouldIgnoreHammerEvent(event: HammerEvent): Boolean {
-        return !(isTouchSupported && event.isTouch() || !isTouchSupported && event.isMouse())
+        return !(Document.isTouchSupported && event.isTouch() || !Document.isTouchSupported && event.isMouse())
     }
 
     private fun mouseEventToPointerEvent(event: MouseEvent): PointerEvent {
@@ -32,31 +31,12 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
     }
 
     private fun hammerEventToPointerEvent(event: HammerEvent): PointerEvent {
-        var ctrlKey = false
-        var altKey = false
-        var shiftKey = false
-
-        val mouseEvent = event.srcEvent as? MouseEvent
-        if (mouseEvent != null) {
-            ctrlKey = mouseEvent.ctrlKey
-            altKey = mouseEvent.altKey
-            shiftKey = mouseEvent.shiftKey
-        }
-        if (isTouchSupported) {
-            val touchEvent = event.srcEvent as? TouchEvent
-            if (touchEvent != null) {
-                ctrlKey = touchEvent.ctrlKey
-                altKey = touchEvent.altKey
-                shiftKey = touchEvent.shiftKey
-            }
-        }
-
         return PointerEvent(
                 Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
                 Dimension(width, height),
-                ctrlKey,
-                altKey,
-                shiftKey
+                event.ctrlKey,
+                event.altKey,
+                event.shiftKey
         )
     }
 
@@ -213,9 +193,9 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                     Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
                     delta,
                     Dimension(width, height),
-                    ctrlKey = false,
-                    altKey = false,
-                    shiftKey = false
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
             ))
             lastScale = event.scale
         }
@@ -239,9 +219,9 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                     Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
                     delta,
                     Dimension(width, height),
-                    ctrlKey = false,
-                    altKey = false,
-                    shiftKey = false
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
             ))
             lastRotation = event.rotation
         }

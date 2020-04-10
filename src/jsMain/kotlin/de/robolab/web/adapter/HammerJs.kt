@@ -1,7 +1,10 @@
 package de.robolab.web.adapter
 
+import de.westermann.kwebview.Document
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.TouchEvent
 import org.w3c.dom.events.Event
+import org.w3c.dom.events.MouseEvent
 
 external class Hammer(element: HTMLElement, options: dynamic) {
     fun on(name: String, callback: (HammerEvent) -> Unit)
@@ -101,7 +104,7 @@ external interface HammerEvent {
 
     val tapCount: Int
     val pointerType: String
-    
+
     val srcEvent: Event
 
     fun preventDefault()
@@ -109,6 +112,63 @@ external interface HammerEvent {
 
 fun HammerEvent.isTouch() = pointerType == "touch" || pointerType == "pen"
 fun HammerEvent.isMouse() = pointerType == "mouse"
+
+@Suppress("DuplicatedCode")
+val HammerEvent.ctrlKey: Boolean
+    get() {
+        var key = false
+
+        val mouseEvent = srcEvent as? MouseEvent
+        if (mouseEvent != null) {
+            key = mouseEvent.ctrlKey
+        }
+        if (Document.isTouchSupported) {
+            val touchEvent = srcEvent as? TouchEvent
+            if (touchEvent != null) {
+                key = touchEvent.ctrlKey
+            }
+        }
+
+        return key
+    }
+
+@Suppress("DuplicatedCode")
+val HammerEvent.altKey: Boolean
+    get() {
+        var key = false
+
+        val mouseEvent = srcEvent as? MouseEvent
+        if (mouseEvent != null) {
+            key = mouseEvent.altKey
+        }
+        if (Document.isTouchSupported) {
+            val touchEvent = srcEvent as? TouchEvent
+            if (touchEvent != null) {
+                key = touchEvent.altKey
+            }
+        }
+
+        return key
+    }
+
+@Suppress("DuplicatedCode")
+val HammerEvent.shiftKey: Boolean
+    get() {
+        var key = false
+
+        val mouseEvent = srcEvent as? MouseEvent
+        if (mouseEvent != null) {
+            key = mouseEvent.shiftKey
+        }
+        if (Document.isTouchSupported) {
+            val touchEvent = srcEvent as? TouchEvent
+            if (touchEvent != null) {
+                key = touchEvent.shiftKey
+            }
+        }
+
+        return key
+    }
 
 external interface HammerCenter {
     val x: Double

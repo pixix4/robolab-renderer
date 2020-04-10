@@ -135,6 +135,7 @@ class EditDrawEndDrawable(
         }
 
         editPlanetDrawable.createPathControlPoints = emptyList()
+        editPlanetDrawable.createPathWithCustomControlPoints = event.ctrlKey || event.altKey
         if (path != null) {
             if (path.source == currentPointEnd.point && path.sourceDirection == currentPointEnd.direction) {
                 editPlanetDrawable.selectedPointEnd = PointEnd(path.target, path.targetDirection)

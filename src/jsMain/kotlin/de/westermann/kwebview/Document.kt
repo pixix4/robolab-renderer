@@ -28,6 +28,8 @@ object Document {
     val onFocus = EventHandler<FocusEvent>()
     val onBlur = EventHandler<FocusEvent>()
 
+    val isTouchSupported = js("!!window.TouchEvent") == true
+
     init {
         onClick.bind(document, "click")
         onDblClick.bind(document, "dblclick")
