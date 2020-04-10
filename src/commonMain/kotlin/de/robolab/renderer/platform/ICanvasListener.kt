@@ -51,4 +51,8 @@ interface ICanvasListener {
     fun onKeyPress(event: KeyEvent): Boolean {
         return false
     }
+
+    fun onKeyRelease(event: KeyEvent): Boolean {
+        return false
+    }
 }

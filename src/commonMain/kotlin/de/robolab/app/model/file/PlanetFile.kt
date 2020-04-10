@@ -35,15 +35,19 @@ class PlanetFile(fileContent: String) : IEditCallback {
 
     }
 
-    override fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, groupHistory: Boolean) {
-        val newLines = lines + FileLine.PathLine.create(Path(
+    override fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, controlPoints: List<Point>, groupHistory: Boolean) {
+        var newLines = lines + FileLine.PathLine.create(Path(
                 startPoint, startDirection,
                 endPoint, endDirection,
                 1,
                 emptySet(),
-                emptyList(),
+                controlPoints,
                 false
         ))
+
+        if (controlPoints.isNotEmpty()) {
+            newLines = newLines + FileLine.SplineLine.create(controlPoints)
+        }
 
         if (groupHistory) {
             history.replace(newLines)

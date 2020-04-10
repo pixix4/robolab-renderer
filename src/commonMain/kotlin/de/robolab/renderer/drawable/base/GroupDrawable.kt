@@ -94,6 +94,16 @@ open class GroupDrawable(vararg drawables: IDrawable) : IDrawable {
         return false
     }
 
+    override fun onKeyRelease(event: KeyEvent): Boolean {
+        for (drawable in drawableList.asReversed()) {
+            if (drawable.onKeyRelease(event)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
     override fun onResize(size: Dimension) {
         for (drawable in drawableList) {
             drawable.onResize(size)

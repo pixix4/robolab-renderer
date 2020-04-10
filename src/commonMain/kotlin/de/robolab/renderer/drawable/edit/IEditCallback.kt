@@ -6,8 +6,8 @@ import de.robolab.planet.Path
 import de.robolab.renderer.data.Point
 
 interface IEditCallback {
-    fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, groupHistory: Boolean = false) {
-        println("Plotter action 'drawPath($startPoint, $startDirection, $endPoint, $endDirection, $groupHistory)' is not supported!")
+    fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, controlPoints: List<Point>, groupHistory: Boolean = false) {
+        println("Plotter action 'drawPath($startPoint, $startDirection, $endPoint, $endDirection, $controlPoints, $groupHistory)' is not supported!")
     }
 
     fun updatePathControlPoints(path: Path, controlPoints: List<Point>, groupHistory: Boolean = false) {

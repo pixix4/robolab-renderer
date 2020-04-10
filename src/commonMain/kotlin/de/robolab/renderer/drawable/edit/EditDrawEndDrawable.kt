@@ -134,6 +134,7 @@ class EditDrawEndDrawable(
                     it.target == currentPointEnd.point && it.targetDirection == currentPointEnd.direction
         }
 
+        editPlanetDrawable.createPathControlPoints = emptyList()
         if (path != null) {
             if (path.source == currentPointEnd.point && path.sourceDirection == currentPointEnd.direction) {
                 editPlanetDrawable.selectedPointEnd = PointEnd(path.target, path.targetDirection)
@@ -171,11 +172,22 @@ class EditDrawEndDrawable(
                 groupHistory = true
             }
 
+            val controlPoints = if (editPlanetDrawable.createPathWithCustomControlPoints) {
+                EditDrawPathDrawable.cleanControlPoints(
+                        editPlanetDrawable.createPathControlPoints,
+                        sourceEnd.point.let { Point(it.x, it.y) },
+                        sourceEnd.direction,
+                        targetEnd.point.let { Point(it.x, it.y) },
+                        targetEnd.direction
+                )
+            } else emptyList()
+
             editPlanetDrawable.editCallback.createPath(
                     sourceEnd.point,
                     sourceEnd.direction,
                     targetEnd.point,
                     targetEnd.direction,
+                    controlPoints,
                     groupHistory
             )
 

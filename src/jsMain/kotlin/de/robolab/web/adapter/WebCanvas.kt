@@ -146,6 +146,18 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                     event.shiftKey
             ))
         }
+        canvas.onKeyUp { event ->
+            val code = event.key.toCommon() ?: return@onKeyUp
+            event.stopPropagation()
+            event.preventDefault()
+            listener.onKeyRelease(KeyEvent(
+                    code,
+                    event.key,
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
+            ))
+        }
 
         hammer.onPanStart { event ->
             event.preventDefault()

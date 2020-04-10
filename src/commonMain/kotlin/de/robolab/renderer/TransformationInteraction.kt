@@ -192,6 +192,10 @@ class TransformationInteraction(
         return true
     }
 
+    override fun onKeyRelease(event: KeyEvent): Boolean {
+        return plotter.drawable.onKeyRelease(event)
+    }
+
     companion object {
         const val KEYBOARD_TRANSLATION = 40.0
         const val KEYBOARD_SCALE = 1.2

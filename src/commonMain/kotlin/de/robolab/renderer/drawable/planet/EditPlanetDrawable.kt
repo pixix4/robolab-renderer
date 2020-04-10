@@ -2,6 +2,7 @@ package de.robolab.renderer.drawable.planet
 
 import de.robolab.planet.Path
 import de.robolab.planet.Planet
+import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.selectedElement
 import de.robolab.renderer.drawable.edit.*
 import de.robolab.renderer.drawable.general.PathAnimatable
@@ -39,6 +40,10 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
     }
     val selectedPathControlPoints by selectedPathControlPointsProperty
     var selectedPointEnd: EditDrawEndDrawable.PointEnd? = null
+
+
+    var createPathWithCustomControlPoints = false
+    var createPathControlPoints: List<Point> = emptyList()
 
     private val planetLayer = PlanetLayer(this)
 

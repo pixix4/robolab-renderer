@@ -28,6 +28,10 @@ interface IInteraction {
     fun onKeyPress(event: KeyEvent): Boolean {
         return false
     }
+
+    fun onKeyRelease(event: KeyEvent): Boolean {
+        return false
+    }
     
     fun onResize(size: Dimension) {}
     fun onUserTransformation() {}
