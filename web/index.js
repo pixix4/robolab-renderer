@@ -25,7 +25,7 @@ app.get('/', function (req, res) {
 });
 
 app.use('', express.static(path.join(__dirname, 'website')));
-// app.use('/src/main', express.static(path.join(__dirname, '../src/main')));
+app.use('/src', express.static(path.join(__dirname, '../src')));
 
 app.listen(3000, function () {
     console.log('robolab-renderer is available on http://localhost:3000!');
