@@ -4,6 +4,7 @@ import de.robolab.app.model.ISideBarPlottable
 import de.robolab.communication.MessageManager
 import de.robolab.communication.RobolabMessageProvider
 import de.robolab.communication.mqtt.RobolabMqttConnection
+import de.robolab.utils.ConsoleGreeter
 import de.westermann.kobserve.property.property
 
 class MainController {
@@ -17,4 +18,8 @@ class MainController {
     val canvasController = CanvasController(selectedEntryProperty)
     val toolBarController = ToolBarController(selectedEntryProperty, canvasController)
     val statusBarController = StatusBarController(canvasController)
+
+    init {
+        ConsoleGreeter.greet()
+    }
 }

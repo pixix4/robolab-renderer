@@ -5,7 +5,7 @@ import de.robolab.web.views.MainCanvas
 import de.robolab.web.views.SideBar
 import de.robolab.web.views.StatusBar
 import de.robolab.web.views.ToolBar
-import de.westermann.kwebview.components.*
+import de.westermann.kwebview.components.init
 
 fun main() {
 
