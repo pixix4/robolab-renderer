@@ -182,11 +182,13 @@ class EditPointDrawable(
         val controlPoint = editPlanetDrawable.pointer?.findObjectUnderPointer<EditControlPointsDrawable.ControlPoint>()
         if (controlPoint != null && controlPoint.newPoint == null) {
             showControlPointContextMenu(controlPoint)
+            return true
         }
 
         val path = editPlanetDrawable.pointer?.findObjectUnderPointer<Path>()
         if (path != null) {
             showPathContextMenu(path)
+            return true
         }
 
         return false

@@ -11,7 +11,6 @@ import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.PointerEvent
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.utils.ITransformation
-import de.robolab.renderer.utils.Transformation
 import de.robolab.renderer.utils.TransformationCanvas
 import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.property.constProperty
@@ -221,7 +220,7 @@ class EditMenuDrawable(
             return false
         }
 
-        val selected = hoveredEntry
+        val selected = editPlanetDrawable.pointer?.findObjectUnderPointer<MenuEntry>()
         if (selected != null) {
             if (selected is MenuAction) {
                 editPlanetDrawable.menu = null
@@ -234,6 +233,15 @@ class EditMenuDrawable(
             }
         }
         return true
+    }
+
+    override fun onPointerDrag(event: PointerEvent, position: Point): Boolean {
+        if (editPlanetDrawable.menu != null && editPlanetDrawable.pointer?.findObjectUnderPointer<Menu>() == null) {
+            editPlanetDrawable.menu = null
+            return true
+        }
+
+        return false
     }
 
     override fun onKeyPress(event: KeyEvent): Boolean {

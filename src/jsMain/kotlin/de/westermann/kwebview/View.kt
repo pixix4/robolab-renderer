@@ -2,6 +2,7 @@ package de.westermann.kwebview
 
 import de.westermann.kobserve.event.EventHandler
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.TouchEvent
 import org.w3c.dom.css.CSSStyleDeclaration
 import org.w3c.dom.events.FocusEvent
 import org.w3c.dom.events.KeyboardEvent

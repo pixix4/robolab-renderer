@@ -100,7 +100,7 @@ class EditControlPointsDrawable(
             if (position.distance(point) < PlottingConstraints.POINT_SIZE / 2) {
                 return listOf(ControlPoint(
                         path, i
-                ))
+                ), path)
             }
         }
 
@@ -119,7 +119,7 @@ class EditControlPointsDrawable(
             val i = ((controlPoints.size - 3) * (minIndex.toDouble() / p.size.toDouble())).toInt() + 2
             return listOf(ControlPoint(
                     path, i, minPoint
-            ))
+            ), path)
         }
 
         return emptyList()
@@ -199,7 +199,7 @@ class EditControlPointsDrawable(
         if (!editPlanetDrawable.editable) return false
 
         when (event.keyCode) {
-            KeyCode.DELETE -> {
+            KeyCode.DELETE, KeyCode.BACKSPACE -> {
                 val path = editPlanetDrawable.selectedElement<Path>() ?: return false
                 val (_, indexP) = selectedControlPoint ?: return false
                 val isOneWayPath = path.source == path.target && path.sourceDirection == path.targetDirection

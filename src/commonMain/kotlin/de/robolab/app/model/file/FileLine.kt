@@ -32,6 +32,8 @@ interface FileLine<T> {
         class Skip(
                 previousBlockHead: FileLine<*>?
         ) : BlockMode(previousBlockHead)
+        
+        object Unknown: BlockMode(null)
     }
 
     class BuildAccumulator(
@@ -49,7 +51,7 @@ interface FileLine<T> {
         override val line = ""
         override val data = Unit
 
-        override lateinit var blockMode: BlockMode
+        override var blockMode: BlockMode = BlockMode.Unknown
 
         override fun buildPlanet(builder: BuildAccumulator) {
             blockMode = BlockMode.Skip(builder.previousBlockHead)
@@ -73,12 +75,11 @@ interface FileLine<T> {
 
         override val data = Unit
 
-        override lateinit var blockMode: BlockMode
+        override var blockMode: BlockMode = BlockMode.Unknown
 
         override fun buildPlanet(builder: BuildAccumulator) {
             blockMode = BlockMode.Append(builder.previousBlockHead!!)
         }
-
     }
 
     class PathLine(override val line: String) : FileLine<Path> {
@@ -97,7 +98,7 @@ interface FileLine<T> {
             )
         }
 
-        override lateinit var blockMode: BlockMode
+        override var blockMode: BlockMode = BlockMode.Unknown
 
         override fun buildPlanet(builder: BuildAccumulator) {
             blockMode = BlockMode.Head(builder.previousBlockHead)
@@ -159,7 +160,7 @@ interface FileLine<T> {
             )
         }
 
-        override lateinit var blockMode: BlockMode
+        override var blockMode: BlockMode = BlockMode.Unknown
 
         override fun buildPlanet(builder: BuildAccumulator) {
             blockMode = BlockMode.Head(builder.previousBlockHead)
@@ -210,7 +211,7 @@ interface FileLine<T> {
 
         override val data = parseCoordinate(REGEX.matchEntire(line.trim())!!.groupValues[1])
 
-        override lateinit var blockMode: BlockMode
+        override var blockMode: BlockMode = BlockMode.Unknown
 
         override fun buildPlanet(builder: BuildAccumulator) {
             blockMode = BlockMode.Head(builder.previousBlockHead)
@@ -257,7 +258,7 @@ interface FileLine<T> {
             )
         }
 
-        override lateinit var blockMode: BlockMode
+        override var blockMode: BlockMode = BlockMode.Unknown
 
         override fun buildPlanet(builder: BuildAccumulator) {
             blockMode = BlockMode.Head(builder.previousBlockHead)
@@ -306,7 +307,7 @@ interface FileLine<T> {
             )
         }
 
-        override lateinit var blockMode: BlockMode
+        override var blockMode: BlockMode = BlockMode.Unknown
 
         override fun buildPlanet(builder: BuildAccumulator) {
             blockMode = BlockMode.Head(builder.previousBlockHead)
@@ -352,7 +353,7 @@ interface FileLine<T> {
             match.groupValues[2]
         }
 
-        override lateinit var blockMode: BlockMode
+        override var blockMode: BlockMode = BlockMode.Unknown
 
         override fun buildPlanet(builder: BuildAccumulator) {
             blockMode = BlockMode.Head(builder.previousBlockHead)
@@ -397,7 +398,7 @@ interface FileLine<T> {
 
         var associatedPath: Path? = null
 
-        override lateinit var blockMode: BlockMode
+        override var blockMode: BlockMode = BlockMode.Unknown
 
         override fun buildPlanet(builder: BuildAccumulator) {
             val previousBlockHead = builder.previousBlockHead
@@ -469,7 +470,7 @@ interface FileLine<T> {
 
         var associatedPath: Path? = null
 
-        override lateinit var blockMode: BlockMode
+        override var blockMode: BlockMode = BlockMode.Unknown
 
         override fun buildPlanet(builder: BuildAccumulator) {
             val previousBlockHead = builder.previousBlockHead
@@ -516,7 +517,7 @@ interface FileLine<T> {
 
     class ErrorLine(override val line: String, override val data: String) : FileLine<String> {
 
-        override lateinit var blockMode: BlockMode
+        override var blockMode: BlockMode = BlockMode.Unknown
 
         override fun buildPlanet(builder: BuildAccumulator) {
             blockMode = BlockMode.Skip(builder.previousBlockHead)

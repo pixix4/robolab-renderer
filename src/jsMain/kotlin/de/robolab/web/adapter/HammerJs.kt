@@ -1,6 +1,7 @@
 package de.robolab.web.adapter
 
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.events.Event
 
 external class Hammer(element: HTMLElement, options: dynamic) {
     fun on(name: String, callback: (HammerEvent) -> Unit)
@@ -11,7 +12,7 @@ fun Hammer.enablePan() {
     get("pan").set(object {
         val enable = true
         val direction = js("Hammer.DIRECTION_ALL")
-        val threshold = 10
+        val threshold = 1
     })
 }
 
@@ -24,7 +25,16 @@ fun Hammer.enablePinch() {
 fun Hammer.enablePress() {
     get("press").set(object {
         val enable = true
-        val threshold = 9
+        val threshold = 1
+        val time = 500
+    })
+}
+
+fun Hammer.enableTap() {
+    get("tap").set(object {
+        val enable = true
+        val threshold = 5
+        val posThreshold = 15
     })
 }
 
@@ -89,8 +99,16 @@ external interface HammerEvent {
     val deltaX: Double
     val deltaY: Double
 
+    val tapCount: Int
+    val pointerType: String
+    
+    val srcEvent: Event
+
     fun preventDefault()
 }
+
+fun HammerEvent.isTouch() = pointerType == "touch" || pointerType == "pen"
+fun HammerEvent.isMouse() = pointerType == "mouse"
 
 external interface HammerCenter {
     val x: Double

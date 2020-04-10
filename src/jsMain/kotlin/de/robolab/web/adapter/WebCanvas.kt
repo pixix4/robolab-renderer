@@ -7,38 +7,72 @@ import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.*
 import de.westermann.kwebview.components.Canvas
 import org.w3c.dom.*
+import org.w3c.dom.events.MouseEvent
 import kotlin.math.PI
 
 class WebCanvas(val canvas: Canvas) : ICanvas {
 
     private val context = canvas.context
     private val hammer = Hammer(canvas.html, object {})
+    private val isTouchSupported = js("!!window.TouchEvent") == true
+
+
+    private fun shouldIgnoreHammerEvent(event: HammerEvent): Boolean {
+        return !(isTouchSupported && event.isTouch() || !isTouchSupported && event.isMouse())
+    }
+
+    private fun mouseEventToPointerEvent(event: MouseEvent): PointerEvent {
+        return PointerEvent(
+                Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
+                Dimension(width, height),
+                event.ctrlKey,
+                event.altKey,
+                event.shiftKey
+        )
+    }
+
+    private fun hammerEventToPointerEvent(event: HammerEvent): PointerEvent {
+        var ctrlKey = false
+        var altKey = false
+        var shiftKey = false
+
+        val mouseEvent = event.srcEvent as? MouseEvent
+        if (mouseEvent != null) {
+            ctrlKey = mouseEvent.ctrlKey
+            altKey = mouseEvent.altKey
+            shiftKey = mouseEvent.shiftKey
+        }
+        if (isTouchSupported) {
+            val touchEvent = event.srcEvent as? TouchEvent
+            if (touchEvent != null) {
+                ctrlKey = touchEvent.ctrlKey
+                altKey = touchEvent.altKey
+                shiftKey = touchEvent.shiftKey
+            }
+        }
+
+        return PointerEvent(
+                Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
+                Dimension(width, height),
+                ctrlKey,
+                altKey,
+                shiftKey
+        )
+    }
 
     override fun setListener(listener: ICanvasListener) {
         canvas.onMouseMove { event ->
             event.stopPropagation()
             event.preventDefault()
 
-            listener.onPointerMove(PointerEvent(
-                    Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
-                    Dimension(width, height),
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-            ))
+            listener.onPointerMove(mouseEventToPointerEvent(event))
         }
         canvas.onClick { event ->
             when (event.button) {
                 MOUSE_BUTTON_SECONDARY -> {
                     event.stopPropagation()
                     event.preventDefault()
-                    listener.onPointerSecondaryAction(PointerEvent(
-                            Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
-                            Dimension(width, height),
-                            event.ctrlKey,
-                            event.altKey,
-                            event.shiftKey
-                    ))
+                    listener.onPointerSecondaryAction(mouseEventToPointerEvent(event))
                 }
                 MOUSE_BUTTON_FORWARD -> {
                     listener.onKeyPress(KeyEvent(
@@ -63,35 +97,17 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         canvas.onContext { event ->
             event.preventDefault()
             event.stopPropagation()
-            listener.onPointerSecondaryAction(PointerEvent(
-                    Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
-                    Dimension(width, height),
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-            ))
+            listener.onPointerSecondaryAction(mouseEventToPointerEvent(event))
         }
         canvas.onMouseEnter { event ->
             event.preventDefault()
             event.stopPropagation()
-            listener.onPointerEnter(PointerEvent(
-                    Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
-                    Dimension(width, height),
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-            ))
+            listener.onPointerEnter(mouseEventToPointerEvent(event))
         }
         canvas.onMouseLeave { event ->
             event.preventDefault()
             event.stopPropagation()
-            listener.onPointerLeave(PointerEvent(
-                    Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
-                    Dimension(width, height),
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-            ))
+            listener.onPointerLeave(mouseEventToPointerEvent(event))
         }
         canvas.onWheel { event ->
             event.stopPropagation()
@@ -131,117 +147,94 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
             ))
         }
 
-        hammer.onPanStart {
-            listener.onPointerDown(PointerEvent(
-                    Point(it.center.x - canvas.offsetLeftTotal, it.center.y - canvas.offsetTopTotal),
-                    Dimension(width, height),
-                    ctrlKey = false,
-                    altKey = false,
-                    shiftKey = false
-            ))
+        hammer.onPanStart { event ->
+            event.preventDefault()
+            if (shouldIgnoreHammerEvent(event)) return@onPanStart
 
-            it.preventDefault()
+            listener.onPointerDown(hammerEventToPointerEvent(event))
         }
-        hammer.onPanMove {
-            listener.onPointerDrag(PointerEvent(
-                    Point(it.center.x - canvas.offsetLeftTotal, it.center.y - canvas.offsetTopTotal),
-                    Dimension(width, height),
-                    ctrlKey = false,
-                    altKey = false,
-                    shiftKey = false
-            ))
+        hammer.onPanMove { event ->
+            event.preventDefault()
+            if (shouldIgnoreHammerEvent(event)) return@onPanMove
 
-            it.preventDefault()
+            listener.onPointerDrag(hammerEventToPointerEvent(event))
         }
-        hammer.onPanEnd {
-            listener.onPointerUp(PointerEvent(
-                    Point(it.center.x - canvas.offsetLeftTotal, it.center.y - canvas.offsetTopTotal),
-                    Dimension(width, height),
-                    ctrlKey = false,
-                    altKey = false,
-                    shiftKey = false
-            ))
+        hammer.onPanEnd { event ->
+            event.preventDefault()
+            if (shouldIgnoreHammerEvent(event)) return@onPanEnd
 
-            it.preventDefault()
+            listener.onPointerUp(hammerEventToPointerEvent(event))
         }
 
-        hammer.onTap {
-            listener.onPointerDown(PointerEvent(
-                    Point(it.center.x - canvas.offsetLeftTotal, it.center.y - canvas.offsetTopTotal),
-                    Dimension(width, height),
-                    ctrlKey = false,
-                    altKey = false,
-                    shiftKey = false
-            ))
-            listener.onPointerUp(PointerEvent(
-                    Point(it.center.x - canvas.offsetLeftTotal, it.center.y - canvas.offsetTopTotal),
-                    Dimension(width, height),
-                    ctrlKey = false,
-                    altKey = false,
-                    shiftKey = false
-            ))
+        hammer.onTap { event ->
+            event.preventDefault()
+            if (shouldIgnoreHammerEvent(event)) return@onTap
 
-            it.preventDefault()
+            if (event.tapCount > 1 && event.isTouch()) {
+                listener.onPointerSecondaryAction(hammerEventToPointerEvent(event))
+            } else {
+                listener.onPointerDown(hammerEventToPointerEvent(event))
+                listener.onPointerUp(hammerEventToPointerEvent(event))
+            }
         }
 
-        hammer.onPress {
-            listener.onPointerSecondaryAction(PointerEvent(
-                    Point(it.center.x - canvas.offsetLeftTotal, it.center.y - canvas.offsetTopTotal),
-                    Dimension(width, height),
-                    ctrlKey = false,
-                    altKey = false,
-                    shiftKey = false
-            ))
+        hammer.onPress { event ->
+            event.preventDefault()
+            if (shouldIgnoreHammerEvent(event)) return@onPress
 
-            it.preventDefault()
+            listener.onPointerSecondaryAction(hammerEventToPointerEvent(event))
         }
 
         var lastScale = 0.0
-        hammer.onPinchStart {
-            lastScale = it.scale
+        hammer.onPinchStart { event ->
+            event.preventDefault()
+            if (shouldIgnoreHammerEvent(event)) return@onPinchStart
 
-            it.preventDefault()
+            lastScale = event.scale
         }
-        hammer.onPinchMove {
-            val delta = 1.0 - (lastScale - it.scale)
+        hammer.onPinchMove { event ->
+            event.preventDefault()
+            if (shouldIgnoreHammerEvent(event)) return@onPinchMove
+
+            val delta = 1.0 - (lastScale - event.scale)
             listener.onZoom(ZoomEvent(
-                    Point(it.center.x - canvas.offsetLeftTotal, it.center.y - canvas.offsetTopTotal),
+                    Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
                     delta,
                     Dimension(width, height),
                     ctrlKey = false,
                     altKey = false,
                     shiftKey = false
             ))
-            lastScale = it.scale
-
-            it.preventDefault()
+            lastScale = event.scale
         }
-        hammer.onPinchEnd {
-            it.preventDefault()
+        hammer.onPinchEnd { event ->
+            event.preventDefault()
         }
 
         var lastRotation = 0.0
-        hammer.onRotateStart {
-            lastRotation = it.rotation
+        hammer.onRotateStart { event ->
+            event.preventDefault()
+            if (shouldIgnoreHammerEvent(event)) return@onRotateStart
 
-            it.preventDefault()
+            lastRotation = event.rotation
         }
-        hammer.onRotateMove {
-            val delta = (it.rotation - lastRotation) / 180.0 * PI
+        hammer.onRotateMove { event ->
+            event.preventDefault()
+            if (shouldIgnoreHammerEvent(event)) return@onRotateMove
+
+            val delta = (event.rotation - lastRotation) / 180.0 * PI
             listener.onRotate(RotateEvent(
-                    Point(it.center.x - canvas.offsetLeftTotal, it.center.y - canvas.offsetTopTotal),
+                    Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
                     delta,
                     Dimension(width, height),
                     ctrlKey = false,
                     altKey = false,
                     shiftKey = false
             ))
-            lastRotation = it.rotation
-
-            it.preventDefault()
+            lastRotation = event.rotation
         }
-        hammer.onRotateEnd {
-            it.preventDefault()
+        hammer.onRotateEnd { event ->
+            event.preventDefault()
         }
 
         canvas.onResize {
@@ -286,7 +279,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                 rectangle.height
         )
     }
-    
+
     private fun drawPath(points: List<Point>) {
         context.beginPath()
         val first = points.firstOrNull() ?: return
@@ -341,13 +334,13 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
 
     override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment, fontWeight: ICanvas.FontWeight) {
         context.fillStyle = color.toString()
-        context.textAlign = when(alignment) {
+        context.textAlign = when (alignment) {
             ICanvas.FontAlignment.LEFT -> CanvasTextAlign.LEFT
             ICanvas.FontAlignment.CENTER -> CanvasTextAlign.CENTER
             ICanvas.FontAlignment.RIGHT -> CanvasTextAlign.RIGHT
         }
         context.textBaseline = CanvasTextBaseline.MIDDLE
-        val weight = when(fontWeight) {
+        val weight = when (fontWeight) {
             ICanvas.FontWeight.NORMAL -> ""
             ICanvas.FontWeight.BOLD -> "bold "
         }
@@ -399,6 +392,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         hammer.enablePinch()
         hammer.enableRotate()
         hammer.enablePress()
+        hammer.enableTap()
 
         canvas.html.tabIndex = 0
     }
