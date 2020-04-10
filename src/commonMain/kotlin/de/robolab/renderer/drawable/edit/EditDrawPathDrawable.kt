@@ -10,6 +10,8 @@ import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.renderer.drawable.utils.BSpline
 import de.robolab.renderer.drawable.utils.Curve
+import de.robolab.renderer.drawable.utils.PathGenerator
+import de.robolab.renderer.drawable.utils.shift
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.utils.DrawContext
@@ -74,7 +76,7 @@ class EditDrawPathDrawable(
                         controlPoints
                 ) + endPoint
             } else {
-                listOf(startPoint, endPoint)
+                listOf(startPoint.shift(startDirection, PlottingConstraints.POINT_SIZE / 2), endPoint)
             }
         } else {
             endPoint = Point(endEnd.point)
@@ -150,11 +152,18 @@ class EditDrawPathDrawable(
             val firstPoint = points.firstOrNull()
             if (startPoint != null && firstPoint != null) {
                 val ref = if (startDirection != null) {
-                    startPoint + startDirection.toVector() * PlottingConstraints.CURVE_SECOND_POINT
+                    startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT)
                 } else startPoint
                 
                 if (firstPoint.distance(ref) < 0.2) {
                     points.removeAt(0)
+                }
+
+                if (startDirection != null) {
+                    points.add(0, startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT))
+                    if (!(points.isNotEmpty() && PathGenerator.isPointInDirectLine(startPoint, startDirection, points.first()))) {
+                        points.add(1, startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT))
+                    }
                 }
             }
             val lastPoint = points.lastOrNull()
