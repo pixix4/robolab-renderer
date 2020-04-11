@@ -76,8 +76,8 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
                 ),
                 overlayers = listOf(
                         editDrawEndDrawable,
-                        editPathSelectDrawable,
                         editPathDrawable,
+                        editPathSelectDrawable,
                         editControlPointsDrawable,
                         editMenuDrawable
                 )

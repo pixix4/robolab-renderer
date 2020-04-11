@@ -16,7 +16,7 @@ fun Hammer.enablePan() {
     get("pan").set(object {
         val enable = true
         val direction = js("Hammer.DIRECTION_ALL")
-        val threshold = 1
+        val threshold = 0
     })
 }
 

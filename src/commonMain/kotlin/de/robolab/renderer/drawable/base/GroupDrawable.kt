@@ -44,14 +44,13 @@ open class GroupDrawable(vararg drawables: IDrawable) : IDrawable {
     }
 
     override fun onPointerUp(event: PointerEvent, position: Point): Boolean {
-        var returnValue = false
         for (drawable in drawableList.asReversed()) {
             if (drawable.onPointerUp(event, position)) {
-                returnValue = true
+                return true
             }
         }
 
-        return returnValue
+        return false
     }
 
     override fun onPointerMove(event: PointerEvent, position: Point): Boolean {
