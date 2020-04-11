@@ -3,7 +3,6 @@ package de.roboplot.plotter.traverser
 import de.roboplot.plotter.model.*
 import de.roboplot.plotter.model.Target
 import de.roboplot.plotter.util.PriorityQueue
-import kotlin.math.min
 
 interface INavigator<NS> where NS : INavigatorState {
     val planet: LookupPlanet
@@ -138,7 +137,7 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
                         (if (predicate(endPoint).also { isTarget = it }) targets else notTargets).add(endPoint)
                     }
                     if (isTarget) {
-                        targetCutoff = min(targetCutoff, sumCost + precision)
+                        targetCutoff = minOf(targetCutoff, sumCost + precision)
                     }
                 }
             }
