@@ -11,7 +11,7 @@ interface ITraverserState<out TS> where TS : ITraverserState<TS> {
 }
 
 data class TraverserState<MS, NS>(val mothershipState: MS,
-                                  val navigatorState: NS?,
+                                  val navigatorState: NS,
                                   val status: Status,
                                   val statusCause: Any? = null,
                                   override val parent: TraverserState<MS, NS>?) : ITraverserState<TraverserState<MS, NS>>
@@ -34,9 +34,9 @@ data class TraverserState<MS, NS>(val mothershipState: MS,
 
     companion object Seed {
         fun <M, MS, N, NS> getSeed(traverser: Traverser<M, MS, N, NS>): TraverserState<MS, NS>
-                where M : IMothership<MS>, MS : IMothershipState = TraverserState(
+                where M : IMothership<MS>, MS : IMothershipState, N : INavigator<NS>, NS : INavigatorState = TraverserState(
                 mothershipState = traverser.mothership.seedState,
-                navigatorState = null,//traverser.navigator.seedState,
+                navigatorState = traverser.navigator.seedState,
                 parent = null,
                 status = Status.Running,
                 statusCause = null

@@ -8,6 +8,13 @@ fun Path.asReversed(): Path =
                     endPoint = startPoint, endDirection = startDirection,
                     absoluteControlPoints = absoluteControlPoints?.asReversed())
 
+fun Planet.getStartPath(): Path? =
+        if (start == null) null
+        else Path(Path.From.SERVER,
+                start, startOrientation.opposite(),
+                start, startOrientation.opposite(),
+                -1, true)
+
 class LookupPlanet(val planet: Planet) {
     private val visitFeatures: Map<Point, Pair<List<Path>, List<Target>>>
 

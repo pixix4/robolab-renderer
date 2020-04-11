@@ -4,15 +4,30 @@ import de.roboplot.plotter.model.*
 import java.lang.IllegalArgumentException
 
 open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val linkStates: Boolean = false) : Iterable<TraverserState<MS, NS>>
-        where M : IMothership<MS>, MS : IMothershipState {
+        where M : IMothership<MS>, MS : IMothershipState, N : INavigator<NS>, NS : INavigatorState {
 
     val planet: LookupPlanet = mothership.planet
 
-    open fun getNextDirections(traverserState: TraverserState<MS, NS>): Sequence<Direction?> = with(traverserState) {
-        //  if nextDirection null, explorationComplete/targetReached
-        //  if multiple directions, try to reduce to forcedDir if present and element
-        val forcedDir: Direction? = mothership.peekForceDirection(mothershipState)
-        return@with sequenceOf(forcedDir)
+    open fun getLeavingNavigatorStates(traverserState: TraverserState<MS, NS>): List<NS> = with(traverserState) {
+        val temp: Pair<List<NS>, Boolean> = navigator.prepareLeaveNode(navigatorState, traverserState.location, traverserState.mothershipState.drivenPath)
+        var leaveNodeStates: List<NS> = temp.first
+        val exploring: Boolean = temp.second
+        if (exploring) { //attempt reduction on forcedDirection
+            val finishingStates: List<NS> = leaveNodeStates.filter { it.targetReached || it.explorationComplete }
+            if (leaveNodeStates.size - finishingStates.size > 1) {
+                val forcedDir: Direction? = mothership.peekForceDirection(mothershipState)
+                if (forcedDir != null) {
+                    val stateForForcedDir: List<NS> = leaveNodeStates.filter { it.pickedDirection == forcedDir }
+                    if (stateForForcedDir.isNotEmpty())
+                        leaveNodeStates = (finishingStates + stateForForcedDir).distinct()
+                    else {
+                        leaveNodeStates = (finishingStates + leaveNodeStates.filterNot(finishingStates::contains).first())
+                    }
+                }
+            }
+        }
+
+        return@with leaveNodeStates
     }
 
     open fun branch(traverserState: TraverserState<MS, NS>): Sequence<TraverserState<MS, NS>> = with(traverserState) {
@@ -30,37 +45,47 @@ open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val link
                 ))
         }
 
-        val nextDirections: Sequence<Direction?> = getNextDirections(traverserState)
+        val leavingStates: Sequence<NS> = getLeavingNavigatorStates(traverserState).asSequence()
 
-        return@with nextDirections.map {
-            if (it == null)
-                return@map copy(status = TraverserState.Status.ExplorationComplete)
-            else
-                return@map drivePath(pickDirection(traverserState, it))
+        return@with leavingStates.map {
+            when {
+                it.explorationComplete -> return@map copy(status = TraverserState.Status.ExplorationComplete, navigatorState = it)
+                it.targetReached -> return@map copy(status = TraverserState.Status.TargetReached, navigatorState = it)
+                else -> return@map drivePath(pickDirection(traverserState, it))
+            }
         }
     }
 
     fun drivePath(traverserState: TraverserState<MS, NS>, direction: Direction): TraverserState<MS, NS> =
             drivePath(traverserState, planet.getPath(traverserState.location, direction)!!)
 
-    fun drivePath(traverserState: TraverserState<MS, NS>, path: Path): TraverserState<MS, NS> = traverserState.copy(
-            mothershipState = mothership.drivePath(traverserState.mothershipState, path),
-            parent = if (linkStates) traverserState else traverserState.parent
-    )
+    fun drivePath(traverserState: TraverserState<MS, NS>, path: Path): TraverserState<MS, NS> {
+        val newMothershipState: MS = mothership.drivePath(traverserState.mothershipState, path)
+        return traverserState.copy(
+                mothershipState = newMothershipState,
+                navigatorState = navigator.drovePath(traverserState.navigatorState, path, newMothershipState.newPaths, newMothershipState.newTargets),
+                parent = if (linkStates) traverserState else traverserState.parent
+        )
+    }
 
     fun drivePath(traverserState: TraverserState<MS, NS>): TraverserState<MS, NS> = drivePath(traverserState, traverserState.nextDirection!!)
 
-    fun pickDirection(traverserState: TraverserState<MS, NS>, direction: Direction): TraverserState<MS, NS> = traverserState.copy(
-            mothershipState = mothership.pickDirection(traverserState.mothershipState, direction),
-            parent = if (linkStates) traverserState else traverserState.parent
-    )
+    fun pickDirection(traverserState: TraverserState<MS, NS>, nextNavigatorState: NS): TraverserState<MS, NS> {
+        val newMothershipState: MS = mothership.pickDirection(traverserState.mothershipState, nextNavigatorState.pickedDirection!!)
+        return traverserState.copy(
+                mothershipState = newMothershipState,
+                navigatorState = navigator.leavingNode(nextNavigatorState, newMothershipState.forcedDirection
+                        ?: newMothershipState.selectedDirection!!),
+                parent = if (linkStates) traverserState else traverserState.parent
+        )
+    }
 
     override fun iterator(): TraverserIterator<M, MS, N, NS> = TraverserIterator(this)
 
 }
 
-class DefaultTraverser(mothership: Mothership, navigator: Mothership, linkStates: Boolean = false) :
-        Traverser<Mothership, MothershipState, Mothership, MothershipState>(mothership, navigator, linkStates) {
+class DefaultTraverser(mothership: Mothership, navigator: Navigator, linkStates: Boolean = false) :
+        Traverser<Mothership, MothershipState, Navigator, NavigatorState>(mothership, navigator, linkStates) {
     constructor(planet: Planet, linkStates: Boolean = false) : this(LookupPlanet(planet), linkStates)
-    constructor(planet: LookupPlanet, linkStates: Boolean = false) : this(Mothership(planet), Mothership(planet), linkStates)
+    constructor(planet: LookupPlanet, linkStates: Boolean = false) : this(Mothership(planet), Navigator(planet), linkStates)
 }

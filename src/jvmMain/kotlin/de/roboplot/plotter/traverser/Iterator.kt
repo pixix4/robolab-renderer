@@ -4,7 +4,7 @@ import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentLinkedQueue
 
 open class TraverserIterator<M, MS, N, NS>(val parent: Traverser<M, MS, N, NS>, lifoPool: Boolean = true) : Iterator<TraverserState<MS, NS>>
-        where M : IMothership<MS>, MS : IMothershipState {
+        where M : IMothership<MS>, MS : IMothershipState, N : INavigator<NS>, NS : INavigatorState {
 
     protected open val manager: PoolManager<TraverserState<MS, NS>> =
             if (lifoPool) PoolManager.LIFO(TraverserState.getSeed(parent))

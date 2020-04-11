@@ -208,12 +208,12 @@ class PlanetSideBar : Fragment() {
                         Exporter.export(viewModel.planet, this@PlanetSideBar)
                     }
                 }
-                item("Traverse"){
-                    action{
+                item("Traverse") {
+                    action {
                         println("Starting new traversal of '${viewModel.planet.name}'")
-                        de.roboplot.plotter.traverser.DefaultTraverser(viewModel.planet,true)
-                                //.filter{ it.status != de.roboplot.plotter.traverser.TraverserState.Status.Running }
-                                .forEach{
+                        de.roboplot.plotter.traverser.DefaultTraverser(viewModel.planet, true)
+                                .filter { it.status != de.roboplot.plotter.traverser.TraverserState.Status.Running }
+                                .forEach {
                                     println(it.getTrail())
                                 }
                     }
