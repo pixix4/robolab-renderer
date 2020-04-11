@@ -77,36 +77,10 @@ class CanvasController(
 
     val zoomProperty = property(1.0)
 
-    private fun zoomDirected(direction: Int) {
-        val currentZoomLevel = zoomProperty.value
-        var nearestZoomLevel = ZOOM_STEPS.minBy { abs(it - currentZoomLevel) } ?: 1.0
-        var index = ZOOM_STEPS.indexOf(nearestZoomLevel)
+    fun zoomIn() = plotter.transformation.scaleIn(plotter.size / 2, TransformationInteraction.ANIMATION_TIME)
 
-        if (direction * currentZoomLevel > direction * nearestZoomLevel) {
-            index += direction
-            index = max(0, min(index, ZOOM_STEPS.lastIndex))
-        }
-        nearestZoomLevel = ZOOM_STEPS[index]
+    fun zoomOut() = plotter.transformation.scaleOut(plotter.size / 2, TransformationInteraction.ANIMATION_TIME)
 
-        if (nearestZoomLevel != currentZoomLevel) {
-            plotter.transformation.scaleTo(nearestZoomLevel, plotter.size / 2, TransformationInteraction.ANIMATION_TIME)
-        } else {
-            index += direction
-            index = max(0, min(index, ZOOM_STEPS.lastIndex))
-            plotter.transformation.scaleTo(ZOOM_STEPS[index], plotter.size / 2, TransformationInteraction.ANIMATION_TIME)
+    fun resetZoom() = plotter.transformation.resetScale(plotter.size / 2, TransformationInteraction.ANIMATION_TIME)
 
-        }
-    }
-
-    fun zoomIn() = zoomDirected(1)
-
-    fun zoomOut() = zoomDirected(-1)
-
-    fun resetZoom() {
-        plotter.transformation.scaleTo(1.0, plotter.size / 2, TransformationInteraction.ANIMATION_TIME)
-    }
-
-    companion object {
-        private val ZOOM_STEPS = listOf(0.1, 0.3, 0.5, 0.67, 0.8, 0.9, 1.0, 1.1, 1.2, 1.33, 1.5, 1.7, 2.0, 2.4, 3.0, 4.0)
-    }
 }

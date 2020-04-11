@@ -6,6 +6,7 @@ import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.westermann.kobserve.event.EventHandler
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
@@ -77,14 +78,42 @@ class Transformation(
         scaleCenter = center
 
         val planetPoint = canvasToPlanet(scaleCenter)
-        scaleProperty.animate(max(min(scale, 40.0), 0.1), duration)
+        scaleProperty.animate(max(min(scale, 10.0), 0.1), duration)
         val newCenter = planetToCanvas(planetPoint)
 
         translateBy(scaleCenter - newCenter)
     }
 
+    private fun scaleDirected(direction: Int, center: Point, duration: Double = 0.0) {
+        val currentZoomLevel = scale
+        var nearestZoomLevel = SCALE_STEPS.minBy { abs(it - currentZoomLevel) } ?: 1.0
+        var index = SCALE_STEPS.indexOf(nearestZoomLevel)
+
+        if (direction * currentZoomLevel > direction * nearestZoomLevel) {
+            index += direction
+            index = max(0, min(index, SCALE_STEPS.lastIndex))
+        }
+        nearestZoomLevel = SCALE_STEPS[index]
+
+        if (nearestZoomLevel != currentZoomLevel) {
+            scaleTo(nearestZoomLevel, center, duration)
+        } else {
+            index += direction
+            index = max(0, min(index, SCALE_STEPS.lastIndex))
+            scaleTo(SCALE_STEPS[index], center, duration)
+        }
+    }
+
+    fun scaleIn(center: Point, duration: Double = 0.0) = scaleDirected(1, center, duration)
+
+    fun scaleOut(center: Point, duration: Double = 0.0) = scaleDirected(-1, center, duration)
+
+    fun resetScale(center: Point, duration: Double = 0.0) {
+        scaleTo(1.0, center, duration)
+    }
+
     fun setScaleFactor(scale: Double) {
-        scaleProperty.resetValue(max(min(scale, 40.0), 0.1))
+        scaleProperty.resetValue(max(min(scale, 10.0), 0.1))
         onViewChange.emit(Unit)
         hasChanges = true
     }
@@ -114,9 +143,9 @@ class Transformation(
 
         return changes
     }
-    
+
     fun export() = State(translation, scale, rotation)
-    
+
     fun import(state: State) {
         setTranslation(state.translation)
         setScaleFactor(state.scale)
@@ -126,6 +155,11 @@ class Transformation(
     companion object {
         const val PIXEL_PER_UNIT: Double = 100.0
         val PIXEL_PER_UNIT_DIMENSION = Dimension(PIXEL_PER_UNIT, -PIXEL_PER_UNIT)
+
+
+        private val SCALE_STEPS = listOf(0.1, 0.17, 0.25, 0.4, 0.5, 0.67, 0.8, 0.9, 1.0, 1.1, 1.2, 1.33, 1.5, 1.7, 2.0, 2.4, 3.0, 4.0, 6.5, 10.0)
+
+        fun normalizeScale(scale: Double) = min(10.0, max(0.1, scale))
     }
 
     data class State(
@@ -133,7 +167,7 @@ class Transformation(
             val scale: Double,
             val rotation: Double
     ) {
-        
+
         fun isDefault() = this == DEFAULT
 
         companion object {

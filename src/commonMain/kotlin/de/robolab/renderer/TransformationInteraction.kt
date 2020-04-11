@@ -179,11 +179,15 @@ class TransformationInteraction(
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.PLUS, KeyCode.EQUALS -> {
-                transformation.scaleBy(KEYBOARD_SCALE, lastDimension / 2.0, ANIMATION_TIME)
+                if (event.shiftKey) {
+                    transformation.resetScale(lastDimension / 2.0, ANIMATION_TIME)
+                } else {
+                    transformation.scaleIn(lastDimension / 2.0, ANIMATION_TIME)
+                }
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.MINUS -> {
-                transformation.scaleBy(1.0 / KEYBOARD_SCALE, lastDimension / 2.0, ANIMATION_TIME)
+                transformation.scaleOut(lastDimension / 2.0, ANIMATION_TIME)
                 plotter.updatePointer(lastPoint)
             }
             else -> return false
@@ -198,7 +202,6 @@ class TransformationInteraction(
 
     companion object {
         const val KEYBOARD_TRANSLATION = 40.0
-        const val KEYBOARD_SCALE = 1.2
         const val KEYBOARD_ROTATION = PI / 16.0
 
         const val ANIMATION_TIME = 250.0
