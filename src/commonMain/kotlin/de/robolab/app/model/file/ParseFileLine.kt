@@ -178,7 +178,7 @@ interface FileLine<T> {
             }
             if (obj !is StartPoint) return false
 
-            return obj == data
+            return obj.equalPoint(data)
         }
 
         companion object : Parser {

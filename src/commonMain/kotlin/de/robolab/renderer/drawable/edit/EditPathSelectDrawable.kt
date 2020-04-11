@@ -82,8 +82,11 @@ class EditPathSelectDrawable(
     override fun onPointerUp(event: PointerEvent, position: Point): Boolean {
         if (!editPlanetDrawable.editable || event.hasMoved) return false
 
-        val currentPathSelect = editPlanetDrawable.pointer?.findObjectUnderPointer<PointSelect>() ?: return false
-        editPlanetDrawable.editCallback.togglePathSelect(currentPathSelect.point, currentPathSelect.direction)
-        return true
+        if (event.ctrlKey || event.altKey) {
+            val currentPathSelect = editPlanetDrawable.pointer?.findObjectUnderPointer<PointSelect>() ?: return false
+            editPlanetDrawable.editCallback.togglePathSelect(currentPathSelect.point, currentPathSelect.direction)
+            return true
+        }
+        return false
     }
 }
