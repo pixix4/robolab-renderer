@@ -11,6 +11,7 @@ external class Hammer(element: HTMLElement, options: dynamic) {
     fun get(name: String): HammerOptions
 }
 
+@Suppress("unused")
 fun Hammer.enablePan() {
     get("pan").set(object {
         val enable = true
@@ -19,12 +20,14 @@ fun Hammer.enablePan() {
     })
 }
 
+@Suppress("unused")
 fun Hammer.enablePinch() {
     get("pinch").set(object {
         val enable = true
     })
 }
 
+@Suppress("unused")
 fun Hammer.enablePress() {
     get("press").set(object {
         val enable = true
@@ -33,6 +36,7 @@ fun Hammer.enablePress() {
     })
 }
 
+@Suppress("unused")
 fun Hammer.enableTap() {
     get("tap").set(object {
         val enable = true
@@ -41,6 +45,7 @@ fun Hammer.enableTap() {
     })
 }
 
+@Suppress("unused")
 fun Hammer.enableRotate() {
     get("rotate").set(object {
         val enable = true
@@ -102,6 +107,7 @@ external interface HammerEvent {
     val deltaX: Double
     val deltaY: Double
 
+    val type: String
     val tapCount: Int
     val pointerType: String
 

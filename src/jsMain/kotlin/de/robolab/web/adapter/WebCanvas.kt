@@ -9,16 +9,13 @@ import de.westermann.kwebview.Document
 import de.westermann.kwebview.components.Canvas
 import org.w3c.dom.*
 import org.w3c.dom.events.MouseEvent
+import kotlin.browser.window
 import kotlin.math.PI
 
 class WebCanvas(val canvas: Canvas) : ICanvas {
 
     private val context = canvas.context
     private val hammer = Hammer(canvas.html, object {})
-
-    private fun shouldIgnoreHammerEvent(event: HammerEvent): Boolean {
-        return !(Document.isTouchSupported && event.isTouch() || !Document.isTouchSupported && event.isMouse())
-    }
 
     private fun mouseEventToPointerEvent(event: MouseEvent): PointerEvent {
         return PointerEvent(
@@ -92,9 +89,21 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         canvas.onWheel { event ->
             event.stopPropagation()
             event.preventDefault()
+
+            val factor = when (event.deltaMode) {
+                DOM_DELTA_PIXEL -> 1.0
+                DOM_DELTA_LINE -> {
+                    window.getComputedStyle(canvas.html).fontSize.replace("px", "").toDoubleOrNull()
+                }
+                DOM_DELTA_PAGE -> {
+                    window.innerHeight.toDouble()
+                }
+                else -> null
+            } ?: 1.0
+
             listener.onScroll(ScrollEvent(
                     Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
-                    Point(event.deltaX * WHEEL_FACTOR, event.deltaY * WHEEL_FACTOR),
+                    Point(event.deltaX * factor * WHEEL_FACTOR, event.deltaY * factor * WHEEL_FACTOR),
                     Dimension(width, height),
                     event.ctrlKey,
                     event.altKey,
@@ -141,26 +150,22 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
 
         hammer.onPanStart { event ->
             event.preventDefault()
-            if (shouldIgnoreHammerEvent(event)) return@onPanStart
 
             listener.onPointerDown(hammerEventToPointerEvent(event))
         }
         hammer.onPanMove { event ->
             event.preventDefault()
-            if (shouldIgnoreHammerEvent(event)) return@onPanMove
 
             listener.onPointerDrag(hammerEventToPointerEvent(event))
         }
         hammer.onPanEnd { event ->
             event.preventDefault()
-            if (shouldIgnoreHammerEvent(event)) return@onPanEnd
 
             listener.onPointerUp(hammerEventToPointerEvent(event))
         }
 
         hammer.onTap { event ->
             event.preventDefault()
-            if (shouldIgnoreHammerEvent(event)) return@onTap
 
             if (event.tapCount > 1 && event.isTouch()) {
                 listener.onPointerSecondaryAction(hammerEventToPointerEvent(event))
@@ -172,7 +177,6 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
 
         hammer.onPress { event ->
             event.preventDefault()
-            if (shouldIgnoreHammerEvent(event)) return@onPress
 
             listener.onPointerSecondaryAction(hammerEventToPointerEvent(event))
         }
@@ -180,13 +184,11 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         var lastScale = 0.0
         hammer.onPinchStart { event ->
             event.preventDefault()
-            if (shouldIgnoreHammerEvent(event)) return@onPinchStart
 
             lastScale = event.scale
         }
         hammer.onPinchMove { event ->
             event.preventDefault()
-            if (shouldIgnoreHammerEvent(event)) return@onPinchMove
 
             val delta = 1.0 - (lastScale - event.scale)
             listener.onZoom(ZoomEvent(
@@ -206,13 +208,11 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         var lastRotation = 0.0
         hammer.onRotateStart { event ->
             event.preventDefault()
-            if (shouldIgnoreHammerEvent(event)) return@onRotateStart
 
             lastRotation = event.rotation
         }
         hammer.onRotateMove { event ->
             event.preventDefault()
-            if (shouldIgnoreHammerEvent(event)) return@onRotateMove
 
             val delta = (event.rotation - lastRotation) / 180.0 * PI
             listener.onRotate(RotateEvent(
@@ -394,7 +394,10 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         const val MOUSE_BUTTON_BACK: Short = 3
         const val MOUSE_BUTTON_FORWARD: Short = 4
 
-        const val WHEEL_FACTOR = -4.0
+        const val WHEEL_FACTOR = -0.5
+        const val DOM_DELTA_PIXEL = 0
+        const val DOM_DELTA_LINE = 1
+        const val DOM_DELTA_PAGE = 2
     }
 }
 
