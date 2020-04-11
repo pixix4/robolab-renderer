@@ -101,7 +101,8 @@ class TransformationInteraction(
                 transformation.rotateBy(event.delta.top / 40.0 * PI / 32, event.point, ANIMATION_TIME)
             }
             else -> {
-                transformation.translateBy(event.delta, ANIMATION_TIME)
+                val delta = if (event.shiftKey) event.delta.let { Point(it.y, it.x) } else event.delta
+                transformation.translateBy(delta, ANIMATION_TIME)
                 plotter.drawable.onUserTransformation()
             }
         }
@@ -135,7 +136,7 @@ class TransformationInteraction(
         val newCenter = transformation.canvasToPlanet(size / 2)
         val diff = (oldCenter - newCenter) * transformation.scaledGridWidth
         transformation.translateBy(diff)
-        
+
         lastDimension = size
 
         plotter.drawable.onResize(size)
