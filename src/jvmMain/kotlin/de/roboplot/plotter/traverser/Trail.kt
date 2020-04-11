@@ -31,5 +31,8 @@ interface ITraverserTrail {
 data class TraverserTrail(override val path: List<Pair<Point, Direction?>>,
                           override val result: TraverserState.Status,
                           override val resultCause: Any? = null) : ITraverserTrail {
-    override fun toString(): String = "(${start.x}, ${start.y}) -> [$summary] -> (${end.x}, ${end.y}): $result ($resultCause)"
+    override fun toString(): String =
+            "(${start.x}, ${start.y}) -> [$summary] -> (${end.x}, ${end.y}): $result" +
+                    if (resultCause != null) " ($resultCause)"
+                    else ""
 }

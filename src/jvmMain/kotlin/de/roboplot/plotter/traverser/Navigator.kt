@@ -2,7 +2,7 @@ package de.roboplot.plotter.traverser
 
 import de.roboplot.plotter.model.*
 import de.roboplot.plotter.model.Target
-import java.util.*
+import de.roboplot.plotter.util.PriorityQueue
 import kotlin.math.min
 
 interface INavigator<NS> where NS : INavigatorState {
@@ -93,7 +93,11 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
         val notTargets: MutableSet<Point> = mutableSetOf()
         val predecessor: MutableMap<Point, Pair<Float, MutableSet<Pair<Direction, Point>>>> = mutableMapOf()
         predecessor[start] = Pair(0f, mutableSetOf())
-        val prioQueue: PriorityQueue<Point> = PriorityQueue(kotlin.Comparator { o1, o2 -> compareValues(predecessor[o1]!!.first, predecessor[o2]!!.first) })
+        val prioQueue: PriorityQueue<Point> = PriorityQueue(kotlin.Comparator { o1, o2 ->
+            compareValues(
+                    predecessor[o1]?.first ?: Float.POSITIVE_INFINITY,
+                    predecessor[o2]?.first ?: Float.POSITIVE_INFINITY)
+        })
         var targetCutoff: Float = Float.POSITIVE_INFINITY
         prioQueue.add(start)
         while (!prioQueue.isEmpty()) {

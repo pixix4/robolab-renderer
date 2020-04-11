@@ -1,8 +1,5 @@
 package de.roboplot.plotter.traverser
 
-import java.util.concurrent.ConcurrentLinkedDeque
-import java.util.concurrent.ConcurrentLinkedQueue
-
 open class TraverserIterator<M, MS, N, NS>(val parent: Traverser<M, MS, N, NS>, lifoPool: Boolean = true) : Iterator<TraverserState<MS, NS>>
         where M : IMothership<MS>, MS : IMothershipState, N : INavigator<NS>, NS : INavigatorState {
 
@@ -33,70 +30,62 @@ open class TraverserIterator<M, MS, N, NS>(val parent: Traverser<M, MS, N, NS>, 
         fun isEmpty(): Boolean
 
         class FIFO<T>(vararg element: T) : PoolManager<T> {
-            private val queue: ConcurrentLinkedQueue<T> = ConcurrentLinkedQueue<T>()
-
-            init {
-                queue.addAll(element)
-            }
+            private val pool: MutableList<T> = mutableListOf(*element)
 
             override fun add(element: T) {
-                queue.add(element)
+                pool.add(element)
             }
 
             override fun add(elements: Collection<T>) {
-                queue.addAll(elements)
+                pool.addAll(elements)
             }
 
             override fun add(vararg elements: T) {
-                queue.addAll(elements)
+                pool.addAll(elements)
             }
 
             override fun add(elements: Sequence<T>) {
-                queue.addAll(elements)
+                pool.addAll(elements)
             }
 
-            override fun tryRemove(): T? = synchronized(queue) {
-                if (queue.isEmpty())
+            override fun tryRemove(): T? = synchronized(pool) {
+                if (pool.isEmpty())
                     null
                 else
-                    queue.remove()
+                    pool.removeAt(0)
             }
 
-            override fun isEmpty(): Boolean = queue.isEmpty()
+            override fun isEmpty(): Boolean = pool.isEmpty()
 
         }
 
         class LIFO<T>(vararg element: T) : PoolManager<T> {
-            private val stack: ConcurrentLinkedDeque<T> = ConcurrentLinkedDeque<T>()
-
-            init {
-                stack.addAll(element)
-            }
+            private val pool: MutableList<T> = mutableListOf(*element)
 
             override fun add(element: T) {
-                stack.add(element)
+                pool.add(element)
             }
 
             override fun add(elements: Collection<T>) {
-                stack.addAll(elements)
+                pool.addAll(elements)
             }
 
             override fun add(vararg elements: T) {
-                stack.addAll(elements)
+                pool.addAll(elements)
             }
 
             override fun add(elements: Sequence<T>) {
-                stack.addAll(elements)
+                pool.addAll(elements)
             }
 
-            override fun tryRemove(): T? = synchronized(stack) {
-                if (stack.isEmpty())
+            override fun tryRemove(): T? = synchronized(pool) {
+                if (pool.isEmpty())
                     null
                 else
-                    stack.removeLast()
+                    pool.removeAt(pool.lastIndex)
             }
 
-            override fun isEmpty(): Boolean = stack.isEmpty()
+            override fun isEmpty(): Boolean = pool.isEmpty()
         }
     }
 }

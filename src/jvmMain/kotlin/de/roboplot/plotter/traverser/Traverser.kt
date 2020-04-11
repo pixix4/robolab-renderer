@@ -1,9 +1,8 @@
 package de.roboplot.plotter.traverser
 
 import de.roboplot.plotter.model.*
-import java.lang.IllegalArgumentException
 
-open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val linkStates: Boolean = false) : Iterable<TraverserState<MS, NS>>
+open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val linkStates: Boolean = true) : Iterable<TraverserState<MS, NS>>
         where M : IMothership<MS>, MS : IMothershipState, N : INavigator<NS>, NS : INavigatorState {
 
     val planet: LookupPlanet = mothership.planet
@@ -84,8 +83,8 @@ open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val link
 
 }
 
-class DefaultTraverser(mothership: Mothership, navigator: Navigator, linkStates: Boolean = false) :
+class DefaultTraverser(mothership: Mothership, navigator: Navigator, linkStates: Boolean = true) :
         Traverser<Mothership, MothershipState, Navigator, NavigatorState>(mothership, navigator, linkStates) {
-    constructor(planet: Planet, linkStates: Boolean = false) : this(LookupPlanet(planet), linkStates)
-    constructor(planet: LookupPlanet, linkStates: Boolean = false) : this(Mothership(planet), Navigator(planet), linkStates)
+    constructor(planet: Planet, linkStates: Boolean = true) : this(LookupPlanet(planet), linkStates)
+    constructor(planet: LookupPlanet, linkStates: Boolean = true) : this(Mothership(planet), Navigator(planet), linkStates)
 }
