@@ -2,6 +2,7 @@ package de.robolab.renderer.drawable.edit
 
 import de.robolab.planet.Direction
 import de.robolab.planet.Path
+import de.robolab.planet.Planet
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
@@ -47,6 +48,19 @@ class EditDrawPathDrawable(
 
     override fun onDraw(context: DrawContext) {
         val startEnd = editPlanetDrawable.selectedPointEnd ?: return
+        val path = getEditPath(startEnd)
+        if (path != null) {
+            val controlPoints = PathAnimatable.getControlPointsFromPath(path)
+            val steps = ((path.length(controlPoints) * context.transformation.scaledGridWidth) / 10).toInt()
+            val p = multiEval(
+                    steps,
+                    Point(path.source.x, path.source.y),
+                    Point(path.target.x, path.target.y),
+                    controlPoints
+            )
+            context.strokeLine(p, context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.8), PlottingConstraints.LINE_WIDTH * 1.1)
+        }
+        
         val endEnd = editPlanetDrawable.pointer?.findObjectUnderPointer<EditDrawEndDrawable.PointEnd>()
 
         val startPoint = Point(startEnd.point)
@@ -120,10 +134,6 @@ class EditDrawPathDrawable(
                     editPlanetDrawable.editCallback.deletePath(path)
                 }
             }
-            KeyCode.ALT, KeyCode.CTRL -> {
-                editPlanetDrawable.createPathWithCustomControlPoints = true
-                return false
-            }
             else -> {
                 return false
             }
@@ -131,18 +141,13 @@ class EditDrawPathDrawable(
         return true
     }
     
-    override fun onKeyRelease(event: KeyEvent): Boolean {
-        if (!editPlanetDrawable.editable) return false
-
-        when (event.keyCode) {
-            KeyCode.ALT, KeyCode.CTRL -> {
-                editPlanetDrawable.createPathWithCustomControlPoints = false
-            }
-            else -> {
-                return false
-            }
-        }
-        return false
+    private fun getEditPath(startEnd: EditDrawEndDrawable.PointEnd): Path? {
+        return planet.pathList.find { it.connectsWith(startEnd.point, startEnd.direction) }
+    }
+    
+    private var planet: Planet = Planet.EMPTY
+    fun importPlanet(planet: Planet) {
+        this.planet = planet
     }
 
     companion object {

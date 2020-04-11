@@ -33,9 +33,7 @@ class PathAnimatable(
 
     private var controlPoints = getControlPointsFromPath(reference)
     private var area = Rectangle.fromEdges(startPoint, endPoint, *controlPoints.toTypedArray())
-    private var distance = controlPoints.windowed(2, 1).sumByDouble { (p1, p2) ->
-        p1.distance(p2)
-    }
+    private var distance = reference.length(controlPoints)
 
     private var oldColor: Color? = getColor(planet, reference)
     private var newColor: Color? = oldColor

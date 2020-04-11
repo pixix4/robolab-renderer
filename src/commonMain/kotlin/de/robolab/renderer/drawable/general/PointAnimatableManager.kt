@@ -61,7 +61,7 @@ class PointAnimatableManager(
 
     private fun isPointHidden(point: Coordinate, planet: Planet): Boolean {
         var hidden = point != planet.startPoint?.point
-        hidden = hidden && planet.pathList.asSequence().filter { it.source == point || it.target == point }.all { it.hidden }
+        hidden = hidden && planet.pathList.asSequence().filter { it.connectsWith(point) }.all { it.hidden }
         return hidden
     }
 

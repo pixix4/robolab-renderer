@@ -41,14 +41,14 @@ class PlanetAnimator(private val referencePlanet: Planet) {
         if (r.beforePoint) {
             // Select next direction
 
-            val pathListOfPoint = referencePlanet.pathList.filter { it.source == r.point || it.target == r.point }.toMutableList()
+            val pathListOfPoint = referencePlanet.pathList.filter { it.connectsWith(r.point) }.toMutableList()
 
             if (pathListOfPoint.isEmpty()) {
                 isFinished = true
                 return
             }
 
-            val sourcePath = pathListOfPoint.find { it.source == r.point && it.sourceDirection == r.direction || it.target == r.point && it.targetDirection == r.direction }
+            val sourcePath = pathListOfPoint.find { it.connectsWith(r.point, r.direction) }
 
             if (sourcePath != null) {
                 if (pathListOfPoint.size > 1) {
@@ -88,7 +88,7 @@ class PlanetAnimator(private val referencePlanet: Planet) {
         } else {
             // Drive path
 
-            val path = referencePlanet.pathList.find { it.source == r.point && it.sourceDirection == r.direction || it.target == r.point && it.targetDirection == r.direction }
+            val path = referencePlanet.pathList.find { it.connectsWith(r.point, r.direction) }
 
             if (path == null) {
                 isFinished = true

@@ -195,7 +195,7 @@ class EditPointDrawable(
     }
 
     private fun showPointContextMenu(coordinate: Coordinate) {
-        val pathList = planet.pathList.filter { it.source == coordinate || it.target == coordinate }
+        val pathList = planet.pathList.filter { it.connectsWith(coordinate) }
         val pathExposureList = planet.pathList.filter { coordinate in it.exposure }
         val targetList = planet.targetList.filter { it.target == coordinate || it.exposure == coordinate }
         val pathSelectList = planet.pathSelectList.filter { it.point == coordinate }

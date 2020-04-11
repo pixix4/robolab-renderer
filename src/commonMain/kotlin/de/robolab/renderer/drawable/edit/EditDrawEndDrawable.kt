@@ -130,8 +130,7 @@ class EditDrawEndDrawable(
         }
 
         val path = planet.pathList.find {
-            it.source == currentPointEnd.point && it.sourceDirection == currentPointEnd.direction ||
-                    it.target == currentPointEnd.point && it.targetDirection == currentPointEnd.direction
+            it.connectsWith(currentPointEnd.point, currentPointEnd.direction)
         }
 
         editPlanetDrawable.createPathControlPoints = emptyList()
@@ -165,8 +164,7 @@ class EditDrawEndDrawable(
 
             for (end in sequenceOf(sourceEnd, targetEnd)) {
                 val path = planet.pathList.find {
-                    it.source == end.point && it.sourceDirection == end.direction ||
-                            it.target == end.point && it.targetDirection == end.direction
+                    it.connectsWith(end.point, end.direction)
                 } ?: continue
 
                 editPlanetDrawable.editCallback.deletePath(path, groupHistory)

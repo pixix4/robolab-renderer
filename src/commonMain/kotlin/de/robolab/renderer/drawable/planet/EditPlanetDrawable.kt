@@ -16,7 +16,7 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
     var editCallback: IEditCallback = object : IEditCallback {}
 
     private val editPointDrawable = EditPointDrawable(this)
-    private val editPathDrawable = EditDrawPathDrawable(this)
+    private val editDrawPathDrawable = EditDrawPathDrawable(this)
     private val editDrawEndDrawable = EditDrawEndDrawable(this)
     private val editControlPointsDrawable = EditControlPointsDrawable(this)
     private val editPathSelectDrawable = EditPathSelectDrawable(this)
@@ -53,6 +53,7 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
         editPointDrawable.importPlanet(planet)
         editDrawEndDrawable.importPlanet(planet)
         editPathSelectDrawable.importPlanet(planet)
+        editDrawPathDrawable.importPlanet(planet)
 
         importPlanets()
     }
@@ -76,7 +77,7 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
                 ),
                 overlayers = listOf(
                         editDrawEndDrawable,
-                        editPathDrawable,
+                        editDrawPathDrawable,
                         editPathSelectDrawable,
                         editControlPointsDrawable,
                         editMenuDrawable
