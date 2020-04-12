@@ -1,8 +1,9 @@
 package de.robolab.jfx
 
+import de.robolab.jfx.style.MainStyle
 import tornadofx.*
 
-class MainApp : App(MainView::class) {
+class MainApp : App(MainView::class, MainStyle::class) {
 
     companion object {
 

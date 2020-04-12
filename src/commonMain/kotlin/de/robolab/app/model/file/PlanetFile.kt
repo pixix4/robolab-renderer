@@ -26,13 +26,14 @@ class PlanetFile(fileContent: String) : IEditCallback {
 
     private fun parseFileContent(fileContent: String) = fileContent.split('\n').map { parseLine(it) }
 
-    fun setContent(fileContent: String) {
-        lines = parseFileContent(fileContent)
-    }
+    var content: String
+        get() = lines.map { it.line }.joinToString("\n")
+        set(value) {
+            lines = parseFileContent(value)
+        }
 
     fun resetContent(fileContent: String) {
         history.push(parseFileContent(fileContent), reset = true)
-
     }
 
     override fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, controlPoints: List<Point>, groupHistory: Boolean) {

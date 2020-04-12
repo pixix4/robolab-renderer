@@ -2,8 +2,10 @@ package de.robolab.jfx.view
 
 import de.robolab.app.controller.ToolBarController
 import de.robolab.jfx.adapter.toFx
+import de.robolab.jfx.utils.buttonGroup
 import de.westermann.kobserve.property.FunctionAccessor
 import javafx.scene.layout.HBox
+import javafx.scene.text.FontWeight
 import tornadofx.*
 
 class ToolBar(private val toolBarController: ToolBarController) : View() {
@@ -15,7 +17,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
 
         val actionList = toolBarController.actionListProperty.value
         for (group in actionList) {
-            toolBarActions.hbox {
+            toolBarActions.buttonGroup {
                 for (button in group) {
                     val buttonProperty = de.westermann.kobserve.property.property(object : FunctionAccessor<Boolean> {
                         override fun set(value: Boolean): Boolean {
@@ -56,9 +58,13 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
             }
         }
         spacer()
-        label(toolBarController.titleProperty.toFx())
+        label(toolBarController.titleProperty.toFx()) {
+            style {
+                fontWeight = FontWeight.BOLD
+            }
+        }
         spacer()
-        hbox {
+        buttonGroup {
             button("-") {
                 setOnAction {
                     toolBarController.zoomOut()

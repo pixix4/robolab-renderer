@@ -3,6 +3,8 @@ package de.robolab.jfx.view
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.robolab.app.controller.SideBarController
 import de.robolab.jfx.adapter.toFx
+import de.robolab.jfx.style.MainStyle
+import de.robolab.jfx.utils.buttonGroup
 import de.robolab.jfx.utils.icon
 import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.mapBinding
@@ -15,8 +17,12 @@ class SideBar(sideBarController: SideBarController) : View() {
 
     override val root = vbox {
         toolbar {
-            hbox {
-                for (tab in SideBarController.Tab.values()) {
+            hgrow = Priority.ALWAYS
+
+
+            buttonGroup {
+                hgrow = Priority.ALWAYS
+                for ( tab in SideBarController.Tab.values()) {
                     val buttonProperty = property(object : FunctionAccessor<Boolean> {
                         override fun set(value: Boolean): Boolean {
                             if (value) {
@@ -36,6 +42,8 @@ class SideBar(sideBarController: SideBarController) : View() {
                         selectedProperty().onChange {
                             isSelected = buttonProperty.value
                         }
+
+                        hgrow = Priority.ALWAYS
                     }
                 }
             }
