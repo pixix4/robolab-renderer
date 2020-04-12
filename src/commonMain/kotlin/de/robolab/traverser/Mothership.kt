@@ -1,7 +1,6 @@
-package de.roboplot.plotter.traverser
+package de.robolab.traverser
 
-import de.roboplot.plotter.model.*
-import de.roboplot.plotter.model.Target
+import de.robolab.planet.*
 
 interface IMothership<T> where T : IMothershipState {
     val planet: LookupPlanet
@@ -21,8 +20,8 @@ class Mothership(override val planet: LookupPlanet) : IMothership<MothershipStat
     override fun drivePath(current: MothershipState, path: Path): MothershipState = with(current) {
         var result: MothershipState = copy(
                 drivenPath = path,
-                visitedLocations = visitedLocations + path.endPoint,
-                currentLocation = path.endPoint,
+                visitedLocations = visitedLocations + path.target,
+                currentLocation = path.target,
                 newPaths = emptyList(),
                 newTargets = emptyList(),
                 selectedDirection = null,
@@ -31,7 +30,7 @@ class Mothership(override val planet: LookupPlanet) : IMothership<MothershipStat
                 beforePoint = true
         )
         if (visitedLocations.size <= result.visitedLocations.size) { //added new endPoint
-            val features: Pair<List<Path>, List<Target>>? = planet.getVisitFeatures(path.endPoint)
+            val features: Pair<List<Path>, List<TargetPoint>>? = planet.getVisitFeatures(path.target)
             if (features != null)
                 result = result.copy(
                         sentPaths = sentPaths + features.first,

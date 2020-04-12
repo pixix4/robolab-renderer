@@ -1,6 +1,8 @@
-package de.roboplot.plotter.util
+package de.robolab.traverser
 
-private fun forceNotNegative(value: Int): Int = maxOf(value, -value - 1)
+import kotlin.math.max
+
+private fun forceNotNegative(value: Int): Int = max(value, -value - 1)
 
 class PriorityQueue<T>(val comparator: Comparator<T>) : Collection<T> {
 

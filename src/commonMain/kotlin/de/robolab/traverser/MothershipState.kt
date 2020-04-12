@@ -1,14 +1,13 @@
-package de.roboplot.plotter.traverser
+package de.robolab.traverser
 
-import de.roboplot.plotter.model.*
-import de.roboplot.plotter.model.Target
+import de.robolab.planet.*
 
 interface IMothershipState {
     val isStart: Boolean
-    val currentLocation: Point
+    val currentLocation: Coordinate
     val drivenPath: Path
-    val currentTarget: Target?
-    val newTargets: List<Target>
+    val currentTarget: TargetPoint?
+    val newTargets: List<TargetPoint>
     val newPaths: List<Path>
     val selectedDirection: Direction?
     val forcedDirection: Direction?
@@ -16,15 +15,15 @@ interface IMothershipState {
 }
 
 data class MothershipState(
-        val sentTargets: Set<Target>,
+        val sentTargets: Set<TargetPoint>,
         val sentPaths: Set<Path>,
         val sentPathSelects: Set<PathSelect>,
-        val visitedLocations: Set<Point>,
+        val visitedLocations: Set<Coordinate>,
         override val isStart: Boolean,
-        override val currentLocation: Point,
+        override val currentLocation: Coordinate,
         override val drivenPath: Path,
-        override val currentTarget: Target?,
-        override val newTargets: List<Target>,
+        override val currentTarget: TargetPoint?,
+        override val newTargets: List<TargetPoint>,
         override val newPaths: List<Path>,
         override val selectedDirection: Direction?,
         override val forcedDirection: Direction?,
@@ -38,11 +37,11 @@ data class MothershipState(
                 sentPathSelects = emptySet(),
                 visitedLocations = emptySet(),
                 isStart = true,
-                currentLocation = planet.start!!,
-                drivenPath = Path(Path.From.SERVER,
-                        planet.start, planet.startOrientation.opposite(),
-                        planet.start, planet.startOrientation.opposite(),
-                        -1, true),
+                currentLocation = planet.startPoint?.point!!,
+                drivenPath = Path(
+                        planet.startPoint.point, planet.startPoint.orientation.opposite(),
+                        planet.startPoint.point, planet.startPoint.orientation.opposite(),
+                        -1, emptySet(), emptyList(), false),
                 currentTarget = null,
                 newTargets = emptyList(),
                 newPaths = emptyList(),

@@ -1,11 +1,11 @@
-package de.roboplot.plotter.traverser
+package de.robolab.traverser
 
-import de.roboplot.plotter.model.Direction
-import de.roboplot.plotter.model.Point
+import de.robolab.planet.Coordinate
+import de.robolab.planet.Direction
 
 interface ITraverserState<out TS> where TS : ITraverserState<TS> {
     val nextDirection: Direction?
-    val location: Point
+    val location: Coordinate
     val parent: TS?
     fun getTrail(): ITraverserTrail
 }
@@ -22,7 +22,7 @@ data class TraverserState<MS, NS>(val mothershipState: MS,
             else return@let it
         }
 
-    override val location: Point = mothershipState.currentLocation
+    override val location: Coordinate = mothershipState.currentLocation
 
     enum class Status {
         Running,

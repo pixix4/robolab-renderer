@@ -1,4 +1,4 @@
-package de.roboplot.plotter.traverser
+package de.robolab.traverser
 
 open class TraverserIterator<M, MS, N, NS>(val parent: Traverser<M, MS, N, NS>, lifoPool: Boolean = true) : Iterator<TraverserState<MS, NS>>
         where M : IMothership<MS>, MS : IMothershipState, N : INavigator<NS>, NS : INavigatorState {

@@ -1,15 +1,14 @@
-package de.roboplot.plotter.traverser
+package de.robolab.traverser
 
-import de.roboplot.plotter.model.*
-import de.roboplot.plotter.model.Target
-import de.roboplot.plotter.util.PriorityQueue
+import de.robolab.planet.*
+import kotlin.math.min
 
 interface INavigator<NS> where NS : INavigatorState {
     val planet: LookupPlanet
     val seedState: NS
-    fun drovePath(current: NS, path: Path, receivedPaths: List<Path>, receivedTargets: List<Target>): NS
-    fun prepareLeaveNode(current: NS, location: Point, arrivingPath: Path): Pair<List<NS>, Boolean>
-    fun prepareLeaveNodeInDirection(current: NavigatorState, location: Point, arrivingPath: Path, direction: Direction?, exploring: Boolean): NavigatorState?
+    fun drovePath(current: NS, path: Path, receivedPaths: List<Path>, receivedTargets: List<TargetPoint>): NS
+    fun prepareLeaveNode(current: NS, location: Coordinate, arrivingPath: Path): Pair<List<NS>, Boolean>
+    fun prepareLeaveNodeInDirection(current: NavigatorState, location: Coordinate, arrivingPath: Path, direction: Direction?, exploring: Boolean): NavigatorState?
     fun leavingNode(current: NS, direction: Direction): NS
 }
 
@@ -19,14 +18,14 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
 
     override val seedState: NavigatorState = NavigatorState.getSeed(planet)
 
-    override fun drovePath(current: NavigatorState, path: Path, receivedPaths: List<Path>, receivedTargets: List<Target>): NavigatorState =
+    override fun drovePath(current: NavigatorState, path: Path, receivedPaths: List<Path>, receivedTargets: List<TargetPoint>): NavigatorState =
             receivedPaths.fold(current.copy(pickedDirection = null, currentTarget = receivedTargets.lastOrNull()
                     ?: current.currentTarget).withPath(path)) { acc, newPath ->
                 acc.withPath(newPath)
-            }.restrictOpenExits(path.endPoint, planet.getLeavingDirections(path.endPoint))
+            }.restrictOpenExits(path.target, planet.getLeavingDirections(path.target))
 
-    override fun prepareLeaveNode(current: NavigatorState, location: Point, arrivingPath: Path): Pair<List<NavigatorState>, Boolean> {
-        val currentTargetLocation: Point? = current.currentTarget?.target
+    override fun prepareLeaveNode(current: NavigatorState, location: Coordinate, arrivingPath: Path): Pair<List<NavigatorState>, Boolean> {
+        val currentTargetLocation: Coordinate? = current.currentTarget?.target
         val exploring: Boolean
         var paths: List<Direction?>
         if (currentTargetLocation == null) {
@@ -46,7 +45,7 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
         return Pair(paths.map { prepareLeaveNodeInDirection(current, location, arrivingPath, it, exploring) }, exploring)
     }
 
-    override fun prepareLeaveNodeInDirection(current: NavigatorState, location: Point, arrivingPath: Path, direction: Direction?, exploring: Boolean): NavigatorState {
+    override fun prepareLeaveNodeInDirection(current: NavigatorState, location: Coordinate, arrivingPath: Path, direction: Direction?, exploring: Boolean): NavigatorState {
         if (direction == null) {
             return if (exploring) current.copy(exploring = exploring, explorationComplete = true)
             else current.copy(exploring = exploring, targetReached = true)
@@ -58,41 +57,41 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
         return current
     }
 
-    fun targetDijkstra(state: NavigatorState, start: Point, target: Point): List<List<Direction>> = targetDijkstra(state, start, target) { it.weight!!.toFloat() }
+    fun targetDijkstra(state: NavigatorState, start: Coordinate, target: Coordinate): List<List<Direction>> = targetDijkstra(state, start, target) { it.weight!!.toFloat() }
 
-    fun targetDijkstra(state: NavigatorState, start: Point, target: Point, cost: (Path) -> Float): List<List<Direction>> =
+    fun targetDijkstra(state: NavigatorState, start: Coordinate, target: Coordinate, cost: (Path) -> Float): List<List<Direction>> =
             if (target !in state.paths.keys) emptyList()
-            else dijkstra(state, start, { it == target }, cost).map { it.map(Pair<Direction, Point>::first) }
+            else dijkstra(state, start, { it == target }, cost).map { it.map(Pair<Direction, Coordinate>::first) }
 
-    fun exploreDijkstra(state: NavigatorState, start: Point): List<List<Direction>> = exploreDijkstra(state, start) { it.weight!!.toFloat() }
+    fun exploreDijkstra(state: NavigatorState, start: Coordinate): List<List<Direction>> = exploreDijkstra(state, start) { it.weight!!.toFloat() }
 
-    fun exploreDijkstra(state: NavigatorState, start: Point, cost: (Path) -> Float): List<List<Direction>> {
-        fun hasOpenExits(location: Point) = !state.openExits[location].isNullOrEmpty()
-        val paths: List<List<Pair<Direction, Point>>> = if (hasOpenExits(start))
+    fun exploreDijkstra(state: NavigatorState, start: Coordinate, cost: (Path) -> Float): List<List<Direction>> {
+        fun hasOpenExits(location: Coordinate) = !state.openExits[location].isNullOrEmpty()
+        val paths: List<List<Pair<Direction, Coordinate>>> = if (hasOpenExits(start))
             listOf(emptyList())
         else
             dijkstra(state, start, ::hasOpenExits, cost)
         return paths.flatMap { oldPath ->
             state.openExits[oldPath.lastOrNull()?.second ?: start]!!
-                    .map { oldPath.map(Pair<Direction, Point>::first) + it }
+                    .map { oldPath.map(Pair<Direction, Coordinate>::first) + it }
         }
     }
 
     //returns List of Paths
     //Paths are Lists of Steps
     //Steps are a Pair of Direction of step and location(Point) after step
-    fun dijkstra(state: NavigatorState, start: Point, predicate: (Point) -> Boolean): List<List<Pair<Direction, Point>>> = dijkstra(state, start, predicate, { it.weight!!.toFloat() })
+    fun dijkstra(state: NavigatorState, start: Coordinate, predicate: (Coordinate) -> Boolean): List<List<Pair<Direction, Coordinate>>> = dijkstra(state, start, predicate, { it.weight!!.toFloat() })
 
-    fun dijkstra(state: NavigatorState, start: Point, predicate: (Point) -> Boolean, cost: (Path) -> Float, precision: Float = 0.01f): List<List<Pair<Direction, Point>>> {
+    fun dijkstra(state: NavigatorState, start: Coordinate, predicate: (Coordinate) -> Boolean, cost: (Path) -> Float, precision: Float = 0.01f): List<List<Pair<Direction, Coordinate>>> {
         if (predicate(start)) return listOf(emptyList())
-        val paths: Map<Point, Map<Direction, Path>> = state.paths
+        val paths: Map<Coordinate, Map<Direction, Path>> = state.paths
         if (start !in paths.keys) return emptyList()
-        val visited: MutableSet<Point> = mutableSetOf()
-        val targets: MutableSet<Point> = mutableSetOf()
-        val notTargets: MutableSet<Point> = mutableSetOf()
-        val predecessor: MutableMap<Point, Pair<Float, MutableSet<Pair<Direction, Point>>>> = mutableMapOf()
+        val visited: MutableSet<Coordinate> = mutableSetOf()
+        val targets: MutableSet<Coordinate> = mutableSetOf()
+        val notTargets: MutableSet<Coordinate> = mutableSetOf()
+        val predecessor: MutableMap<Coordinate, Pair<Float, MutableSet<Pair<Direction, Coordinate>>>> = mutableMapOf()
         predecessor[start] = Pair(0f, mutableSetOf())
-        val prioQueue: PriorityQueue<Point> = PriorityQueue(kotlin.Comparator { o1, o2 ->
+        val prioQueue: PriorityQueue<Coordinate> = PriorityQueue(Comparator { o1, o2 ->
             compareValues(
                     predecessor[o1]?.first ?: Float.POSITIVE_INFINITY,
                     predecessor[o2]?.first ?: Float.POSITIVE_INFINITY)
@@ -100,13 +99,13 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
         var targetCutoff: Float = Float.POSITIVE_INFINITY
         prioQueue.add(start)
         while (!prioQueue.isEmpty()) {
-            val current: Point = prioQueue.remove()
+            val current: Coordinate = prioQueue.remove()
             val baseCost: Float = predecessor[current]!!.first
             visited.add(current)
             if (baseCost > targetCutoff) break
             paths[current]!!.forEach { currentPathEntry ->
                 if (currentPathEntry.value.blocked) return@forEach
-                val endPoint: Point = currentPathEntry.value.endPoint
+                val endPoint: Coordinate = currentPathEntry.value.target
                 if (endPoint in visited) return@forEach
                 val pathCost: Float = cost(currentPathEntry.value)
                 if (pathCost < 0f) return@forEach
@@ -137,15 +136,15 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
                         (if (predicate(endPoint).also { isTarget = it }) targets else notTargets).add(endPoint)
                     }
                     if (isTarget) {
-                        targetCutoff = minOf(targetCutoff, sumCost + precision)
+                        targetCutoff = min(targetCutoff, sumCost + precision)
                     }
                 }
             }
         }
-        targets.removeIf { predecessor[it]!!.first > targetCutoff }
+        targets.removeAll { predecessor[it]!!.first > targetCutoff }
 
-        fun backtrack(target: Point): List<List<Pair<Direction, Point>>> {
-            val predSet: Set<Pair<Direction, Point>> = predecessor[target]?.second.orEmpty()
+        fun backtrack(target: Coordinate): List<List<Pair<Direction, Coordinate>>> {
+            val predSet: Set<Pair<Direction, Coordinate>> = predecessor[target]?.second.orEmpty()
             if (predSet.isEmpty()) {
                 return listOf(emptyList())
             }

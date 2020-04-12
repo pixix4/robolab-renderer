@@ -11,6 +11,8 @@ import de.robolab.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.SvgCanvas
 import de.robolab.renderer.utils.Transformation
+import de.robolab.traverser.DefaultTraverser
+import de.robolab.traverser.TraverserState
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.property
 
@@ -38,15 +40,18 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
                             name = "export"
                         }
                         saveExportSVG(name, exportSVG())
-                    }
-            ),
-            listOf(
+                    },
                     ISideBarPlottable.PlottableAction("Export PNG") {
                         var name = planetFile.planet.name.trim()
                         if (name.isEmpty()) {
                             name = "export"
                         }
                         saveExportPNG(name, exportPNG())
+                    }
+            ),
+            listOf(
+                    ISideBarPlottable.PlottableAction("Traverse") {
+                        traverse()
                     }
             )
     )
@@ -72,6 +77,20 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
                     enabledProperty.value = true
                 }
             }
+        }
+    }
+
+
+    private fun traverse() {
+        println("Starting new traversal of '${planetFile.planet.name}'")
+        try {
+            DefaultTraverser(planetFile.planet, true)
+                    .filter { it.status != TraverserState.Status.Running }
+                    .forEach {
+                        println(it.getTrail())
+                    }
+        } catch (e: Exception) {
+            println(e)
         }
     }
 

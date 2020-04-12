@@ -1,6 +1,8 @@
-package de.roboplot.plotter.traverser
+package de.robolab.traverser
 
-import de.roboplot.plotter.model.*
+import de.robolab.planet.Direction
+import de.robolab.planet.Path
+import de.robolab.planet.Planet
 
 open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val linkStates: Boolean = true) : Iterable<TraverserState<MS, NS>>
         where M : IMothership<MS>, MS : IMothershipState, N : INavigator<NS>, NS : INavigatorState {
