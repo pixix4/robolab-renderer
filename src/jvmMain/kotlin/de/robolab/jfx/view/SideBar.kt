@@ -19,7 +19,7 @@ class SideBar(sideBarController: SideBarController) : View() {
         toolbar {
             hgrow = Priority.ALWAYS
 
-
+            spacer()
             buttonGroup {
                 hgrow = Priority.ALWAYS
                 for ( tab in SideBarController.Tab.values()) {
@@ -47,6 +47,7 @@ class SideBar(sideBarController: SideBarController) : View() {
                     }
                 }
             }
+            spacer()
         }
         listview(sideBarController.entryListProperty.mapBinding { it.toFx() }.toFx()) {
             vgrow = Priority.ALWAYS

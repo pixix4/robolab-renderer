@@ -1,21 +1,35 @@
 package de.robolab.jfx.view
 
+import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.robolab.app.controller.ToolBarController
+import de.robolab.app.model.ToolBarEntry
 import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.utils.buttonGroup
+import de.robolab.jfx.utils.iconNoAdd
+import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.property.FunctionAccessor
+import de.westermann.kobserve.property.mapBinding
+import javafx.scene.control.ToggleButton
 import javafx.scene.layout.HBox
 import javafx.scene.text.FontWeight
 import tornadofx.*
 
 class ToolBar(private val toolBarController: ToolBarController) : View() {
 
-    private lateinit var toolBarActions: HBox
+    val infoBarActiveProperty = de.westermann.kobserve.property.property(true)
 
-    private fun updateToolBarActions() {
+    private fun ToolBarEntry.Icon.convert() = when (this) {
+        ToolBarEntry.Icon.UNDO -> MaterialIcon.UNDO
+        ToolBarEntry.Icon.REDO -> MaterialIcon.REDO
+    }
+
+    private fun ToggleButton.bindIcon(iconProperty: ReadOnlyProperty<ToolBarEntry.Icon?>) {
+        graphicProperty().bind(iconProperty.mapBinding { it?.let { iconNoAdd(it.convert()) } }.toFx())
+    }
+
+    private fun updateToolBarActions(toolBarActions: HBox, actionList: List<List<ToolBarEntry>>) {
         toolBarActions.clear()
 
-        val actionList = toolBarController.actionListProperty.value
         for (group in actionList) {
             toolBarActions.buttonGroup {
                 for (button in group) {
@@ -28,12 +42,14 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                         }
 
                         override fun get(): Boolean {
-                            return button.activeProperty.value
+                            return button.selectedProperty.value
                         }
 
-                    }, button.activeProperty)
+                    }, button.selectedProperty)
 
                     togglebutton(button.nameProperty.toFx()) {
+                        bindIcon(button.iconProperty)
+
                         selectedProperty().bindBidirectional(buttonProperty.toFx())
                         selectedProperty().onChange {
                             isSelected = buttonProperty.value
@@ -48,17 +64,20 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
         }
     }
 
+    private fun HBox.setupToolbar(property: ReadOnlyProperty<List<List<ToolBarEntry>>>) {
+        val toolBarAction = hbox { }
+        updateToolBarActions(toolBarAction, property.value)
+        property.onChange {
+            updateToolBarActions(toolBarAction, property.value)
+        }
+    }
+
+
     override val root = toolbar {
         hbox {
-            toolBarActions = hbox {
-
-            }
-
-            updateToolBarActions()
-            toolBarController.actionListProperty.onChange {
-                updateToolBarActions()
-            }
+            setupToolbar(toolBarController.leftActionListProperty)
         }
+        
         spacer()
         label(toolBarController.titleProperty.toFx()) {
             style {
@@ -66,23 +85,29 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
             }
         }
         spacer()
-        buttonGroup {
-            button("-") {
-                setOnAction {
-                    toolBarController.zoomOut()
+
+        hbox {
+            setupToolbar(toolBarController.rightActionListProperty)
+
+            buttonGroup {
+                button {
+                    graphic = iconNoAdd(MaterialIcon.REMOVE)
+                    setOnAction {
+                        toolBarController.zoomOut()
+                    }
                 }
-            }
-            button(toolBarController.zoomProperty.toFx()) {
-                setOnAction {
-                    toolBarController.resetZoom()
+                button(toolBarController.zoomProperty.toFx()) {
+                    setOnAction {
+                        toolBarController.resetZoom()
+                    }
                 }
-            }
-            button("+") {
-                setOnAction {
-                    toolBarController.zoomIn()
+                button {
+                    graphic = iconNoAdd(MaterialIcon.ADD)
+                    setOnAction {
+                        toolBarController.zoomIn()
+                    }
                 }
             }
         }
-
     }
 }
