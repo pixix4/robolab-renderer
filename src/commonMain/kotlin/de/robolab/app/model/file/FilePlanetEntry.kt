@@ -12,7 +12,7 @@ import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.SvgCanvas
 import de.robolab.renderer.utils.Transformation
 import de.robolab.traverser.DefaultTraverser
-import de.robolab.traverser.TraverserState
+import de.robolab.traverser.ITraverserState
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.property
 
@@ -85,7 +85,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
         println("Starting new traversal of '${planetFile.planet.name}'")
         try {
             DefaultTraverser(planetFile.planet, true)
-                    .filter { it.status != TraverserState.Status.Running }
+                    .filter { it.status != ITraverserState.Status.Running }
                     .forEach {
                         println(it.getTrail())
                     }

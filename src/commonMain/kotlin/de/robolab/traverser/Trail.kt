@@ -23,15 +23,15 @@ interface ITraverserTrail {
     val end: Coordinate
         get() = path.last().first
     val path: List<Pair<Coordinate, Direction?>>
-    val result: TraverserState.Status
-    val resultCause: Any?
+    val result: ITraverserState.Status
+    val resultInfo: Any?
 }
 
 data class TraverserTrail(override val path: List<Pair<Coordinate, Direction?>>,
-                          override val result: TraverserState.Status,
-                          override val resultCause: Any? = null) : ITraverserTrail {
+                          override val result: ITraverserState.Status,
+                          override val resultInfo: Any? = null) : ITraverserTrail {
     override fun toString(): String =
             "(${start.x}, ${start.y}) -> [$summary] -> (${end.x}, ${end.y}): $result" +
-                    if (resultCause != null) " ($resultCause)"
+                    if (resultInfo != null) " ($resultInfo)"
                     else ""
 }

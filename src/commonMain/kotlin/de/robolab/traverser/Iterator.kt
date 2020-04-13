@@ -1,91 +1,24 @@
 package de.robolab.traverser
 
-open class TraverserIterator<M, MS, N, NS>(val parent: Traverser<M, MS, N, NS>, lifoPool: Boolean = true) : Iterator<TraverserState<MS, NS>>
-        where M : IMothership<MS>, MS : IMothershipState, N : INavigator<NS>, NS : INavigatorState {
+open class TreeIterator<N>(val branchFunction: (N) -> List<N>, val seed: N, lifoPool: Boolean = true) : Iterator<N> {
 
-    protected open val manager: PoolManager<TraverserState<MS, NS>> =
-            if (lifoPool) PoolManager.LIFO(TraverserState.getSeed(parent))
-            else PoolManager.FIFO(TraverserState.getSeed(parent))
+    protected open val manager: PoolManager<N> =
+            if (lifoPool) PoolManager.LIFO(seed)
+            else PoolManager.FIFO(seed)
+
+    constructor(tree: TreeProvider<N>, lifoPool: Boolean = true) : this(tree.branchFunction, tree.value, lifoPool)
+    constructor(brancher: IBranchProvider<N>, seed: N, lifoPool: Boolean = true) : this(brancher::branch, seed, lifoPool)
 
     override fun hasNext(): Boolean = !manager.isEmpty()
 
-    override fun next(): TraverserState<MS, NS> = tryAdvance()!!
+    override fun next(): N = tryAdvance()!!
 
-    fun tryAdvance(): TraverserState<MS, NS>? {
-        val workingState: TraverserState<MS, NS>? = manager.tryRemove()
-        if (workingState != null && workingState.status == TraverserState.Status.Running)
-            manager.add(parent.branch(workingState))
-        return workingState
+    fun tryAdvance(): N? {
+        val workingNode: N? = manager.tryRemove()
+        if (workingNode != null)
+            manager.add(branchFunction(workingNode))
+        return workingNode
     }
 
 
-    protected interface PoolManager<T> {
-        fun add(element: T)
-        fun add(elements: Collection<T>) = elements.forEach(this::add)
-        fun add(vararg elements: T) = elements.forEach(this::add)
-        fun add(elements: Sequence<T>) = elements.forEach(this::add)
-
-        fun tryRemove(): T?
-
-        fun isEmpty(): Boolean
-
-        class FIFO<T>(vararg element: T) : PoolManager<T> {
-            private val pool: MutableList<T> = mutableListOf(*element)
-
-            override fun add(element: T) {
-                pool.add(element)
-            }
-
-            override fun add(elements: Collection<T>) {
-                pool.addAll(elements)
-            }
-
-            override fun add(vararg elements: T) {
-                pool.addAll(elements)
-            }
-
-            override fun add(elements: Sequence<T>) {
-                pool.addAll(elements)
-            }
-
-            override fun tryRemove(): T? = synchronized(pool) {
-                if (pool.isEmpty())
-                    null
-                else
-                    pool.removeAt(0)
-            }
-
-            override fun isEmpty(): Boolean = pool.isEmpty()
-
-        }
-
-        class LIFO<T>(vararg element: T) : PoolManager<T> {
-            private val pool: MutableList<T> = mutableListOf(*element)
-
-            override fun add(element: T) {
-                pool.add(element)
-            }
-
-            override fun add(elements: Collection<T>) {
-                pool.addAll(elements)
-            }
-
-            override fun add(vararg elements: T) {
-                pool.addAll(elements)
-            }
-
-            override fun add(elements: Sequence<T>) {
-                pool.addAll(elements)
-            }
-
-            override fun tryRemove(): T? = synchronized(pool) {
-                if (pool.isEmpty())
-                    null
-                else
-                    pool.removeAt(pool.lastIndex)
-            }
-
-            override fun isEmpty(): Boolean = pool.isEmpty()
-        }
-    }
 }

@@ -2,14 +2,6 @@ package de.robolab.traverser
 
 import de.robolab.planet.*
 
-fun Path.asReversed(): Path =
-        if (source == target && sourceDirection == targetDirection)
-            this
-        else
-            copy(source = target, sourceDirection = targetDirection,
-                    target = source, targetDirection = sourceDirection,
-                    controlPoints = controlPoints.asReversed())
-
 fun Planet.getStartPath(): Path? =
         if (startPoint == null) null
         else Path(startPoint.point, startPoint.orientation.opposite(), startPoint.point, startPoint.orientation.opposite(),
@@ -32,9 +24,40 @@ class LookupPlanet(val planet: Planet) {
     private val leaveFeatures: Map<Coordinate, PathSelect> = planet.pathSelectList.associateBy { it.point }
 
     private val paths: Map<Coordinate, Map<Direction, Path>> = planet.pathList
-            .flatMap { listOf(it, it.asReversed()) }
+            .flatMap { listOf(it, it.reversed()) }
             .groupBy(Path::source)
             .mapValues { it.value.distinct().associateBy(Path::sourceDirection) }
+
+    val reachablePaths: Set<Path>
+    val reachablePoints: Set<Coordinate>
+
+    init {
+        val startPoint: Coordinate? = planet.startPoint?.point
+        if (startPoint == null) {
+            reachablePaths = emptySet()
+            reachablePoints = emptySet()
+        } else {
+            val tempReachablePaths: MutableSet<Path> = mutableSetOf()
+            val tempReachablePoints: MutableSet<Coordinate> = mutableSetOf(startPoint)
+            val pendingPoints: MutableSet<Coordinate> = mutableSetOf(startPoint)
+            while (pendingPoints.isNotEmpty()) {
+                val point: Coordinate = pendingPoints.first()
+                pendingPoints.remove(point)
+                for (path in getPaths(point)) {
+                    if (!tempReachablePaths.add(path)) continue
+                    if (tempReachablePoints.add(path.source))
+                        pendingPoints.add(path.source)
+                    if (tempReachablePoints.add(path.target))
+                        pendingPoints.add(path.target)
+                }
+            }
+
+            reachablePoints = tempReachablePoints
+            reachablePaths = tempReachablePaths
+        }
+    }
+
+    fun pointReachable(coordinate: Coordinate?): Boolean = coordinate != null && coordinate in reachablePoints
 
     fun getVisitFeatures(point: Coordinate): Pair<List<Path>, List<TargetPoint>>? = visitFeatures[point]
     fun getLeaveFeatures(point: Coordinate): PathSelect? = getPathSelect(point)

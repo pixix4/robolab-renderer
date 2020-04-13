@@ -44,7 +44,7 @@ data class NavigatorState(
 ) : INavigatorState {
 
     fun withPath(path: Path) = copy(
-            paths = addPath(addPath(paths, path), path.asReversed()),
+            paths = addPath(addPath(paths, path), path.reversed()),
             openExits = removeOpenExit(removeOpenExit(
                     addOpenExits(addOpenExits(openExits, path.source), path.target),
                     path.source, path.sourceDirection), path.target, path.targetDirection),

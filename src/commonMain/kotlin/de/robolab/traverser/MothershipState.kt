@@ -12,6 +12,7 @@ interface IMothershipState {
     val selectedDirection: Direction?
     val forcedDirection: Direction?
     val beforePoint: Boolean
+    val withAfterPoint: IMothershipState
 }
 
 data class MothershipState(
@@ -29,6 +30,9 @@ data class MothershipState(
         override val forcedDirection: Direction?,
         override val beforePoint: Boolean
 ) : IMothershipState {
+
+    override val withAfterPoint: MothershipState
+        get() = copy(beforePoint = false)
 
     companion object Seed {
         fun getSeed(planet: Planet): MothershipState = MothershipState(

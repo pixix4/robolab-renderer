@@ -4,10 +4,12 @@ import de.robolab.planet.Direction
 import de.robolab.planet.Path
 import de.robolab.planet.Planet
 
-open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val linkStates: Boolean = true) : Iterable<TraverserState<MS, NS>>
+open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val linkStates: Boolean = true) : IBranchProvider<TraverserState<MS, NS>>, ITreeProvider<TraverserState<MS, NS>>
         where M : IMothership<MS>, MS : IMothershipState, N : INavigator<NS>, NS : INavigatorState {
 
     val planet: LookupPlanet = mothership.planet
+
+    open val name: String = planet.planet.name + " (Traverser)"
 
     open fun getLeavingNavigatorStates(traverserState: TraverserState<MS, NS>): List<NS> = with(traverserState) {
         val temp: Pair<List<NS>, Boolean> = navigator.prepareLeaveNode(navigatorState, traverserState.location, traverserState.mothershipState.drivenPath)
@@ -31,58 +33,72 @@ open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val link
         return@with leaveNodeStates
     }
 
-    open fun branch(traverserState: TraverserState<MS, NS>): Sequence<TraverserState<MS, NS>> = with(traverserState) {
+    override fun branch(node: TraverserState<MS, NS>): List<TraverserState<MS, NS>> = with(node) {
 
-        if (traverserState.status != TraverserState.Status.Running) {
-            if (traverserState.status == TraverserState.Status.TraverserCrashed)
-                throw traverserState.statusCause as Throwable
-            else
-                return@with sequenceOf(traverserState.copy(status = TraverserState.Status.TraverserCrashed,
-                        statusCause = if (traverserState.status == TraverserState.Status.RobotCrashed)
-                            IllegalArgumentException("Cannot branch on crashed traverser", traverserState.statusCause as Throwable)
-                        else
-                            IllegalArgumentException("Cannot branch on not running traverser (${traverserState.status})"),
-                        parent = if (linkStates) traverserState else parent
-                ))
-        }
+        if (!node.running)
+            return@with emptyList()
 
-        val leavingStates: Sequence<NS> = getLeavingNavigatorStates(traverserState).asSequence()
+        val leavingStates: List<NS> = getLeavingNavigatorStates(node)
+
 
         return@with leavingStates.map {
             when {
-                it.explorationComplete -> return@map copy(status = TraverserState.Status.ExplorationComplete, navigatorState = it)
-                it.targetReached -> return@map copy(status = TraverserState.Status.TargetReached, navigatorState = it)
-                else -> return@map drivePath(pickDirection(traverserState, it))
+                it.explorationComplete -> return@map copy(
+                        status = ITraverserState.Status.ExplorationComplete,
+                        statusInfo = mothership.infoTestExplorationComplete(mothershipState),
+                        navigatorState = it,
+                        mothershipState = @Suppress("UNCHECKED_CAST")
+                        (mothershipState.withAfterPoint as? MS) ?: mothershipState,
+                        parent = if (linkStates) node else parent,
+                        depth = depth + 1
+                )
+                it.targetReached -> return@map copy(
+                        status = ITraverserState.Status.TargetReached,
+                        statusInfo = mothership.infoTestTargetReached(mothershipState),
+                        navigatorState = it,
+                        mothershipState = @Suppress("UNCHECKED_CAST")
+                        (mothershipState.withAfterPoint as? MS) ?: mothershipState,
+                        parent = if (linkStates) node else parent,
+                        depth = depth + 1)
+                else -> return@map drivePath(pickDirection(node, it))
             }
         }
     }
 
-    fun drivePath(traverserState: TraverserState<MS, NS>, direction: Direction): TraverserState<MS, NS> =
+    open fun drivePath(traverserState: TraverserState<MS, NS>, direction: Direction): TraverserState<MS, NS> =
             drivePath(traverserState, planet.getPath(traverserState.location, direction)!!)
 
-    fun drivePath(traverserState: TraverserState<MS, NS>, path: Path): TraverserState<MS, NS> {
+    open fun drivePath(traverserState: TraverserState<MS, NS>, path: Path): TraverserState<MS, NS> {
         val newMothershipState: MS = mothership.drivePath(traverserState.mothershipState, path)
         return traverserState.copy(
                 mothershipState = newMothershipState,
                 navigatorState = navigator.drovePath(traverserState.navigatorState, path, newMothershipState.newPaths, newMothershipState.newTargets),
-                parent = if (linkStates) traverserState else traverserState.parent
+                parent = if (linkStates) traverserState else traverserState.parent,
+                depth = traverserState.depth + 1
         )
     }
 
-    fun drivePath(traverserState: TraverserState<MS, NS>): TraverserState<MS, NS> = drivePath(traverserState, traverserState.nextDirection!!)
+    open fun drivePath(traverserState: TraverserState<MS, NS>): TraverserState<MS, NS> = drivePath(traverserState, traverserState.nextDirection!!)
 
-    fun pickDirection(traverserState: TraverserState<MS, NS>, nextNavigatorState: NS): TraverserState<MS, NS> {
+    open fun pickDirection(traverserState: TraverserState<MS, NS>, nextNavigatorState: NS): TraverserState<MS, NS> {
         val newMothershipState: MS = mothership.pickDirection(traverserState.mothershipState, nextNavigatorState.pickedDirection!!)
         return traverserState.copy(
                 mothershipState = newMothershipState,
                 navigatorState = navigator.leavingNode(nextNavigatorState, newMothershipState.forcedDirection
                         ?: newMothershipState.selectedDirection!!),
-                parent = if (linkStates) traverserState else traverserState.parent
+                parent = if (linkStates) traverserState else traverserState.parent,
+                depth = traverserState.depth + 1
         )
     }
 
-    override fun iterator(): TraverserIterator<M, MS, N, NS> = TraverserIterator(this)
+    override fun iterator(): TreeIterator<TraverserState<MS, NS>> = TreeIterator(this::branch, value)
 
+    fun asTree(): ITreeProvider<TraverserState<MS, NS>> = TreeProvider(this::branch, value)
+
+    override fun branch(): List<ITreeProvider<TraverserState<MS, NS>>> = children().map { TreeProvider(this::branch, it) }
+
+    override fun children(): List<TraverserState<MS, NS>> = branch(value)
+    override val value: TraverserState<MS, NS> by lazy { TraverserState.getSeed(this) }
 }
 
 class DefaultTraverser(mothership: Mothership, navigator: Navigator, linkStates: Boolean = true) :

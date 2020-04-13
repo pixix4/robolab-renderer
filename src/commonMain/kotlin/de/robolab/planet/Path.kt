@@ -47,4 +47,10 @@ data class Path(
                 controlPoints = controlPoints.reversed()
         )
     }
+
+    override fun toString(): String = "Path(" +
+            "${source.x},${source.y},${sourceDirection.letter()} " +
+            "${target.x},${target.y},${targetDirection.letter()} $weight " +
+            exposure.joinToString(" ") { "${it.x},${it.y}" } +
+            if (blocked) if (exposure.isEmpty()) "blocked)" else " blocked)" else ")"
 }

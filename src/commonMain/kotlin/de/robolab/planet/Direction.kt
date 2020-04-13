@@ -35,4 +35,6 @@ enum class Direction {
         SOUTH -> Point(0.0, -1.0)
         WEST -> Point(-1.0, 0.0)
     }
+
+    fun letter(): Char = name.first()
 }
