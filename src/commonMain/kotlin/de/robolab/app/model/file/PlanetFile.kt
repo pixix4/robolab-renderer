@@ -17,7 +17,7 @@ class PlanetFile(fileContent: String) : IEditCallback {
             try {
                 line.buildPlanet(buildAccumulator)
             } catch (e: Exception) {
-                println(e)
+                println("Error while buildPlanet, ${line::class.simpleName}: '${line.line}'")
             }
         }
         buildAccumulator.planet
@@ -27,14 +27,19 @@ class PlanetFile(fileContent: String) : IEditCallback {
     private fun parseFileContent(fileContent: String) = fileContent.split('\n').map { parseLine(it) }
 
     var content: String
-        get() = lines.map { it.line }.joinToString("\n")
+        get() = lines.joinToString("\n") { it.line }
         set(value) {
             lines = parseFileContent(value)
         }
 
-    fun resetContent(fileContent: String) {
-        history.push(parseFileContent(fileContent), reset = true)
+    fun replaceContent(fileContent: String) {
+        history.replace(parseFileContent(fileContent))
     }
+
+    fun resetContent(fileContent: String) {
+        history.clear(parseFileContent(fileContent))
+    }
+
 
     override fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, controlPoints: List<Point>, groupHistory: Boolean) {
         var newLines = lines + FileLine.PathLine.create(Path(

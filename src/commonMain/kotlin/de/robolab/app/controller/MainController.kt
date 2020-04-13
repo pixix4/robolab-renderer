@@ -18,6 +18,7 @@ class MainController {
     val canvasController = CanvasController(selectedEntryProperty)
     val toolBarController = ToolBarController(selectedEntryProperty, canvasController)
     val statusBarController = StatusBarController(canvasController)
+    val infoBarController = InfoBarController(selectedEntryProperty)
 
     init {
         ConsoleGreeter.greet()

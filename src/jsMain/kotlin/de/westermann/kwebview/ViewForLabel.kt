@@ -2,6 +2,7 @@ package de.westermann.kwebview
 
 import de.westermann.kwebview.components.Label
 import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLTextAreaElement
 import kotlin.math.abs
 import kotlin.random.Random
 

@@ -14,7 +14,7 @@ import de.westermann.kwebview.components.*
 class ToolBar(private val toolBarController: ToolBarController) : ViewCollection<View>() {
 
     val sideBarActiveProperty = property(true)
-    val infoBarActiveProperty = property(false)
+    val infoBarActiveProperty = property(true)
 
     private fun ToolBarEntry.Icon.convert() = when (this) {
         ToolBarEntry.Icon.UNDO -> MaterialIcon.UNDO

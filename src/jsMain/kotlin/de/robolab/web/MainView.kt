@@ -16,6 +16,6 @@ fun main() {
         +SideBar(mainController.sideBarController, toolBar.sideBarActiveProperty)
         +StatusBar(mainController.statusBarController)
         +MainCanvas(mainController.canvasController, toolBar.infoBarActiveProperty)
-        +InfoBar(toolBar.infoBarActiveProperty)
+        +InfoBar(mainController.infoBarController, toolBar.infoBarActiveProperty)
     }
 }

@@ -2,10 +2,7 @@ package de.robolab.app.model.group
 
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
-import de.robolab.app.model.ISideBarEntry
-import de.robolab.app.model.ISideBarGroup
-import de.robolab.app.model.ISideBarPlottable
-import de.robolab.app.model.ToolBarEntry
+import de.robolab.app.model.*
 import de.robolab.communication.RobolabMessage
 import de.robolab.communication.toMqttPlanet
 import de.robolab.communication.toServerPlanet
@@ -126,6 +123,9 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
                     }
             )
     )
+
+    override val infoBarList: List<IInfoBarContent> = emptyList()
+    override val selectedInfoBarIndexProperty = property<Int?>(null)
 
     override val unsavedChangesProperty = constProperty(false)
 

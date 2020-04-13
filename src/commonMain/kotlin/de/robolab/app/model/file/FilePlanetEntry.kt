@@ -12,15 +12,13 @@ import de.robolab.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.SvgCanvas
 import de.robolab.renderer.utils.Transformation
-import de.robolab.traverser.DefaultTraverser
-import de.robolab.traverser.ITraverserState
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.constProperty
 import de.westermann.kobserve.property.property
 
 class FilePlanetEntry(val filename: String, private val provider: FilePlanetProvider) : ISideBarPlottable {
 
-    private val planetFile = PlanetFile("")
+    internal val planetFile = PlanetFile("")
 
     override val enabledProperty = property(false)
 
@@ -28,10 +26,10 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override val toolBarLeft: List<List<ToolBarEntry>> = listOf(
             listOf(
-                    ToolBarEntry(constProperty("View"),  selectedProperty = !drawable.editableProperty) {
+                    ToolBarEntry(constProperty("View"), selectedProperty = !drawable.editableProperty) {
                         drawable.editableProperty.value = false
                     },
-                    ToolBarEntry(constProperty("Edit"),  selectedProperty = drawable.editableProperty) {
+                    ToolBarEntry(constProperty("Edit"), selectedProperty = drawable.editableProperty) {
                         drawable.editableProperty.value = true
                     }
             ),
@@ -51,11 +49,6 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
                         }
                         saveExportPNG(name, exportPNG())
                     }
-            ),
-            listOf(
-                    ToolBarEntry(constProperty("Traverse")) {
-                        traverse()
-                    }
             )
     )
 
@@ -70,6 +63,9 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
             )
     )
 
+    override val infoBarList = listOf(InfoBarFileEditor(this), InfoBarTraverser(this))
+    override val selectedInfoBarIndexProperty = property<Int?>(0)
+
     val content: String
         get() = planetFile.content
 
@@ -81,19 +77,6 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
                     enabledProperty.value = true
                 }
             }
-        }
-    }
-
-    private fun traverse() {
-        println("Starting new traversal of '${planetFile.planet.name}'")
-        try {
-            DefaultTraverser(planetFile.planet, true)
-                    .filter { it.status != ITraverserState.Status.Running }
-                    .forEach {
-                        println(it.getTrail())
-                    }
-        } catch (e: Exception) {
-            println(e)
         }
     }
 

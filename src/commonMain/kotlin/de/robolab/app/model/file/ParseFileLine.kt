@@ -78,7 +78,12 @@ interface FileLine<T> {
         override var blockMode: BlockMode = BlockMode.Unknown
 
         override fun buildPlanet(builder: BuildAccumulator) {
-            blockMode = BlockMode.Append(builder.previousBlockHead!!)
+            val head = builder.previousBlockHead
+            blockMode = if (head == null) {
+                BlockMode.Head(null)
+            } else {
+                BlockMode.Append(head)
+            }
         }
     }
 
@@ -349,9 +354,7 @@ interface FileLine<T> {
 
     class NameLine(override val line: String) : FileLine<String> {
 
-        override val data = REGEX.matchEntire(line.trim())!!.let { match ->
-            match.groupValues[2]
-        }
+        override val data = REGEX.matchEntire(line.trim())?.groupValues?.getOrNull(2) ?: ""
 
         override var blockMode: BlockMode = BlockMode.Unknown
 
