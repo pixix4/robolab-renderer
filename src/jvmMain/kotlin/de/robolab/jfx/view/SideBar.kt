@@ -6,9 +6,11 @@ import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.style.MainStyle
 import de.robolab.jfx.utils.buttonGroup
 import de.robolab.jfx.utils.icon
+import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import javafx.css.Styleable
 import javafx.scene.layout.Priority
 import javafx.scene.text.FontWeight
 import tornadofx.*
@@ -22,7 +24,7 @@ class SideBar(sideBarController: SideBarController) : View() {
             spacer()
             buttonGroup {
                 hgrow = Priority.ALWAYS
-                for ( tab in SideBarController.Tab.values()) {
+                for (tab in SideBarController.Tab.values()) {
                     val buttonProperty = property(object : FunctionAccessor<Boolean> {
                         override fun set(value: Boolean): Boolean {
                             if (value) {
@@ -81,6 +83,32 @@ class SideBar(sideBarController: SideBarController) : View() {
             }
         }
 
-        hbox { }
+        hbox {
+            bindClass(MainStyle.success, sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.SUCCESS })
+            bindClass(MainStyle.warn, sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.WARN })
+            bindClass(MainStyle.error, sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.ERROR })
+
+            label(sideBarController.statusMessage.toFx())
+            spacer()
+            label(sideBarController.statusActionLabel.toFx()) {
+                setOnMouseClicked {
+                    sideBarController.onStatusAction()
+                }
+            }
+        }
+    }
+}
+
+fun Styleable.bindClass(clazz: CssRule, property: ReadOnlyProperty<Boolean>) {
+    property.onChange {
+        if (property.value) {
+            addClass(clazz)
+        } else {
+            removeClass(clazz)
+        }
+    }
+
+    if (property.value) {
+        addClass(clazz)
     }
 }

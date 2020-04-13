@@ -14,7 +14,11 @@ class MainStyle : Stylesheet() {
         val textButton by cssclass()
 
         val statusBar by cssclass()
-        
+
+        val success by cssclass()
+        val warn by cssclass()
+        val error by cssclass()
+
         val first by csspseudoclass()
         val last by csspseudoclass()
 

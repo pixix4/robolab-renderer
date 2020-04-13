@@ -28,14 +28,29 @@ fun Stylesheet.initSideBarStyle() {
         }
         and(Stylesheet.selected) {
             backgroundColor = multi(MainStyle.primaryBackground)
-            textFill = MainStyle.primaryTextColor
+            textFill = MainStyle.themeColor
             Stylesheet.label {
-                textFill = MainStyle.primaryTextColor
+                textFill = MainStyle.themeColor
             }
 
             and(Stylesheet.focused, Stylesheet.hover) {
                 backgroundColor = multi(MainStyle.primaryHoverBackground)
             }
         }
+    }
+
+    MainStyle.success {
+        backgroundColor = multi(MainStyle.successColor)
+        textFill = MainStyle.successTextColor
+    }
+
+    MainStyle.warn {
+        backgroundColor = multi(MainStyle.warnColor)
+        textFill = MainStyle.warnTextColor
+    }
+
+    MainStyle.error {
+        backgroundColor = multi(MainStyle.errorColor)
+        textFill = MainStyle.errorTextColor
     }
 }
