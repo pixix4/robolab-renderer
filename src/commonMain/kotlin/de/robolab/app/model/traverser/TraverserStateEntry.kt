@@ -1,7 +1,7 @@
 package de.robolab.app.model.traverser
 
 import de.robolab.app.controller.TraverserBarController
-import de.robolab.traverser.TraverserState
+import de.robolab.traverser.ITraverserState
 import de.robolab.traverser.TreeSliceViewer
 import de.westermann.kobserve.Property
 import de.westermann.kobserve.ReadOnlyProperty
@@ -9,7 +9,7 @@ import de.westermann.kobserve.property.*
 import de.robolab.traverser.property
 
 interface ITraverserStateEntry {
-    val sliceEntry: ReadOnlyProperty<out TreeSliceViewer.TreeSliceEntry<out TraverserState<*, *>>>
+    val sliceEntry: ReadOnlyProperty<out TreeSliceViewer.TreeSliceEntry<out ITraverserState<*>>>
     val isNextEnabled: ReadOnlyProperty<Boolean>
     val isPreviousEnabled: ReadOnlyProperty<Boolean>
     fun clickNextOption()
@@ -18,9 +18,9 @@ interface ITraverserStateEntry {
     fun select(multiple: Boolean = false)
     val currentOptionIndex: ReadOnlyProperty<Int>
     val optionCount: ReadOnlyProperty<Int>
-    val currentOption: ReadOnlyProperty<out TraverserState<*, *>>
-    val options: ReadOnlyProperty<out List<TraverserState<*, *>>>
-    val state: ReadOnlyProperty<out TraverserState<*, *>>
+    val currentOption: ReadOnlyProperty<out ITraverserState<*>>
+    val options: ReadOnlyProperty<out List<ITraverserState<*>>>
+    val state: ReadOnlyProperty<out ITraverserState<*>>
     val selected: ReadOnlyProperty<Boolean>
     val visibleTitle: ReadOnlyProperty<String>
     val visibleDetails: ReadOnlyProperty<List<String>>
@@ -29,20 +29,20 @@ interface ITraverserStateEntry {
     val details: ReadOnlyProperty<List<String>>
 }
 
-class TraverserStateEntry<TS>(val controller: TraverserBarController, sliceEntry: TreeSliceViewer.TreeSliceEntry<TS>) : ITraverserStateEntry where TS : TraverserState<*, *> {
+class TraverserStateEntry<TS>(val controller: TraverserBarController, sliceEntry: TreeSliceViewer.TreeSliceEntry<out TS>) : ITraverserStateEntry where TS : ITraverserState<*> {
     override fun clickNextOption() = controller.clickNextOption(this).let { }
     override fun clickPreviousOption() = controller.clickPreviousOption(this).let { }
-    override val sliceEntry: Property<TreeSliceViewer.TreeSliceEntry<TS>> = property(sliceEntry)
+    override val sliceEntry: Property<TreeSliceViewer.TreeSliceEntry<out TS>> = property(sliceEntry)
     override val isNextEnabled: ReadOnlyProperty<Boolean> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<*>::hasNext)
     override val isPreviousEnabled: ReadOnlyProperty<Boolean> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<*>::hasPrevious)
     override val currentOptionIndex: ReadOnlyProperty<Int> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<*>::currentIndex)
-    override val currentOption: ReadOnlyProperty<TS> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<TS>::currentOption)
+    override val currentOption: ReadOnlyProperty<TS> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<out TS>::currentOption)
 
-    override val options: ReadOnlyProperty<List<TS>> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<TS>::options)
+    override val options: ReadOnlyProperty<List<TS>> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<out TS>::options)
     //TODO: use ObservableReadOnlyList<TS> with this.sliceEntry.flatMapReadOnlyBinding
 
-    override val optionCount: ReadOnlyProperty<Int> = this.options.mapBinding(List<TraverserState<*, *>>::size)
-    override val state: ReadOnlyProperty<out TraverserState<*, *>> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<TS>::currentOption)
+    override val optionCount: ReadOnlyProperty<Int> = this.options.mapBinding(List<ITraverserState<*>>::size)
+    override val state: ReadOnlyProperty<out ITraverserState<*>> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<out TS>::currentOption)
     override fun select(multiple: Boolean) = controller.selectEntry(this, multiple)
     override val selected: Property<Boolean> = property(false)
 

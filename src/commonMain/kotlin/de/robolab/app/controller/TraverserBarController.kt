@@ -82,11 +82,15 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
         sliceViewer.onChange += {
             _characteristicList.clear()
             _characteristicList.addAll(CharacteristicItem.generateChararacteristic(sliceViewer.currentNode))
+            _entryList.clear()
+            _entryList.addAll(sliceViewer.map { TraverserStateEntry(this, it) })
         }
         autoExpandProperty.onChange += {
             if (autoExpandProperty.value)
                 clickFullExpand()
         }
+        _entryList.clear()
+        _entryList.addAll(sliceViewer.map { TraverserStateEntry(this, it) })
         if (autoExpand)
             clickFullExpand()
     }
