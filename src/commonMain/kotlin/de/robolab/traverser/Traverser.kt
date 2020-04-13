@@ -4,7 +4,7 @@ import de.robolab.planet.Direction
 import de.robolab.planet.Path
 import de.robolab.planet.Planet
 
-open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val linkStates: Boolean = true) : IBranchProvider<TraverserState<MS, NS>>, ITreeProvider<TraverserState<MS, NS>>
+open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val linkStates: Boolean = true) : ISeededBranchProvider<TraverserState<MS, NS>>, ITreeProvider<TraverserState<MS, NS>>
         where M : IMothership<MS>, MS : IMothershipState, N : INavigator<NS>, NS : INavigatorState {
 
     val planet: LookupPlanet = mothership.planet
@@ -33,7 +33,7 @@ open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val link
         return@with leaveNodeStates
     }
 
-    override fun branch(node: TraverserState<MS, NS>): List<TraverserState<MS, NS>> = with(node) {
+    fun branch(node: TraverserState<MS, NS>): List<TraverserState<MS, NS>> = with(node) {
 
         if (!node.running)
             return@with emptyList()
@@ -64,6 +64,8 @@ open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val link
             }
         }
     }
+
+    override val branchFunction: (TraverserState<MS, NS>) -> List<TraverserState<MS, NS>> = ::branch
 
     open fun drivePath(traverserState: TraverserState<MS, NS>, direction: Direction): TraverserState<MS, NS> =
             drivePath(traverserState, planet.getPath(traverserState.location, direction)!!)
@@ -98,7 +100,8 @@ open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val link
     override fun branch(): List<ITreeProvider<TraverserState<MS, NS>>> = children().map { TreeProvider(this::branch, it) }
 
     override fun children(): List<TraverserState<MS, NS>> = branch(value)
-    override val value: TraverserState<MS, NS> by lazy { TraverserState.getSeed(this) }
+    override val seed: TraverserState<MS, NS> by lazy { TraverserState.getSeed(this) }
+    override val value: TraverserState<MS, NS> by lazy { seed }
 }
 
 class DefaultTraverser(mothership: Mothership, navigator: Navigator, linkStates: Boolean = true) :

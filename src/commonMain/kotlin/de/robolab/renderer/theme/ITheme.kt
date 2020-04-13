@@ -21,4 +21,11 @@ interface ITheme {
     val robotWheelColor: Color
     val robotSensorColor: Color
     val robotButtonColor: Color
+
+    val traverserCharacteristicCorrectColor: Color
+    val traverserCharacteristicErrorColor: Color
+    val traverserCharacteristicNorthColor: Color
+    val traverserCharacteristicEastColor: Color
+    val traverserCharacteristicSouthColor: Color
+    val traverserCharacteristicWestColor: Color
 }

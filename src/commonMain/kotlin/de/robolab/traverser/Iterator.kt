@@ -7,7 +7,7 @@ open class TreeIterator<N>(val branchFunction: (N) -> List<N>, val seed: N, lifo
             else PoolManager.FIFO(seed)
 
     constructor(tree: TreeProvider<N>, lifoPool: Boolean = true) : this(tree.branchFunction, tree.value, lifoPool)
-    constructor(brancher: IBranchProvider<N>, seed: N, lifoPool: Boolean = true) : this(brancher::branch, seed, lifoPool)
+    constructor(brancher: IBranchProvider<N>, seed: N, lifoPool: Boolean = true) : this(brancher.branchFunction, seed, lifoPool)
 
     override fun hasNext(): Boolean = !manager.isEmpty()
 

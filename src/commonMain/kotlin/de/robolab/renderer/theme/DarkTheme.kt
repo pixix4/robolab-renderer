@@ -21,4 +21,11 @@ object DarkTheme : ITheme {
     override val robotWheelColor = lineColor
     override val robotSensorColor = robotWheelColor.interpolate(LightTheme.robotMainColor, 0.1)
     override val robotButtonColor = Color(49, 31, 4)
+
+    override val traverserCharacteristicCorrectColor = Color(0, 255, 0)
+    override val traverserCharacteristicErrorColor = Color(255, 0, 0)
+    override val traverserCharacteristicNorthColor = Color(192, 192, 0)
+    override val traverserCharacteristicEastColor = Color(0, 192, 192)
+    override val traverserCharacteristicSouthColor = Color(192, 0, 192)
+    override val traverserCharacteristicWestColor = Color(0, 0, 255)
 }

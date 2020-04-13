@@ -36,5 +36,6 @@ enum class Direction {
         WEST -> Point(-1.0, 0.0)
     }
 
-    fun letter(): Char = name.first()
 }
+
+fun Direction?.letter(): Char = this?.name?.first() ?: '#'
