@@ -1,7 +1,9 @@
 package de.robolab.web.views
 
 import de.robolab.app.controller.ToolBarController
+import de.robolab.app.model.ToolBarEntry
 import de.robolab.web.views.utils.buttonGroup
+import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -12,18 +14,44 @@ import de.westermann.kwebview.components.*
 class ToolBar(private val toolBarController: ToolBarController) : ViewCollection<View>() {
 
     val sideBarActiveProperty = property(true)
+    val infoBarActiveProperty = property(false)
 
-    private lateinit var toolBarActions: BoxView
+    private fun ToolBarEntry.Icon.convert() = when (this) {
+        ToolBarEntry.Icon.UNDO -> MaterialIcon.UNDO
+        ToolBarEntry.Icon.REDO -> MaterialIcon.REDO
+    }
 
-    private fun updateToolBarActions() {
+    private fun Button.bindIcon(iconProperty: ReadOnlyProperty<ToolBarEntry.Icon?>) {
+        var iconView: IconView? = null
+
+        val icon = iconProperty.value
+        if (icon != null) {
+            iconView = iconView(icon.convert())
+        }
+
+        iconProperty.onChange {
+            iconView?.let { remove(it) }
+            val newIcon = iconProperty.value
+            if (newIcon != null) {
+                iconView = iconView(newIcon.convert())
+            }
+        }
+    }
+
+    private fun updateToolBarActions(toolBarActions: BoxView, actionList: List<List<ToolBarEntry>>) {
         toolBarActions.clear()
 
-        val actionList = toolBarController.actionListProperty.value
         for (group in actionList) {
             toolBarActions.buttonGroup {
                 for (button in group) {
                     button(button.nameProperty) {
-                        classList.bind("active", button.activeProperty)
+                        bindIcon(button.iconProperty)
+
+                        classList.bind("active", button.selectedProperty)
+                        disabledProperty.bind(!button.enabledProperty)
+
+                        property(this::title).bind(button.toolTipProperty)
+
                         onClick {
                             button.onClick()
                         }
@@ -33,23 +61,27 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
         }
     }
 
+    private fun BoxView.setupToolbar(property: ReadOnlyProperty<List<List<ToolBarEntry>>>) {
+        val toolBarAction = boxView("tool-bar-actions")
+        updateToolBarActions(toolBarAction,property.value)
+        property.onChange {
+            updateToolBarActions(toolBarAction, property.value)
+        }
+    }
+
     init {
         boxView("tool-bar-left") {
             button {
-                classList += "menu"
+                classList += "side-bar-menu"
                 iconView(MaterialIcon.MENU)
-                title = "Open menu"
+                title = "Toggle side bar"
 
                 onClick {
                     sideBarActiveProperty.value = !sideBarActiveProperty.value
                 }
             }
 
-            toolBarActions = boxView("tool-bar-actions")
-            updateToolBarActions()
-            toolBarController.actionListProperty.onChange {
-                updateToolBarActions()
-            }
+            setupToolbar(toolBarController.leftActionListProperty)
         }
 
         textView(toolBarController.titleProperty.mapBinding { it }) {
@@ -57,28 +89,9 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
         }
 
         boxView("tool-bar-right") {
-            buttonGroup {
-                button {
-                    iconView(MaterialIcon.UNDO)
-                    title = "Undo last action"
 
-                    disabledProperty.bind(!toolBarController.canUndoProperty)
+            setupToolbar(toolBarController.rightActionListProperty)
 
-                    onClick {
-                        toolBarController.undo()
-                    }
-                }
-                button {
-                    iconView(MaterialIcon.REDO)
-                    title = "Redo last action"
-
-                    disabledProperty.bind(!toolBarController.canRedoProperty)
-
-                    onClick {
-                        toolBarController.redo()
-                    }
-                }
-            }
             buttonGroup {
                 button {
                     iconView(MaterialIcon.REMOVE)
@@ -102,6 +115,18 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                     onClick {
                         toolBarController.zoomIn()
                     }
+                }
+            }
+
+            button {
+                classList += "info-bar-menu"
+                iconView(MaterialIcon.MENU)
+                title = "Toggle info bar"
+
+                classList.bind("active", infoBarActiveProperty)
+
+                onClick {
+                    infoBarActiveProperty.value = !infoBarActiveProperty.value
                 }
             }
         }

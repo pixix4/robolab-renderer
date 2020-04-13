@@ -38,6 +38,8 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                         selectedProperty().onChange {
                             isSelected = buttonProperty.value
                         }
+
+                        enableWhen(button.enabledProperty.toFx())
                     }
                 }
 

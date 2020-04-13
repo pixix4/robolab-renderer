@@ -1,0 +1,45 @@
+@use '../utils';
+
+.info-bar {
+    @include utils.prevent-user-select();
+
+    position: absolute;
+    right: calc(-100% + 4rem);
+    top: 3rem;
+    bottom: 2rem;
+    width: calc(100% - 4rem);
+    z-index: 1;
+    border-left: solid 1px var(--border-color);
+    transition: right 200ms;
+    background-color: var(--secondary-background);
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    &.active {
+        right: 0;
+
+        &::after {
+            content: '';
+            display: block;
+            position: absolute;
+            width: 4rem;
+            height: 100%;
+            top: 0;
+            left: -4rem;
+        }
+    }
+}
+
+@include utils.desktop {
+    .info-bar {
+        right: -21rem;
+        width: 20rem;
+
+        &.active {
+            &::after {
+                right: 0;
+                content: none;
+            }
+        }
+    }
+}

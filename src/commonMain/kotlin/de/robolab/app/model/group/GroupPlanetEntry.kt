@@ -5,6 +5,7 @@ import com.soywiz.klock.DateTimeTz
 import de.robolab.app.model.ISideBarEntry
 import de.robolab.app.model.ISideBarGroup
 import de.robolab.app.model.ISideBarPlottable
+import de.robolab.app.model.ToolBarEntry
 import de.robolab.communication.RobolabMessage
 import de.robolab.communication.toMqttPlanet
 import de.robolab.communication.toServerPlanet
@@ -69,26 +70,11 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
         "Messages: ${it.size}"
     }
 
-    override val actionList = emptyList<List<ISideBarPlottable.PlottableAction>>()
-    override val unsavedChangesProperty = constProperty(false)
-
-    override val enabledProperty = constProperty(false)
-
-    override val drawable = LivePlanetDrawable()
+    override val toolBarLeft = emptyList<List<ToolBarEntry>>()
 
     val selectedIndexProperty = property<Int?>(null)
 
-    private fun update() {
-        val selectedIndex = selectedIndexProperty.value
-        val m = if (selectedIndex == null) messages else messages.subList(0, selectedIndex - 1)
-
-        println("Render ${m.size} messages")
-
-        drawable.importServerPlanet(m.toServerPlanet())
-        drawable.importMqttPlanet(m.toMqttPlanet())
-    }
-
-    override val canUndoProperty = property(selectedIndexProperty, messages) {
+    private val canUndoProperty = property(selectedIndexProperty, messages) {
         val selectedIndex = selectedIndexProperty.value
         val lastIndex = messages.lastIndex
 
@@ -99,7 +85,7 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
         }
     }
 
-    override fun undo() {
+    private fun undo() {
         val selectedIndex = selectedIndexProperty.value
         val lastIndex = messages.lastIndex
 
@@ -110,14 +96,14 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
         }
     }
 
-    override val canRedoProperty = property(selectedIndexProperty, messages) {
+    private val canRedoProperty = property(selectedIndexProperty, messages) {
         val selectedIndex = selectedIndexProperty.value
         val lastIndex = messages.lastIndex
 
         selectedIndex != null && selectedIndex < lastIndex
     }
 
-    override fun redo() {
+    private fun redo() {
         val selectedIndex = selectedIndexProperty.value
         val lastIndex = messages.lastIndex
 
@@ -128,6 +114,34 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
                 selectedIndexProperty.value = min(lastIndex, selectedIndex + 1)
             }
         }
+    }
+
+    override val toolBarRight: List<List<ToolBarEntry>> = listOf(
+            listOf(
+                    ToolBarEntry(iconProperty = constProperty(ToolBarEntry.Icon.UNDO), enabledProperty = canUndoProperty) {
+                        undo()
+                    },
+                    ToolBarEntry(iconProperty = constProperty(ToolBarEntry.Icon.REDO), enabledProperty =canRedoProperty) {
+                        redo()
+                    }
+            )
+    )
+
+    override val unsavedChangesProperty = constProperty(false)
+
+    override val enabledProperty = constProperty(false)
+
+    override val drawable = LivePlanetDrawable()
+
+
+    private fun update() {
+        val selectedIndex = selectedIndexProperty.value
+        val m = if (selectedIndex == null) messages else messages.subList(0, selectedIndex - 1)
+
+        println("Render ${m.size} messages")
+
+        drawable.importServerPlanet(m.toServerPlanet())
+        drawable.importMqttPlanet(m.toMqttPlanet())
     }
 
     init {

@@ -10,7 +10,8 @@ class ToolBarController(
         val selectedEntryProperty: Property<ISideBarPlottable?>,
         private val canvasController: CanvasController
 ) {
-    val actionListProperty = selectedEntryProperty.mapBinding { it?.actionList ?: emptyList() }
+    val leftActionListProperty = selectedEntryProperty.mapBinding { it?.toolBarLeft ?: emptyList() }
+    val rightActionListProperty = selectedEntryProperty.mapBinding { it?.toolBarRight ?: emptyList() }
 
     val titleProperty = selectedEntryProperty.flatMapReadOnlyNullableBinding { it?.tabNameProperty }.mapBinding {
         it ?: ""
@@ -31,21 +32,4 @@ class ToolBarController(
     fun resetZoom() {
         canvasController.resetZoom()
     }
-
-    val canUndoProperty = selectedEntryProperty.flatMapReadOnlyNullableBinding { it?.canUndoProperty }.mapBinding {
-        it ?: false
-    }
-
-    fun undo() {
-        selectedEntryProperty.value?.undo()
-    }
-
-    val canRedoProperty = selectedEntryProperty.flatMapReadOnlyNullableBinding { it?.canRedoProperty }.mapBinding {
-        it ?: false
-    }
-
-    fun redo() {
-        selectedEntryProperty.value?.redo()
-    }
-
 }

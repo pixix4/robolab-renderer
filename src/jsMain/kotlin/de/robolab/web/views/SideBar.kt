@@ -13,12 +13,12 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
 
-class SideBar(private val sideBarController: SideBarController, sideBarProperty: Property<Boolean>) : ViewCollection<View>() {
+class SideBar(private val sideBarController: SideBarController, sideBarActiveProperty: Property<Boolean>) : ViewCollection<View>() {
 
     private fun createEntry(entry: ISideBarEntry) = SideBarEntry(entry, sideBarController)
 
     init {
-        classList.bind("active", sideBarProperty)
+        classList.bind("active", sideBarActiveProperty)
 
         boxView("side-bar-header") {
             buttonGroup {
@@ -66,8 +66,8 @@ class SideBar(private val sideBarController: SideBarController, sideBarProperty:
 
         // Close side bar on mobile
         onClick {
-            if (it.target == html && sideBarProperty.value) {
-                sideBarProperty.value = false
+            if (it.target == html && sideBarActiveProperty.value) {
+                sideBarActiveProperty.value = false
                 it.preventDefault()
                 it.stopPropagation()
             }

@@ -2,6 +2,7 @@ package de.robolab.app.model.file
 
 import de.robolab.app.model.ISideBarGroup
 import de.robolab.app.model.ISideBarPlottable
+import de.robolab.app.model.ToolBarEntry
 import de.robolab.renderer.ExportPlotter
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Rectangle
@@ -14,6 +15,7 @@ import de.robolab.renderer.utils.Transformation
 import de.robolab.traverser.DefaultTraverser
 import de.robolab.traverser.ITraverserState
 import de.westermann.kobserve.not
+import de.westermann.kobserve.property.constProperty
 import de.westermann.kobserve.property.property
 
 class FilePlanetEntry(val filename: String, private val provider: FilePlanetProvider) : ISideBarPlottable {
@@ -24,24 +26,25 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override val drawable = EditPlanetDrawable()
 
-    override val actionList: List<List<ISideBarPlottable.PlottableAction>> = listOf(
+    override val toolBarLeft: List<List<ToolBarEntry>> = listOf(
             listOf(
-                    ISideBarPlottable.PlottableAction("View", !drawable.editableProperty) {
+                    ToolBarEntry(constProperty("View"),  selectedProperty = !drawable.editableProperty) {
                         drawable.editableProperty.value = false
                     },
-                    ISideBarPlottable.PlottableAction("Edit", drawable.editableProperty) {
+                    ToolBarEntry(constProperty("Edit"),  selectedProperty = drawable.editableProperty) {
                         drawable.editableProperty.value = true
                     }
             ),
             listOf(
-                    ISideBarPlottable.PlottableAction("Export SVG") {
+                    ToolBarEntry(constProperty("Export as"), enabledProperty = constProperty(false)) {},
+                    ToolBarEntry(constProperty("SVG")) {
                         var name = planetFile.planet.name.trim()
                         if (name.isEmpty()) {
                             name = "export"
                         }
                         saveExportSVG(name, exportSVG())
                     },
-                    ISideBarPlottable.PlottableAction("Export PNG") {
+                    ToolBarEntry(constProperty("PNG")) {
                         var name = planetFile.planet.name.trim()
                         if (name.isEmpty()) {
                             name = "export"
@@ -50,24 +53,25 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
                     }
             ),
             listOf(
-                    ISideBarPlottable.PlottableAction("Traverse") {
+                    ToolBarEntry(constProperty("Traverse")) {
                         traverse()
+                    }
+            )
+    )
+
+    override val toolBarRight: List<List<ToolBarEntry>> = listOf(
+            listOf(
+                    ToolBarEntry(iconProperty = constProperty(ToolBarEntry.Icon.UNDO), toolTipProperty = constProperty("Undo last action"), enabledProperty = planetFile.history.canUndoProperty) {
+                        planetFile.history.undo()
+                    },
+                    ToolBarEntry(iconProperty = constProperty(ToolBarEntry.Icon.REDO), toolTipProperty = constProperty("Redo last action"), enabledProperty = planetFile.history.canRedoProperty) {
+                        planetFile.history.redo()
                     }
             )
     )
 
     val content: String
         get() = planetFile.content
-
-    override val canUndoProperty = planetFile.history.canUndoProperty
-    override fun undo() {
-        planetFile.history.undo()
-    }
-
-    override val canRedoProperty = planetFile.history.canRedoProperty
-    override fun redo() {
-        planetFile.history.redo()
-    }
 
     override fun onOpen() {
         if (!enabledProperty.value) {
@@ -79,7 +83,6 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
             }
         }
     }
-
 
     private fun traverse() {
         println("Starting new traversal of '${planetFile.planet.name}'")

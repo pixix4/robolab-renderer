@@ -9,6 +9,7 @@
     z-index: 0;
     overflow: hidden;
     touch-action: manipulation;
+    transition: right 200ms;
 
     canvas {
         width: 100%;
@@ -19,5 +20,9 @@
 @include utils.desktop {
     .main-canvas {
         left: 20rem;
+
+        &.info-bar-active {
+            right: 20rem;
+        }
     }
 }
