@@ -33,26 +33,11 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
         for (group in actionList) {
             toolBarActions.buttonGroup {
                 for (button in group) {
-                    val buttonProperty = de.westermann.kobserve.property.property(object : FunctionAccessor<Boolean> {
-                        override fun set(value: Boolean): Boolean {
-                            if (value) {
-                                button.onClick()
-                            }
-                            return true
-                        }
-
-                        override fun get(): Boolean {
-                            return button.selectedProperty.value
-                        }
-
-                    }, button.selectedProperty)
-
                     togglebutton(button.nameProperty.toFx()) {
                         bindIcon(button.iconProperty)
 
-                        selectedProperty().bindBidirectional(buttonProperty.toFx())
-                        selectedProperty().onChange {
-                            isSelected = buttonProperty.value
+                        bindSelectedProperty(button.selectedProperty) {
+                            button.onClick()
                         }
 
                         enableWhen(button.enabledProperty.toFx())
@@ -77,7 +62,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
         hbox {
             setupToolbar(toolBarController.leftActionListProperty)
         }
-        
+
         spacer()
         label(toolBarController.titleProperty.toFx()) {
             style {
@@ -107,7 +92,39 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                         toolBarController.zoomIn()
                     }
                 }
+
+                paddingRight = 8
+            }
+
+            togglebutton {
+                graphic = iconNoAdd(MaterialIcon.MENU)
+
+                bindSelectedProperty(infoBarActiveProperty) {
+                    infoBarActiveProperty.value = !infoBarActiveProperty.value
+                }
             }
         }
+    }
+}
+
+fun ToggleButton.bindSelectedProperty(property: ReadOnlyProperty<Boolean>, onClick: () -> Unit) {
+    val buttonProperty = de.westermann.kobserve.property.property(object : FunctionAccessor<Boolean> {
+        override fun set(value: Boolean): Boolean {
+            if (value) {
+                onClick()
+            }
+            return true
+        }
+
+        override fun get(): Boolean {
+            return property.value
+        }
+
+    }, property)
+
+
+    selectedProperty().bindBidirectional(buttonProperty.toFx())
+    selectedProperty().onChange {
+        isSelected = buttonProperty.value
     }
 }

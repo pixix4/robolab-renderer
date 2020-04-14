@@ -121,7 +121,7 @@ interface FileLine<T> {
 
         companion object : Parser {
             override val name = "Path line parser"
-            private val REGEX =
+            val REGEX =
                     """^(-?\d+,-?\d+),([NESW]) (-?\d+,-?\d+),([NESW]) (-?\d+)((?: -?\d+,-?\d+)*)( blocked)?\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
@@ -188,7 +188,7 @@ interface FileLine<T> {
 
         companion object : Parser {
             override val name = "Start point line parser"
-            private val REGEX =
+            val REGEX =
                     """^start (-?\d+,-?\d+)(,([NESW]))?\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
@@ -234,7 +234,7 @@ interface FileLine<T> {
 
         companion object : Parser {
             override val name = "Blue point line parser"
-            private val REGEX =
+            val REGEX =
                     """^blue (-?\d+,-?\d+)\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
@@ -281,7 +281,7 @@ interface FileLine<T> {
 
         companion object : Parser {
             override val name = "Path select line parser"
-            private val REGEX =
+            val REGEX =
                     """^direction ([NSWE]) (-?\d+,-?\d+)\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
@@ -330,7 +330,7 @@ interface FileLine<T> {
 
         companion object : Parser {
             override val name = "Target line parser"
-            private val REGEX =
+            val REGEX =
                     """^target (-?\d+,-?\d+) (-?\d+,-?\d+)\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
@@ -374,7 +374,7 @@ interface FileLine<T> {
 
         companion object : Parser {
             override val name = "Name line parser"
-            private val REGEX =
+            val REGEX =
                     """^#\s*(NAME|name)\s?(?::\s*(\w[^\n]*?))?\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
@@ -443,7 +443,7 @@ interface FileLine<T> {
 
         companion object : Parser {
             override val name = "Spline line parser"
-            private val REGEX =
+            val REGEX =
                     """^#\s*(SPLINE|spline)\s?(?:\(\s*((?:[^\s,][^\n,]*?)?(?:\s*?,\s*?[^\s,][^\n,]*?)*)\s*\))?(?::\s?((?:-?\d+(?:\.\d+)?\s*?,\s*?(?:-?\d+(?:\.\d+)?))(?:\s*?\|\s*?(?:-?\d+(?:\.\d+)?\s*?,\s*?(?:-?\d+(?:\.\d+)?)))*)?)[ \t]*\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
@@ -501,7 +501,7 @@ interface FileLine<T> {
 
         companion object : Parser {
             override val name = "Hidden line parser"
-            private val REGEX =
+            val REGEX =
                     """^#\s*(HIDDEN|hidden)\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {

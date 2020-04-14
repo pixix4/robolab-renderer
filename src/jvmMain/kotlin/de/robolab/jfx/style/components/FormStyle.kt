@@ -4,6 +4,7 @@ import de.robolab.jfx.style.MainStyle
 import javafx.scene.effect.BlurType
 import javafx.scene.effect.DropShadow
 import javafx.scene.layout.BorderStrokeStyle
+import javafx.scene.text.FontWeight
 import tornadofx.*
 
 fun Stylesheet.initFormStyle() {
@@ -62,10 +63,11 @@ fun Stylesheet.initFormStyle() {
         }
         and(Stylesheet.selected) {
             backgroundColor = multi(MainStyle.primaryBackground)
-            textFill = MainStyle.primaryTextColor
+            textFill = MainStyle.themeColor
+            fontWeight = FontWeight.BOLD
 
             and(Stylesheet.focused, Stylesheet.hover) {
-                textFill = MainStyle.primaryTextColor
+                textFill = MainStyle.themeColor
                 backgroundColor = multi(MainStyle.primaryHoverBackground)
             }
         }

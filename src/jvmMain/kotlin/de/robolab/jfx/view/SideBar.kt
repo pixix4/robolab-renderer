@@ -2,11 +2,13 @@ package de.robolab.jfx.view
 
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.robolab.app.controller.SideBarController
+import de.robolab.app.model.ISideBarPlottable
 import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.style.MainStyle
 import de.robolab.jfx.utils.buttonGroup
 import de.robolab.jfx.utils.icon
 import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.not
 import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -56,13 +58,23 @@ class SideBar(sideBarController: SideBarController) : View() {
             cellFormat { provider ->
                 graphic = vbox {
                     hbox {
+                        style {
+                            padding = box(0.4.em, 0.5.em)
+                        }
+                        if (provider is ISideBarPlottable) {
+                            bindClass(MainStyle.disabled, !provider.enabledProperty)
+                        }
                         vbox {
                             label(provider.titleProperty.toFx()) {
                                 style {
                                     fontWeight = FontWeight.BOLD
                                 }
                             }
-                            label(provider.subtitleProperty.toFx())
+                            label(provider.subtitleProperty.toFx()) {
+                                style {
+                                    fontSize = 0.8.em
+                                }
+                            }
                         }
                         spacer()
                         vbox {
@@ -88,11 +100,20 @@ class SideBar(sideBarController: SideBarController) : View() {
             bindClass(MainStyle.warn, sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.WARN })
             bindClass(MainStyle.error, sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.ERROR })
 
+            style {
+                prefHeight = 2.em
+                padding = box(0.4.em, 0.5.em)
+            }
+
             label(sideBarController.statusMessage.toFx())
             spacer()
             label(sideBarController.statusActionLabel.toFx()) {
                 setOnMouseClicked {
                     sideBarController.onStatusAction()
+                }
+
+                style {
+                    underline = true
                 }
             }
         }

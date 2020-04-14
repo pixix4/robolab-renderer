@@ -1,10 +1,7 @@
 package de.robolab.jfx
 
 import de.robolab.app.controller.MainController
-import de.robolab.jfx.view.MainCanvas
-import de.robolab.jfx.view.SideBar
-import de.robolab.jfx.view.StatusBar
-import de.robolab.jfx.view.ToolBar
+import de.robolab.jfx.view.*
 import javafx.application.Platform
 import javafx.scene.layout.Priority
 import tornadofx.*
@@ -25,8 +22,26 @@ class MainView : View() {
 
         vbox {
             hgrow = Priority.ALWAYS
-            add(ToolBar(mainController.toolBarController))
-            add(MainCanvas(mainController.canvasController))
+            val toolBar = ToolBar(mainController.toolBarController)
+            add(toolBar)
+            hbox {
+                vgrow = Priority.ALWAYS
+                hgrow = Priority.ALWAYS
+
+                add(MainCanvas(mainController.canvasController))
+
+                val infoBar = InfoBar(mainController.infoBarController, toolBar.infoBarActiveProperty)
+                if (toolBar.infoBarActiveProperty.value) {
+                    add(infoBar)
+                }
+                toolBar.infoBarActiveProperty.onChange {
+                    if (toolBar.infoBarActiveProperty.value) {
+                        add(infoBar)
+                    } else {
+                        infoBar.removeFromParent()
+                    }
+                }
+            }
             add(StatusBar(mainController.statusBarController))
         }
     }

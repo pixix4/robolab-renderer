@@ -1,11 +1,8 @@
 package de.robolab.jfx.style
 
 import de.robolab.jfx.style.components.*
-import javafx.scene.Cursor
-import javafx.scene.effect.BlurType
-import javafx.scene.effect.DropShadow
-import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
+import javafx.scene.text.Font
 import tornadofx.*
 
 class MainStyle : Stylesheet() {
@@ -14,10 +11,15 @@ class MainStyle : Stylesheet() {
         val textButton by cssclass()
 
         val statusBar by cssclass()
+        val infoBar by cssclass()
+        val codeArea by cssclass()
 
         val success by cssclass()
         val warn by cssclass()
         val error by cssclass()
+
+        val disabled by cssclass()
+        val active by cssclass()
 
         val first by csspseudoclass()
         val last by csspseudoclass()
@@ -41,36 +43,42 @@ class MainStyle : Stylesheet() {
         val borderColor = Color.web("#D0D0D0")
 
         val successColor = Color.web("#2ecc71")
-        val successTextColor = Color.web("#FFF")
+        val successTextColor = Color.web("#FFFFFF")
 
         val warnColor = Color.web("#f1c40f")
-        val warnTextColor = Color.web("#FFF")
+        val warnTextColor = Color.web("#FFFFFF")
 
         val errorColor = Color.web("#e74c3c")
-        val errorTextColor = Color.web("#FFF")
+        val errorTextColor = Color.web("#FFFFFF")
         
         val BORDER_RADIUS = 6.px
     }
 
     init {
+        loadFont("/Roboto/Roboto-Regular.ttf", 12)
+        loadFont("/Roboto/Roboto-Bold.ttf", 12)
+        loadFont("/Roboto/Roboto-Italic.ttf", 12)
+        loadFont("/Roboto/Roboto-BoldItalic.ttf", 12)
+
         star {
             faintFocusColor = Color.TRANSPARENT
 
             borderRadius = multi(box(0.px))
             backgroundRadius = multi(box(0.px))
 
-            textFill = primaryTextColor
-            text {
-                fill = primaryTextColor
-            }
+            //textFill = primaryTextColor
+            //text {
+            //    fill = primaryTextColor
+            //}
         }
         root {
             textFill = primaryTextColor
             backgroundColor = multi(secondaryBackground)
-            //fontSize = 12.pt
+            font = Font.font("Roboto")
         }
 
         initFormStyle()
+        initInfoBarStyle()
         initMainCanvasStyle()
         initSideBarStyle()
         initStatusBarStyle()

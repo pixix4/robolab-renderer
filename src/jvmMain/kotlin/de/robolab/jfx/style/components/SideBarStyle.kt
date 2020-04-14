@@ -21,14 +21,12 @@ fun Stylesheet.initSideBarStyle() {
         backgroundColor = multi(Color.TRANSPARENT)
         and(Stylesheet.focused, Stylesheet.hover) {
             backgroundColor = multi(MainStyle.secondaryHoverBackground)
-            textFill = MainStyle.primaryTextColor
             Stylesheet.label {
                 textFill = MainStyle.primaryTextColor
             }
         }
         and(Stylesheet.selected) {
             backgroundColor = multi(MainStyle.primaryBackground)
-            textFill = MainStyle.themeColor
             Stylesheet.label {
                 textFill = MainStyle.themeColor
             }
@@ -37,20 +35,31 @@ fun Stylesheet.initSideBarStyle() {
                 backgroundColor = multi(MainStyle.primaryHoverBackground)
             }
         }
+        MainStyle.disabled {
+            Stylesheet.label {
+                textFill = MainStyle.secondaryTextColor
+            }
+        }
     }
 
     MainStyle.success {
         backgroundColor = multi(MainStyle.successColor)
-        textFill = MainStyle.successTextColor
+        Stylesheet.label {
+            textFill = MainStyle.successTextColor
+        }
     }
 
     MainStyle.warn {
         backgroundColor = multi(MainStyle.warnColor)
-        textFill = MainStyle.warnTextColor
+        Stylesheet.label {
+            textFill = MainStyle.warnTextColor
+        }
     }
 
     MainStyle.error {
         backgroundColor = multi(MainStyle.errorColor)
-        textFill = MainStyle.errorTextColor
+        Stylesheet.label {
+            textFill = MainStyle.errorTextColor
+        }
     }
 }
