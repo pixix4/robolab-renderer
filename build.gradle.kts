@@ -123,11 +123,11 @@ tasks.create<com.moowork.gradle.node.npm.NpmTask>("jsInstallSass") {
 
 }
 
-tasks.create<Exec>("jsCompileSass") {
+tasks.create<com.moowork.gradle.node.task.NodeTask>("jsCompileSass") {
     dependsOn("jsInstallSass", "jsProcessResources")
 
-    commandLine(
-            "$projectDir/web/node_modules/sass/sass.js",
+    script = file("$projectDir/web/node_modules/sass/sass.js")
+    addArgs(
             "$projectDir/src/jsMain/resources/public/stylesheets/style.scss",
             "$buildDir/processedResources/js/main/public/stylesheets/style.css"
     )
