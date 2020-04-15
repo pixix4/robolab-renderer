@@ -80,7 +80,6 @@ fun Stylesheet.initFormStyle() {
         }
     }
 
-
     MainStyle.buttonGroup {
         Stylesheet.toggleButton {
             borderRadius = multi(box(0.px))

@@ -3,6 +3,7 @@ package de.robolab.jfx.view
 import de.robolab.jfx.adapter.toFx
 import de.robolab.renderer.theme.Theme
 import de.robolab.utils.PreferenceStorage
+import de.westermann.kobserve.not
 import javafx.scene.Parent
 import javafx.util.StringConverter
 import tornadofx.*
@@ -17,7 +18,14 @@ class SettingsDialog:View() {
         form {
             fieldset("Appearance") {
                 field("Theme") {
-                    combobox(PreferenceStorage.selectedThemeProperty.toFx(), Theme.values().toList())
+                    combobox(PreferenceStorage.selectedThemeProperty.toFx(), Theme.values().toList()) {
+                        enableWhen {
+                            PreferenceStorage.useSystemThemeProperty.not().toFx()
+                        }
+                    }
+                }
+                field("Use system theme") {
+                    checkbox("", PreferenceStorage.useSystemThemeProperty.toFx())
                 }
             }
 
