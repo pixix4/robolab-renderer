@@ -119,6 +119,15 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
             }
 
             button {
+                iconView(MaterialIcon.SETTINGS)
+                title = "Open settings"
+
+                onClick {
+                    SettingsView.open()
+                }
+            }
+
+            button {
                 classList += "info-bar-menu"
                 iconView(MaterialIcon.MENU)
                 title = "Toggle info bar"

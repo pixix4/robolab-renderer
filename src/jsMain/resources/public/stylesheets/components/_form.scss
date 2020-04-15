@@ -1,10 +1,16 @@
 @use '../utils';
 
-input, button, a, textarea {
-    outline: 0;
+input, button, a, textarea, select {
+    outline: none;
     background-color: var(--primary-background);
     color: var(--primary-text-color);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 
+    &:focus {
+        outline: none;
+    }
     &::-moz-focus-inner {
         border: 0;
     }
@@ -14,6 +20,10 @@ input, button, a, textarea {
         color: var(--secondary-text-color);
     }
 }
+select:-moz-focusring {
+     color: transparent;
+     text-shadow: 0 0 0 var(--primary-text-color);
+ }
 
 .button {
     @include utils.radius;
@@ -62,4 +72,73 @@ input, button, a, textarea {
         border-top-left-radius: 0;
         border-left: none;
     }
+}
+
+.input-view, .select-view {
+    @include utils.radius();
+
+    border: solid 1px var(--border-color);
+    background-color: var(--tertiary-background);
+    color: var(--primary-text-color);
+    padding: 0.5rem 1rem;
+    transition: background-color 200ms, border-color 200ms;
+
+    &:focus {
+        border-color: var(--theme-color);
+        background-color: var(--primary-background);
+    }
+}
+
+.checkbox {
+    display: none;
+}
+
+.label {
+    display: block;
+    width: 3em;
+    height: 2em;
+    position: relative;
+
+    &:before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        height: 0.64em;
+        margin-top: -0.32em;
+        border-radius: 0.32em;
+        width: 2em;
+        margin-left: -1em;
+        background-color: var(--secondary-text-color);
+        opacity: 0.6;
+        transition: background-color 200ms;
+    }
+    &:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        height: 1em;
+        margin-top: -0.5em;
+        border-radius: 0.5em;
+        width: 1em;
+        margin-left: -1em;
+        background-color: var(--secondary-text-color);
+        transition: background-color 200ms, margin-left 200ms;
+    }
+}
+
+.checkbox:checked ~ .label {
+    &:before {
+        background-color: var(--theme-color);
+    }
+    &:after {
+        margin-left: 0;
+        background-color: var(--theme-color);
+    }
+}
+
+.checkbox:focus ~ .label {
+    @include utils.radius();
+    border: solid 1px var(--border-color);
 }

@@ -45,7 +45,7 @@ fun watchSystemTheme() {
     val schemaDarkQuery = window.matchMedia("(prefers-color-scheme: dark)")
     val schemaNoPreferenceQuery = window.matchMedia("(prefers-color-scheme: no-preference)")
 
-    fun eventListener(@Suppress("UNUSED_PARAMETER") event: Event) {
+    fun update() {
         if (PreferenceStorage.useSystemTheme) {
             if (schemaDarkQuery.matches) {
                 PreferenceStorage.selectedTheme = Theme.DARK
@@ -53,6 +53,14 @@ fun watchSystemTheme() {
                 PreferenceStorage.selectedTheme = Theme.LIGHT
             }
         }
+    }
+
+    fun eventListener(@Suppress("UNUSED_PARAMETER") event: Event) {
+        update()
+    }
+
+    PreferenceStorage.useSystemThemeProperty.onChange {
+        update()
     }
 
     schemaLightQuery.addListener(::eventListener)
