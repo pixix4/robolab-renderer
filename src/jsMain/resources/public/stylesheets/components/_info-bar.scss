@@ -147,11 +147,23 @@
         }
     }
 
+    .hide-buttons {
+        .button {
+            display: none;
+        }
+    }
+
     .box-view {
         display: flex;
         align-items: center;
         align-content: center;
         justify-content: space-between;
+        text-align: center;
+
+        .text-view {
+            flex-grow: 1;
+            line-height: 2.2rem;
+        }
     }
 
     .bullet-list:empty {

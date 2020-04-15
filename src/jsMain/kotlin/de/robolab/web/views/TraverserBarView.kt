@@ -5,9 +5,11 @@ import de.robolab.app.model.traverser.CharacteristicItem
 import de.robolab.app.model.traverser.ITraverserStateEntry
 import de.robolab.web.views.utils.buttonGroup
 import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.and
 import de.westermann.kobserve.list.ObservableReadOnlyList
 import de.westermann.kobserve.list.asObservable
 import de.westermann.kobserve.not
+import de.westermann.kobserve.or
 import de.westermann.kobserve.property.flatMapReadOnlyBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.View
@@ -122,6 +124,8 @@ class TraverserEntryView(private val entry: ITraverserStateEntry): ViewCollectio
                     event.stopPropagation()
                 }
             }
+
+            classList.bind("hide-buttons", !entry.isPreviousEnabled and !entry.isNextEnabled)
         }
 
         bulletList() {
