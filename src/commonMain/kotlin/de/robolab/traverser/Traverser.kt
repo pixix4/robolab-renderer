@@ -38,30 +38,34 @@ open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val link
         if (!node.running)
             return@with emptyList()
 
-        val leavingStates: List<NS> = getLeavingNavigatorStates(node)
+        if(node.beforePoint){
+            val leavingStates: List<NS> = getLeavingNavigatorStates(node)
 
+            return@with leavingStates.map {
+                when {
+                    it.explorationComplete -> return@map copy(
+                            status = ITraverserState.Status.ExplorationComplete,
+                            statusInfo = mothership.infoTestExplorationComplete(mothershipState),
+                            navigatorState = it,
+                            mothershipState = @Suppress("UNCHECKED_CAST")
+                            (mothershipState.withAfterPoint as? MS) ?: mothershipState,
+                            parent = if (linkStates) node else parent,
+                            depth = depth + 1
+                    )
+                    it.targetReached -> return@map copy(
+                            status = ITraverserState.Status.TargetReached,
+                            statusInfo = mothership.infoTestTargetReached(mothershipState),
+                            navigatorState = it,
+                            mothershipState = @Suppress("UNCHECKED_CAST")
+                            (mothershipState.withAfterPoint as? MS) ?: mothershipState,
+                            parent = if (linkStates) node else parent,
+                            depth = depth + 1)
 
-        return@with leavingStates.map {
-            when {
-                it.explorationComplete -> return@map copy(
-                        status = ITraverserState.Status.ExplorationComplete,
-                        statusInfo = mothership.infoTestExplorationComplete(mothershipState),
-                        navigatorState = it,
-                        mothershipState = @Suppress("UNCHECKED_CAST")
-                        (mothershipState.withAfterPoint as? MS) ?: mothershipState,
-                        parent = if (linkStates) node else parent,
-                        depth = depth + 1
-                )
-                it.targetReached -> return@map copy(
-                        status = ITraverserState.Status.TargetReached,
-                        statusInfo = mothership.infoTestTargetReached(mothershipState),
-                        navigatorState = it,
-                        mothershipState = @Suppress("UNCHECKED_CAST")
-                        (mothershipState.withAfterPoint as? MS) ?: mothershipState,
-                        parent = if (linkStates) node else parent,
-                        depth = depth + 1)
-                else -> return@map drivePath(pickDirection(node, it))
+                    else -> return@map pickDirection(node, it)
+                }
             }
+        }else{
+            return@with listOf(drivePath(node))
         }
     }
 

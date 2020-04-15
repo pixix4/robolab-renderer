@@ -53,7 +53,7 @@ class TraverserStateEntry<TS>(val controller: TraverserBarController, sliceEntry
     }
     override val defaultTitle: ReadOnlyProperty<String> = this.sliceEntry.mapBinding {
         with(it.currentOption) {
-            if (nextDirection != null) "$nextDirection" else "${location.x},${location.y}"
+            if (nextDirection != null) "$nextDirection" else "${location.x}, ${location.y}"
         }
     }
     override val details: ReadOnlyProperty<List<String>> = this.sliceEntry.mapBinding {
