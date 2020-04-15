@@ -1,6 +1,7 @@
 package de.robolab.app.controller
 
 import de.robolab.app.model.traverser.*
+import de.robolab.planet.Planet
 import de.robolab.traverser.*
 import de.westermann.kobserve.Property
 import de.westermann.kobserve.ReadOnlyProperty
@@ -14,6 +15,9 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
     val autoExpandProperty: Property<Boolean> = property(autoExpand)
 
     val sliceViewer: ObservableTreeSliceViewer<out ITraverserState<*>> = traverser.observableTreeSliceViewer()
+
+    private val _currentExploredPlanet: Property<Planet> = property(traverser.planet.planet.asUnexplored())
+    val currentExploredPlanet: ReadOnlyProperty<Planet> = _currentExploredPlanet
 
     val isNextEnabled: ReadOnlyProperty<Boolean> = sliceViewer.hasNextProperty
     val isPreviousEnabled: ReadOnlyProperty<Boolean> = sliceViewer.hasPreviousProperty
@@ -34,27 +38,27 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
 
     fun clickFullExpand(): Boolean = sliceViewer.fullExpand(ITraverserState<*>::running)
 
-    fun clickNextOption(index: Int): Boolean =
-            if (autoExpandProperty.value) sliceViewer.fullExpandNextAlternative(index)
+    fun clickNextOption(index: Int, isLeftExpand: Boolean = true): Boolean =
+            if (autoExpandProperty.value) sliceViewer.fullExpandNextAlternative(index, isLeftExpand)
             else sliceViewer.nextAlternative(index)
 
-    fun clickPreviousOption(index: Int): Boolean =
-            if (autoExpandProperty.value) sliceViewer.fullExpandPreviousAlternative(index)
+    fun clickPreviousOption(index: Int, isLeftExpand: Boolean = false): Boolean =
+            if (autoExpandProperty.value) sliceViewer.fullExpandPreviousAlternative(index, isLeftExpand)
             else sliceViewer.previousAlternative(index)
 
-    fun clickNextOption(state: ITraverserState<*>): Boolean =
-            if (autoExpandProperty.value) sliceViewer.fullExpandNextAlternative { it.currentOption == state}
+    fun clickNextOption(state: ITraverserState<*>, isLeftExpand: Boolean = true): Boolean =
+            if (autoExpandProperty.value) sliceViewer.fullExpandNextAlternative(isLeftExpand) { it.currentOption == state }
             else sliceViewer.nextAlternative { it.currentOption == state }
 
-    fun clickPreviousOption(state: ITraverserState<*>): Boolean =
-            if (autoExpandProperty.value) sliceViewer.fullExpandPreviousAlternative { it.currentOption == state }
+    fun clickPreviousOption(state: ITraverserState<*>, isLeftExpand: Boolean = false): Boolean =
+            if (autoExpandProperty.value) sliceViewer.fullExpandPreviousAlternative(isLeftExpand) { it.currentOption == state }
             else sliceViewer.previousAlternative { it.currentOption == state }
 
-    fun clickNextOption(entry: TraverserStateEntry<*>): Boolean =
-            clickNextOption(entry.state.get())
+    fun clickNextOption(entry: TraverserStateEntry<*>, isLeftExpand: Boolean = true): Boolean =
+            clickNextOption(entry.state.get(), isLeftExpand)
 
-    fun clickPreviousOption(entry: TraverserStateEntry<*>): Boolean =
-            clickPreviousOption(entry.state.get())
+    fun clickPreviousOption(entry: TraverserStateEntry<*>, isLeftExpand: Boolean = false): Boolean =
+            clickPreviousOption(entry.state.get(), isLeftExpand)
 
 
     fun clickNextTrail() =
@@ -76,6 +80,8 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
             else
                 entry.selected.set(!entry.selected.value)
         }
+        _currentExploredPlanet.set((_entryList.lastOrNull { it.selected.value }
+                ?: _entryList.last()).currentOption.value.createExploredPlanet(traverser.planet.planet))
     }
 
     init {
@@ -84,6 +90,8 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
             _characteristicList.addAll(CharacteristicItem.generateCharacteristic(sliceViewer.currentNode))
             _entryList.clear()
             _entryList.addAll(sliceViewer.map { TraverserStateEntry(this, it) })
+            _currentExploredPlanet.set((_entryList.lastOrNull { it.selected.value }
+                    ?: _entryList.last()).currentOption.value.createExploredPlanet(traverser.planet.planet))
         }
         autoExpandProperty.onChange += {
             if (autoExpandProperty.value)

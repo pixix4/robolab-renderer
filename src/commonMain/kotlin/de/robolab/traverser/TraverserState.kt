@@ -10,7 +10,8 @@ interface ITraverserState<out TS> where TS : ITraverserState<TS> {
     val location: Coordinate
     val parent: TS?
     val beforePoint: Boolean
-            get() = mothershipState.beforePoint
+        get() = mothershipState.beforePoint
+
     fun traceUp(): Sequence<ITraverserState<TS>> = generateSequence(this, ITraverserState<TS>::parent)
     fun getTrail(): ITraverserTrail = TraverserTrail(traceUp()
             .drop(1)
@@ -18,7 +19,7 @@ interface ITraverserState<out TS> where TS : ITraverserState<TS> {
             .map { Pair(it.location, it.nextDirection) }
             .toList()
             .asReversed()
-            + Pair(location, nextDirection), status, statusInfo)
+            + Pair(location, nextDirection), mothershipState, navigatorState, status, statusInfo)
 
     val depth: Int
     val status: Status

@@ -3,6 +3,9 @@ package de.robolab.traverser
 import de.robolab.planet.*
 
 interface IMothershipState {
+    val sentTargets: Set<TargetPoint>
+    val sentPaths: Set<Path>
+    val sentPathSelects: Set<PathSelect>
     val isStart: Boolean
     val currentLocation: Coordinate
     val drivenPath: Path
@@ -16,9 +19,9 @@ interface IMothershipState {
 }
 
 data class MothershipState(
-        val sentTargets: Set<TargetPoint>,
-        val sentPaths: Set<Path>,
-        val sentPathSelects: Set<PathSelect>,
+        override val sentTargets: Set<TargetPoint>,
+        override val sentPaths: Set<Path>,
+        override val sentPathSelects: Set<PathSelect>,
         val visitedLocations: Set<Coordinate>,
         override val isStart: Boolean,
         override val currentLocation: Coordinate,

@@ -41,10 +41,10 @@ open class TreeSliceViewer<N> protected constructor(
         get() = _entries.map(TreeSliceEntry<N>::currentOption)
 
 
-    fun expand(): Boolean {
+    fun expand(isLeftExpand: Boolean = true): Boolean {
         val newAlternatives: List<N> = branchFunction(currentNode)
         if (newAlternatives.isEmpty()) return false
-        _entries.add(TreeSliceEntry(0, newAlternatives))
+        _entries.add(TreeSliceEntry(if (isLeftExpand) 0 else newAlternatives.lastIndex, newAlternatives))
         return true
     }
 
@@ -83,29 +83,44 @@ open class TreeSliceViewer<N> protected constructor(
     fun hasPrevious(): Boolean = entries.any(TreeSliceEntry<N>::hasPrevious)
 
     @Suppress("ControlFlowWithEmptyBody")
-    fun fullExpand(): Boolean {
-        if (!expand()) return false
-        while (expand());
+    fun fullExpand(isLeftExpand: Boolean = true): Boolean {
+        if (!expand(isLeftExpand)) return false
+        while (expand(isLeftExpand));
         return true
     }
 
-    fun fullExpand(predicate: (N) -> Boolean): Boolean {
+    fun fullExpand(predicate: (N) -> Boolean, isLeftExpand: Boolean = true): Boolean {
         if (!predicate(currentNode)) return false
-        if (!expand()) return false
+        if (!expand(isLeftExpand)) return false
         while (predicate(currentNode))
-            if (!expand())
+            if (!expand(isLeftExpand))
                 break
         return true
     }
 
-    fun fullExpandNext(): Boolean = if (next()) fullExpand().let { true } else false
-    fun fullExpandNextAlternative(depth: Int): Boolean = if (nextAlternative(depth)) fullExpand().let { true } else false
-    fun fullExpandNextAlternative(node: N): Boolean = if (nextAlternative(node)) fullExpand().let { true } else false
-    fun fullExpandNextAlternative(predicate: (TreeSliceEntry<N>) -> Boolean): Boolean = if (nextAlternative(predicate)) fullExpand().let { true } else false
-    fun fullExpandPrevious(): Boolean = if (previous()) fullExpand().let { true } else false
-    fun fullExpandPreviousAlternative(depth: Int): Boolean = if (previousAlternative(depth)) fullExpand().let { true } else false
-    fun fullExpandPreviousAlternative(node: N): Boolean = if (previousAlternative(node)) fullExpand().let { true } else false
-    fun fullExpandPreviousAlternative(predicate: (TreeSliceEntry<N>) -> Boolean): Boolean = if (previousAlternative(predicate)) fullExpand().let { true } else false
+    fun fullExpandNext(isLeftExpand: Boolean = true): Boolean =
+            if (next()) fullExpand(isLeftExpand).let { true } else false
+
+    fun fullExpandNextAlternative(depth: Int, isLeftExpand: Boolean = true): Boolean =
+            if (nextAlternative(depth)) fullExpand(isLeftExpand).let { true } else false
+
+    fun fullExpandNextAlternative(node: N, isLeftExpand: Boolean = true): Boolean =
+            if (nextAlternative(node)) fullExpand(isLeftExpand).let { true } else false
+
+    fun fullExpandNextAlternative(isLeftExpand: Boolean = true, predicate: (TreeSliceEntry<N>) -> Boolean): Boolean =
+            if (nextAlternative(predicate)) fullExpand(isLeftExpand).let { true } else false
+
+    fun fullExpandPrevious(isLeftExpand: Boolean = false): Boolean =
+            if (previous()) fullExpand(isLeftExpand).let { true } else false
+
+    fun fullExpandPreviousAlternative(depth: Int, isLeftExpand: Boolean = false): Boolean =
+            if (previousAlternative(depth)) fullExpand(isLeftExpand).let { true } else false
+
+    fun fullExpandPreviousAlternative(node: N, isLeftExpand: Boolean = false): Boolean =
+            if (previousAlternative(node)) fullExpand(isLeftExpand).let { true } else false
+
+    fun fullExpandPreviousAlternative(isLeftExpand: Boolean = false, predicate: (TreeSliceEntry<N>) -> Boolean): Boolean =
+            if (previousAlternative(predicate)) fullExpand(isLeftExpand).let { true } else false
 
     data class TreeSliceEntry<N>(val currentIndex: Int, val options: List<N>) {
         constructor(options: List<N>) : this(0, options)

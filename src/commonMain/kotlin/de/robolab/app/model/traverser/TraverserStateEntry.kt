@@ -32,8 +32,9 @@ interface ITraverserStateEntry {
 }
 
 class TraverserStateEntry<TS>(val controller: TraverserBarController, sliceEntry: TreeSliceViewer.TreeSliceEntry<out TS>) : ITraverserStateEntry where TS : ITraverserState<*> {
-    override fun clickNextOption() = controller.clickNextOption(this).let { if(!it) error("Could not select next option") }
-    override fun clickPreviousOption() = controller.clickPreviousOption(this).let { if(!it) error("Could not select previous option")}
+    override fun clickNextOption() = controller.clickNextOption(this).let { if (!it) error("Could not select next option") }
+    override fun clickPreviousOption() = controller.clickPreviousOption(this, isLeftExpand = true).let { if (!it) error("Could not select previous option") }
+    //Feels weird if selecting previous option full-expands to the right
     override val sliceEntry: Property<TreeSliceViewer.TreeSliceEntry<out TS>> = property(sliceEntry)
     override val isNextEnabled: ReadOnlyProperty<Boolean> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<*>::hasNext)
     override val isPreviousEnabled: ReadOnlyProperty<Boolean> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<*>::hasPrevious)
@@ -56,10 +57,12 @@ class TraverserStateEntry<TS>(val controller: TraverserBarController, sliceEntry
     }
     override val defaultTitle: ReadOnlyProperty<String> = this.sliceEntry.mapBinding {
         with(it) {
-            (if (currentOption.nextDirection != null) "${currentOption.nextDirection}"
+            (if (!currentOption.running)
+                "${currentOption.status}" + (if (currentOption.statusInfo != null && currentOption.statusInfo !is Throwable) " (${currentOption.statusInfo})" else "")
+            else if (currentOption.nextDirection != null) "${currentOption.nextDirection}"
             else "${currentOption.location.x}, ${currentOption.location.y}") +
-                    if (options.size != 1) "   [${currentIndex + 1}/${options.size}]"
-                    else ""
+                    (if (options.size != 1) "   [${currentIndex + 1}/${options.size}]"
+                    else "")
         }
     }
     override val details: ReadOnlyProperty<List<String>> = this.sliceEntry.mapBinding {
