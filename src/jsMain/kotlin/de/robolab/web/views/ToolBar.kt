@@ -10,11 +10,12 @@ import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
+import kotlin.browser.window
 
 class ToolBar(private val toolBarController: ToolBarController) : ViewCollection<View>() {
 
     val sideBarActiveProperty = property(true)
-    val infoBarActiveProperty = property(true)
+    val infoBarActiveProperty = property(window.innerWidth >= 1500)
 
     private fun ToolBarEntry.Icon.convert() = when (this) {
         ToolBarEntry.Icon.UNDO -> MaterialIcon.UNDO
@@ -70,11 +71,14 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
     }
 
     init {
+        classList.bind("side-bar-active", sideBarActiveProperty)
+
         boxView("tool-bar-left") {
             button {
-                classList += "side-bar-menu"
                 iconView(MaterialIcon.MENU)
                 title = "Toggle side bar"
+
+                classList.bind("active", sideBarActiveProperty)
 
                 onClick {
                     sideBarActiveProperty.value = !sideBarActiveProperty.value
@@ -128,7 +132,6 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
             }
 
             button {
-                classList += "info-bar-menu"
                 iconView(MaterialIcon.MENU)
                 title = "Toggle info bar"
 

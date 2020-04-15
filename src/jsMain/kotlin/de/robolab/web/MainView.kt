@@ -23,8 +23,8 @@ fun main() {
         val toolBar = ToolBar(mainController.toolBarController)
         +toolBar
         +SideBar(mainController.sideBarController, toolBar.sideBarActiveProperty)
-        +StatusBar(mainController.statusBarController)
-        +MainCanvas(mainController.canvasController, toolBar.infoBarActiveProperty)
+        +StatusBar(mainController.statusBarController, toolBar.sideBarActiveProperty)
+        +MainCanvas(mainController.canvasController, toolBar.sideBarActiveProperty, toolBar.infoBarActiveProperty)
         +InfoBar(mainController.infoBarController, toolBar.infoBarActiveProperty)
     }
 }

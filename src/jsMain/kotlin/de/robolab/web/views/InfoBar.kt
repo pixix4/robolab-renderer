@@ -78,7 +78,10 @@ class InfoBar(private val infoBarController: InfoBarController, infoBarActivePro
 
         // Close info bar on mobile
         onClick {
+            println("asdfsad")
+            console.log(it)
             if (it.target == html && infoBarActiveProperty.value) {
+                println("jihrelfds")
                 infoBarActiveProperty.value = false
                 it.preventDefault()
                 it.stopPropagation()

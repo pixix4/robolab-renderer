@@ -66,4 +66,6 @@ fun watchSystemTheme() {
     schemaLightQuery.addListener(::eventListener)
     schemaDarkQuery.addListener(::eventListener)
     schemaNoPreferenceQuery.addListener(::eventListener)
+
+    update()
 }

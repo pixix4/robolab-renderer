@@ -18,6 +18,9 @@ body, html {
     background: var(--secondary-background);
     font-family: Roboto, sans-serif;
     overscroll-behavior-y: contain;
+
+    --side-bar-width: 20rem;
+    --info-bar-width: 20rem;
 }
 
 * {

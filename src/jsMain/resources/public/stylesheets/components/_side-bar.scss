@@ -30,10 +30,11 @@
 
 @include utils.desktop {
     .side-bar {
-        left: 0;
-        width: 20rem;
+        left: -(var(--side-bar-width));
+        width: var(--side-bar-width);
 
         &.active {
+            left: 0;
             &::after {
                 content: none;
             }

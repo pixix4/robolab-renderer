@@ -4,18 +4,18 @@
     @include utils.prevent-user-select();
 
     position: absolute;
-    right: calc(-100% + 4rem);
+    right: -1rem;
+    margin-right: calc(-100% + 4rem);
     top: 3rem;
     bottom: 2rem;
     width: calc(100% - 4rem);
     z-index: 1;
     border-left: solid 1px var(--border-color);
-    transition: right 200ms;
+    transition: margin-right 200ms;
     background-color: var(--secondary-background);
-    overflow: hidden;
 
     &.active {
-        right: 0;
+        margin-right: 1rem;
 
         &::after {
             content: '';
@@ -31,12 +31,11 @@
 
 @include utils.desktop {
     .info-bar {
-        right: -21rem;
-        width: 20rem;
+        margin-right: -(var(--info-bar-width));
+        width: var(--info-bar-width);
 
         &.active {
             &::after {
-                right: 0;
                 content: none;
             }
         }
