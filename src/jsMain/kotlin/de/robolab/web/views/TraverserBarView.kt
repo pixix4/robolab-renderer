@@ -114,8 +114,9 @@ class TraverserEntryView(private val entry: ITraverserStateEntry): ViewCollectio
             textView(entry.visibleTitle)
 
             button {
-                disabledProperty.bind(!entry.isPreviousEnabled)
+                disabledProperty.bind(!entry.isNextEnabled)
                 iconView(MaterialIcon.CHEVRON_RIGHT)
+
                 onClick { event ->
                     entry.clickNextOption()
                     event.stopPropagation()
