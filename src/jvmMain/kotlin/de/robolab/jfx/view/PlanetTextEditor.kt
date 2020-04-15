@@ -100,13 +100,13 @@ class PlanetTextEditor(private val contentProperty: Property<String>) : View() {
                 var lastKwEnd = 0
                 while (matcher.find()) {
                     val styleClass = (when {
-                        matcher.group("KEYWORD") != null -> "keyword"
-                        matcher.group("DIRECTION") != null -> "direction"
-                        matcher.group("NUMBER") != null -> "number"
-                        matcher.group("STRING") != null -> "string"
-                        matcher.group("HASH") != null -> "comment"
-                        matcher.group("COMMENT") != null -> "error"
-                        matcher.group("TRAILING") != null -> "error"
+                        matcher.group("KEYWORD") != null -> "editor-keyword"
+                        matcher.group("DIRECTION") != null -> "editor-direction"
+                        matcher.group("NUMBER") != null -> "editor-number"
+                        matcher.group("STRING") != null -> "editor-string"
+                        matcher.group("HASH") != null -> "editor-comment"
+                        matcher.group("COMMENT") != null -> "editor-error"
+                        matcher.group("TRAILING") != null -> "editor-error"
                         else -> ""
                     })
                     spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd)

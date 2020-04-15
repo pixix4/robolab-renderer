@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.jensd.fx.glyphs.materialicons.MaterialIconView
+import de.robolab.jfx.style.MainStyle
 import javafx.beans.value.ObservableValue
 import javafx.event.EventTarget
 import javafx.scene.Parent
@@ -16,17 +17,23 @@ import tornadofx.*
  */
 
 fun iconNoAdd(icon: FontAwesomeIcon, op: FontAwesomeIconView.() -> Unit = {}) =
-        FontAwesomeIconView(icon).also(op)
+        FontAwesomeIconView(icon).also(op).also {
+            it.addClass(MainStyle.iconView)
+        }
 
 fun iconNoAdd(icon: MaterialIcon, op: MaterialIconView.() -> Unit = {}) =
-        MaterialIconView(icon).also(op)
+        MaterialIconView(icon).also(op).also {
+            it.addClass(MainStyle.iconView)
+        }
 
 fun iconNoAdd(icon: ObservableValue<FontAwesomeIcon>, op: FontAwesomeIconView.() -> Unit = {}): FontAwesomeIconView {
     val view = FontAwesomeIconView(icon.value).also(op)
     icon.onChange {
         view.setIcon(it)
     }
-    return view
+    return view.also {
+        it.addClass(MainStyle.iconView)
+    }
 }
 
 fun iconNoAdd(icon: ObservableValue<MaterialIcon>, op: MaterialIconView.() -> Unit = {}): MaterialIconView {
@@ -34,21 +41,29 @@ fun iconNoAdd(icon: ObservableValue<MaterialIcon>, op: MaterialIconView.() -> Un
     icon.onChange {
         view.setIcon(it)
     }
-    return view
+    return view.also {
+        it.addClass(MainStyle.iconView)
+    }
 }
 
 fun Parent.icon(icon: FontAwesomeIcon, op: FontAwesomeIconView.() -> Unit = {}) =
-        opcr(this, FontAwesomeIconView(icon), op)
+        opcr(this, FontAwesomeIconView(icon), op).also {
+            it.addClass(MainStyle.iconView)
+        }
 
 fun Parent.icon(icon: MaterialIcon, op: MaterialIconView.() -> Unit = {}) =
-        opcr(this, MaterialIconView(icon), op)
+        opcr(this, MaterialIconView(icon), op).also {
+            it.addClass(MainStyle.iconView)
+        }
 
 fun Parent.icon(icon: ObservableValue<FontAwesomeIcon>, op: FontAwesomeIconView.() -> Unit = {}): FontAwesomeIconView {
     val view = opcr(this, FontAwesomeIconView(icon.value), op)
     icon.onChange {
         view.setIcon(it)
     }
-    return view
+    return view.also {
+        it.addClass(MainStyle.iconView)
+    }
 }
 
 fun Parent.icon(icon: ObservableValue<MaterialIcon>, op: MaterialIconView.() -> Unit = {}): MaterialIconView {
@@ -56,38 +71,14 @@ fun Parent.icon(icon: ObservableValue<MaterialIcon>, op: MaterialIconView.() -> 
     icon.onChange {
         view.setIcon(it)
     }
-    return view
+    return view.also {
+        it.addClass(MainStyle.iconView)
+    }
 }
-
-@JvmName("fontAwesomeIconButton")
-inline fun EventTarget.iconButton(
-        icon: ObservableValue<FontAwesomeIcon>,
-        iconSize: Dimension<Dimension.LinearUnits> = 16.pt,
-        crossinline init: Button.(FontAwesomeIconView) -> Unit = {}
-) =
-        button {
-            icon(icon) {
-                glyphSize = iconSize.value
-                init(this@button, this)
-            }
-        }
 
 fun FontAwesomeIconView.setIconColor(color: Color) {
     glyphStyle = "-fx-fill: ${color.css};"
 }
-
-@JvmName("materialIconButton")
-inline fun EventTarget.iconButton(
-        icon: ObservableValue<MaterialIcon>,
-        iconSize: Dimension<Dimension.LinearUnits> = 16.pt,
-        crossinline init: Button.(MaterialIconView) -> Unit = {}
-) =
-        button {
-            icon(icon) {
-                glyphSize = iconSize.value
-                init(this@button, this)
-            }
-        }
 
 fun MaterialIconView.setIconColor(color: Color) {
     glyphStyle = "-fx-fill: ${color.css};"

@@ -34,9 +34,9 @@ object PreferenceStorage {
     val passwordProperty = item("PASSWORD", "")
     var password by passwordProperty
 
-    private abstract class Item<T>(private val key: String, private val default: T) : Property<T> {
-        abstract fun serialize(value: T): String?
-        abstract fun deserialize(value: String): T?
+    abstract class Item<T>(private val key: String, val default: T) : Property<T> {
+        protected abstract fun serialize(value: T): String?
+        protected abstract fun deserialize(value: String): T?
 
         override val onChange = EventHandler<Unit>()
         override var binding: Binding<T> = Binding.Unbound()
@@ -55,7 +55,7 @@ object PreferenceStorage {
         }
     }
 
-    private fun item(key: String, default: Double): Property<Double> = DoubleItem(key, default)
+    private fun item(key: String, default: Double): Item<Double> = DoubleItem(key, default)
     private class DoubleItem(key: String, default: Double) : Item<Double>(key, default) {
         override fun serialize(value: Double): String? {
             return value.toString()
@@ -66,7 +66,7 @@ object PreferenceStorage {
         }
     }
 
-    private fun item(key: String, default: String): Property<String> = StringItem(key, default)
+    private fun item(key: String, default: String): Item<String> = StringItem(key, default)
     private class StringItem(key: String, default: String) : Item<String>(key, default) {
         override fun serialize(value: String): String? {
             return value
@@ -77,7 +77,7 @@ object PreferenceStorage {
         }
     }
 
-    private fun item(key: String, default: Boolean): Property<Boolean> = BooleanItem(key, default)
+    private fun item(key: String, default: Boolean): Item<Boolean> = BooleanItem(key, default)
     private class BooleanItem(key: String, default: Boolean) : Item<Boolean>(key, default) {
         override fun serialize(value: Boolean): String? {
             return value.toString()
@@ -88,7 +88,7 @@ object PreferenceStorage {
         }
     }
 
-    private inline fun <reified T : Enum<T>> item(key: String, default: T): Property<T> = EnumItem(key, default, enumValues())
+    private inline fun <reified T : Enum<T>> item(key: String, default: T): Item<T> = EnumItem(key, default, enumValues())
     private class EnumItem<T : Enum<T>>(key: String, default: T, private val valueList: Array<T>) : Item<T>(key, default) {
         override fun serialize(value: T): String? {
             return value.name

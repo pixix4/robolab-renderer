@@ -7,7 +7,7 @@ import tornadofx.*
 fun Stylesheet.initInfoBarStyle() {
     MainStyle.infoBar {
         borderStyle = multi(BorderStrokeStyle.SOLID)
-        borderColor = multi(box(MainStyle.borderColor))
+        borderColor = multi(box(MainStyle.theme.borderColor))
         borderWidth = multi(box(0.px, 0.px, 0.px, 1.px))
         prefWidth = 20.em
 
@@ -17,6 +17,6 @@ fun Stylesheet.initInfoBarStyle() {
     }
 
     MainStyle.codeArea {
-        backgroundColor = multi(MainStyle.primaryBackground)
+        backgroundColor = multi(MainStyle.theme.primaryBackground)
     }
 }

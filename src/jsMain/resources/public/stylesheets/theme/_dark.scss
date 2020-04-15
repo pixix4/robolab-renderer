@@ -18,13 +18,13 @@ $_theme-text: #FFFFFF;
 $_border-color: #555555;
 
 $_success-color: #239a55;
-$_success-text-color: #FFF;
+$_success-text-color: #FFFFFF;
 
 $_warn-color: #e59311;
-$_warn-text-color: #FFF;
+$_warn-text-color: #FFFFFF;
 
 $_error-color: #b23528;
-$_error-text-color: #FFF;
+$_error-text-color: #FFFFFF;
 
 body[data-theme='dark'] {
     @include load-color-vars();

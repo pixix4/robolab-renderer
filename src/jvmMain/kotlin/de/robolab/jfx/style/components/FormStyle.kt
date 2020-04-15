@@ -4,13 +4,17 @@ import de.robolab.jfx.style.MainStyle
 import javafx.scene.effect.BlurType
 import javafx.scene.effect.DropShadow
 import javafx.scene.layout.BorderStrokeStyle
+import javafx.scene.paint.Color
 import javafx.scene.text.FontWeight
 import tornadofx.*
 
 fun Stylesheet.initFormStyle() {
+    MainStyle.iconView {
+        fill = MainStyle.theme.primaryTextColor
+    }
     Stylesheet.comboBox {
-        backgroundColor = multi(MainStyle.primaryBackground)
-        borderColor = multi(box(MainStyle.borderColor))
+        backgroundColor = multi(MainStyle.theme.primaryBackground)
+        borderColor = multi(box(MainStyle.theme.borderColor))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
         borderRadius = multi(box(4.px))
@@ -19,37 +23,37 @@ fun Stylesheet.initFormStyle() {
         padding = box(0.px)
     }
     Stylesheet.textField {
-        backgroundColor = multi(MainStyle.primaryBackground)
-        borderColor = multi(box(MainStyle.borderColor))
+        backgroundColor = multi(MainStyle.theme.primaryBackground)
+        borderColor = multi(box(MainStyle.theme.borderColor))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
         borderRadius = multi(box(4.px))
         backgroundRadius = multi(box(4.px))
 
         and(Stylesheet.focused) {
-            borderColor = multi(box(MainStyle.borderColor))
-            effect = DropShadow(BlurType.GAUSSIAN, MainStyle.borderColor, 3.0, 3.0, 0.0, 0.0)
+            borderColor = multi(box(MainStyle.theme.borderColor))
+            effect = DropShadow(BlurType.GAUSSIAN, MainStyle.theme.borderColor, 3.0, 3.0, 0.0, 0.0)
         }
     }
     Stylesheet.button {
-        backgroundColor = multi(MainStyle.tertiaryBackground)
-        borderColor = multi(box(MainStyle.borderColor))
-        textFill = MainStyle.primaryTextColor
+        backgroundColor = multi(MainStyle.theme.tertiaryBackground)
+        borderColor = multi(box(MainStyle.theme.borderColor))
+        textFill = MainStyle.theme.primaryTextColor
         borderRadius = multi(box(2.px))
 
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
 
         and(Stylesheet.focused, Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.tertiaryHoverBackground)
-            textFill = MainStyle.primaryTextColor
+            backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
+            textFill = MainStyle.theme.primaryTextColor
         }
     }
 
     Stylesheet.toggleButton {
-        backgroundColor = multi(MainStyle.tertiaryBackground)
-        borderColor = multi(box(MainStyle.borderColor))
-        textFill = MainStyle.primaryTextColor
+        backgroundColor = multi(MainStyle.theme.tertiaryBackground)
+        borderColor = multi(box(MainStyle.theme.borderColor))
+        textFill = MainStyle.theme.primaryTextColor
 
         borderRadius = multi(box(MainStyle.BORDER_RADIUS))
         backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
@@ -58,17 +62,20 @@ fun Stylesheet.initFormStyle() {
         borderWidth = multi(box(1.px))
 
         and(Stylesheet.focused, Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.tertiaryHoverBackground)
-            textFill = MainStyle.primaryTextColor
+            backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
+            textFill = MainStyle.theme.primaryTextColor
         }
         and(Stylesheet.selected) {
-            backgroundColor = multi(MainStyle.primaryBackground)
-            textFill = MainStyle.themeColor
+            backgroundColor = multi(MainStyle.theme.primaryBackground)
+            textFill = MainStyle.theme.themeColor
             fontWeight = FontWeight.BOLD
 
             and(Stylesheet.focused, Stylesheet.hover) {
-                textFill = MainStyle.themeColor
-                backgroundColor = multi(MainStyle.primaryHoverBackground)
+                textFill = MainStyle.theme.themeColor
+                backgroundColor = multi(MainStyle.theme.primaryHoverBackground)
+            }
+            MainStyle.iconView {
+                fill = MainStyle.theme.themeColor
             }
         }
     }
@@ -116,5 +123,4 @@ fun Stylesheet.initFormStyle() {
             }
         }
     }
-
 }

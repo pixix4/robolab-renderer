@@ -7,11 +7,11 @@ import tornadofx.*
 
 fun Stylesheet.initSideBarStyle() {
     Stylesheet.listView {
-        borderColor = multi(box(MainStyle.borderColor))
+        borderColor = multi(box(MainStyle.theme.borderColor))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px, 0.px, 0.px, 0.px))
 
-        backgroundColor = multi(MainStyle.secondaryBackground)
+        backgroundColor = multi(MainStyle.theme.secondaryBackground)
         backgroundInsets = multi(box(0.px))
 
         focusColor = Color.TRANSPARENT
@@ -20,46 +20,46 @@ fun Stylesheet.initSideBarStyle() {
     Stylesheet.listCell {
         backgroundColor = multi(Color.TRANSPARENT)
         and(Stylesheet.focused, Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.secondaryHoverBackground)
+            backgroundColor = multi(MainStyle.theme.secondaryHoverBackground)
             Stylesheet.label {
-                textFill = MainStyle.primaryTextColor
+                textFill = MainStyle.theme.primaryTextColor
             }
         }
         and(Stylesheet.selected) {
-            backgroundColor = multi(MainStyle.primaryBackground)
+            backgroundColor = multi(MainStyle.theme.primaryBackground)
             Stylesheet.label {
-                textFill = MainStyle.themeColor
+                textFill = MainStyle.theme.themeColor
             }
 
             and(Stylesheet.focused, Stylesheet.hover) {
-                backgroundColor = multi(MainStyle.primaryHoverBackground)
+                backgroundColor = multi(MainStyle.theme.primaryHoverBackground)
             }
         }
         MainStyle.disabled {
             Stylesheet.label {
-                textFill = MainStyle.secondaryTextColor
+                textFill = MainStyle.theme.secondaryTextColor
             }
         }
     }
 
     MainStyle.success {
-        backgroundColor = multi(MainStyle.successColor)
+        backgroundColor = multi(MainStyle.theme.successColor)
         Stylesheet.label {
-            textFill = MainStyle.successTextColor
+            textFill = MainStyle.theme.successTextColor
         }
     }
 
     MainStyle.warn {
-        backgroundColor = multi(MainStyle.warnColor)
+        backgroundColor = multi(MainStyle.theme.warnColor)
         Stylesheet.label {
-            textFill = MainStyle.warnTextColor
+            textFill = MainStyle.theme.warnTextColor
         }
     }
 
     MainStyle.error {
-        backgroundColor = multi(MainStyle.errorColor)
+        backgroundColor = multi(MainStyle.theme.errorColor)
         Stylesheet.label {
-            textFill = MainStyle.errorTextColor
+            textFill = MainStyle.theme.errorTextColor
         }
     }
 }

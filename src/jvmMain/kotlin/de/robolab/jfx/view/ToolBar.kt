@@ -12,6 +12,7 @@ import de.westermann.kobserve.property.mapBinding
 import javafx.scene.control.ToggleButton
 import javafx.scene.layout.HBox
 import javafx.scene.text.FontWeight
+import javafx.stage.StageStyle
 import tornadofx.*
 
 class ToolBar(private val toolBarController: ToolBarController) : View() {
@@ -90,6 +91,18 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                     graphic = iconNoAdd(MaterialIcon.ADD)
                     setOnAction {
                         toolBarController.zoomIn()
+                    }
+                }
+
+                paddingRight = 8
+            }
+
+            hbox {
+                button {
+                    graphic = iconNoAdd(MaterialIcon.SETTINGS)
+
+                    setOnAction {
+                        find<SettingsDialog>().openModal(StageStyle.UTILITY, resizable = false)
                     }
                 }
 

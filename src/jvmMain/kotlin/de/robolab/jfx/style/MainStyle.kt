@@ -1,6 +1,11 @@
 package de.robolab.jfx.style
 
 import de.robolab.jfx.style.components.*
+import de.robolab.jfx.style.theme.DarkThemeFx
+import de.robolab.jfx.style.theme.IThemeFx
+import de.robolab.jfx.style.theme.LightThemeFx
+import de.robolab.renderer.theme.Theme
+import de.robolab.utils.PreferenceStorage
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import tornadofx.*
@@ -8,7 +13,7 @@ import tornadofx.*
 class MainStyle : Stylesheet() {
     companion object {
         val buttonGroup by cssclass()
-        val textButton by cssclass()
+        val iconView by cssclass()
 
         val statusBar by cssclass()
         val infoBar by cssclass()
@@ -24,37 +29,32 @@ class MainStyle : Stylesheet() {
         val first by csspseudoclass()
         val last by csspseudoclass()
 
+        val editorKeyword by cssclass()
+        val editorDirection by cssclass()
+        val editorNumber by cssclass()
+        val editorComment by cssclass()
+        val editorString by cssclass()
+        val editorError by cssclass()
+        val paragraphBox by cssclass()
+        val hasCaret by csspseudoclass()
 
-        val primaryBackground = Color.web("#FBFBFB")
-        val primaryHoverBackground = Color.web("#FFFFFF")
+        var theme: IThemeFx = loadTheme()
 
-        val secondaryBackground = Color.web("#EEEEEE")
-        val secondaryHoverBackground = Color.web("#F5F5F5")
-
-        val tertiaryBackground = Color.web("#E0E0E0")
-        val tertiaryHoverBackground = Color.web("#E9E9E9")
-
-        val primaryTextColor = Color.web("#333333")
-        val secondaryTextColor = Color.web("#888")
-
-        val themeColor = Color.web("#c0392b")
-        val themeText = Color.web("#FFFFFF")
-
-        val borderColor = Color.web("#D0D0D0")
-
-        val successColor = Color.web("#2ecc71")
-        val successTextColor = Color.web("#FFFFFF")
-
-        val warnColor = Color.web("#f1c40f")
-        val warnTextColor = Color.web("#FFFFFF")
-
-        val errorColor = Color.web("#e74c3c")
-        val errorTextColor = Color.web("#FFFFFF")
-        
         val BORDER_RADIUS = 6.px
+
+        private fun loadTheme() = when (PreferenceStorage.selectedTheme) {
+            Theme.LIGHT -> LightThemeFx
+            Theme.DARK -> DarkThemeFx
+        }
+
+        fun updateTheme() {
+            theme = loadTheme()
+        }
     }
 
     init {
+        updateTheme()
+
         loadFont("/Roboto/Roboto-Regular.ttf", 12)
         loadFont("/Roboto/Roboto-Bold.ttf", 12)
         loadFont("/Roboto/Roboto-Italic.ttf", 12)
@@ -65,18 +65,14 @@ class MainStyle : Stylesheet() {
 
             borderRadius = multi(box(0.px))
             backgroundRadius = multi(box(0.px))
-
-            //textFill = primaryTextColor
-            //text {
-            //    fill = primaryTextColor
-            //}
         }
         root {
-            textFill = primaryTextColor
-            backgroundColor = multi(secondaryBackground)
+            textFill = theme.primaryTextColor
+            backgroundColor = multi(theme.secondaryBackground)
             font = Font.font("Roboto")
         }
 
+        initCodeAreaStyle()
         initFormStyle()
         initInfoBarStyle()
         initMainCanvasStyle()
