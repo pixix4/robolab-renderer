@@ -60,6 +60,8 @@ select:-moz-focusring {
 }
 
 .button-group {
+    white-space: nowrap;
+
     .button:not(:last-child) {
         margin-right: 0;
         border-bottom-right-radius: 0;

@@ -1,11 +1,14 @@
 package de.robolab.web.views
 
 import de.robolab.app.controller.InfoBarController
+import de.robolab.app.controller.TraverserBarController
 import de.robolab.app.model.file.InfoBarFileEditor
 import de.robolab.app.model.file.InfoBarTraverser
 import de.robolab.web.views.utils.buttonGroup
 import de.westermann.kobserve.Property
+import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.BoxView
@@ -50,7 +53,10 @@ class InfoBar(private val infoBarController: InfoBarController, infoBarActivePro
                 contentView.multilineInputView(content.contentProperty)
             }
             is InfoBarTraverser -> {
-                contentView.add(TraverserBarView(content))
+                if (content.traverserProperty.value == null) {
+                    content.traverse()
+                }
+                contentView.add(NullableViewContainer(content.traverserProperty))
             }
         }
     }
@@ -79,4 +85,38 @@ class InfoBar(private val infoBarController: InfoBarController, infoBarActivePro
             }
         }
     }
+}
+
+class NullableViewContainer(private val traverserProperty: ReadOnlyProperty<TraverserBarController?>) : ViewCollection<View>() {
+    
+    private var prop: Property<TraverserBarController>? = null
+    private var view: TraverserBarView? = null
+
+    private fun updateView() {
+        val traverser = traverserProperty.value
+
+        if (traverser == null) {
+            clear()
+            return
+        }
+
+        if (prop == null) {
+            prop = property(traverser)
+        } else {
+            prop?.value = traverser
+        }
+        if (view == null) {
+            view = TraverserBarView(prop!!)
+        }
+
+        add(view!!)
+    }
+    
+    init {
+        traverserProperty.onChange {
+            updateView()
+        }
+        updateView()
+    }
+
 }
