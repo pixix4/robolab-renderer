@@ -1,6 +1,7 @@
 package de.robolab.jfx
 
 import de.robolab.app.controller.MainController
+import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.view.*
 import javafx.application.Platform
 import javafx.scene.layout.Priority
@@ -12,7 +13,7 @@ class MainView : View() {
     private val mainController = MainController()
 
     override val root = hbox {
-        title = headerText
+        titleProperty.bind(mainController.applicationTitleProperty.toFx())
 
         Platform.runLater {
             requestFocus()
@@ -48,9 +49,5 @@ class MainView : View() {
 
     override fun onUndock() {
         exitProcess(0)
-    }
-
-    companion object {
-        const val headerText: String = "robolab-renderer"
     }
 }
