@@ -4,13 +4,16 @@ import de.robolab.app.controller.MainController
 import de.robolab.utils.PreferenceStorage
 import de.robolab.web.views.*
 import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.property
 import de.westermann.kwebview.components.init
+import kotlin.browser.document
 
 fun main() {
 
     val mainController = MainController()
 
     watchSystemTheme()
+    property(document::title).bind(mainController.applicationTitleProperty)
 
     init {
         clear()
