@@ -7,11 +7,13 @@ import de.westermann.kobserve.Property
 import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.property.*
 import de.robolab.traverser.property
+import de.westermann.kobserve.or
 
 interface ITraverserStateEntry {
     val sliceEntry: ReadOnlyProperty<out TreeSliceViewer.TreeSliceEntry<out ITraverserState<*>>>
     val isNextEnabled: ReadOnlyProperty<Boolean>
     val isPreviousEnabled: ReadOnlyProperty<Boolean>
+    val areAlternativeButtonsVisible: ReadOnlyProperty<Boolean>
     fun clickNextOption()
     fun clickPreviousOption()
     fun select() = select(false)
@@ -35,6 +37,7 @@ class TraverserStateEntry<TS>(val controller: TraverserBarController, sliceEntry
     override val sliceEntry: Property<TreeSliceViewer.TreeSliceEntry<out TS>> = property(sliceEntry)
     override val isNextEnabled: ReadOnlyProperty<Boolean> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<*>::hasNext)
     override val isPreviousEnabled: ReadOnlyProperty<Boolean> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<*>::hasPrevious)
+    override val areAlternativeButtonsVisible: ReadOnlyProperty<Boolean> = this.isNextEnabled or this.isPreviousEnabled
     override val currentOptionIndex: ReadOnlyProperty<Int> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<*>::currentIndex)
     override val currentOption: ReadOnlyProperty<TS> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<out TS>::currentOption)
 
@@ -47,13 +50,16 @@ class TraverserStateEntry<TS>(val controller: TraverserBarController, sliceEntry
     override val selected: Property<Boolean> = property(false)
 
     override val selectedTitle: ReadOnlyProperty<String> = this.sliceEntry.mapBinding {
-        with(it.currentOption) {
-            "${location.x}, ${location.y}" + if (nextDirection != null) " --> $nextDirection" else ""
+        with(it) {
+            "${currentOption.location.x}, ${currentOption.location.y} --> ${currentOption.nextDirection}   [${currentIndex + 1}/${options.size}]"
         }
     }
     override val defaultTitle: ReadOnlyProperty<String> = this.sliceEntry.mapBinding {
-        with(it.currentOption) {
-            if (nextDirection != null) "$nextDirection" else "${location.x}, ${location.y}"
+        with(it) {
+            (if (currentOption.nextDirection != null) "${currentOption.nextDirection}"
+            else "${currentOption.location.x}, ${currentOption.location.y}") +
+                    if (options.size != 1) "   [${currentIndex + 1}/${options.size}]"
+                    else ""
         }
     }
     override val details: ReadOnlyProperty<List<String>> = this.sliceEntry.mapBinding {
