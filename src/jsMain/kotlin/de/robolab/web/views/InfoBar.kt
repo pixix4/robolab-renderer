@@ -50,11 +50,7 @@ class InfoBar(private val infoBarController: InfoBarController, infoBarActivePro
                 contentView.multilineInputView(content.contentProperty)
             }
             is InfoBarTraverser -> {
-                contentView.button("Traverse") {
-                    onClick {
-                        content.traverse()
-                    }
-                }
+                contentView.add(TraverserBarView(content))
             }
         }
     }
