@@ -116,10 +116,13 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
     override var autoCentering = true
     override fun centerPlanet(duration: Double) {
         val transformation = plotter?.transformation ?: return
-        val canvasCenter = centerOfPlanets * transformation.scaledGridWidth * Point(-1.0, 1.0)
+        val targetCenter = centerOfPlanets
         val size = (plotter?.size ?: Dimension.ZERO) / 2
+        val currentCenter = transformation.canvasToPlanet(size)
+        val diff = (targetCenter - currentCenter)
+        val diffScaled = diff  * transformation.scaledGridWidth * Point(-1.0, 1.0)
 
-        transformation.translateTo(canvasCenter + size, duration)
+        transformation.translateBy(diffScaled, duration)
     }
 
     private var isFirstImport = true

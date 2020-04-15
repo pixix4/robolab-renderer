@@ -103,9 +103,9 @@ class TransformationInteraction(
             else -> {
                 val delta = if (event.shiftKey) event.delta.let { Point(it.y, it.x) } else event.delta
                 transformation.translateBy(delta, ANIMATION_TIME)
-                plotter.drawable.onUserTransformation()
             }
         }
+        plotter.drawable.onUserTransformation()
 
         plotter.updatePointer(event.point)
         lastPoint = event.point
@@ -132,10 +132,12 @@ class TransformationInteraction(
     }
 
     override fun onResize(size: Dimension): Boolean {
+        if (lastDimension == size) return true
+
         val oldCenter = transformation.canvasToPlanet(lastDimension / 2)
         val newCenter = transformation.canvasToPlanet(size / 2)
-        val diff = (oldCenter - newCenter) * transformation.scaledGridWidth
-        transformation.translateBy(diff)
+        val diff = (oldCenter - newCenter) * transformation.scaledGridWidth * Point(-1.0, 1.0)
+        transformation.translateBy(diff.rotate(-transformation.rotation))
 
         lastDimension = size
 
