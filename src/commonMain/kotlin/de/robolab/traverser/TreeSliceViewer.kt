@@ -113,7 +113,7 @@ open class TreeSliceViewer<N> protected constructor(
 
         val currentOption: N = options[currentIndex]
 
-        val hasNext: Boolean = currentIndex < options.size
+        val hasNext: Boolean = currentIndex + 1 < options.size
         val hasPrevious: Boolean = currentIndex > 0
 
         fun next(): TreeSliceEntry<N> = if (hasNext) TreeSliceEntry(currentIndex + 1, options) else this
