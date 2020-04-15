@@ -1,0 +1,31 @@
+@import 'theme_utils';
+
+$_primary-background: #0d0d0d;
+$_primary-hover-background: #000000;
+
+$_secondary-background: #303030;
+$_secondary-hover-background: #242424;
+
+$_tertiary-background: #4d4d4d;
+$_tertiary-hover-background: #404040;
+
+$_primary-text-color: #ffffff;
+$_secondary-text-color: #9A9A9A;
+
+$_theme-color: #e74c3c;
+$_theme-text: #FFFFFF;
+
+$_border-color: #555555;
+
+$_success-color: #239a55;
+$_success-text-color: #FFF;
+
+$_warn-color: #e59311;
+$_warn-text-color: #FFF;
+
+$_error-color: #b23528;
+$_error-text-color: #FFF;
+
+body[data-theme='dark'] {
+    @include load-color-vars();
+}

@@ -55,6 +55,7 @@ class DataSet(
                 this += key to value
             }
 
+    /*
     fun bind(key: String, property: ReadOnlyProperty<String>) {
         if (key in bound) {
             throw IllegalArgumentException("Class is already bound!")
@@ -62,6 +63,7 @@ class DataSet(
 
         bound[key] = Bound(key, null, property)
     }
+     */
 
     fun bind(key: String, property: ReadOnlyProperty<String?>) {
         if (key in bound) {

@@ -1,3 +1,5 @@
+@import 'theme_utils';
+
 $_primary-background: #FBFBFB;
 $_primary-hover-background: #FFFFFF;
 
@@ -24,31 +26,6 @@ $_warn-text-color: #FFF;
 $_error-color: #e74c3c;
 $_error-text-color: #FFF;
 
-
-:root {
-    --primary-background: #{$_primary-background};
-    --primary-hover-background: #{$_primary-hover-background};
-
-    --secondary-background: #{$_secondary-background};
-    --secondary-hover-background: #{$_secondary-hover-background};
-
-    --tertiary-background: #{$_tertiary-background};
-    --tertiary-hover-background: #{$_tertiary-hover-background};
-
-    --primary-text-color: #{$_primary-text-color};
-    --secondary-text-color: #{$_secondary-text-color};
-
-    --theme-color: #{$_theme-color};
-    --theme-text: #{$_theme-text};
-
-    --border-color: #{$_border-color};
-
-    --success-color: #{$_success-color};
-    --success-text-color: #{$_success-text-color};
-
-    --warn-color: #{$_warn-color};
-    --warn-text-color: #{$_warn-text-color};
-
-    --error-color: #{$_error-color};
-    --error-text-color: #{$_error-text-color};
+body {
+    @include load-color-vars();
 }

@@ -1,8 +1,12 @@
 package de.robolab.web
 
+import de.robolab.renderer.theme.Theme
+import de.robolab.utils.PreferenceStorage
 import de.westermann.kwebview.components.Canvas
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.events.Event
 import kotlin.browser.document
+import kotlin.browser.window
 
 
 // external fun decodeURIComponent(encodedURI: String): String
@@ -34,4 +38,24 @@ fun triggerDownloadPNG(filename: String, canvas: Canvas) {
     element.click()
 
     document.body?.removeChild(element)
+}
+
+fun watchSystemTheme() {
+    val schemaLightQuery = window.matchMedia("(prefers-color-scheme: light)")
+    val schemaDarkQuery = window.matchMedia("(prefers-color-scheme: dark)")
+    val schemaNoPreferenceQuery = window.matchMedia("(prefers-color-scheme: no-preference)")
+
+    fun eventListener(@Suppress("UNUSED_PARAMETER") event: Event) {
+        if (PreferenceStorage.useSystemTheme) {
+            if (schemaDarkQuery.matches) {
+                PreferenceStorage.selectedTheme = Theme.DARK
+            } else if (schemaLightQuery.matches) {
+                PreferenceStorage.selectedTheme = Theme.LIGHT
+            }
+        }
+    }
+
+    schemaLightQuery.addListener(::eventListener)
+    schemaDarkQuery.addListener(::eventListener)
+    schemaNoPreferenceQuery.addListener(::eventListener)
 }

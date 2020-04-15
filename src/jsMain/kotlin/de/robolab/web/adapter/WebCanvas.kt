@@ -242,10 +242,10 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
 
     override fun clear(color: Color) {
         fillRect(Rectangle(
-                0.0,
-                0.0,
-                width,
-                height
+                -1.0,
+                -1.0,
+                width + 2.0,
+                height + 2.0
         ), color)
     }
 

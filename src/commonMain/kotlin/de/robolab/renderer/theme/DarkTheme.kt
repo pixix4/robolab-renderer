@@ -3,8 +3,8 @@ package de.robolab.renderer.theme
 import de.robolab.renderer.data.Color
 
 object DarkTheme : ITheme {
+    override val primaryBackgroundColor = Color(36, 36, 36)
     override val secondaryBackgroundColor = Color(18, 18, 18)
-    override val primaryBackgroundColor = secondaryBackgroundColor.interpolate(de.robolab.renderer.data.Color.WHITE, 0.07)
 
     override val gridColor = secondaryBackgroundColor.interpolate(Color.WHITE, 0.15)
     override val gridTextColor = secondaryBackgroundColor.interpolate(Color.WHITE, 0.4)
@@ -19,7 +19,7 @@ object DarkTheme : ITheme {
     override val robotMainColor = Color(243, 156, 18)
     override val robotDisplayColor = Color(240, 240, 240)
     override val robotWheelColor = lineColor
-    override val robotSensorColor = robotWheelColor.interpolate(LightTheme.robotMainColor, 0.1)
+    override val robotSensorColor = robotWheelColor.interpolate(robotMainColor, 0.1)
     override val robotButtonColor = Color(49, 31, 4)
 
     override val traverserCharacteristicCorrectColor = Color(0, 255, 0)

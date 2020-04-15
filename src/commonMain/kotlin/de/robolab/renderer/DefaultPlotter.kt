@@ -7,12 +7,10 @@ import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.ITimer
 import de.robolab.renderer.theme.ITheme
-import de.robolab.renderer.theme.LightTheme
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.utils.Pointer
 import de.robolab.renderer.utils.Transformation
-import de.robolab.utils.runAfterTimeout
-import de.robolab.utils.runAsync
+import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.property.property
 
 /**
@@ -37,15 +35,9 @@ class DefaultPlotter(
     override val size: Dimension
         get() = interaction.lastDimension
 
-    private val context = DrawContext(canvas, transformation, LightTheme)
+    private val context = DrawContext(canvas, transformation, PreferenceStorage.selectedTheme.theme)
 
     var forceRedraw = false
-    var theme: ITheme
-        get() = context.theme
-        set(value) {
-            context.theme = value
-            forceRedraw = true
-        }
 
     override val pointerProperty = property<Pointer?>(null)
     override var pointer by pointerProperty
@@ -86,6 +78,11 @@ class DefaultPlotter(
         canvas.setListener(interaction)
         transformation.onViewChange {
             updatePointer()
+        }
+
+        PreferenceStorage.selectedThemeProperty.onChange {
+            context.theme = PreferenceStorage.selectedTheme.theme
+            forceRedraw = true
         }
 
         timer.onRender(this::render)

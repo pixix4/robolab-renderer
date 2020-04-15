@@ -31,11 +31,6 @@ class CanvasController(
 
         plotter = DefaultPlotter(canvas, timer, animationTime = 1000.0)
 
-        plotter.theme = PreferenceStorage.selectedThemeProperty.value.theme
-        PreferenceStorage.selectedThemeProperty.onChange {
-            plotter.theme = PreferenceStorage.selectedThemeProperty.value.theme
-        }
-
         selectedEntryProperty.onChange {
             val plottable = selectedEntryProperty.value
             if (plottable == null) {
@@ -55,9 +50,6 @@ class CanvasController(
 
         val list = mutableListOf<String>()
         list.add("Pointer: ${format(pointer.roundedPosition)}")
-        if (plotter.transformation.scale != 1.0) {
-            list.add("Zoom: ${(plotter.transformation.scale * 100).roundToInt()}%")
-        }
         if (plotter.transformation.rotation != 0.0) {
             list.add("Rotation: ${((plotter.transformation.rotation / PI * 180) % 360).roundToInt()}%")
         }

@@ -2,8 +2,8 @@ package de.robolab.app.model.traverser
 
 import de.robolab.planet.Direction
 import de.robolab.renderer.data.Color
-import de.robolab.renderer.theme.LightTheme
 import de.robolab.traverser.ITraverserState
+import de.robolab.utils.PreferenceStorage
 
 val ITraverserState<*>.isCorrect: Boolean
     get() = when {
@@ -14,21 +14,25 @@ val ITraverserState<*>.isCorrect: Boolean
 
 class CharacteristicItem(val color: Color) {
     companion object Generator {
-        fun generateChararacteristic(state: ITraverserState<*>): Sequence<CharacteristicItem> = state.traceUp().map {
-            if (it.status == ITraverserState.Status.ExplorationComplete || it.status == ITraverserState.Status.TargetReached)
-                return@map CharacteristicItem(if (it.isCorrect)
-                    LightTheme.traverserCharacteristicCorrectColor
-                else
-                    LightTheme.traverserCharacteristicErrorColor)
-            if (!it.running)
-                return@map CharacteristicItem(LightTheme.traverserCharacteristicErrorColor)
-            return@map when (it.nextDirection) {
-                Direction.NORTH -> LightTheme.traverserCharacteristicNorthColor
-                Direction.EAST -> LightTheme.traverserCharacteristicEastColor
-                Direction.SOUTH -> LightTheme.traverserCharacteristicSouthColor
-                Direction.WEST -> LightTheme.traverserCharacteristicWestColor
-                else -> null
-            }.let { color -> if (color != null) CharacteristicItem(color) else null }
-        }.filterNotNull()
+        fun generateChararacteristic(state: ITraverserState<*>): Sequence<CharacteristicItem> {
+            val theme = PreferenceStorage.selectedTheme.theme
+            
+            return state.traceUp().map {
+                if (it.status == ITraverserState.Status.ExplorationComplete || it.status == ITraverserState.Status.TargetReached)
+                    return@map CharacteristicItem(if (it.isCorrect)
+                        theme.traverserCharacteristicCorrectColor
+                    else
+                        theme.traverserCharacteristicErrorColor)
+                if (!it.running)
+                    return@map CharacteristicItem(theme.traverserCharacteristicErrorColor)
+                return@map when (it.nextDirection) {
+                    Direction.NORTH -> theme.traverserCharacteristicNorthColor
+                    Direction.EAST -> theme.traverserCharacteristicEastColor
+                    Direction.SOUTH -> theme.traverserCharacteristicSouthColor
+                    Direction.WEST -> theme.traverserCharacteristicWestColor
+                    else -> null
+                }.let { color -> if (color != null) CharacteristicItem(color) else null }
+            }.filterNotNull()
+        }
     }
 }

@@ -13,6 +13,9 @@ object PreferenceStorage {
     val selectedThemeProperty = item("THEME", Theme.LIGHT)
     var selectedTheme by selectedThemeProperty
 
+    val useSystemThemeProperty = item("USE_SYSTEM_THEME", true)
+    var useSystemTheme by useSystemThemeProperty
+
     val exportScaleProperty = item("EXPORT_SCALE", 4.0)
     var exportScale by exportScaleProperty
 
@@ -71,6 +74,17 @@ object PreferenceStorage {
 
         override fun deserialize(value: String): String? {
             return value
+        }
+    }
+
+    private fun item(key: String, default: Boolean): Property<Boolean> = BooleanItem(key, default)
+    private class BooleanItem(key: String, default: Boolean) : Item<Boolean>(key, default) {
+        override fun serialize(value: Boolean): String? {
+            return value.toString()
+        }
+
+        override fun deserialize(value: String): Boolean? {
+            return value.toLowerCase() == "true"
         }
     }
 

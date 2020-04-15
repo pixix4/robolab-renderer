@@ -1,10 +1,17 @@
 @use '../utils';
 
-input, button, a {
+input, button, a, textarea {
     outline: 0;
+    background-color: var(--primary-background);
+    color: var(--primary-text-color);
 
     &::-moz-focus-inner {
         border: 0;
+    }
+
+    &:disabled {
+        background-color: var(--secondary-background);
+        color: var(--secondary-text-color);
     }
 }
 
