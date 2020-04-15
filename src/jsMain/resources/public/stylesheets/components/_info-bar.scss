@@ -95,3 +95,38 @@
         }
     }
 }
+.traverser-bar-header {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-bottom: solid 1px var(--border-color);
+}
+
+.traverser-entry-view {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-bottom: solid 1px var(--border-color);
+
+    &:hover {
+        background-color: var(--secondary-hover-background);
+    }
+
+    &.selected {
+        background-color: var(--primary-background);
+        &:hover {
+            background-color: var(--primary-hover-background);
+        }
+    }
+}
+
+.traverser-characteristic-view {
+    display: inline-block;
+    width:1rem;
+    height: 1rem;
+    margin: 0.2rem;
+}
