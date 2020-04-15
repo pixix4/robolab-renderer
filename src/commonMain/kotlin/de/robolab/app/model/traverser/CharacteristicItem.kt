@@ -14,7 +14,7 @@ val ITraverserState<*>.isCorrect: Boolean
 
 class CharacteristicItem(val color: Color) {
     companion object Generator {
-        fun generateChararacteristic(state: ITraverserState<*>): Sequence<CharacteristicItem> {
+        fun generateCharacteristic(state: ITraverserState<*>): List<CharacteristicItem> {
             val theme = PreferenceStorage.selectedTheme.theme
             
             return state.traceUp().map {
@@ -32,7 +32,7 @@ class CharacteristicItem(val color: Color) {
                     Direction.WEST -> theme.traverserCharacteristicWestColor
                     else -> null
                 }.let { color -> if (color != null) CharacteristicItem(color) else null }
-            }.filterNotNull()
+            }.filterNotNull().toList().asReversed()
         }
     }
 }

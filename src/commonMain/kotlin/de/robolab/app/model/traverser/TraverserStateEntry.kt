@@ -32,8 +32,8 @@ interface ITraverserStateEntry {
 }
 
 class TraverserStateEntry<TS>(val controller: TraverserBarController, sliceEntry: TreeSliceViewer.TreeSliceEntry<out TS>) : ITraverserStateEntry where TS : ITraverserState<*> {
-    override fun clickNextOption() = controller.clickNextOption(this).let { }
-    override fun clickPreviousOption() = controller.clickPreviousOption(this).let { }
+    override fun clickNextOption() = controller.clickNextOption(this).let { if(!it) error("Could not select next option") }
+    override fun clickPreviousOption() = controller.clickPreviousOption(this).let { if(!it) error("Could not select previous option")}
     override val sliceEntry: Property<TreeSliceViewer.TreeSliceEntry<out TS>> = property(sliceEntry)
     override val isNextEnabled: ReadOnlyProperty<Boolean> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<*>::hasNext)
     override val isPreviousEnabled: ReadOnlyProperty<Boolean> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<*>::hasPrevious)

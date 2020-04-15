@@ -43,12 +43,12 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
             else sliceViewer.previousAlternative(index)
 
     fun clickNextOption(state: ITraverserState<*>): Boolean =
-            if (autoExpandProperty.value) sliceViewer.fullExpandNextAlternative { it == state }
-            else sliceViewer.nextAlternative { it == state }
+            if (autoExpandProperty.value) sliceViewer.fullExpandNextAlternative { it.currentOption == state}
+            else sliceViewer.nextAlternative { it.currentOption == state }
 
     fun clickPreviousOption(state: ITraverserState<*>): Boolean =
-            if (autoExpandProperty.value) sliceViewer.fullExpandPreviousAlternative { it == state }
-            else sliceViewer.previousAlternative { it == state }
+            if (autoExpandProperty.value) sliceViewer.fullExpandPreviousAlternative { it.currentOption == state }
+            else sliceViewer.previousAlternative { it.currentOption == state }
 
     fun clickNextOption(entry: TraverserStateEntry<*>): Boolean =
             clickNextOption(entry.state.get())
@@ -81,7 +81,7 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
     init {
         sliceViewer.onChange += {
             _characteristicList.clear()
-            _characteristicList.addAll(CharacteristicItem.generateChararacteristic(sliceViewer.currentNode))
+            _characteristicList.addAll(CharacteristicItem.generateCharacteristic(sliceViewer.currentNode))
             _entryList.clear()
             _entryList.addAll(sliceViewer.map { TraverserStateEntry(this, it) })
         }
