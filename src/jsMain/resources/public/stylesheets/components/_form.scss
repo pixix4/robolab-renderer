@@ -86,9 +86,17 @@ select:-moz-focusring {
     padding: 0.5rem 1rem;
     transition: background-color 200ms, border-color 200ms;
 
+    &:hover {
+        background-color: var(--tertiary-hover-background);
+    }
+
     &:focus {
         border-color: var(--theme-color);
         background-color: var(--primary-background);
+
+        &:hover {
+            background-color: var(--primary-hover-background);
+        }
     }
 }
 
