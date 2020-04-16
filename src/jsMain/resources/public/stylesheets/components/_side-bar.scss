@@ -141,6 +141,7 @@
     padding: 0.8rem 1rem;
     border-bottom: solid 1px var(--border-color);
     position: relative;
+    white-space: nowrap;
 
     .text-view:nth-child(1) {
         font-weight: bold;
