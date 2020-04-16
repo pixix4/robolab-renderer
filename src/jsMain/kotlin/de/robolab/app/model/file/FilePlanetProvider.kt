@@ -3,9 +3,12 @@ package de.robolab.app.model.file
 import de.robolab.app.model.IProvider
 import de.robolab.app.model.ISideBarEntry
 import de.westermann.kobserve.list.*
+import de.westermann.kobserve.property.property
 import kotlin.browser.window
 
 actual class FilePlanetProvider actual constructor(): IProvider {
+
+    override val searchStringProperty = property("")
 
     val planetList: ObservableList<FilePlanetEntry> = observableListOf()
     override val entryList: ObservableReadOnlyList<ISideBarEntry> = planetList.sortObservable(compareBy { it.titleProperty.value.toLowerCase() }).mapObservable { it as ISideBarEntry }

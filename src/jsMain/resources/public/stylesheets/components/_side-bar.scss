@@ -202,3 +202,36 @@
 .side-bar-list:empty ~ .side-bar-empty {
     display: flex;
 }
+
+.side-bar-search {
+    display: flex;
+    padding: 0 0.5rem;
+    align-items: center;
+    align-content: center;
+    height: 3rem;
+    border-bottom: solid 1px var(--border-color);
+    position: relative;
+
+    .input-view {
+        flex-grow: 1;
+        padding-right: 2rem;
+
+        &:placeholder-shown ~ .icon-view {
+            display: none;
+        }
+    }
+
+    .icon-view {
+        position: absolute;
+        top: 0;
+        right: 0.5rem;
+        line-height: 3rem;
+        width: 2rem;
+        color: var(--secondary-text-color);
+
+        &:hover {
+            color: var(--primary-text-color);
+        }
+    }
+}
+

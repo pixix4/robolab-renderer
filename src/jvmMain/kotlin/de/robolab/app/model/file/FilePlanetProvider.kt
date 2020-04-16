@@ -4,11 +4,14 @@ import de.robolab.app.model.IProvider
 import de.robolab.app.model.ISideBarEntry
 import de.robolab.app.model.ISideBarPlottable
 import de.westermann.kobserve.list.*
+import de.westermann.kobserve.property.property
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
 actual class FilePlanetProvider actual constructor() : IProvider {
+
+    override val searchStringProperty = property("")
 
     val planetList: ObservableList<ISideBarPlottable> = observableListOf()
     override val entryList: ObservableReadOnlyList<ISideBarEntry> = planetList.sortObservable(compareBy { it.titleProperty.value.toLowerCase() }).mapObservable { it as ISideBarEntry }

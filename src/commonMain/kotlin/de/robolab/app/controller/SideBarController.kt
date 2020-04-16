@@ -9,7 +9,10 @@ import de.robolab.communication.MessageManager
 import de.robolab.communication.mqtt.RobolabMqttConnection
 import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.Property
+import de.westermann.kobserve.list.filterObservable
 import de.westermann.kobserve.list.observableListOf
+import de.westermann.kobserve.property.flatMapBinding
+import de.westermann.kobserve.property.flatten
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
@@ -38,6 +41,20 @@ class SideBarController(
         list
     }
 
+    val searchStringProperty = property(tabProperty, selectedGroupProperty) {
+        val g = selectedGroupProperty.value
+
+        if (g != null) {
+            return@property property("")
+        }
+
+        when (tabProperty.value) {
+            Tab.GROUP -> groupPlanetProperty.searchStringProperty
+            Tab.PLANET -> property("")
+            Tab.FILE -> filePlanetProvider.searchStringProperty
+        }
+    }.flatten()
+
     val entryListProperty = property(tabProperty, selectedGroupProperty) {
         val g = selectedGroupProperty.value
 
@@ -49,6 +66,12 @@ class SideBarController(
             Tab.GROUP -> groupPlanetProperty.entryList
             Tab.PLANET -> observableListOf()
             Tab.FILE -> filePlanetProvider.entryList
+        }
+    }
+    
+    val filteredEntryListProperty = entryListProperty.mapBinding {
+        it.filterObservable(searchStringProperty) { element, filter ->
+            element.titleProperty.value.contains(filter, true)
         }
     }
 

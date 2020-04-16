@@ -127,7 +127,8 @@ class InputView(
 enum class InputType(val html: String) {
     TEXT("text"),
     NUMBER("number"),
-    PASSWORD("password");
+    PASSWORD("password"),
+    SEARCH("search");
 
     companion object {
         fun find(html: String): InputType? = values().find { it.html == html }

@@ -33,6 +33,20 @@ class SideBar(private val sideBarController: SideBarController, sideBarActivePro
             }
         }
         boxView("side-bar-content") {
+            boxView("side-bar-search") {
+                val searchView = inputView(InputType.SEARCH, sideBarController.searchStringProperty) {
+                    placeholder = "Search…"
+                }
+
+                iconView(MaterialIcon.CANCEL) {
+                    onClick {
+                        it.preventDefault()
+                        it.stopPropagation()
+                        sideBarController.searchStringProperty.value = ""
+                        searchView.focus()
+                    }
+                }
+            }
             boxView("side-bar-group-head") {
                 textView(sideBarController.selectedGroupProperty.flatMapReadOnlyNullableBinding { it?.tabNameProperty }.mapBinding {
                     it ?: ""
@@ -45,7 +59,7 @@ class SideBar(private val sideBarController: SideBarController, sideBarActivePro
                 }
             }
             boxView("side-bar-list") {
-                listFactory(sideBarController.entryListProperty, this@SideBar::createEntry)
+                listFactory(sideBarController.filteredEntryListProperty, this@SideBar::createEntry)
             }
             boxView("side-bar-empty") {
                 textView("Nothing to show!")
