@@ -6,6 +6,13 @@ import javafx.scene.paint.Color
 import tornadofx.*
 
 fun Stylesheet.initSideBarStyle() {
+
+    MainStyle.sideBar {
+        borderStyle = multi(BorderStrokeStyle.SOLID)
+        borderWidth = multi(box(0.px, 1.px, 0.px, 0.px))
+        borderColor = multi(box(MainStyle.theme.borderColor))
+    }
+
     Stylesheet.listView {
         borderColor = multi(box(MainStyle.theme.borderColor))
         borderStyle = multi(BorderStrokeStyle.SOLID)

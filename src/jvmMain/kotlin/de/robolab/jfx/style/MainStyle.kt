@@ -15,6 +15,7 @@ class MainStyle : Stylesheet() {
         val buttonGroup by cssclass()
         val iconView by cssclass()
 
+        val sideBar by cssclass()
         val statusBar by cssclass()
         val infoBar by cssclass()
         val codeArea by cssclass()

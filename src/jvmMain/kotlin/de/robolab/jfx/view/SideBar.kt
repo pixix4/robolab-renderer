@@ -20,6 +20,8 @@ import tornadofx.*
 class SideBar(sideBarController: SideBarController) : View() {
 
     override val root = vbox {
+        addClass(MainStyle.sideBar)
+
         minWidth = 260.0
 
         toolbar {
@@ -55,7 +57,19 @@ class SideBar(sideBarController: SideBarController) : View() {
             }
             spacer()
         }
-        listview(sideBarController.entryListProperty.mapBinding { it.toFx() }.toFx()) {
+
+        hbox {
+            textfield(sideBarController.searchStringProperty.toFx()) {
+                hgrow = Priority.ALWAYS
+                promptText = "Search…"
+            }
+
+            style {
+                padding = box(0.5.em)
+            }
+        }
+
+        listview(sideBarController.filteredEntryListProperty.mapBinding { it.toFx() }.toFx()) {
             vgrow = Priority.ALWAYS
             cellFormat { provider ->
                 graphic = vbox {
