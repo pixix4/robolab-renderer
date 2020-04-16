@@ -10,10 +10,6 @@ fun Stylesheet.initInfoBarStyle() {
         borderColor = multi(box(MainStyle.theme.borderColor))
         borderWidth = multi(box(0.px, 0.px, 0.px, 1.px))
         prefWidth = 20.em
-
-        and(MainStyle.active) {
-            prefWidth = 20.em
-        }
     }
 
     MainStyle.codeArea {

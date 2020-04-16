@@ -10,8 +10,8 @@ class MainCanvas(canvasController: CanvasController) : View() {
     private val canvas = FxCanvas()
 
     override val root = hbox {
-        vgrow = Priority.ALWAYS
-        hgrow = Priority.ALWAYS
+        minWidth = 0.0
+        minHeight = 0.0
 
         add(canvas.canvas)
         canvas.canvas.widthProperty().bind(widthProperty())

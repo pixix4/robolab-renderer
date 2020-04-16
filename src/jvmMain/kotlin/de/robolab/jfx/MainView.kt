@@ -13,37 +13,75 @@ class MainView : View() {
     private val mainController = MainController()
 
     override val root = hbox {
+        val window = this
+
         titleProperty.bind(mainController.applicationTitleProperty.toFx())
 
         Platform.runLater {
             requestFocus()
         }
 
-        add(SideBar(mainController.sideBarController))
+        val toolBar = ToolBar(mainController.toolBarController)
 
-        vbox {
-            hgrow = Priority.ALWAYS
-            val toolBar = ToolBar(mainController.toolBarController)
-            add(toolBar)
-            hbox {
-                vgrow = Priority.ALWAYS
-                hgrow = Priority.ALWAYS
+        val sideBarContainer = hbox {
+            val sideBar = SideBar(mainController.sideBarController)
 
-                add(MainCanvas(mainController.canvasController))
-
-                val infoBar = InfoBar(mainController.infoBarController, toolBar.infoBarActiveProperty)
-                if (toolBar.infoBarActiveProperty.value) {
-                    add(infoBar)
+            if (toolBar.sideBarActiveProperty.value) {
+                add(sideBar)
+            }
+            toolBar.sideBarActiveProperty.onChange {
+                if (toolBar.sideBarActiveProperty.value) {
+                    add(sideBar)
+                } else {
+                    sideBar.removeFromParent()
                 }
-                toolBar.infoBarActiveProperty.onChange {
+            }
+        }
+
+        borderpane {
+            hgrow = Priority.ALWAYS
+            vgrow = Priority.ALWAYS
+
+            val prefWidthBinding = window.widthProperty().subtract(sideBarContainer.widthProperty())
+            prefWidthProperty().bind(prefWidthBinding)
+            maxWidthProperty().bind(prefWidthBinding)
+            minWidthProperty().bind(prefWidthBinding)
+
+            val infoBar = InfoBar(mainController.infoBarController)
+            right {
+                hbox {
                     if (toolBar.infoBarActiveProperty.value) {
                         add(infoBar)
-                    } else {
-                        infoBar.removeFromParent()
+                    }
+                    toolBar.infoBarActiveProperty.onChange {
+                        if (toolBar.infoBarActiveProperty.value) {
+                            add(infoBar)
+                        } else {
+                            infoBar.removeFromParent()
+                        }
                     }
                 }
             }
-            add(StatusBar(mainController.statusBarController))
+
+            top {
+                add(toolBar)
+            }
+            center {
+                val mainCanvas = MainCanvas(mainController.canvasController)
+
+                val centerWidthBinding = prefWidthBinding.subtract(infoBar.root.widthProperty().doubleBinding(toolBar.infoBarActiveProperty.toFx()) {
+                    (if (toolBar.infoBarActiveProperty.value) it?.toDouble() else null) ?: 0.0
+                })
+                mainCanvas.root.prefWidthProperty().bind(centerWidthBinding)
+                mainCanvas.root.maxWidthProperty().bind(centerWidthBinding)
+                mainCanvas.root.minWidthProperty().bind(centerWidthBinding)
+
+                add(mainCanvas)
+            }
+            bottom {
+                add(StatusBar(mainController.statusBarController))
+            }
+
         }
     }
 

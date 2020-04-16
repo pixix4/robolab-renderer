@@ -17,6 +17,7 @@ import tornadofx.*
 
 class ToolBar(private val toolBarController: ToolBarController) : View() {
 
+    val sideBarActiveProperty = de.westermann.kobserve.property.property(true)
     val infoBarActiveProperty = de.westermann.kobserve.property.property(true)
 
     private fun ToolBarEntry.Icon.convert() = when (this) {
@@ -61,6 +62,18 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
 
     override val root = toolbar {
         hbox {
+            hbox {
+                togglebutton {
+                    graphic = iconNoAdd(MaterialIcon.MENU)
+
+                    bindSelectedProperty(sideBarActiveProperty) {
+                        sideBarActiveProperty.value = !sideBarActiveProperty.value
+                    }
+                }
+
+                paddingRight = 8
+            }
+
             setupToolbar(toolBarController.leftActionListProperty)
         }
 

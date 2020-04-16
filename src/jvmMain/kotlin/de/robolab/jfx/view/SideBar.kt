@@ -20,6 +20,8 @@ import tornadofx.*
 class SideBar(sideBarController: SideBarController) : View() {
 
     override val root = vbox {
+        minWidth = 260.0
+
         toolbar {
             hgrow = Priority.ALWAYS
 

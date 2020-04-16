@@ -13,7 +13,7 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import tornadofx.*
 
-class InfoBar(private val infoBarController: InfoBarController, infoBarActiveProperty: ReadOnlyProperty<Boolean>) : View() {
+class InfoBar(private val infoBarController: InfoBarController) : View() {
 
     private fun updateHeader(header: HBox) {
         header.clear()
@@ -53,8 +53,8 @@ class InfoBar(private val infoBarController: InfoBarController, infoBarActivePro
 
     override val root = vbox {
         addClass(MainStyle.infoBar)
-        bindClass(MainStyle.active, infoBarActiveProperty)
         vgrow = Priority.ALWAYS
+        minWidth = 200.0
 
         hbox {
             infoBarController.contentListProperty.onChange {
