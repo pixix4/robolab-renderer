@@ -10,7 +10,6 @@
     width: calc(100% - 4rem);
     z-index: 2;
     border-right: solid 1px var(--border-color);
-    transition: left 200ms;
     background-color: var(--secondary-background);
 
     &.active {
