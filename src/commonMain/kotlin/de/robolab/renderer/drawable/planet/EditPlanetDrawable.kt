@@ -22,6 +22,8 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
     private val editPathSelectDrawable = EditPathSelectDrawable(this)
     private val editMenuDrawable = EditMenuDrawable(this)
 
+    val paperBackground = EditPaperBackground(this)
+
     val editableProperty = property(false)
     val editable by editableProperty
 
@@ -55,6 +57,8 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
         editPathSelectDrawable.importPlanet(planet)
         editDrawPathDrawable.importPlanet(planet)
 
+        paperBackground.importPlanet(planet)
+
         importPlanets()
     }
 
@@ -67,8 +71,10 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
             }
         }
 
-
         buildDrawableList(
+                backgrounds = listOf(
+                        paperBackground
+                ),
                 underlayers = listOf(
                         editPointDrawable
                 ),

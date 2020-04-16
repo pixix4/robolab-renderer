@@ -30,6 +30,9 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
     val drawGridNumbersProperty = property(true)
     var drawGridNumbers by drawGridNumbersProperty
 
+    val drawBackgroundProperty = property(true)
+    var drawBackground by drawBackgroundProperty
+
     var plotter: IPlotter? = null
 
     override val transformation: Transformation?
@@ -50,21 +53,30 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
     private val gridNumbersDrawable = GridNumbersDrawable
     private val compassDrawable = CompassDrawable(this)
 
+    private var backgrounds: List<IDrawable> = emptyList()
     private var underlayers: List<IDrawable> = emptyList()
     private var planetLayers: List<PlanetLayer> = emptyList()
     private var overlayers: List<IDrawable> = emptyList()
     protected fun buildDrawableList(
+            backgrounds: List<IDrawable> = this.backgrounds,
             underlayers: List<IDrawable> = this.underlayers,
             planetLayers: List<PlanetLayer> = this.planetLayers,
             overlayers: List<IDrawable> = this.overlayers
     ){
+        this.backgrounds = backgrounds
         this.underlayers = underlayers
         this.planetLayers = planetLayers
         this.overlayers = overlayers
 
-        val list = mutableListOf<IDrawable>(backgroundDrawable)
+        val list = mutableListOf<IDrawable>()
 
-        if (drawGridLinesProperty.value) {
+        if (drawBackground) {
+            list += backgroundDrawable
+        }
+
+        list += backgrounds
+
+        if (drawGridLines) {
             list += gridLinesDrawable
         }
 
@@ -72,13 +84,13 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
         list += planetLayers
         list += overlayers
 
-        if (drawGridNumbersProperty.value) {
+        if (drawGridNumbers) {
             list += gridNumbersDrawable
         }
-        if (drawCompassProperty.value) {
+        if (drawCompass) {
             list += compassDrawable
         }
-        if (drawNameProperty.value) {
+        if (drawName) {
             list += nameDrawable
         }
 
@@ -173,6 +185,7 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
         drawNameProperty.onChange(this::rebuildDrawable)
         drawGridNumbersProperty.onChange(this::rebuildDrawable)
         drawGridLinesProperty.onChange(this::rebuildDrawable)
+        drawBackgroundProperty.onChange(this::rebuildDrawable)
     }
 
     override fun onResize(size: Dimension) {

@@ -23,13 +23,16 @@ data class Rectangle(
         return point.left > left && point.top > top && point.left < right && point.top < bottom;
     }
 
-    fun expand(size: Double) = Rectangle(
-            left - size,
-            top - size,
-            width + 2 * size,
-            height + 2 * size
+    fun expand(size: Double) = expand(size, size)
+    fun shrink(size: Double) = shrink(size, size)
+
+    fun expand(vertical: Double, horizontal: Double) = Rectangle(
+            left - horizontal,
+            top - vertical,
+            width + 2 * horizontal,
+            height + 2 * vertical
     )
-    fun shrink(size: Double) = expand(-size)
+    fun shrink(vertical: Double, horizontal: Double) = expand(-vertical, -horizontal)
     
     fun union(other: Rectangle): Rectangle {
         return fromEdges(toEdgeList() + other.toEdgeList())

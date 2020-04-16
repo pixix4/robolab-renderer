@@ -1,6 +1,6 @@
 @use '../utils';
 
-.settings-view {
+.dialog {
     @include utils.prevent-user-select();
 
     position: absolute;
@@ -22,7 +22,7 @@
     }
 }
 
-.settings-window {
+.dialog-window {
     position: absolute;
     top: 0;
     left: 0;
@@ -31,7 +31,7 @@
     background-color: var(--secondary-background);
 }
 
-.settings-header {
+.dialog-header {
     position: absolute;
     height: 3rem;
     line-height: 3rem;
@@ -50,7 +50,7 @@
     }
 }
 
-.settings-body {
+.dialog-body {
     padding: 1rem 0.5rem 0.5rem;
     position: absolute;
     top: 3rem;
@@ -61,17 +61,17 @@
     overflow-x: hidden;
 }
 
-.settings-group {
+.dialog-form-group {
     padding-bottom: 1rem;
 }
 
-.settings-group-header {
+.dialog-form-group-header {
     color: var(--secondary-text-color);
     padding-bottom: 0.5rem;
     padding-left: 0.2rem;
 }
 
-.settings-entry {
+.dialog-form-entry {
     padding-bottom: 0.5rem;
 
     .text-view {
@@ -87,7 +87,7 @@
 }
 
 @include utils.desktop {
-    .settings-window {
+    .dialog-window {
         top: 20%;
         left: 50%;
         margin-left: -15rem;

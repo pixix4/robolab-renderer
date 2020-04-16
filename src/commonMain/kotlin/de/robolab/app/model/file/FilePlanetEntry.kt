@@ -12,6 +12,7 @@ import de.robolab.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.SvgCanvas
 import de.robolab.renderer.utils.Transformation
+import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.constProperty
 import de.westermann.kobserve.property.property
@@ -22,7 +23,9 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override val enabledProperty = property(false)
 
-    override val drawable = EditPlanetDrawable()
+    override val drawable = EditPlanetDrawable().also {
+        it.drawBackgroundProperty.bind(!PreferenceStorage.paperBackgroundEnabledProperty)
+    }
 
     override val toolBarLeft: List<List<ToolBarEntry>> = listOf(
             listOf(
@@ -34,20 +37,16 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
                     }
             ),
             listOf(
-                    ToolBarEntry(constProperty("Export as"), enabledProperty = constProperty(false)) {},
-                    ToolBarEntry(constProperty("SVG")) {
-                        var name = planetFile.planet.name.trim()
-                        if (name.isEmpty()) {
-                            name = "export"
-                        }
-                        saveExportSVG(name, exportSVG())
+                    ToolBarEntry(constProperty("Export")) {
+                        openExportDialog(this)
+                    }
+            ),
+            listOf(
+                    ToolBarEntry(constProperty("Paper"), selectedProperty = PreferenceStorage.paperBackgroundEnabledProperty) {
+                        PreferenceStorage.paperBackgroundEnabledProperty.value = !PreferenceStorage.paperBackgroundEnabledProperty.value
                     },
-                    ToolBarEntry(constProperty("PNG")) {
-                        var name = planetFile.planet.name.trim()
-                        if (name.isEmpty()) {
-                            name = "export"
-                        }
-                        saveExportPNG(name, exportPNG())
+                    ToolBarEntry(iconProperty = constProperty(ToolBarEntry.Icon.PREFERENCES)) {
+                        openPaperConstraintsDialog()
                     }
             )
     )
@@ -78,6 +77,29 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
                 }
             }
         }
+    }
+
+
+    fun exportAsSVG(name: String = "") {
+        var fileName = name
+        if (fileName.isEmpty()) {
+            fileName = planetFile.planet.name.trim()
+        }
+        if (fileName.isEmpty()) {
+            fileName = "export"
+        }
+        saveExportSVG(fileName, exportSVG())
+    }
+
+    fun exportAsPNG(name: String = "") {
+        var fileName = name
+        if (fileName.isEmpty()) {
+            fileName = planetFile.planet.name.trim()
+        }
+        if (fileName.isEmpty()) {
+            fileName = "export"
+        }
+        saveExportPNG(fileName, exportPNG())
     }
 
     private fun exportSVG(): String {
@@ -146,3 +168,5 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 expect fun exportPNGCanvas(dimension: Dimension): ICanvas
 expect fun saveExportSVG(name: String, content: String)
 expect fun saveExportPNG(name: String, canvas: ICanvas)
+expect fun openExportDialog(provider: FilePlanetEntry)
+expect fun openPaperConstraintsDialog()

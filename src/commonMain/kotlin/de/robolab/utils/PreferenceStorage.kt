@@ -1,10 +1,12 @@
 package de.robolab.utils
 
 import de.robolab.app.controller.SideBarController
+import de.robolab.renderer.drawable.edit.EditPaperBackground
 import de.robolab.renderer.theme.Theme
 import de.westermann.kobserve.Binding
 import de.westermann.kobserve.Property
 import de.westermann.kobserve.event.EventHandler
+import de.westermann.kobserve.property.property
 import kotlin.random.Random
 
 object PreferenceStorage {
@@ -33,6 +35,22 @@ object PreferenceStorage {
 
     val passwordProperty = item("PASSWORD", "")
     var password by passwordProperty
+
+
+    val paperBackgroundEnabledProperty = item("PAPER_BACKGROUND_ENABLED", false)
+    val paperBackgroundEnabled by paperBackgroundEnabledProperty
+
+    val paperGridWidthProperty = item("PAPER_GRID_WIDTH", 0.5)
+    val paperGridWidth by paperGridWidthProperty
+
+    val paperStripWidthProperty = item("PAPER_STRIP_WIDTH",0.841)
+    val paperStripWidth by paperStripWidthProperty
+
+    val paperOrientationProperty = item("PAPER_ORIENTATION", EditPaperBackground.Orientation.VERTICAL)
+    val paperOrientation by paperOrientationProperty
+
+    val paperMinimalPaddingProperty = item("PAPER_MINIMAL_PADDING",0.25)
+    val paperMinimalPadding by paperMinimalPaddingProperty
 
     abstract class Item<T>(private val key: String, val default: T) : Property<T> {
         protected abstract fun serialize(value: T): String?

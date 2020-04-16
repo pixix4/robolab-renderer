@@ -18,3 +18,11 @@ actual fun saveExportPNG(name: String, canvas: ICanvas) {
     val exportCanvas = canvas as? AwtCanvas ?: return
     exportCanvas.writePNG(File("$name.png"))
 }
+
+actual fun openExportDialog(provider: FilePlanetEntry) {
+    // TODO
+}
+
+actual fun openPaperConstraintsDialog() {
+    // TODO
+}

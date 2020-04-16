@@ -2,6 +2,8 @@ package de.robolab.web.views
 
 import de.robolab.app.controller.ToolBarController
 import de.robolab.app.model.ToolBarEntry
+import de.robolab.web.dialog.Dialog
+import de.robolab.web.dialog.SettingsDialog
 import de.robolab.web.views.utils.buttonGroup
 import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.not
@@ -20,6 +22,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
     private fun ToolBarEntry.Icon.convert() = when (this) {
         ToolBarEntry.Icon.UNDO -> MaterialIcon.UNDO
         ToolBarEntry.Icon.REDO -> MaterialIcon.REDO
+        ToolBarEntry.Icon.PREFERENCES -> MaterialIcon.BUILD
     }
 
     private fun Button.bindIcon(iconProperty: ReadOnlyProperty<ToolBarEntry.Icon?>) {
@@ -127,7 +130,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                 title = "Open settings"
 
                 onClick {
-                    SettingsView.open()
+                    Dialog.open(SettingsDialog())
                 }
             }
 
