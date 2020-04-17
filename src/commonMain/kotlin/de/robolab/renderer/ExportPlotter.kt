@@ -34,7 +34,7 @@ class ExportPlotter(
             field.onAttach(this)
         }
 
-    private val context = DrawContext(canvas, transformation, theme)
+    override val context = DrawContext(canvas, transformation, theme)
 
     var theme: ITheme
         get() = context.theme

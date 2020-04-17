@@ -1,5 +1,9 @@
 package de.robolab.jfx.adapter
 
+import de.robolab.utils.ContextMenu
+import de.robolab.utils.ContextMenuAction
+import de.robolab.utils.ContextMenuEntry
+import de.robolab.utils.ContextMenuList
 import de.westermann.kobserve.Property
 import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.list.ObservableReadOnlyList
@@ -7,6 +11,8 @@ import javafx.beans.value.ObservableValue
 import javafx.beans.value.ObservableValueBase
 import javafx.collections.ObservableList
 import javafx.collections.ObservableListBase
+import javafx.scene.control.Menu
+import javafx.scene.control.MenuItem
 import tornadofx.*
 
 class FxObservableValue<T>(private val property: ReadOnlyProperty<T>) : ObservableValueBase<T>() {
@@ -68,3 +74,28 @@ class FxProperty<T>(private val property: Property<T>) : javafx.beans.property.S
 }
 
 fun <T> Property<T>.toFx(): javafx.beans.property.Property<T> = FxProperty(this)
+
+
+fun ContextMenu.toFx(): javafx.scene.control.ContextMenu {
+    return javafx.scene.control.ContextMenu(
+            *entry.entries.map { it.toFx() }.toTypedArray()
+    )
+}
+
+fun ContextMenuEntry.toFx(): MenuItem {
+    if (this is ContextMenuList) {
+        val menu = Menu(label)
+
+        menu.items.addAll(entries.map { it.toFx() })
+
+        return menu
+    } else if (this is ContextMenuAction) {
+        return MenuItem(label).also {
+            it.setOnAction {
+                action()
+            }
+        }
+    }
+
+    throw IllegalArgumentException()
+}

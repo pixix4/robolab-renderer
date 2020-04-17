@@ -6,6 +6,7 @@ import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.*
+import de.robolab.utils.ContextMenu
 import javafx.geometry.VPos
 import javafx.scene.input.MouseButton
 import javafx.scene.shape.ArcType
@@ -290,6 +291,14 @@ class FxCanvas : ICanvas {
                 extendAngle / PI * 180.0,
                 ArcType.OPEN
         )
+    }
+
+    override fun openContextMenu(menu: ContextMenu) {
+        val position = canvas.localToScreen(
+                menu.position.x,
+                menu.position.y
+        )
+        menu.toFx().show(canvas, position.x, position.y)
     }
 
     init {

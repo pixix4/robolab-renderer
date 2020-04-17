@@ -19,7 +19,7 @@ import de.westermann.kobserve.property.property
 import kotlin.math.*
 
 class CanvasController(
-        val selectedEntryProperty: Property<ISideBarPlottable?>
+        private val selectedEntryProperty: Property<ISideBarPlottable?>
 ) {
     private val timer = CommonTimer(50.0)
 
@@ -63,7 +63,6 @@ class CanvasController(
         is Point -> "${obj.left.toFixed(2)},${obj.top.toFixed(2)}"
         is EditDrawEndDrawable.PointEnd -> "PointEnd(${obj.point.x},${obj.point.y} -> ${obj.direction.name.first()})"
         is EditControlPointsDrawable.ControlPoint -> "ControlPoint(index ${obj.point} of ${format(obj.path)})"
-        is Menu, is MenuList, is MenuAction -> ""
         is EditPaperBackground.EditPaperEdge -> "Paper edge"
         else -> obj.toString()
     }

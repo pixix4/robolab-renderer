@@ -5,6 +5,7 @@ import de.robolab.app.model.ISideBarPlottable
 import de.robolab.app.model.ToolBarEntry
 import de.robolab.renderer.ExportPlotter
 import de.robolab.renderer.data.Dimension
+import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.BackgroundDrawable
 import de.robolab.renderer.drawable.planet.EditPlanetDrawable
@@ -12,7 +13,7 @@ import de.robolab.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.SvgCanvas
 import de.robolab.renderer.utils.Transformation
-import de.robolab.utils.PreferenceStorage
+import de.robolab.utils.*
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.constProperty
 import de.westermann.kobserve.property.mapBinding
@@ -62,6 +63,16 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
                     }
             )
     )
+
+    override val hasContextMenu by enabledProperty
+
+    override fun buildContextMenu(position: Point) = menu(position, "Planet ${planetFile.planet.name}") {
+        action("Save") {
+            provider.saveEntry(this@FilePlanetEntry) {
+                println("Save successful: $it")
+            }
+        }
+    }
 
     override val toolBarRight: List<List<ToolBarEntry>> = listOf(
             listOf(

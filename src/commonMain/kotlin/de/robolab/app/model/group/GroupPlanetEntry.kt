@@ -6,7 +6,9 @@ import de.robolab.app.model.*
 import de.robolab.communication.RobolabMessage
 import de.robolab.communication.toMqttPlanet
 import de.robolab.communication.toServerPlanet
+import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.planet.LivePlanetDrawable
+import de.robolab.utils.ContextMenu
 import de.westermann.kobserve.list.ObservableReadOnlyList
 import de.westermann.kobserve.list.mapObservable
 import de.westermann.kobserve.list.observableListOf
@@ -33,6 +35,8 @@ class GroupPlanetEntry(val groupName: String) : ISideBarGroup {
     override val unsavedChangesProperty = constProperty(false)
 
     override val parent: ISideBarGroup? = null
+
+    override val hasContextMenu: Boolean = false
 
     fun onMessage(message: RobolabMessage) {
         if (message is RobolabMessage.TestplanetMessage) {
@@ -66,6 +70,8 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     override val subtitleProperty = messages.mapBinding {
         "Messages: ${it.size}"
     }
+
+    override val hasContextMenu: Boolean = false
 
     override val toolBarLeft = emptyList<List<ToolBarEntry>>()
 

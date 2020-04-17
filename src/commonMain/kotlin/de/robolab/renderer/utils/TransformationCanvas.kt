@@ -4,6 +4,7 @@ import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.ICanvas
+import de.robolab.utils.ContextMenu
 
 class TransformationCanvas(private val canvas: ICanvas, private val transformation: ITransformation) : ICanvas by canvas {
 
@@ -106,5 +107,11 @@ class TransformationCanvas(private val canvas: ICanvas, private val transformati
                 color,
                 width * transformation.scaledGridWidth
         )
+    }
+
+    override fun openContextMenu(menu: ContextMenu) {
+        canvas.openContextMenu(menu.copy(
+                position = transformation.planetToCanvas(menu.position)
+        ))
     }
 }

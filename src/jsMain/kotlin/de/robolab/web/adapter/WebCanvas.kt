@@ -5,7 +5,8 @@ import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.*
-import de.westermann.kwebview.Document
+import de.robolab.utils.ContextMenu
+import de.robolab.web.views.ContextMenuView
 import de.westermann.kwebview.components.Canvas
 import org.w3c.dom.*
 import org.w3c.dom.events.MouseEvent
@@ -374,6 +375,12 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         )
 
         context.stroke()
+    }
+
+    override fun openContextMenu(menu: ContextMenu) {
+        ContextMenuView.open(menu.copy(
+                position = menu.position + Point(canvas.offsetLeftTotal, canvas.offsetTopTotal)
+        ))
     }
 
     init {

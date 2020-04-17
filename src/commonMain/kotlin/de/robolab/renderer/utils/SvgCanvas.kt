@@ -6,6 +6,7 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.ICanvasListener
+import de.robolab.utils.ContextMenu
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -111,6 +112,10 @@ class SvgCanvas(
         } else {
             append("""<circle cx="${center.left.toFixed(2)}" cy="${center.top.toFixed(2)}" r="${radius.toFixed(2)}" fill="none" stroke="$color" stroke-width="$width" $STROKE_CONST />""")
         }
+    }
+
+    override fun openContextMenu(menu: ContextMenu) {
+
     }
 
     companion object {

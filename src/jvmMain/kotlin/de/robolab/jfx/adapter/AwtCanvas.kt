@@ -5,6 +5,7 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.ICanvasListener
+import de.robolab.utils.ContextMenu
 import java.awt.BasicStroke
 import java.awt.Font
 import java.awt.RenderingHints
@@ -174,6 +175,10 @@ class AwtCanvas(
                 (startAngle / PI * 180.0).toInt(),
                 (extendAngle / PI * 180.0).toInt()
         )
+    }
+
+    override fun openContextMenu(menu: ContextMenu) {
+
     }
 
     init {

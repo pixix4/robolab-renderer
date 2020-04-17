@@ -7,12 +7,19 @@ import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.style.MainStyle
 import de.robolab.jfx.utils.buttonGroup
 import de.robolab.jfx.utils.icon
+import de.robolab.renderer.data.Point
+import de.robolab.utils.ContextMenu
+import de.robolab.utils.ContextMenuAction
+import de.robolab.utils.ContextMenuEntry
+import de.robolab.utils.ContextMenuList
 import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import javafx.css.Styleable
+import javafx.scene.control.Menu
+import javafx.scene.control.MenuItem
 import javafx.scene.layout.Priority
 import javafx.scene.text.FontWeight
 import tornadofx.*
@@ -103,6 +110,13 @@ class SideBar(sideBarController: SideBarController) : View() {
                         }
                     }
 
+                    setOnContextMenuRequested {
+                        if (provider.hasContextMenu) {
+                            val menu = provider.buildContextMenu(Point.ZERO)
+
+                            contextMenu = menu.toFx()
+                        }
+                    }
                 }
             }
 

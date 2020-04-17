@@ -8,7 +8,7 @@ import de.robolab.renderer.drawable.edit.*
 import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
-import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
+import de.robolab.utils.MenuBuilder
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
@@ -21,19 +21,16 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
     private val editDrawEndDrawable = EditDrawEndDrawable(this)
     private val editControlPointsDrawable = EditControlPointsDrawable(this)
     private val editPathSelectDrawable = EditPathSelectDrawable(this)
-    private val editMenuDrawable = EditMenuDrawable(this)
 
-    val paperBackground = EditPaperBackground(this)
+    private val paperBackground = EditPaperBackground(this)
 
     val editableProperty = property(false)
     val editable by editableProperty
 
-    val menuProperty = property<Menu?>(null)
-    var menu by menuProperty
-
     fun menu(name: String, init: MenuBuilder.() -> Unit) {
         val position = pointer?.position ?: return
-        menu = menu(position, name, init)
+        val contextMenu = de.robolab.utils.menu(position, name, init)
+        plotter?.context?.openContextMenu(contextMenu)
     }
 
     private val selectedPathControlPointsProperty = selectedElementsProperty.mapBinding {
@@ -86,8 +83,7 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
                         editDrawEndDrawable,
                         editDrawPathDrawable,
                         editPathSelectDrawable,
-                        editControlPointsDrawable,
-                        editMenuDrawable
+                        editControlPointsDrawable
                 )
         )
     }

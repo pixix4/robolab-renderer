@@ -3,6 +3,7 @@ package de.robolab.web.views
 import de.robolab.app.controller.SideBarController
 import de.robolab.app.model.ISideBarEntry
 import de.robolab.app.model.ISideBarPlottable
+import de.robolab.renderer.data.Point
 import de.robolab.web.views.utils.buttonGroup
 import de.westermann.kobserve.Property
 import de.westermann.kobserve.not
@@ -109,6 +110,15 @@ class SideBarEntry(entry: ISideBarEntry, sideBarController: SideBarController) :
 
         onClick {
             sideBarController.open(entry)
+        }
+
+        onContext {event ->
+            event.stopPropagation()
+            event.preventDefault()
+            if (entry.hasContextMenu) {
+                val menu = entry.buildContextMenu(Point(event.clientX, event.clientY))
+                ContextMenuView.open(menu)
+            }
         }
     }
 }

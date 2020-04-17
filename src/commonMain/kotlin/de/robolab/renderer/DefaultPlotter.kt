@@ -35,7 +35,7 @@ class DefaultPlotter(
     override val size: Dimension
         get() = interaction.lastDimension
 
-    private val context = DrawContext(canvas, transformation, PreferenceStorage.selectedTheme.theme)
+    override val context = DrawContext(canvas, transformation, PreferenceStorage.selectedTheme.theme)
 
     var forceRedraw = false
 

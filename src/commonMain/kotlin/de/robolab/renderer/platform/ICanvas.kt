@@ -3,6 +3,7 @@ package de.robolab.renderer.platform
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
+import de.robolab.utils.ContextMenu
 
 interface ICanvas {
 
@@ -31,6 +32,8 @@ interface ICanvas {
     fun fillArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color)
 
     fun strokeArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color, width: Double = 1.0)
+
+    fun openContextMenu(menu: ContextMenu)
 
     enum class FontAlignment {
         LEFT, CENTER, RIGHT
