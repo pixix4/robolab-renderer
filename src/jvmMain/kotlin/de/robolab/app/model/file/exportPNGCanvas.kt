@@ -1,9 +1,13 @@
 package de.robolab.app.model.file
 
 import de.robolab.jfx.adapter.AwtCanvas
+import de.robolab.jfx.dialog.ExportDialog
+import de.robolab.jfx.dialog.PaperConstraintsDialog
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.utils.PreferenceStorage
+import javafx.stage.StageStyle
+import tornadofx.*
 import java.io.File
 
 actual fun exportPNGCanvas(dimension: Dimension): ICanvas {
@@ -20,9 +24,13 @@ actual fun saveExportPNG(name: String, canvas: ICanvas) {
 }
 
 actual fun openExportDialog(provider: FilePlanetEntry) {
-    // TODO
+    find<ExportDialog>(
+            params = mapOf<String, Any>(
+                    "provider" to provider
+            )
+    ).openModal(StageStyle.UTILITY, resizable = false)
 }
 
 actual fun openPaperConstraintsDialog() {
-    // TODO
+    find<PaperConstraintsDialog>().openModal(StageStyle.UTILITY, resizable = false)
 }

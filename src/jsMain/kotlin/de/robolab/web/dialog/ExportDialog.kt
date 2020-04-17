@@ -14,16 +14,17 @@ class ExportDialog(private val provider: FilePlanetEntry) : Dialog("Export") {
     private val fileNameProperty = property(provider.planetFile.planet.name.trim())
 
     override fun BoxView.buildContent() {
-            dialogFormEntry("File name") {
-                inputView(fileNameProperty)
+        dialogFormEntry("File name") {
+            inputView(fileNameProperty)
+        }
+
+        dialogFormEntry("Export scale") {
+            inputView(InputType.NUMBER, PreferenceStorage.exportScaleProperty.bindStringParsing()) {
+                min = 0.1
+                max = 100.0
+                step = 0.1
             }
-            dialogFormEntry("Export scale") {
-                inputView(InputType.NUMBER, PreferenceStorage.exportScaleProperty.bindStringParsing()) {
-                    min = 0.1
-                    max = 100.0
-                    step = 0.1
-                }
-            }
+        }
 
         dialogFormEntry("Export as") {
             buttonGroup {

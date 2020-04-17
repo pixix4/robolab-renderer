@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.robolab.app.controller.ToolBarController
 import de.robolab.app.model.ToolBarEntry
 import de.robolab.jfx.adapter.toFx
+import de.robolab.jfx.dialog.SettingsDialog
 import de.robolab.jfx.utils.buttonGroup
 import de.robolab.jfx.utils.iconNoAdd
 import de.westermann.kobserve.ReadOnlyProperty
@@ -23,6 +24,8 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
     private fun ToolBarEntry.Icon.convert() = when (this) {
         ToolBarEntry.Icon.UNDO -> MaterialIcon.UNDO
         ToolBarEntry.Icon.REDO -> MaterialIcon.REDO
+        ToolBarEntry.Icon.PREFERENCES -> MaterialIcon.BUILD
+        ToolBarEntry.Icon.FLIP -> MaterialIcon.COMPARE
     }
 
     private fun ToggleButton.bindIcon(iconProperty: ReadOnlyProperty<ToolBarEntry.Icon?>) {
