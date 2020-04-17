@@ -12,9 +12,11 @@
     z-index: 1;
     border-left: solid 1px var(--border-color);
     background-color: var(--secondary-background);
+    display: none;
 
     &.active {
         margin-right: 1rem;
+        display: block;
 
         &::after {
             content: '';
@@ -49,6 +51,7 @@
     bottom: 0;
     overflow-x: hidden;
     overflow-y: auto;
+    overscroll-behavior: contain;
 
     textarea {
         width: 100%;

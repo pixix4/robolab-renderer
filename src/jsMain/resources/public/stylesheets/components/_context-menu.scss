@@ -23,6 +23,7 @@
     border: solid 1px var(--border-color);
     overflow-y: auto;
     overflow-x: hidden;
+    overscroll-behavior: contain;
 }
 
 .context-menu-header {
