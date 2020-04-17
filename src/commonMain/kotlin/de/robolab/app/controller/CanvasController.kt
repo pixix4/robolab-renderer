@@ -64,6 +64,7 @@ class CanvasController(
         is EditDrawEndDrawable.PointEnd -> "PointEnd(${obj.point.x},${obj.point.y} -> ${obj.direction.name.first()})"
         is EditControlPointsDrawable.ControlPoint -> "ControlPoint(index ${obj.point} of ${format(obj.path)})"
         is Menu, is MenuList, is MenuAction -> ""
+        is EditPaperBackground.EditPaperEdge -> "Paper edge"
         else -> obj.toString()
     }
 
