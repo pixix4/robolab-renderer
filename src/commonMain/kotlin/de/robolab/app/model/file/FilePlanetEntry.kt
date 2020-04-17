@@ -15,6 +15,7 @@ import de.robolab.renderer.utils.Transformation
 import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.constProperty
+import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
 class FilePlanetEntry(val filename: String, private val provider: FilePlanetProvider) : ISideBarPlottable {
@@ -37,16 +38,27 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
                     }
             ),
             listOf(
-                    ToolBarEntry(constProperty("Export")) {
+                    ToolBarEntry(constProperty("Export"),
+                            toolTipProperty = constProperty("Open planet export dialog")) {
                         openExportDialog(this)
                     }
             ),
             listOf(
-                    ToolBarEntry(constProperty("Paper"), selectedProperty = PreferenceStorage.paperBackgroundEnabledProperty) {
+                    ToolBarEntry(constProperty("Paper"),
+                            toolTipProperty = constProperty("Toggle paper constraints background"), selectedProperty = PreferenceStorage.paperBackgroundEnabledProperty) {
                         PreferenceStorage.paperBackgroundEnabledProperty.value = !PreferenceStorage.paperBackgroundEnabledProperty.value
                     },
-                    ToolBarEntry(iconProperty = constProperty(ToolBarEntry.Icon.PREFERENCES)) {
+                    ToolBarEntry(iconProperty = constProperty(ToolBarEntry.Icon.PREFERENCES),
+                            toolTipProperty = constProperty("Configure paper constraints")) {
                         openPaperConstraintsDialog()
+                    },
+                    ToolBarEntry(
+                            iconProperty = constProperty(ToolBarEntry.Icon.FLIP),
+                            toolTipProperty = constProperty("Flip view horizontal"),
+                            selectedProperty = drawable.flipViewProperty.mapBinding { it == true },
+                            enabledProperty = drawable.flipViewProperty.mapBinding { it != null }
+                    ) {
+                        drawable.flip()
                     }
             )
     )

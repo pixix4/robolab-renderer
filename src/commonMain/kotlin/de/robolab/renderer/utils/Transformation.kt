@@ -5,6 +5,8 @@ import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.westermann.kobserve.event.EventHandler
+import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.property
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.max
@@ -14,7 +16,7 @@ class Transformation(
         initTranslation: Point = Point.ZERO,
         initScale: Double = 1.0,
         initRotation: Double = 0.0,
-        override val pixelPerUnitDimension: Dimension = PIXEL_PER_UNIT_DIMENSION
+        pixelPerUnitDimension: Dimension = PIXEL_PER_UNIT_DIMENSION
 ) : ITransformation {
 
     val onViewChange = EventHandler<Unit>()
@@ -29,6 +31,17 @@ class Transformation(
     private var scaleCenter = Point.ZERO
     override val scaleProperty = DoubleTransition(initScale)
     override val scale by scaleProperty
+
+    val flipViewProperty = property(false)
+
+    private val internalPixelPerUnitDimension = pixelPerUnitDimension
+    
+    private val pixelPerUnitDimensionProperty = flipViewProperty.mapBinding {
+        if (it) {
+            internalPixelPerUnitDimension * Point(-1.0, 1.0)
+        } else internalPixelPerUnitDimension
+    }
+    override val pixelPerUnitDimension: Dimension by pixelPerUnitDimensionProperty
 
     override val gridWidth = PIXEL_PER_UNIT
 
@@ -144,12 +157,13 @@ class Transformation(
         return changes
     }
 
-    fun export() = State(translation, scale, rotation)
+    fun export() = State(translation, scale, rotation, flipViewProperty.value)
 
     fun import(state: State) {
         setTranslation(state.translation)
         setScaleFactor(state.scale)
         setRotationAngle(state.rotation)
+        flipViewProperty.value = state.flipped
     }
 
     companion object {
@@ -165,13 +179,14 @@ class Transformation(
     data class State(
             val translation: Point,
             val scale: Double,
-            val rotation: Double
+            val rotation: Double,
+            val flipped: Boolean
     ) {
 
         fun isDefault() = this == DEFAULT
 
         companion object {
-            val DEFAULT = State(Point.ZERO, 1.0, 0.0)
+            val DEFAULT = State(Point.ZERO, 1.0, 0.0, false)
         }
     }
 }

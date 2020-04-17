@@ -136,7 +136,7 @@ class TransformationInteraction(
 
         val oldCenter = transformation.canvasToPlanet(lastDimension / 2)
         val newCenter = transformation.canvasToPlanet(size / 2)
-        val diff = (oldCenter - newCenter) * transformation.scaledGridWidth * Point(-1.0, 1.0)
+        val diff = (oldCenter - newCenter) * transformation.scaledGridWidth * Point(if (transformation.flipViewProperty.value) 1.0 else -1.0, 1.0)
         transformation.translateBy(diff.rotate(-transformation.rotation))
 
         lastDimension = size

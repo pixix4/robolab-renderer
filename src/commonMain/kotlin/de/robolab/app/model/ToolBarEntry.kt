@@ -15,6 +15,7 @@ class ToolBarEntry(
     enum class Icon {
         UNDO,
         REDO,
-        PREFERENCES
+        PREFERENCES,
+        FLIP
     }
 }

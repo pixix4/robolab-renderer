@@ -23,6 +23,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
         ToolBarEntry.Icon.UNDO -> MaterialIcon.UNDO
         ToolBarEntry.Icon.REDO -> MaterialIcon.REDO
         ToolBarEntry.Icon.PREFERENCES -> MaterialIcon.BUILD
+        ToolBarEntry.Icon.FLIP -> MaterialIcon.COMPARE
     }
 
     private fun Button.bindIcon(iconProperty: ReadOnlyProperty<ToolBarEntry.Icon?>) {

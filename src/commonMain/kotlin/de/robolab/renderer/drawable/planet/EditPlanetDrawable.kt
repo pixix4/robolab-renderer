@@ -8,6 +8,7 @@ import de.robolab.renderer.drawable.edit.*
 import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
+import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 

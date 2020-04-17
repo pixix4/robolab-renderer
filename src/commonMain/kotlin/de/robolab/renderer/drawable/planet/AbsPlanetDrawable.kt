@@ -13,6 +13,8 @@ import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.utils.Pointer
 import de.robolab.renderer.utils.Transformation
+import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
+import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
 @Suppress("LeakingThis")
@@ -33,13 +35,21 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
     val drawBackgroundProperty = property(true)
     var drawBackground by drawBackgroundProperty
 
-    var plotter: IPlotter? = null
+    val plotterProperty = property<IPlotter?>(null)
+    var plotter by plotterProperty
 
-    override val transformation: Transformation?
-        get() = plotter?.transformation
+    val transformationProperty = plotterProperty.mapBinding { it?.transformation }
+    override val transformation by transformationProperty
 
-    override val pointer: Pointer?
-        get() = plotter?.pointer
+    val pointerProperty = plotterProperty.flatMapReadOnlyNullableBinding { it?.pointerProperty }
+    override val pointer by pointerProperty
+    
+    val flipViewProperty = transformationProperty.flatMapReadOnlyNullableBinding { it?.flipViewProperty }
+    val flipView by flipViewProperty.mapBinding { it == true }
+    fun flip() {
+        transformation?.flipViewProperty?.value = !flipView
+        centerPlanet()
+    }
 
     val selectedElementsProperty = property(emptyList<Any>())
     override var selectedElements by selectedElementsProperty
@@ -132,7 +142,7 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
         val size = (plotter?.size ?: Dimension.ZERO) / 2
         val currentCenter = transformation.canvasToPlanet(size)
         val diff = (targetCenter - currentCenter)
-        val diffScaled = diff  * transformation.scaledGridWidth * Point(-1.0, 1.0)
+        val diffScaled = diff  * transformation.scaledGridWidth * Point(if (flipView) 1.0 else -1.0, 1.0)
 
         transformation.translateBy(diffScaled, duration)
     }
