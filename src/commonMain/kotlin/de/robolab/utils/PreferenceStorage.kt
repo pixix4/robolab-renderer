@@ -52,6 +52,9 @@ object PreferenceStorage {
     val paperMinimalPaddingProperty = item("PAPER_MINIMAL_PADDING",0.25)
     val paperMinimalPadding by paperMinimalPaddingProperty
 
+    val paperPrecisionProperty = item("PAPER_PRECISION",3)
+    val paperPrecision by paperPrecisionProperty
+
     abstract class Item<T>(private val key: String, val default: T) : Property<T> {
         protected abstract fun serialize(value: T): String?
         protected abstract fun deserialize(value: String): T?
@@ -81,6 +84,17 @@ object PreferenceStorage {
 
         override fun deserialize(value: String): Double? {
             return value.toDoubleOrNull()
+        }
+    }
+
+    private fun item(key: String, default: Int): Item<Int> = IntItem(key, default)
+    private class IntItem(key: String, default: Int) : Item<Int>(key, default) {
+        override fun serialize(value: Int): String? {
+            return value.toString()
+        }
+
+        override fun deserialize(value: String): Int? {
+            return value.toIntOrNull()
         }
     }
 

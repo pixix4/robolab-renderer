@@ -93,3 +93,15 @@ fun Property<Double>.bindStringParsing() = property(object : FunctionAccessor<St
     }
 
 }, this)
+
+fun Property<Int>.bindStringParsing() = property(object : FunctionAccessor<String> {
+    override fun set(value: String): Boolean {
+        this@bindStringParsing.value = value.toIntOrNull() ?: return false
+        return true
+    }
+
+    override fun get(): String {
+        return this@bindStringParsing.value.toString()
+    }
+
+}, this)

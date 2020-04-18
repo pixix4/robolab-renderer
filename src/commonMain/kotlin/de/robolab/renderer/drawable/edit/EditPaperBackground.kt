@@ -26,9 +26,11 @@ class EditPaperBackground(
     private val paperWidth by PreferenceStorage.paperStripWidthProperty
     private val orientation by PreferenceStorage.paperOrientationProperty
     private val minimalPadding by PreferenceStorage.paperMinimalPaddingProperty
+    private val precision by PreferenceStorage.paperPrecisionProperty
 
     private var changes = false
     private var drawData: DrawData? = null
+    private var measuringSourceEdge: EditPaperEdge? = null
 
     override fun onUpdate(ms_offset: Double): Boolean {
         if (changes) {
@@ -78,11 +80,21 @@ class EditPaperBackground(
     override fun onDraw(context: DrawContext) {
         val data = drawData ?: return
 
+        // Fill paper background
         context.fillRect(data.paper, context.theme.primaryBackgroundColor)
-        for (rect in data.dragRects.keys) {
-            context.fillRect(rect, context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.8))
+
+        // Draw resize handlers
+        for ((rect, edge) in data.dragRects) {
+            // Mark measuring source edge
+            val color = if (edge == measuringSourceEdge) {
+                context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.5)
+            } else {
+                context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.9)
+            }
+            context.fillRect(rect, color)
         }
 
+        // Draw paper outline
         context.strokeRect(
                 data.paper,
                 context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.5),
@@ -92,6 +104,7 @@ class EditPaperBackground(
         if (data.orientation == Orientation.HORIZONTAL) {
             var line = data.paper.bottom - data.lineSeparation
 
+            // Draw paper sheet separator
             while (line > data.paper.top) {
                 context.strokeLine(
                         listOf(
@@ -104,14 +117,16 @@ class EditPaperBackground(
                 line -= data.lineSeparation
             }
 
+            // Draw paper sheet width marker
             context.drawMeasuringLine(
                     Point(data.paper.left - SECOND_MEASURING_LINE_PAPER_DISTANCE, data.paper.bottom - data.lineSeparation),
                     Point(data.paper.left - SECOND_MEASURING_LINE_PAPER_DISTANCE, data.paper.bottom),
-                    "${paperWidth.toFixed(2)}m"
+                    "${paperWidth.toFixed(precision)}m"
             )
         } else {
             var line = data.paper.left + data.lineSeparation
 
+            // Draw paper sheet separator
             while (line < data.paper.right) {
                 context.strokeLine(
                         listOf(
@@ -124,121 +139,147 @@ class EditPaperBackground(
                 line += data.lineSeparation
             }
 
+            // Draw paper sheet width marker
             context.drawMeasuringLine(
                     Point(data.paper.left, data.paper.bottom + SECOND_MEASURING_LINE_PAPER_DISTANCE),
                     Point(data.paper.left + data.lineSeparation, data.paper.bottom + SECOND_MEASURING_LINE_PAPER_DISTANCE),
-                    "${paperWidth.toFixed(2)}m"
+                    "${paperWidth.toFixed(precision)}m"
             )
         }
 
+        // Draw planet outline
         context.strokeRect(
                 data.planet,
                 context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.5),
                 PlottingConstraints.LINE_WIDTH
         )
 
+        // Draw paper height marker
+        val paperHeightUnits = data.paper.height * gridWidth
         context.drawMeasuringLine(
                 Point(data.paper.left - FIRST_MEASURING_LINE_PAPER_DISTANCE, data.paper.top),
                 Point(data.paper.left - FIRST_MEASURING_LINE_PAPER_DISTANCE, data.paper.bottom),
-                "${(data.paper.height * gridWidth).toFixed(2)}m"
+                "${paperHeightUnits.toFixed(precision)}m"
         )
+        // Draw paper width marker
+        val paperWidthUnits = data.paper.width * gridWidth
         context.drawMeasuringLine(
                 Point(data.paper.left, data.paper.bottom + FIRST_MEASURING_LINE_PAPER_DISTANCE),
                 Point(data.paper.right, data.paper.bottom + FIRST_MEASURING_LINE_PAPER_DISTANCE),
-                "${(data.paper.width * gridWidth).toFixed(2)}m"
+                "${paperWidthUnits.toFixed(precision)}m"
         )
 
+        // Draw paper - planet vertical padding markers
         val bottomPadding = data.paper.bottom - data.planet.bottom
         val topPadding = data.planet.top - data.paper.top
         context.drawMeasuringLine(
                 Point(data.planet.right + MEASURING_LINE_PLANET_DISTANCE, data.paper.bottom),
                 Point(data.planet.right + MEASURING_LINE_PLANET_DISTANCE, data.paper.bottom - bottomPadding),
-                "${(bottomPadding * gridWidth).toFixed(2)}m"
+                "${(bottomPadding * gridWidth).toFixed(precision)}m"
         )
         context.drawMeasuringLine(
                 Point(data.planet.right + MEASURING_LINE_PLANET_DISTANCE, data.paper.top + topPadding),
                 Point(data.planet.right + MEASURING_LINE_PLANET_DISTANCE, data.paper.top),
-                "${(topPadding * gridWidth).toFixed(2)}m"
+                "${(topPadding * gridWidth).toFixed(precision)}m"
         )
         context.drawMeasuringLine(
                 Point(data.planet.left - MEASURING_LINE_PLANET_DISTANCE, data.paper.bottom),
                 Point(data.planet.left - MEASURING_LINE_PLANET_DISTANCE, data.paper.bottom - bottomPadding),
-                "${(bottomPadding * gridWidth).toFixed(2)}m"
+                "${(bottomPadding * gridWidth).toFixed(precision)}m"
         )
         context.drawMeasuringLine(
                 Point(data.planet.left - MEASURING_LINE_PLANET_DISTANCE, data.paper.top + topPadding),
                 Point(data.planet.left - MEASURING_LINE_PLANET_DISTANCE, data.paper.top),
-                "${(topPadding * gridWidth).toFixed(2)}m"
+                "${(topPadding * gridWidth).toFixed(precision)}m"
         )
 
 
         val bottomPlanetPoint = floor(data.planet.bottom).toInt()
         val topPlanetPoint = ceil(data.planet.top).toInt()
+        val verticalAccumulator = DistanceAccumulator(
+                if (measuringSourceEdge?.isTop == true) paperHeightUnits else 0.0,
+                measuringSourceEdge == null
+        )
         context.drawMeasuringLine(
                 Point(data.paper.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, data.paper.bottom),
                 Point(data.paper.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, bottomPlanetPoint),
-                "${((data.paper.bottom - bottomPlanetPoint) * gridWidth).toFixed(2)}m"
+                "${verticalAccumulator.accumulate((data.paper.bottom - bottomPlanetPoint) * gridWidth).toFixed(precision)}m"
         )
-        for (y in topPlanetPoint until bottomPlanetPoint) {
+        for (y in (topPlanetPoint until bottomPlanetPoint).reversed()) {
             context.drawMeasuringLine(
                     Point(data.paper.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, y + 1),
                     Point(data.paper.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, y),
-                    "${gridWidth.toFixed(2)}m"
+                    "${verticalAccumulator.accumulate(gridWidth).toFixed(precision)}m"
             )
         }
         context.drawMeasuringLine(
                 Point(data.paper.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, topPlanetPoint),
                 Point(data.paper.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, data.paper.top),
-                "${((topPlanetPoint - data.paper.top) * gridWidth).toFixed(2)}m"
+                "${verticalAccumulator.accumulate((topPlanetPoint - data.paper.top) * gridWidth).toFixed(precision)}m"
         )
 
+        // Draw paper - planet horizontal padding markers
         val rightPadding = data.paper.right - data.planet.right
         val leftPadding = data.planet.left - data.paper.left
         context.drawMeasuringLine(
                 Point(data.paper.right, data.planet.top - MEASURING_LINE_PLANET_DISTANCE),
                 Point(data.paper.right - rightPadding, data.planet.top - MEASURING_LINE_PLANET_DISTANCE),
-                "${(rightPadding * gridWidth).toFixed(2)}m"
+                "${(rightPadding * gridWidth).toFixed(precision)}m"
         )
         context.drawMeasuringLine(
                 Point(data.paper.left + leftPadding, data.planet.top - MEASURING_LINE_PLANET_DISTANCE),
                 Point(data.paper.left, data.planet.top - MEASURING_LINE_PLANET_DISTANCE),
-                "${(leftPadding * gridWidth).toFixed(2)}m"
+                "${(leftPadding * gridWidth).toFixed(precision)}m"
         )
         context.drawMeasuringLine(
                 Point(data.paper.right, data.planet.bottom + MEASURING_LINE_PLANET_DISTANCE),
                 Point(data.paper.right - rightPadding, data.planet.bottom + MEASURING_LINE_PLANET_DISTANCE),
-                "${(rightPadding * gridWidth).toFixed(2)}m"
+                "${(rightPadding * gridWidth).toFixed(precision)}m"
         )
         context.drawMeasuringLine(
                 Point(data.paper.left + leftPadding, data.planet.bottom + MEASURING_LINE_PLANET_DISTANCE),
                 Point(data.paper.left, data.planet.bottom + MEASURING_LINE_PLANET_DISTANCE),
-                "${(leftPadding * gridWidth).toFixed(2)}m"
+                "${(leftPadding * gridWidth).toFixed(precision)}m"
         )
 
         val rightPlanetPoint = floor(data.planet.right).toInt()
         val leftPlanetPoint = ceil(data.planet.left).toInt()
+        val horizontalAccumulator = DistanceAccumulator(
+                if (measuringSourceEdge?.isLeft == true) paperWidthUnits else 0.0,
+                measuringSourceEdge == null
+        )
         context.drawMeasuringLine(
                 Point(data.paper.right, data.paper.top - FIRST_MEASURING_LINE_PAPER_DISTANCE),
                 Point(rightPlanetPoint, data.paper.top - FIRST_MEASURING_LINE_PAPER_DISTANCE),
-                "${((data.paper.right - rightPlanetPoint) * gridWidth).toFixed(2)}m"
+                "${horizontalAccumulator.accumulate((data.paper.right - rightPlanetPoint) * gridWidth).toFixed(precision)}m"
         )
-        for (x in leftPlanetPoint until rightPlanetPoint) {
+        for (x in (leftPlanetPoint until rightPlanetPoint).reversed()) {
             context.drawMeasuringLine(
                     Point(x + 1, data.paper.top - FIRST_MEASURING_LINE_PAPER_DISTANCE),
                     Point(x, data.paper.top - FIRST_MEASURING_LINE_PAPER_DISTANCE),
-                    "${gridWidth.toFixed(2)}m"
+                    "${horizontalAccumulator.accumulate(gridWidth).toFixed(precision)}m"
             )
         }
         context.drawMeasuringLine(
                 Point(leftPlanetPoint, data.paper.top - FIRST_MEASURING_LINE_PAPER_DISTANCE),
                 Point(data.paper.left, data.paper.top - FIRST_MEASURING_LINE_PAPER_DISTANCE),
-                "${((leftPlanetPoint - data.paper.left) * gridWidth).toFixed(2)}m"
+                "${horizontalAccumulator.accumulate((leftPlanetPoint - data.paper.left) * gridWidth).toFixed(precision)}m"
         )
     }
 
-    enum class EditPaperEdge {
-        LEFT_TOP, RIGHT_TOP, RIGHT_BOTTOM, LEFT_BOTTOM
+    enum class EditPaperEdge(
+            val isLeft: Boolean,
+            val isTop: Boolean
+    ) {
+        LEFT_TOP(true, true),
+        RIGHT_TOP(false, true),
+        RIGHT_BOTTOM(false, false),
+        LEFT_BOTTOM(true, false);
+
+        val isRight = !isLeft
+        val isBottom = !isTop
     }
+
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
         val data = drawData ?: return emptyList()
         val rect = data.dragRects.keys.find { position in it } ?: return emptyList()
@@ -285,6 +326,22 @@ class EditPaperBackground(
         lastDragPosition ?: return false
         lastDragPosition = null
         return true
+    }
+
+    override fun onPointerSecondaryAction(event: PointerEvent, position: Point): Boolean {
+        val edge = editPlanetDrawable.pointer?.findObjectUnderPointer<EditPaperEdge>()
+        if (edge != null) {
+
+            measuringSourceEdge = if (edge == measuringSourceEdge) {
+                null
+            } else {
+                edge
+            }
+            changes = true
+
+            return true
+        }
+        return false
     }
 
     private var area: Rectangle = Rectangle.ZERO
@@ -349,6 +406,7 @@ class EditPaperBackground(
         PreferenceStorage.paperGridWidthProperty.onChange { update() }
         PreferenceStorage.paperStripWidthProperty.onChange { update() }
         PreferenceStorage.paperMinimalPaddingProperty.onChange { update() }
+        PreferenceStorage.paperPrecisionProperty.onChange { update() }
         PreferenceStorage.paperOrientationProperty.onChange {
             planetSize = null
             planetOffset = null
@@ -370,6 +428,28 @@ class EditPaperBackground(
                 Rectangle(paper.right - dragRectSize, paper.top, dragRectSize, dragRectSize) to EditPaperEdge.RIGHT_TOP,
                 Rectangle(paper.right - dragRectSize, paper.bottom - dragRectSize, dragRectSize, dragRectSize) to EditPaperEdge.RIGHT_BOTTOM
         )
+    }
+
+    private class DistanceAccumulator(
+            var current: Double,
+            val doNotAccumulate: Boolean = false
+    ) {
+
+        private val inverse = current != 0.0
+
+        fun accumulate(value: Double): Double {
+            val old = current
+            val result = current + if (inverse) -value else value
+            if (!doNotAccumulate) {
+                current = result
+            }
+
+            return (if (inverse) old else result).also { println("Return ($old, $value) -> $it ($current)") }
+        }
+        
+        init {
+            println("new accumulator $current, $doNotAccumulate, $inverse")
+        }
     }
 
     enum class Orientation {

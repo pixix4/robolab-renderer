@@ -87,3 +87,14 @@ class DoubleStringConverter(private val default: Double) : StringConverter<Doubl
         return string?.toDoubleOrNull() ?: default
     }
 }
+
+
+class IntStringConverter(private val default: Int) : StringConverter<Int>() {
+    override fun toString(obj: Int?): String {
+        return obj?.toString() ?: default.toString()
+    }
+
+    override fun fromString(string: String?): Int {
+        return string?.toIntOrNull() ?: default
+    }
+}

@@ -33,5 +33,12 @@ class PaperConstraintsDialog() : Dialog("Paper constraints") {
                 step = 0.001
             }
         }
+        dialogFormEntry("Precision") {
+            inputView(InputType.NUMBER, PreferenceStorage.paperPrecisionProperty.bindStringParsing()) {
+                min = 0.0
+                max = 10.0
+                step = 1.0
+            }
+        }
     }
 }

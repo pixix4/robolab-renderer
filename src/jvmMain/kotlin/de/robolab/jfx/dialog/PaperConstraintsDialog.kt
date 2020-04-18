@@ -51,6 +51,9 @@ class PaperConstraintsDialog : View() {
                     field("Minimal padding") {
                         textfield(PreferenceStorage.paperMinimalPaddingProperty.toFx(), DoubleStringConverter(PreferenceStorage.paperMinimalPaddingProperty.default))
                     }
+                    field("Precision") {
+                        textfield(PreferenceStorage.paperPrecisionProperty.toFx(), IntStringConverter(PreferenceStorage.paperPrecisionProperty.default))
+                    }
                 }
             }
         }
