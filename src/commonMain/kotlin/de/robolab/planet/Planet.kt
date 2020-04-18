@@ -6,7 +6,8 @@ data class Planet(
         val bluePoint: Coordinate?,
         val pathList: List<Path>,
         val targetList: List<TargetPoint>,
-        val pathSelectList: List<PathSelect>
+        val pathSelectList: List<PathSelect>,
+        val commentList: List<Comment>
 ) {
 
     fun importSplines(reference: Planet): Planet {
@@ -41,6 +42,7 @@ data class Planet(
                 "",
                 null,
                 null,
+                emptyList(),
                 emptyList(),
                 emptyList(),
                 emptyList()

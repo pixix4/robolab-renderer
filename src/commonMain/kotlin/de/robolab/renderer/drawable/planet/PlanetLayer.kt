@@ -23,13 +23,15 @@ class PlanetLayer(private val planetDrawable: AbsPlanetDrawable) : GroupDrawable
     private val pathDrawable = PathAnimatableManager(this)
     private val pathSelectDrawable = PathSelectAnimatableManager(this)
     private val pointDrawable = PointAnimatableManager(this)
+    private val commentDrawable = CommentAnimatableManager(this)
 
     override val drawableList = listOf<IDrawable>(
             targetDrawable,
             senderDrawable,
             pathDrawable,
             pathSelectDrawable,
-            pointDrawable
+            pointDrawable,
+            commentDrawable
     )
 
     var planet: Planet = Planet.EMPTY
@@ -43,5 +45,6 @@ class PlanetLayer(private val planetDrawable: AbsPlanetDrawable) : GroupDrawable
         pathDrawable.importPlanet(planet)
         pathSelectDrawable.importPlanet(planet)
         pointDrawable.importPlanet(planet)
+        commentDrawable.importPlanet(planet)
     }
 }

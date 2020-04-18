@@ -518,6 +518,54 @@ interface FileLine<T> {
         }
     }
 
+    class CommentLine(override val line: String) : FileLine<Comment> {
+
+        override val data = REGEX.matchEntire(line.trim())!!.let { match ->
+            val h = match.groupValues[2].split(',').map { it.trim().toDouble() }
+            val point = if (h.size < 2)  Point.ZERO else Point(h[0], h[1])
+            Comment(
+                    point,
+                    match.groupValues[5]
+            )
+        }
+
+        override var blockMode: BlockMode = BlockMode.Unknown
+
+        override fun buildPlanet(builder: BuildAccumulator) {
+            blockMode = BlockMode.Head(builder.previousBlockHead)
+            builder.previousBlockHead = this
+            builder.planet = builder.planet.copy(
+                    commentList = builder.planet.commentList + data
+            )
+        }
+
+        override fun isAssociatedTo(obj: Any): Boolean {
+            if (obj is Comment) {
+                return obj == data
+            }
+
+            return super.isAssociatedTo(obj)
+        }
+
+        companion object : Parser {
+            override val name = "Comment line parser"
+            val REGEX =
+                    """^#\s*(COMMENT|comment)\s?(?:\(\s*((-?\d+(?:\.\d+)?)\s*?,\s*?(-?\d+(?:\.\d+)?)(?:\s*?,\s*?[^\s,][^\n,]*)*)\s*\))?(?::\s?(\w[^\n]*?))?\s*(?:#.*?)?$""".toRegex()
+
+            override fun testLine(line: String): Boolean {
+                return REGEX.containsMatchIn(line)
+            }
+
+            override fun createInstance(line: String): FileLine<*> {
+                return CommentLine(line)
+            }
+
+            fun serialize(comment: Comment) = "# comment (${comment.point.x.toFixed(2)},${comment.point.y.toFixed(2)}): ${comment.message}"
+
+            fun create(comment: Comment) = createInstance(serialize(comment))
+        }
+    }
+
     class ErrorLine(override val line: String, override val data: String) : FileLine<String> {
 
         override var blockMode: BlockMode = BlockMode.Unknown
@@ -528,9 +576,6 @@ interface FileLine<T> {
 
         override fun isAssociatedTo(obj: Any) = false
     }
-
-    // val REGEX_COMMENT =
-    //         """^#\s*(?<type>COMMENT|comment)\s?(?:\(\s*(?<args>(?<x>-?\d+(?:\.\d+)?)\s*?,\s*?(?<y>-?\d+(?:\.\d+)?)(?:\s*?,\s*?[^\s,][^\n,]*)*)\s*\))?(?::\s?(?<data>\w[^\n]*?))?\s*(?:#.*?)?$""".toRegex()
 }
 
 private fun parseCoordinate(str: String): Coordinate {
@@ -565,6 +610,7 @@ private val parserList = listOf(
         FileLine.NameLine.Companion,
         FileLine.SplineLine.Companion,
         FileLine.HiddenLine.Companion,
+        FileLine.CommentLine.Companion,
         FileLine.BlankLine.Companion
 )
 

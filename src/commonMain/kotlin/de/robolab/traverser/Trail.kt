@@ -44,7 +44,8 @@ interface ITraverserTrail {
                     (original?.targetList?.intersect(mothershipState.sentTargets)
                             ?: mothershipState.sentTargets).toList(),
                     (original?.pathSelectList?.intersect(mothershipState.sentPathSelects)
-                            ?: mothershipState.sentPathSelects).toList()
+                            ?: mothershipState.sentPathSelects).toList(),
+                    emptyList()
             )
 }
 
