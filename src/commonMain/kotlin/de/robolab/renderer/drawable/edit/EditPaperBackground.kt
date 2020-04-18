@@ -444,11 +444,7 @@ class EditPaperBackground(
                 current = result
             }
 
-            return (if (inverse) old else result).also { println("Return ($old, $value) -> $it ($current)") }
-        }
-        
-        init {
-            println("new accumulator $current, $doNotAccumulate, $inverse")
+            return if (inverse) old else result
         }
     }
 
