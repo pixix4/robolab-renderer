@@ -50,7 +50,12 @@ class InfoBar(private val infoBarController: InfoBarController, infoBarActivePro
 
         when (content) {
             is InfoBarFileEditor -> {
-                contentView.multilineInputView(content.contentProperty)
+                contentView.multilineInputView(content.contentProperty).also {
+                    it.html.spellcheck = false
+                    it.html.autocomplete = "off"
+                    it.html.wrap = "off"
+                    it.html.setAttribute("autocapitalize", "none")
+                }
             }
             is InfoBarTraverser -> {
                 if (content.traverserProperty.value == null) {

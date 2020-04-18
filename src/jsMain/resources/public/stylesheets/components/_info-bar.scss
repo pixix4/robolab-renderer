@@ -61,6 +61,10 @@
         outline: none;
         margin: 0;
         padding: 0.2rem;
+        white-space: pre;
+        font-family: "Roboto Mono", sans-serif;
+        overflow-x: auto;
+        overflow-y: scroll;
     }
 }
 

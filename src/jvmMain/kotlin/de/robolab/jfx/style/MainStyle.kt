@@ -56,6 +56,11 @@ class MainStyle : Stylesheet() {
     init {
         updateTheme()
 
+        loadFont("/RobotoMono/RobotoMono-Regular.ttf", 12)
+        loadFont("/RobotoMono/RobotoMono-Bold.ttf", 12)
+        loadFont("/RobotoMono/RobotoMono-Italic.ttf", 12)
+        loadFont("/RobotoMono/RobotoMono-BoldItalic.ttf", 12)
+
         loadFont("/Roboto/Roboto-Regular.ttf", 12)
         loadFont("/Roboto/Roboto-Bold.ttf", 12)
         loadFont("/Roboto/Roboto-Italic.ttf", 12)
