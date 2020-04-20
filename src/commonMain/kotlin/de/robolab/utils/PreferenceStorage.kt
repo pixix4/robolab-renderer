@@ -6,7 +6,6 @@ import de.robolab.renderer.theme.Theme
 import de.westermann.kobserve.Binding
 import de.westermann.kobserve.Property
 import de.westermann.kobserve.event.EventHandler
-import de.westermann.kobserve.property.property
 import kotlin.random.Random
 
 object PreferenceStorage {
@@ -36,6 +35,9 @@ object PreferenceStorage {
     val passwordProperty = item("PASSWORD", "")
     var password by passwordProperty
 
+    val logLevelProperty = item("LOG_LEVEL", Logger.Level.WARN)
+    val logLevel by logLevelProperty
+
 
     val paperBackgroundEnabledProperty = item("PAPER_BACKGROUND_ENABLED", false)
     val paperBackgroundEnabled by paperBackgroundEnabledProperty
@@ -43,7 +45,7 @@ object PreferenceStorage {
     val paperGridWidthProperty = item("PAPER_GRID_WIDTH", 0.5)
     val paperGridWidth by paperGridWidthProperty
 
-    val paperStripWidthProperty = item("PAPER_STRIP_WIDTH",0.841)
+    val paperStripWidthProperty = item("PAPER_STRIP_WIDTH", 0.841)
     val paperStripWidth by paperStripWidthProperty
 
     val paperOrientationProperty = item("PAPER_ORIENTATION", EditPaperBackground.Orientation.VERTICAL)

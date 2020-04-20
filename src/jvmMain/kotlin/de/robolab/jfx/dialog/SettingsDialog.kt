@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.utils.iconNoAdd
 import de.robolab.renderer.theme.Theme
+import de.robolab.utils.Logger
 import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.not
 import javafx.scene.text.FontWeight
@@ -71,6 +72,12 @@ class SettingsDialog: View() {
                     }
                     field("Client id") {
                         textfield(PreferenceStorage.clientIdProperty.toFx())
+                    }
+                }
+
+                fieldset("Advanced") {
+                    field("Log level") {
+                        combobox(PreferenceStorage.logLevelProperty.toFx(), Logger.Level.values().toList())
                     }
                 }
             }

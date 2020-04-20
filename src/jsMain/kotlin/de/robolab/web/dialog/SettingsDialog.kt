@@ -44,5 +44,11 @@ class SettingsDialog() : Dialog("Settings") {
                 inputView(PreferenceStorage.clientIdProperty)
             }
         }
+
+        dialogFormGroup("Advanced") {
+            dialogFormEntry("Log level") {
+                selectView(PreferenceStorage.logLevelProperty)
+            }
+        }
     }
 }

@@ -65,6 +65,7 @@ kotlin {
                 implementation("de.jensd:fontawesomefx-materialicons:2.2.0-5")
                 implementation("de.jensd:fontawesomefx-fontawesome:4.7.0-5")
                 implementation("org.fxmisc.richtext:richtextfx:0.10.4")
+                implementation("org.fusesource.jansi:jansi:1.8")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
             }
