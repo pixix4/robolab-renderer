@@ -133,8 +133,8 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
             )
     )
 
-    override val infoBarList: List<IInfoBarContent> = emptyList()
-    override val selectedInfoBarIndexProperty = property<Int?>(null)
+    override val infoBarList: List<IInfoBarContent> = listOf(InfoBarGroupInfo(this))
+    override val selectedInfoBarIndexProperty = property<Int?>(0)
 
     override val unsavedChangesProperty = constProperty(false)
 
@@ -146,8 +146,6 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     private fun update() {
         val selectedIndex = selectedIndexProperty.value
         val m = if (selectedIndex == null) messages else messages.subList(0, selectedIndex - 1)
-
-        logger.debug { "Render ${m.size} messages" }
 
         drawable.importServerPlanet(m.toServerPlanet())
         drawable.importMqttPlanet(m.toMqttPlanet())

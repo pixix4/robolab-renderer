@@ -191,3 +191,35 @@
     padding: 0.5rem;
     border-bottom: solid 1px var(--border-color);
 }
+
+.info-bar-group-view-header {
+    padding: 0.5rem;
+}
+
+.info-bar-group-view-content {
+    border-collapse: collapse;
+    white-space: nowrap;
+
+    thead {
+        line-height: 2rem;
+        background-color: var(--tertiary-background);
+    }
+
+    tbody {
+        tr {
+            line-height: 1.8rem;
+
+            &:hover {
+                background-color: var(--secondary-hover-background);
+            }
+
+            &.selected {
+                background-color: var(--primary-background);
+
+                &:hover {
+                    background-color: var(--primary-hover-background);
+                }
+            }
+        }
+    }
+}

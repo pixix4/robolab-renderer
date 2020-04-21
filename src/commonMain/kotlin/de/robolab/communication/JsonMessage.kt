@@ -2,9 +2,9 @@ package de.robolab.communication
 
 import de.robolab.app.model.file.parseDirection
 import de.robolab.planet.Coordinate
+import de.robolab.planet.Direction
 import de.robolab.planet.Path
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 
 @Serializable
 data class JsonMessage(
@@ -32,9 +32,9 @@ data class JsonMessage(
 
     fun parsePath() = Path(
             Coordinate(payload::startX.parsed(), payload::startY.parsed()),
-            parseDirection(payload::startDirection.parsed()) ?: throw MissingJsonArgumentException("startDirection"),
+            payload::startDirection.parsed(),
             Coordinate(payload::endX.parsed(), payload::endY.parsed()),
-            parseDirection(payload::endDirection.parsed()) ?: throw MissingJsonArgumentException("endDirection"),
+            payload::endDirection.parsed(),
             if (from == From.CLIENT) null else payload::pathWeight.parsed(),
             emptySet(),
             emptyList(),
@@ -112,8 +112,7 @@ enum class Type {
                     metadata,
                     message.payload::planetName.parsed(),
                     message.parseStartPoint(),
-                    parseDirection(message.parseStartOrientation())
-                            ?: throw MissingJsonArgumentException("startOrientation")
+                    message.parseStartOrientation()
             )
         }
     },
@@ -152,13 +151,11 @@ enum class Type {
                 RobolabMessage.PathSelectMessageFromRobot(
                         metadata,
                         message.parseStartPoint(),
-                        parseDirection(message.payload::startDirection.parsed())
-                                ?: throw MissingJsonArgumentException("startDirection")
+                        message.payload::startDirection.parsed()
                 )
             } else RobolabMessage.PathSelectMessageFromServer(
                     metadata,
-                    parseDirection(message.payload::startDirection.parsed())
-                            ?: throw MissingJsonArgumentException("startDirection")
+                    message.payload::startDirection.parsed()
             )
         }
     },
@@ -293,20 +290,23 @@ enum class Type {
 
 @Serializable
 data class Payload(
-        val planetName: String?,
-        val startX: Int?,
-        val startY: Int?,
-        val startDirection: String?,
-        val startOrientation: String?,
-        val endX: Int?,
-        val endY: Int?,
-        val endDirection: String?,
-        val targetX: Int?,
-        val targetY: Int?,
-        val pathStatus: PathStatus?,
-        val pathWeight: Int?,
-        val message: String?,
-        val debug: String?
+        val planetName: String? = null,
+        val startX: Int? = null,
+        val startY: Int? = null,
+        @Serializable(with=DirectionSerializer::class)
+        val startDirection: Direction? = null,
+        @Serializable(with=DirectionSerializer::class)
+        val startOrientation: Direction? = null,
+        val endX: Int? = null,
+        val endY: Int? = null,
+        @Serializable(with=DirectionSerializer::class)
+        val endDirection: Direction? = null,
+        val targetX: Int? = null,
+        val targetY: Int? = null,
+        val pathStatus: PathStatus? = null,
+        val pathWeight: Int? = null,
+        val message: String? = null,
+        val debug: String? = null
 )
 
 @Serializable
@@ -316,4 +316,32 @@ enum class PathStatus {
 
     @SerialName("blocked")
     BLOCKED
+}
+
+@Serializer(forClass = Direction::class)
+object DirectionSerializer: KSerializer<Direction> {
+
+    override val descriptor: SerialDescriptor =
+            PrimitiveDescriptor("WithCustomDefault", PrimitiveKind.INT)
+
+    override fun serialize(encoder: Encoder, value: Direction) {
+        val int = when (value) {
+            Direction.NORTH -> 0
+            Direction.EAST -> 90
+            Direction.SOUTH -> 180
+            Direction.WEST -> 270
+        }
+
+        encoder.encodeInt(int)
+    }
+
+    override fun deserialize(decoder: Decoder): Direction {
+        return when (decoder.decodeInt()) {
+            0 -> Direction.NORTH
+            90 -> Direction.EAST
+            180 -> Direction.SOUTH
+            270 -> Direction.WEST
+            else -> Direction.NORTH
+        }
+    }
 }

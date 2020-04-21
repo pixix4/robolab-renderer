@@ -1,5 +1,7 @@
 package de.robolab.communication
 
+import com.soywiz.klock.DateFormat
+import com.soywiz.klock.parse
 import de.robolab.communication.mqtt.MqttMessage
 import de.robolab.communication.mqtt.RobolabMqttConnection
 import de.robolab.utils.Logger
@@ -49,7 +51,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
         val jsonMessage = try {
             jsonSerializer.parse(JsonMessage.serializer(), message.message)
         } catch (e: Exception) {
-            //e.printStackTrace()
+            logger.error { e }
             onRobolabMessage(RobolabMessage.IllegalMessage(
                     metadata,
                     RobolabMessage.IllegalMessage.Reason.NotParsable,
@@ -79,7 +81,45 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
         onRobolabMessage(robolabMessage)
     }
 
+    private fun parseMqttLogLine(line: String) {
+        val match = MQTT_LOG_LINE.matchEntire(line) ?: return
+        val rawDateStr = match.groupValues.getOrNull(1) ?: return
+        val rawTopicStr = match.groupValues.getOrNull(2) ?: return
+        val rawContentStr = match.groupValues.getOrNull(3) ?: return
+
+        val date = MQTT_LOG_DATE_FORMAT.parse(rawDateStr)
+        val topic = rawTopicStr.split(',').joinToString("/") { it.drop(3).dropLast(3) }
+        val content = rawContentStr.replace("\\\"","\"").replace("\\\\","\\")
+        
+        onMessage(MqttMessage(
+                date.utc.unixMillisLong,
+                topic,
+                content
+        ))
+    }
+
+    fun loadMqttLog() {
+        httpRequest("demo/mqtt.console.log") {content ->
+            if (content ==null) {
+                logger.warn { "Cannot load mqtt.console.log!" }
+            } else {
+                for (line in content.splitToSequence('\n')) {
+                    parseMqttLogLine(line)
+                }
+            }
+        }
+    }
+
     private fun onRobolabMessage(robolabMessage: RobolabMessage) {
         onMessage.emit(robolabMessage)
+    }
+
+    init {
+        loadMqttLog()
+    }
+
+    companion object {
+        private val MQTT_LOG_LINE = """^([0-9:. -]*) \[info].*\[on_publish].*\[((?:<<.*>>)*)].*<<"(.*)">>$""".toRegex()
+        private val MQTT_LOG_DATE_FORMAT = DateFormat("yyyy-MM-dd HH:mm:ss.SSS")
     }
 }

@@ -4,6 +4,7 @@ import de.robolab.app.controller.InfoBarController
 import de.robolab.app.controller.TraverserBarController
 import de.robolab.app.model.file.InfoBarFileEditor
 import de.robolab.app.model.file.InfoBarTraverser
+import de.robolab.app.model.group.InfoBarGroupInfo
 import de.robolab.web.views.utils.buttonGroup
 import de.westermann.kobserve.Property
 import de.westermann.kobserve.ReadOnlyProperty
@@ -50,18 +51,16 @@ class InfoBar(private val infoBarController: InfoBarController, infoBarActivePro
 
         when (content) {
             is InfoBarFileEditor -> {
-                contentView.multilineInputView(content.contentProperty).also {
-                    it.html.spellcheck = false
-                    it.html.autocomplete = "off"
-                    it.html.wrap = "off"
-                    it.html.setAttribute("autocapitalize", "none")
-                }
+                contentView.initInfoBarFileEditorView(content)
             }
             is InfoBarTraverser -> {
                 if (content.traverserProperty.value == null) {
                     content.traverse()
                 }
                 contentView.add(NullableViewContainer(content.traverserProperty))
+            }
+            is InfoBarGroupInfo -> {
+                contentView.add(InfoBarGroupView(content))
             }
         }
     }
