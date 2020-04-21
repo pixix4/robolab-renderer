@@ -2,6 +2,7 @@ package de.robolab.communication
 
 import de.robolab.communication.mqtt.MqttMessage
 import de.robolab.communication.mqtt.RobolabMqttConnection
+import de.robolab.utils.Logger
 import de.westermann.kobserve.event.EventHandler
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
@@ -11,7 +12,9 @@ import kotlinx.serialization.json.JsonConfiguration
  */
 
 class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
-    
+
+    private val logger = Logger(this)
+
     val onMessage = EventHandler<RobolabMessage>()
 
     init {
@@ -63,10 +66,10 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
                     jsonMessage
             )
         } catch (e: IllegalFromException) {
-            println("Illegal \"from\" value (${e.actualFrom}) for message type ${e.messageType} in message ${metadata.rawMessage}")
+            logger.error { "Illegal \"from\" value (${e.actualFrom}) for message type ${e.messageType} in message ${metadata.rawMessage}" }
             RobolabMessage.IllegalMessage(metadata, RobolabMessage.IllegalMessage.Reason.IllegalFromValue)
         } catch (e: MissingJsonArgumentException) {
-            println("Missing argument \"${e.name}\" in message ${metadata.rawMessage}")
+            logger.error { "Missing argument \"${e.name}\" in message ${metadata.rawMessage}" }
             RobolabMessage.IllegalMessage(metadata, RobolabMessage.IllegalMessage.Reason.MissingArgument(e.name))
         } catch (e: IgnoreMessageException) {
             return

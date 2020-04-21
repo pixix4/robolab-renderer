@@ -9,6 +9,7 @@ import de.robolab.communication.toServerPlanet
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.planet.LivePlanetDrawable
 import de.robolab.utils.ContextMenu
+import de.robolab.utils.Logger
 import de.westermann.kobserve.list.ObservableReadOnlyList
 import de.westermann.kobserve.list.mapObservable
 import de.westermann.kobserve.list.observableListOf
@@ -52,6 +53,8 @@ class GroupPlanetEntry(val groupName: String) : ISideBarGroup {
 }
 
 class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEntry) : ISideBarPlottable {
+
+    private val logger = Logger(this)
 
     val messages = observableListOf<RobolabMessage>()
 
@@ -144,7 +147,7 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
         val selectedIndex = selectedIndexProperty.value
         val m = if (selectedIndex == null) messages else messages.subList(0, selectedIndex - 1)
 
-        println("Render ${m.size} messages")
+        logger.debug { "Render ${m.size} messages" }
 
         drawable.importServerPlanet(m.toServerPlanet())
         drawable.importMqttPlanet(m.toMqttPlanet())

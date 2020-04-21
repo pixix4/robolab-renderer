@@ -9,7 +9,7 @@ actual class LoggerOutput actual constructor() {
             Logger.Level.DEBUG -> "\u001B[32m"
         }
         println(
-                "${logger.getCurrentDate()} [$color${level.name.padEnd(5, ' ')}\u001B[0m] ${logger.name}: msg"
+                "${logger.getCurrentDate()} [$color${level.name.padEnd(5, ' ')}\u001B[0m] ${logger.name}: $msg"
         )
     }
 

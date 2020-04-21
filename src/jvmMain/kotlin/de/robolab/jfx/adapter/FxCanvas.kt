@@ -7,6 +7,7 @@ import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.*
 import de.robolab.utils.ContextMenu
+import de.robolab.utils.Logger
 import javafx.geometry.VPos
 import javafx.scene.input.MouseButton
 import javafx.scene.shape.ArcType
@@ -21,6 +22,7 @@ class FxCanvas : ICanvas {
 
     val canvas = ResizeableCanvas()
     private val context = canvas.graphicsContext2D
+    private val logger = Logger(this)
 
     override fun setListener(listener: ICanvasListener) {
         canvas.setOnMousePressed { event ->
@@ -301,123 +303,123 @@ class FxCanvas : ICanvas {
         menu.toFx().show(canvas, position.x, position.y)
     }
 
+    fun Color.fx(): javafx.scene.paint.Color = javafx.scene.paint.Color.rgb(red, green, blue, alpha)
+
+    fun javafx.scene.input.KeyCode.toCommon() = when (this) {
+        javafx.scene.input.KeyCode.ENTER -> KeyCode.ENTER
+        javafx.scene.input.KeyCode.BACK_SPACE -> KeyCode.BACKSPACE
+        javafx.scene.input.KeyCode.TAB -> KeyCode.TAB
+        javafx.scene.input.KeyCode.CANCEL -> KeyCode.ESCAPE
+        javafx.scene.input.KeyCode.SHIFT -> KeyCode.SHIFT
+        javafx.scene.input.KeyCode.CONTROL -> KeyCode.CTRL
+        javafx.scene.input.KeyCode.ALT -> KeyCode.ALT
+        javafx.scene.input.KeyCode.ESCAPE -> KeyCode.ESCAPE
+        javafx.scene.input.KeyCode.SPACE -> KeyCode.SPACE
+        javafx.scene.input.KeyCode.PAGE_UP -> KeyCode.PAGE_UP
+        javafx.scene.input.KeyCode.PAGE_DOWN -> KeyCode.PAGE_DOWN
+        javafx.scene.input.KeyCode.END -> KeyCode.END
+        javafx.scene.input.KeyCode.HOME -> KeyCode.HOME
+        javafx.scene.input.KeyCode.LEFT -> KeyCode.ARROW_LEFT
+        javafx.scene.input.KeyCode.UP -> KeyCode.ARROW_UP
+        javafx.scene.input.KeyCode.RIGHT -> KeyCode.ARROW_RIGHT
+        javafx.scene.input.KeyCode.DOWN -> KeyCode.ARROW_DOWN
+        javafx.scene.input.KeyCode.COMMA -> KeyCode.COMMA
+        javafx.scene.input.KeyCode.MINUS -> KeyCode.MINUS
+        javafx.scene.input.KeyCode.PERIOD -> KeyCode.PERIOD
+        javafx.scene.input.KeyCode.SLASH -> KeyCode.SLASH
+        javafx.scene.input.KeyCode.DIGIT0, javafx.scene.input.KeyCode.NUMPAD0 -> KeyCode.NUM_0
+        javafx.scene.input.KeyCode.DIGIT1, javafx.scene.input.KeyCode.NUMPAD1 -> KeyCode.NUM_1
+        javafx.scene.input.KeyCode.DIGIT2, javafx.scene.input.KeyCode.NUMPAD2 -> KeyCode.NUM_2
+        javafx.scene.input.KeyCode.DIGIT3, javafx.scene.input.KeyCode.NUMPAD3 -> KeyCode.NUM_3
+        javafx.scene.input.KeyCode.DIGIT4, javafx.scene.input.KeyCode.NUMPAD4 -> KeyCode.NUM_4
+        javafx.scene.input.KeyCode.DIGIT5, javafx.scene.input.KeyCode.NUMPAD5 -> KeyCode.NUM_5
+        javafx.scene.input.KeyCode.DIGIT6, javafx.scene.input.KeyCode.NUMPAD6 -> KeyCode.NUM_6
+        javafx.scene.input.KeyCode.DIGIT7, javafx.scene.input.KeyCode.NUMPAD7 -> KeyCode.NUM_7
+        javafx.scene.input.KeyCode.DIGIT8, javafx.scene.input.KeyCode.NUMPAD8 -> KeyCode.NUM_8
+        javafx.scene.input.KeyCode.DIGIT9, javafx.scene.input.KeyCode.NUMPAD9 -> KeyCode.NUM_9
+        javafx.scene.input.KeyCode.SEMICOLON -> KeyCode.SEMICOLON
+        javafx.scene.input.KeyCode.EQUALS -> KeyCode.EQUALS
+        javafx.scene.input.KeyCode.A -> KeyCode.A
+        javafx.scene.input.KeyCode.B -> KeyCode.B
+        javafx.scene.input.KeyCode.C -> KeyCode.C
+        javafx.scene.input.KeyCode.D -> KeyCode.D
+        javafx.scene.input.KeyCode.E -> KeyCode.E
+        javafx.scene.input.KeyCode.F -> KeyCode.F
+        javafx.scene.input.KeyCode.G -> KeyCode.G
+        javafx.scene.input.KeyCode.H -> KeyCode.H
+        javafx.scene.input.KeyCode.I -> KeyCode.I
+        javafx.scene.input.KeyCode.J -> KeyCode.J
+        javafx.scene.input.KeyCode.K -> KeyCode.K
+        javafx.scene.input.KeyCode.L -> KeyCode.L
+        javafx.scene.input.KeyCode.M -> KeyCode.M
+        javafx.scene.input.KeyCode.N -> KeyCode.N
+        javafx.scene.input.KeyCode.O -> KeyCode.O
+        javafx.scene.input.KeyCode.P -> KeyCode.P
+        javafx.scene.input.KeyCode.Q -> KeyCode.Q
+        javafx.scene.input.KeyCode.R -> KeyCode.R
+        javafx.scene.input.KeyCode.S -> KeyCode.S
+        javafx.scene.input.KeyCode.T -> KeyCode.T
+        javafx.scene.input.KeyCode.U -> KeyCode.U
+        javafx.scene.input.KeyCode.V -> KeyCode.V
+        javafx.scene.input.KeyCode.W -> KeyCode.W
+        javafx.scene.input.KeyCode.X -> KeyCode.X
+        javafx.scene.input.KeyCode.Y -> KeyCode.Y
+        javafx.scene.input.KeyCode.Z -> KeyCode.Z
+        javafx.scene.input.KeyCode.OPEN_BRACKET -> KeyCode.ROUND_BRACKET_LEFT
+        javafx.scene.input.KeyCode.BACK_SLASH -> KeyCode.BACKSLASH
+        javafx.scene.input.KeyCode.CLOSE_BRACKET -> KeyCode.ROUND_BRACKET_RIGHT
+        javafx.scene.input.KeyCode.MULTIPLY -> KeyCode.MULTIPLY
+        javafx.scene.input.KeyCode.ADD -> KeyCode.PLUS
+        javafx.scene.input.KeyCode.SEPARATOR -> KeyCode.COMMA
+        javafx.scene.input.KeyCode.SUBTRACT -> KeyCode.MINUS
+        javafx.scene.input.KeyCode.DECIMAL -> KeyCode.PERIOD
+        javafx.scene.input.KeyCode.DIVIDE -> KeyCode.SLASH
+        javafx.scene.input.KeyCode.DELETE -> KeyCode.DELETE
+        javafx.scene.input.KeyCode.F1 -> KeyCode.F1
+        javafx.scene.input.KeyCode.F2 -> KeyCode.F2
+        javafx.scene.input.KeyCode.F3 -> KeyCode.F3
+        javafx.scene.input.KeyCode.F4 -> KeyCode.F4
+        javafx.scene.input.KeyCode.F5 -> KeyCode.F5
+        javafx.scene.input.KeyCode.F6 -> KeyCode.F6
+        javafx.scene.input.KeyCode.F7 -> KeyCode.F7
+        javafx.scene.input.KeyCode.F8 -> KeyCode.F8
+        javafx.scene.input.KeyCode.F9 -> KeyCode.F9
+        javafx.scene.input.KeyCode.F10 -> KeyCode.F10
+        javafx.scene.input.KeyCode.F11 -> KeyCode.F11
+        javafx.scene.input.KeyCode.F12 -> KeyCode.F12
+        javafx.scene.input.KeyCode.PRINTSCREEN -> KeyCode.PRINT
+        javafx.scene.input.KeyCode.INSERT -> KeyCode.INSERT
+        javafx.scene.input.KeyCode.QUOTE -> KeyCode.QUOTE
+        javafx.scene.input.KeyCode.ASTERISK -> KeyCode.MULTIPLY
+        javafx.scene.input.KeyCode.QUOTEDBL -> KeyCode.DOUBLE_QUOTE
+        javafx.scene.input.KeyCode.LESS -> KeyCode.ANGLE_BRACKET_LEFT
+        javafx.scene.input.KeyCode.GREATER -> KeyCode.ANGLE_BRACKET_RIGHT
+        javafx.scene.input.KeyCode.BRACELEFT -> KeyCode.SQUARE_BRACKET_LEFT
+        javafx.scene.input.KeyCode.BRACERIGHT -> KeyCode.SQUARE_BRACKET_RIGHT
+        javafx.scene.input.KeyCode.AT -> KeyCode.AT
+        javafx.scene.input.KeyCode.COLON -> KeyCode.COLON
+        javafx.scene.input.KeyCode.DOLLAR -> KeyCode.DOLLAR
+        javafx.scene.input.KeyCode.EURO_SIGN -> KeyCode.EURO
+        javafx.scene.input.KeyCode.EXCLAMATION_MARK -> KeyCode.EXCLAMATION_MARK
+        javafx.scene.input.KeyCode.LEFT_PARENTHESIS -> KeyCode.CURLY_BRACKET_LEFT
+        javafx.scene.input.KeyCode.PLUS -> KeyCode.PLUS
+        javafx.scene.input.KeyCode.RIGHT_PARENTHESIS -> KeyCode.CURLY_BRACKET_RIGHT
+        javafx.scene.input.KeyCode.UNDERSCORE -> KeyCode.UNDERSCORE
+        javafx.scene.input.KeyCode.CUT -> KeyCode.CUT
+        javafx.scene.input.KeyCode.COPY -> KeyCode.COPY
+        javafx.scene.input.KeyCode.PASTE -> KeyCode.PASTE
+        javafx.scene.input.KeyCode.UNDO -> KeyCode.UNDO
+        javafx.scene.input.KeyCode.AGAIN -> KeyCode.REDO
+        javafx.scene.input.KeyCode.FIND -> KeyCode.FIND
+        else -> {
+            logger.info { "Unsupported keyCode: ${this.code}" }
+            null
+        }
+    }
+
     init {
         context.lineCap = StrokeLineCap.BUTT
         context.lineJoin = StrokeLineJoin.MITER
         canvas.isFocusTraversable = true
-    }
-}
-
-fun Color.fx(): javafx.scene.paint.Color = javafx.scene.paint.Color.rgb(red, green, blue, alpha)
-
-fun javafx.scene.input.KeyCode.toCommon() = when (this) {
-    javafx.scene.input.KeyCode.ENTER -> KeyCode.ENTER
-    javafx.scene.input.KeyCode.BACK_SPACE -> KeyCode.BACKSPACE
-    javafx.scene.input.KeyCode.TAB -> KeyCode.TAB
-    javafx.scene.input.KeyCode.CANCEL -> KeyCode.ESCAPE
-    javafx.scene.input.KeyCode.SHIFT -> KeyCode.SHIFT
-    javafx.scene.input.KeyCode.CONTROL -> KeyCode.CTRL
-    javafx.scene.input.KeyCode.ALT -> KeyCode.ALT
-    javafx.scene.input.KeyCode.ESCAPE -> KeyCode.ESCAPE
-    javafx.scene.input.KeyCode.SPACE -> KeyCode.SPACE
-    javafx.scene.input.KeyCode.PAGE_UP -> KeyCode.PAGE_UP
-    javafx.scene.input.KeyCode.PAGE_DOWN -> KeyCode.PAGE_DOWN
-    javafx.scene.input.KeyCode.END -> KeyCode.END
-    javafx.scene.input.KeyCode.HOME -> KeyCode.HOME
-    javafx.scene.input.KeyCode.LEFT -> KeyCode.ARROW_LEFT
-    javafx.scene.input.KeyCode.UP -> KeyCode.ARROW_UP
-    javafx.scene.input.KeyCode.RIGHT -> KeyCode.ARROW_RIGHT
-    javafx.scene.input.KeyCode.DOWN -> KeyCode.ARROW_DOWN
-    javafx.scene.input.KeyCode.COMMA -> KeyCode.COMMA
-    javafx.scene.input.KeyCode.MINUS -> KeyCode.MINUS
-    javafx.scene.input.KeyCode.PERIOD -> KeyCode.PERIOD
-    javafx.scene.input.KeyCode.SLASH -> KeyCode.SLASH
-    javafx.scene.input.KeyCode.DIGIT0, javafx.scene.input.KeyCode.NUMPAD0 -> KeyCode.NUM_0
-    javafx.scene.input.KeyCode.DIGIT1, javafx.scene.input.KeyCode.NUMPAD1 -> KeyCode.NUM_1
-    javafx.scene.input.KeyCode.DIGIT2, javafx.scene.input.KeyCode.NUMPAD2 -> KeyCode.NUM_2
-    javafx.scene.input.KeyCode.DIGIT3, javafx.scene.input.KeyCode.NUMPAD3 -> KeyCode.NUM_3
-    javafx.scene.input.KeyCode.DIGIT4, javafx.scene.input.KeyCode.NUMPAD4 -> KeyCode.NUM_4
-    javafx.scene.input.KeyCode.DIGIT5, javafx.scene.input.KeyCode.NUMPAD5 -> KeyCode.NUM_5
-    javafx.scene.input.KeyCode.DIGIT6, javafx.scene.input.KeyCode.NUMPAD6 -> KeyCode.NUM_6
-    javafx.scene.input.KeyCode.DIGIT7, javafx.scene.input.KeyCode.NUMPAD7 -> KeyCode.NUM_7
-    javafx.scene.input.KeyCode.DIGIT8, javafx.scene.input.KeyCode.NUMPAD8 -> KeyCode.NUM_8
-    javafx.scene.input.KeyCode.DIGIT9, javafx.scene.input.KeyCode.NUMPAD9 -> KeyCode.NUM_9
-    javafx.scene.input.KeyCode.SEMICOLON -> KeyCode.SEMICOLON
-    javafx.scene.input.KeyCode.EQUALS -> KeyCode.EQUALS
-    javafx.scene.input.KeyCode.A -> KeyCode.A
-    javafx.scene.input.KeyCode.B -> KeyCode.B
-    javafx.scene.input.KeyCode.C -> KeyCode.C
-    javafx.scene.input.KeyCode.D -> KeyCode.D
-    javafx.scene.input.KeyCode.E -> KeyCode.E
-    javafx.scene.input.KeyCode.F -> KeyCode.F
-    javafx.scene.input.KeyCode.G -> KeyCode.G
-    javafx.scene.input.KeyCode.H -> KeyCode.H
-    javafx.scene.input.KeyCode.I -> KeyCode.I
-    javafx.scene.input.KeyCode.J -> KeyCode.J
-    javafx.scene.input.KeyCode.K -> KeyCode.K
-    javafx.scene.input.KeyCode.L -> KeyCode.L
-    javafx.scene.input.KeyCode.M -> KeyCode.M
-    javafx.scene.input.KeyCode.N -> KeyCode.N
-    javafx.scene.input.KeyCode.O -> KeyCode.O
-    javafx.scene.input.KeyCode.P -> KeyCode.P
-    javafx.scene.input.KeyCode.Q -> KeyCode.Q
-    javafx.scene.input.KeyCode.R -> KeyCode.R
-    javafx.scene.input.KeyCode.S -> KeyCode.S
-    javafx.scene.input.KeyCode.T -> KeyCode.T
-    javafx.scene.input.KeyCode.U -> KeyCode.U
-    javafx.scene.input.KeyCode.V -> KeyCode.V
-    javafx.scene.input.KeyCode.W -> KeyCode.W
-    javafx.scene.input.KeyCode.X -> KeyCode.X
-    javafx.scene.input.KeyCode.Y -> KeyCode.Y
-    javafx.scene.input.KeyCode.Z -> KeyCode.Z
-    javafx.scene.input.KeyCode.OPEN_BRACKET -> KeyCode.ROUND_BRACKET_LEFT
-    javafx.scene.input.KeyCode.BACK_SLASH -> KeyCode.BACKSLASH
-    javafx.scene.input.KeyCode.CLOSE_BRACKET -> KeyCode.ROUND_BRACKET_RIGHT
-    javafx.scene.input.KeyCode.MULTIPLY -> KeyCode.MULTIPLY
-    javafx.scene.input.KeyCode.ADD -> KeyCode.PLUS
-    javafx.scene.input.KeyCode.SEPARATOR -> KeyCode.COMMA
-    javafx.scene.input.KeyCode.SUBTRACT -> KeyCode.MINUS
-    javafx.scene.input.KeyCode.DECIMAL -> KeyCode.PERIOD
-    javafx.scene.input.KeyCode.DIVIDE -> KeyCode.SLASH
-    javafx.scene.input.KeyCode.DELETE -> KeyCode.DELETE
-    javafx.scene.input.KeyCode.F1 -> KeyCode.F1
-    javafx.scene.input.KeyCode.F2 -> KeyCode.F2
-    javafx.scene.input.KeyCode.F3 -> KeyCode.F3
-    javafx.scene.input.KeyCode.F4 -> KeyCode.F4
-    javafx.scene.input.KeyCode.F5 -> KeyCode.F5
-    javafx.scene.input.KeyCode.F6 -> KeyCode.F6
-    javafx.scene.input.KeyCode.F7 -> KeyCode.F7
-    javafx.scene.input.KeyCode.F8 -> KeyCode.F8
-    javafx.scene.input.KeyCode.F9 -> KeyCode.F9
-    javafx.scene.input.KeyCode.F10 -> KeyCode.F10
-    javafx.scene.input.KeyCode.F11 -> KeyCode.F11
-    javafx.scene.input.KeyCode.F12 -> KeyCode.F12
-    javafx.scene.input.KeyCode.PRINTSCREEN -> KeyCode.PRINT
-    javafx.scene.input.KeyCode.INSERT -> KeyCode.INSERT
-    javafx.scene.input.KeyCode.QUOTE -> KeyCode.QUOTE
-    javafx.scene.input.KeyCode.ASTERISK -> KeyCode.MULTIPLY
-    javafx.scene.input.KeyCode.QUOTEDBL -> KeyCode.DOUBLE_QUOTE
-    javafx.scene.input.KeyCode.LESS -> KeyCode.ANGLE_BRACKET_LEFT
-    javafx.scene.input.KeyCode.GREATER -> KeyCode.ANGLE_BRACKET_RIGHT
-    javafx.scene.input.KeyCode.BRACELEFT -> KeyCode.SQUARE_BRACKET_LEFT
-    javafx.scene.input.KeyCode.BRACERIGHT -> KeyCode.SQUARE_BRACKET_RIGHT
-    javafx.scene.input.KeyCode.AT -> KeyCode.AT
-    javafx.scene.input.KeyCode.COLON -> KeyCode.COLON
-    javafx.scene.input.KeyCode.DOLLAR -> KeyCode.DOLLAR
-    javafx.scene.input.KeyCode.EURO_SIGN -> KeyCode.EURO
-    javafx.scene.input.KeyCode.EXCLAMATION_MARK -> KeyCode.EXCLAMATION_MARK
-    javafx.scene.input.KeyCode.LEFT_PARENTHESIS -> KeyCode.CURLY_BRACKET_LEFT
-    javafx.scene.input.KeyCode.PLUS -> KeyCode.PLUS
-    javafx.scene.input.KeyCode.RIGHT_PARENTHESIS -> KeyCode.CURLY_BRACKET_RIGHT
-    javafx.scene.input.KeyCode.UNDERSCORE -> KeyCode.UNDERSCORE
-    javafx.scene.input.KeyCode.CUT -> KeyCode.CUT
-    javafx.scene.input.KeyCode.COPY -> KeyCode.COPY
-    javafx.scene.input.KeyCode.PASTE -> KeyCode.PASTE
-    javafx.scene.input.KeyCode.UNDO -> KeyCode.UNDO
-    javafx.scene.input.KeyCode.AGAIN -> KeyCode.REDO
-    javafx.scene.input.KeyCode.FIND -> KeyCode.FIND
-    else -> {
-        println("Unsupported keyCode: ${this.code}")
-        null
     }
 }

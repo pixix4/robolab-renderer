@@ -21,6 +21,8 @@ import de.westermann.kobserve.property.property
 
 class FilePlanetEntry(val filename: String, private val provider: FilePlanetProvider) : ISideBarPlottable {
 
+    private val logger = Logger(this)
+    
     internal val planetFile = PlanetFile("")
 
     override val enabledProperty = property(false)
@@ -69,7 +71,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
     override fun buildContextMenu(position: Point) = menu(position, "Planet ${planetFile.planet.name}") {
         action("Save") {
             provider.saveEntry(this@FilePlanetEntry) {
-                println("Save successful: $it")
+                logger.info { "Save successful: $it" }
             }
         }
     }

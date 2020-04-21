@@ -1,6 +1,7 @@
 package de.robolab.communication.mqtt
 
 import com.soywiz.klock.DateTime
+import de.robolab.utils.Logger
 import de.robolab.utils.PreferenceStorage
 import de.robolab.utils.runAfterTimeout
 import de.robolab.utils.runAsync
@@ -12,6 +13,8 @@ import kotlin.math.min
  * @author leon
  */
 class RobolabMqttConnection : IMqttConnection {
+    
+    private val logger = Logger(this)
 
     private val subscribedTopicsProperty = property(emptySet<String>())
     override var subscribedTopics: Set<String> by subscribedTopicsProperty
@@ -37,7 +40,7 @@ class RobolabMqttConnection : IMqttConnection {
 
     init {
         connectionStateProperty.onChange {
-            println("Set connection state to ${connectionState.name}")
+            logger.debug { "Set connection state to ${connectionState.name}" }
         }
     }
 
@@ -80,9 +83,9 @@ class RobolabMqttConnection : IMqttConnection {
         }
 
         override fun subscribe(topic: String): Boolean {
-            println( "Subscribing to $topic" )
+            logger.info { "Subscribing to $topic" }
             mqttClient.subscribe(topic)
-            println( "Subscribed to $topic" )
+            logger.info { "Subscribed to $topic" }
             subscribedTopics = subscribedTopics + topic
             return true
         }
@@ -112,7 +115,7 @@ class RobolabMqttConnection : IMqttConnection {
     ) : ConnectionState() {
 
         private val mqttClient = MqttClient(PreferenceStorage.serverUri, PreferenceStorage.clientId).also {
-            println("clientId = ${PreferenceStorage.clientId}")
+            logger.info { "clientId = ${PreferenceStorage.clientId}" }
         }
 
         override fun connect(): Boolean {
@@ -122,7 +125,7 @@ class RobolabMqttConnection : IMqttConnection {
                 }
 
                 override fun onConnectionLost() {
-                    println("Connection lost")
+                    logger.warn { "Connection lost" }
                     connectionState.onConnectionLost()
                 }
 
@@ -130,7 +133,7 @@ class RobolabMqttConnection : IMqttConnection {
                     connectionState.onMessage(topic, message)
                 }
             })
-            println("Connecting to ${PreferenceStorage.serverUri}")
+            logger.info { "Connecting to ${PreferenceStorage.serverUri}" }
             runAsync {
                 try {
                     mqttClient.connect(
@@ -174,7 +177,7 @@ class RobolabMqttConnection : IMqttConnection {
 
     inner class ConnectionLost(private val timeUntilReconnect: Long) : ConnectionState() {
         override fun reconnect(): Boolean {
-            println("Reconnecting in ${timeUntilReconnect / 1000} seconds")
+            logger.info { "Reconnecting in ${timeUntilReconnect / 1000} seconds" }
             runAfterTimeout(timeUntilReconnect) {
                 if (connectionState == this@ConnectionLost) {
                     connectionState = Connecting(min(MAXIMUM_RECONNECT_TIME, timeUntilReconnect * 2))

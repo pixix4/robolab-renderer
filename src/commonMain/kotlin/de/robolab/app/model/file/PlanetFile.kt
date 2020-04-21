@@ -4,10 +4,12 @@ import de.robolab.planet.*
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.edit.IEditCallback
 import de.robolab.renderer.utils.History
+import de.robolab.utils.Logger
 import de.westermann.kobserve.property.mapBinding
 
 class PlanetFile(fileContent: String) : IEditCallback {
 
+    private val logger = Logger(this)
     val history = History(parseFileContent(fileContent))
     private var lines by history
 
@@ -17,7 +19,7 @@ class PlanetFile(fileContent: String) : IEditCallback {
             try {
                 line.buildPlanet(buildAccumulator)
             } catch (e: Exception) {
-                println("Error while buildPlanet, ${line::class.simpleName}: '${line.line}'")
+                logger.error { "Error while buildPlanet, ${line::class.simpleName}: '${line.line}'" }
             }
         }
         buildAccumulator.planet
@@ -39,7 +41,6 @@ class PlanetFile(fileContent: String) : IEditCallback {
     fun resetContent(fileContent: String) {
         history.clear(parseFileContent(fileContent))
     }
-
 
     override fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, controlPoints: List<Point>, groupHistory: Boolean) {
         var newLines = lines + FileLine.PathLine.create(Path(
