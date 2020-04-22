@@ -3,6 +3,7 @@ package de.robolab.web.dialog
 import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.Property
 import de.westermann.kobserve.event.EventHandler
+import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
@@ -75,8 +76,21 @@ abstract class Dialog(title: String) {
             val dialogView = dialog.build()
             Body.append(dialogView)
 
-            dialog.onClose {
+            var reference: EventListener<*>? = null
+
+            fun close() {
                 Body.remove(dialogView)
+                reference?.detach()
+            }
+
+            reference = Body.onKeyDown.reference {
+                if (it.keyCode == 27) {
+                    close()
+                }
+            }
+
+            dialog.onClose {
+                close()
             }
         }
     }

@@ -49,6 +49,12 @@ class SettingsDialog() : Dialog("Settings") {
             dialogFormEntry("Log level") {
                 selectView(PreferenceStorage.logLevelProperty)
             }
+
+            button("Reset all settings") {
+                onClick {
+                    PreferenceStorage.reset()
+                }
+            }
         }
     }
 }

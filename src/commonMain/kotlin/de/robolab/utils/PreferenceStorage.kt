@@ -56,6 +56,15 @@ object PreferenceStorage {
 
     val paperPrecisionProperty = item("PAPER_PRECISION",3)
     val paperPrecision by paperPrecisionProperty
+    
+    
+    fun reset() {
+        for (item in Item.itemList) {
+            item.reset()
+        }
+
+        storage.clear()
+    }
 
     abstract class Item<T>(private val key: String, val default: T) : Property<T> {
         protected abstract fun serialize(value: T): String?
@@ -75,6 +84,23 @@ object PreferenceStorage {
                 storage[key] = serialize(value)
                 onChange.emit(Unit)
             }
+        }
+        
+        fun reset() {
+            val current = get()
+            if (current != default) {
+                storage[key] = null
+                onChange.emit(Unit)
+            }
+        }
+
+        init {
+            @Suppress("LeakingThis")
+            itemList += this
+        }
+        
+        companion object {
+            val itemList = mutableListOf<Item<*>>()
         }
     }
 

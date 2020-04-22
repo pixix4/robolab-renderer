@@ -12,7 +12,11 @@ actual class KeyValueStorage {
     }
 
     actual operator fun set(key: String, value: String?) {
-        storage.put(key, value)
+        if (value == null) {
+            storage.remove(key)
+        } else {
+            storage.put(key, value)
+        }
     }
 
     actual operator fun contains(key: String): Boolean {

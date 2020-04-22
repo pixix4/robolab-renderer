@@ -79,6 +79,13 @@ class SettingsDialog: View() {
                     field("Log level") {
                         combobox(PreferenceStorage.logLevelProperty.toFx(), Logger.Level.values().toList())
                     }
+                    field("Reset all settings") {
+                        button("Reset") {
+                            setOnAction {
+                                PreferenceStorage.reset()
+                            }
+                        }
+                    }
                 }
             }
         }
