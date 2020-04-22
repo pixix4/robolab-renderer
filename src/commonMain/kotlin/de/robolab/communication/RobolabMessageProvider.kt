@@ -103,10 +103,6 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
         onMessage.emit(robolabMessage)
     }
 
-    init {
-        loadMqttLog()
-    }
-
     companion object {
         private val MQTT_LOG_LINE = """^([0-9:. -]*) \[info].*\[on_publish].*\[((?:<<.*>>)*)].*<<"(.*)">>$""".toRegex()
         private val MQTT_LOG_DATE_FORMAT = DateFormat("yyyy-MM-dd HH:mm:ss.SSS")

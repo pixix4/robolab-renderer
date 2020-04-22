@@ -172,7 +172,7 @@ class FxCanvas : ICanvas {
     }
 
     override fun fillRect(rectangle: Rectangle, color: Color) {
-        context.fill = color.fx()
+        context.fill = color.toFx()
 
         context.fillRect(
                 rectangle.left,
@@ -183,7 +183,7 @@ class FxCanvas : ICanvas {
     }
 
     override fun strokeRect(rectangle: Rectangle, color: Color, width: Double) {
-        context.stroke = color.fx()
+        context.stroke = color.toFx()
         context.lineWidth = width
 
         context.strokeRect(
@@ -195,7 +195,7 @@ class FxCanvas : ICanvas {
     }
 
     override fun fillPolygon(points: List<Point>, color: Color) {
-        context.fill = color.fx()
+        context.fill = color.toFx()
 
         context.fillPolygon(
                 points.map { it.left }.toDoubleArray(),
@@ -205,7 +205,7 @@ class FxCanvas : ICanvas {
     }
 
     override fun strokePolygon(points: List<Point>, color: Color, width: Double) {
-        context.stroke = color.fx()
+        context.stroke = color.toFx()
         context.lineWidth = width
 
         context.strokePolygon(
@@ -216,7 +216,7 @@ class FxCanvas : ICanvas {
     }
 
     override fun strokeLine(points: List<Point>, color: Color, width: Double) {
-        context.stroke = color.fx()
+        context.stroke = color.toFx()
         context.lineWidth = width
 
         context.beginPath()
@@ -231,7 +231,7 @@ class FxCanvas : ICanvas {
     }
 
     override fun dashLine(points: List<Point>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
-        context.stroke = color.fx()
+        context.stroke = color.toFx()
         context.lineWidth = width
         context.setLineDashes(*dashes.toDoubleArray())
         context.lineDashOffset = dashOffset
@@ -251,7 +251,7 @@ class FxCanvas : ICanvas {
     }
 
     override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment, fontWeight: ICanvas.FontWeight) {
-        context.fill = color.fx()
+        context.fill = color.toFx()
         context.textAlign = when (alignment) {
             ICanvas.FontAlignment.LEFT -> TextAlignment.LEFT
             ICanvas.FontAlignment.CENTER -> TextAlignment.CENTER
@@ -267,7 +267,7 @@ class FxCanvas : ICanvas {
     }
 
     override fun fillArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
-        context.fill = color.fx()
+        context.fill = color.toFx()
 
         context.fillArc(
                 center.left - radius,
@@ -281,7 +281,7 @@ class FxCanvas : ICanvas {
     }
 
     override fun strokeArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color, width: Double) {
-        context.stroke = color.fx()
+        context.stroke = color.toFx()
         context.lineWidth = width
 
         context.strokeArc(
@@ -302,8 +302,6 @@ class FxCanvas : ICanvas {
         )
         menu.toFx().show(canvas, position.x, position.y)
     }
-
-    fun Color.fx(): javafx.scene.paint.Color = javafx.scene.paint.Color.rgb(red, green, blue, alpha)
 
     fun javafx.scene.input.KeyCode.toCommon() = when (this) {
         javafx.scene.input.KeyCode.ENTER -> KeyCode.ENTER
@@ -423,3 +421,5 @@ class FxCanvas : ICanvas {
         canvas.isFocusTraversable = true
     }
 }
+
+fun Color.toFx(): javafx.scene.paint.Color = javafx.scene.paint.Color.rgb(red, green, blue, alpha)

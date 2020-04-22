@@ -24,6 +24,8 @@ class MainStyle : Stylesheet() {
         val warn by cssclass()
         val error by cssclass()
 
+        val sideBarBackButton by cssclass()
+
         val disabled by cssclass()
         val active by cssclass()
 

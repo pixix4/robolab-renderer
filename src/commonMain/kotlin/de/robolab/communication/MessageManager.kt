@@ -1,5 +1,6 @@
 package de.robolab.communication
 
+import de.robolab.utils.runAfterTimeout
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.list.observableListOf
 
@@ -13,6 +14,10 @@ class MessageManager(private val messageProvider: RobolabMessageProvider) {
 
     init {
         messageProvider.onMessage += this::onRobolabMessage
+
+        runAfterTimeout(1000) {
+            messageProvider.loadMqttLog()
+        }
     }
 
     private fun onRobolabMessage(message: RobolabMessage) {

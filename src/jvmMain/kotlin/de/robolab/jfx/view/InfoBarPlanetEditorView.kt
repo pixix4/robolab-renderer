@@ -16,7 +16,7 @@ import java.util.regex.Pattern
 /**
  * @author lars
  */
-class PlanetTextEditor(private val contentProperty: Property<String>) : View() {
+class InfoBarPlanetEditorView(private val contentProperty: Property<String>) : View() {
     private val editor: CodeArea = CodeArea()
     override val root: Parent = editor
 

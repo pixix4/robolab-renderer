@@ -15,6 +15,7 @@ import de.robolab.utils.ContextMenuList
 import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.FunctionAccessor
+import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import javafx.css.Styleable
@@ -73,6 +74,42 @@ class SideBar(sideBarController: SideBarController) : View() {
 
             style {
                 padding = box(0.5.em)
+            }
+        }
+
+        hbox {
+            hgrow = Priority.ALWAYS
+            val sideBarBackButton = hbox {
+                addClass(MainStyle.sideBarBackButton)
+                hgrow = Priority.ALWAYS
+
+                label(sideBarController.selectedGroupProperty.flatMapReadOnlyNullableBinding { it?.tabNameProperty }.mapBinding {
+                    it ?: ""
+                }.toFx()) {
+                    style {
+                        fontWeight = FontWeight.BOLD
+                        padding = box(0.5.em, 1.em)
+                    }
+                }
+
+
+                setOnMouseClicked {
+                    sideBarController.closeGroup()
+                }
+            }
+
+            val isVisible = sideBarController.selectedGroupProperty.mapBinding { it != null }
+
+            if (!isVisible.value) {
+                sideBarBackButton.removeFromParent()
+            }
+
+            isVisible.onChange {
+                if (isVisible.value) {
+                    add(sideBarBackButton)
+                } else {
+                    sideBarBackButton.removeFromParent()
+                }
             }
         }
 

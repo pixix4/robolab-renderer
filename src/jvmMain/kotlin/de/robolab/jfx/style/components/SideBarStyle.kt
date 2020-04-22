@@ -69,4 +69,14 @@ fun Stylesheet.initSideBarStyle() {
             textFill = MainStyle.theme.errorTextColor
         }
     }
+
+    MainStyle.sideBarBackButton {
+        borderColor = multi(box(MainStyle.theme.borderColor))
+        borderStyle = multi(BorderStrokeStyle.SOLID)
+        borderWidth = multi(box(1.px, 0.px, 0.px, 0.px))
+
+        and(Stylesheet.hover) {
+            backgroundColor = multi(MainStyle.theme.secondaryHoverBackground)
+        }
+    }
 }

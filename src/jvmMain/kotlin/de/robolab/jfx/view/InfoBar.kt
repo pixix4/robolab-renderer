@@ -1,11 +1,14 @@
 package de.robolab.jfx.view
 
 import de.robolab.app.controller.InfoBarController
+import de.robolab.app.controller.TraverserBarController
 import de.robolab.app.model.file.InfoBarFileEditor
 import de.robolab.app.model.file.InfoBarTraverser
+import de.robolab.app.model.group.InfoBarGroupInfo
 import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.style.MainStyle
 import de.robolab.jfx.utils.buttonGroup
+import de.westermann.kobserve.Property
 import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.property.mapBinding
 import javafx.scene.layout.HBox
@@ -39,14 +42,16 @@ class InfoBar(private val infoBarController: InfoBarController) : View() {
 
         when (content) {
             is InfoBarFileEditor -> {
-                contentBox.add(PlanetTextEditor(content.contentProperty))
+                contentBox.add(InfoBarPlanetEditorView(content.contentProperty))
             }
             is InfoBarTraverser -> {
-                contentBox.button("Traverse") {
-                    setOnAction {
-                        content.traverse()
-                    }
+                if (content.traverserProperty.value == null) {
+                    content.traverse()
                 }
+                contentBox.add(NullableViewContainer(content.traverserProperty))
+            }
+            is InfoBarGroupInfo -> {
+                contentBox.add(InfoBarGroupView(content))
             }
         }
     }
@@ -76,5 +81,40 @@ class InfoBar(private val infoBarController: InfoBarController) : View() {
             }
             updateContent(this)
         }
+    }
+}
+
+class NullableViewContainer(private val traverserProperty: ReadOnlyProperty<TraverserBarController?>) : View() {
+
+    private var prop: Property<TraverserBarController>? = null
+    private var view: InfoBarTraverserView? = null
+
+    private fun updateView() {
+        val traverser = traverserProperty.value
+
+        if (traverser == null) {
+            root.clear()
+            return
+        }
+
+        if (prop == null) {
+            prop = de.westermann.kobserve.property.property(traverser)
+        } else {
+            prop?.value = traverser
+        }
+        if (view == null) {
+            view = InfoBarTraverserView(prop!!)
+        }
+
+        root.add(view!!)
+    }
+
+    override val root = vbox { }
+
+    init {
+        traverserProperty.onChange {
+            updateView()
+        }
+        updateView()
     }
 }
