@@ -11,3 +11,4 @@ robolab.conf
 export/*
 web/website/
 node_modules/
+.lck

@@ -6,8 +6,6 @@ package de.robolab.communication.bindings
 
 external fun connect(brokerUrl: String = definedExternally, opts: IClientOptions = definedExternally): MqttClient
 
-external fun connect(brokerUrl: String = definedExternally, opts: dynamic = definedExternally): MqttClient
-
 external fun connect(brokerUrl: Any = definedExternally, opts: IClientOptions = definedExternally): MqttClient
 
 external fun connect(): MqttClient

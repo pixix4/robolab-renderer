@@ -2,6 +2,7 @@ package de.robolab.communication.mqtt
 
 import de.robolab.communication.bindings.IClientOptions
 import de.robolab.communication.bindings.MqttClient
+import de.robolab.communication.bindings.buildClientOptions
 
 actual class MqttClient actual constructor(
         private val serverUri: String,
@@ -26,13 +27,11 @@ actual class MqttClient actual constructor(
     actual fun connect(username: String, password: String) {
         val id = clientId
 
-        @Suppress("UnsafeCastFromDynamic")
-        val options: IClientOptions = js("{}")
-        options.username = username
-        options.password = password
-        options.clientId = id
-
-        client = de.robolab.communication.bindings.connect(serverUri, options)
+        client = de.robolab.communication.bindings.connect(serverUri, buildClientOptions {
+            this.username = username
+            this.password = password
+            clientId = id
+        })
 
         client?.on("connect", this::onConnectCallback)
         client?.on("message", this::onMessageCallback)
