@@ -26,7 +26,7 @@ object PreferenceStorage {
     val clientIdProperty = item("CLIENT_ID", Random.nextBytes(16).joinToString("") { it.toString(16).padStart(2, '0') })
     var clientId by clientIdProperty
 
-    val serverUriProperty = item("SERVER_URI", "ssl://mothership.inf.tu-dresden.de:8883")
+    val serverUriProperty = item("SERVER_URI", PlatformDefaultPreferences.serverUriProperty)
     var serverUri by serverUriProperty
 
     val usernameProperty = item("USERNAME", "")
@@ -132,4 +132,8 @@ object PreferenceStorage {
         }
 
     }
+}
+
+expect object PlatformDefaultPreferences {
+    val serverUriProperty: String
 }
