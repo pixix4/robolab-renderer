@@ -112,40 +112,15 @@ class SideBarController(
     }
 
     val statusMessage = connection.connectionStateProperty.mapBinding {
-        when (it) {
-            is RobolabMqttConnection.Connected -> "Connected"
-            is RobolabMqttConnection.Connecting -> "Connecting"
-            is RobolabMqttConnection.ConnectionLost -> "Connection lost"
-            is RobolabMqttConnection.Disconnected -> "Disconnected"
-            else -> ""
-        }
+        it.name
     }
 
     val statusActionLabel = connection.connectionStateProperty.mapBinding {
-        when (it) {
-            is RobolabMqttConnection.Connected -> "Disconnect"
-            is RobolabMqttConnection.Connecting -> "Disconnect"
-            is RobolabMqttConnection.ConnectionLost -> "Connect"
-            is RobolabMqttConnection.Disconnected -> "Connect"
-            else -> ""
-        }
+        it.actionLabel
     }
 
     fun onStatusAction() {
-        when (connection.connectionStateProperty.value) {
-            is RobolabMqttConnection.Connected -> {
-                connection.disconnect()
-            }
-            is RobolabMqttConnection.Connecting -> {
-                connection.disconnect()
-            }
-            is RobolabMqttConnection.ConnectionLost -> {
-                connection.connect()
-            }
-            is RobolabMqttConnection.Disconnected -> {
-                connection.connect()
-            }
-        }
+        connection.connectionState.onAction()
     }
 
     enum class StatusColor {

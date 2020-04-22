@@ -1,34 +1,64 @@
 package de.robolab.communication.mqtt
 
-import de.robolab.communication.runDemo
-import de.robolab.utils.TimeoutReference
-import de.robolab.utils.runAfterTimeoutInterval
+import de.robolab.communication.bindings.IClientOptions
+import de.robolab.communication.bindings.MqttClient
 
-actual class MqttClient actual constructor(serverUri: String, clientId: String) {
+actual class MqttClient actual constructor(
+        private val serverUri: String,
+        private val clientId: String
+) {
 
     private var callback: Callback? = null
 
+    private fun onConnectCallback() {
+        callback?.onConnect()
+    }
+
+    private fun onMessageCallback(topic: String, payload: dynamic) {
+        callback?.onMessage(topic, payload.toString())
+    }
+
+    private fun onDisconnectCallback() {
+        callback?.onConnectionLost()
+    }
+
+    private var client: MqttClient? = null
     actual fun connect(username: String, password: String) {
-        val c= callback ?:return
+        val id = clientId
 
-        c.onConnect()
+        @Suppress("UnsafeCastFromDynamic")
+        val options: IClientOptions = js("{}")
+        options.username = username
+        options.password = password
+        options.clientId = id
 
-        runDemo(c)
+        client = de.robolab.communication.bindings.connect(serverUri, options)
+
+        client?.on("connect", this::onConnectCallback)
+        client?.on("message", this::onMessageCallback)
+        client?.on("disconnect", this::onDisconnectCallback)
     }
 
     actual fun disconnect() {
+        client?.end()
+        client = null
     }
 
     actual fun subscribe(topic: String) {
+        client?.subscribe(topic) { _, _ ->
+
+        }
     }
 
     actual fun unsubscribe(topic: String) {
+        client?.unsubscribe(topic)
     }
 
     actual fun publish(topic: String, message: String) {
+        client?.publish(topic, message)
     }
 
-    actual fun setCallback(callback: Callback) {
+    actual fun setCallback(callback: Callback?) {
         this.callback = callback
     }
 

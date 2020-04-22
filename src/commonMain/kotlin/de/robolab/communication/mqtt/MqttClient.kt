@@ -10,7 +10,7 @@ expect class MqttClient(serverUri: String, clientId: String) {
 
     fun publish(topic: String, message: String)
 
-    fun setCallback(callback: Callback)
+    fun setCallback(callback: Callback?)
     interface Callback {
         fun onConnect()
         fun onConnectionLost()

@@ -23,17 +23,6 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
         mqttConnection.onMessage += this::onMessage
     }
 
-    fun start() = if (mqttConnection.connect()) {
-        mqttConnection.subscribe("#")
-        true
-    } else {
-        false
-    }
-
-    fun stop() {
-        mqttConnection.disconnect()
-    }
-
     private val jsonSerializer = Json(JsonConfiguration.Stable)
 
     private fun onMessage(message: MqttMessage) {

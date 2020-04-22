@@ -23,7 +23,13 @@ kotlin {
             }
         }
     }
-    js()
+    js {
+        val main by compilations.getting {
+            kotlinOptions {
+                moduleKind = "umd"
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -66,6 +72,7 @@ kotlin {
                 implementation("de.jensd:fontawesomefx-fontawesome:4.7.0-5")
                 implementation("org.fxmisc.richtext:richtextfx:0.10.4")
                 implementation("org.fusesource.jansi:jansi:1.8")
+                implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
             }
@@ -103,7 +110,13 @@ val jvmJar = tasks.named<Jar>("jvmJar") {
         attributes("Main-Class" to mainClassName)
     }
 
-    from(Callable { configurations["jvmRuntimeClasspath"].map { if (it.isDirectory) it else zipTree(it) } })
+    from(Callable {
+        configurations["jvmRuntimeClasspath"].map {
+            if (it.isDirectory) it else zipTree(it)
+        }
+    }) {
+        exclude("META-INF/*.SF", "META-INF/*.RSA", "META-INF/*SF")
+    }
 }
 
 tasks.create<JavaExec>("jvmRun") {

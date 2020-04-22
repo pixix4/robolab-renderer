@@ -15,10 +15,6 @@ class MessageManager(private val messageProvider: RobolabMessageProvider) {
         messageProvider.onMessage += this::onRobolabMessage
     }
 
-    fun start() {
-        messageProvider.start()
-    }
-
     private fun onRobolabMessage(message: RobolabMessage) {
         messageList += message
         onMessage.emit(message)

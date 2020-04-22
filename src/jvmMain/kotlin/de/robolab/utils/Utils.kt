@@ -21,7 +21,7 @@ actual fun runAfterTimeout(timeout: Int, block: () -> Unit): TimeoutReference {
 
 actual fun runAfterTimeout(timeout: Long, block: () -> Unit): TimeoutReference {
     return TimeoutReference(Timer().schedule(timeout) {
-        block()
+        Platform.runLater(block)
     })
 }
 
@@ -31,6 +31,6 @@ actual fun runAfterTimeoutInterval(interval: Int, block: () -> Unit): TimeoutRef
 
 actual fun runAfterTimeoutInterval(interval: Long, block: () -> Unit): TimeoutReference {
     return TimeoutReference(Timer().scheduleAtFixedRate(interval, interval) {
-        block()
+        Platform.runLater(block)
     })
 }
