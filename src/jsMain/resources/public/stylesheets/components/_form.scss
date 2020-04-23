@@ -41,6 +41,7 @@ select:-moz-focusring {
 
     &:active, &:focus {
         background-color: var(--secondary-background);
+        border-color: var(--theme-color);
     }
 
     &.active {
@@ -67,13 +68,21 @@ select:-moz-focusring {
         margin-right: 0;
         border-bottom-right-radius: 0;
         border-top-right-radius: 0;
+        border-right-style: none;
     }
 
     .button:not(:first-child) {
         margin-left: 0;
         border-bottom-left-radius: 0;
         border-top-left-radius: 0;
-        border-left: none;
+    }
+
+    .button:active, .button:focus {
+        border-right-style: solid;
+
+        & + .button {
+            border-left-style: none;
+        }
     }
 }
 

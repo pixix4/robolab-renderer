@@ -15,17 +15,20 @@ fun Stylesheet.initFormStyle() {
         borderColor = multi(box(MainStyle.theme.borderColor))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
-        borderRadius = multi(box(4.px))
-        backgroundRadius = multi(box(4.px))
+        borderRadius = multi(box(MainStyle.BORDER_RADIUS))
+        backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
         textFill = MainStyle.theme.primaryTextColor
-        //prefHeight = 80.percent
-        //padding = box(0.px)
+        backgroundInsets = multi(box(0.px))
+
+        Stylesheet.arrow {
+            backgroundColor = multi(MainStyle.theme.secondaryTextColor)
+        }
 
         Stylesheet.listCell {
             backgroundColor = multi(Color.TRANSPARENT)
             textFill = MainStyle.theme.primaryTextColor
-            borderRadius = multi(box(4.px))
-            backgroundRadius = multi(box(4.px))
+            borderRadius = multi(box(MainStyle.BORDER_RADIUS))
+            backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
         }
 
         and(Stylesheet.focused) {
@@ -56,6 +59,9 @@ fun Stylesheet.initFormStyle() {
             textFill = MainStyle.theme.primaryTextColor
             padding = box(0.5.em)
 
+            borderRadius = multi(box(0.px))
+            backgroundRadius = multi(box(0.px))
+
             and(Stylesheet.selected) {
                 backgroundColor = multi(MainStyle.theme.primaryBackground)
                 textFill = MainStyle.theme.themeColor
@@ -76,9 +82,10 @@ fun Stylesheet.initFormStyle() {
         borderColor = multi(box(MainStyle.theme.borderColor))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
-        borderRadius = multi(box(4.px))
-        backgroundRadius = multi(box(4.px))
+        borderRadius = multi(box(MainStyle.BORDER_RADIUS))
+        backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
         textFill = MainStyle.theme.primaryTextColor
+        backgroundInsets = multi(box(0.px))
 
         and(Stylesheet.focused) {
             backgroundColor = multi(MainStyle.theme.primaryBackground)
@@ -97,14 +104,19 @@ fun Stylesheet.initFormStyle() {
         backgroundColor = multi(MainStyle.theme.tertiaryBackground)
         borderColor = multi(box(MainStyle.theme.borderColor))
         textFill = MainStyle.theme.primaryTextColor
-        borderRadius = multi(box(2.px))
+        borderRadius = multi(box(MainStyle.BORDER_RADIUS))
+        backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
 
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
+        backgroundInsets = multi(box(0.px))
 
         and(Stylesheet.focused, Stylesheet.hover) {
             backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
             textFill = MainStyle.theme.primaryTextColor
+        }
+        and(Stylesheet.focused) {
+            borderColor = multi(box(MainStyle.theme.themeColor))
         }
     }
 
@@ -118,10 +130,14 @@ fun Stylesheet.initFormStyle() {
 
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
+        backgroundInsets = multi(box(0.px))
 
         and(Stylesheet.focused, Stylesheet.hover) {
             backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
             textFill = MainStyle.theme.primaryTextColor
+        }
+        and(Stylesheet.focused) {
+            borderColor = multi(box(MainStyle.theme.themeColor))
         }
         and(Stylesheet.selected) {
             backgroundColor = multi(MainStyle.theme.primaryBackground)
@@ -198,8 +214,9 @@ fun Stylesheet.initFormStyle() {
             borderColor = multi(box(MainStyle.theme.borderColor))
             borderStyle = multi(BorderStrokeStyle.SOLID)
             borderWidth = multi(box(1.px))
-            borderRadius = multi(box(4.px))
-            backgroundRadius = multi(box(4.px))
+            borderRadius = multi(box(MainStyle.BORDER_RADIUS))
+            backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
+            backgroundInsets = multi(box(0.px))
         }
 
         and(Stylesheet.hover) {
@@ -216,8 +233,8 @@ fun Stylesheet.initFormStyle() {
 
         and(Stylesheet.selected) {
             Stylesheet.box {
-                borderColor = multi(box(MainStyle.theme.themeColor))
                 backgroundColor = multi(MainStyle.theme.themeColor)
+                borderColor = multi(box(MainStyle.theme.themeColor))
             }
 
             Stylesheet.mark {
