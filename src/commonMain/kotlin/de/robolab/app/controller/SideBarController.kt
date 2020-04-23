@@ -11,7 +11,6 @@ import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.Property
 import de.westermann.kobserve.list.filterObservable
 import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.flatten
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -22,8 +21,8 @@ class SideBarController(
         private val connection: RobolabMqttConnection
 ) {
 
-    private val groupPlanetProperty = GroupPlanetProvider(messageManager)
     private val filePlanetProvider = FilePlanetProvider()
+    private val groupPlanetProperty = GroupPlanetProvider(messageManager, filePlanetProvider)
 
     val tabProperty = PreferenceStorage.selectedSideBarTabProperty
 

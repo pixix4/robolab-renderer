@@ -5,281 +5,205 @@ import de.robolab.renderer.drawable.live.RobotDrawable
 
 
 fun List<RobolabMessage>.toServerPlanet(): Planet {
-    /*
-    val messageList = this
-    val (name, startPoint, startOrientation) =
-            (firstOrNull { it is RobolabMessage.PlanetMessage } as? RobolabMessage.PlanetMessage)?.let {
-                Triple(it.planetName, it.startPoint, it.startOrientation)
-            }
-                    ?: Triple(firstOrNull { it.metadata.topic.startsWith("planet/") }?.metadata?.topic?.substringAfter('/')?.substringBeforeLast("-"), null, Direction.NORTH)
-    val bluePointMessage = this.filterIsInstance<RobolabMessage.DebugMessage>().find { it.firstBluePoint != null }
-    val pathSelects = mutableListOf<PathSelect>()
-    var lastSelectPathFromRobot: RobolabMessage.PathSelectMessageFromRobot? = null
+    var name = ""
+    var startPoint: StartPoint? = null
+    val pathList = mutableListOf<Path>()
+    val targetList = mutableListOf<TargetPoint>()
+    val pathSelectList = mutableListOf<PathSelect>()
 
-    for (message in messageList) {
+    var currentPoint = Coordinate(0, 0)
+    var currentDirection = Direction.NORTH
+    for (message in this) {
         when (message) {
             is RobolabMessage.PathSelectMessageFromRobot -> {
-                lastSelectPathFromRobot = message
+                currentDirection = message.direction
             }
-            is RobolabMessage.PathSelectMessageFromServer -> {
-                if (lastSelectPathFromRobot != null) {
-                    pathSelects.add(PathSelect(lastSelectPathFromRobot.point, message.direction))
-                }
-                lastSelectPathFromRobot = null
-            }
-            else -> lastSelectPathFromRobot = null
         }
-    }
 
-    var lastPoint: Coordinate? = null
+        if (message.metadata.from != From.SERVER) continue
 
-    var robotPosition: Coordinate? = null
-    var robotDirection: Direction? = null
-    var robotServerDirection: Direction? = null
-    var robotPathSelect: Direction? = null
-    var robotServerPathSelect: Direction? = null
-    var target: TargetPoint? = null
-
-    val paths = mutableListOf<Path>()
-    for (message in messageList) {
         when (message) {
-            is RobolabMessage.PlanetMessage -> {
-                robotPosition = message.startPoint
-                robotServerDirection = Direction.SOUTH
-            }
-            is RobolabMessage.FoundPathMessage -> {
-                paths += message.path
-                if (robotPosition != message.path.target) {
-                    robotPosition = message.path.target
-                    robotDirection = null
-                    robotServerDirection = null
-                    robotPathSelect = null
-                    robotServerPathSelect = null
-                }
-                if (message.metadata.from == From.SERVER) {
-                    lastPoint = message.path.target
-                    robotServerDirection = message.path.targetDirection
-                } else {
-                    lastPoint = null
-                    robotDirection = message.path.targetDirection
-                }
-            }
             is RobolabMessage.PathUnveiledMessage -> {
-                lastPoint?.let {
-                    paths += message.path.copy(exposure = setOf(it))
-                } ?: paths.add(message.path)
+                pathList.removeAll { it.equalPath(message.path) }
+
+                pathList += message.path.copy(
+                        exposure = setOf(currentPoint)
+                )
             }
-            is RobolabMessage.PathSelectMessageFromRobot -> {
-                robotPathSelect = message.direction
+            is RobolabMessage.PathMessage -> {
+                var path = message.path
+
+                if (currentPoint == path.source) {
+                    if (currentPoint == path.target && currentDirection == path.targetDirection) {
+                        // Loop
+                        path = path.reversed()
+                    }
+                } else if (currentPoint == path.target) {
+                    path = path.reversed()
+                }
+
+                currentPoint = path.target
+                currentDirection = path.targetDirection
+
+                pathList.removeAll { it.equalPath(path) }
+
+                pathList += path
             }
             is RobolabMessage.PathSelectMessageFromServer -> {
-                robotServerPathSelect = message.direction
+                pathSelectList += PathSelect(currentPoint, message.direction)
+                currentDirection = message.direction
+            }
+            is RobolabMessage.PlanetMessage -> {
+                name = message.planetName
+                startPoint = StartPoint(message.startPoint, message.startOrientation, emptyList())
+                currentPoint = message.startPoint
+                currentDirection = message.startOrientation
             }
             is RobolabMessage.TargetMessage -> {
-                target = TargetPoint(message.target, lastPoint ?: Coordinate(0, 0))
+                targetList.clear()
+                targetList += TargetPoint(message.target, currentPoint)
             }
         }
     }
 
-    val start = startPoint?.let { StartPoint(it, startOrientation, emptyList()) }
-    val targets = listOfNotNull(target)
     return Planet(
-            name ?: "",
-            start,
-            bluePointMessage?.firstBluePoint,
-            paths,
-            targets,
-            pathSelects
+            name,
+            startPoint,
+            null,
+            pathList,
+            targetList,
+            pathSelectList,
+            emptyList()
     )
-     */
-
-    return Planet.EMPTY
 }
 
 fun List<RobolabMessage>.toMqttPlanet(): Planet {
-    /*
-    val messageList = this
-    val (name, startPoint, startOrientation) =
-            (firstOrNull { it is RobolabMessage.PlanetMessage } as? RobolabMessage.PlanetMessage)?.let {
-                Triple(it.planetName, it.startPoint, it.startOrientation)
-            }
-                    ?: Triple(firstOrNull { it.metadata.topic.startsWith("planet/") }?.metadata?.topic?.substringAfter('/')?.substringBeforeLast("-"), null, Direction.NORTH)
-    val bluePointMessage = this.filterIsInstance<RobolabMessage.DebugMessage>().find { it.firstBluePoint != null }
-    val pathSelects = mutableListOf<PathSelect>()
-    var lastSelectPathFromRobot: RobolabMessage.PathSelectMessageFromRobot? = null
+    var name = ""
+    var startPoint: StartPoint? = null
+    var bluePoint: Coordinate? = null
+    val pathList = mutableListOf<Path>()
+    val targetList = mutableListOf<TargetPoint>()
+    val pathSelectList = mutableListOf<PathSelect>()
 
-    for (message in messageList) {
+    var currentPoint = Coordinate(0, 0)
+    var currentDirection = Direction.NORTH
+    for (message in this) {
+        if (message.metadata.from != From.CLIENT) continue
+
         when (message) {
-            is RobolabMessage.PathSelectMessageFromRobot -> {
-                lastSelectPathFromRobot = message
-            }
-            is RobolabMessage.PathSelectMessageFromServer -> {
-                if (lastSelectPathFromRobot != null) {
-                    pathSelects.add(PathSelect(lastSelectPathFromRobot.point, message.direction))
-                }
-                lastSelectPathFromRobot = null
-            }
-            else -> lastSelectPathFromRobot = null
-        }
-    }
+            is RobolabMessage.PathMessage -> {
+                pathList += message.path
 
-    var lastPoint: Coordinate? = null
-
-    var robotPosition: Coordinate? = null
-    var robotDirection: Direction? = null
-    var robotServerDirection: Direction? = null
-    var robotPathSelect: Direction? = null
-    var robotServerPathSelect: Direction? = null
-    var target: TargetPoint? = null
-
-    val paths = mutableListOf<Path>()
-    for (message in messageList) {
-        when (message) {
-            is RobolabMessage.PlanetMessage -> {
-                robotPosition = message.startPoint
-                robotServerDirection = Direction.SOUTH
-            }
-            is RobolabMessage.FoundPathMessage -> {
-                paths += message.path
-                if (robotPosition != message.path.target) {
-                    robotPosition = message.path.target
-                    robotDirection = null
-                    robotServerDirection = null
-                    robotPathSelect = null
-                    robotServerPathSelect = null
-                }
-                if (message.metadata.from == From.SERVER) {
-                    lastPoint = message.path.target
-                    robotServerDirection = message.path.targetDirection
+                if (currentPoint == message.path.source) {
+                    if (currentPoint == message.path.target && currentDirection != message.path.sourceDirection) {
+                        // Loop
+                        currentPoint = message.path.source
+                        currentDirection = message.path.sourceDirection
+                    } else {
+                        currentPoint = message.path.target
+                        currentDirection = message.path.targetDirection
+                    }
                 } else {
-                    lastPoint = null
-                    robotDirection = message.path.targetDirection
+                    currentPoint = message.path.source
+                    currentDirection = message.path.sourceDirection
                 }
             }
-            is RobolabMessage.PathUnveiledMessage -> {
-                lastPoint?.let {
-                    paths += message.path.copy(exposure = setOf(it))
-                } ?: paths.add(message.path)
-            }
             is RobolabMessage.PathSelectMessageFromRobot -> {
-                robotPathSelect = message.direction
+                currentDirection = message.direction
             }
             is RobolabMessage.PathSelectMessageFromServer -> {
-                robotServerPathSelect = message.direction
+                pathSelectList += PathSelect(currentPoint, message.direction)
+                currentDirection = message.direction
+            }
+            is RobolabMessage.PlanetMessage -> {
+                name = message.planetName
+                startPoint = StartPoint(message.startPoint, message.startOrientation, emptyList())
+                currentPoint = message.startPoint
+                currentDirection = message.startOrientation
+            }
+            is RobolabMessage.SetPlanetMessage -> {
+
             }
             is RobolabMessage.TargetMessage -> {
-                target = TargetPoint(message.target, lastPoint ?: Coordinate(0, 0))
+                targetList.clear()
+                targetList += TargetPoint(message.target, currentPoint)
+            }
+            is RobolabMessage.TargetReachedMessage -> {
+
+            }
+            is RobolabMessage.ExplorationCompletedMessage -> {
+
+            }
+            is RobolabMessage.DoneMessage -> {
+
+            }
+            is RobolabMessage.TestplanetMessage -> {
+
+            }
+            is RobolabMessage.ReadyMessage -> {
+
+            }
+            is RobolabMessage.DebugMessage -> {
+
+            }
+            is RobolabMessage.IllegalMessage -> {
+
             }
         }
     }
 
-    val start = startPoint?.let { StartPoint(it, startOrientation, emptyList()) }
-    val targets = listOfNotNull(target)
     return Planet(
-            name ?: "",
-            start,
-            bluePointMessage?.firstBluePoint,
-            paths,
-            targets,
-            pathSelects
+            name,
+            startPoint,
+            bluePoint,
+            pathList,
+            targetList,
+            pathSelectList,
+            emptyList()
     )
-    */
-
-    return Planet.EMPTY
 }
 
 fun List<RobolabMessage>.toRobot(groupNumber: Int?): RobotDrawable.Robot? {
-    /*
-    val messageList = this
+    var currentPoint = Coordinate(0, 0)
+    var currentDirection = Direction.NORTH
+    var beforePoint = true
+    loop@ for (message in this) {
 
-    val (name, startPoint, startOrientation) =
-            (firstOrNull { it is RobolabMessage.PlanetMessage } as? RobolabMessage.PlanetMessage)?.let {
-                Triple(it.planetName, it.startPoint, it.startOrientation)
-            }
-                    ?: Triple(firstOrNull { it.metadata.topic.startsWith("planet/") }?.metadata?.topic?.substringAfter('/')?.substringBeforeLast("-"), null, Direction.NORTH)
-    val bluePointMessage = this.filterIsInstance<RobolabMessage.DebugMessage>().find { it.firstBluePoint != null }
-    val pathSelects = mutableListOf<PathSelect>()
-    var lastSelectPathFromRobot: RobolabMessage.PathSelectMessageFromRobot? = null
-
-    for (message in messageList) {
         when (message) {
+            is RobolabMessage.PathMessage -> {
+                if (message.metadata.from != From.CLIENT) continue@loop
+
+                var path = message.path
+
+                if (currentPoint == path.source) {
+                    if (currentPoint == path.target && currentDirection == path.targetDirection) {
+                        // Loop
+                        path = path.reversed()
+                    }
+                } else if (currentPoint == path.target) {
+                    path = path.reversed()
+                }
+
+                currentPoint = path.target
+                currentDirection = path.targetDirection
+
+                beforePoint = true
+            }
             is RobolabMessage.PathSelectMessageFromRobot -> {
-                lastSelectPathFromRobot = message
+                currentDirection = message.direction
+                beforePoint = false
             }
             is RobolabMessage.PathSelectMessageFromServer -> {
-                if (lastSelectPathFromRobot != null) {
-                    pathSelects.add(PathSelect(lastSelectPathFromRobot.point, message.direction))
-                }
-                lastSelectPathFromRobot = null
+                currentDirection = message.direction
+                beforePoint = false
             }
-            else -> lastSelectPathFromRobot = null
-        }
-    }
-
-    var lastPoint: Coordinate? = null
-
-    var robotPosition: Coordinate? = null
-    var robotDirection: Direction? = null
-    var robotServerDirection: Direction? = null
-    var robotPathSelect: Direction? = null
-    var robotServerPathSelect: Direction? = null
-    var target: TargetPoint? = null
-
-    val paths = mutableListOf<Path>()
-    for (message in messageList) {
-        when (message) {
             is RobolabMessage.PlanetMessage -> {
-                robotPosition = message.startPoint
-                robotServerDirection = Direction.SOUTH
-            }
-            is RobolabMessage.FoundPathMessage -> {
-                paths += message.path
-                if (robotPosition != message.path.target) {
-                    robotPosition = message.path.target
-                    robotDirection = null
-                    robotServerDirection = null
-                    robotPathSelect = null
-                    robotServerPathSelect = null
-                }
-                if (message.metadata.from == From.SERVER) {
-                    lastPoint = message.path.target
-                    robotServerDirection = message.path.targetDirection
-                } else {
-                    lastPoint = null
-                    robotDirection = message.path.targetDirection
-                }
-            }
-            is RobolabMessage.PathUnveiledMessage -> {
-                lastPoint?.let {
-                    paths += message.path.copy(exposure = setOf(it))
-                } ?: paths.add(message.path)
-            }
-            is RobolabMessage.PathSelectMessageFromRobot -> {
-                robotPathSelect = message.direction
-            }
-            is RobolabMessage.PathSelectMessageFromServer -> {
-                robotServerPathSelect = message.direction
-            }
-            is RobolabMessage.TargetMessage -> {
-                target = TargetPoint(message.target, lastPoint ?: Coordinate(0, 0))
+                currentPoint = message.startPoint
+                currentDirection = message.startOrientation.opposite()
+                beforePoint = true
             }
         }
     }
 
-    val robots = mutableListOf<RobotDrawable.Robot>()
-    if (robotPosition != null) {
-        if (robotPathSelect != null) {
-            robots += RobotDrawable.Robot(robotPosition, robotPathSelect, true, groupNumber)
-        } else if (robotDirection != null) {
-            robots += RobotDrawable.Robot(robotPosition, robotDirection, false, groupNumber)
-        }
-        if (robotServerPathSelect != null) {
-            robots += RobotDrawable.Robot(robotPosition, robotServerPathSelect, true, groupNumber)
-        } else if (robotServerDirection != null) {
-            robots += RobotDrawable.Robot(robotPosition, robotServerDirection, false, groupNumber)
-        }
-    }
-    */
-
-    return null
+    return RobotDrawable.Robot(currentPoint, currentDirection, beforePoint, groupNumber)
 }

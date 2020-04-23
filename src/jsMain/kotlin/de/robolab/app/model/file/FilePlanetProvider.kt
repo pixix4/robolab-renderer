@@ -10,7 +10,7 @@ actual class FilePlanetProvider actual constructor(): IProvider {
 
     override val searchStringProperty = property("")
 
-    val planetList: ObservableList<FilePlanetEntry> = observableListOf()
+    actual val planetList: ObservableList<FilePlanetEntry> = observableListOf()
     override val entryList: ObservableReadOnlyList<ISideBarEntry> = planetList.sortObservable(compareBy { it.titleProperty.value.toLowerCase() }).mapObservable { it as ISideBarEntry }
 
     actual fun loadEntry(entry: FilePlanetEntry, onFinish: (String?) -> Unit) {

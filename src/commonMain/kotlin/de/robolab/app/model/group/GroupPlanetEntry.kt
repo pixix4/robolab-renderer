@@ -3,23 +3,26 @@ package de.robolab.app.model.group
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
 import de.robolab.app.model.*
+import de.robolab.app.model.file.FilePlanetProvider
+import de.robolab.app.model.file.findByName
 import de.robolab.communication.RobolabMessage
 import de.robolab.communication.toMqttPlanet
+import de.robolab.communication.toRobot
 import de.robolab.communication.toServerPlanet
-import de.robolab.renderer.data.Point
+import de.robolab.planet.Planet
 import de.robolab.renderer.drawable.planet.LivePlanetDrawable
-import de.robolab.utils.ContextMenu
 import de.robolab.utils.Logger
 import de.westermann.kobserve.list.ObservableReadOnlyList
 import de.westermann.kobserve.list.mapObservable
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.constProperty
+import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlin.math.max
 import kotlin.math.min
 
-class GroupPlanetEntry(val groupName: String) : ISideBarGroup {
+class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanetProvider) : ISideBarGroup {
 
     val attempts = observableListOf<AttemptPlanetEntry>()
 
@@ -39,15 +42,42 @@ class GroupPlanetEntry(val groupName: String) : ISideBarGroup {
 
     override val hasContextMenu: Boolean = false
 
-    fun onMessage(message: RobolabMessage) {
-        if (message is RobolabMessage.TestplanetMessage) {
-            return
+    fun onMessage(message: RobolabMessage, updateAttempt: Boolean = true): AttemptPlanetEntry? {
+            if (message is RobolabMessage.TestplanetMessage) {
+                return null
+            }
+
+        val attempt = if (message is RobolabMessage.ReadyMessage || attempts.isEmpty()) {
+            val attempt = AttemptPlanetEntry(message.metadata.time, this)
+            attempt.messages.add(message)
+            attempts.add(attempt)
+            attempt
+        } else {
+            val attempt = attempts.last()
+            attempt.messages.add(message)
+            attempt
         }
 
-        if (message is RobolabMessage.ReadyMessage || attempts.isEmpty()) {
-            attempts.add(AttemptPlanetEntry(message.metadata.time, this).apply { messages.add(message) })
-        } else {
-            attempts.last().messages.add(message)
+        if (updateAttempt) {
+            attempt.update()
+        }
+
+        return attempt
+    }
+
+    fun onMessage(messageList: List<RobolabMessage>) {
+        val changedAttempts = mutableSetOf<AttemptPlanetEntry>()
+
+        for (message in messageList) {
+            val attempt = onMessage(message, false)
+
+            if (attempt != null) {
+                changedAttempts += attempt
+            }
+        }
+
+        for (attempt in changedAttempts) {
+            attempt.update()
         }
     }
 }
@@ -143,17 +173,36 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     override val drawable = LivePlanetDrawable()
 
 
-    private fun update() {
+    private val planetNameProperty = property("")
+    private val backgroundPlanet = planetNameProperty.flatMapReadOnlyNullableBinding {
+        val entry = parent.filePlanetProvider.findByName(it)
+        entry?.onOpen()
+        entry?.planetFile?.planetProperty
+    }.mapBinding { it ?: Planet.EMPTY }
+
+    private var serverPlanet = Planet.EMPTY
+    private var mqttPlanet = Planet.EMPTY
+    fun update() {
         val selectedIndex = selectedIndexProperty.value
         val m = if (selectedIndex == null) messages else messages.subList(0, selectedIndex - 1)
 
-        drawable.importServerPlanet(m.toServerPlanet())
-        drawable.importMqttPlanet(m.toMqttPlanet())
+        serverPlanet = m.toServerPlanet()
+        planetNameProperty.value = serverPlanet.name
+        mqttPlanet = m.toMqttPlanet()
+
+        drawable.importServerPlanet(serverPlanet.importSplines(backgroundPlanet.value))
+        drawable.importMqttPlanet(mqttPlanet.importSplines(backgroundPlanet.value))
+        drawable.importRobot(m.toRobot(parent.groupName.toIntOrNull()))
     }
 
     init {
-        messages.onChange { update() }
         selectedIndexProperty.onChange { update() }
+
+        backgroundPlanet.onChange {
+            drawable.importBackgroundPlanet(backgroundPlanet.value)
+            drawable.importServerPlanet(serverPlanet.importSplines(backgroundPlanet.value))
+            drawable.importMqttPlanet(mqttPlanet.importSplines(backgroundPlanet.value))
+        }
     }
 
     companion object {

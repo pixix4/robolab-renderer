@@ -5,6 +5,7 @@ import com.soywiz.klock.parse
 import de.robolab.communication.mqtt.MqttMessage
 import de.robolab.communication.mqtt.RobolabMqttConnection
 import de.robolab.utils.Logger
+import de.robolab.utils.runAfterTimeoutInterval
 import de.westermann.kobserve.event.EventHandler
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
@@ -18,6 +19,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
     private val logger = Logger(this)
 
     val onMessage = EventHandler<RobolabMessage>()
+    val onMessageList = EventHandler<List<RobolabMessage>>()
 
     init {
         mqttConnection.onMessage += this::onMessage
@@ -25,7 +27,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
 
     private val jsonSerializer = Json(JsonConfiguration.Stable)
 
-    private fun onMessage(message: MqttMessage) {
+    private fun parseMqttMessage(message: MqttMessage): RobolabMessage? {
         val groupId = message.topic.substringAfterLast('/').substringAfterLast('-')
 
         var metadata = RobolabMessage.Metadata(
@@ -46,7 +48,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
                     RobolabMessage.IllegalMessage.Reason.NotParsable,
                     e.message
             ))
-            return
+            return null
         }
 
         metadata = metadata.copy(from = jsonMessage.from)
@@ -63,28 +65,34 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
             logger.error { "Missing argument \"${e.name}\" in message ${metadata.rawMessage}" }
             RobolabMessage.IllegalMessage(metadata, RobolabMessage.IllegalMessage.Reason.MissingArgument(e.name))
         } catch (e: IgnoreMessageException) {
-            return
+            return null
         } catch (e: WrongTopicException) {
             RobolabMessage.IllegalMessage(metadata, RobolabMessage.IllegalMessage.Reason.WrongTopic)
         }
+
+        return robolabMessage
+    }
+
+    private fun onMessage(message: MqttMessage) {
+        val robolabMessage = parseMqttMessage(message) ?: return
         onRobolabMessage(robolabMessage)
     }
 
-    private fun parseMqttLogLine(line: String) {
-        val match = MQTT_LOG_LINE.matchEntire(line) ?: return
-        val rawDateStr = match.groupValues.getOrNull(1) ?: return
-        val rawTopicStr = match.groupValues.getOrNull(2) ?: return
-        val rawContentStr = match.groupValues.getOrNull(3) ?: return
+    private fun parseMqttLogLine(line: String): MqttMessage? {
+        val match = MQTT_LOG_LINE.matchEntire(line) ?: return null
+        val rawDateStr = match.groupValues.getOrNull(1) ?: return null
+        val rawTopicStr = match.groupValues.getOrNull(2) ?: return null
+        val rawContentStr = match.groupValues.getOrNull(3) ?: return null
 
         val date = MQTT_LOG_DATE_FORMAT.parse(rawDateStr)
         val topic = rawTopicStr.split(',').joinToString("/") { it.drop(3).dropLast(3) }
-        val content = rawContentStr.replace("\\\"","\"").replace("\\\\","\\")
-        
-        onMessage(MqttMessage(
+        val content = rawContentStr.replace("\\\"", "\"").replace("\\\\", "\\")
+
+        return MqttMessage(
                 date.utc.unixMillisLong,
                 topic,
                 content
-        ))
+        )
     }
 
     fun loadMqttLog() {
@@ -92,9 +100,8 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
             if (content ==null) {
                 logger.warn { "Cannot load mqtt.console.log!" }
             } else {
-                for (line in content.splitToSequence('\n')) {
-                    parseMqttLogLine(line)
-                }
+                val list = content.splitToSequence('\n').mapNotNull { parseMqttLogLine(it) }.mapNotNull { parseMqttMessage(it) }
+                onMessageList.emit(list.toList())
             }
         }
     }

@@ -10,10 +10,13 @@ import de.westermann.kobserve.list.observableListOf
 class MessageManager(private val messageProvider: RobolabMessageProvider) {
 
     val messageList = observableListOf<RobolabMessage>()
+
     val onMessage = EventHandler<RobolabMessage>()
+    val onMessageList = EventHandler<List<RobolabMessage>>()
 
     init {
         messageProvider.onMessage += this::onRobolabMessage
+        messageProvider.onMessageList += this::onRobolabMessageList
 
         runAfterTimeout(1000) {
             messageProvider.loadMqttLog()
@@ -23,5 +26,10 @@ class MessageManager(private val messageProvider: RobolabMessageProvider) {
     private fun onRobolabMessage(message: RobolabMessage) {
         messageList += message
         onMessage.emit(message)
+    }
+
+    private fun onRobolabMessageList(message: List<RobolabMessage>) {
+        messageList += message
+        onMessageList.emit(message)
     }
 }

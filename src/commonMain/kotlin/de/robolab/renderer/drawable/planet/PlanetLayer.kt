@@ -5,9 +5,13 @@ import de.robolab.renderer.drawable.base.GroupDrawable
 import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.drawable.general.*
+import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.utils.Pointer
 
-class PlanetLayer(private val planetDrawable: AbsPlanetDrawable) : GroupDrawable(), IAnimationTime {
+class PlanetLayer(
+        private val planetDrawable: AbsPlanetDrawable,
+        private val contextTransform: (DrawContext) -> DrawContext = { it }
+) : GroupDrawable(), IAnimationTime {
 
     override val animationTime: Double
         get() = planetDrawable.animationTime
@@ -46,5 +50,9 @@ class PlanetLayer(private val planetDrawable: AbsPlanetDrawable) : GroupDrawable
         pathSelectDrawable.importPlanet(planet)
         pointDrawable.importPlanet(planet)
         commentDrawable.importPlanet(planet)
+    }
+
+    override fun onDraw(context: DrawContext) {
+        super.onDraw(contextTransform(context))
     }
 }

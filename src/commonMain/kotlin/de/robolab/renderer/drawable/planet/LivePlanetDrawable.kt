@@ -5,7 +5,9 @@ import de.robolab.renderer.drawable.live.RobotDrawable
 
 class LivePlanetDrawable() : AbsPlanetDrawable() {
 
-    private val backgroundLayer = PlanetLayer(this)
+    private val backgroundLayer = PlanetLayer(this) {
+        it.withAlpha(0.2)
+    }
     private val mqttLayer = PlanetLayer(this)
     private val serverLayer = PlanetLayer(this)
 
@@ -20,7 +22,6 @@ class LivePlanetDrawable() : AbsPlanetDrawable() {
         mqttLayer.importPlanet(planet.importSplines(backgroundLayer.planet))
         importPlanets()
     }
-
 
     fun importServerPlanet(planet: Planet) {
         serverLayer.importPlanet(planet.importSplines(backgroundLayer.planet))

@@ -24,7 +24,7 @@ object LightThemeFx: IThemeFx {
     override val successColor = Color.web("#2ecc71")
     override val successTextColor = Color.web("#FFFFFF")
 
-    override val warnColor = Color.web("#f1c40f")
+    override val warnColor = Color.web("#f39c12")
     override val warnTextColor = Color.web("#FFFFFF")
 
     override val errorColor = Color.web("#e74c3c")

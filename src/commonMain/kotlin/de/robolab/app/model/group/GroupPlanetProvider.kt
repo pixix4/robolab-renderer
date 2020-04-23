@@ -1,20 +1,18 @@
 package de.robolab.app.model.group
 
-import com.soywiz.klock.DateTime
 import de.robolab.app.model.IProvider
 import de.robolab.app.model.ISideBarEntry
-import de.robolab.communication.From
+import de.robolab.app.model.file.FilePlanetProvider
 import de.robolab.communication.MessageManager
 import de.robolab.communication.RobolabMessage
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.list.filterObservable
 import de.westermann.kobserve.list.mapObservable
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sortObservable
 import de.westermann.kobserve.property.property
 
 class GroupPlanetProvider(
-        messageManager: MessageManager
+        messageManager: MessageManager,
+        private val filePlanetProvider: FilePlanetProvider
 ): IProvider {
 
     val groupList = observableListOf<GroupPlanetEntry>()
@@ -27,11 +25,22 @@ class GroupPlanetProvider(
 
     private fun onMessage(message: RobolabMessage) {
         val group = groupList.find { it.groupName == message.metadata.groupId }
-                ?: GroupPlanetEntry(message.metadata.groupId).also { groupList.add(it) }
+                ?: GroupPlanetEntry(message.metadata.groupId, filePlanetProvider).also { groupList.add(it) }
         group.onMessage(message)
+    }
+
+    private fun onMessage(messageList: List<RobolabMessage>) {
+        val groupedMessages = messageList.groupBy { it.metadata.groupId }
+
+        for ((groupId, messages) in groupedMessages) {
+            val group = groupList.find { it.groupName == groupId }
+                    ?: GroupPlanetEntry(groupId, filePlanetProvider).also { groupList.add(it) }
+            group.onMessage(messages)
+        }
     }
 
     init {
         messageManager.onMessage += this::onMessage
+        messageManager.onMessageList += this::onMessage
     }
 }
