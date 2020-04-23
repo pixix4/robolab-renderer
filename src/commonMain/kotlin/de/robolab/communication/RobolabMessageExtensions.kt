@@ -171,8 +171,6 @@ fun List<RobolabMessage>.toRobot(groupNumber: Int?): RobotDrawable.Robot? {
 
         when (message) {
             is RobolabMessage.PathMessage -> {
-                if (message.metadata.from != From.CLIENT) continue@loop
-
                 var path = message.path
 
                 if (currentPoint == path.source) {

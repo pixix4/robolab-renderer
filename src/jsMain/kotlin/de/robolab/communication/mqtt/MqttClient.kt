@@ -1,8 +1,7 @@
 package de.robolab.communication.mqtt
 
-import de.robolab.communication.bindings.IClientOptions
 import de.robolab.communication.bindings.MqttClient
-import de.robolab.communication.bindings.buildClientOptions
+import de.robolab.utils.buildJsInterface
 
 actual class MqttClient actual constructor(
         private val serverUri: String,
@@ -27,7 +26,7 @@ actual class MqttClient actual constructor(
     actual fun connect(username: String, password: String) {
         val id = clientId
 
-        client = de.robolab.communication.bindings.connect(serverUri, buildClientOptions {
+        client = de.robolab.communication.bindings.connect(serverUri, buildJsInterface {
             this.username = username
             this.password = password
             clientId = id

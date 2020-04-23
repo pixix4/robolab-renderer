@@ -153,13 +153,6 @@ external interface IClientOptions : ISecureClientOptions {
         set(value) = definedExternally
 }
 
-fun buildClientOptions(init: IClientOptions.() -> Unit): IClientOptions {
-    @Suppress("UnsafeCastFromDynamic")
-    val options: IClientOptions = js("{}")
-    init(options)
-    return options
-}
-
 external interface ISecureClientOptions {
     var key: dynamic /* String | Array<String> | Buffer | Array<Buffer> | Array<Any> */
         get() = definedExternally

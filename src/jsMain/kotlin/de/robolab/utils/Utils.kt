@@ -1,5 +1,6 @@
 package de.robolab.utils
 
+import de.robolab.communication.bindings.IClientOptions
 import kotlin.browser.window
 
 actual class TimeoutReference(private val handler: Int, private val type: Type) {
@@ -31,4 +32,11 @@ actual fun runAfterTimeoutInterval(interval: Int, block: () -> Unit): TimeoutRef
 }
 actual fun runAfterTimeoutInterval(interval: Long, block: () -> Unit): TimeoutReference {
     return runAfterTimeoutInterval(interval.toInt(), block)
+}
+
+fun<T: Any> buildJsInterface(init: T.() -> Unit): T {
+    @Suppress("UnsafeCastFromDynamic")
+    val options: T = js("{}")
+    init(options)
+    return options
 }
