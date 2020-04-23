@@ -1,8 +1,6 @@
 package de.robolab.jfx.style.components
 
 import de.robolab.jfx.style.MainStyle
-import javafx.scene.effect.BlurType
-import javafx.scene.effect.DropShadow
 import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
 import javafx.scene.text.FontWeight
@@ -13,26 +11,86 @@ fun Stylesheet.initFormStyle() {
         fill = MainStyle.theme.primaryTextColor
     }
     Stylesheet.comboBox {
-        backgroundColor = multi(MainStyle.theme.primaryBackground)
+        backgroundColor = multi(MainStyle.theme.tertiaryBackground)
         borderColor = multi(box(MainStyle.theme.borderColor))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
         borderRadius = multi(box(4.px))
         backgroundRadius = multi(box(4.px))
-        prefHeight = 80.percent
-        padding = box(0.px)
-    }
-    Stylesheet.textField {
-        backgroundColor = multi(MainStyle.theme.primaryBackground)
-        borderColor = multi(box(MainStyle.theme.borderColor))
-        borderStyle = multi(BorderStrokeStyle.SOLID)
-        borderWidth = multi(box(1.px))
-        borderRadius = multi(box(4.px))
-        backgroundRadius = multi(box(4.px))
+        textFill = MainStyle.theme.primaryTextColor
+        //prefHeight = 80.percent
+        //padding = box(0.px)
+
+        Stylesheet.listCell {
+            backgroundColor = multi(Color.TRANSPARENT)
+            textFill = MainStyle.theme.primaryTextColor
+            borderRadius = multi(box(4.px))
+            backgroundRadius = multi(box(4.px))
+        }
 
         and(Stylesheet.focused) {
+            backgroundColor = multi(MainStyle.theme.primaryBackground)
+            borderColor = multi(box(MainStyle.theme.themeColor))
+
+            and(Stylesheet.hover) {
+                backgroundColor = multi(MainStyle.theme.primaryHoverBackground)
+            }
+        }
+
+        and(Stylesheet.hover) {
+            backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
+        }
+    }
+    Stylesheet.comboBoxPopup {
+        backgroundColor = multi(MainStyle.theme.primaryBackground)
+        textFill = MainStyle.theme.primaryTextColor
+
+        Stylesheet.listView {
             borderColor = multi(box(MainStyle.theme.borderColor))
-            effect = DropShadow(BlurType.GAUSSIAN, MainStyle.theme.borderColor, 3.0, 3.0, 0.0, 0.0)
+            borderStyle = multi(BorderStrokeStyle.SOLID)
+            borderWidth = multi(box(1.px))
+        }
+
+        Stylesheet.listCell {
+            backgroundColor = multi(MainStyle.theme.secondaryBackground)
+            textFill = MainStyle.theme.primaryTextColor
+            padding = box(0.5.em)
+
+            and(Stylesheet.selected) {
+                backgroundColor = multi(MainStyle.theme.primaryBackground)
+                textFill = MainStyle.theme.themeColor
+                fontWeight = FontWeight.BOLD
+
+                and(Stylesheet.hover) {
+                    backgroundColor = multi(MainStyle.theme.primaryHoverBackground)
+                }
+            }
+
+            and(Stylesheet.hover) {
+                backgroundColor = multi(MainStyle.theme.secondaryHoverBackground)
+            }
+        }
+    }
+    Stylesheet.textField {
+        backgroundColor = multi(MainStyle.theme.tertiaryBackground)
+        borderColor = multi(box(MainStyle.theme.borderColor))
+        borderStyle = multi(BorderStrokeStyle.SOLID)
+        borderWidth = multi(box(1.px))
+        borderRadius = multi(box(4.px))
+        backgroundRadius = multi(box(4.px))
+        textFill = MainStyle.theme.primaryTextColor
+
+        and(Stylesheet.focused) {
+            backgroundColor = multi(MainStyle.theme.primaryBackground)
+            borderColor = multi(box(MainStyle.theme.themeColor))
+
+            and(Stylesheet.hover) {
+                backgroundColor = multi(MainStyle.theme.primaryHoverBackground)
+            }
+        }
+
+        and(Stylesheet.hover) {
+            backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
         }
     }
     Stylesheet.button {
@@ -80,6 +138,16 @@ fun Stylesheet.initFormStyle() {
         }
     }
 
+    Stylesheet.fieldset {
+        textFill = MainStyle.theme.primaryTextColor
+    }
+    Stylesheet.field {
+        textFill = MainStyle.theme.primaryTextColor
+    }
+    Stylesheet.label {
+        textFill = MainStyle.theme.primaryTextColor
+    }
+
     MainStyle.buttonGroup {
         Stylesheet.toggleButton {
             borderRadius = multi(box(0.px))
@@ -119,6 +187,41 @@ fun Stylesheet.initFormStyle() {
                     borderRadius = multi(box(MainStyle.BORDER_RADIUS))
                     backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
                 }
+            }
+        }
+    }
+
+    Stylesheet.checkBox {
+
+        Stylesheet.box {
+            backgroundColor = multi(MainStyle.theme.tertiaryBackground)
+            borderColor = multi(box(MainStyle.theme.borderColor))
+            borderStyle = multi(BorderStrokeStyle.SOLID)
+            borderWidth = multi(box(1.px))
+            borderRadius = multi(box(4.px))
+            backgroundRadius = multi(box(4.px))
+        }
+
+        and(Stylesheet.hover) {
+            Stylesheet.box {
+                backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
+            }
+        }
+
+        and(Stylesheet.focused) {
+            Stylesheet.box {
+                borderColor = multi(box(MainStyle.theme.themeColor))
+            }
+        }
+
+        and(Stylesheet.selected) {
+            Stylesheet.box {
+                borderColor = multi(box(MainStyle.theme.themeColor))
+                backgroundColor = multi(MainStyle.theme.themeColor)
+            }
+
+            Stylesheet.mark {
+                backgroundColor = multi(MainStyle.theme.themeText)
             }
         }
     }

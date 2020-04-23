@@ -47,6 +47,13 @@ fun Stylesheet.initSideBarStyle() {
                 textFill = MainStyle.theme.secondaryTextColor
             }
         }
+
+        and(Stylesheet.empty) {
+            backgroundColor = multi(MainStyle.theme.secondaryBackground)
+            and(Stylesheet.focused, Stylesheet.hover) {
+                backgroundColor = multi(MainStyle.theme.secondaryBackground)
+            }
+        }
     }
 
     MainStyle.success {
@@ -78,5 +85,52 @@ fun Stylesheet.initSideBarStyle() {
         and(Stylesheet.hover) {
             backgroundColor = multi(MainStyle.theme.secondaryHoverBackground)
         }
+    }
+
+    Stylesheet.scrollBar {
+        backgroundColor = multi(MainStyle.theme.tertiaryBackground)
+
+        Stylesheet.thumb {
+            backgroundColor = multi(MainStyle.theme.secondaryTextColor)
+            borderRadius = multi(box(1.em))
+            backgroundRadius = multi(box(1.em))
+
+            and(Stylesheet.hover) {
+                backgroundColor = multi(MainStyle.theme.primaryTextColor)
+            }
+        }
+        and(Stylesheet.pressed) {
+            Stylesheet.thumb {
+                backgroundColor = multi(MainStyle.theme.themeColor)
+            }
+        }
+
+        Stylesheet.incrementButton {
+            padding = box(0.px)
+            shape = ""
+        }
+        Stylesheet.incrementArrow {
+            padding = box(0.px)
+            shape = ""
+        }
+        Stylesheet.decrementButton {
+            padding = box(0.px)
+            shape = ""
+        }
+        Stylesheet.decrementArrow {
+            padding = box(0.px)
+            shape = ""
+        }
+
+        and(Stylesheet.vertical) {
+            prefWidth = 0.6.em
+        }
+        and(Stylesheet.horizontal) {
+            prefHeight = 0.6.em
+        }
+    }
+
+    Stylesheet.corner {
+        backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
     }
 }

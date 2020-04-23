@@ -2,7 +2,9 @@ package de.robolab.jfx.style.components
 
 import de.robolab.jfx.style.MainStyle
 import javafx.scene.layout.BorderStrokeStyle
+import javafx.scene.paint.Color
 import tornadofx.*
+import javax.swing.text.Style
 
 fun Stylesheet.initInfoBarStyle() {
     MainStyle.infoBar {
@@ -14,5 +16,43 @@ fun Stylesheet.initInfoBarStyle() {
 
     MainStyle.codeArea {
         backgroundColor = multi(MainStyle.theme.primaryBackground)
+    }
+
+
+    Stylesheet.tableView {
+        faintFocusColor = Color.TRANSPARENT
+        focusColor = Color.TRANSPARENT
+        backgroundColor = multi(MainStyle.theme.secondaryBackground)
+
+        val c = MainStyle.theme.borderColor.css
+
+        Stylesheet.columnHeader {
+            backgroundColor = multi(MainStyle.theme.tertiaryBackground)
+            properties["-fx-table-cell-border-color"] = Unit to { _ -> c }
+        }
+        Stylesheet.columnHeaderBackground {
+            backgroundColor = multi(MainStyle.theme.tertiaryBackground)
+            properties["-fx-table-cell-border-color"] = Unit to { _ -> c }
+        }
+        Stylesheet.tableRowCell {
+            properties["-fx-table-cell-border-color"] = Unit to { _ -> c }
+
+            Stylesheet.text {
+                fill = MainStyle.theme.primaryTextColor
+            }
+
+            and(Stylesheet.odd) {
+                backgroundColor = multi(MainStyle.theme.secondaryHoverBackground)
+            }
+            and(Stylesheet.even) {
+                backgroundColor = multi(MainStyle.theme.secondaryBackground)
+            }
+            and(Stylesheet.selected) {
+                backgroundColor = multi(MainStyle.theme.primaryBackground)
+                Stylesheet.text {
+                    fill = MainStyle.theme.themeColor
+                }
+            }
+        }
     }
 }
