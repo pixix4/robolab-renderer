@@ -1,4 +1,4 @@
-package de.robolab.renderer.theme
+package de.robolab.theme
 
 import de.robolab.renderer.data.Color
 

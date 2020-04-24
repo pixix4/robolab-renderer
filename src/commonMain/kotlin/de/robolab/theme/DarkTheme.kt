@@ -1,4 +1,4 @@
-package de.robolab.renderer.theme
+package de.robolab.theme
 
 import de.robolab.renderer.data.Color
 
@@ -82,13 +82,5 @@ object DarkTheme : ITheme {
         override val robotButtonColor = Color(49, 31, 4)
     }
 
-    override val traverser = object : IThemeTraverser {
-
-        override val traverserCharacteristicCorrectColor = Color(0, 255, 0)
-        override val traverserCharacteristicErrorColor = Color(255, 0, 0)
-        override val traverserCharacteristicNorthColor = Color(192, 192, 0)
-        override val traverserCharacteristicEastColor = Color(0, 192, 192)
-        override val traverserCharacteristicSouthColor = Color(192, 0, 192)
-        override val traverserCharacteristicWestColor = Color(0, 0, 255)
-    }
+    override val traverser = LightTheme.traverser
 }

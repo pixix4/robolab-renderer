@@ -6,7 +6,6 @@ import de.robolab.renderer.drawable.BlankDrawable
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.ITimer
-import de.robolab.renderer.theme.ITheme
 import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.utils.Pointer
 import de.robolab.renderer.utils.Transformation

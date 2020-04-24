@@ -1,0 +1,33 @@
+/**********************************************************
+ *                                                        *
+ *           Auto generated file. DO NOT EDIT!            *
+ * See: 'src/commonMain/kotlin/de/robolab/renderer/theme' *
+ *        Generate with './gradlew buildSassTheme'        *
+ *                                                        *
+ **********************************************************/
+
+@import 'theme-utils';
+
+$_border-color: #7c6f64;
+$_error-color: #fb4934;
+$_error-text-color: #1d2021;
+$_primary-background: #1d2021;
+$_primary-hover-background: #282828;
+$_primary-text-color: #ebdbb2;
+$_secondary-background: #32302f;
+$_secondary-hover-background: #3c3836;
+$_secondary-text-color: #a89984;
+$_success-color: #b8bb26;
+$_success-text-color: #1d2021;
+$_tertiary-background: #504945;
+$_tertiary-hover-background: #665c54;
+$_theme-color: #fb4934;
+$_theme-hover-color: #cc241d;
+$_theme-primary-text: #1d2021;
+$_theme-secondary-text: #3c3836;
+$_warn-color: #fabd2f;
+$_warn-text-color: #1d2021;
+
+body[data-theme='gruvbox_dark'] {
+    @include load-color-vars();
+}

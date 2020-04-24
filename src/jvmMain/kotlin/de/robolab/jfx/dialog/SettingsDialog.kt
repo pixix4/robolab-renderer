@@ -3,7 +3,7 @@ package de.robolab.jfx.dialog
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.utils.iconNoAdd
-import de.robolab.renderer.theme.Theme
+import de.robolab.theme.Theme
 import de.robolab.utils.Logger
 import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.not

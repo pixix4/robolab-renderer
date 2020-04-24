@@ -1,7 +1,7 @@
 package de.robolab.jfx
 
 import de.robolab.jfx.style.MainStyle
-import de.robolab.renderer.theme.Theme
+import de.robolab.theme.Theme
 import de.robolab.utils.PreferenceStorage
 import javafx.application.Platform
 import javafx.util.Duration

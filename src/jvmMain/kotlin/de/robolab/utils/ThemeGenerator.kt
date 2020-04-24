@@ -1,6 +1,6 @@
 package de.robolab.utils
 
-import de.robolab.renderer.theme.Theme
+import de.robolab.theme.Theme
 import java.lang.StringBuilder
 import java.nio.file.Files
 import java.nio.file.Path

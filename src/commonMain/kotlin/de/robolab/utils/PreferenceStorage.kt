@@ -2,7 +2,7 @@ package de.robolab.utils
 
 import de.robolab.app.controller.SideBarController
 import de.robolab.renderer.drawable.edit.EditPaperBackground
-import de.robolab.renderer.theme.Theme
+import de.robolab.theme.Theme
 import de.westermann.kobserve.Binding
 import de.westermann.kobserve.Property
 import de.westermann.kobserve.event.EventHandler

@@ -3,7 +3,7 @@ package de.robolab.renderer.utils
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.ICanvas
-import de.robolab.renderer.theme.ITheme
+import de.robolab.theme.ITheme
 
 class DrawContext(
         val canvas: ICanvas,
