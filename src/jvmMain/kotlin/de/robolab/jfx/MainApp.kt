@@ -10,8 +10,6 @@ import tornadofx.*
 import java.util.concurrent.TimeUnit
 
 
-
-
 class MainApp : App(MainView::class) {
 
     companion object {
@@ -20,8 +18,12 @@ class MainApp : App(MainView::class) {
 
             removeStylesheet(MainStyle::class)
 
-            runLater(Duration(100.0)) {
-                Platform.runLater {
+            // Wait for removal of all references to MainStyle
+            runLater {
+                System.gc()
+
+                // Wait for gc() to clear the current MainStyle instance
+                runLater(Duration(100.0)) {
                     importStylesheet(MainStyle::class)
                 }
             }

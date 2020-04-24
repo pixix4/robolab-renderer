@@ -4,12 +4,14 @@ import javafx.application.Platform
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.MqttClient
 import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+import java.util.*
 
 actual class MqttClient actual constructor(serverUri: String, clientId: String) {
 
     private var callback: Callback? = null
 
-    private val client = MqttClient(serverUri, clientId)
+    private val client = MqttClient(serverUri, clientId, MemoryPersistence())
 
     actual fun connect(username: String, password: String) {
         client.connect(MqttConnectOptions().apply {

@@ -16,7 +16,7 @@ object LightTheme : ITheme {
         override val tertiaryHoverBackground = Color(233, 233, 233)
 
         override val primaryTextColor = Color(51, 51, 51)
-        override val secondaryTextColor = primaryTextColor.a(0.8)
+        override val secondaryTextColor = primaryTextColor.a(0.5)
 
         override val themeColor = Color(192, 57, 43)
         override val themeHoverColor = Color(231, 76, 60)

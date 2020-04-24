@@ -16,7 +16,7 @@ object DarkTheme : ITheme {
         override val tertiaryHoverBackground = Color(64, 64, 64)
 
         override val primaryTextColor = Color(255, 255, 255)
-        override val secondaryTextColor = primaryTextColor.a(0.8)
+        override val secondaryTextColor = primaryTextColor.a(0.5)
 
         override val themeColor = Color(231, 76, 60)
         override val themeHoverColor = Color(192, 57, 43)
