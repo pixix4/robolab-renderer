@@ -17,6 +17,8 @@ class InfoBarFileEditor(private val filePlanetEntry: FilePlanetEntry) : IInfoBar
             val lastLines = filePlanetEntry.content.split('\n')
             val lines = value.split('\n')
 
+            if (lastLines == lines) return true
+
             val change = if (lastLines.size != lines.size) {
                 Change.LineCountModified(lastLines.size, lines.size)
             } else {
