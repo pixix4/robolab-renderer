@@ -47,7 +47,7 @@ class SettingsDialog() : Dialog("Settings") {
 
         dialogFormGroup("Advanced") {
             dialogFormEntry("Log level") {
-                selectView(PreferenceStorage.logLevelProperty)
+                selectView(PreferenceStorage.logLevelProperty, transform = { it.name.toLowerCase().capitalize() })
             }
 
             button("Reset all settings") {

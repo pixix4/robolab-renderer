@@ -88,7 +88,17 @@ class SettingsDialog: View() {
 
                 fieldset("Advanced") {
                     field("Log level") {
-                        combobox(PreferenceStorage.logLevelProperty.toFx(), Logger.Level.values().toList())
+                        combobox(PreferenceStorage.logLevelProperty.toFx(), Logger.Level.values().toList()) {
+                            converter = object: StringConverter<Logger.Level>() {
+                                override fun toString(obj: Logger.Level?): String {
+                                    return obj?.name?.toLowerCase()?.capitalize() ?: "null"
+                                }
+
+                                override fun fromString(string: String?): Logger.Level {
+                                    if (string == null) return  PreferenceStorage.logLevelProperty.default
+                                    return Logger.Level.values().find { it.name.equals(string, true) } ?: PreferenceStorage.logLevelProperty.default
+                                }
+                            }}
                     }
                     field("Reset all settings") {
                         button("Reset") {

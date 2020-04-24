@@ -247,6 +247,7 @@
 
     .cm-direction {
         color: var(--editor-direction-color);
+        font-weight: bold;
     }
 
     .cm-error {
@@ -255,6 +256,7 @@
 
     .cm-keyword {
         color: var(--editor-keyword-color);
+        font-weight: bold;
     }
 
     .cm-number {
