@@ -2,6 +2,7 @@ package de.robolab.web
 
 import de.robolab.app.controller.MainController
 import de.robolab.utils.PreferenceStorage
+import de.robolab.utils.toDashCase
 import de.robolab.web.views.*
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -18,7 +19,7 @@ fun main() {
     init {
         clear()
 
-        dataset.bind("theme", PreferenceStorage.selectedThemeProperty.mapBinding { it.name.toLowerCase() })
+        dataset.bind("theme", PreferenceStorage.selectedThemeProperty.mapBinding { it.name.toDashCase() })
 
         val toolBar = ToolBar(mainController.toolBarController)
         +toolBar

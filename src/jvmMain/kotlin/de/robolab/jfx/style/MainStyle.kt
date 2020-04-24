@@ -1,10 +1,7 @@
 package de.robolab.jfx.style
 
+import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.style.components.*
-import de.robolab.jfx.style.theme.DarkThemeFx
-import de.robolab.jfx.style.theme.IThemeFx
-import de.robolab.jfx.style.theme.LightThemeFx
-import de.robolab.renderer.theme.Theme
 import de.robolab.utils.PreferenceStorage
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
@@ -41,17 +38,12 @@ class MainStyle : Stylesheet() {
         val paragraphBox by cssclass()
         val hasCaret by csspseudoclass()
 
-        var theme: IThemeFx = loadTheme()
+        var theme = PreferenceStorage.selectedTheme.theme
 
         val BORDER_RADIUS = 6.px
 
-        private fun loadTheme() = when (PreferenceStorage.selectedTheme) {
-            Theme.LIGHT -> LightThemeFx
-            Theme.DARK -> DarkThemeFx
-        }
-
         fun updateTheme() {
-            theme = loadTheme()
+            theme = PreferenceStorage.selectedTheme.theme
         }
     }
 
@@ -75,8 +67,8 @@ class MainStyle : Stylesheet() {
             backgroundRadius = multi(box(0.px))
         }
         root {
-            textFill = theme.primaryTextColor
-            backgroundColor = multi(theme.secondaryBackground)
+            textFill = theme.ui.primaryTextColor.toFx()
+            backgroundColor = multi(theme.ui.secondaryBackground.toFx())
             font = Font.font("Roboto")
         }
 

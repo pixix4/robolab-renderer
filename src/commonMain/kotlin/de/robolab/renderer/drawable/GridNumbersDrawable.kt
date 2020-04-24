@@ -44,7 +44,7 @@ object GridNumbersDrawable : IDrawable {
                 Point(x3, y3)
             }
 
-            context.canvas.fillText(top.toString(), p, context.theme.gridTextColor.a(alpha), FONT_SIZE, alignment = ICanvas.FontAlignment.CENTER)
+            context.canvas.fillText(top.toString(), p, context.theme.plotter.gridTextColor.a(alpha), FONT_SIZE, alignment = ICanvas.FontAlignment.CENTER)
         }
 
         val startLeft = ceil(rectangle.left).toInt()
@@ -65,7 +65,7 @@ object GridNumbersDrawable : IDrawable {
                 Point(x3, y3)
             }
 
-            context.canvas.fillText(left.toString(), p, context.theme.gridTextColor.a(alpha), FONT_SIZE, alignment = ICanvas.FontAlignment.CENTER)
+            context.canvas.fillText(left.toString(), p, context.theme.plotter.gridTextColor.a(alpha), FONT_SIZE, alignment = ICanvas.FontAlignment.CENTER)
         }
     }
 

@@ -33,7 +33,7 @@ class BackgroundDrawable(
     }
 
     override fun onDraw(context: DrawContext) {
-        context.fillRect(areaTransition.value, context.theme.primaryBackgroundColor.a(alphaTransition.value))
+        context.fillRect(areaTransition.value, context.theme.plotter.primaryBackgroundColor.a(alphaTransition.value))
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {

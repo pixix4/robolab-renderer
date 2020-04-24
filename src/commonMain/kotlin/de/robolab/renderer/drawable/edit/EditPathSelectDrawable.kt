@@ -39,7 +39,7 @@ class EditPathSelectDrawable(
 
     override fun onDraw(context: DrawContext) {
         val d = pathSelectToDraw ?: return
-        context.fillPolygon(PathSelectAnimatableManager.getArrow(Point(d.point), d.direction), context.theme.gridTextColor)
+        context.fillPolygon(PathSelectAnimatableManager.getArrow(Point(d.point), d.direction), context.theme.plotter.gridTextColor)
     }
 
     private var planet = Planet.EMPTY

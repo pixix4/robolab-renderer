@@ -128,6 +128,15 @@ tasks.create<JavaExec>("jvmRun") {
     args()
 }
 
+tasks.create<JavaExec>("buildSassTheme") {
+    dependsOn("jvmJar")
+
+    group = "application"
+    main = "de.robolab.utils.ThemeGenerator"
+    classpath(jvmJar)
+    args()
+}
+
 tasks.create<com.moowork.gradle.node.npm.NpmTask>("jsInstallSass") {
     setArgs(listOf("install", "sass"))
 

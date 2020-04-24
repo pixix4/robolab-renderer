@@ -25,7 +25,7 @@ class CompassDrawable(private val transformationReference: ITransformationRefere
                 RADIUS,
                 0.0,
                 2 * PI,
-                context.theme.lineColor.a(0.25)
+                context.theme.plotter.lineColor.a(0.25)
         )
 
         transformation.setTranslation(center)
@@ -44,8 +44,8 @@ class CompassDrawable(private val transformationReference: ITransformationRefere
                 Point(-0.4, -0.0)
         ).map(transformation::planetToCanvas)
 
-        context.canvas.fillPolygon(arrowTop, context.theme.redColor)
-        context.canvas.fillPolygon(arrowBottom, context.theme.lineColor.a(0.8))
+        context.canvas.fillPolygon(arrowTop, context.theme.plotter.redColor)
+        context.canvas.fillPolygon(arrowBottom, context.theme.plotter.lineColor.a(0.8))
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {

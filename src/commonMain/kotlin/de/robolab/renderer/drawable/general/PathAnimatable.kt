@@ -87,8 +87,8 @@ class PathAnimatable(
 
         val isHover = isHovered || reference in this.animationTime.selectedElements
 
-        val oc = oldColor ?: context.theme.lineColor
-        val nc = newColor ?: context.theme.lineColor
+        val oc = oldColor ?: context.theme.plotter.lineColor
+        val nc = newColor ?: context.theme.plotter.lineColor
         val color = oc.interpolate(nc, colorTransition.value)
 
         fun draw(points: List<Point>, color: Color, weight: Double) {
@@ -108,7 +108,7 @@ class PathAnimatable(
             State.REMOVE -> {
                 val points = getCachedPointHelpers(steps).map { it.point }
                 if (isHover) {
-                    context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
+                    context.strokeLine(points, context.theme.plotter.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
                 draw(points, color.a(transition.value), PlottingConstraints.LINE_WIDTH)
             }
@@ -126,14 +126,14 @@ class PathAnimatable(
 
                 val points = interpolateLineEnd(pointHelpers, endIndex, targetLength)
                 if (isHover) {
-                    context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
+                    context.strokeLine(points, context.theme.plotter.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
                 draw(points, color, PlottingConstraints.LINE_WIDTH)
             }
             State.NONE -> {
                 val points = getCachedPointHelpers(steps).map { it.point }
                 if (isHover) {
-                    context.strokeLine(points, context.theme.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
+                    context.strokeLine(points, context.theme.plotter.highlightColor, PlottingConstraints.LINE_HOVER_WIDTH)
                 }
                 draw(points, color, PlottingConstraints.LINE_WIDTH)
             }
@@ -200,14 +200,14 @@ class PathAnimatable(
             val alpha = if (isOneWayPath) getAlpha(0.8, 1.0) else getAlpha(0.4, 0.6)
 
             val top = topRightCenter + (downLeftCenter - topRightCenter).let { Point(it.top, -it.left) }.normalize() * PlottingConstraints.ARROW_LENGTH
-            drawArrow(context, topRightCenter, top, context.theme.lineColor.a(alpha))
+            drawArrow(context, topRightCenter, top, context.theme.plotter.lineColor.a(alpha))
             return
         }
 
         if (weight >= 0) {
             val (downLeftCenter, _) = calcCenterAt(0.49, 0.5, 0.51)
             val alpha = getAlpha(0.4, 0.6)
-            context.fillText(weight.toString(), downLeftCenter, context.theme.gridTextColor.a(alpha), 12.0, alignment = ICanvas.FontAlignment.CENTER)
+            context.fillText(weight.toString(), downLeftCenter, context.theme.plotter.gridTextColor.a(alpha), 12.0, alignment = ICanvas.FontAlignment.CENTER)
         } else {
             val (downLeftCenter, topRightCenter) = if (isOneWayPath) {
                 calcCenterAt(0.995, 1.0)
@@ -222,7 +222,7 @@ class PathAnimatable(
                             downLeftCenter,
                             topRightCenter
                     ),
-                    context.theme.redColor.a(alpha),
+                    context.theme.plotter.redColor.a(alpha),
                     PlottingConstraints.LINE_WIDTH * 1.5
             )
         }

@@ -46,9 +46,9 @@ class PointAnimatableManager(
 
         fun toColor(context: DrawContext): Color {
             return Color.mix(mapOf(
-                    context.theme.redColor to red,
-                    context.theme.blueColor to blue,
-                    context.theme.gridTextColor to grey
+                    context.theme.plotter.redColor to red,
+                    context.theme.plotter.blueColor to blue,
+                    context.theme.plotter.gridTextColor to grey
             ))
         }
 

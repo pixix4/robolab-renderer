@@ -63,7 +63,7 @@ class EditControlPointsDrawable(
             Point(it.left.roundToInt(), it.top.roundToInt())
         }.interpolate(controlPoints.last(), 1.0 - (PlottingConstraints.POINT_SIZE / 2) / PlottingConstraints.CURVE_SECOND_POINT))
 
-        context.strokeLine(listOf(first) + controlPoints + last, context.theme.editColor, PlottingConstraints.LINE_WIDTH / 2)
+        context.strokeLine(listOf(first) + controlPoints + last, context.theme.plotter.editColor, PlottingConstraints.LINE_WIDTH / 2)
 
         for ((i, point) in controlPoints.withIndex()) {
             if (i == 0 || (i == controlPoints.lastIndex && !isOneWayPath)) {
@@ -73,15 +73,15 @@ class EditControlPointsDrawable(
             val position = editPlanetDrawable.pointer?.position
             val divider = if (position != null && position.distance(point) < PlottingConstraints.POINT_SIZE / 2) 2 else 4
 
-            context.fillArc(point, PlottingConstraints.POINT_SIZE / divider, 0.0, 2.0 * PI, context.theme.editColor)
-            context.fillText(i.toString(), point, context.theme.primaryBackgroundColor, 4.0, alignment = ICanvas.FontAlignment.CENTER)
+            context.fillArc(point, PlottingConstraints.POINT_SIZE / divider, 0.0, 2.0 * PI, context.theme.plotter.editColor)
+            context.fillText(i.toString(), point, context.theme.plotter.primaryBackgroundColor, 4.0, alignment = ICanvas.FontAlignment.CENTER)
         }
 
         val p = editPlanetDrawable.pointer?.findObjectUnderPointer<ControlPoint>() ?: return
 
         if (p.newPoint != null) {
-            context.fillArc(p.newPoint, PlottingConstraints.POINT_SIZE / 4, 0.0, 2.0 * PI, context.theme.editColor)
-            context.fillText("+${p.point}", p.newPoint, context.theme.primaryBackgroundColor, 4.0, alignment = ICanvas.FontAlignment.CENTER)
+            context.fillArc(p.newPoint, PlottingConstraints.POINT_SIZE / 4, 0.0, 2.0 * PI, context.theme.plotter.editColor)
+            context.fillText("+${p.point}", p.newPoint, context.theme.plotter.primaryBackgroundColor, 4.0, alignment = ICanvas.FontAlignment.CENTER)
         }
     }
 

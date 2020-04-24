@@ -25,7 +25,7 @@ class NameDrawable() : IDrawable {
         context.canvas.fillText(
                 name,
                 center,
-                context.theme.lineColor.a(0.75),
+                context.theme.plotter.lineColor.a(0.75),
                 40.0,
                 ICanvas.FontAlignment.RIGHT,
                 ICanvas.FontWeight.BOLD

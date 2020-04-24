@@ -1,5 +1,6 @@
 package de.robolab.jfx.style.components
 
+import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.style.MainStyle
 import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
@@ -10,15 +11,15 @@ fun Stylesheet.initSideBarStyle() {
     MainStyle.sideBar {
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(0.px, 1.px, 0.px, 0.px))
-        borderColor = multi(box(MainStyle.theme.borderColor))
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
     }
 
     Stylesheet.listView {
-        borderColor = multi(box(MainStyle.theme.borderColor))
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px, 0.px, 0.px, 0.px))
 
-        backgroundColor = multi(MainStyle.theme.secondaryBackground)
+        backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
         backgroundInsets = multi(box(0.px))
 
         focusColor = Color.TRANSPARENT
@@ -27,81 +28,81 @@ fun Stylesheet.initSideBarStyle() {
     Stylesheet.listCell {
         backgroundColor = multi(Color.TRANSPARENT)
         and(Stylesheet.focused, Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.theme.secondaryHoverBackground)
+            backgroundColor = multi(MainStyle.theme.ui.secondaryHoverBackground.toFx())
             Stylesheet.label {
-                textFill = MainStyle.theme.primaryTextColor
+                textFill = MainStyle.theme.ui.primaryTextColor.toFx()
             }
         }
         and(Stylesheet.selected) {
-            backgroundColor = multi(MainStyle.theme.primaryBackground)
+            backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
             Stylesheet.label {
-                textFill = MainStyle.theme.themeColor
+                textFill = MainStyle.theme.ui.themeColor.toFx()
             }
 
             and(Stylesheet.focused, Stylesheet.hover) {
-                backgroundColor = multi(MainStyle.theme.primaryHoverBackground)
+                backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())
             }
         }
         MainStyle.disabled {
             Stylesheet.label {
-                textFill = MainStyle.theme.secondaryTextColor
+                textFill = MainStyle.theme.ui.secondaryTextColor.toFx()
             }
         }
 
         and(Stylesheet.empty) {
-            backgroundColor = multi(MainStyle.theme.secondaryBackground)
+            backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
             and(Stylesheet.focused, Stylesheet.hover) {
-                backgroundColor = multi(MainStyle.theme.secondaryBackground)
+                backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
             }
         }
     }
 
     MainStyle.success {
-        backgroundColor = multi(MainStyle.theme.successColor)
+        backgroundColor = multi(MainStyle.theme.ui.successColor.toFx())
         Stylesheet.label {
-            textFill = MainStyle.theme.successTextColor
+            textFill = MainStyle.theme.ui.successTextColor.toFx()
         }
     }
 
     MainStyle.warn {
-        backgroundColor = multi(MainStyle.theme.warnColor)
+        backgroundColor = multi(MainStyle.theme.ui.warnColor.toFx())
         Stylesheet.label {
-            textFill = MainStyle.theme.warnTextColor
+            textFill = MainStyle.theme.ui.warnTextColor.toFx()
         }
     }
 
     MainStyle.error {
-        backgroundColor = multi(MainStyle.theme.errorColor)
+        backgroundColor = multi(MainStyle.theme.ui.errorColor.toFx())
         Stylesheet.label {
-            textFill = MainStyle.theme.errorTextColor
+            textFill = MainStyle.theme.ui.errorTextColor.toFx()
         }
     }
 
     MainStyle.sideBarBackButton {
-        borderColor = multi(box(MainStyle.theme.borderColor))
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px, 0.px, 0.px, 0.px))
 
         and(Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.theme.secondaryHoverBackground)
+            backgroundColor = multi(MainStyle.theme.ui.secondaryHoverBackground.toFx())
         }
     }
 
     Stylesheet.scrollBar {
-        backgroundColor = multi(MainStyle.theme.tertiaryBackground)
+        backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
 
         Stylesheet.thumb {
-            backgroundColor = multi(MainStyle.theme.secondaryTextColor)
+            backgroundColor = multi(MainStyle.theme.ui.secondaryTextColor.toFx())
             borderRadius = multi(box(1.em))
             backgroundRadius = multi(box(1.em))
 
             and(Stylesheet.hover) {
-                backgroundColor = multi(MainStyle.theme.primaryTextColor)
+                backgroundColor = multi(MainStyle.theme.ui.primaryTextColor.toFx())
             }
         }
         and(Stylesheet.pressed) {
             Stylesheet.thumb {
-                backgroundColor = multi(MainStyle.theme.themeColor)
+                backgroundColor = multi(MainStyle.theme.ui.themeColor.toFx())
             }
         }
 
@@ -131,6 +132,6 @@ fun Stylesheet.initSideBarStyle() {
     }
 
     Stylesheet.corner {
-        backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
+        backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
     }
 }

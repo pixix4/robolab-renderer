@@ -44,6 +44,17 @@ class SettingsDialog: View() {
                 fieldset("Appearance") {
                     field("Theme") {
                         combobox(PreferenceStorage.selectedThemeProperty.toFx(), Theme.values().toList()) {
+                            converter = object: StringConverter<Theme>() {
+                                override fun toString(obj: Theme?): String {
+                                    return obj?.label ?: "null"
+                                }
+
+                                override fun fromString(string: String?): Theme {
+                                    if (string == null) return  Theme.DEFAULT
+                                    return Theme.values().find { it.label.equals(string, true) } ?: Theme.DEFAULT
+                                }
+
+                            }
                             enableWhen {
                                 PreferenceStorage.useSystemThemeProperty.not().toFx()
                             }

@@ -49,7 +49,7 @@ class ExportPlotter(
         drawable.onUpdate(ms_offset)
         transformation.update(ms_offset)
 
-        context.clear(context.theme.secondaryBackgroundColor)
+        context.clear(context.theme.plotter.secondaryBackgroundColor)
         drawable.onDraw(context)
     }
 

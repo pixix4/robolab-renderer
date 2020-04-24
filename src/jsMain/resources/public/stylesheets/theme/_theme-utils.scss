@@ -1,0 +1,31 @@
+/**********************************************************
+ *                                                        *
+ *           Auto generated file. DO NOT EDIT!            *
+ * See: 'src/commonMain/kotlin/de/robolab/renderer/theme' *
+ *        Generate with './gradlew buildSassTheme'        *
+ *                                                        *
+ **********************************************************/
+
+@mixin load-color-vars {
+
+    --border-color: #{$_border-color};
+    --error-color: #{$_error-color};
+    --error-text-color: #{$_error-text-color};
+    --primary-background: #{$_primary-background};
+    --primary-hover-background: #{$_primary-hover-background};
+    --primary-text-color: #{$_primary-text-color};
+    --secondary-background: #{$_secondary-background};
+    --secondary-hover-background: #{$_secondary-hover-background};
+    --secondary-text-color: #{$_secondary-text-color};
+    --success-color: #{$_success-color};
+    --success-text-color: #{$_success-text-color};
+    --tertiary-background: #{$_tertiary-background};
+    --tertiary-hover-background: #{$_tertiary-hover-background};
+    --theme-color: #{$_theme-color};
+    --theme-hover-color: #{$_theme-hover-color};
+    --theme-primary-text: #{$_theme-primary-text};
+    --theme-secondary-text: #{$_theme-secondary-text};
+    --warn-color: #{$_warn-color};
+    --warn-text-color: #{$_warn-text-color};
+
+}

@@ -25,17 +25,17 @@ class PathSelectAnimatable(
     override fun onDraw(context: DrawContext) {
         for (dir in oldDirections - newDirections) {
             val (bottom, top) = PathSelectAnimatableManager.getArrow(position, dir)
-            PathAnimatable.drawArrow(context, bottom, top, context.theme.lineColor.a(1 - transition.value))
+            PathAnimatable.drawArrow(context, bottom, top, context.theme.plotter.lineColor.a(1 - transition.value))
         }
 
         for (dir in newDirections - oldDirections) {
             val (bottom, top) = PathSelectAnimatableManager.getArrow(position, dir)
-            PathAnimatable.drawArrow(context, bottom, top, context.theme.lineColor.a(transition.value))
+            PathAnimatable.drawArrow(context, bottom, top, context.theme.plotter.lineColor.a(transition.value))
         }
 
         for (dir in newDirections - (newDirections - oldDirections)) {
             val (bottom, top) = PathSelectAnimatableManager.getArrow(position, dir)
-            PathAnimatable.drawArrow(context, bottom, top, context.theme.lineColor)
+            PathAnimatable.drawArrow(context, bottom, top, context.theme.plotter.lineColor)
         }
     }
 

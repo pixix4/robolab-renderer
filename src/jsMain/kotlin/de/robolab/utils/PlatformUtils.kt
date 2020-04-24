@@ -1,6 +1,5 @@
 package de.robolab.utils
 
-import de.robolab.communication.bindings.IClientOptions
 import kotlin.browser.window
 
 actual class TimeoutReference(private val handler: Int, private val type: Type) {

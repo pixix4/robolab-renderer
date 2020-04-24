@@ -47,7 +47,7 @@ class EditPaperBackground(
                         source,
                         target
                 ),
-                theme.lineColor,
+                theme.plotter.lineColor,
                 PlottingConstraints.LINE_WIDTH / 2
         )
         strokeLine(
@@ -55,7 +55,7 @@ class EditPaperBackground(
                         source + endingDirection,
                         source - endingDirection
                 ),
-                theme.lineColor,
+                theme.plotter.lineColor,
                 PlottingConstraints.LINE_WIDTH / 2
         )
         strokeLine(
@@ -63,7 +63,7 @@ class EditPaperBackground(
                         target + endingDirection,
                         target - endingDirection
                 ),
-                theme.lineColor,
+                theme.plotter.lineColor,
                 PlottingConstraints.LINE_WIDTH / 2
         )
 
@@ -71,7 +71,7 @@ class EditPaperBackground(
             fillText(
                     label,
                     source.interpolate(target, 0.5) + endingDirection * 2,
-                    theme.lineColor,
+                    theme.plotter.lineColor,
                     alignment = ICanvas.FontAlignment.CENTER
             )
         }
@@ -81,15 +81,15 @@ class EditPaperBackground(
         val data = drawData ?: return
 
         // Fill paper background
-        context.fillRect(data.paper, context.theme.primaryBackgroundColor)
+        context.fillRect(data.paper, context.theme.plotter.primaryBackgroundColor)
 
         // Draw resize handlers
         for ((rect, edge) in data.dragRects) {
             // Mark measuring source edge
             val color = if (edge == measuringSourceEdge) {
-                context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.5)
+                context.theme.plotter.lineColor.interpolate(context.theme.plotter.primaryBackgroundColor, 0.5)
             } else {
-                context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.9)
+                context.theme.plotter.lineColor.interpolate(context.theme.plotter.primaryBackgroundColor, 0.9)
             }
             context.fillRect(rect, color)
         }
@@ -97,7 +97,7 @@ class EditPaperBackground(
         // Draw paper outline
         context.strokeRect(
                 data.paper,
-                context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.5),
+                context.theme.plotter.lineColor.interpolate(context.theme.plotter.primaryBackgroundColor, 0.5),
                 PlottingConstraints.LINE_WIDTH
         )
 
@@ -111,7 +111,7 @@ class EditPaperBackground(
                                 Point(data.paper.left, line),
                                 Point(data.paper.right, line)
                         ),
-                        context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.5),
+                        context.theme.plotter.lineColor.interpolate(context.theme.plotter.primaryBackgroundColor, 0.5),
                         PlottingConstraints.LINE_WIDTH
                 )
                 line -= data.lineSeparation
@@ -133,7 +133,7 @@ class EditPaperBackground(
                                 Point(line, data.paper.bottom),
                                 Point(line, data.paper.top)
                         ),
-                        context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.5),
+                        context.theme.plotter.lineColor.interpolate(context.theme.plotter.primaryBackgroundColor, 0.5),
                         PlottingConstraints.LINE_WIDTH
                 )
                 line += data.lineSeparation
@@ -150,7 +150,7 @@ class EditPaperBackground(
         // Draw planet outline
         context.strokeRect(
                 data.planet,
-                context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.5),
+                context.theme.plotter.lineColor.interpolate(context.theme.plotter.primaryBackgroundColor, 0.5),
                 PlottingConstraints.LINE_WIDTH
         )
 

@@ -14,7 +14,7 @@ class DrawContext(
     fun withAlpha(alphaFactor: Double): DrawContext {
         val context = DrawContext(
                 ColorCanvas(canvas) {
-                    theme.primaryBackgroundColor.interpolate(it, alphaFactor)
+                    theme.plotter.primaryBackgroundColor.interpolate(it, alphaFactor)
                 },
                 transformation,
                 theme

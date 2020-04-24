@@ -20,7 +20,7 @@ class CommentAnimatable(
         context.fillText(
                 reference.message,
                 reference.point,
-                context.theme.lineColor,
+                context.theme.plotter.lineColor,
                 alignment = ICanvas.FontAlignment.CENTER
         )
     }

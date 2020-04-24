@@ -47,14 +47,14 @@ class EditPointDrawable(
 
         val size = Point(PlottingConstraints.POINT_SIZE / 2, PlottingConstraints.POINT_SIZE / 2) * sizeTransition.value
 
-        val redColor = context.theme.redColor
-                .interpolate(context.theme.secondaryBackgroundColor, COLOR_OPACITY)
+        val redColor = context.theme.plotter.redColor
+                .interpolate(context.theme.plotter.secondaryBackgroundColor, COLOR_OPACITY)
                 .a(alphaTransition.value)
-        val blueColor = context.theme.blueColor
-                .interpolate(context.theme.secondaryBackgroundColor, COLOR_OPACITY)
+        val blueColor = context.theme.plotter.blueColor
+                .interpolate(context.theme.plotter.secondaryBackgroundColor, COLOR_OPACITY)
                 .a(alphaTransition.value)
-        val greyColor = context.theme.gridTextColor
-                .interpolate(context.theme.secondaryBackgroundColor, COLOR_OPACITY)
+        val greyColor = context.theme.plotter.gridTextColor
+                .interpolate(context.theme.plotter.secondaryBackgroundColor, COLOR_OPACITY)
                 .a(alphaTransition.value)
 
         val selectedPoint = editPlanetDrawable.selectedElement<Coordinate>()
@@ -85,7 +85,7 @@ class EditPointDrawable(
                     context.fillRect(Rectangle.fromEdges(
                             position - selectedSize,
                             position + selectedSize
-                    ), context.theme.highlightColor)
+                    ), context.theme.plotter.highlightColor)
                 }
 
                 context.fillRect(Rectangle.fromEdges(

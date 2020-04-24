@@ -29,7 +29,7 @@ object GridLinesDrawable : IDrawable {
                             p1,
                             p2
                     ),
-                    context.theme.gridColor.a(alpha),
+                    context.theme.plotter.gridColor.a(alpha),
                     1.0
             )
         }
@@ -48,7 +48,7 @@ object GridLinesDrawable : IDrawable {
                             p1,
                             p2
                     ),
-                    context.theme.gridColor.a(alpha),
+                    context.theme.plotter.gridColor.a(alpha),
                     1.0
             )
         }

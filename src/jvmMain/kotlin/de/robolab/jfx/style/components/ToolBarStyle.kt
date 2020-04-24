@@ -1,19 +1,20 @@
 package de.robolab.jfx.style.components
 
+import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.style.MainStyle
 import javafx.scene.layout.BorderStrokeStyle
 import tornadofx.*
 
 fun Stylesheet.initToolBarStyle() {
     Stylesheet.toolBar {
-        backgroundColor = multi(MainStyle.theme.secondaryBackground)
-        borderColor = multi(box(MainStyle.theme.borderColor))
+        backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(0.px, 0.px, 1.px, 0.px))
     }
     Stylesheet.menuBar {
-        backgroundColor = multi(MainStyle.theme.secondaryBackground)
-        borderColor = multi(box(MainStyle.theme.borderColor))
+        backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(0.px, 0.px, 1.px, 0.px))
 
@@ -21,7 +22,7 @@ fun Stylesheet.initToolBarStyle() {
             borderStyle = multi(BorderStrokeStyle.NONE)
             borderWidth = multi(box(0.px))
             and(Stylesheet.showing) {
-                backgroundColor = multi(MainStyle.theme.tertiaryBackground)
+                backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
             }
         }
     }

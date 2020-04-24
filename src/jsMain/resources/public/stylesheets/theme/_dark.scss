@@ -1,30 +1,32 @@
-@import 'theme_utils';
+/**********************************************************
+ *                                                        *
+ *           Auto generated file. DO NOT EDIT!            *
+ * See: 'src/commonMain/kotlin/de/robolab/renderer/theme' *
+ *        Generate with './gradlew buildSassTheme'        *
+ *                                                        *
+ **********************************************************/
 
-$_primary-background: #0d0d0d;
-$_primary-hover-background: #000000;
-
-$_secondary-background: #303030;
-$_secondary-hover-background: #242424;
-
-$_tertiary-background: #4d4d4d;
-$_tertiary-hover-background: #404040;
-
-$_primary-text-color: #ffffff;
-$_secondary-text-color: #9A9A9A;
-
-$_theme-color: #e74c3c;
-$_theme-text: #FFFFFF;
+@import 'theme-utils';
 
 $_border-color: #555555;
-
-$_success-color: #239a55;
-$_success-text-color: #FFFFFF;
-
-$_warn-color: #e59311;
-$_warn-text-color: #FFFFFF;
-
 $_error-color: #b23528;
-$_error-text-color: #FFFFFF;
+$_error-text-color: #ffffff;
+$_primary-background: #0d0d0d;
+$_primary-hover-background: #000000;
+$_primary-text-color: #ffffff;
+$_secondary-background: #303030;
+$_secondary-hover-background: #242424;
+$_secondary-text-color: rgba(255, 255, 255, 0.8);
+$_success-color: #239a55;
+$_success-text-color: #ffffff;
+$_tertiary-background: #4d4d4d;
+$_tertiary-hover-background: #404040;
+$_theme-color: #e74c3c;
+$_theme-hover-color: #c0392b;
+$_theme-primary-text: #ffffff;
+$_theme-secondary-text: rgba(255, 255, 255, 0.8);
+$_warn-color: #e59311;
+$_warn-text-color: #ffffff;
 
 body[data-theme='dark'] {
     @include load-color-vars();

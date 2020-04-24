@@ -1,5 +1,6 @@
 package de.robolab.jfx.style.components
 
+import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.style.MainStyle
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
@@ -12,30 +13,30 @@ fun Stylesheet.initCodeAreaStyle() {
     }
 
     MainStyle.editorKeyword {
-        fill = MainStyle.theme.editorKeywordColor
+        fill = MainStyle.theme.editor.editorKeywordColor.toFx()
         fontWeight = FontWeight.BOLD
     }
     MainStyle.editorDirection {
-        fill = MainStyle.theme.editorDirectionColor
+        fill = MainStyle.theme.editor.editorDirectionColor.toFx()
         fontWeight = FontWeight.BOLD
     }
     MainStyle.editorNumber {
-        fill = MainStyle.theme.editorNumberColor
+        fill = MainStyle.theme.editor.editorNumberColor.toFx()
     }
     MainStyle.editorComment {
-        fill = MainStyle.theme.editorCommentColor
+        fill = MainStyle.theme.editor.editorCommentColor.toFx()
     }
     MainStyle.editorString {
-        fill = MainStyle.theme.editorStringColor
+        fill = MainStyle.theme.editor.editorStringColor.toFx()
     }
     MainStyle.editorError {
-        fill = MainStyle.theme.editorErrorColor
+        fill = MainStyle.theme.editor.editorErrorColor.toFx()
         fontWeight = FontWeight.BOLD
         underline = true
     }
     MainStyle.paragraphBox {
         and(MainStyle.hasCaret) {
-            backgroundColor += MainStyle.theme.editorSelectedLineColor
+            backgroundColor += MainStyle.theme.editor.editorSelectedLineColor.toFx()
         }
     }
 }

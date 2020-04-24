@@ -132,13 +132,13 @@ class RobotDrawable(
 
         val trans = { point: Point -> transform(point, r.position, r.orientation) }
 
-        context.fillPolygon(ROBOT_WHEEL.map(trans), context.theme.robotWheelColor.a(a))
-        context.fillPolygon(ROBOT_BLOCK.map(trans), context.theme.robotMainColor.a(a))
-        context.fillPolygon(ROBOT_DISPLAY.map(trans), context.theme.robotDisplayColor.a(a))
+        context.fillPolygon(ROBOT_WHEEL.map(trans), context.theme.plotter.robotWheelColor.a(a))
+        context.fillPolygon(ROBOT_BLOCK.map(trans), context.theme.plotter.robotMainColor.a(a))
+        context.fillPolygon(ROBOT_DISPLAY.map(trans), context.theme.plotter.robotDisplayColor.a(a))
 
-        context.fillPolygon(ROBOT_SENSOR.map(trans), context.theme.robotSensorColor.a(a))
+        context.fillPolygon(ROBOT_SENSOR.map(trans), context.theme.plotter.robotSensorColor.a(a))
 
-        val c = context.theme.robotButtonColor.a(a)
+        val c = context.theme.plotter.robotButtonColor.a(a)
         context.fillPolygon(ROBOT_CROSS_TOP.map(trans), c)
         context.fillPolygon(ROBOT_CROSS_BOTTOM.map(trans), c)
         context.fillPolygon(ROBOT_CROSS_LEFT.map(trans), c)

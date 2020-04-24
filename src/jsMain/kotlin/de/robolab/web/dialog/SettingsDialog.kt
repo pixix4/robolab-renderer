@@ -11,7 +11,7 @@ class SettingsDialog() : Dialog("Settings") {
     override fun BoxView.buildContent() {
         dialogFormGroup("Appearance") {
             dialogFormEntry("Theme") {
-                selectView(PreferenceStorage.selectedThemeProperty) {
+                selectView(PreferenceStorage.selectedThemeProperty, { it.label }) {
                     disabledProperty.bind(PreferenceStorage.useSystemThemeProperty)
                 }
             }

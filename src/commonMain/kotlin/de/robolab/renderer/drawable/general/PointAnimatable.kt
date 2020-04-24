@@ -49,7 +49,7 @@ class PointAnimatable(
 
             context.strokeRect(
                     rect,
-                    context.theme.highlightColor.a(alphaTransition.value),
+                    context.theme.plotter.highlightColor.a(alphaTransition.value),
                     PlottingConstraints.HOVER_WIDTH
             )
         }

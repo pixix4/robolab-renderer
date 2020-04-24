@@ -20,16 +20,16 @@ class CharacteristicItem(val color: Color) {
             return state.traceUp().map {
                 if (it.status == ITraverserState.Status.ExplorationComplete || it.status == ITraverserState.Status.TargetReached)
                     return@map CharacteristicItem(if (it.isCorrect)
-                        theme.traverserCharacteristicCorrectColor
+                        theme.traverser.traverserCharacteristicCorrectColor
                     else
-                        theme.traverserCharacteristicErrorColor)
+                        theme.traverser.traverserCharacteristicErrorColor)
                 if (!it.running)
-                    return@map CharacteristicItem(theme.traverserCharacteristicErrorColor)
+                    return@map CharacteristicItem(theme.traverser.traverserCharacteristicErrorColor)
                 return@map when (it.nextDirection) {
-                    Direction.NORTH -> theme.traverserCharacteristicNorthColor
-                    Direction.EAST -> theme.traverserCharacteristicEastColor
-                    Direction.SOUTH -> theme.traverserCharacteristicSouthColor
-                    Direction.WEST -> theme.traverserCharacteristicWestColor
+                    Direction.NORTH -> theme.traverser.traverserCharacteristicNorthColor
+                    Direction.EAST -> theme.traverser.traverserCharacteristicEastColor
+                    Direction.SOUTH -> theme.traverser.traverserCharacteristicSouthColor
+                    Direction.WEST -> theme.traverser.traverserCharacteristicWestColor
                     else -> null
                 }.let { color -> if (color != null) CharacteristicItem(color) else null }
             }.filterNotNull().toList().asReversed()

@@ -58,7 +58,7 @@ class EditDrawPathDrawable(
                     Point(path.target.x, path.target.y),
                     controlPoints
             )
-            context.strokeLine(p, context.theme.lineColor.interpolate(context.theme.primaryBackgroundColor, 0.8), PlottingConstraints.LINE_WIDTH * 1.1)
+            context.strokeLine(p, context.theme.plotter.lineColor.interpolate(context.theme.plotter.primaryBackgroundColor, 0.8), PlottingConstraints.LINE_WIDTH * 1.1)
         }
         
         val endEnd = editPlanetDrawable.pointer?.findObjectUnderPointer<EditDrawEndDrawable.PointEnd>()
@@ -115,7 +115,7 @@ class EditDrawPathDrawable(
             ).toMutableList()
         }
 
-        context.strokeLine(points, context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
+        context.strokeLine(points, context.theme.plotter.lineColor, PlottingConstraints.LINE_WIDTH)
     }
 
     override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {

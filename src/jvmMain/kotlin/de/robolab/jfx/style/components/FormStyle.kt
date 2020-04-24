@@ -1,5 +1,6 @@
 package de.robolab.jfx.style.components
 
+import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.style.MainStyle
 import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
@@ -8,102 +9,102 @@ import tornadofx.*
 
 fun Stylesheet.initFormStyle() {
     MainStyle.iconView {
-        fill = MainStyle.theme.primaryTextColor
+        fill = MainStyle.theme.ui.primaryTextColor.toFx()
     }
     Stylesheet.comboBox {
-        backgroundColor = multi(MainStyle.theme.tertiaryBackground)
-        borderColor = multi(box(MainStyle.theme.borderColor))
+        backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
         borderRadius = multi(box(MainStyle.BORDER_RADIUS))
         backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
-        textFill = MainStyle.theme.primaryTextColor
+        textFill = MainStyle.theme.ui.primaryTextColor.toFx()
         backgroundInsets = multi(box(0.px))
 
         Stylesheet.arrow {
-            backgroundColor = multi(MainStyle.theme.secondaryTextColor)
+            backgroundColor = multi(MainStyle.theme.ui.secondaryTextColor.toFx())
         }
 
         Stylesheet.listCell {
             backgroundColor = multi(Color.TRANSPARENT)
-            textFill = MainStyle.theme.primaryTextColor
+            textFill = MainStyle.theme.ui.primaryTextColor.toFx()
             borderRadius = multi(box(MainStyle.BORDER_RADIUS))
             backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
         }
 
         and(Stylesheet.focused) {
-            backgroundColor = multi(MainStyle.theme.primaryBackground)
-            borderColor = multi(box(MainStyle.theme.themeColor))
+            backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
+            borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
 
             and(Stylesheet.hover) {
-                backgroundColor = multi(MainStyle.theme.primaryHoverBackground)
+                backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())
             }
         }
 
         and(Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
+            backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
         }
     }
     Stylesheet.comboBoxPopup {
-        backgroundColor = multi(MainStyle.theme.primaryBackground)
-        textFill = MainStyle.theme.primaryTextColor
+        backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
+        textFill = MainStyle.theme.ui.primaryTextColor.toFx()
 
         Stylesheet.listView {
-            borderColor = multi(box(MainStyle.theme.borderColor))
+            borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
             borderStyle = multi(BorderStrokeStyle.SOLID)
             borderWidth = multi(box(1.px))
         }
 
         Stylesheet.listCell {
-            backgroundColor = multi(MainStyle.theme.secondaryBackground)
-            textFill = MainStyle.theme.primaryTextColor
+            backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
+            textFill = MainStyle.theme.ui.primaryTextColor.toFx()
             padding = box(0.5.em)
 
             borderRadius = multi(box(0.px))
             backgroundRadius = multi(box(0.px))
 
             and(Stylesheet.selected) {
-                backgroundColor = multi(MainStyle.theme.primaryBackground)
-                textFill = MainStyle.theme.themeColor
+                backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
+                textFill = MainStyle.theme.ui.themeColor.toFx()
                 fontWeight = FontWeight.BOLD
 
                 and(Stylesheet.hover) {
-                    backgroundColor = multi(MainStyle.theme.primaryHoverBackground)
+                    backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())
                 }
             }
 
             and(Stylesheet.hover) {
-                backgroundColor = multi(MainStyle.theme.secondaryHoverBackground)
+                backgroundColor = multi(MainStyle.theme.ui.secondaryHoverBackground.toFx())
             }
         }
     }
     Stylesheet.textField {
-        backgroundColor = multi(MainStyle.theme.tertiaryBackground)
-        borderColor = multi(box(MainStyle.theme.borderColor))
+        backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
         borderRadius = multi(box(MainStyle.BORDER_RADIUS))
         backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
-        textFill = MainStyle.theme.primaryTextColor
+        textFill = MainStyle.theme.ui.primaryTextColor.toFx()
         backgroundInsets = multi(box(0.px))
 
         and(Stylesheet.focused) {
-            backgroundColor = multi(MainStyle.theme.primaryBackground)
-            borderColor = multi(box(MainStyle.theme.themeColor))
+            backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
+            borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
 
             and(Stylesheet.hover) {
-                backgroundColor = multi(MainStyle.theme.primaryHoverBackground)
+                backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())
             }
         }
 
         and(Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
+            backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
         }
     }
     Stylesheet.button {
-        backgroundColor = multi(MainStyle.theme.tertiaryBackground)
-        borderColor = multi(box(MainStyle.theme.borderColor))
-        textFill = MainStyle.theme.primaryTextColor
+        backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
+        textFill = MainStyle.theme.ui.primaryTextColor.toFx()
         borderRadius = multi(box(MainStyle.BORDER_RADIUS))
         backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
 
@@ -112,18 +113,18 @@ fun Stylesheet.initFormStyle() {
         backgroundInsets = multi(box(0.px))
 
         and(Stylesheet.focused, Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
-            textFill = MainStyle.theme.primaryTextColor
+            backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
+            textFill = MainStyle.theme.ui.primaryTextColor.toFx()
         }
         and(Stylesheet.focused) {
-            borderColor = multi(box(MainStyle.theme.themeColor))
+            borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
         }
     }
 
     Stylesheet.toggleButton {
-        backgroundColor = multi(MainStyle.theme.tertiaryBackground)
-        borderColor = multi(box(MainStyle.theme.borderColor))
-        textFill = MainStyle.theme.primaryTextColor
+        backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
+        textFill = MainStyle.theme.ui.primaryTextColor.toFx()
 
         borderRadius = multi(box(MainStyle.BORDER_RADIUS))
         backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
@@ -133,35 +134,35 @@ fun Stylesheet.initFormStyle() {
         backgroundInsets = multi(box(0.px))
 
         and(Stylesheet.focused, Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
-            textFill = MainStyle.theme.primaryTextColor
+            backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
+            textFill = MainStyle.theme.ui.primaryTextColor.toFx()
         }
         and(Stylesheet.focused) {
-            borderColor = multi(box(MainStyle.theme.themeColor))
+            borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
         }
         and(Stylesheet.selected) {
-            backgroundColor = multi(MainStyle.theme.primaryBackground)
-            textFill = MainStyle.theme.themeColor
+            backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
+            textFill = MainStyle.theme.ui.themeColor.toFx()
             fontWeight = FontWeight.BOLD
 
             and(Stylesheet.focused, Stylesheet.hover) {
-                textFill = MainStyle.theme.themeColor
-                backgroundColor = multi(MainStyle.theme.primaryHoverBackground)
+                textFill = MainStyle.theme.ui.themeColor.toFx()
+                backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())
             }
             MainStyle.iconView {
-                fill = MainStyle.theme.themeColor
+                fill = MainStyle.theme.ui.themeColor.toFx()
             }
         }
     }
 
     Stylesheet.fieldset {
-        textFill = MainStyle.theme.primaryTextColor
+        textFill = MainStyle.theme.ui.primaryTextColor.toFx()
     }
     Stylesheet.field {
-        textFill = MainStyle.theme.primaryTextColor
+        textFill = MainStyle.theme.ui.primaryTextColor.toFx()
     }
     Stylesheet.label {
-        textFill = MainStyle.theme.primaryTextColor
+        textFill = MainStyle.theme.ui.primaryTextColor.toFx()
     }
 
     MainStyle.buttonGroup {
@@ -210,8 +211,8 @@ fun Stylesheet.initFormStyle() {
     Stylesheet.checkBox {
 
         Stylesheet.box {
-            backgroundColor = multi(MainStyle.theme.tertiaryBackground)
-            borderColor = multi(box(MainStyle.theme.borderColor))
+            backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+            borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
             borderStyle = multi(BorderStrokeStyle.SOLID)
             borderWidth = multi(box(1.px))
             borderRadius = multi(box(MainStyle.BORDER_RADIUS))
@@ -221,24 +222,37 @@ fun Stylesheet.initFormStyle() {
 
         and(Stylesheet.hover) {
             Stylesheet.box {
-                backgroundColor = multi(MainStyle.theme.tertiaryHoverBackground)
+                backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
             }
         }
 
         and(Stylesheet.focused) {
             Stylesheet.box {
-                borderColor = multi(box(MainStyle.theme.themeColor))
+                borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
             }
         }
 
         and(Stylesheet.selected) {
             Stylesheet.box {
-                backgroundColor = multi(MainStyle.theme.themeColor)
-                borderColor = multi(box(MainStyle.theme.themeColor))
+                backgroundColor = multi(MainStyle.theme.ui.themeColor.toFx())
+                borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
             }
 
             Stylesheet.mark {
-                backgroundColor = multi(MainStyle.theme.themeText)
+                backgroundColor = multi(MainStyle.theme.ui.themePrimaryText.toFx())
+            }
+
+
+            and(Stylesheet.hover) {
+                Stylesheet.box {
+                    backgroundColor = multi(MainStyle.theme.ui.themeHoverColor.toFx())
+                }
+            }
+
+            and(Stylesheet.focused) {
+                Stylesheet.box {
+                    backgroundColor = multi(MainStyle.theme.ui.themeHoverColor.toFx())
+                }
             }
         }
     }

@@ -11,7 +11,7 @@ import kotlin.random.Random
 object PreferenceStorage {
     private val storage = KeyValueStorage()
 
-    val selectedThemeProperty = item("THEME", Theme.LIGHT)
+    val selectedThemeProperty = item("THEME", Theme.DEFAULT)
     var selectedTheme by selectedThemeProperty
 
     val useSystemThemeProperty = item("USE_SYSTEM_THEME", true)

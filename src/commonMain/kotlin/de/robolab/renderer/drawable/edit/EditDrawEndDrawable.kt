@@ -69,8 +69,8 @@ class EditDrawEndDrawable(
         val p1 = p + d * (PlottingConstraints.TARGET_RADIUS - PlottingConstraints.LINE_WIDTH * 2)
         val p2 = p1 + d * PlottingConstraints.LINE_WIDTH
 
-        context.strokeLine(listOf(p0, p1), context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
-        context.strokeArc(p2, PlottingConstraints.LINE_WIDTH, 0.0, 2 * PI, context.theme.lineColor, PlottingConstraints.LINE_WIDTH)
+        context.strokeLine(listOf(p0, p1), context.theme.plotter.lineColor, PlottingConstraints.LINE_WIDTH)
+        context.strokeArc(p2, PlottingConstraints.LINE_WIDTH, 0.0, 2 * PI, context.theme.plotter.lineColor, PlottingConstraints.LINE_WIDTH)
     }
 
     override fun onDraw(context: DrawContext) {

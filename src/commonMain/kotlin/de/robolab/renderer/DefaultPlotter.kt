@@ -51,7 +51,7 @@ class DefaultPlotter(
         }
 
         if (changes) {
-            context.clear(context.theme.secondaryBackgroundColor)
+            context.clear(context.theme.plotter.secondaryBackgroundColor)
             drawable.onDraw(context)
         }
     }
