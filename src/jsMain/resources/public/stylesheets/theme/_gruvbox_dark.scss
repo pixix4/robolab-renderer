@@ -28,6 +28,14 @@ $_theme-secondary-text: #3c3836;
 $_warn-color: #fabd2f;
 $_warn-text-color: #1d2021;
 
+$_editor-comment-color: #b8bb26;
+$_editor-direction-color: #8ec07c;
+$_editor-error-color: #fb4934;
+$_editor-keyword-color: #83a598;
+$_editor-number-color: #fabd2f;
+$_editor-selected-line-color: #32302f;
+$_editor-string-color: #f38019;
+
 body[data-theme='gruvbox_dark'] {
     @include load-color-vars();
 }

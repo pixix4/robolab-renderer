@@ -35,6 +35,11 @@ object ThemeGenerator {
                 val line = "\$_$key: $value;"
                 appendln(line)
             }
+            appendln()
+            for ((key, value) in getReflectiveProperties(theme.theme.editor)) {
+                val line = "\$_$key: $value;"
+                appendln(line)
+            }
 
             appendln()
 
@@ -78,6 +83,11 @@ object ThemeGenerator {
             appendln()
 
             for ((key, _) in getReflectiveProperties(Theme.DEFAULT.theme.ui)) {
+                val line = "    --$key: #{\$_$key};"
+                appendln(line)
+            }
+            appendln()
+            for ((key, _) in getReflectiveProperties(Theme.DEFAULT.theme.editor)) {
                 val line = "    --$key: #{\$_$key};"
                 appendln(line)
             }

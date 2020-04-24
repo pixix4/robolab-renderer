@@ -28,6 +28,14 @@ $_theme-secondary-text: rgba(255, 255, 255, 0.8);
 $_warn-color: #f39c12;
 $_warn-text-color: #ffffff;
 
+$_editor-comment-color: #008000;
+$_editor-direction-color: #806732;
+$_editor-error-color: #e74c3c;
+$_editor-keyword-color: #0000ff;
+$_editor-number-color: #098658;
+$_editor-selected-line-color: #d6eaff;
+$_editor-string-color: #a31515;
+
 body {
     @include load-color-vars();
 }

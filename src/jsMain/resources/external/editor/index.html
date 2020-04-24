@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="codemirror.css">
+    <script src="codemirror.js"></script>
+    <script src="simple.js"></script>
+    <script src="editor.js"></script>
+</head>
+<body>
+<div id="editor"></div>
+<script>
+    let editor = new TextEditor(document.getElementById("editor"));
+    editor.value = "# name: Test";
+</script>
+</body>
+</html>

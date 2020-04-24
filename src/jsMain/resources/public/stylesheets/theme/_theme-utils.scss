@@ -28,4 +28,12 @@
     --warn-color: #{$_warn-color};
     --warn-text-color: #{$_warn-text-color};
 
+    --editor-comment-color: #{$_editor-comment-color};
+    --editor-direction-color: #{$_editor-direction-color};
+    --editor-error-color: #{$_editor-error-color};
+    --editor-keyword-color: #{$_editor-keyword-color};
+    --editor-number-color: #{$_editor-number-color};
+    --editor-selected-line-color: #{$_editor-selected-line-color};
+    --editor-string-color: #{$_editor-string-color};
+
 }
