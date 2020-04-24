@@ -64,13 +64,13 @@ object GruvboxLightTheme : ITheme {
 
         override val borderColor = gbBg4
 
-        override val successColor = gbLightGreen
+        override val successColor = gbDarkGreen
         override val successTextColor = gbBg0Hard
 
-        override val warnColor = gbLightYellow
+        override val warnColor = gbDarkYellow
         override val warnTextColor = gbBg0Hard
 
-        override val errorColor = gbLightRed
+        override val errorColor = gbDarkRed
         override val errorTextColor = gbBg0Hard
     }
 

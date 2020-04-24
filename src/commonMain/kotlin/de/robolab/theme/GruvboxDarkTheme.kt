@@ -64,14 +64,14 @@ object GruvboxDarkTheme : ITheme {
 
         override val borderColor = gbBg4
 
-        override val successColor = gbLightGreen
-        override val successTextColor = gbBg0Hard
+        override val successColor = gbDarkGreen
+        override val successTextColor = gbFg1
 
-        override val warnColor = gbLightYellow
-        override val warnTextColor = gbBg0Hard
+        override val warnColor = gbDarkYellow
+        override val warnTextColor = gbFg1
 
-        override val errorColor = gbLightRed
-        override val errorTextColor = gbBg0Hard
+        override val errorColor = gbDarkRed
+        override val errorTextColor = gbFg1
     }
 
     override val editor = object : IThemeEditor {
