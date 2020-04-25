@@ -86,6 +86,7 @@ fun Stylesheet.initFormStyle() {
         borderRadius = multi(box(MainStyle.BORDER_RADIUS))
         backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
         textFill = MainStyle.theme.ui.primaryTextColor.toFx()
+        promptTextFill = MainStyle.theme.ui.secondaryTextColor.toFx()
         backgroundInsets = multi(box(0.px))
 
         and(Stylesheet.focused) {

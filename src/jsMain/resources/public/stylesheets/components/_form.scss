@@ -24,6 +24,10 @@ select:-moz-focusring {
      color: transparent;
      text-shadow: 0 0 0 var(--primary-text-color);
  }
+input::placeholder {
+    color: var(--secondary-text-color);
+    opacity: 1;
+}
 
 .button {
     @include utils.radius;
