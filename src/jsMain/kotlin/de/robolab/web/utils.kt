@@ -48,9 +48,9 @@ fun watchSystemTheme() {
     fun update() {
         if (PreferenceStorage.useSystemTheme) {
             if (schemaDarkQuery.matches) {
-                PreferenceStorage.selectedTheme = Theme.DARK
+                PreferenceStorage.selectedTheme = PreferenceStorage.selectedTheme.getThemeByMode(true)
             } else if (schemaLightQuery.matches) {
-                PreferenceStorage.selectedTheme = Theme.LIGHT
+                PreferenceStorage.selectedTheme = PreferenceStorage.selectedTheme.getThemeByMode(false)
             }
         }
     }

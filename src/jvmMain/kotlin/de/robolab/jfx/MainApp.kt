@@ -47,10 +47,10 @@ class MainApp : App(MainView::class) {
             val isDarkMode =  isMacDarkMode()
 
             if (isDarkMode) {
-                return Theme.DARK
+                return PreferenceStorage.selectedTheme.getThemeByMode(true)
             }
 
-            return Theme.LIGHT
+            return PreferenceStorage.selectedTheme.getThemeByMode(false)
         }
 
         @JvmStatic
