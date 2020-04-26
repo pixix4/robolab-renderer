@@ -13,9 +13,11 @@ import de.westermann.kwebview.View
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
 import kotlin.browser.document
+import kotlin.browser.window
+import kotlin.math.min
 
 class ContextMenuView(
-        menu: ContextMenu
+        private val menu: ContextMenu
 ) : View() {
 
     val onClose = EventHandler<Unit>()
@@ -30,8 +32,23 @@ class ContextMenuView(
         it.entries.toMutableList().asObservable()
     }
 
+    private val container = BoxView()
+
+    private fun fixMenuOutOfScreen() {
+        val right = menu.position.left + container.clientWidth
+        val bottom = menu.position.top + container.clientHeight
+
+        val leftOffset = min(0.0, window.innerWidth - right)
+        val topOffset = min(0.0, window.innerHeight - bottom)
+
+        val left = menu.position.left + leftOffset
+        val top = menu.position.top + topOffset
+
+        document.body?.style?.setProperty("--context-menu-left", "${left.toFixed(2)}px")
+        document.body?.style?.setProperty("--context-menu-top", "${top.toFixed(2)}px")
+    }
+
     init {
-        val container = BoxView()
         container.classList += "context-menu-window"
 
         document.body?.style?.setProperty("--context-menu-left", "${menu.position.left.toFixed(2)}px")
@@ -89,6 +106,15 @@ class ContextMenuView(
         onContext { event ->
             event.stopPropagation()
             event.preventDefault()
+        }
+
+        runAsync {
+            fixMenuOutOfScreen()
+        }
+        selectedProperty.onChange {
+            runAsync {
+                fixMenuOutOfScreen()
+            }
         }
     }
 
