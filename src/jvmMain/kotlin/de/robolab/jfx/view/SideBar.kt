@@ -116,6 +116,9 @@ class SideBar(sideBarController: SideBarController) : View() {
         listview(sideBarController.filteredEntryListProperty.mapBinding { it.toFx() }.toFx()) {
             vgrow = Priority.ALWAYS
             cellFormat { provider ->
+                val selectedProperty = sideBarController.selectedElementListProperty.mapBinding { provider in it }
+
+                bindClass(MainStyle.active, selectedProperty)
                 graphic = vbox {
                     hbox {
                         style {

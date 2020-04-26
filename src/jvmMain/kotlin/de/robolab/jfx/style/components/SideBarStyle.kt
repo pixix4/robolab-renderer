@@ -33,7 +33,7 @@ fun Stylesheet.initSideBarStyle() {
                 textFill = MainStyle.theme.ui.primaryTextColor.toFx()
             }
         }
-        and(Stylesheet.selected) {
+        and(MainStyle.active) {
             backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
             Stylesheet.label {
                 textFill = MainStyle.theme.ui.themeColor.toFx()

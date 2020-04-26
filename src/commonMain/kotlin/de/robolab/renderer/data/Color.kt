@@ -109,5 +109,101 @@ data class Color(
                 )
             }
         }
+
+        private fun checkRGB(r: Int, g: Int, b: Int) {
+            require(!(r < 0 || r > 255)) { "Color's red parameter ($r) expects color values 0-255" }
+            require(!(g < 0 || g > 255)) { "Color's green parameter ($g) expects color values 0-255" }
+            require(!(b < 0 || b > 255)) { "Color's blue parameter ($b) expects color values 0-255" }
+        }
+
+        fun parse(colorString: String, opacity: Double): Color {
+            require(colorString.isNotEmpty()) {
+                "Invalid color specification"
+            }
+
+            var color: String = colorString.toLowerCase()
+
+            try {
+                if (color.startsWith("#")) {
+                    color = color.substring(1)
+                } else if (color.startsWith("0x")) {
+                    color = color.substring(2)
+                } else if (color.startsWith("rgb")) {
+                    if (color.startsWith("(", 3)) {
+                        val components = color.substring(color.indexOf('(') + 1, color.indexOf(')'))
+                                .split(',')
+                                .map { it.toInt() }
+
+                        require(components.size == 3) {
+                            "Invalid color specification"
+                        }
+                        val (r, g, b) = components
+
+                        checkRGB(r, g, b)
+
+                        return Color(r, g, b, opacity)
+                    } else if (color.startsWith("a(", 3)) {
+                        val components = color.substring(color.indexOf('(') + 1, color.indexOf(')'))
+                                .split(',')
+
+                        require(components.size == 4) {
+                            "Invalid color specification"
+                        }
+
+                        val r = components[0].toInt()
+                        val g = components[1].toInt()
+                        val b = components[2].toInt()
+                        val a = components[3].toDouble()
+
+                        checkRGB(r, g, b)
+                        require(!(a < 0.0 || a > 1.0)) { "Color's alpha parameter ($a) expects color values 0.0-1.0" }
+
+                        return Color(r, g, b, a * opacity)
+                    }
+                } else if (color.startsWith("hsl")) {
+                    throw IllegalArgumentException("Invalid color specification (hsl colors are not supported)")
+                } else {
+                    throw IllegalArgumentException("Invalid color specification (Named colors are not supported)")
+                }
+
+                val len = color.length
+
+                return when (len) {
+                    3 -> {
+                        val r = color.substring(0, 1).toInt(16)
+                        val g = color.substring(1, 2).toInt(16)
+                        val b = color.substring(2, 3).toInt(16)
+                        Color(r * 16 + r, g * 16 + g, b * 16 + b, opacity)
+                    }
+                    4 -> {
+                        val r = color.substring(0, 1).toInt(16)
+                        val g = color.substring(1, 2).toInt(16)
+                        val b = color.substring(2, 3).toInt(16)
+                        val a = color.substring(3, 4).toInt(16)
+                        Color(r * 16 + r, g * 16 + g, b * 16 + b, opacity * (a * 16 + a) / 255.0)
+                    }
+                    6 -> {
+                        val r = color.substring(0, 2).toInt(16)
+                        val g = color.substring(2, 4).toInt(16)
+                        val b = color.substring(4, 6).toInt(16)
+                        Color(r, g, b, opacity)
+                    }
+                    8 -> {
+                        val r = color.substring(0, 2).toInt(16)
+                        val g = color.substring(2, 4).toInt(16)
+                        val b = color.substring(4, 6).toInt(16)
+                        val a = color.substring(6, 8).toInt(16)
+                        Color(r, g, b, opacity * a / 255.0)
+                    }
+                    else -> {
+                        throw IllegalArgumentException("Invalid color specification")
+                    }
+                }
+            } catch (nfe: NumberFormatException) {
+                throw IllegalArgumentException("Invalid color specification", nfe)
+            }
+        }
+
+        fun parse(colorString: String) = parse(colorString, 1.0)
     }
 }

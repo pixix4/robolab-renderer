@@ -46,23 +46,23 @@ object GruvboxLightTheme : ITheme {
     override val ui = object : IThemeUi {
 
         override val primaryBackground = gbBg0Hard
-        override val primaryHoverBackground = gbBg0
+        override val primaryHoverBackground = gbBg0Hard.interpolate(Color.WHITE, 0.3)
 
         override val secondaryBackground = gbBg0Soft
-        override val secondaryHoverBackground = gbBg1
+        override val secondaryHoverBackground = gbBg0
 
         override val tertiaryBackground = gbBg2
-        override val tertiaryHoverBackground = gbBg3
+        override val tertiaryHoverBackground = gbBg1
 
         override val primaryTextColor = gbFg1
-        override val secondaryTextColor = gbFg4
+        override val secondaryTextColor = gbDarkGray
 
         override val themeColor = gbLightRed
         override val themeHoverColor = gbDarkRed
         override val themePrimaryText = gbBg0Hard
         override val themeSecondaryText = gbBg1
 
-        override val borderColor = gbBg4
+        override val borderColor = gbBg3
 
         override val successColor = gbDarkGreen
         override val successTextColor = gbBg0Hard
