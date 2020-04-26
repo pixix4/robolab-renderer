@@ -59,7 +59,9 @@ class TextEditor {
     }
 
     set value(val) {
-        this.editor.setValue(val)
+        let cursor = this.editor.getCursor();
+        this.editor.setValue(val);
+        this.editor.setCursor(cursor);
     }
 
     addOnChangeListener(callback) {
