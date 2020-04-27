@@ -15,6 +15,7 @@ import de.westermann.kobserve.property.flatMapReadOnlyBinding
 import de.westermann.kobserve.property.mapBinding
 import javafx.beans.value.ObservableValue
 import javafx.collections.ObservableList
+import javafx.geometry.Pos
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import tornadofx.*
@@ -30,8 +31,10 @@ class InfoBarTraverserView(private val traverserProperty: ReadOnlyProperty<Trave
         vgrow = Priority.ALWAYS
         hgrow = Priority.ALWAYS
 
-        hbox {
+        toolbar {
             label(traverserProperty.flatMapReadOnlyBinding { it.traverserTitle }.toFx())
+
+            spacer()
 
             button {
                 graphic = iconNoAdd(MaterialIcon.REFRESH)
@@ -81,7 +84,9 @@ class InfoBarTraverserView(private val traverserProperty: ReadOnlyProperty<Trave
                         }
                     }
 
-                    label(provider.visibleDetails.mapBinding { it.joinToString("\n") { "- $it" } }.toFx())
+                    label(provider.visibleDetails.mapBinding { details -> details.joinToString("\n") { "- $it" } }.toFx()) {
+                        visibleWhen(provider.selected.toFx())
+                    }
                 }
             }
 
@@ -91,7 +96,7 @@ class InfoBarTraverserView(private val traverserProperty: ReadOnlyProperty<Trave
         }
 
         vbox {
-            hbox {
+            toolbar {
                 button {
                     enableWhen(traverserProperty.flatMapReadOnlyBinding { it.isPreviousEnabled }.toFx())
 
@@ -137,7 +142,11 @@ class InfoBarTraverserView(private val traverserProperty: ReadOnlyProperty<Trave
                 }
             }
 
-            characteristicListView = hbox {}
+            characteristicListView = hbox {
+                style {
+                    padding = box(0.5.em)
+                }
+            }
 
             updateCharacteristicList()
         }
