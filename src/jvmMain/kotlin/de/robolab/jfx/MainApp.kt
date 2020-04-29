@@ -57,16 +57,18 @@ class MainApp : App(MainView::class) {
         fun main(args: Array<String>) {
             System.setProperty("prism.lcdtext", "false");
 
-            PreferenceStorage.selectedThemeProperty.onChange {
-                reloadStylesheets()
-            }
             PreferenceStorage.useSystemThemeProperty.onChange {
                 if (PreferenceStorage.useSystemTheme) {
                     PreferenceStorage.selectedTheme = getSystemTheme()
                 }
             }
             if (PreferenceStorage.useSystemTheme) {
+                // Must be executed before the stylesheet reload is enabled.
+                // Otherwise a Toolkit not initialized exception may be thrown.
                 PreferenceStorage.selectedTheme = getSystemTheme()
+            }
+            PreferenceStorage.selectedThemeProperty.onChange {
+                reloadStylesheets()
             }
 
             importStylesheet(MainStyle::class)
