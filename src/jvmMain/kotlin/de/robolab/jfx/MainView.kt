@@ -88,4 +88,10 @@ class MainView : View() {
     override fun onUndock() {
         exitProcess(0)
     }
+
+    override fun onDock() {
+        super.onDock()
+
+        primaryStage.isMaximized = true
+    }
 }
