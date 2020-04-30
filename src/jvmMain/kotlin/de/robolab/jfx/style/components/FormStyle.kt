@@ -20,6 +20,7 @@ fun Stylesheet.initFormStyle() {
         backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
         textFill = MainStyle.theme.ui.primaryTextColor.toFx()
         backgroundInsets = multi(box(0.px))
+        prefHeight = 2.2.em
 
         Stylesheet.arrow {
             backgroundColor = multi(MainStyle.theme.ui.secondaryTextColor.toFx())
@@ -88,6 +89,7 @@ fun Stylesheet.initFormStyle() {
         textFill = MainStyle.theme.ui.primaryTextColor.toFx()
         promptTextFill = MainStyle.theme.ui.secondaryTextColor.toFx()
         backgroundInsets = multi(box(0.px))
+        prefHeight = 2.2.em
 
         and(Stylesheet.focused) {
             backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
@@ -112,6 +114,7 @@ fun Stylesheet.initFormStyle() {
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
         backgroundInsets = multi(box(0.px))
+        prefHeight = 2.2.em
 
         and(Stylesheet.focused, Stylesheet.hover) {
             backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
@@ -133,6 +136,7 @@ fun Stylesheet.initFormStyle() {
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
         backgroundInsets = multi(box(0.px))
+        prefHeight = 2.2.em
 
         and(Stylesheet.focused, Stylesheet.hover) {
             backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())

@@ -118,7 +118,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                     graphic = iconNoAdd(MaterialIcon.SETTINGS)
 
                     setOnAction {
-                        find<SettingsDialog>().openModal(StageStyle.UTILITY, resizable = false)
+                        SettingsDialog.open()
                     }
                 }
 

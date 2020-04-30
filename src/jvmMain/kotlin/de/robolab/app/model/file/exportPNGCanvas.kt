@@ -24,13 +24,9 @@ actual fun saveExportPNG(name: String, canvas: ICanvas) {
 }
 
 actual fun openExportDialog(provider: FilePlanetEntry) {
-    find<ExportDialog>(
-            params = mapOf<String, Any>(
-                    "provider" to provider
-            )
-    ).openModal(StageStyle.UTILITY, resizable = false)
+    ExportDialog.open(provider)
 }
 
 actual fun openPaperConstraintsDialog() {
-    find<PaperConstraintsDialog>().openModal(StageStyle.UTILITY, resizable = false)
+    PaperConstraintsDialog.open()
 }

@@ -3,6 +3,7 @@ package de.robolab.jfx.style
 import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.style.components.*
 import de.robolab.utils.PreferenceStorage
+import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import tornadofx.*
@@ -16,6 +17,7 @@ class MainStyle : Stylesheet() {
         val statusBar by cssclass()
         val infoBar by cssclass()
         val codeArea by cssclass()
+        val dialog by cssclass()
 
         val success by cssclass()
         val warn by cssclass()
@@ -70,6 +72,24 @@ class MainStyle : Stylesheet() {
             textFill = theme.ui.primaryTextColor.toFx()
             backgroundColor = multi(theme.ui.secondaryBackground.toFx())
             font = Font.font("Roboto")
+        }
+
+        dialog {
+            borderStyle = multi(BorderStrokeStyle.SOLID)
+            borderWidth = multi(box(1.px))
+            borderColor = multi(box(theme.ui.borderColor.toFx()))
+
+            maxHeight = 32.em
+        }
+
+        scrollPane {
+            backgroundColor = multi(theme.ui.secondaryBackground.toFx())
+            backgroundInsets = multi(box(0.px))
+
+            viewport {
+                backgroundColor = multi(theme.ui.secondaryBackground.toFx())
+                backgroundInsets = multi(box(0.px))
+            }
         }
 
         initCodeAreaStyle()
