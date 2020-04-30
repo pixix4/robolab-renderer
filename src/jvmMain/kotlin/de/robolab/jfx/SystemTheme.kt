@@ -2,6 +2,8 @@ package de.robolab.jfx
 
 import de.robolab.theme.Theme
 import de.robolab.utils.PreferenceStorage
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
 object SystemTheme {
@@ -28,7 +30,7 @@ object SystemTheme {
         }
     }
 
-    private fun isWindDarkMode(): Boolean {
+    private fun isWinDarkMode(): Boolean {
         return try {
             val proc = Runtime.getRuntime().exec(arrayOf("reg", "query", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "/v", "AppsUseLightTheme"))
             proc.waitFor(100, TimeUnit.MILLISECONDS)
@@ -52,18 +54,28 @@ object SystemTheme {
         }
     }
 
+    private val linuxThemeFile by lazy { System.getProperty("user.home", "") + "/.theme" }
+    private fun isLinuxDarkMode(): Boolean {
+        return try {
+            val content = Files.readString(Paths.get(linuxThemeFile))
+            content.contains("dark", true)
+        } catch (ex: Exception) {
+            false
+        }
+    }
 
     val isSystemThemeSupported = when (os) {
         OSType.Windows -> true
         OSType.MacOS -> true
-        OSType.Linux -> false
+        OSType.Linux -> true
         OSType.Other -> false
     }
 
     fun getSystemTheme(): Theme {
         val isDarkMode = when (os) {
-            OSType.Windows -> isWindDarkMode()
+            OSType.Windows -> isWinDarkMode()
             OSType.MacOS -> isMacDarkMode()
+            OSType.Linux -> isLinuxDarkMode()
             else -> false
         }
 
