@@ -42,8 +42,10 @@ actual class FilePlanetProvider actual constructor() : IProvider {
 
     init {
         val dir = Paths.get("planet")
-        Files.list(dir).forEach {
-            loadFile(it)
+        if (Files.exists(dir)) {
+            Files.list(dir).forEach {
+                loadFile(it)
+            }
         }
     }
 }

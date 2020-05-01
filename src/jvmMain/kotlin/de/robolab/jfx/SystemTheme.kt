@@ -34,7 +34,7 @@ object SystemTheme {
         return try {
             val proc = Runtime.getRuntime().exec(arrayOf("reg", "query", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "/v", "AppsUseLightTheme"))
             proc.waitFor(100, TimeUnit.MILLISECONDS)
-            proc.exitValue() == 0 && String(proc.inputStream.readBytes()).contains("0x0")
+            proc.exitValue() == 0 && String(proc.inputStream.readBytes()).contains("0x0", true)
         } catch (ex: Exception) {
             false
         }
@@ -48,7 +48,7 @@ object SystemTheme {
             // check for exit status only. Once there are more modes than "dark" and "default", we might need to analyze string contents..
             val proc = Runtime.getRuntime().exec(arrayOf("defaults", "read", "-g", "AppleInterfaceStyle"))
             proc.waitFor(100, TimeUnit.MILLISECONDS)
-            proc.exitValue() == 0
+            proc.exitValue() == 0 && String(proc.inputStream.readBytes()).contains("dark", true)
         } catch (ex: Exception) {
             false
         }
@@ -79,10 +79,6 @@ object SystemTheme {
             else -> false
         }
 
-        if (isDarkMode) {
-            return PreferenceStorage.selectedTheme.getThemeByMode(true)
-        }
-
-        return PreferenceStorage.selectedTheme.getThemeByMode(false)
+        return PreferenceStorage.selectedTheme.getThemeByMode(isDarkMode)
     }
 }
