@@ -20,7 +20,7 @@ class ResizeableCanvas : Canvas() {
 
     override fun prefHeight(width: Double) = height
 
-    fun draw() = drawHooks.forEach { it() }
+    private fun draw() = drawHooks.forEach { it() }
 
     fun addDrawHook(drawHook: () -> Unit) = drawHooks.add(drawHook)
 }

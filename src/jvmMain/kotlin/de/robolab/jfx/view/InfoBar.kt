@@ -27,7 +27,7 @@ class InfoBar(private val infoBarController: InfoBarController) : View() {
         header.spacer()
         header.buttonGroup {
             for (btn in list) {
-                togglebutton(btn.nameProperty.toFx()) {
+                button(btn.nameProperty.toFx()) {
                     bindSelectedProperty(infoBarController.selectedContentProperty.mapBinding { it == btn }) {
                         infoBarController.selectContent(btn)
                     }

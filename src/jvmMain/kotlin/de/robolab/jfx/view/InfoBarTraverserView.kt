@@ -11,6 +11,7 @@ import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.not
 import de.westermann.kobserve.or
+import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.flatMapReadOnlyBinding
 import de.westermann.kobserve.property.mapBinding
 import javafx.beans.value.ObservableValue
@@ -122,12 +123,10 @@ class InfoBarTraverserView(private val traverserProperty: ReadOnlyProperty<Trave
                                 traverserProperty.value.clickFullExpand()
                         }
                     }
-                    togglebutton {
+                    button {
                         graphic = iconNoAdd(MaterialIcon.ARROW_DOWNWARD)
 
-                        bindSelectedProperty(traverserProperty.flatMapReadOnlyBinding { it.autoExpandProperty }) {
-                            traverserProperty.value.autoExpandProperty.value = !traverserProperty.value.autoExpandProperty.value
-                        }
+                        bindSelectedProperty(traverserProperty.flatMapBinding { it.autoExpandProperty })
                     }
                 }
 

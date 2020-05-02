@@ -30,8 +30,6 @@ class SideBar(sideBarController: SideBarController) : View() {
     override val root = vbox {
         addClass(MainStyle.sideBar)
 
-        minWidth = 260.0
-
         toolbar {
             hgrow = Priority.ALWAYS
 
@@ -39,24 +37,10 @@ class SideBar(sideBarController: SideBarController) : View() {
             buttonGroup {
                 hgrow = Priority.ALWAYS
                 for (tab in SideBarController.Tab.values()) {
-                    val buttonProperty = property(object : FunctionAccessor<Boolean> {
-                        override fun set(value: Boolean): Boolean {
-                            if (value) {
-                                sideBarController.tabProperty.value = tab
-                            }
-                            return true
-                        }
 
-                        override fun get(): Boolean {
-                            return sideBarController.tabProperty.value == tab
-                        }
-
-                    }, sideBarController.tabProperty)
-
-                    togglebutton(tab.label) {
-                        selectedProperty().bindBidirectional(buttonProperty.toFx())
-                        selectedProperty().onChange {
-                            isSelected = buttonProperty.value
+                    button(tab.label) {
+                        bindSelectedProperty(sideBarController.tabProperty.mapBinding { it == tab }) {
+                            sideBarController.tabProperty.value = tab
                         }
 
                         hgrow = Priority.ALWAYS

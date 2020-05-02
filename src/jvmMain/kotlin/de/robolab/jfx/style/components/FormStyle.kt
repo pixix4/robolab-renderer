@@ -123,28 +123,7 @@ fun Stylesheet.initFormStyle() {
         and(Stylesheet.focused) {
             borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
         }
-    }
 
-    Stylesheet.toggleButton {
-        backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
-        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
-        textFill = MainStyle.theme.ui.primaryTextColor.toFx()
-
-        borderRadius = multi(box(MainStyle.BORDER_RADIUS))
-        backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
-
-        borderStyle = multi(BorderStrokeStyle.SOLID)
-        borderWidth = multi(box(1.px))
-        backgroundInsets = multi(box(0.px))
-        prefHeight = 2.2.em
-
-        and(Stylesheet.focused, Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
-            textFill = MainStyle.theme.ui.primaryTextColor.toFx()
-        }
-        and(Stylesheet.focused) {
-            borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
-        }
         and(Stylesheet.selected) {
             backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
             textFill = MainStyle.theme.ui.themeColor.toFx()
@@ -171,26 +150,6 @@ fun Stylesheet.initFormStyle() {
     }
 
     MainStyle.buttonGroup {
-        Stylesheet.toggleButton {
-            borderRadius = multi(box(0.px))
-            backgroundRadius = multi(box(0.px))
-
-            borderWidth = multi(box(1.px, 1.px, 1.px, 0.px))
-
-            and(MainStyle.first) {
-                borderWidth = multi(box(1.px))
-                borderRadius = multi(box(MainStyle.BORDER_RADIUS, 0.px, 0.px, MainStyle.BORDER_RADIUS))
-                backgroundRadius = multi(box(MainStyle.BORDER_RADIUS, 0.px, 0.px, MainStyle.BORDER_RADIUS))
-            }
-            and(MainStyle.last) {
-                borderRadius = multi(box(0.px, MainStyle.BORDER_RADIUS, MainStyle.BORDER_RADIUS, 0.px))
-                backgroundRadius = multi(box(0.px, MainStyle.BORDER_RADIUS, MainStyle.BORDER_RADIUS, 0.px))
-                and(MainStyle.first) {
-                    borderRadius = multi(box(MainStyle.BORDER_RADIUS))
-                    backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
-                }
-            }
-        }
         Stylesheet.button {
             borderRadius = multi(box(0.px))
             backgroundRadius = multi(box(0.px))

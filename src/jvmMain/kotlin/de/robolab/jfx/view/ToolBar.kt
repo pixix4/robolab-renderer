@@ -7,13 +7,12 @@ import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.dialog.SettingsDialog
 import de.robolab.jfx.utils.buttonGroup
 import de.robolab.jfx.utils.iconNoAdd
+import de.westermann.kobserve.Property
 import de.westermann.kobserve.ReadOnlyProperty
-import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.mapBinding
-import javafx.scene.control.ToggleButton
+import javafx.scene.control.Button
 import javafx.scene.layout.HBox
 import javafx.scene.text.FontWeight
-import javafx.stage.StageStyle
 import tornadofx.*
 
 class ToolBar(private val toolBarController: ToolBarController) : View() {
@@ -28,7 +27,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
         ToolBarEntry.Icon.FLIP -> MaterialIcon.COMPARE
     }
 
-    private fun ToggleButton.bindIcon(iconProperty: ReadOnlyProperty<ToolBarEntry.Icon?>) {
+    private fun Button.bindIcon(iconProperty: ReadOnlyProperty<ToolBarEntry.Icon?>) {
         graphicProperty().bind(iconProperty.mapBinding { it?.let { iconNoAdd(it.convert()) } }.toFx())
     }
 
@@ -38,7 +37,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
         for (group in actionList) {
             toolBarActions.buttonGroup {
                 for (button in group) {
-                    togglebutton(button.nameProperty.toFx()) {
+                    button(button.nameProperty.toFx()) {
                         bindIcon(button.iconProperty)
 
                         bindSelectedProperty(button.selectedProperty) {
@@ -66,12 +65,10 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
     override val root = toolbar {
         hbox {
             hbox {
-                togglebutton {
+                button {
                     graphic = iconNoAdd(MaterialIcon.MENU)
 
-                    bindSelectedProperty(sideBarActiveProperty) {
-                        sideBarActiveProperty.value = !sideBarActiveProperty.value
-                    }
+                    bindSelectedProperty(sideBarActiveProperty)
                 }
 
                 paddingRight = 8
@@ -125,35 +122,33 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                 paddingRight = 8
             }
 
-            togglebutton {
+            button {
                 graphic = iconNoAdd(MaterialIcon.MENU)
 
-                bindSelectedProperty(infoBarActiveProperty) {
-                    infoBarActiveProperty.value = !infoBarActiveProperty.value
-                }
+                bindSelectedProperty(infoBarActiveProperty)
             }
         }
     }
 }
 
-fun ToggleButton.bindSelectedProperty(property: ReadOnlyProperty<Boolean>, onClick: () -> Unit) {
-    val buttonProperty = de.westermann.kobserve.property.property(object : FunctionAccessor<Boolean> {
-        override fun set(value: Boolean): Boolean {
-            if (value) {
-                onClick()
-            }
-            return true
-        }
+fun Button.bindSelectedProperty(property: ReadOnlyProperty<Boolean>, onClick: () -> Unit) {
+    property.onChange {
+        togglePseudoClass("selected", property.value)
+    }
+    togglePseudoClass("selected", property.value)
 
-        override fun get(): Boolean {
-            return property.value
-        }
+    setOnAction {
+        onClick()
+    }
+}
 
-    }, property)
+fun Button.bindSelectedProperty(property: Property<Boolean>) {
+    property.onChange {
+        togglePseudoClass("selected", property.value)
+    }
+    togglePseudoClass("selected", property.value)
 
-
-    selectedProperty().bindBidirectional(buttonProperty.toFx())
-    selectedProperty().onChange {
-        isSelected = buttonProperty.value
+    setOnAction {
+        property.value = !property.value
     }
 }
