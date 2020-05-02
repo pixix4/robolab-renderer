@@ -2,19 +2,18 @@
 
 plugins {
     kotlin("multiplatform") version "1.3.72"
-    kotlin("plugin.serialization") version "1.3.71"
+    kotlin("plugin.serialization") version "1.3.72"
     id("com.github.node-gradle.node") version "2.2.3"
 }
 
 repositories {
     mavenCentral()
     jcenter()
-    maven("https://jitpack.io")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
 val serializationVersion  = "0.20.0"
-val klockVersion = "1.8.4"
+val klockVersion = "1.10.0"
 kotlin {
     jvm {
         val main by compilations.getting {
@@ -36,8 +35,6 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib-common"))
 
-                // implementation("de.westermann:KObserve-metadata:0.9.3")
-
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
                 implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
             }
@@ -52,26 +49,24 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
 
-                // implementation("de.westermann:KObserve-jvm:0.9.3")
                 implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
 
-                implementation("org.openjfx:javafx-controls:13:win")
-                implementation("org.openjfx:javafx-graphics:13:win")
-                implementation("org.openjfx:javafx-base:13:win")
+                implementation("org.openjfx:javafx-controls:14:win")
+                implementation("org.openjfx:javafx-graphics:14:win")
+                implementation("org.openjfx:javafx-base:14:win")
 
-                implementation("org.openjfx:javafx-controls:13:linux")
-                implementation("org.openjfx:javafx-graphics:13:linux")
-                implementation("org.openjfx:javafx-base:13:linux")
+                implementation("org.openjfx:javafx-controls:14:linux")
+                implementation("org.openjfx:javafx-graphics:14:linux")
+                implementation("org.openjfx:javafx-base:14:linux")
 
-                implementation("org.openjfx:javafx-controls:13:mac")
-                implementation("org.openjfx:javafx-graphics:13:mac")
-                implementation("org.openjfx:javafx-base:13:mac")
+                implementation("org.openjfx:javafx-controls:14:mac")
+                implementation("org.openjfx:javafx-graphics:14:mac")
+                implementation("org.openjfx:javafx-base:14:mac")
 
-                implementation("de.jensd:fontawesomefx-commons:8.15")
-                implementation("de.jensd:fontawesomefx-materialicons:2.2.0-5")
-                implementation("de.jensd:fontawesomefx-fontawesome:4.7.0-5")
-                implementation("org.fxmisc.richtext:richtextfx:0.10.4")
-                implementation("org.fusesource.jansi:jansi:1.8")
+                implementation("de.jensd:fontawesomefx-commons:9.1.2")
+                implementation("de.jensd:fontawesomefx-materialicons:2.2.0-9.1.2")
+                implementation("org.fxmisc.richtext:richtextfx:0.10.5")
+                implementation("org.fusesource.jansi:jansi:1.18")
                 implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
@@ -86,8 +81,6 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-js"))
-
-                // implementation("de.westermann:KObserve-js:0.9.3")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
             }
