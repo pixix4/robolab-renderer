@@ -12,29 +12,32 @@ import de.westermann.kobserve.Property
 import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.property.mapBinding
 import javafx.scene.control.ToolBar
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import tornadofx.*
 
 class InfoBar(private val infoBarController: InfoBarController) : View() {
 
-    private fun updateHeader(header: ToolBar) {
-        header.items.clear()
+    private fun updateHeader(header: HBox) {
+        header.clear()
 
         val list = infoBarController.contentListProperty.value
         if (list.size <= 1) return
 
-        header.spacer()
         header.buttonGroup {
+            hgrow = Priority.ALWAYS
+
             for (btn in list) {
                 button(btn.nameProperty.toFx()) {
                     bindSelectedProperty(infoBarController.selectedContentProperty.mapBinding { it == btn }) {
                         infoBarController.selectContent(btn)
                     }
+
+                    hgrow = Priority.ALWAYS
                 }
             }
         }
-        header.spacer()
     }
 
     private fun updateContent(contentBox: VBox) {
@@ -63,7 +66,8 @@ class InfoBar(private val infoBarController: InfoBarController) : View() {
         vgrow = Priority.ALWAYS
         minWidth = 200.0
 
-        toolbar {
+        hbox {
+            addClass(MainStyle.toolBar)
             infoBarController.contentListProperty.onChange {
                 updateHeader(this)
             }

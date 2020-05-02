@@ -21,6 +21,7 @@ import de.westermann.kobserve.property.property
 import javafx.css.Styleable
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
+import javafx.scene.control.OverrunStyle
 import javafx.scene.layout.Priority
 import javafx.scene.text.FontWeight
 import tornadofx.*
@@ -30,24 +31,26 @@ class SideBar(sideBarController: SideBarController) : View() {
     override val root = vbox {
         addClass(MainStyle.sideBar)
 
-        toolbar {
+        hbox {
+            addClass(MainStyle.toolBar)
             hgrow = Priority.ALWAYS
 
-            spacer()
+
+            //spacer()
             buttonGroup {
                 hgrow = Priority.ALWAYS
                 for (tab in SideBarController.Tab.values()) {
-
                     button(tab.label) {
                         bindSelectedProperty(sideBarController.tabProperty.mapBinding { it == tab }) {
                             sideBarController.tabProperty.value = tab
                         }
+                        textOverrun= OverrunStyle.CLIP
 
                         hgrow = Priority.ALWAYS
                     }
                 }
             }
-            spacer()
+            //spacer()
         }
 
         hbox {

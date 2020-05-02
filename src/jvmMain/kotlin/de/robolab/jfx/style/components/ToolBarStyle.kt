@@ -7,11 +7,25 @@ import javafx.scene.paint.Color
 import tornadofx.*
 
 fun Stylesheet.initToolBarStyle() {
+    MainStyle.toolBar {
+        backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
+        borderStyle = multi(BorderStrokeStyle.SOLID)
+        borderWidth = multi(box(0.px, 0.px, 1.px, 0.px))
+
+        prefHeight = 3.2.em
+
+        Stylesheet.button {
+            maxWidth = Double.MAX_VALUE.px
+        }
+    }
     Stylesheet.toolBar {
         backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
         borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(0.px, 0.px, 1.px, 0.px))
+
+        prefHeight = 3.2.em
 
         Stylesheet.toolBarOverflowButton {
             backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
@@ -45,20 +59,6 @@ fun Stylesheet.initToolBarStyle() {
                 and(Stylesheet.focused, Stylesheet.hover) {
                     backgroundColor = multi(Color.TRANSPARENT)
                 }
-            }
-        }
-    }
-    Stylesheet.menuBar {
-        backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
-        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
-        borderStyle = multi(BorderStrokeStyle.SOLID)
-        borderWidth = multi(box(0.px, 0.px, 1.px, 0.px))
-
-        Stylesheet.menu {
-            borderStyle = multi(BorderStrokeStyle.NONE)
-            borderWidth = multi(box(0.px))
-            and(Stylesheet.showing) {
-                backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
             }
         }
     }

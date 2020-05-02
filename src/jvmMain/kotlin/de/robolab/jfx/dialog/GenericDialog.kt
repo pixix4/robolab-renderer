@@ -17,7 +17,9 @@ abstract class GenericDialog() : View() {
         val dialog = VBox()
         dialog.addClass(MainStyle.dialog)
 
-        dialog.toolbar {
+        dialog.hbox {
+            addClass(MainStyle.toolBar)
+
             style {
                 padding = box(0.6.em, 1.5.em, 0.6.em, 1.5.em)
             }

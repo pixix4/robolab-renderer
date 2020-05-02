@@ -11,6 +11,7 @@ import tornadofx.*
 class MainStyle : Stylesheet() {
     companion object {
         val buttonGroup by cssclass()
+        val toolBar by cssclass()
         val iconView by cssclass()
 
         val sideBar by cssclass()
@@ -99,5 +100,8 @@ class MainStyle : Stylesheet() {
         initSideBarStyle()
         initStatusBarStyle()
         initToolBarStyle()
+
+        // Debug generated css:
+        // println(render().split("\n").mapIndexed { i, s -> "${i.toString().padStart(3, '0')}: $s" }.joinToString("\n"))
     }
 }
