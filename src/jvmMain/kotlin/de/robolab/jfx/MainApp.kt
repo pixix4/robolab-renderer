@@ -30,7 +30,13 @@ class MainApp : App(MainView::class) {
 
         @JvmStatic
         fun main(args: Array<String>) {
-            System.setProperty("prism.lcdtext", "false");
+            System.setProperty("awt.useSystemAAFontSettings", "on")
+            System.setProperty("jdk.gtk.version", "3")
+            System.setProperty("prism.lcdtext", "false")
+            System.setProperty("sun.java2d.opengl", "true")
+            System.setProperty("swing.aatext", "true")
+            System.setProperty("swing.crossplatformlaf", "com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
+            System.setProperty("swing.defaultlaf", "com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
 
             PreferenceStorage.useSystemThemeProperty.onChange {
                 if (PreferenceStorage.useSystemTheme) {
