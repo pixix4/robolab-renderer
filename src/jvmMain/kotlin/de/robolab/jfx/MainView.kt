@@ -5,6 +5,7 @@ import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.view.*
 import de.westermann.kobserve.property.FunctionAccessor
 import javafx.application.Platform
+import javafx.scene.image.Image
 import javafx.scene.layout.Priority
 import tornadofx.*
 import kotlin.system.exitProcess
@@ -17,6 +18,8 @@ class MainView : View() {
         val window = this
 
         titleProperty.bind(mainController.applicationTitleProperty.toFx())
+        primaryStage.icons.clear()
+        primaryStage.icons.add(Image("icon.png"))
 
         Platform.runLater {
             requestFocus()
