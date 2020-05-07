@@ -1,6 +1,6 @@
 package de.robolab.renderer.animation
 
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.listenTo
 import de.westermann.kobserve.property.property
@@ -10,7 +10,7 @@ import kotlin.math.min
 open class GenericTransition<T>(
         initialValue: T,
         private val interpolate: (from: T, to: T, progress: Double) -> T
-) : ReadOnlyProperty<T> {
+) : ObservableValue<T> {
 
     private var fromValue = initialValue
     val sourceValue: T

@@ -1,7 +1,7 @@
 package de.westermann.kwebview.components
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.*
 import org.w3c.dom.HTMLLabelElement
@@ -18,7 +18,7 @@ class Label(
 
     override val html = super.html as HTMLLabelElement
 
-    fun bind(property: ReadOnlyProperty<String>) {
+    fun bind(property: ObservableValue<String>) {
         textProperty.bind(property)
     }
 
@@ -33,7 +33,7 @@ class Label(
             textProperty.invalidate()
         }
 
-    val textProperty: Property<String> = property(this::text)
+    val textProperty: ObservableProperty<String> = property(this::text)
 
     init {
         text = value
@@ -47,5 +47,5 @@ fun ViewCollection<in Label>.label(inputElement: ViewForLabel, text: String = ""
         Label(inputElement, text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in Label>.label(inputElement: ViewForLabel, text: ReadOnlyProperty<String>, init: Label.() -> Unit = {}) =
+fun ViewCollection<in Label>.label(inputElement: ViewForLabel, text: ObservableValue<String>, init: Label.() -> Unit = {}) =
         Label(inputElement, text.value).also(this::append).also { it.bind(text) }.also(init)

@@ -3,36 +3,36 @@ package de.robolab.app.controller
 import de.robolab.app.model.traverser.*
 import de.robolab.planet.Planet
 import de.robolab.traverser.*
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
-import de.westermann.kobserve.list.ObservableList
-import de.westermann.kobserve.list.ObservableReadOnlyList
+import de.westermann.kobserve.base.ObservableList
+import de.westermann.kobserve.base.ObservableMutableList
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.property.constProperty
+import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
 
 class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: Boolean = true) {
-    val autoExpandProperty: Property<Boolean> = property(autoExpand)
+    val autoExpandProperty: ObservableProperty<Boolean> = property(autoExpand)
 
     val sliceViewer: ObservableTreeSliceViewer<out ITraverserState<*>> = traverser.observableTreeSliceViewer()
 
-    private val _currentExploredPlanet: Property<Planet> = property(traverser.planet.planet.asUnexplored())
-    val currentExploredPlanet: ReadOnlyProperty<Planet> = _currentExploredPlanet
+    private val _currentExploredPlanet: ObservableProperty<Planet> = property(traverser.planet.planet.asUnexplored())
+    val currentExploredPlanet: ObservableValue<Planet> = _currentExploredPlanet
 
-    val isNextEnabled: ReadOnlyProperty<Boolean> = sliceViewer.hasNextProperty
-    val isPreviousEnabled: ReadOnlyProperty<Boolean> = sliceViewer.hasPreviousProperty
+    val isNextEnabled: ObservableValue<Boolean> = sliceViewer.hasNextProperty
+    val isPreviousEnabled: ObservableValue<Boolean> = sliceViewer.hasPreviousProperty
 
-    private val _characteristicList: ObservableList<CharacteristicItem> = observableListOf()
-    val characteristicList: ObservableReadOnlyList<CharacteristicItem> = _characteristicList
+    private val _characteristicList: ObservableMutableList<CharacteristicItem> = observableListOf()
+    val characteristicList: ObservableList<CharacteristicItem> = _characteristicList
 
-    private val _entryList: ObservableList<TraverserStateEntry<*>> = observableListOf()
-    val entryList: ObservableReadOnlyList<out ITraverserStateEntry> = _entryList
+    private val _entryList: ObservableMutableList<TraverserStateEntry<*>> = observableListOf()
+    val entryList: ObservableList<out ITraverserStateEntry> = _entryList
 
-    val traverserTitle: ReadOnlyProperty<String> = constProperty(traverser.name)
+    val traverserTitle: ObservableValue<String> = constObservable(traverser.name)
 
     val rootState: ITraverserState<*> = traverser.seed
 
-    val currentTraverserState: ReadOnlyProperty<out ITraverserState<*>> = sliceViewer.currentNodeProperty
+    val currentTraverserState: ObservableValue<out ITraverserState<*>> = sliceViewer.currentNodeProperty
 
     fun clickExpand(): Boolean = sliceViewer.expand()
 

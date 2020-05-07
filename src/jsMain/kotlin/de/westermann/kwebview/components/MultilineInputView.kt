@@ -1,8 +1,7 @@
 package de.westermann.kwebview.components
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
-import de.westermann.kobserve.ValidationProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.*
@@ -59,18 +58,13 @@ class MultilineInputView(
         tabindex = "-1"
     }
 
-    fun bind(property: ReadOnlyProperty<String>) {
+    fun bind(property: ObservableValue<String>) {
         valueProperty.bind(property)
         readonly = true
     }
 
-    fun bind(property: Property<String>) {
+    fun bind(property: ObservableProperty<String>) {
         valueProperty.bindBidirectional(property)
-    }
-
-    fun bind(property: ValidationProperty<String>) {
-        valueProperty.bindBidirectional(property)
-        invalidProperty.bind(!property.validProperty)
     }
 
     fun unbind() {
@@ -87,7 +81,7 @@ class MultilineInputView(
             valueProperty.invalidate()
         }
 
-    val valueProperty: Property<String> = property(this::value)
+    val valueProperty: ObservableProperty<String> = property(this::value)
 
     var placeholder: String
         get() = html.placeholder
@@ -96,7 +90,7 @@ class MultilineInputView(
             placeholderProperty.invalidate()
         }
 
-    val placeholderProperty: Property<String> = property(this::placeholder)
+    val placeholderProperty: ObservableProperty<String> = property(this::placeholder)
 
     val invalidProperty by ClassDelegate("invalid")
     var invalid by invalidProperty
@@ -143,15 +137,11 @@ fun ViewCollection<in MultilineInputView>.multilineInputView(text: String = "", 
         MultilineInputView(InputType.TEXT, text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in MultilineInputView>.multilineInputView(text: ReadOnlyProperty<String>, init: MultilineInputView.() -> Unit = {}) =
+fun ViewCollection<in MultilineInputView>.multilineInputView(text: ObservableValue<String>, init: MultilineInputView.() -> Unit = {}) =
         MultilineInputView(InputType.TEXT, text.value).also(this::append).also { it.bind(text) }.also(init)
 
 @KWebViewDsl
-fun ViewCollection<in MultilineInputView>.multilineInputView(text: Property<String>, init: MultilineInputView.() -> Unit = {}) =
-        MultilineInputView(InputType.TEXT, text.value).also(this::append).also { it.bind(text) }.also(init)
-
-@KWebViewDsl
-fun ViewCollection<in MultilineInputView>.multilineInputView(text: ValidationProperty<String>, init: MultilineInputView.() -> Unit = {}) =
+fun ViewCollection<in MultilineInputView>.multilineInputView(text: ObservableProperty<String>, init: MultilineInputView.() -> Unit = {}) =
         MultilineInputView(InputType.TEXT, text.value).also(this::append).also { it.bind(text) }.also(init)
 
 
@@ -160,13 +150,9 @@ fun ViewCollection<in MultilineInputView>.multilineInputView(type: InputType = I
         MultilineInputView(type, text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in MultilineInputView>.multilineInputView(type: InputType = InputType.TEXT, text: ReadOnlyProperty<String>, init: MultilineInputView.() -> Unit = {}) =
+fun ViewCollection<in MultilineInputView>.multilineInputView(type: InputType = InputType.TEXT, text: ObservableValue<String>, init: MultilineInputView.() -> Unit = {}) =
         MultilineInputView(type, text.value).also(this::append).also { it.bind(text) }.also(init)
 
 @KWebViewDsl
-fun ViewCollection<in MultilineInputView>.multilineInputView(type: InputType = InputType.TEXT, text: Property<String>, init: MultilineInputView.() -> Unit = {}) =
-        MultilineInputView(type, text.value).also(this::append).also { it.bind(text) }.also(init)
-
-@KWebViewDsl
-fun ViewCollection<in MultilineInputView>.multilineInputView(type: InputType = InputType.TEXT, text: ValidationProperty<String>, init: MultilineInputView.() -> Unit = {}) =
+fun ViewCollection<in MultilineInputView>.multilineInputView(type: InputType = InputType.TEXT, text: ObservableProperty<String>, init: MultilineInputView.() -> Unit = {}) =
         MultilineInputView(type, text.value).also(this::append).also { it.bind(text) }.also(init)

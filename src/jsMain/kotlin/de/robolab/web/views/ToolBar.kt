@@ -5,7 +5,7 @@ import de.robolab.app.model.ToolBarEntry
 import de.robolab.web.dialog.Dialog
 import de.robolab.web.dialog.SettingsDialog
 import de.robolab.web.views.utils.buttonGroup
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -26,7 +26,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
         ToolBarEntry.Icon.FLIP -> MaterialIcon.COMPARE
     }
 
-    private fun Button.bindIcon(iconProperty: ReadOnlyProperty<ToolBarEntry.Icon?>) {
+    private fun Button.bindIcon(iconProperty: ObservableValue<ToolBarEntry.Icon?>) {
         var iconView: IconView? = null
 
         val icon = iconProperty.value
@@ -66,7 +66,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
         }
     }
 
-    private fun BoxView.setupToolbar(property: ReadOnlyProperty<List<List<ToolBarEntry>>>) {
+    private fun BoxView.setupToolbar(property: ObservableValue<List<List<ToolBarEntry>>>) {
         val toolBarAction = boxView("tool-bar-actions")
         updateToolBarActions(toolBarAction,property.value)
         property.onChange {

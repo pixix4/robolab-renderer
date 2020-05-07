@@ -1,7 +1,7 @@
 package de.westermann.kwebview
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventListener
 import org.w3c.dom.DOMStringMap
 import org.w3c.dom.get
@@ -65,7 +65,7 @@ class DataSet(
     }
      */
 
-    fun bind(key: String, property: ReadOnlyProperty<String?>) {
+    fun bind(key: String, property: ObservableValue<String?>) {
         if (key in bound) {
             throw IllegalArgumentException("Class is already bound!")
         }
@@ -84,16 +84,16 @@ class DataSet(
 
     private inner class Bound(
             val key: String,
-            val propertyNullable: ReadOnlyProperty<String?>?,
-            val property: ReadOnlyProperty<String>?
+            val propertyNullable: ObservableValue<String?>?,
+            val property: ObservableValue<String>?
     ) {
 
         lateinit var reference: EventListener<Unit>
 
         fun set(value: String?) {
-            if (propertyNullable != null && propertyNullable is Property) {
+            if (propertyNullable != null && propertyNullable is ObservableProperty) {
                 propertyNullable.value = value
-            } else if (property != null && property is Property && value != null) {
+            } else if (property != null && property is ObservableProperty && value != null) {
                 property.value = value
             } else {
                 throw IllegalStateException("The given class is bound and cannot be modified manually!")

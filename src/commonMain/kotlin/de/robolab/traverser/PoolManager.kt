@@ -1,9 +1,11 @@
 package de.robolab.traverser
 
+import de.westermann.kobserve.base.ObservableList
+import de.westermann.kobserve.base.ObservableMutableList
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.list.*
 
-interface PoolManager<T> : ObservableReadOnlyList<T> {
+interface PoolManager<T> : ObservableList<T> {
     fun add(element: T)
     fun add(elements: Collection<T>) = elements.forEach(this::add)
     fun add(vararg elements: T) = elements.forEach(this::add)
@@ -12,7 +14,7 @@ interface PoolManager<T> : ObservableReadOnlyList<T> {
     fun tryRemove(): T?
 
     abstract class PoolManagerBase<T>(vararg elements: T) : PoolManager<T> {
-        protected val pool: ObservableList<T> = observableListOf(*elements)
+        protected val pool: ObservableMutableList<T> = observableListOf(*elements)
 
         override fun add(element: T) {
             pool.add(element)
@@ -31,10 +33,13 @@ interface PoolManager<T> : ObservableReadOnlyList<T> {
         }
 
         override fun isEmpty(): Boolean = pool.isEmpty()
-        override val onAdd: EventHandler<ListAddEvent<T>> = pool.onAdd
+        override val onAddIndex: EventHandler<ObservableList.AddEvent<T>> = pool.onAddIndex
+        override val onSetIndex: EventHandler<ObservableList.SetEvent<T>> = pool.onSetIndex
+        override val onRemoveIndex: EventHandler<ObservableList.RemoveEvent<T>> = pool.onRemoveIndex
+        override val onAdd: EventHandler<T> = pool.onAdd
+        override val onRemove: EventHandler<T> = pool.onRemove
+        override val onClear: EventHandler<Collection<T>> = pool.onClear
         override val onChange: EventHandler<Unit> = pool.onChange
-        override val onRemove: EventHandler<ListRemoveEvent<T>> = pool.onRemove
-        override val onUpdate: EventHandler<ListUpdateEvent<T>> = pool.onUpdate
         override val size: Int = pool.size
 
         override fun contains(element: T): Boolean = pool.contains(element)

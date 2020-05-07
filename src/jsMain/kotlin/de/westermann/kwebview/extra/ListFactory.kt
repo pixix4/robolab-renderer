@@ -1,10 +1,10 @@
 package de.westermann.kwebview.extra
 
 import de.robolab.utils.runAfterTimeout
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableList
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventListener
-import de.westermann.kobserve.list.ObservableReadOnlyList
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
@@ -19,7 +19,7 @@ class ListFactory<T, V : View>(
 
     constructor(
             container: ViewCollection<in V>,
-            listProperty: ReadOnlyProperty<ObservableReadOnlyList<T>>,
+            listProperty: ObservableValue<ObservableList<T>>,
             factory: (T) -> V,
             animateAdd: Int? = null,
             animateRemove: Int? = null
@@ -30,7 +30,7 @@ class ListFactory<T, V : View>(
 
     constructor(
             container: ViewCollection<in V>,
-            list: ObservableReadOnlyList<T>,
+            list: ObservableList<T>,
             factory: (T) -> V,
             animateAdd: Int? = null,
             animateRemove: Int? = null
@@ -38,12 +38,12 @@ class ListFactory<T, V : View>(
         listProperty.value = list
     }
 
-    val listProperty: Property<ObservableReadOnlyList<T>> = property(observableListOf())
+    val listProperty: ObservableProperty<ObservableList<T>> = property(observableListOf())
     val list by listProperty
 
     private val listenerReferences = mutableListOf<EventListener<*>>()
 
-    fun invalidate(list: ObservableReadOnlyList<T>) {
+    fun invalidate(list: ObservableList<T>) {
         for (listener in listenerReferences) {
             listener.detach()
         }
@@ -53,7 +53,7 @@ class ListFactory<T, V : View>(
         for (element in list) {
             container += factory(element)
         }
-        listenerReferences += list.onAdd.reference { (index, element) ->
+        listenerReferences += list.onAddIndex.reference { (index, element) ->
             val view = factory(element)
             container.add(index, view)
 
@@ -67,7 +67,7 @@ class ListFactory<T, V : View>(
                 }
             }
         }
-        listenerReferences += list.onRemove.reference { (index) ->
+        listenerReferences += list.onRemoveIndex.reference { (index) ->
             @Suppress("UNCHECKED_CAST") val view = container[index] as V
 
             if (animateRemove == null) {
@@ -83,9 +83,12 @@ class ListFactory<T, V : View>(
                 }
             }
         }
-        listenerReferences += list.onUpdate.reference { (oldIndex, newIndex, element) ->
-            container.removeAt(oldIndex)
-            container.add(newIndex, factory(element))
+        listenerReferences += list.onSetIndex.reference { (index, _, newElement) ->
+            container.removeAt(index)
+            container.add(index, factory(newElement))
+        }
+        listenerReferences += list.onClear.reference {
+            container.clear()
         }
     }
 
@@ -98,27 +101,27 @@ class ListFactory<T, V : View>(
 }
 
 fun <T, V : View> ViewCollection<in V>.listFactory(
-        listProperty: ReadOnlyProperty<ObservableReadOnlyList<T>>,
+        listProperty: ObservableValue<ObservableList<T>>,
         factory: (T) -> V,
         animateAdd: Int? = null,
         animateRemove: Int? = null
 ) = ListFactory(this, listProperty, factory, animateAdd, animateRemove)
 
 fun <V : View> ViewCollection<in V>.listFactory(
-        listProperty: ReadOnlyProperty<ObservableReadOnlyList<V>>,
+        listProperty: ObservableValue<ObservableList<V>>,
         animateAdd: Int? = null,
         animateRemove: Int? = null
 ) = ListFactory(this, listProperty, { it }, animateAdd, animateRemove)
 
 fun <T, V : View> ViewCollection<in V>.listFactory(
-        list: ObservableReadOnlyList<T>,
+        list: ObservableList<T>,
         factory: (T) -> V,
         animateAdd: Int? = null,
         animateRemove: Int? = null
 ) = ListFactory(this, list, factory, animateAdd, animateRemove)
 
 fun <V : View> ViewCollection<in V>.listFactory(
-        list: ObservableReadOnlyList<V>,
+        list: ObservableList<V>,
         animateAdd: Int? = null,
         animateRemove: Int? = null
 ) = ListFactory(this, list, { it }, animateAdd, animateRemove)

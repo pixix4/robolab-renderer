@@ -7,21 +7,19 @@ import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.style.MainStyle
 import de.robolab.jfx.utils.buttonGroup
 import de.robolab.jfx.utils.iconNoAdd
-import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.not
 import de.westermann.kobserve.or
 import de.westermann.kobserve.property.flatMapBinding
-import de.westermann.kobserve.property.flatMapReadOnlyBinding
+import de.westermann.kobserve.property.flatMapMutableBinding
 import de.westermann.kobserve.property.mapBinding
 import javafx.beans.value.ObservableValue
 import javafx.collections.ObservableList
-import javafx.geometry.Pos
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import tornadofx.*
 
-class InfoBarTraverserView(private val traverserProperty: ReadOnlyProperty<TraverserBarController>) : View() {
+class InfoBarTraverserView(private val traverserProperty: de.westermann.kobserve.base.ObservableValue<TraverserBarController>) : View() {
 
 
     private lateinit var characteristicListView: HBox
@@ -33,7 +31,7 @@ class InfoBarTraverserView(private val traverserProperty: ReadOnlyProperty<Trave
         hgrow = Priority.ALWAYS
 
         toolbar {
-            label(traverserProperty.flatMapReadOnlyBinding { it.traverserTitle }.toFx())
+            label(traverserProperty.flatMapBinding { it.traverserTitle }.toFx())
 
             spacer()
 
@@ -99,7 +97,7 @@ class InfoBarTraverserView(private val traverserProperty: ReadOnlyProperty<Trave
         vbox {
             toolbar {
                 button {
-                    enableWhen(traverserProperty.flatMapReadOnlyBinding { it.isPreviousEnabled }.toFx())
+                    enableWhen(traverserProperty.flatMapBinding { it.isPreviousEnabled }.toFx())
 
                     graphic = iconNoAdd(MaterialIcon.CHEVRON_LEFT)
 
@@ -109,7 +107,7 @@ class InfoBarTraverserView(private val traverserProperty: ReadOnlyProperty<Trave
                 }
 
                 spacer()
-                label(traverserProperty.flatMapReadOnlyBinding { it.traverserTitle }.toFx())
+                label(traverserProperty.flatMapBinding { it.traverserTitle }.toFx())
                 spacer()
 
                 buttonGroup {
@@ -117,7 +115,7 @@ class InfoBarTraverserView(private val traverserProperty: ReadOnlyProperty<Trave
                         graphic = iconNoAdd(MaterialIcon.ARROW_DROP_DOWN)
                         title = "Expand"
 
-                        enableWhen { traverserProperty.flatMapReadOnlyBinding { it.autoExpandProperty }.not().toFx() }
+                        enableWhen { traverserProperty.flatMapBinding { it.autoExpandProperty }.not().toFx() }
 
                         setOnAction {
                                 traverserProperty.value.clickFullExpand()
@@ -126,12 +124,12 @@ class InfoBarTraverserView(private val traverserProperty: ReadOnlyProperty<Trave
                     button {
                         graphic = iconNoAdd(MaterialIcon.ARROW_DOWNWARD)
 
-                        bindSelectedProperty(traverserProperty.flatMapBinding { it.autoExpandProperty })
+                        bindSelectedProperty(traverserProperty.flatMapMutableBinding { it.autoExpandProperty })
                     }
                 }
 
                 button {
-                    enableWhen(traverserProperty.flatMapReadOnlyBinding { it.isNextEnabled }.toFx())
+                    enableWhen(traverserProperty.flatMapBinding { it.isNextEnabled }.toFx())
 
                     graphic = iconNoAdd(MaterialIcon.CHEVRON_RIGHT)
 

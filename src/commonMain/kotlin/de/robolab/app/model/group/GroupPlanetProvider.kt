@@ -7,7 +7,7 @@ import de.robolab.communication.MessageManager
 import de.robolab.communication.RobolabMessage
 import de.westermann.kobserve.list.mapObservable
 import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.list.sortObservable
+import de.westermann.kobserve.list.sortByObservable
 import de.westermann.kobserve.property.property
 
 class GroupPlanetProvider(
@@ -21,7 +21,8 @@ class GroupPlanetProvider(
     override val searchStringProperty = property("")
 
     override val entryList = groupList
-            .sortObservable(compareBy { it.groupName }).mapObservable { it as ISideBarEntry }
+            .sortByObservable { it.groupName }
+            .mapObservable { it as ISideBarEntry }
 
     private fun onMessage(message: RobolabMessage) {
         val group = groupList.find { it.groupName == message.metadata.groupId }

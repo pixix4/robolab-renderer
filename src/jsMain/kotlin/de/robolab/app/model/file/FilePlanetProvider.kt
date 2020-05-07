@@ -2,6 +2,8 @@ package de.robolab.app.model.file
 
 import de.robolab.app.model.IProvider
 import de.robolab.app.model.ISideBarEntry
+import de.westermann.kobserve.base.ObservableList
+import de.westermann.kobserve.base.ObservableMutableList
 import de.westermann.kobserve.list.*
 import de.westermann.kobserve.property.property
 import kotlin.browser.window
@@ -10,8 +12,10 @@ actual class FilePlanetProvider actual constructor(): IProvider {
 
     override val searchStringProperty = property("")
 
-    actual val planetList: ObservableList<FilePlanetEntry> = observableListOf()
-    override val entryList: ObservableReadOnlyList<ISideBarEntry> = planetList.sortObservable(compareBy { it.titleProperty.value.toLowerCase() }).mapObservable { it as ISideBarEntry }
+    actual val planetList: ObservableMutableList<FilePlanetEntry> = observableListOf()
+    override val entryList: ObservableList<ISideBarEntry> = planetList
+            .sortByObservable { it.titleProperty.value.toLowerCase() }
+            .mapObservable { it as ISideBarEntry }
 
     actual fun loadEntry(entry: FilePlanetEntry, onFinish: (String?) -> Unit) {
         window.fetch(entry.filename).then {

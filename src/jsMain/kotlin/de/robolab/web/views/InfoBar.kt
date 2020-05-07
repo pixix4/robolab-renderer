@@ -6,8 +6,8 @@ import de.robolab.app.model.file.InfoBarFileEditor
 import de.robolab.app.model.file.InfoBarTraverser
 import de.robolab.app.model.group.InfoBarGroupInfo
 import de.robolab.web.views.utils.buttonGroup
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
@@ -17,7 +17,7 @@ import de.westermann.kwebview.components.boxView
 import de.westermann.kwebview.components.button
 import de.westermann.kwebview.components.multilineInputView
 
-class InfoBar(private val infoBarController: InfoBarController, infoBarActiveProperty: Property<Boolean>) : ViewCollection<View>() {
+class InfoBar(private val infoBarController: InfoBarController, infoBarActiveProperty: ObservableProperty<Boolean>) : ViewCollection<View>() {
 
     private val headerView: BoxView
     private val contentView: BoxView
@@ -91,9 +91,9 @@ class InfoBar(private val infoBarController: InfoBarController, infoBarActivePro
     }
 }
 
-class NullableViewContainer(private val traverserProperty: ReadOnlyProperty<TraverserBarController?>) : ViewCollection<View>() {
+class NullableViewContainer(private val traverserProperty: ObservableValue<TraverserBarController?>) : ViewCollection<View>() {
     
-    private var prop: Property<TraverserBarController>? = null
+    private var prop: ObservableProperty<TraverserBarController>? = null
     private var view: TraverserBarView? = null
 
     private fun updateView() {

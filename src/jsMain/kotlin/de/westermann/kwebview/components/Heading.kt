@@ -1,7 +1,7 @@
 package de.westermann.kwebview.components
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.KWebViewDsl
 import de.westermann.kwebview.View
@@ -16,7 +16,7 @@ class Heading(
 
     override val html = super.html as HTMLHeadingElement
 
-    fun bind(property: ReadOnlyProperty<String>) {
+    fun bind(property: ObservableValue<String>) {
         textProperty.bind(property)
     }
 
@@ -31,7 +31,7 @@ class Heading(
             textProperty.invalidate()
         }
 
-    val textProperty: Property<String> = property(this::text)
+    val textProperty: ObservableProperty<String> = property(this::text)
 
     init {
         text = value
@@ -52,7 +52,7 @@ fun ViewCollection<in Heading>.h1(text: String = "", init: Heading.() -> Unit = 
         Heading(Heading.Type.H1, text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in Heading>.h1(text: ReadOnlyProperty<String>, init: Heading.() -> Unit = {}) =
+fun ViewCollection<in Heading>.h1(text: ObservableValue<String>, init: Heading.() -> Unit = {}) =
         Heading(Heading.Type.H1, text.value).also(this::append).also { it.bind(text) }.also(init)
 
 @KWebViewDsl
@@ -60,7 +60,7 @@ fun ViewCollection<in Heading>.h2(text: String = "", init: Heading.() -> Unit = 
         Heading(Heading.Type.H2, text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in Heading>.h2(text: ReadOnlyProperty<String>, init: Heading.() -> Unit = {}) =
+fun ViewCollection<in Heading>.h2(text: ObservableValue<String>, init: Heading.() -> Unit = {}) =
         Heading(Heading.Type.H2, text.value).also(this::append).also { it.bind(text) }.also(init)
 
 @KWebViewDsl
@@ -68,7 +68,7 @@ fun ViewCollection<in Heading>.h3(text: String = "", init: Heading.() -> Unit = 
         Heading(Heading.Type.H3, text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in Heading>.h3(text: ReadOnlyProperty<String>, init: Heading.() -> Unit = {}) =
+fun ViewCollection<in Heading>.h3(text: ObservableValue<String>, init: Heading.() -> Unit = {}) =
         Heading(Heading.Type.H3, text.value).also(this::append).also { it.bind(text) }.also(init)
 
 @KWebViewDsl
@@ -76,7 +76,7 @@ fun ViewCollection<in Heading>.h4(text: String = "", init: Heading.() -> Unit = 
         Heading(Heading.Type.H4, text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in Heading>.h4(text: ReadOnlyProperty<String>, init: Heading.() -> Unit = {}) =
+fun ViewCollection<in Heading>.h4(text: ObservableValue<String>, init: Heading.() -> Unit = {}) =
         Heading(Heading.Type.H4, text.value).also(this::append).also { it.bind(text) }.also(init)
 
 @KWebViewDsl
@@ -84,7 +84,7 @@ fun ViewCollection<in Heading>.h5(text: String = "", init: Heading.() -> Unit = 
         Heading(Heading.Type.H5, text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in Heading>.h5(text: ReadOnlyProperty<String>, init: Heading.() -> Unit = {}) =
+fun ViewCollection<in Heading>.h5(text: ObservableValue<String>, init: Heading.() -> Unit = {}) =
         Heading(Heading.Type.H5, text.value).also(this::append).also { it.bind(text) }.also(init)
 
 @KWebViewDsl
@@ -92,5 +92,5 @@ fun ViewCollection<in Heading>.h6(text: String = "", init: Heading.() -> Unit = 
         Heading(Heading.Type.H6, text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in Heading>.h6(text: ReadOnlyProperty<String>, init: Heading.() -> Unit = {}) =
+fun ViewCollection<in Heading>.h6(text: ObservableValue<String>, init: Heading.() -> Unit = {}) =
         Heading(Heading.Type.H6, text.value).also(this::append).also { it.bind(text) }.also(init)

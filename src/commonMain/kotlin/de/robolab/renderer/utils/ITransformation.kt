@@ -2,7 +2,7 @@ package de.robolab.renderer.utils
 
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableValue
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -28,13 +28,13 @@ interface ITransformation {
         return Point(left, top)
     }
 
-    val translationProperty: ReadOnlyProperty<Point>
+    val translationProperty: ObservableValue<Point>
     val translation: Point
 
-    val scaleProperty: ReadOnlyProperty<Double>
+    val scaleProperty: ObservableValue<Double>
     val scale: Double
 
-    val rotationProperty: ReadOnlyProperty<Double>
+    val rotationProperty: ObservableValue<Double>
     val rotation: Double
 
     val gridWidth: Double

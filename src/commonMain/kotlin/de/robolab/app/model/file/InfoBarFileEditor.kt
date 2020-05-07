@@ -1,23 +1,23 @@
 package de.robolab.app.model.file
 
 import de.robolab.app.model.IInfoBarContent
-import de.westermann.kobserve.property.FunctionAccessor
-import de.westermann.kobserve.property.constProperty
+import de.westermann.kobserve.property.DelegatePropertyAccessor
+import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
 
 class InfoBarFileEditor(private val filePlanetEntry: FilePlanetEntry) : IInfoBarContent {
 
-    override val nameProperty = constProperty("Editor")
+    override val nameProperty = constObservable("Editor")
 
 
     private var lastChange: Change = Change.LineCountModified(-1, 0)
 
-    val contentProperty = property(object : FunctionAccessor<String> {
-        override fun set(value: String): Boolean {
+    val contentProperty = property(object : DelegatePropertyAccessor<String> {
+        override fun set(value: String) {
             val lastLines = filePlanetEntry.content.split('\n')
             val lines = value.split('\n')
 
-            if (lastLines == lines) return true
+            if (lastLines == lines) return
 
             val change = if (lastLines.size != lines.size) {
                 Change.LineCountModified(lastLines.size, lines.size)
@@ -38,7 +38,6 @@ class InfoBarFileEditor(private val filePlanetEntry: FilePlanetEntry) : IInfoBar
             } else {
                 filePlanetEntry.planetFile.content = value
             }
-            return true
         }
 
         override fun get(): String {

@@ -1,14 +1,14 @@
 package de.robolab.app.model.file
 
 import de.robolab.app.model.IProvider
-import de.westermann.kobserve.list.ObservableList
+import de.westermann.kobserve.base.ObservableMutableList
 
 expect class FilePlanetProvider() : IProvider {
     fun loadEntry(entry: FilePlanetEntry, onFinish: (String?) -> Unit)
 
     fun saveEntry(entry: FilePlanetEntry, onFinish: (Boolean) -> Unit)
 
-    val planetList: ObservableList<FilePlanetEntry>
+    val planetList: ObservableMutableList<FilePlanetEntry>
 }
 
 fun FilePlanetProvider.findByName(name: String): FilePlanetEntry? {

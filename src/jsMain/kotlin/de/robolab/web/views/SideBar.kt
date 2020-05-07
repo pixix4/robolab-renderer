@@ -5,16 +5,16 @@ import de.robolab.app.model.ISideBarEntry
 import de.robolab.app.model.ISideBarPlottable
 import de.robolab.renderer.data.Point
 import de.robolab.web.views.utils.buttonGroup
-import de.westermann.kobserve.Property
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.not
-import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
 import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
 
-class SideBar(private val sideBarController: SideBarController, sideBarActiveProperty: Property<Boolean>) : ViewCollection<View>() {
+class SideBar(private val sideBarController: SideBarController, sideBarActiveProperty: ObservableProperty<Boolean>) : ViewCollection<View>() {
 
     private fun createEntry(entry: ISideBarEntry) = SideBarEntry(entry, sideBarController)
 
@@ -49,7 +49,7 @@ class SideBar(private val sideBarController: SideBarController, sideBarActivePro
                 }
             }
             boxView("side-bar-group-head") {
-                textView(sideBarController.selectedGroupProperty.flatMapReadOnlyNullableBinding { it?.tabNameProperty }.mapBinding {
+                textView(sideBarController.selectedGroupProperty.nullableFlatMapBinding { it?.tabNameProperty }.mapBinding {
                     it ?: ""
                 })
 

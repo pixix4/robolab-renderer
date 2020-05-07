@@ -1,5 +1,7 @@
 package de.westermann.kobserve
 
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventListener
 
 /**
@@ -31,8 +33,8 @@ sealed class Binding<T> {
      * Create an event listener that listens to source and applies all changes to target
      */
     protected fun listen(
-        source: ReadOnlyProperty<out T>,
-        target: Property<T>
+        source: ObservableValue<T>,
+        target: ObservableProperty<T>
     ): EventListener<Unit> =
         source.onChange.reference {
             val newValue = source.value
@@ -52,7 +54,7 @@ sealed class Binding<T> {
     /**
      * Represents an readonly binding state.
      */
-    class ReadOnlyBinding<T>(property: Property<T>, private val target: ReadOnlyProperty<out T>) : Binding<T>() {
+    class ReadOnlyBinding<T>(property: ObservableProperty<T>, private val target: ObservableValue<T>) : Binding<T>() {
 
         override val isWritable: Boolean = false
 
@@ -78,7 +80,7 @@ sealed class Binding<T> {
     /**
      * Represents a bidirectional binding state.
      */
-    class BidirectionalBinding<T>(property: Property<T>, private val target: Property<T>) : Binding<T>() {
+    class BidirectionalBinding<T>(property: ObservableProperty<T>, private val target: ObservableProperty<T>) : Binding<T>() {
 
         override val isWritable: Boolean
             get() = target.isWritable

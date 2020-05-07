@@ -1,7 +1,7 @@
 package de.westermann.kwebview.components
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.*
 import org.w3c.dom.HTMLImageElement
@@ -12,7 +12,7 @@ class ImageView(
 
     override val html = super.html as HTMLImageElement
 
-    fun bind(property: ReadOnlyProperty<String>) {
+    fun bind(property: ObservableValue<String>) {
         sourceProperty.bind(property)
     }
 
@@ -27,7 +27,7 @@ class ImageView(
             sourceProperty.invalidate()
         }
 
-    val sourceProperty: Property<String> = property(this::source)
+    val sourceProperty: ObservableProperty<String> = property(this::source)
 
 
     var alt by AttributeDelegate("alt")
@@ -42,5 +42,5 @@ fun ViewCollection<in ImageView>.imageView(src: String = "", init: ImageView.() 
         ImageView(src).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in ImageView>.imageView(src: ReadOnlyProperty<String>, init: ImageView.() -> Unit = {}) =
+fun ViewCollection<in ImageView>.imageView(src: ObservableValue<String>, init: ImageView.() -> Unit = {}) =
         ImageView(src.value).also(this::append).also { it.bind(src) }.also(init)

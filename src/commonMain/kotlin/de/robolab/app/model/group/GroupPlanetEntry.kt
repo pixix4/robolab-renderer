@@ -12,13 +12,10 @@ import de.robolab.communication.toServerPlanet
 import de.robolab.planet.Planet
 import de.robolab.renderer.drawable.planet.LivePlanetDrawable
 import de.robolab.utils.Logger
-import de.westermann.kobserve.list.ObservableReadOnlyList
+import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.list.mapObservable
 import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.property.constProperty
-import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
-import de.westermann.kobserve.property.mapBinding
-import de.westermann.kobserve.property.property
+import de.westermann.kobserve.property.*
 import kotlin.math.max
 import kotlin.math.min
 
@@ -26,9 +23,9 @@ class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanet
 
     val attempts = observableListOf<AttemptPlanetEntry>()
 
-    override val entryList: ObservableReadOnlyList<ISideBarEntry> = attempts.mapObservable { it as ISideBarEntry }
+    override val entryList: ObservableList<ISideBarEntry> = attempts.mapObservable { it as ISideBarEntry }
 
-    override val titleProperty = constProperty(groupName)
+    override val titleProperty = constObservable(groupName)
 
     override val tabNameProperty = titleProperty.mapBinding { "Group $it" }
 
@@ -36,7 +33,7 @@ class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanet
         "Attempts: ${it.size}"
     }
 
-    override val unsavedChangesProperty = constProperty(false)
+    override val unsavedChangesProperty = constObservable(false)
 
     override val parent: ISideBarGroup? = null
 
@@ -154,10 +151,10 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
 
     override val toolBarRight: List<List<ToolBarEntry>> = listOf(
             listOf(
-                    ToolBarEntry(iconProperty = constProperty(ToolBarEntry.Icon.UNDO), enabledProperty = canUndoProperty) {
+                    ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.UNDO), enabledProperty = canUndoProperty) {
                         undo()
                     },
-                    ToolBarEntry(iconProperty = constProperty(ToolBarEntry.Icon.REDO), enabledProperty =canRedoProperty) {
+                    ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.REDO), enabledProperty =canRedoProperty) {
                         redo()
                     }
             )
@@ -166,15 +163,15 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     override val infoBarList: List<IInfoBarContent> = listOf(InfoBarGroupInfo(this))
     override val selectedInfoBarIndexProperty = property<Int?>(0)
 
-    override val unsavedChangesProperty = constProperty(false)
+    override val unsavedChangesProperty = constObservable(false)
 
-    override val enabledProperty = constProperty(false)
+    override val enabledProperty = constObservable(false)
 
     override val drawable = LivePlanetDrawable()
 
 
     private val planetNameProperty = property("")
-    private val backgroundPlanet = planetNameProperty.flatMapReadOnlyNullableBinding {
+    private val backgroundPlanet = planetNameProperty.nullableFlatMapBinding {
         val entry = parent.filePlanetProvider.findByName(it)
         entry?.onOpen()
         entry?.planetFile?.planetProperty

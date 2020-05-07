@@ -1,6 +1,6 @@
 package de.westermann.kwebview
 
-import de.westermann.kobserve.Property
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.property
 import kotlin.reflect.KProperty
 
@@ -15,9 +15,9 @@ class ClassDelegate(
 
     private lateinit var container: View
     private lateinit var paramName: String
-    private lateinit var classProperty: Property<Boolean>
+    private lateinit var classProperty: ObservableProperty<Boolean>
 
-    operator fun getValue(container: View, property: KProperty<*>): Property<Boolean> {
+    operator fun getValue(container: View, property: KProperty<*>): ObservableProperty<Boolean> {
         if (!this::container.isInitialized) {
             this.container = container
         }

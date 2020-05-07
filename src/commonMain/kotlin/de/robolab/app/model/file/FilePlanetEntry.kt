@@ -15,7 +15,7 @@ import de.robolab.renderer.utils.SvgCanvas
 import de.robolab.renderer.utils.Transformation
 import de.robolab.utils.*
 import de.westermann.kobserve.not
-import de.westermann.kobserve.property.constProperty
+import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
@@ -33,31 +33,31 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override val toolBarLeft: List<List<ToolBarEntry>> = listOf(
             listOf(
-                    ToolBarEntry(constProperty("View"), selectedProperty = !drawable.editableProperty) {
+                    ToolBarEntry(constObservable("View"), selectedProperty = !drawable.editableProperty) {
                         drawable.editableProperty.value = false
                     },
-                    ToolBarEntry(constProperty("Edit"), selectedProperty = drawable.editableProperty) {
+                    ToolBarEntry(constObservable("Edit"), selectedProperty = drawable.editableProperty) {
                         drawable.editableProperty.value = true
                     }
             ),
             listOf(
-                    ToolBarEntry(constProperty("Export"),
-                            toolTipProperty = constProperty("Open planet export dialog")) {
+                    ToolBarEntry(constObservable("Export"),
+                            toolTipProperty = constObservable("Open planet export dialog")) {
                         openExportDialog(this)
                     }
             ),
             listOf(
-                    ToolBarEntry(constProperty("Paper"),
-                            toolTipProperty = constProperty("Toggle paper constraints background"), selectedProperty = PreferenceStorage.paperBackgroundEnabledProperty) {
+                    ToolBarEntry(constObservable("Paper"),
+                            toolTipProperty = constObservable("Toggle paper constraints background"), selectedProperty = PreferenceStorage.paperBackgroundEnabledProperty) {
                         PreferenceStorage.paperBackgroundEnabledProperty.value = !PreferenceStorage.paperBackgroundEnabledProperty.value
                     },
-                    ToolBarEntry(iconProperty = constProperty(ToolBarEntry.Icon.PREFERENCES),
-                            toolTipProperty = constProperty("Configure paper constraints")) {
+                    ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.PREFERENCES),
+                            toolTipProperty = constObservable("Configure paper constraints")) {
                         openPaperConstraintsDialog()
                     },
                     ToolBarEntry(
-                            iconProperty = constProperty(ToolBarEntry.Icon.FLIP),
-                            toolTipProperty = constProperty("Flip view horizontal"),
+                            iconProperty = constObservable(ToolBarEntry.Icon.FLIP),
+                            toolTipProperty = constObservable("Flip view horizontal"),
                             selectedProperty = drawable.flipViewProperty.mapBinding { it == true },
                             enabledProperty = drawable.flipViewProperty.mapBinding { it != null }
                     ) {
@@ -78,10 +78,10 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override val toolBarRight: List<List<ToolBarEntry>> = listOf(
             listOf(
-                    ToolBarEntry(iconProperty = constProperty(ToolBarEntry.Icon.UNDO), toolTipProperty = constProperty("Undo last action"), enabledProperty = planetFile.history.canUndoProperty) {
+                    ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.UNDO), toolTipProperty = constObservable("Undo last action"), enabledProperty = planetFile.history.canUndoProperty) {
                         planetFile.history.undo()
                     },
-                    ToolBarEntry(iconProperty = constProperty(ToolBarEntry.Icon.REDO), toolTipProperty = constProperty("Redo last action"), enabledProperty = planetFile.history.canRedoProperty) {
+                    ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.REDO), toolTipProperty = constObservable("Redo last action"), enabledProperty = planetFile.history.canRedoProperty) {
                         planetFile.history.redo()
                     }
             )

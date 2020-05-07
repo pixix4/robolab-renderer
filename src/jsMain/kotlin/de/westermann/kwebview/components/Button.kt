@@ -1,7 +1,7 @@
 package de.westermann.kwebview.components
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.KWebViewDsl
 import de.westermann.kwebview.View
@@ -22,7 +22,7 @@ class Button() : ViewCollection<View>(createHtmlView<HTMLButtonElement>()) {
 
     override val html = super.html as HTMLButtonElement
 
-    fun bind(property: ReadOnlyProperty<String>) {
+    fun bind(property: ObservableValue<String>) {
         textProperty.bind(property)
     }
 
@@ -37,7 +37,7 @@ class Button() : ViewCollection<View>(createHtmlView<HTMLButtonElement>()) {
             textProperty.invalidate()
         }
 
-    val textProperty: Property<String> = property(this::text)
+    val textProperty: ObservableProperty<String> = property(this::text)
 
     val disabledProperty = property(html::disabled)
 }
@@ -47,7 +47,7 @@ fun ViewCollection<in Button>.button(text: String = "", init: Button.() -> Unit 
         Button(text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in Button>.button(text: ReadOnlyProperty<String>, init: Button.() -> Unit = {}) =
+fun ViewCollection<in Button>.button(text: ObservableValue<String>, init: Button.() -> Unit = {}) =
         Button(text.value).also(this::append).also { it.bind(text) }.also(init)
 
 @KWebViewDsl

@@ -8,15 +8,16 @@ import de.robolab.app.model.group.GroupPlanetProvider
 import de.robolab.communication.MessageManager
 import de.robolab.communication.mqtt.RobolabMqttConnection
 import de.robolab.utils.PreferenceStorage
-import de.westermann.kobserve.Property
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.list.filterObservable
 import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.property.flatten
+import de.westermann.kobserve.property.flattenBinding
+import de.westermann.kobserve.property.flattenMutableBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
 class SideBarController(
-        val selectedEntryProperty: Property<ISideBarPlottable?>,
+        val selectedEntryProperty: ObservableProperty<ISideBarPlottable?>,
         messageManager: MessageManager,
         private val connection: RobolabMqttConnection
 ) {
@@ -52,7 +53,7 @@ class SideBarController(
             Tab.PLANET -> property("")
             Tab.FILE -> filePlanetProvider.searchStringProperty
         }
-    }.flatten()
+    }.flattenMutableBinding()
 
     val entryListProperty = property(tabProperty, selectedGroupProperty) {
         val g = selectedGroupProperty.value

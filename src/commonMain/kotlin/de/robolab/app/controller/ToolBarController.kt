@@ -1,19 +1,19 @@
 package de.robolab.app.controller
 
 import de.robolab.app.model.ISideBarPlottable
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.nullableFlatMapBinding
 import kotlin.math.roundToInt
 
 class ToolBarController(
-        val selectedEntryProperty: Property<ISideBarPlottable?>,
+        val selectedEntryProperty: ObservableProperty<ISideBarPlottable?>,
         private val canvasController: CanvasController
 ) {
     val leftActionListProperty = selectedEntryProperty.mapBinding { it?.toolBarLeft ?: emptyList() }
     val rightActionListProperty = selectedEntryProperty.mapBinding { it?.toolBarRight ?: emptyList() }
 
-    val titleProperty = selectedEntryProperty.flatMapReadOnlyNullableBinding { it?.tabNameProperty }.mapBinding {
+    val titleProperty = selectedEntryProperty.nullableFlatMapBinding { it?.tabNameProperty }.mapBinding {
         it ?: ""
     }
 

@@ -3,8 +3,7 @@ package de.robolab.web.views
 import de.robolab.app.controller.CanvasController
 import de.robolab.renderer.data.Point
 import de.robolab.web.adapter.*
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.Canvas
@@ -14,8 +13,8 @@ import kotlin.math.max
 
 class MainCanvas(
         canvasController: CanvasController,
-        sideBarActiveProperty: Property<Boolean>,
-        infoBarActiveProperty: Property<Boolean>
+        sideBarActiveProperty: ObservableProperty<Boolean>,
+        infoBarActiveProperty: ObservableProperty<Boolean>
 ) : ViewCollection<View>() {
 
     private val canvas = Canvas()

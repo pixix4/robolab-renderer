@@ -1,7 +1,7 @@
 package de.westermann.kwebview.components
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.KWebViewDsl
 import de.westermann.kwebview.View
@@ -20,7 +20,7 @@ class TextView(
 
     override val html = super.html as HTMLSpanElement
 
-    fun bind(property: ReadOnlyProperty<String>) {
+    fun bind(property: ObservableValue<String>) {
         textProperty.bind(property)
     }
 
@@ -35,7 +35,7 @@ class TextView(
             textProperty.invalidate()
         }
 
-    val textProperty: Property<String> = property(this::text)
+    val textProperty: ObservableProperty<String> = property(this::text)
 
     init {
         text = value
@@ -47,5 +47,5 @@ fun ViewCollection<in TextView>.textView(text: String = "", init: TextView.() ->
         TextView(text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in TextView>.textView(text: ReadOnlyProperty<String>, init: TextView.() -> Unit = {}) =
+fun ViewCollection<in TextView>.textView(text: ObservableValue<String>, init: TextView.() -> Unit = {}) =
         TextView(text.value).also(this::append).also { it.bind(text) }.also(init)

@@ -1,12 +1,12 @@
 package de.robolab.renderer.utils
 
 import de.westermann.kobserve.Binding
-import de.westermann.kobserve.Property
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
-class History<T : Any>(initValue: T) : Property<T> {
+class History<T : Any>(initValue: T) : ObservableProperty<T> {
 
     private var historyIndexProperty = property(0)
     private var historyIndex by historyIndexProperty

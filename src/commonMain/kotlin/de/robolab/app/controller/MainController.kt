@@ -5,8 +5,8 @@ import de.robolab.communication.MessageManager
 import de.robolab.communication.RobolabMessageProvider
 import de.robolab.communication.mqtt.RobolabMqttConnection
 import de.robolab.utils.ConsoleGreeter
-import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
 import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
 
 class MainController {
@@ -16,7 +16,7 @@ class MainController {
     private val connection = RobolabMqttConnection()
     private val messageManager = MessageManager(RobolabMessageProvider(connection))
 
-    val applicationTitleProperty = selectedEntryProperty.flatMapReadOnlyNullableBinding { it?.tabNameProperty }.mapBinding { name ->
+    val applicationTitleProperty = selectedEntryProperty.nullableFlatMapBinding { it?.tabNameProperty }.mapBinding { name ->
         if (name == null) "RobolabRenderer" else "RobolabRenderer - $name"
     }
 

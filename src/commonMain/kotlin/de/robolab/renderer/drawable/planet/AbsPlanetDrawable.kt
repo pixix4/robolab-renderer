@@ -11,10 +11,9 @@ import de.robolab.renderer.drawable.*
 import de.robolab.renderer.drawable.base.GroupDrawable
 import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.base.IDrawable
-import de.robolab.renderer.utils.Pointer
 import de.robolab.renderer.utils.Transformation
-import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
 import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
 
 @Suppress("LeakingThis")
@@ -41,10 +40,10 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
     val transformationProperty = plotterProperty.mapBinding { it?.transformation }
     override val transformation by transformationProperty
 
-    val pointerProperty = plotterProperty.flatMapReadOnlyNullableBinding { it?.pointerProperty }
+    val pointerProperty = plotterProperty.nullableFlatMapBinding { it?.pointerProperty }
     override val pointer by pointerProperty
     
-    val flipViewProperty = transformationProperty.flatMapReadOnlyNullableBinding { it?.flipViewProperty }
+    val flipViewProperty = transformationProperty.nullableFlatMapBinding { it?.flipViewProperty }
     val flipView by flipViewProperty.mapBinding { it == true }
     fun flip() {
         transformation?.flipViewProperty?.value = !flipView

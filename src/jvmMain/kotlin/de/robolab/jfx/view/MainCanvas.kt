@@ -2,17 +2,17 @@ package de.robolab.jfx.view
 
 import de.robolab.app.controller.CanvasController
 import de.robolab.jfx.adapter.FxCanvas
-import de.westermann.kobserve.Property
+import de.westermann.kobserve.base.ObservableProperty
 import tornadofx.*
 import javafx.scene.Cursor
 import kotlin.math.max
 
 class MainCanvas(
         canvasController: CanvasController,
-        sideBarActiveProperty: Property<Boolean>,
-        sideBarWidthProperty: Property<Double>,
-        infoBarActiveProperty: Property<Boolean>,
-        infoBarWidthProperty: Property<Double>
+        sideBarActiveProperty: ObservableProperty<Boolean>,
+        sideBarWidthProperty: ObservableProperty<Double>,
+        infoBarActiveProperty: ObservableProperty<Boolean>,
+        infoBarWidthProperty: ObservableProperty<Double>
 ) : View() {
 
     private val canvas = FxCanvas()

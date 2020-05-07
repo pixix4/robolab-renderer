@@ -8,8 +8,8 @@ import de.robolab.app.model.group.InfoBarGroupInfo
 import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.style.MainStyle
 import de.robolab.jfx.utils.buttonGroup
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
 import javafx.scene.control.ToolBar
 import javafx.scene.layout.HBox
@@ -94,9 +94,9 @@ class InfoBar(private val infoBarController: InfoBarController) : View() {
     }
 }
 
-class NullableViewContainer(private val traverserProperty: ReadOnlyProperty<TraverserBarController?>) : View() {
+class NullableViewContainer(private val traverserProperty: ObservableValue<TraverserBarController?>) : View() {
 
-    private var prop: Property<TraverserBarController>? = null
+    private var prop: ObservableProperty<TraverserBarController>? = null
     private var view: InfoBarTraverserView? = null
 
     private fun updateView() {

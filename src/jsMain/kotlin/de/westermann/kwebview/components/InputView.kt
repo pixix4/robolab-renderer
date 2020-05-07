@@ -1,8 +1,7 @@
 package de.westermann.kwebview.components
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
-import de.westermann.kobserve.ValidationProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.*
@@ -15,18 +14,13 @@ class InputView(
         initValue: String = ""
 ) : ViewForLabel() {
 
-    fun bind(property: ReadOnlyProperty<String>) {
+    fun bind(property: ObservableValue<String>) {
         valueProperty.bind(property)
         readonly = true
     }
 
-    fun bind(property: Property<String>) {
+    fun bind(property: ObservableProperty<String>) {
         valueProperty.bindBidirectional(property)
-    }
-
-    fun bind(property: ValidationProperty<String>) {
-        valueProperty.bindBidirectional(property)
-        invalidProperty.bind(!property.validProperty)
     }
 
     fun unbind() {
@@ -43,7 +37,7 @@ class InputView(
             valueProperty.invalidate()
         }
 
-    val valueProperty: Property<String> = property(this::value)
+    val valueProperty: ObservableProperty<String> = property(this::value)
 
     var placeholder: String
         get() = html.placeholder
@@ -52,7 +46,7 @@ class InputView(
             placeholderProperty.invalidate()
         }
 
-    val placeholderProperty: Property<String> = property(this::placeholder)
+    val placeholderProperty: ObservableProperty<String> = property(this::placeholder)
 
     val invalidProperty by ClassDelegate("invalid")
     var invalid by invalidProperty
@@ -140,15 +134,11 @@ fun ViewCollection<in InputView>.inputView(text: String = "", init: InputView.()
         InputView(InputType.TEXT, text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in InputView>.inputView(text: ReadOnlyProperty<String>, init: InputView.() -> Unit = {}) =
+fun ViewCollection<in InputView>.inputView(text: ObservableValue<String>, init: InputView.() -> Unit = {}) =
         InputView(InputType.TEXT, text.value).also(this::append).also { it.bind(text) }.also(init)
 
 @KWebViewDsl
-fun ViewCollection<in InputView>.inputView(text: Property<String>, init: InputView.() -> Unit = {}) =
-        InputView(InputType.TEXT, text.value).also(this::append).also { it.bind(text) }.also(init)
-
-@KWebViewDsl
-fun ViewCollection<in InputView>.inputView(text: ValidationProperty<String>, init: InputView.() -> Unit = {}) =
+fun ViewCollection<in InputView>.inputView(text: ObservableProperty<String>, init: InputView.() -> Unit = {}) =
         InputView(InputType.TEXT, text.value).also(this::append).also { it.bind(text) }.also(init)
 
 
@@ -157,13 +147,9 @@ fun ViewCollection<in InputView>.inputView(type: InputType = InputType.TEXT, tex
         InputView(type, text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in InputView>.inputView(type: InputType = InputType.TEXT, text: ReadOnlyProperty<String>, init: InputView.() -> Unit = {}) =
+fun ViewCollection<in InputView>.inputView(type: InputType = InputType.TEXT, text: ObservableValue<String>, init: InputView.() -> Unit = {}) =
         InputView(type, text.value).also(this::append).also { it.bind(text) }.also(init)
 
 @KWebViewDsl
-fun ViewCollection<in InputView>.inputView(type: InputType = InputType.TEXT, text: Property<String>, init: InputView.() -> Unit = {}) =
-        InputView(type, text.value).also(this::append).also { it.bind(text) }.also(init)
-
-@KWebViewDsl
-fun ViewCollection<in InputView>.inputView(type: InputType = InputType.TEXT, text: ValidationProperty<String>, init: InputView.() -> Unit = {}) =
+fun ViewCollection<in InputView>.inputView(type: InputType = InputType.TEXT, text: ObservableProperty<String>, init: InputView.() -> Unit = {}) =
         InputView(type, text.value).also(this::append).also { it.bind(text) }.also(init)

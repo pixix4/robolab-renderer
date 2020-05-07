@@ -1,7 +1,7 @@
 package de.westermann.kwebview.components
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.KWebViewDsl
 import de.westermann.kwebview.View
@@ -19,7 +19,7 @@ class IconView(icon: Icon?) : View(createHtmlView<HTMLSpanElement>()) {
 
     override val html = super.html as HTMLSpanElement
 
-    fun bind(property: ReadOnlyProperty<Icon?>) {
+    fun bind(property: ObservableValue<Icon?>) {
         iconProperty.bind(property)
     }
 
@@ -37,7 +37,7 @@ class IconView(icon: Icon?) : View(createHtmlView<HTMLSpanElement>()) {
             iconProperty.invalidate()
         }
 
-    val iconProperty: Property<Icon?> = property(this::icon)
+    val iconProperty: ObservableProperty<Icon?> = property(this::icon)
 
     init {
         this.icon = icon
@@ -49,5 +49,5 @@ fun ViewCollection<in IconView>.iconView(icon: Icon? = null, init: IconView.() -
         IconView(icon).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in IconView>.iconView(icon: ReadOnlyProperty<Icon?>, init: IconView.() -> Unit = {}) =
+fun ViewCollection<in IconView>.iconView(icon: ObservableValue<Icon?>, init: IconView.() -> Unit = {}) =
         IconView(icon.value).also(this::append).also { it.bind(icon) }.also(init)

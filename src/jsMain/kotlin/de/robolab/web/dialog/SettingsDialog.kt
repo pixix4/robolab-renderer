@@ -1,8 +1,6 @@
 package de.robolab.web.dialog
 
 import de.robolab.utils.PreferenceStorage
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.property.FunctionAccessor
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.components.*
 

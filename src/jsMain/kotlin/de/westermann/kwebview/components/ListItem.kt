@@ -1,7 +1,7 @@
 package de.westermann.kwebview.components
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.KWebViewDsl
 import de.westermann.kwebview.View
@@ -21,7 +21,7 @@ class ListItem(
 
     override val html = super.html as HTMLLIElement
 
-    fun bind(property: ReadOnlyProperty<String>) {
+    fun bind(property: ObservableValue<String>) {
         textProperty.bind(property)
     }
 
@@ -36,7 +36,7 @@ class ListItem(
             textProperty.invalidate()
         }
 
-    val textProperty: Property<String> = property(this::text)
+    val textProperty: ObservableProperty<String> = property(this::text)
 
     init {
         text = value
@@ -48,5 +48,5 @@ fun ViewCollection<in ListItem>.listItem(text: String = "", init: ListItem.() ->
         ListItem(text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in ListItem>.listItem(text: ReadOnlyProperty<String>, init: ListItem.() -> Unit = {}) =
+fun ViewCollection<in ListItem>.listItem(text: ObservableValue<String>, init: ListItem.() -> Unit = {}) =
         ListItem(text.value).also(this::append).also { it.bind(text) }.also(init)

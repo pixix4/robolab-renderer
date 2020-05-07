@@ -1,10 +1,10 @@
 package de.robolab.app.model
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.list.ObservableReadOnlyList
+import de.westermann.kobserve.base.ObservableList
+import de.westermann.kobserve.base.ObservableProperty
 
 interface IProvider {
 
-    val searchStringProperty: Property<String>
-    val entryList: ObservableReadOnlyList<ISideBarEntry>
+    val searchStringProperty: ObservableProperty<String>
+    val entryList: ObservableList<ISideBarEntry>
 }

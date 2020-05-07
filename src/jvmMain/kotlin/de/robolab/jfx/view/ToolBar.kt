@@ -7,8 +7,8 @@ import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.dialog.SettingsDialog
 import de.robolab.jfx.utils.buttonGroup
 import de.robolab.jfx.utils.iconNoAdd
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
 import javafx.scene.control.Button
 import javafx.scene.layout.HBox
@@ -27,7 +27,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
         ToolBarEntry.Icon.FLIP -> MaterialIcon.COMPARE
     }
 
-    private fun Button.bindIcon(iconProperty: ReadOnlyProperty<ToolBarEntry.Icon?>) {
+    private fun Button.bindIcon(iconProperty: ObservableValue<ToolBarEntry.Icon?>) {
         graphicProperty().bind(iconProperty.mapBinding { it?.let { iconNoAdd(it.convert()) } }.toFx())
     }
 
@@ -53,7 +53,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
         }
     }
 
-    private fun HBox.setupToolbar(property: ReadOnlyProperty<List<List<ToolBarEntry>>>) {
+    private fun HBox.setupToolbar(property: ObservableValue<List<List<ToolBarEntry>>>) {
         val toolBarAction = hbox { }
         updateToolBarActions(toolBarAction, property.value)
         property.onChange {
@@ -131,7 +131,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
     }
 }
 
-fun Button.bindSelectedProperty(property: ReadOnlyProperty<Boolean>, onClick: () -> Unit) {
+fun Button.bindSelectedProperty(property: ObservableValue<Boolean>, onClick: () -> Unit) {
     property.onChange {
         togglePseudoClass("selected", property.value)
     }
@@ -142,7 +142,7 @@ fun Button.bindSelectedProperty(property: ReadOnlyProperty<Boolean>, onClick: ()
     }
 }
 
-fun Button.bindSelectedProperty(property: Property<Boolean>) {
+fun Button.bindSelectedProperty(property: ObservableProperty<Boolean>) {
     property.onChange {
         togglePseudoClass("selected", property.value)
     }

@@ -1,13 +1,13 @@
 package de.westermann.kwebview.components
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.createHtmlView
 
 class FilterList<T, V : View>(
-        val property: ReadOnlyProperty<T>,
+        val property: ObservableValue<T>,
         val filter: Filter<T, V>
 ) : ViewCollection<V>(createHtmlView()) {
 
@@ -33,7 +33,7 @@ class FilterList<T, V : View>(
         for (element in missing) {
             val view = filter.render(element)
             append(view)
-            if (property is Property<T>) {
+            if (property is ObservableProperty<T>) {
                 view.onClick {
                     property.value = element
                 }
@@ -101,5 +101,5 @@ class DynamicStringFilter(
 }
 
 
-fun <T, V : View> ViewCollection<in FilterList<T, V>>.filterList(property: ReadOnlyProperty<T>, filter: Filter<T, V>, init: FilterList<T, V>.() -> Unit = {}) =
+fun <T, V : View> ViewCollection<in FilterList<T, V>>.filterList(property: ObservableValue<T>, filter: Filter<T, V>, init: FilterList<T, V>.() -> Unit = {}) =
         FilterList(property, filter).also(this::append).also(init)

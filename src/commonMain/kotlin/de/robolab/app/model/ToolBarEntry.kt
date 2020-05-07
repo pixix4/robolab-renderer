@@ -1,14 +1,15 @@
 package de.robolab.app.model
 
-import de.westermann.kobserve.ReadOnlyProperty
-import de.westermann.kobserve.property.constProperty
+import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.property.constObservable
+
 
 class ToolBarEntry(
-        val nameProperty: ReadOnlyProperty<String> = constProperty(""),
-        val iconProperty: ReadOnlyProperty<Icon?> = constProperty(null),
-        val toolTipProperty: ReadOnlyProperty<String> = constProperty(""),
-        val selectedProperty: ReadOnlyProperty<Boolean> = constProperty(false),
-        val enabledProperty: ReadOnlyProperty<Boolean> = constProperty(true),
+        val nameProperty: ObservableValue<String> = constObservable(""),
+        val iconProperty: ObservableValue<Icon?> = constObservable(null),
+        val toolTipProperty: ObservableValue<String> = constObservable(""),
+        val selectedProperty: ObservableValue<Boolean> = constObservable(false),
+        val enabledProperty: ObservableValue<Boolean> = constObservable(true),
         val onClick: () -> Unit = {}
 ) {
 

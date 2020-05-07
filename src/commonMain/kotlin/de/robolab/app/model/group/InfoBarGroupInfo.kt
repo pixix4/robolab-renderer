@@ -5,16 +5,16 @@ import com.soywiz.klock.DateTimeSpanFormat
 import com.soywiz.klock.format
 import de.robolab.app.model.IInfoBarContent
 import de.robolab.communication.RobolabMessage
-import de.westermann.kobserve.list.ObservableReadOnlyList
-import de.westermann.kobserve.property.constProperty
+import de.westermann.kobserve.base.ObservableList
+import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import kotlin.math.roundToInt
 
 class InfoBarGroupInfo(private val attemptPlanetEntry: AttemptPlanetEntry) : IInfoBarContent {
 
-    override val nameProperty = constProperty("Overview")
+    override val nameProperty = constObservable("Overview")
 
-    val messages: ObservableReadOnlyList<RobolabMessage> = attemptPlanetEntry.messages
+    val messages: ObservableList<RobolabMessage> = attemptPlanetEntry.messages
 
     val selectedIndexProperty = attemptPlanetEntry.selectedIndexProperty
 

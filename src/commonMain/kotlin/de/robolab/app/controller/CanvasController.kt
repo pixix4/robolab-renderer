@@ -13,13 +13,13 @@ import de.robolab.renderer.platform.CommonTimer
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.Pointer
 import de.robolab.utils.PreferenceStorage
-import de.westermann.kobserve.Property
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlin.math.*
 
 class CanvasController(
-        private val selectedEntryProperty: Property<ISideBarPlottable?>
+        private val selectedEntryProperty: ObservableProperty<ISideBarPlottable?>
 ) {
     private val timer = CommonTimer(50.0)
 

@@ -1,23 +1,14 @@
 package de.robolab.traverser
 
-import de.westermann.kobserve.ReadOnlyProperty
-import de.westermann.kobserve.list.ObservableList
-import de.westermann.kobserve.list.ObservableReadOnlyList
+import de.westermann.kobserve.base.ObservableList
+import de.westermann.kobserve.base.ObservableMutableList
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.*
 
 fun <N> ISeededBranchProvider<N>.treeSliceViewer(): TreeSliceViewer<N> = ObservableTreeSliceViewer(this)
 
 fun <N> ISeededBranchProvider<N>.observableTreeSliceViewer(): ObservableTreeSliceViewer<N> = ObservableTreeSliceViewer(this)
-
-fun <T> property(
-        readonlyAccessorFunction: () -> T,
-        vararg properties: ReadOnlyProperty<*>
-): ReadOnlyProperty<T> = FunctionReadOnlyProperty(
-        object : FunctionReadOnlyAccessor<T> {
-            override fun get(): T = readonlyAccessorFunction()
-        },
-        *properties)
 
 open class TreeSliceViewer<N> protected constructor(
         override val branchFunction: (N) -> List<N>,
@@ -139,10 +130,10 @@ open class TreeSliceViewer<N> protected constructor(
 class ObservableTreeSliceViewer<N> private constructor(
         branchFunction: (N) -> List<N>,
         seed: N,
-        private val _observableEntries: ObservableList<TreeSliceEntry<N>>) :
+        private val _observableEntries: ObservableMutableList<TreeSliceEntry<N>>) :
         TreeSliceViewer<N>(branchFunction, _observableEntries, seed),
-        ObservableReadOnlyList<TreeSliceViewer.TreeSliceEntry<N>> by _observableEntries {
-    override fun subList(fromIndex: Int, toIndex: Int): ObservableReadOnlyList<TreeSliceEntry<N>> = _observableEntries.subList(fromIndex, toIndex)
+        ObservableList<TreeSliceViewer.TreeSliceEntry<N>> by _observableEntries {
+    override fun subList(fromIndex: Int, toIndex: Int): ObservableList<TreeSliceEntry<N>> = _observableEntries.subList(fromIndex, toIndex)
     override fun iterator(): Iterator<TreeSliceEntry<N>> = _observableEntries.iterator()
     override fun listIterator(): ListIterator<TreeSliceEntry<N>> = observableEntries.listIterator()
     override fun listIterator(index: Int): ListIterator<TreeSliceEntry<N>> = observableEntries.listIterator(index)
@@ -159,9 +150,15 @@ class ObservableTreeSliceViewer<N> private constructor(
     constructor(brancher: ISeededBranchProvider<N>) : this(brancher.branchFunction, brancher.seed)
     constructor(branchFunction: (N) -> List<N>, seed: N) : this(branchFunction, seed, observableListOf(TreeSliceEntry(seed)))
 
-    val observableEntries: ObservableReadOnlyList<TreeSliceEntry<N>> = _observableEntries
+    val observableEntries: ObservableList<TreeSliceEntry<N>> = _observableEntries
 
-    val hasNextProperty: ReadOnlyProperty<Boolean> = property(this::hasNext, observableEntries)
-    val hasPreviousProperty: ReadOnlyProperty<Boolean> = property(this::hasPrevious, observableEntries)
-    val currentNodeProperty: ReadOnlyProperty<N> = property(this::currentNode, observableEntries)
+    val hasNextProperty: ObservableValue<Boolean> = property(observableEntries) {
+        hasNext()
+    }
+    val hasPreviousProperty: ObservableValue<Boolean> = property(observableEntries) {
+        hasPrevious()
+    }
+    val currentNodeProperty: ObservableValue<N> = property(observableEntries) {
+        currentNode
+    }
 }

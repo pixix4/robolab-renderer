@@ -1,8 +1,8 @@
 package de.robolab.app.model
 
-import de.westermann.kobserve.list.ObservableReadOnlyList
+import de.westermann.kobserve.base.ObservableList
 
 interface ISideBarGroup: ISideBarEntry {
 
-    val entryList: ObservableReadOnlyList<ISideBarEntry>
+    val entryList: ObservableList<ISideBarEntry>
 }

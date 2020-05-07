@@ -8,19 +8,11 @@ import de.robolab.jfx.style.MainStyle
 import de.robolab.jfx.utils.buttonGroup
 import de.robolab.jfx.utils.icon
 import de.robolab.renderer.data.Point
-import de.robolab.utils.ContextMenu
-import de.robolab.utils.ContextMenuAction
-import de.robolab.utils.ContextMenuEntry
-import de.robolab.utils.ContextMenuList
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.not
-import de.westermann.kobserve.property.FunctionAccessor
-import de.westermann.kobserve.property.flatMapReadOnlyNullableBinding
 import de.westermann.kobserve.property.mapBinding
-import de.westermann.kobserve.property.property
+import de.westermann.kobserve.property.nullableFlatMapBinding
 import javafx.css.Styleable
-import javafx.scene.control.Menu
-import javafx.scene.control.MenuItem
 import javafx.scene.control.OverrunStyle
 import javafx.scene.layout.Priority
 import javafx.scene.text.FontWeight
@@ -70,7 +62,7 @@ class SideBar(sideBarController: SideBarController) : View() {
                 addClass(MainStyle.sideBarBackButton)
                 hgrow = Priority.ALWAYS
 
-                label(sideBarController.selectedGroupProperty.flatMapReadOnlyNullableBinding { it?.tabNameProperty }.mapBinding {
+                label(sideBarController.selectedGroupProperty.nullableFlatMapBinding { it?.tabNameProperty }.mapBinding {
                     it ?: ""
                 }.toFx()) {
                     style {
@@ -177,7 +169,7 @@ class SideBar(sideBarController: SideBarController) : View() {
     }
 }
 
-fun Styleable.bindClass(clazz: CssRule, property: ReadOnlyProperty<Boolean>) {
+fun Styleable.bindClass(clazz: CssRule, property: ObservableValue<Boolean>) {
     property.onChange {
         if (property.value) {
             addClass(clazz)

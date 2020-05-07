@@ -4,24 +4,24 @@ import de.robolab.app.controller.TraverserBarController
 import de.robolab.app.model.traverser.CharacteristicItem
 import de.robolab.app.model.traverser.ITraverserStateEntry
 import de.robolab.web.views.utils.buttonGroup
-import de.westermann.kobserve.ReadOnlyProperty
 import de.westermann.kobserve.and
-import de.westermann.kobserve.list.ObservableReadOnlyList
+import de.westermann.kobserve.base.ObservableList
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.asObservable
 import de.westermann.kobserve.not
 import de.westermann.kobserve.or
-import de.westermann.kobserve.property.flatMapReadOnlyBinding
+import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
 
-class TraverserBarView(private val traverserProperty: ReadOnlyProperty<TraverserBarController>) : ViewCollection<View>() {
+class TraverserBarView(private val traverserProperty: ObservableValue<TraverserBarController>) : ViewCollection<View>() {
 
     init {
         boxView("traverser-bar-header") {
-            textView(traverserProperty.flatMapReadOnlyBinding { it.traverserTitle })
+            textView(traverserProperty.flatMapBinding { it.traverserTitle })
 
             button {
                 iconView(MaterialIcon.REFRESH)
@@ -33,7 +33,7 @@ class TraverserBarView(private val traverserProperty: ReadOnlyProperty<Traverser
         }
 
         boxView("traverser-bar-body") {
-            listFactory(traverserProperty.mapBinding { it.entryList as ObservableReadOnlyList<ITraverserStateEntry> }, factory = { entry ->
+            listFactory(traverserProperty.mapBinding { it.entryList as ObservableList<ITraverserStateEntry> }, factory = { entry ->
                 TraverserEntryView(entry)
             })
         }
@@ -41,7 +41,7 @@ class TraverserBarView(private val traverserProperty: ReadOnlyProperty<Traverser
         boxView("traverser-bar-footer") {
             boxView("traverser-bar-trail") {
                 button {
-                    disabledProperty.bind(!traverserProperty.flatMapReadOnlyBinding { it.isPreviousEnabled })
+                    disabledProperty.bind(!traverserProperty.flatMapBinding { it.isPreviousEnabled })
                     iconView(MaterialIcon.CHEVRON_LEFT)
 
                     onClick { event ->
@@ -50,14 +50,14 @@ class TraverserBarView(private val traverserProperty: ReadOnlyProperty<Traverser
                     }
                 }
 
-                textView(traverserProperty.flatMapReadOnlyBinding { it.traverserTitle })
+                textView(traverserProperty.flatMapBinding { it.traverserTitle })
 
                 buttonGroup {
                     button {
                         iconView(MaterialIcon.ARROW_DROP_DOWN)
                         title = "Expand"
 
-                        disabledProperty.bind(traverserProperty.flatMapReadOnlyBinding { it.autoExpandProperty })
+                        disabledProperty.bind(traverserProperty.flatMapBinding { it.autoExpandProperty })
 
                         onClick {event ->
                             if (event.shiftKey) {
@@ -71,7 +71,7 @@ class TraverserBarView(private val traverserProperty: ReadOnlyProperty<Traverser
                         iconView(MaterialIcon.ARROW_DOWNWARD)
                         title = "Toggle auto expand"
 
-                        classList.bind("active", traverserProperty.flatMapReadOnlyBinding { it.autoExpandProperty })
+                        classList.bind("active", traverserProperty.flatMapBinding { it.autoExpandProperty })
 
                         onClick {
                             traverserProperty.value.autoExpandProperty.value = !traverserProperty.value.autoExpandProperty.value
@@ -80,7 +80,7 @@ class TraverserBarView(private val traverserProperty: ReadOnlyProperty<Traverser
                 }
 
                 button {
-                    disabledProperty.bind(!traverserProperty.flatMapReadOnlyBinding { it.isNextEnabled })
+                    disabledProperty.bind(!traverserProperty.flatMapBinding { it.isNextEnabled })
                     iconView(MaterialIcon.CHEVRON_RIGHT)
                     onClick { event ->
                         traverserProperty.value.clickNextTrail()
@@ -129,7 +129,7 @@ class TraverserEntryView(private val entry: ITraverserStateEntry): ViewCollectio
         }
 
         bulletList() {
-            listFactory(entry.visibleDetails.mapBinding { it.toMutableList().asObservable() as ObservableReadOnlyList<String> }, factory = { str: String ->
+            listFactory(entry.visibleDetails.mapBinding { it.toMutableList().asObservable() as ObservableList<String> }, factory = { str: String ->
                 ListItem(str)
             })
         }

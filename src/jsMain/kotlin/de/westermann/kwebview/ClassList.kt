@@ -1,7 +1,7 @@
 package de.westermann.kwebview
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventListener
 import org.w3c.dom.DOMTokenList
 
@@ -23,7 +23,7 @@ class ClassList(
     fun add(clazz: String) {
         if (clazz in bound) {
             val p = bound[clazz] ?: return
-            if (p.property is Property<Boolean>) {
+            if (p.property is ObservableProperty<Boolean>) {
                 p.property.value = true
             } else {
                 throw IllegalStateException("The given class is bound and cannot be modified manually!")
@@ -44,7 +44,7 @@ class ClassList(
     fun remove(clazz: String) {
         if (clazz in bound) {
             val p = bound[clazz] ?: return
-            if (p.property is Property<Boolean>) {
+            if (p.property is ObservableProperty<Boolean>) {
                 p.property.value = false
             } else {
                 throw IllegalStateException("The given class is bound and cannot be modified manually!")
@@ -84,7 +84,7 @@ class ClassList(
      */
     fun toggle(clazz: String, force: Boolean? = null) = set(clazz, force ?: !contains(clazz))
 
-    fun bind(clazz: String, property: ReadOnlyProperty<Boolean>) {
+    fun bind(clazz: String, property: ObservableValue<Boolean>) {
         if (clazz in bound) {
             throw IllegalArgumentException("Class is already bound!")
         }
@@ -113,7 +113,7 @@ class ClassList(
     override fun toString(): String = list.value
 
     private data class Bound(
-            val property: ReadOnlyProperty<Boolean>,
+            val property: ObservableValue<Boolean>,
             val reference: EventListener<Unit>
     )
 }

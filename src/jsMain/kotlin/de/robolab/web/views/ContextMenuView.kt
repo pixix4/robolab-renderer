@@ -3,9 +3,9 @@ package de.robolab.web.views
 import de.robolab.app.model.file.toFixed
 import de.robolab.renderer.data.Point
 import de.robolab.utils.*
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableList
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
-import de.westermann.kobserve.list.ObservableReadOnlyList
 import de.westermann.kobserve.list.asObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -28,7 +28,7 @@ class ContextMenuView(
     private val parentProperty = selectedProperty.mapBinding { it.parent }
     private val canGoBackProperty = parentProperty.mapBinding { it != null }
 
-    private val contentListProperty: ReadOnlyProperty<ObservableReadOnlyList<ContextMenuEntry>> = selectedProperty.mapBinding {
+    private val contentListProperty: ObservableValue<ObservableList<ContextMenuEntry>> = selectedProperty.mapBinding {
         it.entries.toMutableList().asObservable()
     }
 

@@ -1,8 +1,8 @@
 package de.robolab.app.model
 
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableValue
 
 interface IInfoBarContent {
 
-    val nameProperty: ReadOnlyProperty<String>
+    val nameProperty: ObservableValue<String>
 }

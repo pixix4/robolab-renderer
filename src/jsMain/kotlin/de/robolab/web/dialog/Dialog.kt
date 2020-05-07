@@ -1,10 +1,10 @@
 package de.robolab.web.dialog
 
 import de.robolab.utils.PreferenceStorage
-import de.westermann.kobserve.Property
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.EventListener
-import de.westermann.kobserve.property.FunctionAccessor
+import de.westermann.kobserve.property.DelegatePropertyAccessor
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.components.*
@@ -96,10 +96,9 @@ abstract class Dialog(title: String) {
     }
 }
 
-fun Property<Double>.bindStringParsing() = property(object : FunctionAccessor<String> {
-    override fun set(value: String): Boolean {
-        this@bindStringParsing.value = value.toDoubleOrNull() ?: return false
-        return true
+fun ObservableProperty<Double>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
+    override fun set(value: String) {
+        this@bindStringParsing.value = value.toDoubleOrNull() ?: return
     }
 
     override fun get(): String {
@@ -108,10 +107,9 @@ fun Property<Double>.bindStringParsing() = property(object : FunctionAccessor<St
 
 }, this)
 
-fun Property<Int>.bindStringParsing() = property(object : FunctionAccessor<String> {
-    override fun set(value: String): Boolean {
-        this@bindStringParsing.value = value.toIntOrNull() ?: return false
-        return true
+fun ObservableProperty<Int>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
+    override fun set(value: String) {
+        this@bindStringParsing.value = value.toIntOrNull() ?: return
     }
 
     override fun get(): String {

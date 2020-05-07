@@ -1,7 +1,7 @@
 package de.westermann.kwebview.components
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.AttributeDelegate
 import de.westermann.kwebview.KWebViewDsl
@@ -19,12 +19,12 @@ class SelectView<T : Any>(
 
     override val html = super.html as HTMLSelectElement
 
-    fun bind(property: ReadOnlyProperty<T>) {
+    fun bind(property: ObservableValue<T>) {
         valueProperty.bind(property)
         readonly = true
     }
 
-    fun bind(property: Property<T>) {
+    fun bind(property: ObservableProperty<T>) {
         valueProperty.bindBidirectional(property)
     }
 
@@ -94,11 +94,11 @@ fun <T : Any> ViewCollection<in SelectView<T>>.selectView(dataSet: List<T>, init
         SelectView(dataSet, initValue, transform).also(this::append).also(init)
 
 @KWebViewDsl
-fun <T : Any> ViewCollection<in SelectView<T>>.selectView(dataSet: List<T>, property: ReadOnlyProperty<T>, transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
+fun <T : Any> ViewCollection<in SelectView<T>>.selectView(dataSet: List<T>, property: ObservableValue<T>, transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
         SelectView(dataSet, property.value, transform).apply { bind(property) }.also(this::append).also(init)
 
 @KWebViewDsl
-fun <T : Any> ViewCollection<in SelectView<T>>.selectView(dataSet: List<T>, property: Property<T>, transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
+fun <T : Any> ViewCollection<in SelectView<T>>.selectView(dataSet: List<T>, property: ObservableProperty<T>, transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
         SelectView(dataSet, property.value, transform).apply { bind(property) }.also(this::append).also(init)
 
 
@@ -107,9 +107,9 @@ inline fun <reified T : Enum<T>> ViewCollection<in SelectView<T>>.selectView(ini
         SelectView(enumValues<T>().toList(), initValue, transform).also(this::append).also(init)
 
 @KWebViewDsl
-inline fun <reified T : Enum<T>> ViewCollection<in SelectView<T>>.selectView(property: ReadOnlyProperty<T>, noinline transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
+inline fun <reified T : Enum<T>> ViewCollection<in SelectView<T>>.selectView(property: ObservableValue<T>, noinline transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
         SelectView(enumValues<T>().toList(), property.value, transform).apply { bind(property) }.also(this::append).also(init)
 
 @KWebViewDsl
-inline fun <reified T : Enum<T>> ViewCollection<in SelectView<T>>.selectView(property: Property<T>, noinline transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
+inline fun <reified T : Enum<T>> ViewCollection<in SelectView<T>>.selectView(property: ObservableProperty<T>, noinline transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
         SelectView(enumValues<T>().toList(), property.value, transform).apply { bind(property) }.also(this::append).also(init)

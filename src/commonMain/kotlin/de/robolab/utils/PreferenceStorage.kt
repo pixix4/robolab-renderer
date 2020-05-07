@@ -4,7 +4,7 @@ import de.robolab.app.controller.SideBarController
 import de.robolab.renderer.drawable.edit.EditPaperBackground
 import de.robolab.theme.Theme
 import de.westermann.kobserve.Binding
-import de.westermann.kobserve.Property
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
 import kotlin.random.Random
 
@@ -66,7 +66,7 @@ object PreferenceStorage {
         storage.clear()
     }
 
-    abstract class Item<T>(private val key: String, val default: T) : Property<T> {
+    abstract class Item<T>(private val key: String, val default: T) : ObservableProperty<T> {
         protected abstract fun serialize(value: T): String?
         protected abstract fun deserialize(value: String): T?
 

@@ -1,7 +1,7 @@
 package de.westermann.kwebview.components
 
-import de.westermann.kobserve.Property
-import de.westermann.kobserve.ReadOnlyProperty
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.KWebViewDsl
 import de.westermann.kwebview.ViewCollection
@@ -13,12 +13,12 @@ class Checkbox(
         initValue: Boolean = false
 ) : ViewForLabel() {
 
-    fun bind(property: ReadOnlyProperty<Boolean>) {
+    fun bind(property: ObservableValue<Boolean>) {
         checkedProperty.bind(property)
         readonly = true
     }
 
-    fun bind(property: Property<Boolean>) {
+    fun bind(property: ObservableProperty<Boolean>) {
         checkedProperty.bindBidirectional(property)
     }
 
@@ -33,7 +33,7 @@ class Checkbox(
             checkedProperty.invalidate()
         }
 
-    val checkedProperty: Property<Boolean> = property(this::checked)
+    val checkedProperty: ObservableProperty<Boolean> = property(this::checked)
 
     val disabledProperty = property(html::disabled)
 
@@ -63,9 +63,9 @@ fun ViewCollection<in Checkbox>.checkbox(value: Boolean = false, init: Checkbox.
         Checkbox(value).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in Checkbox>.checkbox(value: ReadOnlyProperty<Boolean>, init: Checkbox.() -> Unit = {}) =
+fun ViewCollection<in Checkbox>.checkbox(value: ObservableValue<Boolean>, init: Checkbox.() -> Unit = {}) =
         Checkbox(value.value).also(this::append).also { it.bind(value) }.also(init)
 
 @KWebViewDsl
-fun ViewCollection<in Checkbox>.checkbox(value: Property<Boolean>, init: Checkbox.() -> Unit = {}) =
+fun ViewCollection<in Checkbox>.checkbox(value: ObservableProperty<Boolean>, init: Checkbox.() -> Unit = {}) =
         Checkbox(value.value).also(this::append).also { it.bind(value) }.also(init)

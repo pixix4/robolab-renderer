@@ -2,7 +2,7 @@ package de.robolab.jfx.view
 
 import de.robolab.app.model.file.FileLine
 import de.robolab.jfx.style.MainStyle
-import de.westermann.kobserve.Property
+import de.westermann.kobserve.base.ObservableProperty
 import javafx.scene.Parent
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.Priority
@@ -16,7 +16,7 @@ import java.util.regex.Pattern
 /**
  * @author lars
  */
-class InfoBarPlanetEditorView(private val contentProperty: Property<String>) : View() {
+class InfoBarPlanetEditorView(private val contentProperty: ObservableProperty<String>) : View() {
     private val editor: CodeArea = CodeArea()
     override val root: Parent = editor
 
