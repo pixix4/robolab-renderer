@@ -10,6 +10,7 @@ import de.robolab.jfx.utils.iconNoAdd
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.property
 import javafx.scene.control.Button
 import javafx.scene.layout.HBox
 import javafx.scene.text.FontWeight
@@ -17,8 +18,8 @@ import tornadofx.*
 
 class ToolBar(private val toolBarController: ToolBarController) : View() {
 
-    val sideBarActiveProperty = de.westermann.kobserve.property.property(true)
-    val infoBarActiveProperty = de.westermann.kobserve.property.property(true)
+    val sideBarActiveProperty = property(true)
+    val infoBarActiveProperty = property(true)
 
     private fun ToolBarEntry.Icon.convert() = when (this) {
         ToolBarEntry.Icon.UNDO -> MaterialIcon.UNDO

@@ -4,6 +4,7 @@ import de.robolab.app.controller.MainController
 import de.robolab.jfx.adapter.toFx
 import de.robolab.jfx.view.*
 import de.westermann.kobserve.property.DelegatePropertyAccessor
+import de.westermann.kobserve.property.property
 import javafx.application.Platform
 import javafx.scene.image.Image
 import javafx.scene.layout.Priority
@@ -36,7 +37,7 @@ class MainView : View() {
         }
 
         var lastSideBarWidth = 260.0
-        val sideBarWidthProperty = de.westermann.kobserve.property.property(object: DelegatePropertyAccessor<Double> {
+        val sideBarWidthProperty = property(object: DelegatePropertyAccessor<Double> {
             override fun set(value: Double) {
                 sideBarContainer.minWidth = value
                 sideBarContainer.prefWidth = value
@@ -81,7 +82,7 @@ class MainView : View() {
 
 
             var lastInfoBarWidth = 260.0
-            val infoBarWidthProperty = de.westermann.kobserve.property.property(object: DelegatePropertyAccessor<Double> {
+            val infoBarWidthProperty = property(object: DelegatePropertyAccessor<Double> {
                 override fun set(value: Double) {
                     infoBar.root.minWidth = value
                     infoBar.root.prefWidth = value
@@ -142,5 +143,6 @@ class MainView : View() {
         super.onDock()
 
         primaryStage.isMaximized = true
+        primaryStage.requestFocus()
     }
 }

@@ -29,39 +29,57 @@ object SystemTheme {
             }
         }
     }
+    
+    private fun runCommand(cmd: Array<String>): Pair<Int, String>? {
+        return try {
+            val proc = Runtime.getRuntime().exec(cmd)
+            proc.waitFor(100, TimeUnit.MILLISECONDS)
+            proc.exitValue() to String(proc.inputStream.readBytes())
+        } catch (ex: Exception) {
+            null
+        }
+    }
 
     private fun isWinDarkMode(): Boolean {
-        return try {
-            val proc = Runtime.getRuntime().exec(arrayOf("reg", "query", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "/v", "AppsUseLightTheme"))
-            proc.waitFor(100, TimeUnit.MILLISECONDS)
-            proc.exitValue() == 0 && String(proc.inputStream.readBytes()).contains("0x0", true)
-        } catch (ex: Exception) {
-            false
-        }
+        val (exitStatus, output) = runCommand(arrayOf(
+                "reg",
+                "query",
+                "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+                "/v",
+                "AppsUseLightTheme"
+        )) ?: return false
+        return  exitStatus == 0 && output.contains("0x0", true)
     }
 
     /**
      * https://stackoverflow.com/questions/33477294/menubar-icon-for-dark-mode-on-os-x-in-java
      */
     private fun isMacDarkMode(): Boolean {
-        return try {
-            // check for exit status only. Once there are more modes than "dark" and "default", we might need to analyze string contents..
-            val proc = Runtime.getRuntime().exec(arrayOf("defaults", "read", "-g", "AppleInterfaceStyle"))
-            proc.waitFor(100, TimeUnit.MILLISECONDS)
-            proc.exitValue() == 0 && String(proc.inputStream.readBytes()).contains("dark", true)
-        } catch (ex: Exception) {
-            false
-        }
+        val (exitStatus, output) = runCommand(arrayOf(
+                "defaults",
+                "read",
+                "-g",
+                "AppleInterfaceStyle"
+        )) ?: return false
+        return  exitStatus == 0 && output.contains("dark", true)
     }
 
     private val linuxThemeFile by lazy { System.getProperty("user.home", "") + "/.theme" }
     private fun isLinuxDarkMode(): Boolean {
-        return try {
+        try {
             val content = Files.readString(Paths.get(linuxThemeFile))
-            content.contains("dark", true)
-        } catch (ex: Exception) {
-            false
-        }
+            if (content.contains("dark", true)) {
+                return true
+            }
+        } catch (ex: Exception) {}
+
+        val (exitStatus, output) = runCommand(arrayOf(
+                "gsettings",
+                "get",
+                "org.gnome.desktop.interface",
+                "gtk-theme"
+        )) ?: return false
+        return  exitStatus == 0 && output.contains("dark", true)
     }
 
     val isSystemThemeSupported = when (os) {

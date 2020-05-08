@@ -27,13 +27,20 @@ fun Stylesheet.initSideBarStyle() {
     }
     Stylesheet.listCell {
         backgroundColor = multi(Color.TRANSPARENT)
+        padding = box(0.px)
+        
         and(Stylesheet.focused, Stylesheet.hover) {
             backgroundColor = multi(MainStyle.theme.ui.secondaryHoverBackground.toFx())
             Stylesheet.label {
                 textFill = MainStyle.theme.ui.primaryTextColor.toFx()
             }
         }
-        and(MainStyle.active) {
+
+        MainStyle.listCellGraphic {
+            padding = box(0.5.em)
+        }
+
+        MainStyle.active {
             backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
             Stylesheet.label {
                 textFill = MainStyle.theme.ui.themeColor.toFx()

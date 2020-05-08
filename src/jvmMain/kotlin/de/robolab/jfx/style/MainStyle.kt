@@ -13,6 +13,7 @@ class MainStyle : Stylesheet() {
         val buttonGroup by cssclass()
         val toolBar by cssclass()
         val iconView by cssclass()
+        val listCellGraphic by cssclass()
 
         val sideBar by cssclass()
         val statusBar by cssclass()

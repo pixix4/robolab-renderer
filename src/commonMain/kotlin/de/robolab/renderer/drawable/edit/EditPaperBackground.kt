@@ -304,14 +304,20 @@ class EditPaperBackground(
     override fun onPointerDrag(event: PointerEvent, position: Point): Boolean {
         val last = lastDragPosition ?: return false
 
-        if (event.ctrlKey || event.altKey || event.shiftKey) {
+        if (event.ctrlKey || event.altKey) {
             val size = planetSize ?: Point.ZERO
-            planetSize = size + (last - position) * when (dragEdge) {
+            var newSize = size + (last - position) * when (dragEdge) {
                 EditPaperEdge.LEFT_TOP -> Point(1.0, 1.0)
                 EditPaperEdge.RIGHT_TOP -> Point(-1.0, 1.0)
                 EditPaperEdge.RIGHT_BOTTOM -> Point(-1.0, -1.0)
                 EditPaperEdge.LEFT_BOTTOM -> Point(1.0, -1.0)
             }
+
+            if (!event.shiftKey) {
+                newSize = newSize.max(Point.ZERO)
+            }
+
+            planetSize = newSize
         } else {
             val offset = planetOffset ?: Point.ZERO
             planetOffset = offset + last - position
@@ -355,7 +361,10 @@ class EditPaperBackground(
         val planetPaperWidth = paperWidth / gridWidth
         val planetMinimalPadding = minimalPadding / gridWidth
 
-        val planetArea = area.expand(PlottingConstraints.POINT_SIZE / 2)
+        val planetArea = area.expand(PlottingConstraints.POINT_SIZE / 2).shrink(
+                -min(0.0,max(-planetMinimalPadding, planetSize?.top ?: 0.0)),
+                -min(0.0,max(-planetMinimalPadding, planetSize?.left ?: 0.0))
+        )
         var paperArea = planetArea.expand(planetMinimalPadding).expand(
                 max(0.0, planetSize?.top ?: 0.0),
                 max(0.0, planetSize?.left ?: 0.0)

@@ -9,10 +9,12 @@ import de.robolab.jfx.utils.buttonGroup
 import de.robolab.jfx.utils.icon
 import de.robolab.renderer.data.Point
 import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
 import javafx.css.Styleable
+import javafx.scene.control.ListCell
 import javafx.scene.control.OverrunStyle
 import javafx.scene.layout.Priority
 import javafx.scene.text.FontWeight
@@ -36,7 +38,7 @@ class SideBar(sideBarController: SideBarController) : View() {
                         bindSelectedProperty(sideBarController.tabProperty.mapBinding { it == tab }) {
                             sideBarController.tabProperty.value = tab
                         }
-                        textOverrun= OverrunStyle.CLIP
+                        textOverrun = OverrunStyle.CLIP
 
                         hgrow = Priority.ALWAYS
                     }
@@ -94,11 +96,18 @@ class SideBar(sideBarController: SideBarController) : View() {
 
         listview(sideBarController.filteredEntryListProperty.mapBinding { it.toFx() }.toFx()) {
             vgrow = Priority.ALWAYS
+
+            setCellFactory {
+                SmartListCell()
+            }
+
             cellFormat { provider ->
                 val selectedProperty = sideBarController.selectedElementListProperty.mapBinding { provider in it }
 
-                bindClass(MainStyle.active, selectedProperty)
                 graphic = vbox {
+                    addClass(MainStyle.listCellGraphic)
+                    bindClass(MainStyle.active, selectedProperty)
+
                     hbox {
                         style {
                             padding = box(0.4.em, 0.5.em)
@@ -171,14 +180,7 @@ class SideBar(sideBarController: SideBarController) : View() {
 
 fun Styleable.bindClass(clazz: CssRule, property: ObservableValue<Boolean>) {
     property.onChange {
-        if (property.value) {
-            addClass(clazz)
-        } else {
-            removeClass(clazz)
-        }
+        toggleClass(clazz, property.value)
     }
-
-    if (property.value) {
-        addClass(clazz)
-    }
+    toggleClass(clazz, property.value)
 }

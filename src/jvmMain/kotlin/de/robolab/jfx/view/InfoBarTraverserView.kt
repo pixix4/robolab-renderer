@@ -51,7 +51,7 @@ class InfoBarTraverserView(private val traverserProperty: de.westermann.kobserve
 
             cellFormat { provider ->
                 graphic = vbox {
-
+                    addClass(MainStyle.listCellGraphic)
                     bindClass(MainStyle.active, provider.selected)
 
                     hbox {
