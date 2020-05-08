@@ -31,6 +31,7 @@ fun Stylesheet.initFormStyle() {
             textFill = MainStyle.theme.ui.primaryTextColor.toFx()
             borderRadius = multi(box(MainStyle.BORDER_RADIUS))
             backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
+            padding = box(0.3.em, 0.7.em)
         }
 
         and(Stylesheet.focused) {
@@ -90,6 +91,7 @@ fun Stylesheet.initFormStyle() {
         promptTextFill = MainStyle.theme.ui.secondaryTextColor.toFx()
         backgroundInsets = multi(box(0.px))
         prefHeight = 2.2.em
+        padding = box(0.3.em, 0.7.em)
 
         and(Stylesheet.focused) {
             backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
@@ -115,6 +117,7 @@ fun Stylesheet.initFormStyle() {
         borderWidth = multi(box(1.px))
         backgroundInsets = multi(box(0.px))
         prefHeight = 2.2.em
+        padding = box(0.3.em, 0.5.em)
 
         and(Stylesheet.focused, Stylesheet.hover) {
             backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())

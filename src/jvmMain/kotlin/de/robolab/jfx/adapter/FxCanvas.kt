@@ -1,6 +1,6 @@
 package de.robolab.jfx.adapter
 
-import de.robolab.jfx.ResizeableCanvas
+import de.robolab.jfx.view.ResizeableCanvas
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point

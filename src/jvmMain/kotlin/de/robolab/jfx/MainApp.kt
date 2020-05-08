@@ -1,32 +1,16 @@
 package de.robolab.jfx
 
-import de.robolab.jfx.SystemTheme.getSystemTheme
-import de.robolab.jfx.SystemTheme.isSystemThemeSupported
-import de.robolab.jfx.style.MainStyle
+import de.robolab.jfx.style.SystemTheme.getSystemTheme
+import de.robolab.jfx.style.SystemTheme.isSystemThemeSupported
+import de.robolab.jfx.style.StylesheetLoader
 import de.robolab.utils.PreferenceStorage
 import de.robolab.utils.runAfterTimeoutInterval
-import javafx.util.Duration
 import tornadofx.*
 
 
 class MainApp : App(MainView::class) {
 
     companion object {
-
-        private fun reloadStylesheets() {
-
-            removeStylesheet(MainStyle::class)
-
-            // Wait for removal of all references to MainStyle
-            runLater {
-                System.gc()
-
-                // Wait for gc() to clear the current MainStyle instance
-                runLater(Duration(100.0)) {
-                    importStylesheet(MainStyle::class)
-                }
-            }
-        }
 
         @JvmStatic
         fun main(args: Array<String>) {
@@ -56,13 +40,13 @@ class MainApp : App(MainView::class) {
             }
 
             // Initial loading of stylesheets
-            importStylesheet(MainStyle::class)
+            StylesheetLoader.load()
 
             // Enable style reloading
             // Must be executed after initial theme is set.
             // Otherwise a Toolkit not initialized exception may be thrown.
             PreferenceStorage.selectedThemeProperty.onChange {
-                reloadStylesheets()
+                StylesheetLoader.load()
             }
 
             launch(MainApp::class.java)

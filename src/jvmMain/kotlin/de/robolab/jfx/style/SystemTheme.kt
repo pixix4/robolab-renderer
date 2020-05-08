@@ -1,4 +1,4 @@
-package de.robolab.jfx
+package de.robolab.jfx.style
 
 import de.robolab.theme.Theme
 import de.robolab.utils.PreferenceStorage

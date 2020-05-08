@@ -1,4 +1,4 @@
-package de.robolab.jfx
+package de.robolab.jfx.view
 
 import javafx.scene.canvas.Canvas
 

@@ -19,8 +19,7 @@ class MainView : View() {
         val window = this
 
         titleProperty.bind(mainController.applicationTitleProperty.toFx())
-        primaryStage.icons.clear()
-        primaryStage.icons.add(Image("icon.png"))
+        setStageIcon(Image("icon.png"))
 
         Platform.runLater {
             requestFocus()
