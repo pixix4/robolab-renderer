@@ -2,7 +2,6 @@ package de.robolab.jfx.style
 
 import de.robolab.utils.PreferenceStorage
 import tornadofx.*
-import java.io.FileNotFoundException
 import java.io.InputStream
 import java.net.URL
 import java.net.URLConnection
@@ -20,35 +19,39 @@ object StylesheetLoader {
 
     fun load() {
         if (lastUrl.isNotEmpty()) {
+            // Remove existing stylesheet url
             FX.stylesheets.remove(lastUrl)
         }
+
+        // Update url if theme has changed
         lastUrl = generateUrl()
         FX.stylesheets.add(lastUrl)
     }
 
     private class InternalURLConnection(url: URL?) : URLConnection(url) {
 
-        override fun connect() {
-        }
+        override fun connect() {}
 
         override fun getInputStream(): InputStream {
+            // Convert `MainStyle` to css byte stream
             return MainStyle().render().byteInputStream()
         }
     }
-    
-    private class InternalURLStreamHandler: URLStreamHandler() {
+
+    private class InternalURLStreamHandler : URLStreamHandler() {
 
         override fun openConnection(url: URL): URLConnection {
-            if (url.toString().toLowerCase().endsWith(".css")) {
-                return InternalURLConnection(url)
-            }
-            throw FileNotFoundException()
+            // All `internal:[path]` urls serve the `MainStyle` stylesheet
+            return InternalURLConnection(url)
         }
     }
 
     private class InternalURLStreamHandlerFactory : URLStreamHandlerFactory {
 
         val internalStreamHandler: URLStreamHandler = InternalURLStreamHandler()
+
+        // Default css stream handler of TornadoFX
+        // See tornadofx.CSS.kt
         val cssStreamHandler: URLStreamHandler = sun.net.www.protocol.css.Handler()
 
         override fun createURLStreamHandler(protocol: String): URLStreamHandler? {

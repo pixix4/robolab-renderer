@@ -6,7 +6,7 @@ import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.utils.ObservableIterator
 
 abstract class BaseObservableSet<T>(
-    protected val backingField: MutableSet<T>
+        protected val backingField: MutableSet<T>
 ) : ObservableSet<T> {
 
     override val onAdd = EventHandler<T>()
@@ -56,7 +56,7 @@ abstract class BaseObservableSet<T>(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null) return false
-        
+
         if (other is BaseObservableSet<*>) {
             return backingField == other.backingField
         }

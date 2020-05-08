@@ -2,7 +2,8 @@ package de.robolab.renderer
 
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.platform.*
+import de.robolab.renderer.platform.KeyEvent
+import de.robolab.renderer.platform.PointerEvent
 
 interface IInteraction {
     fun onPointerDown(event: PointerEvent, position: Point): Boolean {
@@ -32,7 +33,7 @@ interface IInteraction {
     fun onKeyRelease(event: KeyEvent): Boolean {
         return false
     }
-    
+
     fun onResize(size: Dimension) {}
     fun onUserTransformation() {}
 }

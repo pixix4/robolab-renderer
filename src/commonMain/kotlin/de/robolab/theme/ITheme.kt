@@ -3,7 +3,7 @@ package de.robolab.theme
 import de.robolab.renderer.data.Color
 
 interface ITheme {
-    
+
     val ui: IThemeUi
     val editor: IThemeEditor
     val plotter: IThemePlotter
@@ -11,7 +11,7 @@ interface ITheme {
 }
 
 interface IThemeUi {
-    
+
     val primaryBackground: Color
     val primaryHoverBackground: Color
 
@@ -42,7 +42,7 @@ interface IThemeUi {
 }
 
 interface IThemeEditor {
-    
+
     val editorKeywordColor: Color
     val editorDirectionColor: Color
     val editorNumberColor: Color
@@ -53,7 +53,7 @@ interface IThemeEditor {
 }
 
 interface IThemePlotter {
-    
+
     val primaryBackgroundColor: Color
     val secondaryBackgroundColor: Color
 

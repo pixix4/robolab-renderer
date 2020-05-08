@@ -6,7 +6,7 @@ import de.westermann.kobserve.base.ObservableMutableSet
 
 
 class SimpleObservableMutableMap<K, V>(
-    backingField: MutableMap<K, V>
+        backingField: MutableMap<K, V>
 ) : BaseObservableMap<K, V>(backingField), ObservableMutableMap<K, V> {
 
     private val entrySet = ObservableMutableEntrySet(this, backingField)
@@ -49,4 +49,4 @@ class SimpleObservableMutableMap<K, V>(
 fun <K, V> mapProperty(map: MutableMap<K, V>): ObservableMutableMap<K, V> = SimpleObservableMutableMap(map)
 fun <K, V> MutableMap<K, V>.asObservable(): ObservableMutableMap<K, V> = SimpleObservableMutableMap(this)
 fun <K, V> observableMapOf(vararg entries: Pair<K, V>): ObservableMutableMap<K, V> =
-    SimpleObservableMutableMap(mutableMapOf(*entries))
+        SimpleObservableMutableMap(mutableMapOf(*entries))

@@ -1,8 +1,8 @@
 package de.robolab.jfx
 
+import de.robolab.jfx.style.StylesheetLoader
 import de.robolab.jfx.style.SystemTheme.getSystemTheme
 import de.robolab.jfx.style.SystemTheme.isSystemThemeSupported
-import de.robolab.jfx.style.StylesheetLoader
 import de.robolab.utils.PreferenceStorage
 import de.robolab.utils.runAfterTimeoutInterval
 import tornadofx.*

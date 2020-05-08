@@ -13,7 +13,9 @@ import de.robolab.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.SvgCanvas
 import de.robolab.renderer.utils.Transformation
-import de.robolab.utils.*
+import de.robolab.utils.Logger
+import de.robolab.utils.PreferenceStorage
+import de.robolab.utils.menu
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
@@ -22,7 +24,7 @@ import de.westermann.kobserve.property.property
 class FilePlanetEntry(val filename: String, private val provider: FilePlanetProvider) : ISideBarPlottable {
 
     private val logger = Logger(this)
-    
+
     internal val planetFile = PlanetFile("")
 
     override val enabledProperty = property(false)

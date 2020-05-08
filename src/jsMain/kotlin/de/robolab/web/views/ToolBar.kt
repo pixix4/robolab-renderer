@@ -68,7 +68,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
 
     private fun BoxView.setupToolbar(property: ObservableValue<List<List<ToolBarEntry>>>) {
         val toolBarAction = boxView("tool-bar-actions")
-        updateToolBarActions(toolBarAction,property.value)
+        updateToolBarActions(toolBarAction, property.value)
         property.onChange {
             updateToolBarActions(toolBarAction, property.value)
         }

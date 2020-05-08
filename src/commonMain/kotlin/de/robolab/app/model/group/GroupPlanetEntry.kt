@@ -15,7 +15,10 @@ import de.robolab.utils.Logger
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.list.mapObservable
 import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.property.*
+import de.westermann.kobserve.property.constObservable
+import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.nullableFlatMapBinding
+import de.westermann.kobserve.property.property
 import kotlin.math.max
 import kotlin.math.min
 
@@ -40,9 +43,9 @@ class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanet
     override val hasContextMenu: Boolean = false
 
     fun onMessage(message: RobolabMessage, updateAttempt: Boolean = true): AttemptPlanetEntry? {
-            if (message is RobolabMessage.TestplanetMessage) {
-                return null
-            }
+        if (message is RobolabMessage.TestplanetMessage) {
+            return null
+        }
 
         val attempt = if (message is RobolabMessage.ReadyMessage || attempts.isEmpty()) {
             val attempt = AttemptPlanetEntry(message.metadata.time, this)
@@ -154,7 +157,7 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
                     ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.UNDO), enabledProperty = canUndoProperty) {
                         undo()
                     },
-                    ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.REDO), enabledProperty =canRedoProperty) {
+                    ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.REDO), enabledProperty = canRedoProperty) {
                         redo()
                     }
             )

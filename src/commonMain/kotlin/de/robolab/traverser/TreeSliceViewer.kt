@@ -4,7 +4,7 @@ import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableMutableList
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.property.*
+import de.westermann.kobserve.property.property
 
 fun <N> ISeededBranchProvider<N>.treeSliceViewer(): TreeSliceViewer<N> = ObservableTreeSliceViewer(this)
 

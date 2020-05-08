@@ -13,12 +13,12 @@ private val logger = Logger("JsonExtensions")
 fun <T> KProperty0<T?>.parsed() = this.get() ?: throw MissingJsonArgumentException(this.name)
 
 infix fun <T> KProperty0<T?>.orElse(value: T) = this.get()
-        ?: value.also { logger.warn { "Attribute $name is missing." }  }
+        ?: value.also { logger.warn { "Attribute $name is missing." } }
 
 class MissingJsonArgumentException(val name: String) : Exception()
 
 class IgnoreMessageException : Exception()
-class WrongTopicException(val topic: String, messageType: Type) : Exception()
+class WrongTopicException(val topic: String, @Suppress("UNUSED_PARAMETER") messageType: Type) : Exception()
 
 enum class Topic(val topicName: String) {
     EXPLORER("explorer"),

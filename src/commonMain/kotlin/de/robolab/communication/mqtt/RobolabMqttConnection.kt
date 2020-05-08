@@ -13,7 +13,7 @@ class RobolabMqttConnection {
     private val logger = Logger(this)
 
     val onMessage = EventHandler<MqttMessage>()
-    
+
     val connectionStateProperty = property<ConnectionState>(Disconnected())
     val connectionState by connectionStateProperty
 
@@ -25,7 +25,7 @@ class RobolabMqttConnection {
         fun onAction()
     }
 
-    inner class Disconnected: ConnectionState {
+    inner class Disconnected : ConnectionState {
         override val name = "Disconnected"
         override val actionLabel = "Connect"
 
@@ -34,7 +34,7 @@ class RobolabMqttConnection {
         }
     }
 
-    inner class Connecting: ConnectionState {
+    inner class Connecting : ConnectionState {
         override val name = "Connecting"
         override val actionLabel = "Abort"
 
@@ -81,7 +81,7 @@ class RobolabMqttConnection {
         override val name = "Connected"
 
         override val actionLabel = "Disconnect"
-        
+
         override fun onAction() {
             mqttClient.setCallback(null)
             mqttClient.disconnect()
@@ -93,7 +93,7 @@ class RobolabMqttConnection {
         }
     }
 
-    inner class ConnectionLost: ConnectionState {
+    inner class ConnectionLost : ConnectionState {
         override val name = "Connection lost"
         override val actionLabel = "Reconnect"
 

@@ -50,7 +50,7 @@ class TextEditor {
         this.editor = new CodeMirror(container, {
             value: "",
             mode: "simplemode",
-            styleActiveLine: { nonEmpty: false }
+            styleActiveLine: {nonEmpty: false}
         });
     }
 

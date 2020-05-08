@@ -1,33 +1,33 @@
 @use '../utils';
 
 .status-bar {
-    @include utils.prevent-user-select();
+  @include utils.prevent-user-select();
 
-    height: 2rem;
-    line-height: 1.9rem;
-    border-top: solid 1px var(--border-color);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1;
-    overflow-x: auto;
-    white-space: nowrap;
+  height: 2rem;
+  line-height: 1.9rem;
+  border-top: solid 1px var(--border-color);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  overflow-x: auto;
+  white-space: nowrap;
 
-    .text-view {
-        background-color: var(--primary-background);
-        border: solid 1px var(--border-color);
-        height: 1.5rem;
-        line-height: 1.5rem;
-        border-radius: 0.75rem;
-        padding: 0 0.5rem;
-        display: inline-block;
-        margin-left: 0.5rem;
-    }
+  .text-view {
+    background-color: var(--primary-background);
+    border: solid 1px var(--border-color);
+    height: 1.5rem;
+    line-height: 1.5rem;
+    border-radius: 0.75rem;
+    padding: 0 0.5rem;
+    display: inline-block;
+    margin-left: 0.5rem;
+  }
 }
 
 @include utils.desktop {
-    .status-bar.side-bar-active {
-        left: var(--side-bar-width);
-    }
+  .status-bar.side-bar-active {
+    left: var(--side-bar-width);
+  }
 }

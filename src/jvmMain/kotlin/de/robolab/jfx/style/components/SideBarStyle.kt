@@ -28,7 +28,7 @@ fun Stylesheet.initSideBarStyle() {
     Stylesheet.listCell {
         backgroundColor = multi(Color.TRANSPARENT)
         padding = box(0.px)
-        
+
         and(Stylesheet.focused, Stylesheet.hover) {
             backgroundColor = multi(MainStyle.theme.ui.secondaryHoverBackground.toFx())
             Stylesheet.label {

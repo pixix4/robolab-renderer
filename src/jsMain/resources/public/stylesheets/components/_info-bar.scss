@@ -1,273 +1,274 @@
 @use '../utils';
 
 .info-bar {
-    @include utils.prevent-user-select();
+  @include utils.prevent-user-select();
 
-    position: absolute;
-    right: -1rem;
-    margin-right: calc(-100% + 4rem);
-    top: 3rem;
-    bottom: 2rem;
-    width: calc(100% - 4rem);
-    z-index: 1;
-    border-left: solid 1px var(--border-color);
-    background-color: var(--secondary-background);
-    display: none;
+  position: absolute;
+  right: -1rem;
+  margin-right: calc(-100% + 4rem);
+  top: 3rem;
+  bottom: 2rem;
+  width: calc(100% - 4rem);
+  z-index: 1;
+  border-left: solid 1px var(--border-color);
+  background-color: var(--secondary-background);
+  display: none;
 
-    &.active {
-        margin-right: 1rem;
-        display: block;
+  &.active {
+    margin-right: 1rem;
+    display: block;
 
-        &::after {
-            content: '';
-            display: block;
-            position: absolute;
-            width: 4rem;
-            height: 100%;
-            top: 0;
-            left: -4rem;
-        }
+    &::after {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 4rem;
+      height: 100%;
+      top: 0;
+      left: -4rem;
     }
+  }
 }
 
 @include utils.desktop {
-    .info-bar {
-        margin-right: -(var(--info-bar-width));
-        width: var(--info-bar-width);
+  .info-bar {
+    margin-right: -(var(--info-bar-width));
+    width: var(--info-bar-width);
 
-        &.active {
-            &::after {
-                content: none;
-            }
-        }
+    &.active {
+      &::after {
+        content: none;
+      }
     }
+  }
 }
 
 .info-bar-content {
-    position: absolute;
-    top: 3rem;
-    left: 0;
-    width: 100%;
-    bottom: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior: contain;
+  position: absolute;
+  top: 3rem;
+  left: 0;
+  width: 100%;
+  bottom: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 
-    textarea {
-        width: 100%;
-        height: 100%;
-        resize: none;
-        border: none;
-        outline: none;
-        margin: 0;
-        padding: 0.2rem;
-        white-space: pre;
-        font-family: "Roboto Mono", sans-serif;
-        overflow-x: auto;
-        overflow-y: scroll;
-    }
+  textarea {
+    width: 100%;
+    height: 100%;
+    resize: none;
+    border: none;
+    outline: none;
+    margin: 0;
+    padding: 0.2rem;
+    white-space: pre;
+    font-family: "Roboto Mono", sans-serif;
+    overflow-x: auto;
+    overflow-y: scroll;
+  }
 }
 
 .info-bar-header {
-    height: 3rem;
-    width: 100%;
-    border-bottom: solid 1px var(--border-color);
-    position: absolute;
+  height: 3rem;
+  width: 100%;
+  border-bottom: solid 1px var(--border-color);
+  position: absolute;
 
-    .button-group {
-        display: flex;
-        margin: 0 0.5rem;
-        align-items: center;
-        align-content: center;
-        height: 3rem;
-
-        .button {
-            flex-grow: 1;
-            flex-shrink: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding: 0;
-            height: 2.1rem;
-            vertical-align: middle;
-        }
-    }
-
-    &:empty {
-        display: none;
-
-        & ~ .info-bar-content {
-            top: 0;
-        }
-    }
-}
-.traverser-bar-header {
-    position: absolute;
-    top: 0;
-    left:0;
-    width: 100%;
-    height: 3rem;
+  .button-group {
     display: flex;
+    margin: 0 0.5rem;
     align-items: center;
     align-content: center;
-    justify-content: space-between;
-    padding: 0.5rem;
-    border-bottom: solid 1px var(--border-color);
+    height: 3rem;
+
+    .button {
+      flex-grow: 1;
+      flex-shrink: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0;
+      height: 2.1rem;
+      vertical-align: middle;
+    }
+  }
+
+  &:empty {
+    display: none;
+
+    & ~ .info-bar-content {
+      top: 0;
+    }
+  }
+}
+
+.traverser-bar-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-bottom: solid 1px var(--border-color);
 }
 
 .traverser-bar-body {
-    position: absolute;
-    top: 3rem;
-    bottom: 10rem;
-    left:0;
-    width: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
+  position: absolute;
+  top: 3rem;
+  bottom: 10rem;
+  left: 0;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .traverser-bar-footer {
-    position: absolute;
-    bottom: 0;
-    left:0;
-    width: 100%;
-    height: 10rem;
-    border-top: solid 1px var(--border-color);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 10rem;
+  border-top: solid 1px var(--border-color);
 }
 
 .traverser-entry-view {
-    padding: 0.5rem;
+  padding: 0.5rem;
 
-    &:not(:last-child) {
-        border-bottom: solid 1px var(--border-color);
-    }
+  &:not(:last-child) {
+    border-bottom: solid 1px var(--border-color);
+  }
+
+  &:hover {
+    background-color: var(--secondary-hover-background);
+  }
+
+  &.selected {
+    background-color: var(--primary-background);
 
     &:hover {
-        background-color: var(--secondary-hover-background);
+      background-color: var(--primary-hover-background);
     }
+  }
 
-    &.selected {
-        background-color: var(--primary-background);
-
-        &:hover {
-            background-color: var(--primary-hover-background);
-        }
+  .hide-buttons {
+    .button {
+      display: none;
     }
+  }
 
-    .hide-buttons {
-        .button {
-            display: none;
-        }
-    }
-
-    .box-view {
-        display: flex;
-        align-items: center;
-        align-content: center;
-        justify-content: space-between;
-        text-align: center;
-
-        .text-view {
-            flex-grow: 1;
-            line-height: 2.2rem;
-        }
-    }
-
-    .bullet-list:empty {
-        margin: 0;
-    }
-}
-
-.traverser-characteristic-view {
-    display: inline-block;
-    width:1rem;
-    height: 1rem;
-    margin: 0.2rem;
-}
-
-.traverser-bar-trail {
+  .box-view {
     display: flex;
     align-items: center;
     align-content: center;
     justify-content: space-between;
-    padding: 0.5rem;
-    border-bottom: solid 1px var(--border-color);
+    text-align: center;
+
+    .text-view {
+      flex-grow: 1;
+      line-height: 2.2rem;
+    }
+  }
+
+  .bullet-list:empty {
+    margin: 0;
+  }
+}
+
+.traverser-characteristic-view {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin: 0.2rem;
+}
+
+.traverser-bar-trail {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-bottom: solid 1px var(--border-color);
 }
 
 .info-bar-group-view-header {
-    padding: 0.5rem;
+  padding: 0.5rem;
 }
 
 .info-bar-group-view-content {
-    border-collapse: collapse;
-    white-space: nowrap;
+  border-collapse: collapse;
+  white-space: nowrap;
 
-    thead {
-        line-height: 2rem;
-        background-color: var(--tertiary-background);
-    }
+  thead {
+    line-height: 2rem;
+    background-color: var(--tertiary-background);
+  }
 
-    tbody {
-        tr {
-            line-height: 1.8rem;
+  tbody {
+    tr {
+      line-height: 1.8rem;
 
-            &:hover {
-                background-color: var(--secondary-hover-background);
-            }
+      &:hover {
+        background-color: var(--secondary-hover-background);
+      }
 
-            &.selected {
-                background-color: var(--primary-background);
+      &.selected {
+        background-color: var(--primary-background);
 
-                &:hover {
-                    background-color: var(--primary-hover-background);
-                }
-            }
+        &:hover {
+          background-color: var(--primary-hover-background);
         }
+      }
     }
+  }
 }
 
 .text-editor-container {
-    width: 100%;
-    height: 100%;
-    margin: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
 }
 
 .CodeMirror {
-    width: 100%;
-    height: 100%;
-    background: var(--primary-background);
+  width: 100%;
+  height: 100%;
+  background: var(--primary-background);
+  font-family: "Roboto Mono", sans-serif !important;
+
+  * {
+    color: var(--primary-text-color);
     font-family: "Roboto Mono", sans-serif !important;
+  }
 
-    * {
-        color: var(--primary-text-color);
-        font-family: "Roboto Mono", sans-serif !important;
-    }
+  .cm-comment, .cm-hash {
+    color: var(--editor-comment-color);
+  }
 
-    .cm-comment, .cm-hash {
-        color: var(--editor-comment-color);
-    }
+  .cm-direction {
+    color: var(--editor-direction-color);
+    font-weight: bold;
+  }
 
-    .cm-direction {
-        color: var(--editor-direction-color);
-        font-weight: bold;
-    }
+  .cm-error {
+    color: var(--editor-error-color);
+  }
 
-    .cm-error {
-        color: var(--editor-error-color);
-    }
+  .cm-keyword {
+    color: var(--editor-keyword-color);
+    font-weight: bold;
+  }
 
-    .cm-keyword {
-        color: var(--editor-keyword-color);
-        font-weight: bold;
-    }
+  .cm-number {
+    color: var(--editor-number-color);
+  }
 
-    .cm-number {
-        color: var(--editor-number-color);
-    }
+  .cm-string {
+    color: var(--editor-string-color);
+  }
 
-    .cm-string {
-        color: var(--editor-string-color);
-    }
-
-    .CodeMirror-activeline-background {
-        background: var(--editor-selected-line-color);
-    }
+  .CodeMirror-activeline-background {
+    background: var(--editor-selected-line-color);
+  }
 }

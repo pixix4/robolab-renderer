@@ -3,7 +3,6 @@ package de.westermann.kwebview.components
 import de.westermann.kwebview.KWebViewDsl
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.createHtmlView
-import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLUListElement
 
 class BulletList() : ViewCollection<ListItem>(createHtmlView<HTMLUListElement>("ul")) {

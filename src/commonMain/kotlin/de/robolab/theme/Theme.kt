@@ -24,7 +24,7 @@ enum class Theme(val group: String, private val isDarkMode: Boolean, val theme: 
 
         return DEFAULT.getThemeByMode(isDarkMode)
     }
-    
+
     companion object {
         val DEFAULT = LIGHT
     }

@@ -9,7 +9,6 @@ import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.asObservable
 import de.westermann.kobserve.not
-import de.westermann.kobserve.or
 import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.View
@@ -33,7 +32,10 @@ class TraverserBarView(private val traverserProperty: ObservableValue<TraverserB
         }
 
         boxView("traverser-bar-body") {
-            listFactory(traverserProperty.mapBinding { it.entryList as ObservableList<ITraverserStateEntry> }, factory = { entry ->
+            listFactory(traverserProperty.mapBinding {
+                @Suppress("USELESS_CAST")
+                it.entryList as ObservableList<ITraverserStateEntry>
+            }, factory = { entry ->
                 TraverserEntryView(entry)
             })
         }
@@ -59,7 +61,7 @@ class TraverserBarView(private val traverserProperty: ObservableValue<TraverserB
 
                         disabledProperty.bind(traverserProperty.flatMapBinding { it.autoExpandProperty })
 
-                        onClick {event ->
+                        onClick { event ->
                             if (event.shiftKey) {
                                 traverserProperty.value.clickExpand()
                             } else {
@@ -97,7 +99,7 @@ class TraverserBarView(private val traverserProperty: ObservableValue<TraverserB
     }
 }
 
-class TraverserEntryView(private val entry: ITraverserStateEntry): ViewCollection<View>(){
+class TraverserEntryView(private val entry: ITraverserStateEntry) : ViewCollection<View>() {
 
     init {
         classList.bind("selected", entry.selected)
@@ -140,7 +142,7 @@ class TraverserEntryView(private val entry: ITraverserStateEntry): ViewCollectio
     }
 }
 
-class TraverserCharacteristicView(private val item: CharacteristicItem): ViewCollection<View>(){
+class TraverserCharacteristicView(private val item: CharacteristicItem) : ViewCollection<View>() {
 
     init {
         style {

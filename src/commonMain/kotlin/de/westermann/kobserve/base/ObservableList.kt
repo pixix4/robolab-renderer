@@ -51,18 +51,18 @@ interface ObservableList<out T> : ObservableCollection<T>, List<T> {
     }
 
     data class AddEvent<T>(
-        val index: Int,
-        val element: T
+            val index: Int,
+            val element: T
     )
 
     data class SetEvent<T>(
-        val index: Int,
-        val oldElement: T,
-        val newElement: T
+            val index: Int,
+            val oldElement: T,
+            val newElement: T
     )
 
     data class RemoveEvent<T>(
-        val index: Int,
-        val element: T
+            val index: Int,
+            val element: T
     )
 }

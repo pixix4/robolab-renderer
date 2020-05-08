@@ -1,6 +1,8 @@
 package de.robolab.app.controller
 
-import de.robolab.app.model.traverser.*
+import de.robolab.app.model.traverser.CharacteristicItem
+import de.robolab.app.model.traverser.ITraverserStateEntry
+import de.robolab.app.model.traverser.TraverserStateEntry
 import de.robolab.planet.Planet
 import de.robolab.traverser.*
 import de.westermann.kobserve.base.ObservableList
@@ -26,13 +28,13 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
     val characteristicList: ObservableList<CharacteristicItem> = _characteristicList
 
     private val _entryList: ObservableMutableList<TraverserStateEntry<*>> = observableListOf()
-    val entryList: ObservableList<out ITraverserStateEntry> = _entryList
+    val entryList: ObservableList<ITraverserStateEntry> = _entryList
 
     val traverserTitle: ObservableValue<String> = constObservable(traverser.name)
 
     val rootState: ITraverserState<*> = traverser.seed
 
-    val currentTraverserState: ObservableValue<out ITraverserState<*>> = sliceViewer.currentNodeProperty
+    val currentTraverserState: ObservableValue<ITraverserState<*>> = sliceViewer.currentNodeProperty
 
     fun clickExpand(): Boolean = sliceViewer.expand()
 

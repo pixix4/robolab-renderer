@@ -126,7 +126,7 @@ class EventHandler<E>() {
     }
 
     private inner class Listener(
-        private val listener: (E) -> Unit
+            private val listener: (E) -> Unit
     ) : EventListener<E> {
 
         override fun emit(event: E) {
@@ -186,19 +186,19 @@ fun EventHandler<Unit>.listenTo(handler: EventHandler<*>) {
  * Combine two common event handler to listen two both simultaneously.
  */
 infix fun <T> EventHandler<out T>.and(other: EventHandler<out T>): EventHandler<T> =
-    EventHandler(this, other)
+        EventHandler(this, other)
 
 /**
  * Combine two common event handler to listen two both simultaneously.
  */
 fun <T> EventHandler<out T>.and(other: EventHandler<out T>, listener: (T) -> Unit): EventHandler<T> =
-    EventHandler(this, other).also { it += listener }
+        EventHandler(this, other).also { it += listener }
 
 /**
  * Combine two common event handler to listen two both simultaneously.
  */
 operator fun <T> EventHandler<out T>.plus(other: EventHandler<out T>): EventHandler<T> =
-    EventHandler(this, other)
+        EventHandler(this, other)
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun EventHandler<Unit>.emit() {

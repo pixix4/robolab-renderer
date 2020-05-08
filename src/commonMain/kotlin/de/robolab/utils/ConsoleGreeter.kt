@@ -18,4 +18,4 @@ object ConsoleGreeter {
     }
 }
 
-internal expect fun ConsoleGreeter.greetApplication(appLogo: String, appCreators:String)
+internal expect fun ConsoleGreeter.greetApplication(appLogo: String, appCreators: String)

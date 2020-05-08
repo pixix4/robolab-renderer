@@ -6,8 +6,8 @@ import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
 
 open class ObservableSubList<T>(
-    private val parent: ObservableList<T>,
-    protected var range: IntRange
+        private val parent: ObservableList<T>,
+        protected var range: IntRange
 ) : ObservableList<T> {
 
     override val onAddIndex = EventHandler<AddEvent<T>>()
@@ -104,8 +104,8 @@ open class ObservableSubList<T>(
         parent.onAddIndex { (parentIndex, element) ->
             val index = parentIndex - range.first
 
-            if (index in 0 .. size) {
-                range = range.first .. range.last + 1
+            if (index in 0..size) {
+                range = range.first..range.last + 1
                 emitOnAdd(index, element)
             }
         }

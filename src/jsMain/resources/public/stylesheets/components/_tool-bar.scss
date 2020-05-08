@@ -1,43 +1,43 @@
 @use '../utils';
 
 .tool-bar {
-    @include utils.prevent-user-select();
+  @include utils.prevent-user-select();
 
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3rem;
-    line-height: 3rem;
-    z-index: 1;
-    border-bottom: solid 1px var(--border-color);
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-    padding: 0 0.5rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3rem;
+  line-height: 3rem;
+  z-index: 1;
+  border-bottom: solid 1px var(--border-color);
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  padding: 0 0.5rem;
+  display: flex;
+  overscroll-behavior: contain;
+
+  div {
     display: flex;
-    overscroll-behavior: contain;
+    align-items: center;
+    align-content: center;
+  }
 
-    div {
-        display: flex;
-        align-items: center;
-        align-content: center;
-    }
-
-    .button {
-        height: 2.1rem;
-    }
+  .button {
+    height: 2.1rem;
+  }
 }
 
 .tool-bar-center {
-    flex-grow: 1;
-    text-align: center;
-    padding: 0 2rem;
-    font-weight: bold;
+  flex-grow: 1;
+  text-align: center;
+  padding: 0 2rem;
+  font-weight: bold;
 }
 
 @include utils.desktop {
-    .tool-bar.side-bar-active {
-        left: var(--side-bar-width);
-    }
+  .tool-bar.side-bar-active {
+    left: var(--side-bar-width);
+  }
 }

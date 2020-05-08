@@ -1,7 +1,6 @@
 package de.robolab.web.dialog
 
 import de.robolab.utils.PreferenceStorage
-import de.westermann.kobserve.property.property
 import de.westermann.kwebview.components.*
 
 class SettingsDialog() : Dialog("Settings") {

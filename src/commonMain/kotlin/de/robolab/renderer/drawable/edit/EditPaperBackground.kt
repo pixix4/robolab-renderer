@@ -362,8 +362,8 @@ class EditPaperBackground(
         val planetMinimalPadding = minimalPadding / gridWidth
 
         val planetArea = area.expand(PlottingConstraints.POINT_SIZE / 2).shrink(
-                -min(0.0,max(-planetMinimalPadding, planetSize?.top ?: 0.0)),
-                -min(0.0,max(-planetMinimalPadding, planetSize?.left ?: 0.0))
+                -min(0.0, max(-planetMinimalPadding, planetSize?.top ?: 0.0)),
+                -min(0.0, max(-planetMinimalPadding, planetSize?.left ?: 0.0))
         )
         var paperArea = planetArea.expand(planetMinimalPadding).expand(
                 max(0.0, planetSize?.top ?: 0.0),
@@ -382,8 +382,8 @@ class EditPaperBackground(
 
         val offset = planetOffset
         if (offset != null) {
-            val leftOffset = (paperArea.width - planetArea.width)  / 2 - planetMinimalPadding
-            val topOffset = (paperArea.height - planetArea.height)  / 2 - planetMinimalPadding
+            val leftOffset = (paperArea.width - planetArea.width) / 2 - planetMinimalPadding
+            val topOffset = (paperArea.height - planetArea.height) / 2 - planetMinimalPadding
 
             paperArea = paperArea.copy(
                     left = paperArea.left - min(leftOffset, max(-leftOffset, offset.left)),

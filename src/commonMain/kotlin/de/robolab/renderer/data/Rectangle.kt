@@ -18,8 +18,8 @@ data class Rectangle(
     fun intersects(other: Rectangle): Boolean {
         return other.right > left && other.bottom > top && other.left < right && other.top < bottom;
     }
-    
-    operator fun contains(point: Point) : Boolean {
+
+    operator fun contains(point: Point): Boolean {
         return point.left > left && point.top > top && point.left < right && point.top < bottom;
     }
 
@@ -32,8 +32,9 @@ data class Rectangle(
             width + 2 * horizontal,
             height + 2 * vertical
     )
+
     fun shrink(vertical: Double, horizontal: Double) = expand(-vertical, -horizontal)
-    
+
     fun union(other: Rectangle): Rectangle {
         return fromEdges(toEdgeList() + other.toEdgeList())
     }

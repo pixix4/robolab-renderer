@@ -36,7 +36,7 @@ data class Planet(
 
         return tmp
     }
-    
+
     companion object {
         val EMPTY = Planet(
                 "",

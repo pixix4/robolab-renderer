@@ -5,7 +5,7 @@ import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.listenTo
 
 open class FunctionObservableValue<T>(
-    private val delegateAccessor: DelegateValueAccessor<T>
+        private val delegateAccessor: DelegateValueAccessor<T>
 ) : ObservableValue<T> {
     override val onChange = EventHandler<Unit>()
 
@@ -18,8 +18,8 @@ open class FunctionObservableValue<T>(
     }
 
     constructor(
-        functionAccessor: DelegateValueAccessor<T>,
-        vararg properties: ObservableValue<*>
+            functionAccessor: DelegateValueAccessor<T>,
+            vararg properties: ObservableValue<*>
     ) : this(functionAccessor) {
         listenTo(*properties)
     }
@@ -39,8 +39,8 @@ interface DelegateValueAccessor<T> {
  * @param properties The new property will listen to their onChange events.
  */
 fun <T> property(
-    functionAccessor: DelegateValueAccessor<T>,
-    vararg properties: ObservableValue<*>
+        functionAccessor: DelegateValueAccessor<T>,
+        vararg properties: ObservableValue<*>
 ): ObservableValue<T> = FunctionObservableValue(functionAccessor, *properties)
 
 /**
@@ -50,17 +50,17 @@ fun <T> property(
  * @param accessor The function accessor to call.
  */
 fun <T> property(vararg properties: ObservableValue<*>, accessor: () -> T): ObservableValue<T> =
-    FunctionObservableValue(object : DelegateValueAccessor<T> {
-        override fun get(): T = accessor()
-    }, *properties)
+        FunctionObservableValue(object : DelegateValueAccessor<T> {
+            override fun get(): T = accessor()
+        }, *properties)
 
 /**
  * Convenient function to map two properties together. The new property will call the given block with both property
  * values as parameter and return the result as its value.
  */
 fun <A, B, C> ObservableValue<A>.join(
-    property2: ObservableValue<B>,
-    block: (A, B) -> C
+        property2: ObservableValue<B>,
+        block: (A, B) -> C
 ): ObservableValue<C> {
     return FunctionObservableValue(object : DelegateValueAccessor<C> {
         override fun get(): C {

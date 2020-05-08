@@ -4,32 +4,32 @@
 @use 'utils';
 
 body, html {
-    @include utils.prevent-user-select();
+  @include utils.prevent-user-select();
 
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    color: var(--primary-text-color);
-    background: var(--secondary-background);
-    font-family: Roboto, sans-serif;
-    overscroll-behavior: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--primary-text-color);
+  background: var(--secondary-background);
+  font-family: Roboto, sans-serif;
+  overscroll-behavior: none;
 
-    --side-bar-width: 20rem;
-    --info-bar-width: 20rem;
+  --side-bar-width: 20rem;
+  --info-bar-width: 20rem;
 
-    --context-menu-left: 0px;
-    --context-menu-top: 0px;
+  --context-menu-left: 0px;
+  --context-menu-top: 0px;
 }
 
 * {
-    box-sizing: border-box;
-    font-family: Roboto, sans-serif;
+  box-sizing: border-box;
+  font-family: Roboto, sans-serif;
 }
 
 .noscript {
-    text-align: center;
+  text-align: center;
 }

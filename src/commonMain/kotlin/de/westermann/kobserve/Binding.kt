@@ -33,15 +33,15 @@ sealed class Binding<T> {
      * Create an event listener that listens to source and applies all changes to target
      */
     protected fun listen(
-        source: ObservableValue<T>,
-        target: ObservableProperty<T>
+            source: ObservableValue<T>,
+            target: ObservableProperty<T>
     ): EventListener<Unit> =
-        source.onChange.reference {
-            val newValue = source.value
-            if (target.value != newValue) {
-                target.value = newValue
+            source.onChange.reference {
+                val newValue = source.value
+                if (target.value != newValue) {
+                    target.value = newValue
+                }
             }
-        }
 
     /**
      * Represents an unbound property state.

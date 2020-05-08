@@ -1,7 +1,6 @@
 package de.robolab.app.model.group
 
 import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTimeSpanFormat
 import com.soywiz.klock.format
 import de.robolab.app.model.IInfoBarContent
 import de.robolab.communication.RobolabMessage

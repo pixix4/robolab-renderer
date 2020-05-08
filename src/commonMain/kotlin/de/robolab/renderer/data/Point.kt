@@ -68,7 +68,7 @@ data class Point(
         val distance = this.dotProduct(basis) / (basis.left * basis.left + basis.top * basis.top)
         return basis * distance
     }
-    
+
     fun max(other: Point): Point = Point(
             kotlin.math.max(left, other.left),
             kotlin.math.max(top, other.top)

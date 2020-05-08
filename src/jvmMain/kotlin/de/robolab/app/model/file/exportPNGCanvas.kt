@@ -6,8 +6,6 @@ import de.robolab.jfx.dialog.PaperConstraintsDialog
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.utils.PreferenceStorage
-import javafx.stage.StageStyle
-import tornadofx.*
 import java.io.File
 
 actual fun exportPNGCanvas(dimension: Dimension): ICanvas {

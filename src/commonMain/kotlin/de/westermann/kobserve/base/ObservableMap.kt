@@ -21,19 +21,19 @@ interface ObservableMap<K, V> : ObservableValue<Map<K, V>>, Map<K, V> {
     }
 
     data class AddEvent<K, V>(
-        val key: K,
-        val value: V
+            val key: K,
+            val value: V
     )
 
     data class UpdateEvent<K, V>(
-        val key: K,
-        val oldValue: V,
-        val newElement: V
+            val key: K,
+            val oldValue: V,
+            val newElement: V
     )
 
     data class RemoveEvent<K, V>(
-        val key: K,
-        val value: V
+            val key: K,
+            val value: V
     )
 
     override val size: Int

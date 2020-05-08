@@ -37,5 +37,5 @@ $_editor-selected-line-color: #f2e5bc;
 $_editor-string-color: #af3a03;
 
 body[data-theme='gruvbox_light'] {
-    @include load-color-vars();
+  @include load-color-vars();
 }

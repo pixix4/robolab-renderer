@@ -11,7 +11,6 @@ import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.list.filterObservable
 import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.property.flattenBinding
 import de.westermann.kobserve.property.flattenMutableBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -68,7 +67,7 @@ class SideBarController(
             Tab.FILE -> filePlanetProvider.entryList
         }
     }
-    
+
     val filteredEntryListProperty = entryListProperty.mapBinding {
         it.filterObservable(searchStringProperty) { element, filter ->
             element.titleProperty.value.contains(filter, true)

@@ -2,7 +2,6 @@ package de.westermann.kwebview.components
 
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.not
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.*
 import org.w3c.dom.events.Event

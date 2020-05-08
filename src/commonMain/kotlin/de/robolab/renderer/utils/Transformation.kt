@@ -35,7 +35,7 @@ class Transformation(
     val flipViewProperty = property(false)
 
     private val internalPixelPerUnitDimension = pixelPerUnitDimension
-    
+
     private val pixelPerUnitDimensionProperty = flipViewProperty.mapBinding {
         if (it) {
             internalPixelPerUnitDimension * Point(-1.0, 1.0)

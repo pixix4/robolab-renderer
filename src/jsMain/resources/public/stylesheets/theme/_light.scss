@@ -37,5 +37,5 @@ $_editor-selected-line-color: #d6eaff;
 $_editor-string-color: #a31515;
 
 body {
-    @include load-color-vars();
+  @include load-color-vars();
 }

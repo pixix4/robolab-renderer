@@ -12,23 +12,23 @@ import kotlin.jvm.JvmName
 
 @JvmName("propertyBooleanAnd")
 infix fun ObservableValue<Boolean>.and(property: ObservableValue<Boolean>) =
-    join(property, Boolean::and)
+        join(property, Boolean::and)
 
 @JvmName("propertyBooleanOr")
 infix fun ObservableValue<Boolean>.or(property: ObservableValue<Boolean>) =
-    join(property, Boolean::or)
+        join(property, Boolean::or)
 
 @JvmName("propertyBooleanXor")
 infix fun ObservableValue<Boolean>.xor(property: ObservableValue<Boolean>) =
-    join(property, Boolean::xor)
+        join(property, Boolean::xor)
 
 @JvmName("propertyBooleanImplies")
 infix fun ObservableValue<Boolean>.implies(property: ObservableValue<Boolean>) =
-    join(property) { a, b -> !a || b }
+        join(property) { a, b -> !a || b }
 
 @JvmName("propertyBooleanNot")
 operator fun ObservableValue<Boolean>.not(): ObservableValue<Boolean> =
-    mapBinding(Boolean::not)
+        mapBinding(Boolean::not)
 
 /* The following part is auto generated. Do NOT edit it manually! */
 

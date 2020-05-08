@@ -1,16 +1,16 @@
 @mixin desktop {
-    @media only screen and (min-width: 800px) {
-        @content
-    }
+  @media only screen and (min-width: 800px) {
+    @content
+  }
 }
 
 @mixin radius {
-    border-radius: 0.3rem;
+  border-radius: 0.3rem;
 }
 
 @mixin prevent-user-select {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }

@@ -1,23 +1,23 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/LICENSE
 
-(function(mod) {
+(function (mod) {
     if (typeof exports == "object" && typeof module == "object") // CommonJS
         mod(require("../../lib/codemirror"));
     else if (typeof define == "function" && define.amd) // AMD
         define(["../../lib/codemirror"], mod);
     else // Plain browser env
         mod(CodeMirror);
-})(function(CodeMirror) {
+})(function (CodeMirror) {
     "use strict";
 
-    CodeMirror.defineSimpleMode = function(name, states) {
-        CodeMirror.defineMode(name, function(config) {
+    CodeMirror.defineSimpleMode = function (name, states) {
+        CodeMirror.defineMode(name, function (config) {
             return CodeMirror.simpleMode(config, states);
         });
     };
 
-    CodeMirror.simpleMode = function(config, states) {
+    CodeMirror.simpleMode = function (config, states) {
         ensureState(states, "start");
         var states_ = {}, meta = states.meta || {}, hasIndentation = false;
         for (var state in states) if (state != meta && states.hasOwnProperty(state)) {
@@ -29,28 +29,36 @@
             }
         }
         var mode = {
-            startState: function() {
-                return {state: "start", pending: null,
+            startState: function () {
+                return {
+                    state: "start", pending: null,
                     local: null, localState: null,
-                    indent: hasIndentation ? [] : null};
+                    indent: hasIndentation ? [] : null
+                };
             },
-            copyState: function(state) {
-                var s = {state: state.state, pending: state.pending,
+            copyState: function (state) {
+                var s = {
+                    state: state.state, pending: state.pending,
                     local: state.local, localState: null,
-                    indent: state.indent && state.indent.slice(0)};
+                    indent: state.indent && state.indent.slice(0)
+                };
                 if (state.localState)
                     s.localState = CodeMirror.copyState(state.local.mode, state.localState);
                 if (state.stack)
                     s.stack = state.stack.slice(0);
                 for (var pers = state.persistentStates; pers; pers = pers.next)
-                    s.persistentStates = {mode: pers.mode,
+                    s.persistentStates = {
+                        mode: pers.mode,
                         spec: pers.spec,
                         state: pers.state == state.localState ? s.localState : CodeMirror.copyState(pers.mode, pers.state),
-                        next: s.persistentStates};
+                        next: s.persistentStates
+                    };
                 return s;
             },
             token: tokenFunction(states_, config),
-            innerMode: function(state) { return state.local && {mode: state.local.mode, state: state.localState}; },
+            innerMode: function (state) {
+                return state.local && {mode: state.local.mode, state: state.localState};
+            },
             indent: indentFunction(states_, meta)
         };
         if (meta) for (var prop in meta) if (meta.hasOwnProperty(prop))
@@ -93,7 +101,7 @@
     }
 
     function tokenFunction(states, config) {
-        return function(stream, state) {
+        return function (stream, state) {
             if (state.pending) {
                 var pend = state.pending.shift();
                 if (state.pending.length == 0) state.pending = null;
@@ -177,10 +185,12 @@
             state.persistentStates = {mode: mode, spec: spec.spec, state: lState, next: state.persistentStates};
 
         state.localState = lState;
-        state.local = {mode: mode,
+        state.local = {
+            mode: mode,
             end: spec.end && toRegex(spec.end),
             endScan: spec.end && spec.forceEnd !== false && toRegex(spec.end, false),
-            endToken: token && token.join ? token[token.length - 1] : token};
+            endToken: token && token.join ? token[token.length - 1] : token
+        };
     }
 
     function indexOf(val, arr) {
@@ -188,14 +198,14 @@
     }
 
     function indentFunction(states, meta) {
-        return function(state, textAfter, line) {
+        return function (state, textAfter, line) {
             if (state.local && state.local.mode.indent)
                 return state.local.mode.indent(state.localState, textAfter, line);
             if (state.indent == null || state.local || meta.dontIndentStates && indexOf(state.state, meta.dontIndentStates) > -1)
                 return CodeMirror.Pass;
 
             var pos = state.indent.length - 1, rules = states[state.state];
-            scan: for (;;) {
+            scan: for (; ;) {
                 for (var i = 0; i < rules.length; i++) {
                     var rule = rules[i];
                     if (rule.data.dedent && rule.data.dedentIfLineStart !== false) {

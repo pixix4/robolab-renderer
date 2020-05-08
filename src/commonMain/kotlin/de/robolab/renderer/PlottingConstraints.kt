@@ -12,7 +12,7 @@ object PlottingConstraints {
     const val PRECISION = 0.05
     const val PRECISION_FACTOR = 1.0 / PRECISION
 
-    const val DASH_SEGMENT_LENGTH =  0.2
+    const val DASH_SEGMENT_LENGTH = 0.2
     const val DASH_SPACING = 0.06
 
     const val ARROW_LENGTH = 0.11

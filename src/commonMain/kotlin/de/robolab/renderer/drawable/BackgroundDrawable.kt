@@ -73,7 +73,7 @@ class BackgroundDrawable(
                 }
             }
         }
-        
+
         fun calcPlanetArea(planet: Planet): Rectangle? {
             var minX = Double.MAX_VALUE
             var minY = Double.MAX_VALUE

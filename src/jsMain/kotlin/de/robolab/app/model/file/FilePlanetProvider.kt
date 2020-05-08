@@ -4,11 +4,13 @@ import de.robolab.app.model.IProvider
 import de.robolab.app.model.ISideBarEntry
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableMutableList
-import de.westermann.kobserve.list.*
+import de.westermann.kobserve.list.mapObservable
+import de.westermann.kobserve.list.observableListOf
+import de.westermann.kobserve.list.sortByObservable
 import de.westermann.kobserve.property.property
 import kotlin.browser.window
 
-actual class FilePlanetProvider actual constructor(): IProvider {
+actual class FilePlanetProvider actual constructor() : IProvider {
 
     override val searchStringProperty = property("")
 

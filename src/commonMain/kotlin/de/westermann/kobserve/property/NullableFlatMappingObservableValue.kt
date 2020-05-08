@@ -7,8 +7,8 @@ import de.westermann.kobserve.event.emit
 import kotlin.reflect.KProperty1
 
 open class NullableFlatMapObservableValue<R, T>(
-    private val transform: (R) -> ObservableValue<T>?,
-    private val receiver: ObservableValue<R?>
+        private val transform: (R) -> ObservableValue<T>?,
+        private val receiver: ObservableValue<R?>
 ) : ObservableValue<T?> {
 
     final override val onChange = EventHandler<Unit>()
@@ -39,12 +39,12 @@ open class NullableFlatMapObservableValue<R, T>(
 }
 
 fun <R, T> ObservableValue<R>.nullableFlatMapBinding(transform: (R) -> ObservableValue<T>?): ObservableValue<T?> =
-    NullableFlatMapObservableValue(transform, this)
+        NullableFlatMapObservableValue(transform, this)
 
 fun <T> ObservableValue<ObservableValue<T>?>.nullableFlattenBinding(): ObservableValue<T?> =
-    NullableFlatMapObservableValue({ it }, this)
+        NullableFlatMapObservableValue({ it }, this)
 
-fun <R: Any, T> ObservableValue<R?>.nullableFlatMapBinding(attribute: KProperty1<R, ObservableValue<T>>): ObservableValue<T?> =
-    NullableFlatMapObservableValue<R?, T>({
-        if (it == null) null else attribute.get(it)
-    }, this)
+fun <R : Any, T> ObservableValue<R?>.nullableFlatMapBinding(attribute: KProperty1<R, ObservableValue<T>>): ObservableValue<T?> =
+        NullableFlatMapObservableValue<R?, T>({
+            if (it == null) null else attribute.get(it)
+        }, this)

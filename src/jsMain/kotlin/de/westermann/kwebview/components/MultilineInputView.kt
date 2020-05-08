@@ -2,20 +2,15 @@ package de.westermann.kwebview.components
 
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.not
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.*
 import de.westermann.kwebview.ViewForLabel.Companion.generateId
-import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
 import org.w3c.dom.events.KeyboardEvent
-import kotlin.math.abs
-import kotlin.random.Random
 
 class MultilineInputView(
-        type: InputType,
         initValue: String = ""
 ) : View(createHtmlView<HTMLTextAreaElement>()) {
 
@@ -134,25 +129,12 @@ class MultilineInputView(
 
 @KWebViewDsl
 fun ViewCollection<in MultilineInputView>.multilineInputView(text: String = "", init: MultilineInputView.() -> Unit = {}) =
-        MultilineInputView(InputType.TEXT, text).also(this::append).also(init)
+        MultilineInputView(text).also(this::append).also(init)
 
 @KWebViewDsl
 fun ViewCollection<in MultilineInputView>.multilineInputView(text: ObservableValue<String>, init: MultilineInputView.() -> Unit = {}) =
-        MultilineInputView(InputType.TEXT, text.value).also(this::append).also { it.bind(text) }.also(init)
+        MultilineInputView(text.value).also(this::append).also { it.bind(text) }.also(init)
 
 @KWebViewDsl
 fun ViewCollection<in MultilineInputView>.multilineInputView(text: ObservableProperty<String>, init: MultilineInputView.() -> Unit = {}) =
-        MultilineInputView(InputType.TEXT, text.value).also(this::append).also { it.bind(text) }.also(init)
-
-
-@KWebViewDsl
-fun ViewCollection<in MultilineInputView>.multilineInputView(type: InputType = InputType.TEXT, text: String = "", init: MultilineInputView.() -> Unit = {}) =
-        MultilineInputView(type, text).also(this::append).also(init)
-
-@KWebViewDsl
-fun ViewCollection<in MultilineInputView>.multilineInputView(type: InputType = InputType.TEXT, text: ObservableValue<String>, init: MultilineInputView.() -> Unit = {}) =
-        MultilineInputView(type, text.value).also(this::append).also { it.bind(text) }.also(init)
-
-@KWebViewDsl
-fun ViewCollection<in MultilineInputView>.multilineInputView(type: InputType = InputType.TEXT, text: ObservableProperty<String>, init: MultilineInputView.() -> Unit = {}) =
-        MultilineInputView(type, text.value).also(this::append).also { it.bind(text) }.also(init)
+        MultilineInputView(text.value).also(this::append).also { it.bind(text) }.also(init)

@@ -6,8 +6,8 @@ import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
 class SortedObservableList<T>(
-    parent: ObservableList<T>,
-    comparator: Comparator<T>
+        parent: ObservableList<T>,
+        comparator: Comparator<T>
 ) : RelationalObservableList<T>(parent) {
 
     val comparatorProperty = property(comparator)
@@ -19,8 +19,8 @@ class SortedObservableList<T>(
 
     override fun createRelation(): Sequence<Relation<T>> {
         return (0 until parent.size).asSequence()
-            .map { Relation(it, parent[it]) }
-            .sortedWith(relationComparator)
+                .map { Relation(it, parent[it]) }
+                .sortedWith(relationComparator)
     }
 
     private fun addIndex(index: Int, element: T): Int {
@@ -97,7 +97,7 @@ class SortedObservableList<T>(
     }
 
     private class RelationComparator<T>(
-        private val comparator: Comparator<T>
+            private val comparator: Comparator<T>
     ) : Comparator<Relation<T>> {
 
         override fun compare(a: Relation<T>, b: Relation<T>): Int {
@@ -111,21 +111,21 @@ class SortedObservableList<T>(
 }
 
 fun <T : Comparable<T>> ObservableList<T>.sortObservable(): SortedObservableList<T> =
-    SortedObservableList(this, compareBy { it })
+        SortedObservableList(this, compareBy { it })
 
 fun <T : Comparable<T>> ObservableList<T>.sortDescendingObservable(): SortedObservableList<T> =
-    SortedObservableList(this, compareByDescending { it })
+        SortedObservableList(this, compareByDescending { it })
 
 fun <T, R : Comparable<R>> ObservableList<T>.sortByObservable(selector: (T) -> R): SortedObservableList<T> =
-    SortedObservableList(this, compareBy(selector))
+        SortedObservableList(this, compareBy(selector))
 
 fun <T, R : Comparable<R>> ObservableList<T>.sortByDescendingObservable(selector: (T) -> R): SortedObservableList<T> =
-    SortedObservableList(this, compareByDescending(selector))
+        SortedObservableList(this, compareByDescending(selector))
 
 fun <T> ObservableList<T>.sortWithObservable(comparator: Comparator<T>): SortedObservableList<T> =
-    SortedObservableList(this, comparator)
+        SortedObservableList(this, comparator)
 
 fun <T> ObservableList<T>.sortWithObservable(comparatorProperty: ObservableValue<Comparator<T>>): SortedObservableList<T> =
-    SortedObservableList(this, comparatorProperty.value).also {
-        it.comparatorProperty.bind(comparatorProperty)
-    }
+        SortedObservableList(this, comparatorProperty.value).also {
+            it.comparatorProperty.bind(comparatorProperty)
+        }

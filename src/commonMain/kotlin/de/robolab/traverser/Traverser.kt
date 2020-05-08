@@ -38,7 +38,7 @@ open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val link
         if (!node.running)
             return@with emptyList()
 
-        if(node.beforePoint){
+        if (node.beforePoint) {
             val leavingStates: List<NS> = getLeavingNavigatorStates(node)
 
             return@with leavingStates.map {
@@ -64,7 +64,7 @@ open class Traverser<M, MS, N, NS>(val mothership: M, val navigator: N, val link
                     else -> return@map pickDirection(node, it)
                 }
             }
-        }else{
+        } else {
             return@with listOf(drivePath(node))
         }
     }

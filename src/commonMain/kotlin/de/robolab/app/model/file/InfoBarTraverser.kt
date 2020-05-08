@@ -21,10 +21,10 @@ class InfoBarTraverser(private val filePlanetEntry: FilePlanetEntry) : IInfoBarC
         logger.info { "Starting new traversal of '${planet.name}'" }
         try {
             traverserProperty.value = TraverserBarController(DefaultTraverser(planet, true))
-                    // .filter { it.status != ITraverserState.Status.Running }
-                    // .forEach {
-                    //     logger.info { it.getTrail() }
-                    // }
+            // .filter { it.status != ITraverserState.Status.Running }
+            // .forEach {
+            //     logger.info { it.getTrail() }
+            // }
         } catch (e: Exception) {
             logger.error { e }
         }

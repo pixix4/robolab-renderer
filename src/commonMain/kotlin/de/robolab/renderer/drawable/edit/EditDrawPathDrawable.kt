@@ -60,7 +60,7 @@ class EditDrawPathDrawable(
             )
             context.strokeLine(p, context.theme.plotter.lineColor.interpolate(context.theme.plotter.primaryBackgroundColor, 0.8), PlottingConstraints.LINE_WIDTH * 1.1)
         }
-        
+
         val endEnd = editPlanetDrawable.pointer?.findObjectUnderPointer<EditDrawEndDrawable.PointEnd>()
 
         val startPoint = Point(startEnd.point)
@@ -140,11 +140,11 @@ class EditDrawPathDrawable(
         }
         return true
     }
-    
+
     private fun getEditPath(startEnd: EditDrawEndDrawable.PointEnd): Path? {
         return planet.pathList.find { it.connectsWith(startEnd.point, startEnd.direction) }
     }
-    
+
     private var planet: Planet = Planet.EMPTY
     fun importPlanet(planet: Planet) {
         this.planet = planet
@@ -159,7 +159,7 @@ class EditDrawPathDrawable(
                 val ref = if (startDirection != null) {
                     startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT)
                 } else startPoint
-                
+
                 if (firstPoint.distance(ref) < 0.2) {
                     points.removeAt(0)
                 }
@@ -181,7 +181,7 @@ class EditDrawPathDrawable(
                     points.removeAt(points.lastIndex)
                 }
             }
-            
+
             return points
         }
     }

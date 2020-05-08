@@ -13,7 +13,7 @@ import de.westermann.kobserve.property.property
 class GroupPlanetProvider(
         messageManager: MessageManager,
         private val filePlanetProvider: FilePlanetProvider
-): IProvider {
+) : IProvider {
 
     val groupList = observableListOf<GroupPlanetEntry>()
 

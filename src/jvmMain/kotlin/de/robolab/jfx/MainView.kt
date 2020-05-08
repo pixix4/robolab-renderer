@@ -36,7 +36,7 @@ class MainView : View() {
         }
 
         var lastSideBarWidth = 260.0
-        val sideBarWidthProperty = property(object: DelegatePropertyAccessor<Double> {
+        val sideBarWidthProperty = property(object : DelegatePropertyAccessor<Double> {
             override fun set(value: Double) {
                 sideBarContainer.minWidth = value
                 sideBarContainer.prefWidth = value
@@ -81,7 +81,7 @@ class MainView : View() {
 
 
             var lastInfoBarWidth = 260.0
-            val infoBarWidthProperty = property(object: DelegatePropertyAccessor<Double> {
+            val infoBarWidthProperty = property(object : DelegatePropertyAccessor<Double> {
                 override fun set(value: Double) {
                     infoBar.root.minWidth = value
                     infoBar.root.prefWidth = value

@@ -8,7 +8,6 @@ import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.createHtmlView
 import org.w3c.dom.HTMLLIElement
-import org.w3c.dom.HTMLSpanElement
 
 /**
  * Represents a html span element.

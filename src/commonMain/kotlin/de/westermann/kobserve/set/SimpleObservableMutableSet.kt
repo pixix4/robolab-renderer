@@ -4,7 +4,7 @@ import de.westermann.kobserve.base.ObservableMutableSet
 import de.westermann.kobserve.utils.ObservableMutableIterator
 
 class SimpleObservableMutableSet<T>(
-    backingField: MutableSet<T>
+        backingField: MutableSet<T>
 ) : BaseObservableSet<T>(backingField), ObservableMutableSet<T> {
 
     override fun add(element: T): Boolean {
@@ -79,4 +79,4 @@ class SimpleObservableMutableSet<T>(
 fun <T> setProperty(set: MutableSet<T>): ObservableMutableSet<T> = SimpleObservableMutableSet(set)
 fun <T> MutableSet<T>.asObservable(): ObservableMutableSet<T> = SimpleObservableMutableSet(this)
 fun <T> observableSetOf(vararg elements: T): ObservableMutableSet<T> =
-    SimpleObservableMutableSet(mutableSetOf(*elements))
+        SimpleObservableMutableSet(mutableSetOf(*elements))

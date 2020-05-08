@@ -1,46 +1,46 @@
 @use '../utils';
 
 .main-canvas {
+  position: absolute;
+  top: 3rem;
+  left: 0;
+  right: 0;
+  bottom: 2rem;
+  z-index: 0;
+  overflow: hidden;
+  touch-action: manipulation;
+
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .resize-view {
     position: absolute;
-    top: 3rem;
-    left: 0;
-    right: 0;
-    bottom: 2rem;
-    z-index: 0;
-    overflow: hidden;
-    touch-action: manipulation;
-
-    canvas {
-        width: 100%;
-        height: 100%;
-    }
-
-    .resize-view {
-        position: absolute;
-        width: 0.8rem;
-        height: 100%;
-        top: 0;
-        cursor: col-resize;
-        opacity: 0.5;
-    }
+    width: 0.8rem;
+    height: 100%;
+    top: 0;
+    cursor: col-resize;
+    opacity: 0.5;
+  }
 }
 
 .side-bar-resize {
-    left: 0;
+  left: 0;
 }
 
 .info-bar-resize {
-    right: 0;
+  right: 0;
 }
 
 @include utils.desktop {
-    .main-canvas {
-        &.side-bar-active {
-            left: var(--side-bar-width);
-        }
-
-        &.info-bar-active {
-            right: var(--info-bar-width);
-        }
+  .main-canvas {
+    &.side-bar-active {
+      left: var(--side-bar-width);
     }
+
+    &.info-bar-active {
+      right: var(--info-bar-width);
+    }
+  }
 }

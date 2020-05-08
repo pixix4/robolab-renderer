@@ -9,7 +9,7 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
 
-class InfoBarGroupView(private val content: InfoBarGroupInfo): ViewCollection<View>() {
+class InfoBarGroupView(private val content: InfoBarGroupInfo) : ViewCollection<View>() {
 
     init {
         table("info-bar-group-view-header") {
@@ -73,7 +73,7 @@ class InfoBarGroupView(private val content: InfoBarGroupInfo): ViewCollection<Vi
     }
 }
 
-class InfoBarGroupViewCell(private val message: RobolabMessage, private val content: InfoBarGroupInfo): TableRow() {
+class InfoBarGroupViewCell(private val message: RobolabMessage, private val content: InfoBarGroupInfo) : TableRow() {
 
     private val index = content.messages.indexOf(message)
     private val selectedProperty = content.selectedIndexProperty.mapBinding { it == index }

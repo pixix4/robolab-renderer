@@ -3,7 +3,6 @@ package de.robolab.web.views
 import de.robolab.app.model.file.InfoBarFileEditor
 import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.boxView
-import de.westermann.kwebview.components.multilineInputView
 import org.w3c.dom.HTMLElement
 
 fun BoxView.initInfoBarFileEditorView(content: InfoBarFileEditor) {

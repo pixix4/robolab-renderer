@@ -8,9 +8,9 @@ import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.utils.ObservableMutableIterator
 
 class MutableMapEntry<K, V>(
-    override val key: K,
-    override var value: V,
-    private val onSet: (K, V) -> V?
+        override val key: K,
+        override var value: V,
+        private val onSet: (K, V) -> V?
 ) : MapEntry<K, V>(key, value), MutableMap.MutableEntry<K, V> {
 
     override fun setValue(newValue: V): V {
@@ -20,8 +20,8 @@ class MutableMapEntry<K, V>(
 }
 
 class ObservableMutableEntrySet<K, V>(
-    private val observableMap: ObservableMutableMap<K, V>,
-    private val backingField: MutableMap<K, V>
+        private val observableMap: ObservableMutableMap<K, V>,
+        private val backingField: MutableMap<K, V>
 ) : ObservableMutableSet<MutableMap.MutableEntry<K, V>> {
 
     override val onAdd = EventHandler<MutableMap.MutableEntry<K, V>>()
@@ -168,8 +168,8 @@ class ObservableMutableEntrySet<K, V>(
 }
 
 class ObservableMutableKeySet<K, V>(
-    private val observableMap: ObservableMutableMap<K, V>,
-    private val backingField: MutableMap<K, V>
+        private val observableMap: ObservableMutableMap<K, V>,
+        private val backingField: MutableMap<K, V>
 ) : ObservableKeySet<K, V>(observableMap, backingField), ObservableMutableSet<K> {
 
     override fun iterator(): MutableIterator<K> {
@@ -222,8 +222,8 @@ class ObservableMutableKeySet<K, V>(
 }
 
 class ObservableMutableValueCollection<K, V>(
-    private val observableMap: ObservableMutableMap<K, V>,
-    private val backingField: MutableMap<K, V>
+        private val observableMap: ObservableMutableMap<K, V>,
+        private val backingField: MutableMap<K, V>
 ) : ObservableValueCollection<K, V>(observableMap, backingField), ObservableMutableCollection<V> {
 
     override fun iterator(): MutableIterator<V> {

@@ -9,12 +9,10 @@ import de.robolab.jfx.utils.buttonGroup
 import de.robolab.jfx.utils.icon
 import de.robolab.renderer.data.Point
 import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
 import javafx.css.Styleable
-import javafx.scene.control.ListCell
 import javafx.scene.control.OverrunStyle
 import javafx.scene.layout.Priority
 import javafx.scene.text.FontWeight

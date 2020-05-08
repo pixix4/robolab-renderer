@@ -56,6 +56,6 @@ class Logger(val name: String) {
 
 expect class LoggerOutput() {
     fun log(logger: Logger, level: Logger.Level, msg: Any?)
-    
+
     fun printStacktrace()
 }

@@ -32,8 +32,8 @@ interface FileLine<T> {
         class Skip(
                 previousBlockHead: FileLine<*>?
         ) : BlockMode(previousBlockHead)
-        
-        object Unknown: BlockMode(null)
+
+        object Unknown : BlockMode(null)
     }
 
     class BuildAccumulator(
@@ -522,7 +522,7 @@ interface FileLine<T> {
 
         override val data = REGEX.matchEntire(line.trim())!!.let { match ->
             val h = match.groupValues[2].split(',').map { it.trim().toDouble() }
-            val point = if (h.size < 2)  Point.ZERO else Point(h[0], h[1])
+            val point = if (h.size < 2) Point.ZERO else Point(h[0], h[1])
             Comment(
                     point,
                     match.groupValues[5]

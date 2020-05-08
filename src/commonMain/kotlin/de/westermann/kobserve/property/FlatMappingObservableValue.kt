@@ -7,8 +7,8 @@ import de.westermann.kobserve.event.emit
 import kotlin.reflect.KProperty1
 
 open class FlatMapObservableValue<R, T>(
-    private val transform: (R) -> ObservableValue<T>,
-    protected val receiver: ObservableValue<R>
+        private val transform: (R) -> ObservableValue<T>,
+        protected val receiver: ObservableValue<R>
 ) : ObservableValue<T> {
 
     final override val onChange = EventHandler<Unit>()
@@ -39,10 +39,10 @@ open class FlatMapObservableValue<R, T>(
 }
 
 fun <R, T> ObservableValue<R>.flatMapBinding(transform: (R) -> ObservableValue<T>): ObservableValue<T> =
-    FlatMapObservableValue(transform, this)
+        FlatMapObservableValue(transform, this)
 
 fun <T> ObservableValue<ObservableValue<T>>.flattenBinding(): ObservableValue<T> =
-    FlatMapObservableValue({ it }, this)
+        FlatMapObservableValue({ it }, this)
 
 fun <R, T> ObservableValue<R>.flatMapBinding(attribute: KProperty1<R, ObservableValue<T>>): ObservableValue<T> =
-    FlatMapObservableValue(attribute::get, this)
+        FlatMapObservableValue(attribute::get, this)

@@ -3,8 +3,8 @@ package de.robolab.jfx.view
 import de.robolab.app.controller.CanvasController
 import de.robolab.jfx.adapter.FxCanvas
 import de.westermann.kobserve.base.ObservableProperty
-import tornadofx.*
 import javafx.scene.Cursor
+import tornadofx.*
 import kotlin.math.max
 
 class MainCanvas(
@@ -42,7 +42,7 @@ class MainCanvas(
             minWidth = 10.0
             prefWidth = 10.0
             maxWidth = 10.0
-            
+
             style {
                 cursor = Cursor.W_RESIZE
             }

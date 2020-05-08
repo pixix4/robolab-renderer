@@ -4,7 +4,9 @@ import de.robolab.app.model.IProvider
 import de.robolab.app.model.ISideBarEntry
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableMutableList
-import de.westermann.kobserve.list.*
+import de.westermann.kobserve.list.mapObservable
+import de.westermann.kobserve.list.observableListOf
+import de.westermann.kobserve.list.sortByObservable
 import de.westermann.kobserve.property.property
 import java.nio.file.Files
 import java.nio.file.Path

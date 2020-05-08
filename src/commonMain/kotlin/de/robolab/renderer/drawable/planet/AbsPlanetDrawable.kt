@@ -42,7 +42,7 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
 
     val pointerProperty = plotterProperty.nullableFlatMapBinding { it?.pointerProperty }
     override val pointer by pointerProperty
-    
+
     val flipViewProperty = transformationProperty.nullableFlatMapBinding { it?.flipViewProperty }
     val flipView by flipViewProperty.mapBinding { it == true }
     fun flip() {
@@ -71,7 +71,7 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
             underlayers: List<IDrawable> = this.underlayers,
             planetLayers: List<PlanetLayer> = this.planetLayers,
             overlayers: List<IDrawable> = this.overlayers
-    ){
+    ) {
         this.backgrounds = backgrounds
         this.underlayers = underlayers
         this.planetLayers = planetLayers
@@ -141,7 +141,7 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
         val size = (plotter?.size ?: Dimension.ZERO) / 2
         val currentCenter = transformation.canvasToPlanet(size)
         val diff = (targetCenter - currentCenter)
-        val diffScaled = diff  * transformation.scaledGridWidth * Point(if (flipView) 1.0 else -1.0, 1.0)
+        val diffScaled = diff * transformation.scaledGridWidth * Point(if (flipView) 1.0 else -1.0, 1.0)
 
         transformation.translateBy(diffScaled, duration)
     }
@@ -179,7 +179,7 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
         plotter?.updatePointer()
         isFirstImport = false
     }
-    
+
     @Suppress("UNUSED_PARAMETER")
     private fun rebuildDrawable(unit: Unit) {
         redraw = true
@@ -187,7 +187,7 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
     }
 
     init {
-        selectedElementsProperty.onChange{
+        selectedElementsProperty.onChange {
             redraw = true
         }
         drawCompassProperty.onChange(this::rebuildDrawable)

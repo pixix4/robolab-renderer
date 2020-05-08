@@ -11,8 +11,8 @@ import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.drawable.base.IAnimationTime
-import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.drawable.utils.BSpline
 import de.robolab.renderer.drawable.utils.SegmentDrawer
 import de.robolab.renderer.drawable.utils.shift

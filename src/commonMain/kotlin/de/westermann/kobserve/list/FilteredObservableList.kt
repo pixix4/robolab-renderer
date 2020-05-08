@@ -5,8 +5,8 @@ import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 
 class FilteredObservableList<T>(
-    parent: ObservableList<T>,
-    predicate: (T) -> Boolean
+        parent: ObservableList<T>,
+        predicate: (T) -> Boolean
 ) : RelationalObservableList<T>(parent) {
 
     val predicateProperty = property(predicate)
@@ -14,10 +14,10 @@ class FilteredObservableList<T>(
 
     override fun createRelation(): Sequence<Relation<T>> {
         return parent
-            .asSequence()
-            .withIndex()
-            .filter { predicate(it.value) }
-            .map { Relation(it.index, it.value) }
+                .asSequence()
+                .withIndex()
+                .filter { predicate(it.value) }
+                .map { Relation(it.index, it.value) }
     }
 
     init {
@@ -93,16 +93,16 @@ class FilteredObservableList<T>(
 }
 
 fun <T> ObservableList<T>.filterObservable(predicate: (T) -> Boolean): FilteredObservableList<T> =
-    FilteredObservableList(this, predicate)
+        FilteredObservableList(this, predicate)
 
 fun <T> ObservableList<T>.filterObservable(predicateProperty: ObservableValue<(T) -> Boolean>): FilteredObservableList<T> =
-    FilteredObservableList(this, predicateProperty.value).also {
-        it.predicateProperty.bind(predicateProperty)
-    }
+        FilteredObservableList(this, predicateProperty.value).also {
+            it.predicateProperty.bind(predicateProperty)
+        }
 
 fun <T, F> ObservableList<T>.filterObservable(
-    filterProperty: ObservableValue<F>,
-    predicate: (element: T, filter: F) -> Boolean
+        filterProperty: ObservableValue<F>,
+        predicate: (element: T, filter: F) -> Boolean
 ): FilteredObservableList<T> = FilteredObservableList(this) { predicate(it, filterProperty.value) }.also { list ->
     filterProperty.onChange { list.invalidate() }
 }

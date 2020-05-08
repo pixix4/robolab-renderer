@@ -4,9 +4,7 @@ import de.robolab.app.controller.StatusBarController
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
-import de.westermann.kwebview.components.TextView
 import de.westermann.kwebview.components.textView
-import de.westermann.kwebview.extra.listFactory
 
 class StatusBar(private val statusBarController: StatusBarController, sideBarActiveProperty: ObservableValue<Boolean>) : ViewCollection<View>() {
 

@@ -8,15 +8,17 @@ import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.TransformationInteraction
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.BlankDrawable
-import de.robolab.renderer.drawable.edit.*
+import de.robolab.renderer.drawable.edit.EditControlPointsDrawable
+import de.robolab.renderer.drawable.edit.EditDrawEndDrawable
+import de.robolab.renderer.drawable.edit.EditPaperBackground
 import de.robolab.renderer.platform.CommonTimer
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.Pointer
-import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
-import kotlin.math.*
+import kotlin.math.PI
+import kotlin.math.roundToInt
 
 class CanvasController(
         private val selectedEntryProperty: ObservableProperty<ISideBarPlottable?>

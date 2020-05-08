@@ -48,7 +48,7 @@ interface IEditCallback {
     fun togglePathHiddenState(path: Path, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'togglePathHiddenState($path, $groupHistory)' is not supported!" }
     }
-    
+
     fun setPathWeight(path: Path, weight: Int, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'setPathWeight($path, $weight, $groupHistory)' is not supported!" }
     }

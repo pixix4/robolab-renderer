@@ -5,7 +5,6 @@ import com.soywiz.klock.parse
 import de.robolab.communication.mqtt.MqttMessage
 import de.robolab.communication.mqtt.RobolabMqttConnection
 import de.robolab.utils.Logger
-import de.robolab.utils.runAfterTimeoutInterval
 import de.westermann.kobserve.event.EventHandler
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
@@ -14,7 +13,7 @@ import kotlinx.serialization.json.JsonConfiguration
  * @author leon
  */
 
-class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
+class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) {
 
     private val logger = Logger(this)
 
@@ -96,8 +95,8 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection){
     }
 
     fun loadMqttLog() {
-        httpRequest("demo/mqtt.console.log") {content ->
-            if (content ==null) {
+        httpRequest("demo/mqtt.console.log") { content ->
+            if (content == null) {
                 logger.warn { "Cannot load mqtt.console.log!" }
             } else {
                 val list = content.splitToSequence('\n').mapNotNull { parseMqttLogLine(it) }.mapNotNull { parseMqttMessage(it) }

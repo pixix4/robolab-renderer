@@ -1,16 +1,16 @@
 package de.robolab.renderer.drawable
 
 import de.robolab.planet.Planet
-import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.platform.ICanvas
+import de.robolab.renderer.utils.DrawContext
 
 class NameDrawable() : IDrawable {
 
     private var name = ""
     private var changed = false
-    
+
     override fun onUpdate(ms_offset: Double): Boolean {
         if (changed) {
             changed = false

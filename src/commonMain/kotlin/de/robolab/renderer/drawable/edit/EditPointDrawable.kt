@@ -4,7 +4,6 @@ import de.robolab.planet.Coordinate
 import de.robolab.planet.Direction
 import de.robolab.planet.Path
 import de.robolab.planet.Planet
-import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.data.Point
@@ -13,6 +12,7 @@ import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.drawable.base.selectedElement
 import de.robolab.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.renderer.platform.PointerEvent
+import de.robolab.renderer.utils.DrawContext
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt

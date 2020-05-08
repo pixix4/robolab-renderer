@@ -7,7 +7,7 @@ import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
 
 abstract class BaseObservableMap<K, V>(
-    protected val backingField: MutableMap<K, V>
+        protected val backingField: MutableMap<K, V>
 ) : ObservableMap<K, V> {
 
     override val onAdd = EventHandler<ObservableMap.AddEvent<K, V>>()

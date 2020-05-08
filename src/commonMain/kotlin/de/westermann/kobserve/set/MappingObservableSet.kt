@@ -5,8 +5,8 @@ import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 
 class MappingObservableSet<P, T>(
-    private val parent: ObservableSet<P>,
-    transformation: (P) -> T
+        private val parent: ObservableSet<P>,
+        transformation: (P) -> T
 ) : BaseObservableSet<T>(parent.map { transformation(it) }.toMutableSet()) {
 
     val transformationProperty = property(transformation)
@@ -24,7 +24,7 @@ class MappingObservableSet<P, T>(
             backingField.clear()
             emitOnClear(elementsToRemove)
         }
-        
+
         for (element in elementsToAdd) {
             backingField += element
             emitOnAdd(element)
@@ -61,9 +61,9 @@ class MappingObservableSet<P, T>(
 }
 
 fun <P, T> ObservableSet<P>.mapObservable(transformation: (P) -> T): ObservableSet<T> =
-    MappingObservableSet(this, transformation)
+        MappingObservableSet(this, transformation)
 
 fun <P, T> ObservableSet<P>.mapObservable(transformationProperty: ObservableValue<(P) -> T>): ObservableSet<T> =
-    MappingObservableSet(this, transformationProperty.value).also {
-        it.transformationProperty.bind(transformationProperty)
-    }
+        MappingObservableSet(this, transformationProperty.value).also {
+            it.transformationProperty.bind(transformationProperty)
+        }

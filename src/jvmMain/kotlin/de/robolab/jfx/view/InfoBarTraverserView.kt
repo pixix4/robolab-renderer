@@ -44,7 +44,7 @@ class InfoBarTraverserView(private val traverserProperty: de.westermann.kobserve
             }
         }
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "USELESS_CAST")
         listview(traverserProperty.mapBinding { it.entryList.toFx() }.toFx() as ObservableValue<ObservableList<ITraverserStateEntry>>) {
             vgrow = Priority.ALWAYS
             hgrow = Priority.ALWAYS
@@ -118,7 +118,7 @@ class InfoBarTraverserView(private val traverserProperty: de.westermann.kobserve
                         enableWhen { traverserProperty.flatMapBinding { it.autoExpandProperty }.not().toFx() }
 
                         setOnAction {
-                                traverserProperty.value.clickFullExpand()
+                            traverserProperty.value.clickFullExpand()
                         }
                     }
                     button {
@@ -151,14 +151,14 @@ class InfoBarTraverserView(private val traverserProperty: de.westermann.kobserve
 
     private fun updateCharacteristicList() {
         reference?.detach()
-        
+
         val list = characteristicList.value
         reference = list.onChange.reference {
             updateCharacteristicList()
         }
 
         characteristicListView.clear()
-        
+
         for (entry in list) {
             characteristicListView.hbox {
                 style {

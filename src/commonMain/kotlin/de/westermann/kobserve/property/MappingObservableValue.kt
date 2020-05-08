@@ -6,8 +6,8 @@ import de.westermann.kobserve.event.emit
 import kotlin.reflect.KProperty1
 
 open class MappingObservableValue<R, T>(
-    private val transform: (R) -> T,
-    private val dependency: ObservableValue<R>
+        private val transform: (R) -> T,
+        private val dependency: ObservableValue<R>
 ) : ObservableValue<T> {
 
     override val onChange = EventHandler<Unit>()
@@ -37,7 +37,7 @@ open class MappingObservableValue<R, T>(
  * The returned property supports invalidation.
  */
 fun <R, T> ObservableValue<R>.mapBinding(transform: (R) -> T): ObservableValue<T> =
-    MappingObservableValue(transform, this)
+        MappingObservableValue(transform, this)
 
 /**
  * Maps the given property to an readonly field attribute.
@@ -46,4 +46,4 @@ fun <R, T> ObservableValue<R>.mapBinding(transform: (R) -> T): ObservableValue<T
  * @param attribute The readonly field attribute.
  */
 fun <T, R> ObservableValue<R>.mapBinding(attribute: KProperty1<R, T>): ObservableValue<T> =
-    MappingObservableValue(attribute::get, this)
+        MappingObservableValue(attribute::get, this)

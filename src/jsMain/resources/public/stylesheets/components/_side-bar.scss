@@ -1,237 +1,240 @@
 @use '../utils';
 
 .side-bar {
-    @include utils.prevent-user-select();
+  @include utils.prevent-user-select();
 
-    position: absolute;
-    left: calc(-100% + 4rem);
-    top: 0;
-    bottom: 0;
-    width: calc(100% - 4rem);
-    z-index: 2;
-    border-right: solid 1px var(--border-color);
-    background-color: var(--secondary-background);
+  position: absolute;
+  left: calc(-100% + 4rem);
+  top: 0;
+  bottom: 0;
+  width: calc(100% - 4rem);
+  z-index: 2;
+  border-right: solid 1px var(--border-color);
+  background-color: var(--secondary-background);
 
-    &.active {
-        left: 0;
+  &.active {
+    left: 0;
 
-        &::after {
-            content: '';
-            display: block;
-            position: absolute;
-            width: 4rem;
-            height: 100%;
-            top: 0;
-            left: 100%;
-        }
+    &::after {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 4rem;
+      height: 100%;
+      top: 0;
+      left: 100%;
     }
+  }
 }
 
 @include utils.desktop {
-    .side-bar {
-        left: -(var(--side-bar-width));
-        width: var(--side-bar-width);
+  .side-bar {
+    left: -(var(--side-bar-width));
+    width: var(--side-bar-width);
 
-        &.active {
-            left: 0;
-            &::after {
-                content: none;
-            }
-        }
+    &.active {
+      left: 0;
+
+      &::after {
+        content: none;
+      }
     }
+  }
 }
 
 .side-bar-header {
-    line-height: 2.8rem;
+  line-height: 2.8rem;
+  height: 3rem;
+  width: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+  border-bottom: solid 1px var(--border-color);
+
+  .button-group {
+    display: flex;
+    margin: 0 0.5rem;
+    align-items: center;
+    align-content: center;
     height: 3rem;
-    width: 100%;
-    top: 0;
-    left: 0;
-    position: absolute;
-    border-bottom: solid 1px var(--border-color);
 
-    .button-group {
-        display: flex;
-        margin: 0 0.5rem;
-        align-items: center;
-        align-content: center;
-        height: 3rem;
-
-        .button {
-            flex-grow: 1;
-            flex-shrink: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding: 0;
-            height: 2.1rem;
-            vertical-align: middle;
-        }
+    .button {
+      flex-grow: 1;
+      flex-shrink: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0;
+      height: 2.1rem;
+      vertical-align: middle;
     }
+  }
 }
 
 .side-bar-content {
-    position: absolute;
-    top: 3rem;
-    left: 0;
-    width: 100%;
-    bottom: calc(2rem - 1px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
+  position: absolute;
+  top: 3rem;
+  left: 0;
+  width: 100%;
+  bottom: calc(2rem - 1px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .side-bar-footer {
-    @include utils.prevent-user-select();
+  @include utils.prevent-user-select();
 
-    height: 2rem;
-    line-height: 1.9rem;
-    border-top: solid 1px var(--border-color);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1;
-    overflow-x: auto;
-    white-space: nowrap;
-    padding: 0 1rem;
+  height: 2rem;
+  line-height: 1.9rem;
+  border-top: solid 1px var(--border-color);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 0 1rem;
 
-    &.success {
-        background-color: var(--success-color);
-        color: var(--success-text-color);
-    }
+  &.success {
+    background-color: var(--success-color);
+    color: var(--success-text-color);
+  }
 
-    &.warn {
-        background-color: var(--warn-color);
-        color: var(--warn-text-color);
-    }
+  &.warn {
+    background-color: var(--warn-color);
+    color: var(--warn-text-color);
+  }
 
-    &.error {
-        background-color: var(--error-color);
-        color: var(--error-text-color);
-    }
+  &.error {
+    background-color: var(--error-color);
+    color: var(--error-text-color);
+  }
 
-    .text-view:nth-child(1) {
-    }
-    .text-view:nth-child(2) {
-        float: right;
-        text-decoration: underline;
-    }
+  .text-view:nth-child(1) {
+  }
+
+  .text-view:nth-child(2) {
+    float: right;
+    text-decoration: underline;
+  }
 }
 
 .side-bar-group-head {
-    padding: 0.8rem 1rem;
-    border-bottom: solid 1px var(--border-color);
-    position: relative;
-    display: none;
+  padding: 0.8rem 1rem;
+  border-bottom: solid 1px var(--border-color);
+  position: relative;
+  display: none;
 
-    .text-view {
-        font-weight: bold;
-        display: block;
-    }
+  .text-view {
+    font-weight: bold;
+    display: block;
+  }
 
-    &:hover {
-        background-color: var(--secondary-hover-background);
-    }
+  &:hover {
+    background-color: var(--secondary-hover-background);
+  }
 
-    &.active {
-        display: block;
-    }
+  &.active {
+    display: block;
+  }
 }
 
 .side-bar-entry {
-    padding: 0.8rem 1rem;
-    border-bottom: solid 1px var(--border-color);
-    position: relative;
-    white-space: nowrap;
+  padding: 0.8rem 1rem;
+  border-bottom: solid 1px var(--border-color);
+  position: relative;
+  white-space: nowrap;
 
-    .text-view:nth-child(1) {
-        font-weight: bold;
-        display: block;
-    }
-    .text-view:nth-child(2) {
-        display: block;
-        font-size: 0.8rem;
-    }
+  .text-view:nth-child(1) {
+    font-weight: bold;
+    display: block;
+  }
 
-    .icon-view {
-        position: absolute;
-        top: 50%;
-        right: 1rem;
-        line-height: 2rem;
-        margin-top: -1rem;
-        display: none;
+  .text-view:nth-child(2) {
+    display: block;
+    font-size: 0.8rem;
+  }
 
-        &.active {
-            display: block;
-        }
-    }
-
-    &:hover {
-        background-color: var(--secondary-hover-background);
-    }
+  .icon-view {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    line-height: 2rem;
+    margin-top: -1rem;
+    display: none;
 
     &.active {
-        background-color: var(--primary-background);
-        color: var(--theme-color);
-
-        &:hover {
-            background-color: var(--primary-hover-background);
-        }
+      display: block;
     }
+  }
 
-    &.disabled {
-        color: var(--secondary-text-color)
+  &:hover {
+    background-color: var(--secondary-hover-background);
+  }
+
+  &.active {
+    background-color: var(--primary-background);
+    color: var(--theme-color);
+
+    &:hover {
+      background-color: var(--primary-hover-background);
     }
+  }
+
+  &.disabled {
+    color: var(--secondary-text-color)
+  }
 }
 
 .side-bar-empty {
-    position: absolute;
-    top: 3rem;
-    left: 0;
-    width: 100%;
-    bottom: 0;
-    display: none;
-    align-content: center;
-    align-items: center;
+  position: absolute;
+  top: 3rem;
+  left: 0;
+  width: 100%;
+  bottom: 0;
+  display: none;
+  align-content: center;
+  align-items: center;
 
-    .text-view {
-        flex-grow: 1;
-        text-align: center;
-    }
+  .text-view {
+    flex-grow: 1;
+    text-align: center;
+  }
 }
 
 .side-bar-list:empty ~ .side-bar-empty {
-    display: flex;
+  display: flex;
 }
 
 .side-bar-search {
-    display: flex;
-    padding: 0 0.5rem;
-    align-items: center;
-    align-content: center;
-    height: 3rem;
-    border-bottom: solid 1px var(--border-color);
-    position: relative;
+  display: flex;
+  padding: 0 0.5rem;
+  align-items: center;
+  align-content: center;
+  height: 3rem;
+  border-bottom: solid 1px var(--border-color);
+  position: relative;
 
-    .input-view {
-        flex-grow: 1;
-        padding-right: 2rem;
+  .input-view {
+    flex-grow: 1;
+    padding-right: 2rem;
 
-        &:placeholder-shown ~ .icon-view {
-            display: none;
-        }
+    &:placeholder-shown ~ .icon-view {
+      display: none;
     }
+  }
 
-    .icon-view {
-        position: absolute;
-        top: 0;
-        right: 0.5rem;
-        line-height: 3rem;
-        width: 2rem;
-        color: var(--secondary-text-color);
+  .icon-view {
+    position: absolute;
+    top: 0;
+    right: 0.5rem;
+    line-height: 3rem;
+    width: 2rem;
+    color: var(--secondary-text-color);
 
-        &:hover {
-            color: var(--primary-text-color);
-        }
+    &:hover {
+      color: var(--primary-text-color);
     }
+  }
 }
 

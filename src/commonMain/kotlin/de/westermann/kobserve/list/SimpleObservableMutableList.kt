@@ -4,7 +4,7 @@ import de.westermann.kobserve.base.ObservableMutableList
 import de.westermann.kobserve.event.emit
 
 class SimpleObservableMutableList<T>(
-    backingField: MutableList<T>
+        backingField: MutableList<T>
 ) : BaseObservableList<T>(backingField), ObservableMutableList<T> {
 
     override fun add(element: T): Boolean {
@@ -117,4 +117,4 @@ class SimpleObservableMutableList<T>(
 fun <T> listProperty(list: MutableList<T>): ObservableMutableList<T> = SimpleObservableMutableList(list)
 fun <T> MutableList<T>.asObservable(): ObservableMutableList<T> = SimpleObservableMutableList(this)
 fun <T> observableListOf(vararg elements: T): ObservableMutableList<T> =
-    SimpleObservableMutableList(mutableListOf(*elements))
+        SimpleObservableMutableList(mutableListOf(*elements))

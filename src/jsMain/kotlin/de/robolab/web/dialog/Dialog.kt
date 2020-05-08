@@ -1,6 +1,5 @@
 package de.robolab.web.dialog
 
-import de.robolab.utils.PreferenceStorage
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.EventListener

@@ -112,7 +112,7 @@ class SideBarEntry(entry: ISideBarEntry, sideBarController: SideBarController) :
             sideBarController.open(entry)
         }
 
-        onContext {event ->
+        onContext { event ->
             event.stopPropagation()
             event.preventDefault()
             if (entry.hasContextMenu) {

@@ -22,7 +22,7 @@ object PreferenceStorage {
 
     val selectedSideBarTabProperty = item("SIDE_BAR_TAB", SideBarController.Tab.FILE)
     var selectedSideBarTab by selectedSideBarTabProperty
-    
+
     val clientIdProperty = item("CLIENT_ID", Random.nextBytes(16).joinToString("") { it.toString(16).padStart(2, '0') })
     var clientId by clientIdProperty
 
@@ -51,13 +51,13 @@ object PreferenceStorage {
     val paperOrientationProperty = item("PAPER_ORIENTATION", EditPaperBackground.Orientation.VERTICAL)
     val paperOrientation by paperOrientationProperty
 
-    val paperMinimalPaddingProperty = item("PAPER_MINIMAL_PADDING",0.25)
+    val paperMinimalPaddingProperty = item("PAPER_MINIMAL_PADDING", 0.25)
     val paperMinimalPadding by paperMinimalPaddingProperty
 
-    val paperPrecisionProperty = item("PAPER_PRECISION",3)
+    val paperPrecisionProperty = item("PAPER_PRECISION", 3)
     val paperPrecision by paperPrecisionProperty
-    
-    
+
+
     fun reset() {
         for (item in Item.itemList) {
             item.reset()
@@ -85,7 +85,7 @@ object PreferenceStorage {
                 onChange.emit(Unit)
             }
         }
-        
+
         fun reset() {
             val current = get()
             if (current != default) {
@@ -98,7 +98,7 @@ object PreferenceStorage {
             @Suppress("LeakingThis")
             itemList += this
         }
-        
+
         companion object {
             val itemList = mutableListOf<Item<*>>()
         }
@@ -153,6 +153,7 @@ object PreferenceStorage {
         override fun serialize(value: T): String? {
             return value.name
         }
+
         override fun deserialize(value: String): T? {
             return valueList.find { it.name == value }
         }

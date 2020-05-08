@@ -3,8 +3,8 @@ package de.westermann.kobserve.list
 import de.westermann.kobserve.base.ObservableMutableList
 
 class ObservableMutableSubList<T>(
-    private val parent: ObservableMutableList<T>,
-    range: IntRange
+        private val parent: ObservableMutableList<T>,
+        range: IntRange
 ) : ObservableSubList<T>(parent, range), ObservableMutableList<T> {
 
     override fun add(element: T): Boolean {
@@ -13,7 +13,7 @@ class ObservableMutableSubList<T>(
     }
 
     override fun add(index: Int, element: T) {
-        if (index !in 0 .. size) {
+        if (index !in 0..size) {
             throw IndexOutOfBoundsException()
         }
 
@@ -29,7 +29,7 @@ class ObservableMutableSubList<T>(
     }
 
     override fun addAll(elements: Collection<T>): Boolean {
-        return parent.addAll( range.last + 1, elements)
+        return parent.addAll(range.last + 1, elements)
     }
 
     override fun clear() {

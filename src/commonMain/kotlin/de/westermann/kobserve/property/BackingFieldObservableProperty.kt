@@ -6,7 +6,7 @@ import de.westermann.kobserve.event.emit
 import kotlin.reflect.KMutableProperty0
 
 class BackingFieldObservableProperty<T>(
-    private val attribute: KMutableProperty0<T>
+        private val attribute: KMutableProperty0<T>
 ) : BackingFieldObservableValue<T>(attribute), ObservableProperty<T> {
 
     override var binding: Binding<T> = Binding.Unbound()
@@ -29,7 +29,7 @@ class BackingFieldObservableProperty<T>(
  * Wrap this property in an ObservableProperty. If the backing field changes, the invalidate() method needs to be called.
  */
 fun <T> property(attribute: KMutableProperty0<T>): ObservableProperty<T> =
-    BackingFieldObservableProperty(attribute)
+        BackingFieldObservableProperty(attribute)
 
 /**
  * Wrap this property in an ObservableProperty. If the backing field changes, the invalidate() method needs to be called.

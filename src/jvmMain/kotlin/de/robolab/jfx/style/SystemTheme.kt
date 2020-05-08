@@ -29,7 +29,7 @@ object SystemTheme {
             }
         }
     }
-    
+
     private fun runCommand(cmd: Array<String>): Pair<Int, String>? {
         return try {
             val proc = Runtime.getRuntime().exec(cmd)
@@ -48,7 +48,7 @@ object SystemTheme {
                 "/v",
                 "AppsUseLightTheme"
         )) ?: return false
-        return  exitStatus == 0 && output.contains("0x0", true)
+        return exitStatus == 0 && output.contains("0x0", true)
     }
 
     /**
@@ -61,7 +61,7 @@ object SystemTheme {
                 "-g",
                 "AppleInterfaceStyle"
         )) ?: return false
-        return  exitStatus == 0 && output.contains("dark", true)
+        return exitStatus == 0 && output.contains("dark", true)
     }
 
     private val linuxThemeFile by lazy { System.getProperty("user.home", "") + "/.theme" }
@@ -71,7 +71,8 @@ object SystemTheme {
             if (content.contains("dark", true)) {
                 return true
             }
-        } catch (ex: Exception) {}
+        } catch (ex: Exception) {
+        }
 
         val (exitStatus, output) = runCommand(arrayOf(
                 "gsettings",
@@ -79,7 +80,7 @@ object SystemTheme {
                 "org.gnome.desktop.interface",
                 "gtk-theme"
         )) ?: return false
-        return  exitStatus == 0 && output.contains("dark", true)
+        return exitStatus == 0 && output.contains("dark", true)
     }
 
     val isSystemThemeSupported = when (os) {

@@ -1,6 +1,5 @@
 package de.robolab.web
 
-import de.robolab.theme.Theme
 import de.robolab.utils.PreferenceStorage
 import de.westermann.kwebview.components.Canvas
 import org.w3c.dom.HTMLElement

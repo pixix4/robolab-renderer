@@ -5,9 +5,11 @@ import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.property
 import org.w3c.dom.DOMRect
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.events.*
+import org.w3c.dom.events.Event
+import org.w3c.dom.events.EventListener
+import org.w3c.dom.events.EventTarget
+import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.document
-import kotlin.browser.window
 
 inline fun <reified V : HTMLElement> createHtmlView(tag: String? = null): V {
     var tagName: String

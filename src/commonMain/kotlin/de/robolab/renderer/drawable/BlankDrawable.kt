@@ -30,7 +30,7 @@ class BlankDrawable() : GroupDrawable(), ITransformationReference {
     override var autoCentering = true
 
     override fun centerPlanet(duration: Double) {
-        transformation?.translateTo( (plotter?.size ?: Dimension.ZERO) / 2, duration)
+        transformation?.translateTo((plotter?.size ?: Dimension.ZERO) / 2, duration)
     }
 
     override fun onResize(size: Dimension) {

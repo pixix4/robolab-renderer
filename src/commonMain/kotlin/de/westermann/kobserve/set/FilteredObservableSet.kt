@@ -5,8 +5,8 @@ import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 
 class FilteredObservableSet<T>(
-    private val parent: ObservableSet<T>,
-    predicate: (T) -> Boolean
+        private val parent: ObservableSet<T>,
+        predicate: (T) -> Boolean
 ) : BaseObservableSet<T>(parent.filter(predicate).toMutableSet()) {
 
     val predicateProperty = property(predicate)
@@ -57,9 +57,9 @@ class FilteredObservableSet<T>(
 }
 
 fun <T> ObservableSet<T>.filterObservable(predicate: (T) -> Boolean): ObservableSet<T> =
-    FilteredObservableSet(this, predicate)
+        FilteredObservableSet(this, predicate)
 
 fun <T> ObservableSet<T>.filterObservable(predicateProperty: ObservableValue<(T) -> Boolean>): ObservableSet<T> =
-    FilteredObservableSet(this, predicateProperty.value).also {
-        it.predicateProperty.bind(predicateProperty)
-    }
+        FilteredObservableSet(this, predicateProperty.value).also {
+            it.predicateProperty.bind(predicateProperty)
+        }

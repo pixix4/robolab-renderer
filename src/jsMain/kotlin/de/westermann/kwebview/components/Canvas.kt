@@ -2,7 +2,10 @@ package de.westermann.kwebview.components
 
 import de.robolab.utils.runAsync
 import de.westermann.kobserve.event.EventHandler
-import de.westermann.kwebview.*
+import de.westermann.kwebview.KWebViewDsl
+import de.westermann.kwebview.View
+import de.westermann.kwebview.ViewCollection
+import de.westermann.kwebview.createHtmlView
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.MediaQueryList
@@ -40,7 +43,7 @@ class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
 
     var fixedWidth = clientWidth
     var fixedHeight = clientHeight
-    
+
     fun updateSize(width: Int, height: Int, dpi: Double) {
         // Copy image to prevent screen flickering
         val tempCanvas = document.createElement("canvas") as HTMLCanvasElement

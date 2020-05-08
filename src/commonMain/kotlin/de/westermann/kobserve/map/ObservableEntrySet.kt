@@ -29,8 +29,8 @@ open class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entr
 }
 
 class ObservableEntrySet<K, V>(
-    observableMap: ObservableMap<K, V>,
-    private val backingField: Map<K, V>
+        observableMap: ObservableMap<K, V>,
+        private val backingField: Map<K, V>
 ) : ObservableSet<Map.Entry<K, V>> {
 
     override val onAdd = EventHandler<Map.Entry<K, V>>()
@@ -106,8 +106,8 @@ class ObservableEntrySet<K, V>(
 }
 
 open class ObservableKeySet<K, V>(
-    observableMap: ObservableMap<K, V>,
-    private val backingField: Map<K, V>
+        observableMap: ObservableMap<K, V>,
+        private val backingField: Map<K, V>
 ) : ObservableSet<K> {
 
     override val onAdd = EventHandler<K>()
@@ -176,8 +176,8 @@ open class ObservableKeySet<K, V>(
 }
 
 open class ObservableValueCollection<K, V>(
-    observableMap: ObservableMap<K, V>,
-    private val backingField: Map<K, V>
+        observableMap: ObservableMap<K, V>,
+        private val backingField: Map<K, V>
 ) : ObservableCollection<V> {
 
     override val onAdd = EventHandler<V>()

@@ -6,8 +6,8 @@ import de.westermann.kobserve.property.property
 import kotlin.math.min
 
 class MappingObservableList<P, T>(
-    private val parent: ObservableList<P>,
-    transformation: (P) -> T
+        private val parent: ObservableList<P>,
+        transformation: (P) -> T
 ) : BaseObservableList<T>(parent.map(transformation).toMutableList()) {
 
     val transformationProperty = property(transformation)
@@ -53,7 +53,7 @@ class MappingObservableList<P, T>(
 
         parent.onSetIndex { (index, _, newParentElement) ->
             val newElement = transformation(newParentElement)
-            
+
             val oldElement = backingField.set(index, newElement)
 
             emitOnSet(index, oldElement, newElement)
@@ -61,7 +61,7 @@ class MappingObservableList<P, T>(
 
         parent.onRemoveIndex { (index, _) ->
             val element = backingField.removeAt(index)
-                emitOnRemove(index, element)
+            emitOnRemove(index, element)
         }
 
         parent.onClear {
@@ -77,11 +77,11 @@ class MappingObservableList<P, T>(
 }
 
 fun <P, T> ObservableList<P>.mapObservable(
-    transformation: (P) -> T
+        transformation: (P) -> T
 ): ObservableList<T> = MappingObservableList(this, transformation)
 
 fun <P, T> ObservableList<P>.mapObservable(
-    transformationProperty: ObservableValue<(P) -> T>
+        transformationProperty: ObservableValue<(P) -> T>
 ): ObservableList<T> = MappingObservableList(this, transformationProperty.value).also {
     it.transformationProperty.bind(transformationProperty)
 }

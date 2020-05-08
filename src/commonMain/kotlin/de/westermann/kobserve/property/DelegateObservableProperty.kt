@@ -5,7 +5,7 @@ import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 
 class FunctionProperty<T>(
-    private val delegateAccessor: DelegatePropertyAccessor<T>
+        private val delegateAccessor: DelegatePropertyAccessor<T>
 ) : FunctionObservableValue<T>(delegateAccessor), ObservableProperty<T> {
 
     override var binding: Binding<T> = Binding.Unbound()
@@ -15,8 +15,8 @@ class FunctionProperty<T>(
     }
 
     constructor(
-        delegatePropertyAccessor: DelegatePropertyAccessor<T>,
-        vararg properties: ObservableValue<*>
+            delegatePropertyAccessor: DelegatePropertyAccessor<T>,
+            vararg properties: ObservableValue<*>
     ) : this(delegatePropertyAccessor) {
         listenTo(*properties)
     }
@@ -39,11 +39,11 @@ interface DelegatePropertyAccessor<T> : DelegateValueAccessor<T> {
  * @param properties The new property will listen to their onChange events.
  */
 fun <T> property(
-    getter: () -> T,
-    setter: (value: T) -> Unit,
-    vararg properties: ObservableValue<*>
+        getter: () -> T,
+        setter: (value: T) -> Unit,
+        vararg properties: ObservableValue<*>
 ): ObservableProperty<T> = FunctionProperty(object : DelegatePropertyAccessor<T> {
-    
+
     override fun get(): T = getter()
 
     override fun set(value: T) {
@@ -58,6 +58,6 @@ fun <T> property(
  * @param properties The new property will listen to their onChange events.
  */
 fun <T> property(
-    delegatePropertyAccessor: DelegatePropertyAccessor<T>,
-    vararg properties: ObservableValue<*>
+        delegatePropertyAccessor: DelegatePropertyAccessor<T>,
+        vararg properties: ObservableValue<*>
 ): ObservableProperty<T> = FunctionProperty(delegatePropertyAccessor, *properties)

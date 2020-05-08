@@ -5,7 +5,6 @@ import de.robolab.jfx.style.MainStyle
 import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
 import tornadofx.*
-import javax.swing.text.Style
 
 fun Stylesheet.initInfoBarStyle() {
     MainStyle.infoBar {

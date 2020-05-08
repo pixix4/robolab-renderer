@@ -5,11 +5,13 @@ import de.robolab.traverser.ITraverserState
 import de.robolab.traverser.TreeSliceViewer
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.property.*
 import de.westermann.kobserve.or
+import de.westermann.kobserve.property.join
+import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.property
 
 interface ITraverserStateEntry {
-    val sliceEntry: ObservableValue<out TreeSliceViewer.TreeSliceEntry<out ITraverserState<*>>>
+    val sliceEntry: ObservableValue<TreeSliceViewer.TreeSliceEntry<out ITraverserState<*>>>
     val isNextEnabled: ObservableValue<Boolean>
     val isPreviousEnabled: ObservableValue<Boolean>
     val areAlternativeButtonsVisible: ObservableValue<Boolean>
@@ -19,9 +21,9 @@ interface ITraverserStateEntry {
     fun select(multiple: Boolean = false)
     val currentOptionIndex: ObservableValue<Int>
     val optionCount: ObservableValue<Int>
-    val currentOption: ObservableValue<out ITraverserState<*>>
-    val options: ObservableValue<out List<ITraverserState<*>>>
-    val state: ObservableValue<out ITraverserState<*>>
+    val currentOption: ObservableValue<ITraverserState<*>>
+    val options: ObservableValue<List<ITraverserState<*>>>
+    val state: ObservableValue<ITraverserState<*>>
     val selected: ObservableValue<Boolean>
     val visibleTitle: ObservableValue<String>
     val visibleDetails: ObservableValue<List<String>>
@@ -33,6 +35,7 @@ interface ITraverserStateEntry {
 class TraverserStateEntry<TS>(val controller: TraverserBarController, sliceEntry: TreeSliceViewer.TreeSliceEntry<out TS>) : ITraverserStateEntry where TS : ITraverserState<*> {
     override fun clickNextOption() = controller.clickNextOption(this).let { if (!it) error("Could not select next option") }
     override fun clickPreviousOption() = controller.clickPreviousOption(this, isLeftExpand = true).let { if (!it) error("Could not select previous option") }
+
     //Feels weird if selecting previous option full-expands to the right
     override val sliceEntry: ObservableProperty<TreeSliceViewer.TreeSliceEntry<out TS>> = property(sliceEntry)
     override val isNextEnabled: ObservableValue<Boolean> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<*>::hasNext)
@@ -45,7 +48,7 @@ class TraverserStateEntry<TS>(val controller: TraverserBarController, sliceEntry
     //TODO: use ObservableReadOnlyList<TS> with this.sliceEntry.flatMapReadOnlyBinding
 
     override val optionCount: ObservableValue<Int> = this.options.mapBinding(List<ITraverserState<*>>::size)
-    override val state: ObservableValue<out ITraverserState<*>> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<out TS>::currentOption)
+    override val state: ObservableValue<ITraverserState<*>> = this.sliceEntry.mapBinding(TreeSliceViewer.TreeSliceEntry<out TS>::currentOption)
     override fun select(multiple: Boolean) = controller.selectEntry(this, multiple)
     override val selected: ObservableProperty<Boolean> = property(false)
 

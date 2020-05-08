@@ -1,6 +1,5 @@
 package de.robolab.communication
 
-import de.robolab.app.model.file.parseDirection
 import de.robolab.planet.Coordinate
 import de.robolab.planet.Direction
 import de.robolab.planet.Path
@@ -293,13 +292,13 @@ data class Payload(
         val planetName: String? = null,
         val startX: Int? = null,
         val startY: Int? = null,
-        @Serializable(with=DirectionSerializer::class)
+        @Serializable(with = DirectionSerializer::class)
         val startDirection: Direction? = null,
-        @Serializable(with=DirectionSerializer::class)
+        @Serializable(with = DirectionSerializer::class)
         val startOrientation: Direction? = null,
         val endX: Int? = null,
         val endY: Int? = null,
-        @Serializable(with=DirectionSerializer::class)
+        @Serializable(with = DirectionSerializer::class)
         val endDirection: Direction? = null,
         val targetX: Int? = null,
         val targetY: Int? = null,
@@ -319,7 +318,7 @@ enum class PathStatus {
 }
 
 @Serializer(forClass = Direction::class)
-object DirectionSerializer: KSerializer<Direction> {
+object DirectionSerializer : KSerializer<Direction> {
 
     override val descriptor: SerialDescriptor =
             PrimitiveDescriptor("WithCustomDefault", PrimitiveKind.INT)

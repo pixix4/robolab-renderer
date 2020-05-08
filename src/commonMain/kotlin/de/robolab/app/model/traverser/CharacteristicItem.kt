@@ -16,7 +16,7 @@ class CharacteristicItem(val color: Color) {
     companion object Generator {
         fun generateCharacteristic(state: ITraverserState<*>): List<CharacteristicItem> {
             val theme = PreferenceStorage.selectedTheme.theme
-            
+
             return state.traceUp().map {
                 if (it.status == ITraverserState.Status.ExplorationComplete || it.status == ITraverserState.Status.TargetReached)
                     return@map CharacteristicItem(if (it.isCorrect)

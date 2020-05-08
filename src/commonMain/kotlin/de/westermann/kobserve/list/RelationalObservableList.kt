@@ -7,7 +7,7 @@ import de.westermann.kobserve.event.emit
 import kotlin.math.min
 
 abstract class RelationalObservableList<T>(
-    protected val parent: ObservableList<T>
+        protected val parent: ObservableList<T>
 ) : ObservableList<T> {
 
     override val onAddIndex = EventHandler<AddEvent<T>>()
@@ -57,7 +57,7 @@ abstract class RelationalObservableList<T>(
             emitOnClear(oldRelationList.map { it.element })
             return
         }
-        
+
         var hasChanged = false
 
         val minSize = min(newRelationList.size, oldRelationList.size)
@@ -81,7 +81,7 @@ abstract class RelationalObservableList<T>(
             emitOnRemove(index, relation.element)
             hasChanged = true
         }
-        
+
         if (hasChanged) {
             onChange.emit()
         }

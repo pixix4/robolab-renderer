@@ -15,7 +15,6 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.boxView
 import de.westermann.kwebview.components.button
-import de.westermann.kwebview.components.multilineInputView
 
 class InfoBar(private val infoBarController: InfoBarController, infoBarActiveProperty: ObservableProperty<Boolean>) : ViewCollection<View>() {
 
@@ -92,7 +91,7 @@ class InfoBar(private val infoBarController: InfoBarController, infoBarActivePro
 }
 
 class NullableViewContainer(private val traverserProperty: ObservableValue<TraverserBarController?>) : ViewCollection<View>() {
-    
+
     private var prop: ObservableProperty<TraverserBarController>? = null
     private var view: TraverserBarView? = null
 
@@ -115,7 +114,7 @@ class NullableViewContainer(private val traverserProperty: ObservableValue<Trave
 
         add(view!!)
     }
-    
+
     init {
         traverserProperty.onChange {
             updateView()

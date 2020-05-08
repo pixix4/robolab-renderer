@@ -3,7 +3,7 @@ package de.westermann.kobserve.base
 import de.westermann.kobserve.event.EventHandler
 import kotlin.reflect.KProperty
 
-interface ObservableMutableSet<T>: ObservableMutableCollection<T>, ObservableSet<T>, MutableSet<T> {
+interface ObservableMutableSet<T> : ObservableMutableCollection<T>, ObservableSet<T>, MutableSet<T> {
 
     override val onAdd: EventHandler<@UnsafeVariance T>
     override val onRemove: EventHandler<@UnsafeVariance T>
@@ -23,7 +23,8 @@ interface ObservableMutableSet<T>: ObservableMutableCollection<T>, ObservableSet
     override fun iterator(): MutableIterator<T>
 
     override val value: MutableSet<T>
-    get() = get()
+        get() = get()
+
     override fun getValue(container: Any?, property: KProperty<*>): MutableSet<T> = get()
     override val onChange: EventHandler<Unit>
     override fun invalidate() {}

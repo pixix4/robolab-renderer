@@ -3,7 +3,7 @@ package de.robolab.traverser
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableMutableList
 import de.westermann.kobserve.event.EventHandler
-import de.westermann.kobserve.list.*
+import de.westermann.kobserve.list.observableListOf
 
 interface PoolManager<T> : ObservableList<T> {
     fun add(element: T)

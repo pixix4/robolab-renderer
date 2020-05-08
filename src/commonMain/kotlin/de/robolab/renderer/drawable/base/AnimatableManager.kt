@@ -1,8 +1,8 @@
 package de.robolab.renderer.drawable.base
 
 import de.robolab.planet.Planet
-import de.robolab.renderer.utils.DrawContext
 import de.robolab.renderer.data.Point
+import de.robolab.renderer.utils.DrawContext
 
 abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
 
@@ -38,7 +38,7 @@ abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
 
         val objectsToDelete = animatableMap.keys - newReferenceList
         val objectsToCreate = newReferenceList - animatableMap.keys
-        
+
         val updateMap = (animatableMap.keys - objectsToDelete).associateWith { o1 ->
             newReferenceList.find { o1 == it } ?: o1
         }

@@ -22,6 +22,7 @@ actual fun runAsync(block: () -> Unit) {
 actual fun runAfterTimeout(timeout: Int, block: () -> Unit): TimeoutReference {
     return TimeoutReference(window.setTimeout(block, timeout), TimeoutReference.Type.TIMEOUT)
 }
+
 actual fun runAfterTimeout(timeout: Long, block: () -> Unit): TimeoutReference {
     return runAfterTimeout(timeout.toInt(), block)
 }
@@ -29,11 +30,12 @@ actual fun runAfterTimeout(timeout: Long, block: () -> Unit): TimeoutReference {
 actual fun runAfterTimeoutInterval(interval: Int, block: () -> Unit): TimeoutReference {
     return TimeoutReference(window.setInterval(block, interval), TimeoutReference.Type.INTERVAL)
 }
+
 actual fun runAfterTimeoutInterval(interval: Long, block: () -> Unit): TimeoutReference {
     return runAfterTimeoutInterval(interval.toInt(), block)
 }
 
-fun<T: Any> buildJsInterface(init: T.() -> Unit): T {
+fun <T : Any> buildJsInterface(init: T.() -> Unit): T {
     @Suppress("UnsafeCastFromDynamic")
     val options: T = js("{}")
     init(options)

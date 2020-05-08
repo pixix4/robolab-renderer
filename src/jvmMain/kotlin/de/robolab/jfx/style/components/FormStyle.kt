@@ -117,7 +117,6 @@ fun Stylesheet.initFormStyle() {
         borderWidth = multi(box(1.px))
         backgroundInsets = multi(box(0.px))
         prefHeight = 2.2.em
-        padding = box(0.3.em, 0.5.em)
 
         and(Stylesheet.focused, Stylesheet.hover) {
             backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())

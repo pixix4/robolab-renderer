@@ -1,173 +1,178 @@
 @use '../utils';
 
 input, button, a, textarea, select {
+  outline: none;
+  background-color: var(--primary-background);
+  color: var(--primary-text-color);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  &:focus {
     outline: none;
-    background-color: var(--primary-background);
-    color: var(--primary-text-color);
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
+  }
 
-    &:focus {
-        outline: none;
-    }
-    &::-moz-focus-inner {
-        border: 0;
-    }
+  &::-moz-focus-inner {
+    border: 0;
+  }
 
-    &:disabled {
-        background-color: var(--secondary-background);
-        color: var(--secondary-text-color);
-    }
-}
-select:-moz-focusring {
-     color: transparent;
-     text-shadow: 0 0 0 var(--primary-text-color);
- }
-input::placeholder {
+  &:disabled {
+    background-color: var(--secondary-background);
     color: var(--secondary-text-color);
-    opacity: 1;
+  }
+}
+
+select:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 var(--primary-text-color);
+}
+
+input::placeholder {
+  color: var(--secondary-text-color);
+  opacity: 1;
 }
 
 .button {
-    @include utils.radius;
-    background-color: var(--tertiary-background);
-    border: solid 1px var(--border-color);
-    line-height: 2rem;
-    padding: 0 1rem;
-    font-size: 1rem;
-    margin: 0 0.2rem;
-    touch-action: manipulation;
+  @include utils.radius;
+  background-color: var(--tertiary-background);
+  border: solid 1px var(--border-color);
+  line-height: 2rem;
+  padding: 0 1rem;
+  font-size: 1rem;
+  margin: 0 0.2rem;
+  touch-action: manipulation;
 
-    &:hover {
-        background-color: var(--tertiary-hover-background);
+  &:hover {
+    background-color: var(--tertiary-hover-background);
+  }
+
+  &:active, &:focus {
+    background-color: var(--secondary-background);
+    border-color: var(--theme-color);
+  }
+
+  &.active {
+    background-color: var(--primary-background);
+    font-weight: bold;
+    color: var(--theme-color);
+
+    &:hover, &:active, &:focus {
+      background-color: var(--primary-hover-background);
     }
+  }
 
-    &:active, &:focus {
-        background-color: var(--secondary-background);
-        border-color: var(--theme-color);
-    }
-
-    &.active {
-        background-color: var(--primary-background);
-        font-weight: bold;
-        color: var(--theme-color);
-
-        &:hover, &:active, &:focus {
-            background-color: var(--primary-hover-background);
-        }
-    }
-
-    &:disabled {
-        background-color: var(--secondary-background);
-        color: var(--secondary-text-color);
-        opacity: 0.5;
-    }
+  &:disabled {
+    background-color: var(--secondary-background);
+    color: var(--secondary-text-color);
+    opacity: 0.5;
+  }
 }
 
 .button-group {
-    white-space: nowrap;
+  white-space: nowrap;
 
-    .button:not(:last-child) {
-        margin-right: 0;
-        border-bottom-right-radius: 0;
-        border-top-right-radius: 0;
-        border-right-style: none;
+  .button:not(:last-child) {
+    margin-right: 0;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+    border-right-style: none;
+  }
+
+  .button:not(:first-child) {
+    margin-left: 0;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+  }
+
+  .button:active, .button:focus {
+    border-right-style: solid;
+
+    & + .button {
+      border-left-style: none;
     }
-
-    .button:not(:first-child) {
-        margin-left: 0;
-        border-bottom-left-radius: 0;
-        border-top-left-radius: 0;
-    }
-
-    .button:active, .button:focus {
-        border-right-style: solid;
-
-        & + .button {
-            border-left-style: none;
-        }
-    }
+  }
 }
 
 .input-view, .select-view {
-    @include utils.radius();
+  @include utils.radius();
 
-    border: solid 1px var(--border-color);
-    background-color: var(--tertiary-background);
-    color: var(--primary-text-color);
-    padding: 0.5rem 1rem;
-    transition: background-color 200ms, border-color 200ms;
+  border: solid 1px var(--border-color);
+  background-color: var(--tertiary-background);
+  color: var(--primary-text-color);
+  padding: 0.5rem 1rem;
+  transition: background-color 200ms, border-color 200ms;
+
+  &:hover {
+    background-color: var(--tertiary-hover-background);
+  }
+
+  &:focus {
+    border-color: var(--theme-color);
+    background-color: var(--primary-background);
 
     &:hover {
-        background-color: var(--tertiary-hover-background);
+      background-color: var(--primary-hover-background);
     }
-
-    &:focus {
-        border-color: var(--theme-color);
-        background-color: var(--primary-background);
-
-        &:hover {
-            background-color: var(--primary-hover-background);
-        }
-    }
+  }
 }
 
 select {
-    background: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>") 100% 5px no-repeat, var(--secondary-text-color);
-    background-blend-mode: difference;
+  background: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>") 100% 5px no-repeat, var(--secondary-text-color);
+  background-blend-mode: difference;
 }
 
 .checkbox {
-    display: none;
+  display: none;
 }
 
 .label {
-    display: block;
-    width: 3em;
-    height: 2em;
-    position: relative;
+  display: block;
+  width: 3em;
+  height: 2em;
+  position: relative;
 
-    &:before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        height: 0.64em;
-        margin-top: -0.32em;
-        border-radius: 0.32em;
-        width: 2em;
-        margin-left: -1em;
-        background-color: var(--secondary-text-color);
-        opacity: 0.6;
-        transition: background-color 200ms;
-    }
-    &:after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        height: 1em;
-        margin-top: -0.5em;
-        border-radius: 0.5em;
-        width: 1em;
-        margin-left: -1em;
-        background-color: var(--secondary-text-color);
-        transition: background-color 200ms, margin-left 200ms;
-    }
+  &:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 0.64em;
+    margin-top: -0.32em;
+    border-radius: 0.32em;
+    width: 2em;
+    margin-left: -1em;
+    background-color: var(--secondary-text-color);
+    opacity: 0.6;
+    transition: background-color 200ms;
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 1em;
+    margin-top: -0.5em;
+    border-radius: 0.5em;
+    width: 1em;
+    margin-left: -1em;
+    background-color: var(--secondary-text-color);
+    transition: background-color 200ms, margin-left 200ms;
+  }
 }
 
 .checkbox:checked ~ .label {
-    &:before {
-        background-color: var(--theme-color);
-    }
-    &:after {
-        margin-left: 0;
-        background-color: var(--theme-color);
-    }
+  &:before {
+    background-color: var(--theme-color);
+  }
+
+  &:after {
+    margin-left: 0;
+    background-color: var(--theme-color);
+  }
 }
 
 .checkbox:focus ~ .label {
-    @include utils.radius();
-    border: solid 1px var(--border-color);
+  @include utils.radius();
+  border: solid 1px var(--border-color);
 }
