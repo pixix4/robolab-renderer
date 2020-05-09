@@ -1,23 +1,28 @@
 package de.robolab.theme
 
-enum class Theme(val group: String, private val isDarkMode: Boolean, val theme: ITheme) {
+enum class Theme(val group: String, val isDarkMode: Boolean?, val theme: ITheme) {
     LIGHT("Default", false, LightTheme),
     DARK("Default", true, DarkTheme),
     GRUVBOX_LIGHT("Gruvbox", false, GruvboxLightTheme),
     GRUVBOX_DARK("Gruvbox", true, GruvboxDarkTheme);
 
-    val label = "$group ${if (isDarkMode) "dark" else "light"}"
+    val label = group + when (isDarkMode) {
+        true -> " dark"
+        false -> " light"
+        else -> ""
+    }
 
     fun getThemeByMode(isDarkMode: Boolean): Theme {
-        if (this.isDarkMode == isDarkMode) {
+        if (this.isDarkMode == isDarkMode || this.isDarkMode == null) {
             return this
         }
 
-        val inverseTheme = Theme.values().find { it.group == group && it.isDarkMode == isDarkMode }
+        val inverseTheme = values().find { it.group == group && it.isDarkMode == isDarkMode }
         if (inverseTheme != null) {
             return inverseTheme
         }
 
+        // Break recursive call
         if (this == DEFAULT) {
             return this
         }

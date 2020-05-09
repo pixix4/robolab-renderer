@@ -1,10 +1,9 @@
 package de.robolab.jfx.dialog
 
 import de.robolab.jfx.adapter.toFx
-import de.robolab.theme.Theme
+import de.robolab.theme.ThemePropertySelectorMapper
 import de.robolab.utils.Logger
 import de.robolab.utils.PreferenceStorage
-import de.westermann.kobserve.not
 import javafx.util.StringConverter
 import tornadofx.*
 
@@ -15,21 +14,15 @@ class SettingsDialog : GenericDialog() {
         form {
             fieldset("Appearance") {
                 field("Theme") {
-                    combobox(PreferenceStorage.selectedThemeProperty.toFx(), Theme.values().toList()) {
-                        converter = object : StringConverter<Theme>() {
-                            override fun toString(obj: Theme?): String {
-                                return obj?.label ?: "null"
-                            }
-
-                            override fun fromString(string: String?): Theme {
-                                if (string == null) return Theme.DEFAULT
-                                return Theme.values().find { it.label.equals(string, true) } ?: Theme.DEFAULT
-                            }
-
-                        }
-                        enableWhen {
-                            PreferenceStorage.useSystemThemeProperty.not().toFx()
-                        }
+                    combobox(
+                            ThemePropertySelectorMapper.selectedThemeGroupProperty.toFx(),
+                            ThemePropertySelectorMapper.themeGroupList
+                    )
+                    combobox(
+                            ThemePropertySelectorMapper.selectedThemeVariantProperty.toFx(),
+                            ThemePropertySelectorMapper.themeVariantList
+                    ) {
+                        enableWhen(ThemePropertySelectorMapper.themeVariantEnabledProperty.toFx())
                     }
                 }
                 field("Use system theme") {

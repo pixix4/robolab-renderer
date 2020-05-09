@@ -99,12 +99,12 @@ fun Stylesheet.initSideBarStyle() {
         backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
 
         Stylesheet.thumb {
-            backgroundColor = multi(MainStyle.theme.ui.secondaryTextColor.toFx())
+            backgroundColor = multi(MainStyle.theme.ui.secondaryTextColor.a(0.5).toFx())
             borderRadius = multi(box(1.em))
             backgroundRadius = multi(box(1.em))
 
             and(Stylesheet.hover) {
-                backgroundColor = multi(MainStyle.theme.ui.primaryTextColor.toFx())
+                backgroundColor = multi(MainStyle.theme.ui.secondaryTextColor.toFx())
             }
         }
         and(Stylesheet.pressed) {

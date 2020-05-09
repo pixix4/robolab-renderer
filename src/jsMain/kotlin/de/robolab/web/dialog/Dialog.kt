@@ -31,7 +31,9 @@ abstract class Dialog(title: String) {
         boxView("dialog-form-entry") {
             textView(name)
 
-            block()
+            boxView("dialog-form-flex") {
+                block()
+            }
         }
     }
 

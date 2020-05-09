@@ -1,6 +1,8 @@
 package de.robolab.web.dialog
 
+import de.robolab.theme.ThemePropertySelectorMapper
 import de.robolab.utils.PreferenceStorage
+import de.westermann.kobserve.not
 import de.westermann.kwebview.components.*
 
 class SettingsDialog() : Dialog("Settings") {
@@ -8,8 +10,15 @@ class SettingsDialog() : Dialog("Settings") {
     override fun BoxView.buildContent() {
         dialogFormGroup("Appearance") {
             dialogFormEntry("Theme") {
-                selectView(PreferenceStorage.selectedThemeProperty, { it.label }) {
-                    disabledProperty.bind(PreferenceStorage.useSystemThemeProperty)
+                selectView<String>(
+                        ThemePropertySelectorMapper.themeGroupList,
+                        ThemePropertySelectorMapper.selectedThemeGroupProperty
+                )
+                selectView<String>(
+                        ThemePropertySelectorMapper.themeVariantList,
+                        ThemePropertySelectorMapper.selectedThemeVariantProperty
+                ) {
+                    disabledProperty.bind(!ThemePropertySelectorMapper.themeVariantEnabledProperty)
                 }
             }
             dialogFormEntry("Use system theme") {

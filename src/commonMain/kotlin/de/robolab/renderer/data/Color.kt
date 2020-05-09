@@ -1,8 +1,7 @@
 package de.robolab.renderer.data
 
 import de.robolab.renderer.animation.IInterpolatable
-import kotlin.math.floor
-import kotlin.math.roundToInt
+import kotlin.math.*
 
 data class Color(
         val red: Int,
@@ -33,10 +32,89 @@ data class Color(
         return "rgba($red, $green, $blue, $alpha)"
     }
 
+    fun toHsv(): Triple<Double, Double, Double> {
+        val r = red.toDouble() / 255.0
+        val g = green.toDouble() / 255.0
+        val b = blue.toDouble() / 255.0
+
+        val cMax = max(r, max(g, b))
+        val cMin = min(r, min(g, b))
+        val delta = cMax - cMin
+
+        val hue = when {
+            delta == 0.0 -> 0.0
+            cMax == r -> 60.0 * ((g - b) / delta % 6.0)
+            cMax == g -> 60.0 * ((b - r) / delta + 2.0)
+            cMax == b -> 60.0 * ((r - g) / delta + 4.0)
+            else -> 0.0
+        }
+        val saturation = if (cMax == 0.0) {
+            0.0
+        } else {
+            delta / cMax
+        }
+
+        return Triple(hue, saturation, cMax)
+    }
+
+    fun luminance() = 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
     companion object {
         val TRANSPARENT = Color(0, 0, 0, 0.0)
         val BLACK = Color(0, 0, 0, 1.0)
         val WHITE = Color(255, 255, 255, 1.0)
+
+        fun hsv(hue: Double, saturation: Double, value: Double, alpha: Double = 1.0): Color {
+            @Suppress("NAME_SHADOWING") val hue = hue % 360.0
+
+            val c = value * saturation
+            val x = c * (1.0 - abs((hue / 60.0 % 2.0 - 1.0)))
+            val m = value - c
+
+            var red = 0.0
+            var green = 0.0
+            var blue = 0.0
+
+            when {
+                hue >= 0 && hue < 60 -> {
+                    red = c
+                    green = x
+                    blue = 0.0
+                }
+                hue >= 60 && hue < 120 -> {
+                    red = x
+                    green = c
+                    blue = 0.0
+                }
+                hue >= 120 && hue < 180 -> {
+                    red = 0.0
+                    green = c
+                    blue = x
+                }
+                hue >= 180 && hue < 240 -> {
+                    red = 0.0
+                    green = x
+                    blue = c
+                }
+                hue >= 240 && hue < 300 -> {
+                    red = x
+                    green = 0.0
+                    blue = c
+                }
+                hue >= 300 && hue < 360 -> {
+                    red = c
+                    green = 0.0
+                    blue = x
+                }
+            }
+
+            return Color(
+                    ((red + m) * 255).toInt(),
+                    ((green + m) * 255).toInt(),
+                    ((blue + m) * 255).toInt(),
+                    alpha
+            )
+        }
 
         fun hsb(hue: Double, saturation: Double, brightness: Double): Color {
             val var6 = (hue % 360.0 + 360.0) % 360.0

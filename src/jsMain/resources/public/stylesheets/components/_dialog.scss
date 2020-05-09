@@ -82,9 +82,17 @@
     padding-top: 0.5rem;
     padding-left: 0.2rem;
   }
+}
 
-  .input-view, .select-view {
-    width: 100%;
+.dialog-form-flex {
+  display: flex;
+
+  & > .input-view, & > .select-view {
+    flex-grow: 1;
+
+    &:not(:first-child) {
+      margin-left: 0.5rem;
+    }
   }
 }
 
