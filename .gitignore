@@ -12,3 +12,5 @@ export/*
 web/website/
 node_modules/
 .lck
+planet/*.exam
+planet/*.exam.*
