@@ -30,14 +30,14 @@ java -jar build/libs/robolab-jvm.jar
 
 Build app and run dev server directly
 ```shell script
-./gradlew jsRun
+./gradlew jsClientRun
 ```
 
 or
 
 Build app und run dev server as separate process (speeds up development)
 ```shell script
-./gradlew jsSync
+./gradlew jsClientSync
 
 cd web
 npm install
