@@ -1,0 +1,376 @@
+scalar DateTime
+
+schema{
+    query:Query #Entry-point for "getters"
+    mutation:Mutation #Entry-point for calls with sideeffects
+}
+
+type Query{
+    me: User #currently logged-in user (based on auth)
+    info: ServerInfo! #information about this server and related services
+
+    planet(id:ID!): Planet #Find a planet by its ID
+    planets(withLocation:Boolean!=False, withTags:[String!]!=[], onlyUploaded:Boolean!=True): [Planet!]! #Get all planets with all of the specified tags, optionally restricted to planets with locations and uploaded
+    planetsByCreateTime(from:DateTime=null, to:DateTime=null, ascending:Boolean!=true, limit:Int=null): [Planet!]! #Get planets sorted by creation-time
+    planetsByModifyTime(from:DateTime=null, to:DateTime=null, ascending:Boolean!=true, limit:Int=null): [Planet!]! #Get planets sorted by last-modified-time
+    planetsByName(name:String!): [Planet!]! #Get all planets with the specified name
+
+    planetSeries(withLocation:Boolean!=False, withTags:[String!]!=[]): [PlanetSeries!]! #Get all series with all of the specified tags, optionally restricted to those with locations
+    planetSeriesByName(name:String): PlanetSeries #Find a series by its name
+
+    message(id:ID!): Message #Find a message by its ID
+    #Get all messages matching the specified topic-pattern in the specified time-range
+    messages(topicPattern:String!="#", from:DateTime=null, to:DateTime=null, ascending:Boolean!=true, limit:Int=null): [Message!]!
+
+    #Get all groupless messages matching the specified topic-pattern in the specified time-range
+    grouplessMessages(topicPattern:String!="#", from:DateTime=null, to:DateTime=null, ascending:Boolean!=true, limit:Int=null): [Message!]!
+
+    attempt(id:ID!): Attempt #Find an attempt by ID
+
+    grouplessMessageTrackCount:Int! #The amount of groupless messages tracked until old messages are deleted
+    messagePerAttemptTrackCount:Int! #The ammount of messages tracked per attempt until old messages are deleted
+    completedAttemptTrackCount:Int! #The amount of completed attempts tracked until old attempts are deleted (current attempt is never deleted)
+
+    group(id:ID!): Group #Find a group by its id
+    groups: [Group!]! #Get all groups
+    groupByName(name:String!): Group #Find a group by its name
+    groupByNumber(number:Int!): Group #Find a group by its number
+    ownGroup: Group #Get group of currently logged in user (null for all non-student users)
+
+    messageFormatIdentifier: String! #Identifier of current message-format ("INF-2019-3" (third run of 2019, fall), "INF-2020-1" (first run of 2020, spring), "INF-2020-1.2" (second format-revision of first run of 2020), ...)
+}
+
+type Mutation{
+    uploadPlanet(id:ID!): Planet #Upload a planet to the mothership - only for non-exam planets!
+    uploadExamPlanet(id:ID!): Planet #Upload an *exam* planet to the mothership
+    createPlanet(name: String!, exam:Boolean!=False): Planet #Create a new planet
+    deletePlanet(id:ID!): Planet #Delete a planet
+    reloadController: Boolean #Reload the mothership-controller
+    addPlanet(text:String!, exam:Boolean!=False): Planet #Create a planet with the specified content
+    setPlanetText(planetID:ID!, text:String!): Planet #Set the content of a planet
+    setExamPlanet(planetID:ID!, exam:Boolean!): Planet #Set whether a planet is an exam-planet or a public planet
+
+    addPlanetPath(planetID:ID!, path:InputPlanetPath): PlanetPath #Add a path to a planet
+    addPlanetPathSelect(planetID:ID!, x:Int!, y:Int!, direction:Direction): PlanetPathSelect #Add a PathSelect to a planet
+    addPlanetPathReveal(planetID:ID!, pathID:ID!, senderX:Int!, senderY:Int!): PlanetPathReveal #Add a PathReveal to a planet
+    addPlanetTarget(planetID:ID!, senderX:Int!, senderY:Int!, targetX:Int!,targetY:Int!): PlanetTarget #Add a Target to a planet
+    setPlanetPathHidden(planetID:ID!, pathID:ID!, hidden:Boolean): PlanetPath #Mark a path as hidden or not-hidden
+    removePlanetPath(planetID:ID!, pathID:ID!): PlanetPath #Remove a path from a planet
+    removePlanetPathSelect(planetID:ID!, x:Int!, y:Int!): PlanetPathSelect #Remove a PathSelect from a planet at the specified location
+    removePlanetPathReveal(planetID:ID!, pathID:ID!, senderX:Int=null, senderY:Int=null): PlanetPath #Remove a PathReveal from all senders or from a specific sender-node on a planet
+    removePlanetTargets(planetID:ID!, senderX:Int=null, senderY:Int=null, targetX:Int=null, targetY:Int=null): [PlanetTarget!]! #Remove all Targets or specific Targets on a planet
+    setPlanetStart(planetID:ID!, startX:Int!,startY:Int!,startDirection:Direction!=NORTH,spline:InputSpline=null): PlanetStart #Set the start-location for a planet
+    setPlanetBlue(planetID:ID!, x:Int!,y:Int!,colorRed:Boolean!=false):Planet #Set the location of the blue-marker (optionally red-marker) for a planet
+    removePlanetColor(planetID:ID!): Planet #Remove all color-information of a planet
+    setPlanetComment(planetID:ID!, text:String, x:Float, y:Float): PlanetComment #Set the comment at the specified location (or globally if at least one of x or y is null) for a planet, remove by setting text for same location to null
+    setPlanetSeriesName(planetID:ID!, series:String!): Planet #Set the series of a planet
+    setPlanetLocations(planetID:ID!, locations:[String!]!):Planet #Set the locations of a planet
+    setSeriesLocations(seriesName:String!, locations:[String!]!):PlanetSeries #Set the locations of a series
+    setPlanetTags(planetID:ID!, tags:[String!]!): Planet #Set the tags of a planet
+    addPlanetTags(planetID:ID!, tags:[String!]!): Planet #Add tags to a planet
+    removePlanetTags(planetID:ID!, tags:[String!]!): Planet #Remove tags from a planet
+    setSeriesTags(seriesName:String!, tags:[String!]!): PlanetSeries #Set the tags of a series
+    addSeriesTags(seriesName:String!, tags:[String!]!): PlanetSeries #Add tags to a series
+    removeSeriesTags(seriesName:String!, tags:[String!]!): PlanetSeries #Remove tags from a series
+
+    setGrouplessMessageTrackCount(count:Int!):Int! #Set the amount of groupless messages tracked until old messages are deleted
+    setMessagePerAttemptTrackCount(count:Int!):Int! #Set the ammount of messages tracked per attempt until old messages are deleted
+    setCompletedAttemptTrackCount(count:Int!):Int! #Set the amount of completed attempts tracked until old attempts are deleted (current attempt is never deleted)
+
+    setAttemptFavorited(attemptID:ID!, favorited:Boolean): Attempt #Set the favorited-status of the specified attempt. Favorited attempts are never deleted automatically.
+}
+
+type ServerInfo{
+    startedAt: DateTime! #The time the server was started at
+
+    mqttControllerStatus:Status! #The current status of the controller
+    mqttBrokerStatus:Status! #The current status of the broker
+    mqttBrokerLocation:String! #The location at which the broker can be reached
+    restStatus:Status! #The current status of the REST-API
+    restLocation:String! #The location at which the REST-API can be reached
+    socketStatus:Status! #The current status of the (native) Socket-API
+    socketLocation:String! #The location at which the (native) Socket-API can be reached
+    websocketStatus:Status! #The current status of the Websocket-API (Socket.io)
+    websocketLocation:String! #The location at which the Websocket-API (Socket.io) can be reached
+    serverEventsStatus:Status! #The current status of the ServerEvents-API
+    serverEventsLocation:String! #The location at which the ServerEvents-API can be reached
+    graphqlStatus:Status! #The current status of the GraphQL-API
+    graphqlLocation:String! #The location at which the GraphQL-API can be reached
+}
+
+enum Status{
+    OFFLINE, #Service is known to be offline
+    StatusUnavailable, #Status of service is unknown/cannot be determined
+    NotImplemented, #Statuscheck for service is not implemented yet
+    OK #Service is known to be healthy
+}
+
+type User{
+    name: String! #Login-name of the user ("anon", "group-1XX", "tutor", "admin", ...)
+    access: UserLevel! #Access-level of the user
+    allowedActions: [String!]! #List of actions-identifiers which are allowed for the current Access-Level
+}
+
+enum UserLevel{
+    None, #Anonymous: not auth-check required
+    Student, #Groups: must login with mqtt-credentials
+    Tutor, #Tutors: must login using tutor-credentials or tutor-certificate
+    Admin #Admin: must login using admin-certificate, requests which require Admin-Level (instead of just Tutor-Level) cannot use bearer-auth --> reauthorization for every Admin-request
+}
+
+type Group{
+    name: String! #Name of the group, ("group-101", "group-220", ...)
+    number: Int! #Group-number (101, 220)
+    currentPlanet: Planet #Planet the group last transmitted messages for
+    lastMessage: Message #Last message sent by the group
+    lastAttempt: Attempt #Last/Current attempt by this group
+    messages(from:DateTime=null, to:DateTime=null, asecending:Boolean!=true, limit:Int=null): [Message!]! #Get all messages by this group (according to topic)
+    attempts(from:DateTime=null, to:DateTime=null, ascending:Boolean!=true, limit:Int=null): [Attempt!]! #Get all attempts by this group
+    robotIP:String #Get the IP of this groups robot
+    mqttPassword: String! #Get the mqtt-password for this group
+}
+
+type Attempt{
+    id: ID! #Globally unique ID for this attempt
+    planet: Planet #Planet this attempt was made on (null if no TestPlanetMessage or PlanetMessage was sent/recognized or specified planet was not found)
+    firstMessageTime: DateTime! #Time of the first message of this attempt
+    lastMessageTime: DateTime! #Time of the last message of this attempt
+    firstMessage: Message! #First message of this attempt
+    lastMessage: Message! #Last message of this attempt
+    messages(from:DateTime=null, to:DateTime=null, ascending:Boolean!=true, limit:Int=null): [Message!]! #Get all messages of this attempt
+    favorited: Boolean! #Get favorited-status of this attempt. Favorited attempts are never deleted automatically.
+}
+
+enum MessageSource{
+    unknown, #"from" had an unexpected value
+    client, #from=="client"
+    server #from=="server"
+}
+
+interface Message{
+    id: ID! #Globally unique ID for this message
+    receivedAt: DateTime! #Time this message was received at (by this service, broker will probably log earlier)
+    payload: String! #Payload of this message as unparsed string
+    topic: String! #Topic this message was received on
+    QoS: Int! #QualitiyOfService for this message
+    from: MessageSource #Sender of this message according to the "from" field of the payload (null if not defined or if payload could not be parsed)
+}
+
+type UndefinedMessage implements Message{
+    id: ID!
+    receivedAt: DateTime!
+    payload: String!
+    topic: String!
+    QoS: Int!
+    from: MessageSource
+
+    error: String #May contain additional information about what went wrong (missing fields, not valid json, wrong topic, ...)
+}
+
+type TestPlanetMessage implements Message{
+    id: ID!
+    receivedAt: DateTime!
+    payload: String!
+    topic: String!
+    QoS: Int!
+    from: MessageSource
+
+    planetName: String! #The name of the planet according to the decoded payload
+    planet: Planet #The planet if found by name
+}
+
+type ReadyMessage implements Message{
+    id: ID!
+    receivedAt: DateTime!
+    payload: String!
+    topic: String!
+    QoS: Int!
+    from: MessageSource
+}
+
+type PlanetMessage implements Message{
+    id: ID!
+    receivedAt: DateTime!
+    payload: String!
+    topic: String!
+    QoS: Int!
+    from: MessageSource
+
+    planetName: String! #The name of the planet according to the decoded payload
+    planet: Planet #The planet if found by name (should always be not-null as PlanetMessages are only sent if the controller recognizes the planetName)
+    start: PlanetStart! #The start-information encoded in the payload (location and orientation). Value of start.spline is null if payload-information does not match planet-start, otherwise start.spline==planet.start.spline
+}
+
+type PathMessage implements Message{
+    id: ID!
+    receivedAt: DateTime!
+    payload: String!
+    topic: String!
+    QoS: Int!
+    from: MessageSource
+
+    path: PlanetPath! #The path that was driven by the robot according to the decoded payload. path.spline is always null, hidden is always false and weight is -1 if blocked, otherwise 1
+}
+
+type PathRevealMessage implements Message{
+    id: ID!
+    receivedAt: DateTime!
+    payload: String!
+    topic: String!
+    QoS: Int!
+    from: MessageSource
+
+    path: PlanetPath! #The path that was revealed according to the decoded payload. path.spline is always null, hidden is always false
+}
+
+type PathSelectMessage implements Message{
+    id: ID!
+    receivedAt: DateTime!
+    payload: String!
+    topic: String!
+    QoS: Int!
+    from: MessageSource
+
+    node: PlanetNode! #The node at which the direction has been selected/forced
+    direction: Direction! #The direction which was selected/forced
+}
+
+type CompletionMessage implements Message{
+    id: ID!
+    receivedAt: DateTime!
+    payload: String!
+    topic: String!
+    QoS: Int!
+    from: MessageSource
+
+    exploration:Boolean! #If true payload-type is ExplorationComplete, otherwise TargetReached
+    finalMessage:String! #The final message encoded in payload
+}
+
+type Planet {
+    name: String! #The name of the planet, may be changed later on
+    id: ID! #The globally unique ID of the planet, will never change
+    paths: [PlanetPath!]! #All paths in this planet
+    nodes: [PlanetNode!]! #All nodes (with paths) in this planet
+    features: [PlanetFeature!]! #All features (PathReveal, PathSelect, Target) of this planet
+    pathReveals: [PlanetPathReveal!]! #All PathReveals of this planet
+    pathSelects: [PlanetPathSelect!]! #All PathSelects of this planet
+    targets: [PlanetTarget!]! #All Targets of this planet
+    blue: PlanetNode #Location of the blue-marke on this planet
+    comments: [PlanetComment!]! #All Comments for this planet
+    start: PlanetStart #Start-Information for this planet
+    hash: Int! #Hash of this planet. Does not include imageURL
+    isExam: Boolean! #Whether this planet is an exam-planet that should not be made public (before the exam)
+    requiredUserLevel: UserLevel! #The UserLevel required to see this planet
+    series: PlanetSeries #The series this planet is part of
+    createdAt: DateTime! #The time and date this planet was created at
+    currentUploadedVersion: Planet #The version of the planet that is uploaded to the mothership or null if not uploaded yet.
+    lastModified: DateTime! #The time and date this planet was last modified (hash-change) at
+    imageLocation: String #The web-location of the image for this planet, if available. Note that these images are always public (Anonymous/Student depending on config)!
+    node(x:Int!, y:Int!): PlanetNode #Find a specific node on this planet. Returns null if node is not part of this planet (no adjacent paths, not target/sender of any feature, etc.)
+    text: String! #The content of the planet-file
+    locations: [String!]! #The physical locations this planet is available at ("Foyer", "E023", ...)
+    tags: [String!]! #The tags added to this planet
+}
+
+type PlanetSeries{
+    name: String! #Name of the series, unique and cannot be changed for the whole series (change series for each planet individually instead)
+    planets: [Planet!]! #Planets part of this series
+    tags: [String!]! #Tags applied to all planets of this series
+}
+
+enum Direction {
+    NORTH
+    EAST
+    SOUTH
+    WEST
+}
+
+input InputPlanetPath{
+    startX: Int!
+    startY: Int!
+    startDirection:Int!
+    endX:Int!
+    endY:Int!
+    endDirection:Int!
+    weight:Int!=1#Weight of this path. Weight == -1 iff blocked == true
+    spline:InputSpline
+    blocked:Boolean!=false #Blocked status of this path. Blocked == true iff weight == -1
+    hidden:Boolean!=false #Hidden status of this path. Used to mark paths that are not intended to be driven by robots, eg. paths that are not part of the physical planet and/or unreachable from the planet-start.
+}
+
+type PlanetPath {
+    id:ID!
+    start: PlanetNode!
+    startDirection: Direction!
+    end: PlanetNode!
+    endDirection: Direction!
+    weight: Int! #Weight of this path. Weight == -1 iff blocked == true
+    spline: Spline
+    blocked: Boolean! #Blocked status of this path. Blocked == true iff weight == -1
+    hidden: Boolean! #Hidden status of this path. Used to mark paths that are not intended to be driven by robots, eg. paths that are not part of the physical planet and/or unreachable from the planet-start.
+}
+
+input InputSpline{
+    points: [InputCoordinate!]! #Control-points for this spline
+    mirrored: Boolean!=False #True for splines with only one endpoint like start-splines and blocked paths. Allows specifying only half of the spline.
+}
+
+input InputCoordinate{
+    x:Float!
+    y:Float!
+}
+
+type Spline{
+    points: [Coordinate!]! #Control-points for this spline
+    approxLength: Float! #Approximated length for this spline, sum of distance of control-points
+    mirrored: Boolean! #True for splines with only one endpoint like start-splines and blocked paths. Allows specifying only half of the spline.
+}
+
+type Coordinate{
+    x: Float!
+    y: Float!
+}
+
+type PlanetNode{
+    x: Int!
+    y: Int!
+    blue: Boolean #Whether this node is blue (true), red (false) or of undefined color (null)
+    path(direction: Direction!): PlanetPath #Get the path in the specified direction, if it exists
+    features: [PlanetFeature!]! #Get all features (PathReveal, PathSelect, Target) triggered at this node
+    pathReveals: [PlanetPathReveal!]! #Get all PathReveals triggered at this node
+    pathSelect: PlanetPathSelect #Get the PathSelect for this node if present
+    targets: [PlanetTarget!]! #Get all Targets triggered at this node
+    targetOf: [PlanetTarget!]! #Get all Targets this node is the target of
+    hidden: Boolean! #Whether this node is hidden. A node is hidden iff no adjacent path is non-hidden
+}
+
+type PlanetComment{
+    text: String! #The text of this comment. Multiple lines are seperated by "\n".
+    location: Coordinate #The location of this comment. If null this comment is a global comment.
+}
+
+type PlanetStart {
+    node: PlanetNode! #The start location for this planet
+    spline: Spline #The spline for the start-path
+    startDirection: Direction! #The direction the robot starts with (=its facing) when arriving at the first node
+}
+
+interface PlanetFeature{
+    sentAt: PlanetNode! #The node this Feature gets triggered at
+}
+
+type PlanetPathReveal implements PlanetFeature{
+    sentAt: PlanetNode!
+    path: PlanetPath! #The reaveled path
+}
+
+type PlanetPathSelect implements PlanetFeature{
+    sentAt: PlanetNode!
+    direction: Direction! #The forced direction
+}
+
+type PlanetTarget implements PlanetFeature{
+    sentAt: PlanetNode!
+    target: PlanetNode! #The sent target
+}
