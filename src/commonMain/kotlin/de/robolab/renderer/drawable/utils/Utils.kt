@@ -7,6 +7,8 @@ import de.robolab.planet.TargetPoint
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.data.Point
+import de.robolab.renderer.document.ViewColor
+import de.robolab.renderer.utils.DrawContext
 
 object Utils {
     fun getSenderGrouping(planet: Planet): Map<Set<Coordinate>, Int> {
@@ -32,20 +34,6 @@ object Utils {
         val brightness = 0.9 - (((rot / 4)) * 0.05) % 0.20
 
         return Color.hsb(hue, saturation, brightness)
-    }
-
-    fun calculateProjection(pointer: Point, referencePoint: Point, direction: Direction): Point {
-        val basisVector = direction.toVector()
-        val referenceVector = pointer - referencePoint
-
-        val distance = referenceVector.dotProduct(basisVector)
-        val targetVector = basisVector * distance
-
-        return if (distance > PlottingConstraints.CURVE_FIRST_POINT) {
-            referencePoint + targetVector
-        } else {
-            referencePoint + basisVector * PlottingConstraints.CURVE_FIRST_POINT
-        }
     }
 
     private val colorList = listOf(
@@ -108,3 +96,7 @@ fun power2(exp: Int): Int {
     }
     return result
 }
+
+fun Coordinate.toPoint() = Point(x, y)
+
+fun DrawContext.c(color: ViewColor) = color.toColor(theme.plotter)

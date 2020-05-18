@@ -5,13 +5,13 @@ import de.robolab.renderer.drawable.live.RobotDrawable
 
 class LivePlanetDrawable() : AbsPlanetDrawable() {
 
-    private val backgroundLayer = PlanetLayer(this) {
+    private val backgroundLayer = PlanetLayer {
         it.withAlpha(0.2)
     }
-    private val mqttLayer = PlanetLayer(this)
-    private val serverLayer = PlanetLayer(this)
+    private val mqttLayer = PlanetLayer()
+    private val serverLayer = PlanetLayer()
 
-    private val robotDrawable = RobotDrawable(this)
+    private val robotDrawable = RobotDrawable()
 
     fun importBackgroundPlanet(planet: Planet) {
         backgroundLayer.importPlanet(planet)
@@ -33,15 +33,12 @@ class LivePlanetDrawable() : AbsPlanetDrawable() {
     }
 
     init {
-        buildDrawableList(
-                planetLayers = listOf(
-                        backgroundLayer,
-                        mqttLayer,
-                        serverLayer
-                ),
-                overlayers = listOf(
-                        robotDrawable
-                )
+        setPlanetLayers(
+                backgroundLayer,
+                mqttLayer,
+                serverLayer
         )
+
+        //overlayerViews.addAll(robotDrawable)
     }
 }

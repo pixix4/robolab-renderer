@@ -3,29 +3,28 @@ package de.robolab.renderer.drawable.planet
 import de.robolab.planet.Path
 import de.robolab.planet.Planet
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.base.selectedElement
-import de.robolab.renderer.drawable.edit.*
+import de.robolab.renderer.document.ConditionalView
+import de.robolab.renderer.drawable.edit.EditPaperBackground
+import de.robolab.renderer.drawable.edit.IEditCallback
 import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.platform.KeyCode
 import de.robolab.renderer.platform.KeyEvent
 import de.robolab.utils.MenuBuilder
+import de.robolab.utils.PreferenceStorage
+import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
-class EditPlanetDrawable() : AbsPlanetDrawable() {
-
-    var editCallback: IEditCallback = object : IEditCallback {}
-
-    private val editPointDrawable = EditPointDrawable(this)
-    private val editDrawPathDrawable = EditDrawPathDrawable(this)
-    private val editDrawEndDrawable = EditDrawEndDrawable(this)
-    private val editControlPointsDrawable = EditControlPointsDrawable(this)
-    private val editPathSelectDrawable = EditPathSelectDrawable(this)
-
-    private val paperBackground = EditPaperBackground(this)
+class EditPlanetDrawable(
+        private val editCallback: IEditCallback
+) : AbsPlanetDrawable() {
 
     val editableProperty = property(false)
     val editable by editableProperty
+
+    private val editCallbackProperty = editableProperty.mapBinding {
+        if (it) editCallback else null
+    }
 
     fun menu(name: String, init: MenuBuilder.() -> Unit) {
         val position = pointer?.position ?: return
@@ -33,27 +32,12 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
         plotter?.context?.openContextMenu(contextMenu)
     }
 
-    private val selectedPathControlPointsProperty = selectedElementsProperty.mapBinding {
-        val path = selectedElement<Path>() ?: return@mapBinding null
 
-        PathAnimatable.getControlPointsFromPath(path)
-    }
-    val selectedPathControlPoints by selectedPathControlPointsProperty
-    var selectedPointEnd: EditDrawEndDrawable.PointEnd? = null
-
-
-    var createPathWithCustomControlPoints = false
-    var createPathControlPoints: List<Point> = emptyList()
-
-    private val planetLayer = PlanetLayer(this)
+    private val planetLayer = EditPlanetLayer(editCallbackProperty)
+    private val paperBackground = EditPaperBackground()
 
     fun importPlanet(planet: Planet) {
         planetLayer.importPlanet(planet)
-
-        editPointDrawable.importPlanet(planet)
-        editDrawEndDrawable.importPlanet(planet)
-        editPathSelectDrawable.importPlanet(planet)
-        editDrawPathDrawable.importPlanet(planet)
 
         paperBackground.importPlanet(planet)
 
@@ -61,55 +45,38 @@ class EditPlanetDrawable() : AbsPlanetDrawable() {
     }
 
     init {
-        editableProperty.onChange {
-            if (editable) {
-                editPointDrawable.startEnterAnimation { }
-            } else {
-                editPointDrawable.startExitAnimation { }
-            }
-        }
+        setPlanetLayers(planetLayer)
 
-        buildDrawableList(
-                backgrounds = listOf(
-                        paperBackground
-                ),
-                underlayers = listOf(
-                        editPointDrawable
-                ),
-                planetLayers = listOf(
-                        planetLayer
-                ),
-                overlayers = listOf(
-                        editDrawEndDrawable,
-                        editDrawPathDrawable,
-                        editPathSelectDrawable,
-                        editControlPointsDrawable
-                )
-        )
-    }
+        backgroundViews.add(ConditionalView("Paper background", PreferenceStorage.paperBackgroundEnabledProperty, paperBackground.backgroundView))
+        underlayerViews.add(ConditionalView("Paper measuring views", PreferenceStorage.paperBackgroundEnabledProperty, paperBackground.measuringView))
+        drawBackgroundProperty.bind(!PreferenceStorage.paperBackgroundEnabledProperty)
 
-    override fun onKeyPress(event: KeyEvent): Boolean {
-        if (super.onKeyPress(event)) return true
-        if (!editable) return false
+        view.onKeyPress { event ->
+            if (!editable) return@onKeyPress
 
-        when (event.keyCode) {
-            KeyCode.UNDO -> {
-                editCallback.undo()
-            }
-            KeyCode.REDO -> {
-                editCallback.redo()
-            }
-            KeyCode.Z -> if (event.ctrlKey) {
-                if (event.shiftKey) {
-                    editCallback.redo()
-                } else {
-                    editCallback.undo()
+            when (event.keyCode) {
+                KeyCode.UNDO -> {
+                    if (editable) {
+                        editCallback.undo()
+                    }
+                }
+                KeyCode.REDO -> {
+                    if (editable) {
+                        editCallback.redo()
+                    }
+                }
+                KeyCode.Z -> if (event.ctrlKey) {
+                    if (editable) {
+                        if (event.shiftKey) {
+                            editCallback.redo()
+                        } else {
+                            editCallback.undo()
+                        }
+                    }
+                }
+                else -> {
                 }
             }
-            else -> {
-                return false
-            }
         }
-        return true
     }
 }

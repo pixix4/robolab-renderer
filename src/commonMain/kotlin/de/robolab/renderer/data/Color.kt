@@ -21,6 +21,10 @@ data class Color(
             alpha * (1 - progress) + toValue.alpha * progress
     )
 
+    override fun interpolateToNull(progress: Double): Color {
+        return a(alpha * (1.0 - progress))
+    }
+
     override fun toString(): String {
         if (alpha >= 1.0) {
             val r = red.toString(16).padStart(2, '0')
@@ -59,10 +63,26 @@ data class Color(
 
     fun luminance() = 0.2126 * red + 0.7152 * green + 0.0722 * blue
 
+    @Suppress("unused")
     companion object {
         val TRANSPARENT = Color(0, 0, 0, 0.0)
-        val BLACK = Color(0, 0, 0, 1.0)
+
         val WHITE = Color(255, 255, 255, 1.0)
+        val SILVER = Color(224, 224, 224, 1.0)
+        val GRAY = Color(128, 128, 128, 1.0)
+        val BLACK = Color(0, 0, 0, 1.0)
+        val RED = Color(255, 0, 0, 1.0)
+        val MAROON = Color(128, 0, 0, 1.0)
+        val YELLOW = Color(255, 255, 0, 1.0)
+        val OLIVE = Color(128, 128, 0, 1.0)
+        val LIME = Color(0, 255, 0, 1.0)
+        val GREEN = Color(0, 128, 0, 1.0)
+        val AQUA = Color(0, 255, 255, 1.0)
+        val TEAL = Color(0, 128, 128, 1.0)
+        val BLUE = Color(0, 0, 255, 1.0)
+        val NAVY = Color(0, 0, 128, 1.0)
+        val FUCHSIA = Color(255, 0, 255, 1.0)
+        val PURPLE = Color(128, 0, 128, 1.0)
 
         fun hsv(hue: Double, saturation: Double, value: Double, alpha: Double = 1.0): Color {
             @Suppress("NAME_SHADOWING") val hue = hue % 360.0

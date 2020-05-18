@@ -1,6 +1,6 @@
 package de.robolab.app.model
 
-import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.document.base.Document
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 
@@ -13,7 +13,7 @@ interface ISideBarPlottable : ISideBarEntry {
 
     val selectedInfoBarIndexProperty: ObservableProperty<Int?>
 
-    val drawable: IDrawable
+    val document: Document
 
     val enabledProperty: ObservableValue<Boolean>
     fun onOpen() {}

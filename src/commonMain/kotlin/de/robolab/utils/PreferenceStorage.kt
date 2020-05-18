@@ -20,6 +20,9 @@ object PreferenceStorage {
     val exportScaleProperty = item("EXPORT_SCALE", 4.0)
     var exportScale by exportScaleProperty
 
+    val debugModeProperty = item("DEBUG_MODE", false)
+    var debugMode by debugModeProperty
+
     val selectedSideBarTabProperty = item("SIDE_BAR_TAB", SideBarController.Tab.FILE)
     var selectedSideBarTab by selectedSideBarTabProperty
 

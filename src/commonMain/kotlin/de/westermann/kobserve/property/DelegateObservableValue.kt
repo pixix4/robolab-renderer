@@ -2,6 +2,7 @@ package de.westermann.kobserve.property
 
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
+import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.event.listenTo
 
 open class FunctionObservableValue<T>(
@@ -9,11 +10,23 @@ open class FunctionObservableValue<T>(
 ) : ObservableValue<T> {
     override val onChange = EventHandler<Unit>()
 
-    override fun get(): T = delegateAccessor.get()
+    protected open var internal: T = delegateAccessor.get()
+
+    override fun get() = internal
+
+    override fun invalidate() {
+        val newValue = delegateAccessor.get()
+        if (newValue != internal) {
+            internal = newValue
+            onChange.emit()
+        }
+    }
 
     fun listenTo(vararg properties: ObservableValue<*>) {
-        properties.forEach {
-            onChange.listenTo(it.onChange)
+        for (property in properties) {
+            property.onChange {
+                invalidate()
+            }
         }
     }
 

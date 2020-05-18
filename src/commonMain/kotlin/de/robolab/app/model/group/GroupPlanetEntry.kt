@@ -170,7 +170,8 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
 
     override val enabledProperty = constObservable(false)
 
-    override val drawable = LivePlanetDrawable()
+    val drawable = LivePlanetDrawable()
+    override val document = drawable.view
 
 
     private val planetNameProperty = property("")

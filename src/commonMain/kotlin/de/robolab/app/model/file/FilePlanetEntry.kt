@@ -7,7 +7,7 @@ import de.robolab.renderer.ExportPlotter
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
-import de.robolab.renderer.drawable.BackgroundDrawable
+import de.robolab.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.renderer.platform.ICanvas
@@ -29,9 +29,9 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override val enabledProperty = property(false)
 
-    override val drawable = EditPlanetDrawable().also {
-        it.drawBackgroundProperty.bind(!PreferenceStorage.paperBackgroundEnabledProperty)
-    }
+    val drawable = EditPlanetDrawable(planetFile)
+
+    override val document = drawable.view
 
     override val toolBarLeft: List<List<ToolBarEntry>> = listOf(
             listOf(
@@ -147,7 +147,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
     }
 
     private fun exportGetSize(): Dimension {
-        val rect = BackgroundDrawable.calcPlanetArea(planetFile.planet)?.expand(0.99) ?: Rectangle.ZERO
+        val rect = AbsPlanetDrawable.calcPlanetArea(planetFile.planet)?.expand(0.99) ?: Rectangle.ZERO
         return Dimension(rect.width * Transformation.PIXEL_PER_UNIT, rect.height * Transformation.PIXEL_PER_UNIT)
     }
 
@@ -157,7 +157,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
         drawable.drawName = true
         drawable.importPlanet(planetFile.planet)
 
-        val plotter = ExportPlotter(canvas, drawable)
+        val plotter = ExportPlotter(canvas, drawable.view)
 
         drawable.centerPlanet()
 
@@ -184,8 +184,6 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
     override val unsavedChangesProperty = planetFile.history.canUndoProperty
 
     init {
-        drawable.editCallback = planetFile
-
         planetFile.history.onChange {
             drawable.importPlanet(planetFile.planet)
         }

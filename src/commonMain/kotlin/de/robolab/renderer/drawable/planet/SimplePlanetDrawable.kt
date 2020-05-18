@@ -4,7 +4,7 @@ import de.robolab.planet.Planet
 
 class SimplePlanetDrawable() : AbsPlanetDrawable() {
 
-    private val planetLayer = PlanetLayer(this)
+    private val planetLayer = PlanetLayer()
 
     fun importPlanet(planet: Planet) {
         planetLayer.importPlanet(planet)
@@ -12,10 +12,6 @@ class SimplePlanetDrawable() : AbsPlanetDrawable() {
     }
 
     init {
-        buildDrawableList(
-                planetLayers = listOf(
-                        planetLayer
-                )
-        )
+        setPlanetLayers(planetLayer)
     }
 }

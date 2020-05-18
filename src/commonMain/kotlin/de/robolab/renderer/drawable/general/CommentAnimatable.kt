@@ -2,42 +2,29 @@ package de.robolab.renderer.drawable.general
 
 import de.robolab.planet.Comment
 import de.robolab.planet.Planet
-import de.robolab.renderer.animation.GenericTransition
-import de.robolab.renderer.data.Point
+import de.robolab.renderer.data.Color
+import de.robolab.renderer.document.TextView
+import de.robolab.renderer.document.ViewColor
 import de.robolab.renderer.drawable.base.Animatable
-import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.platform.ICanvas
-import de.robolab.renderer.utils.DrawContext
 
 class CommentAnimatable(
-        reference: Comment,
-        private val animationTime: IAnimationTime
+        reference: Comment
 ) : Animatable<Comment>(reference) {
 
-    override val animators = emptyList<GenericTransition<*>>()
+    override val view = TextView(
+            reference.point,
+            12.0,
+            reference.message,
+            ViewColor.LINE_COLOR,
+            ICanvas.FontAlignment.CENTER,
+            ICanvas.FontWeight.NORMAL
+    )
 
-    override fun onDraw(context: DrawContext) {
-        context.fillText(
-                reference.message,
-                reference.point,
-                context.theme.plotter.lineColor,
-                alignment = ICanvas.FontAlignment.CENTER
-        )
-    }
+    override fun onUpdate(obj: Comment, planet: Planet) {
+        super.onUpdate(obj, planet)
 
-    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
-        return emptyList()
-    }
-
-    override fun startExitAnimation(onFinish: () -> Unit) {
-        onFinish()
-    }
-
-    override fun startEnterAnimation(onFinish: () -> Unit) {
-        onFinish()
-    }
-
-    override fun startUpdateAnimation(obj: Comment, planet: Planet) {
-        reference = obj
+        view.setCenter(reference.point)
+        view.text = reference.message
     }
 }

@@ -17,7 +17,7 @@ data class Path(
         get() = weight != null && weight < 0
 
     fun length(controlPoints: List<Point> = this.controlPoints): Double {
-        return (listOf(Point(source.x, source.y)) + controlPoints + Point(target.x, target.y)).windowed(2, 1).sumByDouble { (p0, p1) -> p0.distance(p1) }
+        return (listOf(Point(source.x, source.y)) + controlPoints + Point(target.x, target.y)).windowed(2, 1).sumByDouble { (p0, p1) -> p0.distanceTo(p1) }
     }
 
     fun equalPath(other: Path): Boolean {

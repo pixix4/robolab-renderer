@@ -38,7 +38,7 @@ object PathGenerator {
         val s = startList.lastOrNull() ?: start.point
         val e = endList.firstOrNull() ?: end.point
 
-        if (s.x != e.x && s.y != e.y || s.distance(e) > 1) {
+        if (s.x != e.x && s.y != e.y || s.distanceTo(e) > 1) {
             val s1 = start.point
             val e1 = end.point
             val midpoint = e1.midpoint(s1)

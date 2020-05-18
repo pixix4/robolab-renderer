@@ -1,7 +1,9 @@
 package de.robolab.renderer.animation
 
-import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.Binding
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
+import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.event.listenTo
 import de.westermann.kobserve.property.property
 import kotlin.math.max
@@ -10,7 +12,7 @@ import kotlin.math.min
 open class GenericTransition<T>(
         initialValue: T,
         private val interpolate: (from: T, to: T, progress: Double) -> T
-) : ObservableValue<T> {
+) : IAnimatable, ObservableProperty<T> {
 
     private var fromValue = initialValue
     val sourceValue: T
@@ -24,46 +26,68 @@ open class GenericTransition<T>(
     private val internalValue = property(initialValue)
     final override val onChange = EventHandler<Unit>()
 
+    override var binding: Binding<T>
+        get() = internalValue.binding
+        set(value) {
+            internalValue.binding = value
+        }
+
     override fun get() = internalValue.value
+
+    override fun set(value: T) {
+        internalValue.set(value)
+    }
 
     init {
         onChange.listenTo(internalValue.onChange)
     }
+    
+    override val isRunning: Boolean
+    get() = transitionList.isNotEmpty()
 
-    val onFinish = EventHandler<Unit>()
+    override val onAnimationStart = EventHandler<Unit>()
+    override val onAnimationFinish = EventHandler<Unit>()
 
     fun animate(targetValue: T, duration: Double, offset: Double = 0.0) {
+        if (internalValue.isBound) return
+
         transitionList += TransitionHelper(
                 targetValue, duration, offset
         )
+        
+        if (transitionList.size == 1) {
+            onAnimationStart.emit()
+        }
 
-        update(0.0)
+        onUpdate(0.0)
     }
 
     fun resetValue(newValue: T) {
+        if (internalValue.isBound) return
+
         fromValue = newValue
         internalValue.set(newValue)
 
         transitionList.clear()
 
-        update(0.0)
+        onUpdate(0.0)
     }
 
-    fun update(ms_offset: Double): Boolean {
-        if (transitionList.isEmpty()) {
+    override fun onUpdate(msOffset: Double): Boolean {
+        if (!isRunning) {
             return false
         }
 
         val value = transitionList.fold(fromValue) { acc, transitionHelper ->
-            transitionHelper.update(acc, ms_offset)
+            transitionHelper.update(acc, msOffset)
         }
 
         while (transitionList.firstOrNull()?.isFinished == true) {
             fromValue = transitionList.removeAt(0).toValue
         }
 
-        if (transitionList.isEmpty()) {
-            onFinish.emit(Unit)
+        if (!isRunning) {
+            onAnimationFinish.emit()
         }
 
         if (value != this.value) {

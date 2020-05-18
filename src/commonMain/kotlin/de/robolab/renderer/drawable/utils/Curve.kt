@@ -8,10 +8,6 @@ import de.robolab.renderer.data.Point
 interface Curve {
     fun eval(t: Double, points: List<Point>): Point
 
-    fun eval(t: Double, degree: Int, points: List<Point>): Point {
-        throw NotImplementedError("Curve of type '${this::class.simpleName}' does not support a custom degree!")
-    }
-
     fun evalGradient(t: Double, points: List<Point>): Point {
         val epsilon = 0.01 / points.size
 

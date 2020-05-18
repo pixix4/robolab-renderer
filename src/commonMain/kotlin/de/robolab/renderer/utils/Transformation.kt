@@ -4,6 +4,7 @@ import de.robolab.renderer.animation.DoubleTransition
 import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
+import de.robolab.utils.Logger
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -131,24 +132,24 @@ class Transformation(
         hasChanges = true
     }
 
-    fun update(ms_offset: Double): Boolean {
+    fun update(msOffset: Double): Boolean {
         var changes = hasChanges
         hasChanges = false
 
-        if (translationProperty.update(ms_offset)) {
+        if (translationProperty.onUpdate(msOffset)) {
             onViewChange.emit(Unit)
             changes = true
         }
 
         val rotationPlanetPoint = canvasToPlanet(rotationCenter)
-        if (rotationProperty.update(ms_offset)) {
+        if (rotationProperty.onUpdate(msOffset)) {
             val newCenter = planetToCanvas(rotationPlanetPoint)
             translateBy(rotationCenter - newCenter)
             changes = true
         }
 
         val scalePlanetPoint = canvasToPlanet(scaleCenter)
-        if (scaleProperty.update(ms_offset)) {
+        if (scaleProperty.onUpdate(msOffset)) {
             val newCenter = planetToCanvas(scalePlanetPoint)
             translateBy(scaleCenter - newCenter)
             changes = true

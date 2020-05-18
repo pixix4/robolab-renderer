@@ -10,8 +10,6 @@ import de.robolab.renderer.animation.IInterpolatable
 import de.robolab.renderer.animation.ValueTransition
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
-import de.robolab.renderer.drawable.base.IAnimationTime
-import de.robolab.renderer.drawable.base.IDrawable
 import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.drawable.utils.BSpline
 import de.robolab.renderer.drawable.utils.SegmentDrawer
@@ -21,9 +19,7 @@ import kotlin.math.PI
 import kotlin.math.absoluteValue
 import kotlin.math.atan2
 
-class RobotDrawable(
-        private val planetDrawable: IAnimationTime
-) : IDrawable {
+class RobotDrawable() {
 
     data class Robot(
             val point: Coordinate,
@@ -94,6 +90,10 @@ class RobotDrawable(
             )
         }
 
+        override fun interpolateToNull(progress: Double): DrawRobot {
+            return this
+        }
+
         override fun toString(): String {
             return "DrawRobot(position=$position, orientation=$orientation)"
         }
@@ -111,11 +111,11 @@ class RobotDrawable(
     private val robotTransition = ValueTransition(DrawRobot(Point.ZERO, 0.0, null, null))
     private val alphaTransition = DoubleTransition(0.0)
 
-    override fun onUpdate(ms_offset: Double): Boolean {
+    fun onUpdate(ms_offset: Double): Boolean {
         var changes = false
 
-        changes = robotTransition.update(ms_offset) || changes
-        changes = alphaTransition.update(ms_offset) || changes
+        changes = robotTransition.onUpdate(ms_offset) || changes
+        changes = alphaTransition.onUpdate(ms_offset) || changes
 
         return changes
     }
@@ -124,7 +124,7 @@ class RobotDrawable(
         return point.rotate(rotation) * 0.2 + translation
     }
 
-    override fun onDraw(context: DrawContext) {
+    fun onDraw(context: DrawContext) {
         if (alphaTransition.value == 0.0) return
 
         val r = robotTransition.value
@@ -174,13 +174,14 @@ class RobotDrawable(
         }
     }
 
-    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
+    fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
         return emptyList()
     }
 
     fun importRobot(planet: Planet?, robot: Robot?) {
         this.planet = planet
 
+        /*
         if (robot == null) {
             alphaTransition.animate(0.0, planetDrawable.animationTime)
         } else {
@@ -194,6 +195,8 @@ class RobotDrawable(
 
             alphaTransition.animate(1.0, planetDrawable.animationTime)
         }
+
+         */
     }
 
     companion object {

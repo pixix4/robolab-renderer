@@ -339,7 +339,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
             ICanvas.FontWeight.NORMAL -> ""
             ICanvas.FontWeight.BOLD -> "bold "
         }
-        context.font = "$weight${fontSize}px sans-serif"
+        context.font = "$weight${fontSize}px 'Roboto Mono'"
 
         context.fillText(text, position.left, position.top)
     }

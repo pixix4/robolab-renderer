@@ -21,17 +21,18 @@ data class Point(
     operator fun times(factor: Number) = Point(left * factor.toDouble(), top * factor.toDouble())
     operator fun times(other: Point) = Point(left * other.left, top * other.top)
     operator fun div(factor: Number) = Point(left / factor.toDouble(), top / factor.toDouble())
+    operator fun div(other: Point) = Point(left / other.left, top / other.top)
     operator fun unaryMinus() = Point(-left, -top)
     operator fun unaryPlus() = this
     operator fun compareTo(other: Point) = (left + top).compareTo(other.left + other.top)
 
-    fun distance(other: Point): Double {
+    infix fun distanceTo(other: Point): Double {
         val l = left - other.left
         val r = top - other.top
         return sqrt(l * l + r * r)
     }
 
-    fun manhattanDistance(other: Point): Double {
+    infix fun manhattanDistanceTo(other: Point): Double {
         return abs(left - other.left) + abs(top - other.top)
     }
 
@@ -52,21 +53,32 @@ data class Point(
         }
     }
 
-    override fun interpolate(toValue: Point, progress: Double) = Point(
-            left * (1 - progress) + toValue.left * progress,
-            top * (1 - progress) + toValue.top * progress
-    )
+    override fun interpolate(toValue: Point, progress: Double): Point {
+        if (progress == 1.0) return toValue
+        if (progress == 0.0) return this
+        
+        return Point(
+                left * (1 - progress) + toValue.left * progress,
+                top * (1 - progress) + toValue.top * progress
+        )
+    }
 
+    override fun interpolateToNull(progress: Double): Point {
+        return this
+    }
+
+    fun orthogonal() = Point(-y, x)
+    
     fun rotate(rotation: Double) = Point(
             left * cos(rotation) - top * sin(rotation),
             left * sin(rotation) + top * cos(rotation)
     )
 
-    fun dotProduct(other: Point) = left * other.left + top * other.top
+    infix fun dotProduct(other: Point) = left * other.left + top * other.top
 
-    fun projectOnto(basis: Point): Point {
-        val distance = this.dotProduct(basis) / (basis.left * basis.left + basis.top * basis.top)
-        return basis * distance
+    infix fun projectOnto(basis: Point): Pair<Double, Point> {
+        val distance = (this dotProduct basis) / (basis.left * basis.left + basis.top * basis.top)
+        return distance to (basis * distance)
     }
 
     fun max(other: Point): Point = Point(

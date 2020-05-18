@@ -3,6 +3,7 @@ package de.robolab.renderer
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.platform.*
+import de.westermann.kobserve.event.emit
 import kotlin.math.PI
 
 class TransformationInteraction(
@@ -14,85 +15,106 @@ class TransformationInteraction(
     var lastDimension: Dimension = Dimension.ZERO
     private var hasMovedSinceDown = false
 
-    override fun onPointerDown(event: PointerEvent): Boolean {
-        val position = plotter.updatePointer(event.point)
-
-        if (position != null && plotter.drawable.onPointerDown(event, position)) {
-            return true
+    var isDrag = false
+    override fun onPointerDown(event: PointerEvent) {
+        isDrag = true
+        val position = plotter.updatePointer(event.mousePoint)
+        if (position != null) {
+            event.canvasPoint = position
         }
 
-        lastPoint = event.point
-        hasMovedSinceDown = false
+        plotter.rootDocument?.emitOnPointerDown(event)
+        if (position != null && !event.bubbles) {
+            return
+        }
 
-        return true
+        lastPoint = event.mousePoint
+        hasMovedSinceDown = false
     }
 
-    override fun onPointerUp(event: PointerEvent): Boolean {
-        val position = plotter.updatePointer(event.point)
+    override fun onPointerUp(event: PointerEvent) {
+        isDrag = false
+        val position = plotter.updatePointer(event.mousePoint)
+        if (position != null) {
+            event.canvasPoint = position
+        }
 
         event.hasMoved = hasMovedSinceDown
         hasMovedSinceDown = false
-        val returnValue = position != null && plotter.drawable.onPointerUp(event, position)
 
-        lastPoint = event.point
+        plotter.rootDocument?.emitOnPointerUp(event)
 
-        return returnValue
+        lastPoint = event.mousePoint
     }
 
-    override fun onPointerMove(event: PointerEvent): Boolean {
-        val position = plotter.updatePointer(event.point)
-
-        if (position != null && plotter.drawable.onPointerMove(event, position)) {
-            return true
+    override fun onPointerMove(event: PointerEvent) {
+        if (isDrag) return
+        val position = plotter.updatePointer(event.mousePoint)
+        if (position != null) {
+            event.canvasPoint = position
+        }
+        
+        plotter.rootDocument?.emitOnPointerMove(event)
+        if (position != null && !event.bubbles) {
+            return
         }
 
-        lastPoint = event.point
-
-        return false
+        lastPoint = event.mousePoint
     }
 
-    override fun onPointerDrag(event: PointerEvent): Boolean {
-        val position = plotter.updatePointer(event.point)
+    override fun onPointerDrag(event: PointerEvent) {
+        val position = plotter.updatePointer(event.mousePoint)
+        if (position != null) {
+            event.canvasPoint = position
+        }
 
         event.hasMoved = hasMovedSinceDown
         hasMovedSinceDown = true
-        if (position != null && plotter.drawable.onPointerDrag(event, position)) {
-            return true
+
+        plotter.rootDocument?.emitOnPointerDrag(event)
+        if (position != null && !event.bubbles) {
+            return
         }
 
-        transformation.translateBy(event.point - lastPoint)
-        plotter.drawable.onUserTransformation()
+        transformation.translateBy(event.mousePoint - lastPoint)
+        plotter.rootDocument?.onUserTransformation?.emit()
 
-        lastPoint = event.point
-
-        return true
+        lastPoint = event.mousePoint
     }
 
-    override fun onPointerSecondaryAction(event: PointerEvent): Boolean {
-        val position = plotter.updatePointer(event.point)
-
-        if (position != null && plotter.drawable.onPointerSecondaryAction(event, position)) {
-            return true
+    override fun onPointerSecondaryAction(event: PointerEvent) {
+        val position = plotter.updatePointer(event.mousePoint)
+        if (position != null) {
+            event.canvasPoint = position
         }
 
-        lastPoint = event.point
-        return false
+        plotter.rootDocument?.emitOnPointerSecondaryAction(event)
+        if (position != null && !event.bubbles) {
+            return
+        }
+
+        lastPoint = event.mousePoint
     }
 
-    override fun onPointerEnter(event: PointerEvent): Boolean {
-        plotter.updatePointer(event.point)
+    override fun onPointerEnter(event: PointerEvent) {
+        isDrag = false
+        val position = plotter.updatePointer(event.mousePoint)
+        if (position != null) {
+            event.canvasPoint = position
+        }
 
-        lastPoint = event.point
-        return false
+        lastPoint = event.mousePoint
     }
 
-    override fun onPointerLeave(event: PointerEvent): Boolean {
-        plotter.updatePointer(null)
-
-        return false
+    override fun onPointerLeave(event: PointerEvent) {
+        isDrag = false
+        val position = plotter.updatePointer(null)
+        if (position != null) {
+            event.canvasPoint = position
+        }
     }
 
-    override fun onScroll(event: ScrollEvent): Boolean {
+    override fun onScroll(event: ScrollEvent) {
         when {
             event.ctrlKey -> {
                 transformation.scaleBy(1.0 + event.delta.top / 40.0 * 0.1, event.point, ANIMATION_TIME)
@@ -105,34 +127,30 @@ class TransformationInteraction(
                 transformation.translateBy(delta, ANIMATION_TIME)
             }
         }
-        plotter.drawable.onUserTransformation()
+        plotter.rootDocument?.onUserTransformation?.emit()
 
         plotter.updatePointer(event.point)
         lastPoint = event.point
-
-        return true
     }
 
-    override fun onZoom(event: ZoomEvent): Boolean {
+    override fun onZoom(event: ZoomEvent) {
         transformation.scaleBy(event.zoomFactor, event.point)
+        plotter.rootDocument?.onUserTransformation?.emit()
 
         plotter.updatePointer(event.point)
         lastPoint = event.point
-
-        return true
     }
 
-    override fun onRotate(event: RotateEvent): Boolean {
+    override fun onRotate(event: RotateEvent) {
         transformation.rotateBy(event.angle, event.point)
+        plotter.rootDocument?.onUserTransformation?.emit()
 
         plotter.updatePointer(event.point)
         lastPoint = event.point
-
-        return true
     }
 
-    override fun onResize(size: Dimension): Boolean {
-        if (lastDimension == size) return true
+    override fun onResize(size: Dimension) {
+        if (lastDimension == size) return
 
         val oldCenter = transformation.canvasToPlanet(lastDimension / 2)
         val newCenter = transformation.canvasToPlanet(size / 2)
@@ -141,26 +159,25 @@ class TransformationInteraction(
 
         lastDimension = size
 
-        plotter.drawable.onResize(size)
+        plotter.rootDocument?.onResize?.emit(size)
         plotter.forceRedraw = true
-
-        return true
     }
 
-    override fun onKeyPress(event: KeyEvent): Boolean {
-        if (plotter.drawable.onKeyPress(event)) {
-            return true
+    override fun onKeyPress(event: KeyEvent) {
+        plotter.rootDocument?.emitOnKeyPress(event)
+        if (!event.bubbles) {
+            return
         }
 
         when (event.keyCode) {
             KeyCode.ARROW_UP -> {
                 transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION), ANIMATION_TIME)
-                plotter.drawable.onUserTransformation()
+                plotter.rootDocument?.onUserTransformation?.emit()
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.ARROW_DOWN -> {
                 transformation.translateBy(Point(0.0, -KEYBOARD_TRANSLATION), ANIMATION_TIME)
-                plotter.drawable.onUserTransformation()
+                plotter.rootDocument?.onUserTransformation?.emit()
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.ARROW_LEFT -> {
@@ -168,7 +185,7 @@ class TransformationInteraction(
                     transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
                     transformation.translateBy(Point(KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
-                    plotter.drawable.onUserTransformation()
+                    plotter.rootDocument?.onUserTransformation?.emit()
                 }
                 plotter.updatePointer(lastPoint)
             }
@@ -177,7 +194,7 @@ class TransformationInteraction(
                     transformation.rotateBy(KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
                     transformation.translateBy(Point(-KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
-                    plotter.drawable.onUserTransformation()
+                    plotter.rootDocument?.onUserTransformation?.emit()
                 }
                 plotter.updatePointer(lastPoint)
             }
@@ -193,14 +210,12 @@ class TransformationInteraction(
                 transformation.scaleOut(lastDimension / 2.0, ANIMATION_TIME)
                 plotter.updatePointer(lastPoint)
             }
-            else -> return false
+            else -> return
         }
-
-        return true
     }
 
-    override fun onKeyRelease(event: KeyEvent): Boolean {
-        return plotter.drawable.onKeyRelease(event)
+    override fun onKeyRelease(event: KeyEvent) {
+        plotter.rootDocument?.emitOnKeyRelease(event)
     }
 
     companion object {

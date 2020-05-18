@@ -3,6 +3,7 @@ package de.westermann.kobserve.property
 import de.westermann.kobserve.Binding
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.event.emit
 
 class FunctionProperty<T>(
         private val delegateAccessor: DelegatePropertyAccessor<T>
@@ -11,7 +12,16 @@ class FunctionProperty<T>(
     override var binding: Binding<T> = Binding.Unbound()
 
     override fun set(value: T) {
-        delegateAccessor.set(value)
+        super.set(value)
+        if (internal != value) {
+            internal = value
+            delegateAccessor.set(value)
+            onChange.emit()
+        }
+    }
+
+    override fun invalidate() {
+        super<FunctionObservableValue>.invalidate()
     }
 
     constructor(

@@ -1,323 +1,326 @@
 package de.robolab.renderer.platform
 
+import kotlin.contracts.contract
+
 data class KeyEvent(
         val keyCode: KeyCode,
         val text: String,
         val ctrlKey: Boolean = false,
         val altKey: Boolean = false,
         val shiftKey: Boolean = false
-)
+): Event()
 
-enum class KeyCode() {
+enum class KeyCode(val char: Char?) {
     // Key: ','
-    COMMA,
+    COMMA(','),
 
     // Key: '<'
-    ANGLE_BRACKET_LEFT,
+    ANGLE_BRACKET_LEFT('<'),
 
     // Key: '.'
-    PERIOD,
+    PERIOD('.'),
 
     // Key: '>'
-    ANGLE_BRACKET_RIGHT,
+    ANGLE_BRACKET_RIGHT('>'),
 
     // Key: '/'
-    SLASH,
+    SLASH('/'),
 
     // Key: '?'
-    QUESTION_MARK,
+    QUESTION_MARK('?'),
 
     // Key: ';'
-    SEMICOLON,
+    SEMICOLON(';'),
 
     // Key: ':'
-    COLON,
+    COLON(':'),
 
     // Key: '''
-    QUOTE,
+    QUOTE('\''),
 
     // Key: '"'
-    DOUBLE_QUOTE,
+    DOUBLE_QUOTE('"'),
 
     // Key: '\'
-    BACKSLASH,
+    BACKSLASH('\\'),
 
     // Key: '|'
-    PIPE,
+    PIPE('|'),
 
     // Key: '['
-    SQUARE_BRACKET_LEFT,
+    SQUARE_BRACKET_LEFT('['),
 
     // Key: '{'
-    CURLY_BRACKET_LEFT,
+    CURLY_BRACKET_LEFT('{'),
 
     // Key: ']'
-    SQUARE_BRACKET_RIGHT,
+    SQUARE_BRACKET_RIGHT(']'),
 
     // Key: '}'
-    CURLY_BRACKET_RIGHT,
+    CURLY_BRACKET_RIGHT('}'),
 
     // Key: '!'
-    EXCLAMATION_MARK,
+    EXCLAMATION_MARK('!'),
 
     // Key: '@'
-    AT,
+    AT('@'),
 
     // Key: '#'
-    HASH,
+    HASH('#'),
 
     // Key: $'
-    DOLLAR,
+    DOLLAR('$'),
 
     // Key: '€'
-    EURO,
+    EURO('€'),
 
     // Key: '%'
-    PERCENT,
+    PERCENT('%'),
 
     // Key: '&'
-    AND,
+    AND('&'),
 
     // Key: '*'
-    MULTIPLY,
+    MULTIPLY('*'),
 
     // Key: '('
-    ROUND_BRACKET_LEFT,
+    ROUND_BRACKET_LEFT('('),
 
     // Key: ')'
-    ROUND_BRACKET_RIGHT,
+    ROUND_BRACKET_RIGHT(')'),
 
     // Key: '-'
-    MINUS,
+    MINUS('-'),
 
     // Key: '_'
-    UNDERSCORE,
+    UNDERSCORE('_'),
 
     // Key: '='
-    EQUALS,
+    EQUALS('='),
 
     // Key: '+'
-    PLUS,
+    PLUS('+'),
 
     // Key: '1'
-    NUM_1,
+    NUM_1('1'),
 
     // Key: '2'
-    NUM_2,
+    NUM_2('2'),
 
     // Key: '3'
-    NUM_3,
+    NUM_3('3'),
 
     // Key: '4'
-    NUM_4,
+    NUM_4('4'),
 
     // Key: '5'
-    NUM_5,
+    NUM_5('5'),
 
     // Key: '6'
-    NUM_6,
+    NUM_6('6'),
 
     // Key: '7'
-    NUM_7,
+    NUM_7('7'),
 
     // Key: '8'
-    NUM_8,
+    NUM_8('8'),
 
     // Key: '9'
-    NUM_9,
+    NUM_9('9'),
 
     // Key: '0'
-    NUM_0,
+    NUM_0('0'),
 
     // Key: 'A'
-    A,
+    A('A'),
 
     // Key: 'B'
-    B,
+    B('B'),
 
     // Key: 'C'
-    C,
+    C('C'),
 
     // Key: 'D'
-    D,
+    D('D'),
 
     // Key: 'E'
-    E,
+    E('E'),
 
     // Key: 'F'
-    F,
+    F('F'),
 
     // Key: 'G'
-    G,
+    G('G'),
 
     // Key: 'H'
-    H,
+    H('H'),
 
     // Key: 'I'
-    I,
+    I('I'),
 
     // Key: 'J'
-    J,
+    J('J'),
 
     // Key: 'K'
-    K,
+    K('K'),
 
     // Key: 'L'
-    L,
+    L('L'),
 
     // Key: 'M'
-    M,
+    M('M'),
 
     // Key: 'N'
-    N,
+    N('N'),
 
     // Key: 'O'
-    O,
+    O('O'),
 
     // Key: 'P'
-    P,
+    P('P'),
 
     // Key: 'Q'
-    Q,
+    Q('Q'),
 
     // Key: 'R'
-    R,
+    R('R'),
 
     // Key: 'S'
-    S,
+    S('S'),
 
     // Key: 'T'
-    T,
+    T('T'),
 
     // Key: 'U'
-    U,
+    U('U'),
 
     // Key: 'V'
-    V,
+    V('V'),
 
     // Key: 'W'
-    W,
+    W('W'),
 
     // Key: 'X'
-    X,
+    X('X'),
 
     // Key: 'Y'
-    Y,
+    Y('Y'),
 
     // Key: 'Z'
-    Z,
+    Z('Z'),
 
     // Key: ' '
-    SPACE,
+    SPACE(' '),
 
     // Key: 'tab'
-    TAB,
+    TAB(null),
 
     // Key: 'shift'
-    SHIFT,
+    SHIFT(null),
 
     // Key: 'ctrl'
-    CTRL,
+    CTRL(null),
 
     // Key: 'alt'
-    ALT,
+    ALT(null),
 
     // Key: 'alt gr'
-    ALT_GRAPHICS,
+    ALT_GRAPHICS(null),
 
     // Key: 'print'
-    PRINT,
+    PRINT(null),
 
     // Key: 'esc'
-    ESCAPE,
+    ESCAPE(null),
 
     // Key: 'home'
-    HOME,
+    HOME(null),
 
     // Key: 'end'
-    END,
+    END(null),
 
     // Key: 'insert'
-    INSERT,
+    INSERT(null),
 
     // Key: 'delete'
-    DELETE,
+    DELETE(null),
 
     // Key: 'backspace'
-    BACKSPACE,
+    BACKSPACE(null),
 
     // Key: 'enter'
-    ENTER,
+    ENTER(null),
 
     // Key: 'page up'
-    PAGE_UP,
+    PAGE_UP(null),
 
     // Key: 'page down'
-    PAGE_DOWN,
+    PAGE_DOWN(null),
 
     // Key: 'arrow up'
-    ARROW_UP,
+    ARROW_UP(null),
 
     // Key: 'arrow left'
-    ARROW_LEFT,
+    ARROW_LEFT(null),
 
     // Key: 'arrow down'
-    ARROW_DOWN,
+    ARROW_DOWN(null),
 
     // Key: 'arrow right'
-    ARROW_RIGHT,
+    ARROW_RIGHT(null),
 
     // Key: 'undo'
-    UNDO,
+    UNDO(null),
 
     // Key: 'redo'
-    REDO,
+    REDO(null),
 
     // Key: 'cut'
-    CUT,
+    CUT(null),
 
     // Key: 'copy'
-    COPY,
+    COPY(null),
 
     // Key: 'paste'
-    PASTE,
+    PASTE(null),
 
     // Key: 'find'
-    FIND,
+    FIND(null),
 
     // Key: 'F1'
-    F1,
+    F1(null),
 
     // Key: 'F2'
-    F2,
+    F2(null),
 
     // Key: 'F3'
-    F3,
+    F3(null),
 
     // Key: 'F4'
-    F4,
+    F4(null),
 
     // Key: 'F5'
-    F5,
+    F5(null),
 
     // Key: 'F6'
-    F6,
+    F6(null),
 
     // Key: 'F7'
-    F7,
+    F7(null),
 
     // Key: 'F8'
-    F8,
+    F8(null),
 
     // Key: 'F9'
-    F9,
+    F9(null),
 
     // Key: 'F10'
-    F10,
+    F10(null),
 
     // Key: 'F11'
-    F11,
+    F11(null),
 
     // Key: 'F12'
-    F12,
+    F12(null);
+    
 }

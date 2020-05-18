@@ -1,23 +1,29 @@
 package de.robolab.renderer.drawable.planet
 
-import de.robolab.planet.Path
 import de.robolab.planet.Planet
 import de.robolab.renderer.IPlotter
 import de.robolab.renderer.ITransformationReference
+import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.TransformationInteraction
 import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.*
-import de.robolab.renderer.drawable.base.GroupDrawable
-import de.robolab.renderer.drawable.base.IAnimationTime
-import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.data.Rectangle
+import de.robolab.renderer.document.*
+import de.robolab.renderer.document.base.Document
+import de.robolab.renderer.drawable.general.PathAnimatable
+import de.robolab.renderer.drawable.utils.BSpline
+import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.Transformation
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
+import kotlin.math.PI
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.round
 
 @Suppress("LeakingThis")
-abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransformationReference {
+abstract class AbsPlanetDrawable() : ITransformationReference {
 
     val drawCompassProperty = property(true)
     var drawCompass by drawCompassProperty
@@ -41,7 +47,7 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
     override val transformation by transformationProperty
 
     val pointerProperty = plotterProperty.nullableFlatMapBinding { it?.pointerProperty }
-    override val pointer by pointerProperty
+    val pointer by pointerProperty
 
     val flipViewProperty = transformationProperty.nullableFlatMapBinding { it?.flipViewProperty }
     val flipView by flipViewProperty.mapBinding { it == true }
@@ -50,87 +56,51 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
         centerPlanet()
     }
 
-    val selectedElementsProperty = property(emptyList<Any>())
-    override var selectedElements by selectedElementsProperty
 
-    override val animationTime: Double
-        get() = plotter?.animationTime ?: 0.0
+    private val backgroundView = RectangleView(null, ViewColor.PRIMARY_BACKGROUND_COLOR)
+    private val gridLinesView = GridLineView()
+    private val nameView = TextView(
+            Point(0, 0),
+            40.0,
+            "",
+            ViewColor.GRID_TEXT_COLOR,
+            ICanvas.FontAlignment.RIGHT,
+            ICanvas.FontWeight.BOLD
+    )
+    private val gridNumbersView = GridNumberView()
+    private val compassView = CompassView()
 
-    private val backgroundDrawable = BackgroundDrawable(this)
-    private val gridLinesDrawable = GridLinesDrawable
-    private val nameDrawable = NameDrawable()
-    private val gridNumbersDrawable = GridNumbersDrawable
-    private val compassDrawable = CompassDrawable(this)
+    private var planetLayers: List<IPlanetLayer> = emptyList()
 
-    private var backgrounds: List<IDrawable> = emptyList()
-    private var underlayers: List<IDrawable> = emptyList()
-    private var planetLayers: List<PlanetLayer> = emptyList()
-    private var overlayers: List<IDrawable> = emptyList()
-    protected fun buildDrawableList(
-            backgrounds: List<IDrawable> = this.backgrounds,
-            underlayers: List<IDrawable> = this.underlayers,
-            planetLayers: List<PlanetLayer> = this.planetLayers,
-            overlayers: List<IDrawable> = this.overlayers
-    ) {
-        this.backgrounds = backgrounds
-        this.underlayers = underlayers
-        this.planetLayers = planetLayers
-        this.overlayers = overlayers
+    fun setPlanetLayers(vararg planetLayer: IPlanetLayer) {
+        planetLayers = planetLayer.toList()
 
-        val list = mutableListOf<IDrawable>()
-
-        if (drawBackground) {
-            list += backgroundDrawable
+        planetLayerViews.clear()
+        for (layer in planetLayer) {
+            planetLayerViews += layer.view
         }
-
-        list += backgrounds
-
-        if (drawGridLines) {
-            list += gridLinesDrawable
-        }
-
-        list += underlayers
-        list += planetLayers
-        list += overlayers
-
-        if (drawGridNumbers) {
-            list += gridNumbersDrawable
-        }
-        if (drawCompass) {
-            list += compassDrawable
-        }
-        if (drawName) {
-            list += nameDrawable
-        }
-
-        drawableList = list
     }
 
-    override var drawableList = emptyList<IDrawable>()
+    protected val backgroundViews = GroupView("Background views")
+    protected val underlayerViews = GroupView("Underlayer views")
+    private val planetLayerViews = GroupView("Planet layer views")
+    protected val overlayerViews = GroupView("Overlayer views")
+
+
+    val view = Document(
+            ConditionalView("Planet background", drawBackgroundProperty, backgroundView),
+            backgroundViews,
+            ConditionalView("Grid lines", drawGridLinesProperty, gridLinesView),
+            underlayerViews,
+            planetLayerViews,
+            overlayerViews,
+            ConditionalView("Grid numbers", drawGridNumbersProperty, gridNumbersView),
+            ConditionalView("Compass", drawCompassProperty, compassView),
+            ConditionalView("Planet name", drawNameProperty, nameView)
+    )
 
     private var transformationState = Transformation.State.DEFAULT
-    override fun onAttach(plotter: IPlotter) {
-        this.plotter = plotter
 
-        plotter.transformation.import(transformationState)
-        if (transformationState.isDefault()) {
-            centerPlanet()
-        }
-    }
-
-    override fun onDetach(plotter: IPlotter) {
-        this.plotter = null
-
-        transformationState = plotter.transformation.export()
-    }
-
-    override fun onUpdate(ms_offset: Double): Boolean {
-        val changed = redraw
-        redraw = false
-        return super.onUpdate(ms_offset) || changed
-    }
-
-    private var redraw = false
 
     private var centerOfPlanets = Point.ZERO
 
@@ -138,41 +108,22 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
     override fun centerPlanet(duration: Double) {
         val transformation = plotter?.transformation ?: return
         val targetCenter = centerOfPlanets
-        val size = (plotter?.size ?: Dimension.ZERO) / 2
-        val currentCenter = transformation.canvasToPlanet(size)
-        val diff = (targetCenter - currentCenter)
-        val diffScaled = diff * transformation.scaledGridWidth * Point(if (flipView) 1.0 else -1.0, 1.0)
+        val size = (plotter?.size ?: Dimension.ZERO) / Point(2.0, -2.0)
+        val point = (targetCenter * transformation.scaledGridWidth - size) * Point(if (flipView) 1.0 else -1.0, 1.0)
 
-        transformation.translateBy(diffScaled, duration)
+        transformation.translateTo(point, duration)
     }
 
     private var isFirstImport = true
     protected fun importPlanets() {
         val planetList = planetLayers.map { it.planet }
 
-        backgroundDrawable.importPlanet(planetList)
-        nameDrawable.importPlanet(planetList.asReversed().firstOrNull { it.name.isNotEmpty() } ?: Planet.EMPTY)
-
-        centerOfPlanets = BackgroundDrawable.calcPlanetArea(planetList)?.center ?: Point.ZERO
-
-        selectedElements = selectedElements.mapNotNull { current ->
-            if (current !is Path) return@mapNotNull current
-
-            for (planet in planetList.asReversed()) {
-                for (path in planet.pathList) {
-                    if (path.equalPath(current)) {
-                        return@mapNotNull path
-                    }
-                }
-                if (planet.startPoint?.path?.equalPath(current) == true) {
-                    return@mapNotNull planet.startPoint.path
-                }
-            }
-
-            return@mapNotNull null
-        }
+        val area = calcPlanetArea(planetList)
+        backgroundView.setRectangle(area?.expand(1.0))
+        nameView.text = planetList.asReversed().firstOrNull { it.name.isNotEmpty() }?.name ?: ""
 
         if (autoCentering) {
+            centerOfPlanets = area?.center ?: Point.ZERO
             centerPlanet(if (isFirstImport) 0.0 else TransformationInteraction.ANIMATION_TIME)
         }
 
@@ -180,30 +131,110 @@ abstract class AbsPlanetDrawable() : GroupDrawable(), IAnimationTime, ITransform
         isFirstImport = false
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    private fun rebuildDrawable(unit: Unit) {
-        redraw = true
-        buildDrawableList()
-    }
-
     init {
-        selectedElementsProperty.onChange {
-            redraw = true
+        view.onAttach { plotter ->
+            this.plotter = plotter
+
+            plotter.transformation.import(transformationState)
+            if (transformationState.isDefault()) {
+                centerPlanet()
+            }
         }
-        drawCompassProperty.onChange(this::rebuildDrawable)
-        drawNameProperty.onChange(this::rebuildDrawable)
-        drawGridNumbersProperty.onChange(this::rebuildDrawable)
-        drawGridLinesProperty.onChange(this::rebuildDrawable)
-        drawBackgroundProperty.onChange(this::rebuildDrawable)
+
+        view.onDetach { plotter ->
+            this.plotter = null
+
+            transformationState = plotter.transformation.export()
+        }
+
+        view.onResize {
+            if (autoCentering) {
+                centerPlanet()
+            }
+        }
+
+        view.onUserTransformation {
+            autoCentering = false
+        }
+
+
+        compassView.onPointerDown { event ->
+            event.stopPropagation()
+        }
+
+        compassView.onPointerUp { event ->
+            event.stopPropagation()
+
+            val transformation = transformation ?: return@onPointerUp
+            val currentAngle = round(transformation.rotation / PI * 180.0 * 100.0) / 100.0
+            val newAngle = ((currentAngle - 180.0) % 360.0 + 180.0) % 360.0
+            transformation.rotateTo(newAngle / 180.0 * PI, event.screen / 2)
+            if (newAngle != 0.0) {
+                transformation.rotateTo(0.0, event.screen / 2, 250.0)
+            } else {
+                autoCentering = true
+                centerPlanet(TransformationInteraction.ANIMATION_TIME)
+            }
+        }
     }
 
-    override fun onResize(size: Dimension) {
-        if (autoCentering) {
-            centerPlanet()
-        }
-    }
+    companion object {
 
-    override fun onUserTransformation() {
-        autoCentering = false
+        fun calcPlanetArea(planetList: List<Planet>): Rectangle? {
+            val areaList = planetList.mapNotNull { calcPlanetArea(it) }
+            return if (areaList.isEmpty()) {
+                null
+            } else {
+                areaList.reduce { acc, rectangle ->
+                    acc.union(rectangle)
+                }
+            }
+        }
+
+        fun calcPlanetArea(planet: Planet): Rectangle? {
+            var minX = Double.MAX_VALUE
+            var minY = Double.MAX_VALUE
+            var maxX = -Double.MAX_VALUE
+            var maxY = -Double.MAX_VALUE
+            var found = false
+
+            fun update(x: Double, y: Double) {
+                minX = min(minX, x)
+                minY = min(minY, y)
+                maxX = max(maxX, x)
+                maxY = max(maxY, y)
+                found = true
+            }
+
+            for (p in planet.pathList) {
+                if (p.hidden) continue
+
+                update(p.source.x.toDouble(), p.source.y.toDouble())
+                update(p.target.x.toDouble(), p.target.y.toDouble())
+
+                for (e in p.exposure) {
+                    update(e.x.toDouble(), e.y.toDouble())
+                }
+
+                val controlPoints = PathAnimatable.getControlPointsFromPath(p)
+                val points = PathAnimatable.multiEval(16, controlPoints, Point(p.source), Point(p.target)) {
+                    BSpline.eval(it, controlPoints)
+                }
+                for (c in points) {
+                    update(c.left, c.top)
+                }
+            }
+
+            if (!found) {
+                return null
+            }
+
+            minX = round(minX * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
+            minY = round(minY * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
+            maxX = round(maxX * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
+            maxY = round(maxY * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
+
+            return Rectangle(minX, minY, maxX - minX, maxY - minY)
+        }
     }
 }

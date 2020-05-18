@@ -32,6 +32,11 @@ class SimpleObservableProperty<T>(initValue: T) : ObservableProperty<T> {
 fun <T> property(initValue: T): ObservableProperty<T> = SimpleObservableProperty(initValue)
 
 /**
+ * Create an observable property with the null as initial value. The property stores the value internally.
+ */
+fun <T: Any> property(): ObservableProperty<T?> = SimpleObservableProperty(null)
+
+/**
  * Create an observable property with the given initial value. The property stores the value internally.
  *
  * @receiver The initial value of the property.

@@ -46,7 +46,7 @@ class TransformationCanvas(private val canvas: ICanvas, private val transformati
         for (point in points) {
             val new = transformation.planetToCanvas(point)
 
-            if (new.manhattanDistance(last) >= 1) {
+            if (new.manhattanDistanceTo(last) >= 1) {
                 canvasPoints += new
                 last = new
             }

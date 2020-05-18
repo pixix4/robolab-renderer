@@ -1,24 +1,20 @@
-package de.robolab.renderer.drawable
+package de.robolab.renderer.document
 
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.document.base.BaseView
 import de.robolab.renderer.utils.DrawContext
 import kotlin.math.ceil
 import kotlin.math.floor
 
-object GridLinesDrawable : IDrawable {
-
-    override fun onUpdate(ms_offset: Double): Boolean {
-        return false
-    }
+class GridLineView() : BaseView() {
 
     override fun onDraw(context: DrawContext) {
         val rectangle = context.area
-
         val startTop = ceil(rectangle.top).toInt()
         val stopTop = floor(rectangle.bottom).toInt()
+
         for (top in startTop..stopTop) {
-            val alpha = GridNumbersDrawable.alphaOfLine(top, context.transformation.scaledGridWidth)
+            val alpha = GridNumberView.alphaOfLine(top, context.transformation.scaledGridWidth)
             if (alpha == 0.0) continue
 
             val p1 = context.transformation.planetToCanvas(Point(rectangle.left, top.toDouble()))
@@ -36,8 +32,9 @@ object GridLinesDrawable : IDrawable {
 
         val startLeft = ceil(rectangle.left).toInt()
         val stopLeft = floor(rectangle.right).toInt()
+
         for (left in startLeft..stopLeft) {
-            val alpha = GridNumbersDrawable.alphaOfLine(left, context.transformation.scaledGridWidth)
+            val alpha = GridNumberView.alphaOfLine(left, context.transformation.scaledGridWidth)
             if (alpha == 0.0) continue
 
             val p1 = context.transformation.planetToCanvas(Point(left.toDouble(), rectangle.top))
@@ -54,7 +51,7 @@ object GridLinesDrawable : IDrawable {
         }
     }
 
-    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
-        return emptyList()
+    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+        return false
     }
 }

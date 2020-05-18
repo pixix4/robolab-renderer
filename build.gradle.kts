@@ -19,6 +19,7 @@ kotlin {
         val main by compilations.getting {
             kotlinOptions {
                 jvmTarget = "11"
+                freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
             }
         }
     }
@@ -26,6 +27,7 @@ kotlin {
         val main by compilations.getting {
             kotlinOptions {
                 moduleKind = "umd"
+                freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
             }
         }
     }

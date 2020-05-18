@@ -1,67 +1,47 @@
 package de.robolab.renderer.drawable.base
 
 import de.robolab.planet.Planet
-import de.robolab.renderer.data.Point
-import de.robolab.renderer.utils.DrawContext
+import de.robolab.renderer.document.GroupView
 
-abstract class AnimatableManager<T, A : Animatable<T>> : IDrawable {
+abstract class AnimatableManager<T: Any, A : Animatable<T>> {
 
-    protected var animatableMap = mapOf<T, A>()
-
-    override fun onUpdate(ms_offset: Double): Boolean {
-        var hasChanges = false
-
-        for (animatable in animatableMap.values) {
-            if (animatable.onUpdate(ms_offset)) {
-                hasChanges = true
-            }
-        }
-
-        return hasChanges
-    }
-
-    override fun onDraw(context: DrawContext) {
-        for (animatable in animatableMap.values) {
-            animatable.onDraw(context)
-        }
-    }
-
-    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
-        return animatableMap.values.flatMap { it.getObjectsAtPosition(context, position) }
-    }
+    private val animatableMap = mutableMapOf<T, A>()
 
     abstract fun getObjectList(planet: Planet): List<T>
     abstract fun createAnimatable(obj: T, planet: Planet): A
 
+    val view = GroupView(this::class.simpleName)
+
+    open fun objectEquals(p1: T, p2: T): Boolean {
+        return p1 == p2
+    }
+    
     open fun importPlanet(planet: Planet) {
         val newReferenceList = getObjectList(planet)
 
-        val objectsToDelete = animatableMap.keys - newReferenceList
-        val objectsToCreate = newReferenceList - animatableMap.keys
-
-        val updateMap = (animatableMap.keys - objectsToDelete).associateWith { o1 ->
-            newReferenceList.find { o1 == it } ?: o1
+        val updateMap = animatableMap.keys.associateWith { p ->
+            newReferenceList.firstOrNull { objectEquals(it, p) }
         }
+
+        val objectsToCreate = newReferenceList - updateMap.values.filterNotNull()
+        val objectsToDelete = updateMap.filterValues { it == null }.keys
 
         for (o in objectsToDelete) {
-            animatableMap[o]?.let { a ->
-                a.startExitAnimation {
-                    animatableMap = animatableMap - o
-                }
-            }
+            val animatable = animatableMap.remove(o)
+            animatable?.onDestroy(view)
         }
 
-        for ((old, new) in updateMap) {
-            val elem = animatableMap[old] ?: continue
-            animatableMap - old
-            elem.startUpdateAnimation(new, planet)
-            animatableMap = animatableMap + (new to elem)
+        for ((old, n) in updateMap) {
+            val new = n ?: continue
+            val animatable = animatableMap.remove(old) ?: continue
+            animatable.onUpdate(new, planet)
+            animatableMap[new] = animatable
         }
 
         for (o in objectsToCreate) {
-            val a = createAnimatable(o, planet)
-            animatableMap = animatableMap + (o to a)
-            a.startEnterAnimation { }
+            val animatable = createAnimatable(o, planet)
+            animatableMap[o] = animatable
+            animatable.onCreate(view)
         }
     }
 }

@@ -4,12 +4,9 @@ import de.robolab.planet.Planet
 import de.robolab.planet.TargetPoint
 import de.robolab.renderer.data.Color
 import de.robolab.renderer.drawable.base.AnimatableManager
-import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.utils.Utils
 
-class TargetAnimatableManager(
-        private val animationTime: IAnimationTime
-) : AnimatableManager<TargetPoint, TargetAnimatable>() {
+class TargetAnimatableManager: AnimatableManager<TargetPoint, TargetAnimatable>() {
 
     override fun getObjectList(planet: Planet): List<TargetPoint> {
         return planet.targetList.distinctBy { it.target }
@@ -24,8 +21,7 @@ class TargetAnimatableManager(
 
         return TargetAnimatable(
                 obj,
-                color ?: Color.TRANSPARENT,
-                animationTime
+                color ?: Color.TRANSPARENT
         )
     }
 }

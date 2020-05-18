@@ -3,9 +3,10 @@ package de.westermann.kobserve.event
 /**
  * This class represents a simple event handler who manages listeners for an event of type 'E'.
  */
+@Suppress("SuspiciousCollectionReassignment")
 class EventHandler<E>() {
 
-    private val listeners: MutableMap<(E) -> Unit, EventListener<E>?> = mutableMapOf()
+    private var listeners: Map<(E) -> Unit, EventListener<E>?> = emptyMap()
 
     /**
      * Add an event listener to this handler if it is not already present.
@@ -16,7 +17,7 @@ class EventHandler<E>() {
      */
     fun addListener(listener: (E) -> Unit): ((E) -> Unit) {
         if (listener !in listeners) {
-            listeners[listener] = null
+            listeners += listener to null
             onAttach()
         }
 
@@ -40,7 +41,7 @@ class EventHandler<E>() {
      */
     fun clearListeners() {
         if (listeners.isNotEmpty()) {
-            listeners.clear()
+            listeners = emptyMap()
             onDetach()
         }
     }
@@ -90,7 +91,7 @@ class EventHandler<E>() {
         var reference = listeners[listener]
         if (reference == null) {
             reference = Listener(listener)
-            listeners[listener] = reference
+            listeners += listener to reference
         }
 
         return reference
@@ -150,7 +151,7 @@ class EventHandler<E>() {
             }
 
             addListener(listener)
-            listeners[listener] = this
+            listeners += listener to this
             return true
         }
 
@@ -203,4 +204,12 @@ operator fun <T> EventHandler<out T>.plus(other: EventHandler<out T>): EventHand
 @Suppress("NOTHING_TO_INLINE")
 inline fun EventHandler<Unit>.emit() {
     emit(Unit)
+}
+
+fun <T> EventHandler<T>.once(listener: (T) -> Unit) {
+    var temp: (T) -> Unit = {}
+    temp = addListener {
+        listener(it)
+        removeListener(temp)
+    }
 }

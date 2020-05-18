@@ -1,7 +1,7 @@
-package de.robolab.renderer.drawable
+package de.robolab.renderer.document
 
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.document.base.BaseView
 import de.robolab.renderer.drawable.utils.log2
 import de.robolab.renderer.drawable.utils.power2
 import de.robolab.renderer.platform.ICanvas
@@ -10,11 +10,7 @@ import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.floor
 
-object GridNumbersDrawable : IDrawable {
-
-    override fun onUpdate(ms_offset: Double): Boolean {
-        return false
-    }
+class GridNumberView() : BaseView() {
 
     override fun onDraw(context: DrawContext) {
         val rectangle = context.area
@@ -69,33 +65,36 @@ object GridNumbersDrawable : IDrawable {
         }
     }
 
-    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
-        return emptyList()
+    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+        return false
     }
 
-    private const val FONT_SIZE = 16.0
+    companion object {
 
-    fun alphaOfLine(index: Int, scaledGridWidth: Double): Double {
-        val lineCountPerCell = ((FONT_SIZE * 2.0) / scaledGridWidth)
-        if (lineCountPerCell <= 1.0) {
-            return 1.0
-        }
+        private const val FONT_SIZE = 16.0
 
-        val lineModulo = power2(log2(ceil(lineCountPerCell).toInt() - 1) + 1)
-        if (index % lineModulo == 0) {
-            return 1.0
-        }
+        fun alphaOfLine(index: Int, scaledGridWidth: Double): Double {
+            val lineCountPerCell = ((FONT_SIZE * 2.0) / scaledGridWidth)
+            if (lineCountPerCell <= 1.0) {
+                return 1.0
+            }
 
-        val prevLineModulo = power2(log2(ceil(lineCountPerCell).toInt() - 1))
-        if (index % prevLineModulo != 0) {
+            val lineModulo = power2(log2(ceil(lineCountPerCell).toInt() - 1) + 1)
+            if (index % lineModulo == 0) {
+                return 1.0
+            }
+
+            val prevLineModulo = power2(log2(ceil(lineCountPerCell).toInt() - 1))
+            if (index % prevLineModulo != 0) {
+                return 0.0
+            }
+
+            val lineDiff = lineCountPerCell - prevLineModulo
+            if (lineDiff < 0.2) {
+                return 1.0 - lineDiff / 0.2
+            }
+
             return 0.0
         }
-
-        val lineDiff = lineCountPerCell - prevLineModulo
-        if (lineDiff < 0.2) {
-            return 1.0 - lineDiff / 0.2
-        }
-
-        return 0.0
     }
 }

@@ -67,6 +67,10 @@ class SettingsDialog : GenericDialog() {
                         }
                     }
                 }
+
+                field("Enable render debugging") {
+                    checkbox("", PreferenceStorage.debugModeProperty.toFx())
+                }
                 field("Reset all settings") {
                     button("Reset") {
                         setOnAction {

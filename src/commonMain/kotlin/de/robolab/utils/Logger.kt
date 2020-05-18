@@ -15,21 +15,35 @@ class Logger(val name: String) {
         }
     }
 
+    fun log(level: Level, msg: Any?) {
+        if (level.index <= this.level.index) {
+            output.log(this, level, msg)
+        }
+    }
+
     fun getCurrentDate(): String {
         return LOG_DATE_FORMAT.format(DateTimeTz.nowLocal())
     }
 
     fun error(msg: () -> Any?) = log(Level.ERROR, msg)
+    fun error(msg: Any?) = log(Level.ERROR, msg)
     fun e(msg: () -> Any?) = log(Level.ERROR, msg)
+    fun e(msg: Any?) = log(Level.ERROR, msg)
 
     fun warn(msg: () -> Any?) = log(Level.WARN, msg)
+    fun warn(msg: Any?) = log(Level.WARN, msg)
     fun w(msg: () -> Any?) = log(Level.WARN, msg)
+    fun w(msg: Any?) = log(Level.WARN, msg)
 
     fun info(msg: () -> Any?) = log(Level.INFO, msg)
+    fun info(msg: Any?) = log(Level.INFO, msg)
     fun i(msg: () -> Any?) = log(Level.INFO, msg)
+    fun i(msg: Any?) = log(Level.INFO, msg)
 
     fun debug(msg: () -> Any?) = log(Level.DEBUG, msg)
+    fun debug(msg: Any?) = log(Level.DEBUG, msg)
     fun d(msg: () -> Any?) = log(Level.DEBUG, msg)
+    fun d(msg: Any?) = log(Level.DEBUG, msg)
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun printStacktrace() {

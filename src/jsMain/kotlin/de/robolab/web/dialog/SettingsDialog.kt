@@ -56,6 +56,10 @@ class SettingsDialog() : Dialog("Settings") {
                 selectView(PreferenceStorage.logLevelProperty, transform = { it.name.toLowerCase().capitalize() })
             }
 
+            dialogFormEntry("Enable render debugging") {
+                label(checkbox(PreferenceStorage.debugModeProperty))
+            }
+
             button("Reset all settings") {
                 onClick {
                     PreferenceStorage.reset()

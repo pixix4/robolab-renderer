@@ -6,16 +6,13 @@ import de.robolab.planet.Planet
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.drawable.base.AnimatableManager
-import de.robolab.renderer.drawable.base.IAnimationTime
 import de.robolab.renderer.drawable.live.toAngle
 
-class PathSelectAnimatableManager(
-        private val animationTime: IAnimationTime
-) : AnimatableManager<PathSelect, PathSelectAnimatable>() {
+class PathSelectAnimatableManager : AnimatableManager<PathSelect, PathSelectAnimatable>() {
 
     override fun getObjectList(planet: Planet) = planet.pathSelectList
 
-    override fun createAnimatable(obj: PathSelect, planet: Planet) = PathSelectAnimatable(obj, animationTime)
+    override fun createAnimatable(obj: PathSelect, planet: Planet) = PathSelectAnimatable(obj)
 
     companion object {
         fun getArrow(position: Point, direction: Direction): List<Point> {

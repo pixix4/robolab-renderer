@@ -14,8 +14,13 @@ data class Rectangle(
     val right: Double by lazy { left + width }
     val bottom: Double by lazy { top + height }
     val center: Point by lazy { Point(left + width / 2, top + height / 2) }
+    
+    val bottomLeft: Point by lazy { Point(left, bottom) }
+    val bottomRight: Point by lazy { Point(right, bottom) }
+    val topLeft: Point by lazy { Point(left, top) }
+    val topRight: Point by lazy { Point(right, top) }
 
-    fun intersects(other: Rectangle): Boolean {
+    infix fun intersects(other: Rectangle): Boolean {
         return other.right > left && other.bottom > top && other.left < right && other.top < bottom;
     }
 
@@ -35,7 +40,7 @@ data class Rectangle(
 
     fun shrink(vertical: Double, horizontal: Double) = expand(-vertical, -horizontal)
 
-    fun union(other: Rectangle): Rectangle {
+    infix fun union(other: Rectangle): Rectangle {
         return fromEdges(toEdgeList() + other.toEdgeList())
     }
 
@@ -45,6 +50,12 @@ data class Rectangle(
             width * (1 - progress) + toValue.width * progress,
             height * (1 - progress) + toValue.height * progress
     )
+
+    override fun interpolateToNull(progress: Double): Rectangle {
+        val centerRect = fromEdges(center)
+
+        return interpolate(centerRect, progress)
+    }
 
     fun toEdgeList() = listOf(
             Point(left, top),
@@ -85,12 +96,30 @@ data class Rectangle(
         }
 
         fun fromDimension(origin: Point, size: Dimension): Rectangle {
+            var left = origin.left
+            var top = origin.top
+            var width = size.width
+            var height = size.height
+            
+            if (width < 0.0) {
+                left += width
+                width *= -1-0
+            }
+            if (height < 0.0) {
+                top += height
+                height *= -1-0
+            }
+            
             return Rectangle(
-                    origin.left,
-                    origin.top,
-                    size.width,
-                    size.height
+                    left,
+                    top,
+                    width,
+                    height
             )
         }
     }
+}
+
+infix fun Rectangle?.unionNullable(other: Rectangle?): Rectangle? {
+    return (this ?: return other) union (other ?: return this)
 }

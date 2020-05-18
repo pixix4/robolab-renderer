@@ -1,79 +1,49 @@
 package de.robolab.renderer
 
 import de.robolab.renderer.data.Dimension
-import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.BlankDrawable
-import de.robolab.renderer.drawable.base.IDrawable
+import de.robolab.renderer.document.base.Document
+import de.robolab.renderer.document.base.IView
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.platform.ITimer
-import de.robolab.renderer.utils.DrawContext
-import de.robolab.renderer.utils.Pointer
-import de.robolab.renderer.utils.Transformation
+import de.robolab.utils.Logger
 import de.robolab.utils.PreferenceStorage
-import de.westermann.kobserve.property.property
+import kotlin.js.JsName
 
 /**
  * @author lars
  */
 class DefaultPlotter(
         canvas: ICanvas,
-        timer: ITimer,
-        drawable: IDrawable = BlankDrawable(),
-        override var animationTime: Double = 0.0
-) : IPlotter {
-    override val transformation = Transformation()
-
-    var drawable: IDrawable = BlankDrawable()
-        set(value) {
-            field.onDetach(this)
-            field = value
-            field.onAttach(this)
-        }
+        private val timer: ITimer,
+        rootDocument: Document? = null,
+        animationTime: Double = 0.0
+) : IPlotter(canvas, PreferenceStorage.selectedTheme.theme, animationTime) {
 
     private val interaction = TransformationInteraction(this)
+    
+    override val updateHover: Boolean
+    get() = !interaction.isDrag
+
     override val size: Dimension
         get() = interaction.lastDimension
 
-    override val context = DrawContext(canvas, transformation, PreferenceStorage.selectedTheme.theme)
+    override val fps: Double
+        get() = timer.fps
 
     var forceRedraw = false
+    override fun onUpdate(ms_offset: Double): Boolean {
+        var changes = super.onUpdate(ms_offset)
 
-    override val pointerProperty = property<Pointer?>(null)
-    override var pointer by pointerProperty
-
-    override fun render(ms_offset: Double) {
-        var changes = drawable.onUpdate(ms_offset)
-        changes = transformation.update(ms_offset) || changes
         if (forceRedraw) {
             forceRedraw = false
             changes = true
         }
-
-        if (changes) {
-            context.clear(context.theme.plotter.secondaryBackgroundColor)
-            drawable.onDraw(context)
-        }
-    }
-
-    fun getObjectsAtPosition(position: Point): List<Any> {
-        return drawable.getObjectsAtPosition(context, position)
-    }
-
-    override fun updatePointer(mousePosition: Point?): Point? {
-        if (mousePosition == null) {
-            pointer = null
-            return null
-        }
-
-        val position = transformation.canvasToPlanet(mousePosition)
-        val elements = getObjectsAtPosition(position).distinct()
-
-        pointer = Pointer(position, mousePosition, elements)
-        return position
+        
+        return changes
     }
 
     init {
-        this.drawable = drawable
+        this.rootDocument = rootDocument
         canvas.setListener(interaction)
         transformation.onViewChange {
             updatePointer()
@@ -86,5 +56,34 @@ class DefaultPlotter(
 
         timer.onRender(this::render)
         timer.start()
+        
+        instance = this
     }
+    
+    companion object {
+        var instance: DefaultPlotter? = null
+    }
+}
+
+/**
+ * JS console call: `robolab.de.robolab.renderer.logRenderer()`
+ */
+@Suppress("unused")
+@JsName("logRenderer")
+fun logRenderer() {
+    val logger = Logger("DefaultPlotter")
+    val document = DefaultPlotter.instance?.rootDocument ?: return
+    
+    val result = mutableListOf("")
+    fun log(view: IView, depth: Int) {
+        result += "    ".repeat(depth) + view
+
+        for (v in view) {
+            log(v, depth + 1)
+        }
+    }
+
+    log(document, 0)
+
+    logger.info(result.joinToString("\n"))
 }

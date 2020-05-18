@@ -7,10 +7,6 @@ import de.robolab.planet.Path
 import de.robolab.renderer.DefaultPlotter
 import de.robolab.renderer.TransformationInteraction
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.drawable.BlankDrawable
-import de.robolab.renderer.drawable.edit.EditControlPointsDrawable
-import de.robolab.renderer.drawable.edit.EditDrawEndDrawable
-import de.robolab.renderer.drawable.edit.EditPaperBackground
 import de.robolab.renderer.platform.CommonTimer
 import de.robolab.renderer.platform.ICanvas
 import de.robolab.renderer.utils.Pointer
@@ -35,11 +31,7 @@ class CanvasController(
 
         selectedEntryProperty.onChange {
             val plottable = selectedEntryProperty.value
-            if (plottable == null) {
-                plotter.drawable = BlankDrawable()
-            } else {
-                plotter.drawable = plottable.drawable
-            }
+            plotter.rootDocument = plottable?.document
         }
 
         pointerProperty.bind(plotter.pointerProperty)
@@ -55,7 +47,6 @@ class CanvasController(
         if (plotter.transformation.rotation != 0.0) {
             list.add("Rotation: ${((plotter.transformation.rotation / PI * 180) % 360).roundToInt()}%")
         }
-        list.addAll(pointer.objectsUnderPointer.map(this::format))
         list.filter { it.isNotBlank() }
     }
 
@@ -63,9 +54,6 @@ class CanvasController(
         is Path -> "Path(${obj.source.x},${obj.source.y},${obj.sourceDirection.name.first()} -> ${obj.target.x},${obj.target.y},${obj.targetDirection.name.first()})"
         is Coordinate -> "Coordinate(${obj.x},${obj.y})"
         is Point -> "${obj.left.toFixed(2)},${obj.top.toFixed(2)}"
-        is EditDrawEndDrawable.PointEnd -> "PointEnd(${obj.point.x},${obj.point.y} -> ${obj.direction.name.first()})"
-        is EditControlPointsDrawable.ControlPoint -> "ControlPoint(index ${obj.point} of ${format(obj.path)})"
-        is EditPaperBackground.EditPaperEdge -> "Paper edge"
         else -> obj.toString()
     }
 

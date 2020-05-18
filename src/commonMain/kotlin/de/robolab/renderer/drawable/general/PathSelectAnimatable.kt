@@ -1,74 +1,36 @@
 package de.robolab.renderer.drawable.general
 
-import de.robolab.planet.Direction
 import de.robolab.planet.PathSelect
 import de.robolab.planet.Planet
-import de.robolab.renderer.animation.DoubleTransition
-import de.robolab.renderer.data.Point
+import de.robolab.renderer.PlottingConstraints
+import de.robolab.renderer.data.Color
+import de.robolab.renderer.document.ArrowView
+import de.robolab.renderer.document.ViewColor
 import de.robolab.renderer.drawable.base.Animatable
-import de.robolab.renderer.drawable.base.IAnimationTime
-import de.robolab.renderer.utils.DrawContext
+import de.robolab.renderer.drawable.utils.toPoint
 
 class PathSelectAnimatable(
-        reference: PathSelect,
-        private val animationTime: IAnimationTime
+        reference: PathSelect
 ) : Animatable<PathSelect>(reference) {
 
-    private val position = Point(reference.point.x.toDouble(), reference.point.y.toDouble())
+    override val view: ArrowView
 
-    private val transition = DoubleTransition(0.0)
-    override val animators = listOf(transition)
+    override fun onUpdate(obj: PathSelect, planet: Planet) {
+        super.onUpdate(obj, planet)
 
-    private var oldDirections = emptyList<Direction>()
-    private var newDirections = listOf(reference.direction)
-
-    override fun onDraw(context: DrawContext) {
-        for (dir in oldDirections - newDirections) {
-            val (bottom, top) = PathSelectAnimatableManager.getArrow(position, dir)
-            PathAnimatable.drawArrow(context, bottom, top, context.theme.plotter.lineColor.a(1 - transition.value))
-        }
-
-        for (dir in newDirections - oldDirections) {
-            val (bottom, top) = PathSelectAnimatableManager.getArrow(position, dir)
-            PathAnimatable.drawArrow(context, bottom, top, context.theme.plotter.lineColor.a(transition.value))
-        }
-
-        for (dir in newDirections - (newDirections - oldDirections)) {
-            val (bottom, top) = PathSelectAnimatableManager.getArrow(position, dir)
-            PathAnimatable.drawArrow(context, bottom, top, context.theme.plotter.lineColor)
-        }
+        val (source, target) = PathSelectAnimatableManager.getArrow(reference.point.toPoint(), reference.direction)
+        view.setSource(source)
+        view.setTarget(target)
     }
 
-    override fun getObjectsAtPosition(context: DrawContext, position: Point): List<Any> {
-        return emptyList()
-    }
+    init {
+        val (source, target) = PathSelectAnimatableManager.getArrow(reference.point.toPoint(), reference.direction)
 
-    override fun startExitAnimation(onFinish: () -> Unit) {
-        oldDirections = newDirections
-        newDirections = emptyList()
-
-        transition.resetValue(0.0)
-        transition.animate(1.0, animationTime.animationTime / 2, 0.0)
-        transition.onFinish.clearListeners()
-        transition.onFinish {
-            onFinish()
-        }
-    }
-
-    override fun startEnterAnimation(onFinish: () -> Unit) {
-        transition.resetValue(0.0)
-        transition.animate(1.0, animationTime.animationTime / 2, animationTime.animationTime / 2)
-        transition.onFinish.clearListeners()
-        transition.onFinish {
-            onFinish()
-        }
-    }
-
-    override fun startUpdateAnimation(obj: PathSelect, planet: Planet) {
-        reference = obj
-        oldDirections = newDirections
-        newDirections = listOf(obj.direction)
-
-        transition.animate(1.0, animationTime.animationTime / 2, animationTime.animationTime / 4)
+        view = ArrowView(
+                source,
+                target,
+                PlottingConstraints.LINE_WIDTH * 0.65,
+                ViewColor.LINE_COLOR
+        )
     }
 }
