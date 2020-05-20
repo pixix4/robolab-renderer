@@ -71,8 +71,8 @@ class MeasuringLineView(
         super.onDraw(context)
     }
 
-    override fun updateBoundingBox(): Rectangle? {
-        val parentBox = super.updateBoundingBox()
+    override fun calculateBoundingBox(): Rectangle? {
+        val parentBox = super.calculateBoundingBox()
         return Rectangle.fromEdges(source, target).expand(PlottingConstraints.LINE_WIDTH / 2) unionNullable parentBox
     }
 

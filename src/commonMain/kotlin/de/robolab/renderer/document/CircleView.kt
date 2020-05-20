@@ -43,8 +43,8 @@ class CircleView(
         super.onDraw(context)
     }
 
-    override fun updateBoundingBox(): Rectangle? {
-        val parentBox = super.updateBoundingBox()
+    override fun calculateBoundingBox(): Rectangle? {
+        val parentBox = super.calculateBoundingBox()
         return Rectangle(
                 center.left - radius,
                 center.top - radius,
@@ -62,10 +62,8 @@ class CircleView(
     }
 
     override fun onDestroy(onFinish: () -> Unit) {
-        onAnimationFinish.once {
-            onFinish()
-        }
-
         setRadius(0.0)
+
+        animatableManager.onFinish(onFinish)
     }
 }

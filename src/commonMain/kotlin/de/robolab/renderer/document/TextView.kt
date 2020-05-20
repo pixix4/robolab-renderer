@@ -74,8 +74,8 @@ class TextView(
     }
 
     private var box = Rectangle.ZERO
-    override fun updateBoundingBox(): Rectangle? {
-        val parentBox = super.updateBoundingBox()
+    override fun calculateBoundingBox(): Rectangle? {
+        val parentBox = super.calculateBoundingBox()
         
         val width = fontSize / 120 * (text.length + 2)
         val height = fontSize / 100 * 1.8

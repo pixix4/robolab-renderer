@@ -3,9 +3,8 @@ package de.robolab.renderer.drawable.edit
 import de.robolab.planet.Direction
 import de.robolab.renderer.PlottingConstraints
 import de.robolab.renderer.data.Point
-import de.robolab.renderer.document.CircleView
-import de.robolab.renderer.document.MultiLineView
-import de.robolab.renderer.document.ViewColor
+import de.robolab.renderer.document.*
+import de.robolab.renderer.document.base.IView
 import de.robolab.renderer.drawable.general.PathAnimatable
 import de.robolab.renderer.platform.KeyCode
 import kotlin.math.max
@@ -22,16 +21,43 @@ class PathEditManager(
         get() = controlPoints.drop(1).dropLast(if (animatable.isOneWayPath) 0 else 1)
 
     private val linePoints
-        get() = listOf(animatable.view.source) + controlPoints + animatable.view.target
+        get() = listOf(animatable.view.source) + editableControlPoints + animatable.view.target
 
-    val view = MultiLineView(linePoints, PlottingConstraints.LINE_WIDTH / 2, ViewColor.EDIT_COLOR)
-
-    val controlPointViews = mutableListOf<CircleView>()
+    private val lineView = GroupView("Path edit manager - Lines")
+    private val controlPointView = GroupView("Path edit manager - Control points")
+    
+    val view = GroupView(
+            "Path edit manager",
+            lineView,
+            controlPointView
+    ).also {
+        it.animationTime = 0.0
+    }
 
     fun onUpdate() {
-        view.setPoints(linePoints, 0.0)
+        updateViews()
+    }
+    
+    private fun updateViews() {
         updateControlPoints()
-        view.requestRedraw()
+        updateLines()
+    }
+    
+    private fun focusViewInDirection(view: IView, direction: Int) {
+        val index = if (view is CircleView) {
+            controlPointView.indexOf(view) * 2 + 1
+        } else lineView.indexOf(view) * 2
+        
+        if (index < 0) return
+        
+        val size = controlPointView.size + lineView.size
+        val newIndex =  (index + direction + size) % size
+
+        if (newIndex % 2 == 0) {
+            lineView[newIndex / 2].focus()
+        } else {
+            controlPointView[(newIndex - 1) / 2].focus()
+        }
     }
     
     private fun updateControlPoint(index: Int, position: Point): Point {
@@ -69,15 +95,15 @@ class PathEditManager(
         }
     }
 
-    private fun setupPointView(view: CircleView) {
+    private fun setupControlPointView(view: CircleView) {
         view.focusable = true
         var groupChanges = true
         
         fun updateSize() {
             if (view.isFocused || view.isHovered) {
-                view.setRadius(PlottingConstraints.LINE_WIDTH * 3, 0.0)
+                view.setRadius(PlottingConstraints.LINE_WIDTH * 3)
             } else {
-                view.setRadius(PlottingConstraints.LINE_WIDTH * 2, 0.0)
+                view.setRadius(PlottingConstraints.LINE_WIDTH * 2)
             }
             groupChanges = false
         }
@@ -107,7 +133,7 @@ class PathEditManager(
             }
 
             val callback = animatable.editProperty.value ?: return@onPointerDrag
-            val index = controlPointViews.indexOf(view)
+            val index = controlPointView.indexOf(view)
 
             val cp = editableControlPoints.toMutableList()
 
@@ -132,13 +158,14 @@ class PathEditManager(
         }
         view.onKeyPress {event ->
             val callback = animatable.editProperty.value ?: return@onKeyPress
-            val index = controlPointViews.indexOf(view)
+            val index = controlPointView.indexOf(view)
             val cp = editableControlPoints.toMutableList()
             
             when (event.keyCode) {
                 KeyCode.DELETE, KeyCode.BACKSPACE -> {
                     cp.removeAt(index)
 
+                    focusViewInDirection(view, -1)
                     callback.updatePathControlPoints(
                             animatable.reference,
                             cp
@@ -190,15 +217,11 @@ class PathEditManager(
                     }
                 }
                 KeyCode.TAB -> {
-                    var i = index
                     if (event.shiftKey) {
-                        i -=  1
-                        if (i < 0) i = controlPointViews.lastIndex
+                        focusViewInDirection(view, -1)
                     } else {
-                        i += 1
-                        if (i > controlPointViews.lastIndex) i = 0
+                        focusViewInDirection(view, 1)
                     }
-                    controlPointViews[i].focus()
                 }
                 else -> {
                     groupChanges = false
@@ -213,32 +236,117 @@ class PathEditManager(
     private fun updateControlPoints() {
         val cpList = editableControlPoints
 
-        for (index in 0 until max(cpList.size, controlPointViews.size)) {
+        for (index in 0 until max(cpList.size, controlPointView.size)) {
             val cp = cpList.getOrNull(index)
-            val v = controlPointViews.getOrNull(index)
+            val v = controlPointView.getOrNull(index) as? CircleView
 
             if (cp != null && v != null) {
-                v.setCenter(cp, 0.0)
+                v.setCenter(cp)
             } else if (cp != null) {
                 val newView = CircleView(
                         cp,
                         PlottingConstraints.LINE_WIDTH * 2,
                         ViewColor.EDIT_COLOR
                 )
-                controlPointViews += newView
-                view += newView
+                controlPointView.add(newView)
 
-                setupPointView(newView)
+                setupControlPointView(newView)
             }
         }
 
-        while (controlPointViews.size > cpList.size) {
-            val v = controlPointViews.removeAt(controlPointViews.lastIndex)
-            view -= v
+        for (i in controlPointView.lastIndex downTo cpList.size) {
+            controlPointView.removeAt(i)
+        }
+    }
+    
+    private fun setupLineView(view: LineView) {
+        view.focusable = true
+
+        fun updateSize() {
+            if (view.isHovered || view.isFocused) {
+                view.setWidth(PlottingConstraints.LINE_WIDTH)
+            } else {
+                view.setWidth(PlottingConstraints.LINE_WIDTH / 2.0)
+            }
+        }
+
+        view.onHoverEnter {
+            updateSize()
+        }
+        view.onHoverLeave  {
+            updateSize()
+        }
+        view.onFocus {
+            updateSize()
+        }
+        view.onBlur  {
+            updateSize()
+        }
+
+        view.onPointerDown { event ->
+            event.stopPropagation()
+        }
+        view.onKeyPress {event ->
+            val callback = animatable.editProperty.value ?: return@onKeyPress
+            val index = lineView.indexOf(view)
+            val cp = editableControlPoints.toMutableList()
+
+            when (event.keyCode) {
+                KeyCode.SPACE -> {
+                    val position = view.source.interpolate(view.target, 0.5)
+                    cp.add(index, position)
+
+                    callback.updatePathControlPoints(
+                            animatable.reference,
+                            cp
+                    )
+
+                    focusViewInDirection(view, 1)
+                }
+                KeyCode.TAB -> {
+                    if (event.shiftKey) {
+                        focusViewInDirection(view, -1)
+                    } else {
+                        focusViewInDirection(view, 1)
+                    }
+                }
+                else -> {
+                    return@onKeyPress
+                }
+            }
+
+            event.stopPropagation()
+        }
+    }
+
+    private fun updateLines() {
+        val cpList = linePoints.windowed(2, 1)
+
+        for (index in 0 until max(cpList.size, lineView.size)) {
+            val cp = cpList.getOrNull(index)
+            val v = lineView.getOrNull(index) as? LineView
+
+            if (cp != null && v != null) {
+                v.setSource(cp[0])
+                v.setTarget(cp[1])
+            } else if (cp != null) {
+                val newView = LineView(
+                        cp[0], cp[1],
+                        PlottingConstraints.LINE_WIDTH / 2.0,
+                        ViewColor.EDIT_COLOR
+                )
+                lineView.add(newView)
+
+                setupLineView(newView)
+            }
+        }
+
+        for (i in lineView.lastIndex downTo cpList.size) {
+            lineView.removeAt(i)
         }
     }
 
     init {
-        updateControlPoints()
+        updateViews()
     }
 }

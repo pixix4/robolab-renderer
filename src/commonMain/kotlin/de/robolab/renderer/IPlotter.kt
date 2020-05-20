@@ -44,15 +44,18 @@ abstract class IPlotter(
     }
 
     fun render(ms_offset: Double) {
-        if (onUpdate(ms_offset)) {
+        val isActive = onUpdate(ms_offset)
+        if (isActive || context.debug) {
             context.clear(context.theme.plotter.secondaryBackgroundColor)
             rootDocument?.onDraw(context)
             
             if (context.debug) {
-                context.canvas.fillText("FPS: ${fps.toFixed(2)}", Point(16.0, 16.0), Color.RED)
-                context.canvas.fillText("Rendered view count: ${context.renderedViewCount}", Point(16.0, 32.0), Color.RED)
-
                 context.renderedViewCount = 0
+                rootDocument?.onDebugDraw(context)
+
+                context.canvas.fillText("Active: $isActive", Point(16.0, 16.0), Color.RED)
+                context.canvas.fillText("FPS: ${fps.toInt()}", Point(16.0, 32.0), Color.RED)
+                context.canvas.fillText("Rendered view count: ${context.renderedViewCount}", Point(16.0, 48.0), Color.RED)
             }
         }
     }

@@ -74,8 +74,8 @@ class SenderView(
         super.onDraw(context)
     }
 
-    override fun updateBoundingBox(): Rectangle? {
-        val parentBox = super.updateBoundingBox()
+    override fun calculateBoundingBox(): Rectangle? {
+        val parentBox = super.calculateBoundingBox()
         // TODO
         return null
     }
@@ -89,10 +89,8 @@ class SenderView(
     }
 
     override fun onDestroy(onFinish: () -> Unit) {
-        onAnimationFinish.once {
-            onFinish()
-        }
-
         setColors(emptyList())
+
+        animatableManager.onFinish(onFinish)
     }
 }

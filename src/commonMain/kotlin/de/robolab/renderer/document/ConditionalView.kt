@@ -22,16 +22,16 @@ class ConditionalView(
     }
 
     init {
-        if (drawProperty.value) {
-            add(view)
-        }
-
         drawProperty.onChange {
             if (drawProperty.value) {
                 add(view)
             } else {
                 remove(view)
             }
+        }
+
+        if (drawProperty.value) {
+            add(view)
         }
     }
 }

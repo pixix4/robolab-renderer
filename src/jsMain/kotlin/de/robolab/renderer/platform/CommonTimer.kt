@@ -54,12 +54,12 @@ actual class CommonTimer actual constructor(fps: Double) : ITimer {
             onRender.emit(0.0)
         } else {
             val diff = msTime - lastTime
-            if (diff >= thresholdMs) {
+            //if (diff >= thresholdMs) {
                 lastTime = msTime
 
                 updateBuffer(diff)
                 onRender.emit(diff)
-            }
+            //}
         }
 
         requestId = window.requestAnimationFrame(this::callback)

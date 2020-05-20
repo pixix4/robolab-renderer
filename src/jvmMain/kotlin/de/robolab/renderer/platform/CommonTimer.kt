@@ -60,12 +60,12 @@ actual class CommonTimer actual constructor(fps: Double) : ITimer {
                 }
 
                 val diff = msTime - lastTime
-                if (diff >= thresholdMs) {
+                //if (diff >= thresholdMs) {
                     lastTime = msTime
 
                     updateBuffer(diff)
                     onRender.emit(diff)
-                }
+                //}
             }
         }
     }

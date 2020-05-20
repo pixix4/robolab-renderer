@@ -8,11 +8,12 @@ import de.robolab.renderer.platform.PointerEvent
 import de.robolab.renderer.utils.DrawContext
 import de.westermann.kobserve.event.EventHandler
 
-interface IView : MutableCollection<IView>, IAnimatable {
+interface IView : MutableList<IView>, IAnimatable {
 
     val tag: String?
     
     fun onDraw(context: DrawContext)
+    fun onDebugDraw(context: DrawContext)
     fun requestRedraw()
 
     val boundingBox: Rectangle?
@@ -36,14 +37,31 @@ interface IView : MutableCollection<IView>, IAnimatable {
         return size == 0
     }
 
-    override fun addAll(elements: Collection<IView>): Boolean {
-        var added = false
+    override fun add(element: IView): Boolean {
+        add(size, element)
+        return true
+    }
 
+    override fun addAll(index: Int, elements: Collection<IView>): Boolean {
+        var i = index
         for (element in elements) {
-            added = add(element) || added
+            add(i++, element)
         }
 
-        return added
+        return elements.isNotEmpty()
+    }
+
+    override fun addAll(elements: Collection<IView>): Boolean {
+        return addAll(size, elements)
+    }
+
+    override fun remove(element: IView): Boolean {
+        val index = indexOf(element)
+        if (index >= 0) {
+            removeAt(index)
+            return true
+        }
+        return false
     }
 
     override fun removeAll(elements: Collection<IView>): Boolean {
@@ -66,6 +84,24 @@ interface IView : MutableCollection<IView>, IAnimatable {
         }
 
         return removeAll(elementsToRemove)
+    }
+
+    override fun set(index: Int, element: IView): IView {
+        val view = removeAt(index)
+        add(index, element)
+        return view
+    }
+
+    override fun subList(fromIndex: Int, toIndex: Int): MutableList<IView> {
+        throw UnsupportedOperationException()
+    }
+
+    override fun iterator(): MutableIterator<IView> {
+        return listIterator(0)
+    }
+
+    override fun listIterator(): MutableListIterator<IView> {
+        return listIterator(0)
     }
 
     operator fun plusAssign(element: IView) {

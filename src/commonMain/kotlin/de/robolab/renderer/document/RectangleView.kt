@@ -35,8 +35,8 @@ class RectangleView(
         super.onDraw(context)
     }
 
-    override fun updateBoundingBox(): Rectangle? {
-        val parentBox = super.updateBoundingBox()
+    override fun calculateBoundingBox(): Rectangle? {
+        val parentBox = super.calculateBoundingBox()
         return rectangle unionNullable parentBox
     }
     
@@ -50,11 +50,9 @@ class RectangleView(
     }
 
     override fun onDestroy(onFinish: () -> Unit) {
-        onAnimationFinish.once {
-            onFinish()
-        }
-
         setRectangle(null)
         setColor(ViewColor.TRANSPARENT)
+
+        animatableManager.onFinish(onFinish)
     }
 }

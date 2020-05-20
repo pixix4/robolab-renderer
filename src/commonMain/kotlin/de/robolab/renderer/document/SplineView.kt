@@ -169,8 +169,8 @@ class SplineView(
         super.onDraw(context)
     }
 
-    override fun updateBoundingBox(): Rectangle? {
-        val parentBox = super.updateBoundingBox()
+    override fun calculateBoundingBox(): Rectangle? {
+        val parentBox = super.calculateBoundingBox()
         return Rectangle.fromEdges(listOf(source) + controlPoints + target).expand(width / 2) unionNullable parentBox
     }
 
@@ -192,11 +192,9 @@ class SplineView(
     }
 
     override fun onDestroy(onFinish: () -> Unit) {
-        onAnimationFinish.once {
-            onFinish()
-        }
-
         setProgress(0.0)
+
+        animatableManager.onFinish(onFinish)
     }
 
     companion object {

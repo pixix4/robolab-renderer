@@ -72,8 +72,8 @@ class SquareView(
         super.onDraw(context)
     }
 
-    override fun updateBoundingBox(): Rectangle? {
-        val parentBox = super.updateBoundingBox()
+    override fun calculateBoundingBox(): Rectangle? {
+        val parentBox = super.calculateBoundingBox()
         return rect unionNullable parentBox
     }
     
@@ -86,10 +86,8 @@ class SquareView(
     }
 
     override fun onDestroy(onFinish: () -> Unit) {
-        onAnimationFinish.once {
-            onFinish()
-        }
-
         setSize(0.0)
+
+        animatableManager.onFinish(onFinish)
     }
 }

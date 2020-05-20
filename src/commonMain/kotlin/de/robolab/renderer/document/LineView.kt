@@ -70,8 +70,8 @@ class LineView(
         super.onDraw(context)
     }
 
-    override fun updateBoundingBox(): Rectangle? {
-        val parentBox = super.updateBoundingBox()
+    override fun calculateBoundingBox(): Rectangle? {
+        val parentBox = super.calculateBoundingBox()
         return Rectangle.fromEdges(source, target).expand(width) unionNullable parentBox
     }
 
@@ -83,11 +83,13 @@ class LineView(
 
         val (distance, projection) = pointVec projectOnto lineVec
 
-        return when {
+        val lineDistance = when {
             distance < 0.0 -> source
             distance > 1.0 -> target
-            else -> projection
-        }.distanceTo(planetPoint) - epsilon < width / 2
+            else -> projection  + source
+        } distanceTo planetPoint
+
+        return lineDistance - epsilon < width / 2
     }
 
 
@@ -96,10 +98,8 @@ class LineView(
     }
 
     override fun onDestroy(onFinish: () -> Unit) {
-        onAnimationFinish.once {
-            onFinish()
-        }
-
         setProgress(0.0)
+
+        animatableManager.onFinish(onFinish)
     }
 }

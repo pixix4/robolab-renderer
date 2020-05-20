@@ -24,7 +24,7 @@ class Document() : BaseView() {
         set(value) {
             plotter?.animationTime = value
         }
-
+    
     override var document: Document? = this
 
     var plotter: IPlotter? = null
@@ -43,7 +43,7 @@ class Document() : BaseView() {
         onDetach.emit(plotter)
     }
 
-    override fun updateBoundingBox(): Rectangle? {
+    override fun calculateBoundingBox(): Rectangle? {
         return null
     }
     
@@ -88,6 +88,8 @@ class Document() : BaseView() {
         val oldStack = focusedStack.toList()
         val newStack = view?.getViewStack() ?: emptyList()
 
+        if (oldStack == newStack) return
+
         focusedStack.clear()
         focusedStack.addAll(newStack)
 
@@ -100,6 +102,7 @@ class Document() : BaseView() {
             ov?.onBlur?.emit()
             nv?.onFocus?.emit()
         }
+        requestRedraw()
     }
 
     fun focusView(view: IView) {

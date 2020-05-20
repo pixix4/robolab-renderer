@@ -83,8 +83,8 @@ class ArrowView(
         super.onDraw(context)
     }
 
-    override fun updateBoundingBox(): Rectangle? {
-        val parentBox = super.updateBoundingBox()
+    override fun calculateBoundingBox(): Rectangle? {
+        val parentBox = super.calculateBoundingBox()
         return Rectangle.fromEdges(source, target).expand(width) unionNullable parentBox
     }
     
@@ -109,11 +109,9 @@ class ArrowView(
     }
 
     override fun onDestroy(onFinish: () -> Unit) {
-        onAnimationFinish.once {
-            onFinish()
-        }
-
         setSizeFactor(0.0)
         setColor(ViewColor.TRANSPARENT)
+
+        animatableManager.onFinish(onFinish)
     }
 }
