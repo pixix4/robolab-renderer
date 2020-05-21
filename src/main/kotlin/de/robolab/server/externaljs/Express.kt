@@ -1,4 +1,4 @@
-package de.robolab.server.net.externaljs
+package de.robolab.server.externaljs
 
 val Express = js("require(\"express\")")
 
