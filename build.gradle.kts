@@ -23,10 +23,19 @@ kotlin {
             }
         }
     }
-    js {
+    js("jsClient") {
         val main by compilations.getting {
             kotlinOptions {
                 moduleKind = "umd"
+                freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
+            }
+        }
+    }
+    js("jsServer") {
+        nodejs()
+        val main by compilations.getting {
+            kotlinOptions {
+                moduleKind = "commonjs"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
             }
         }
@@ -47,6 +56,7 @@ kotlin {
                 implementation(kotlin("test-annotations-common"))
             }
         }
+
         val jvmMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
@@ -80,14 +90,29 @@ kotlin {
                 implementation(kotlin("test-junit"))
             }
         }
-        val jsMain by getting {
+
+        val jsClientMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-js"))
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
             }
         }
-        val jsTest by getting {
+        val jsClientTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(kotlin("test-junit"))
+            }
+        }
+
+        val jsServerMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib-js"))
+
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
+            }
+        }
+        val jsServerTest by getting {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-junit"))
@@ -132,7 +157,7 @@ tasks.create<JavaExec>("buildSassTheme") {
     args()
 }
 
-tasks.create<com.moowork.gradle.node.npm.NpmTask>("jsInstallSass") {
+tasks.create<com.moowork.gradle.node.npm.NpmTask>("jsClientInstallSass") {
     setArgs(listOf("install", "sass"))
 
     outputs.cacheIf { true }
@@ -141,40 +166,40 @@ tasks.create<com.moowork.gradle.node.npm.NpmTask>("jsInstallSass") {
 
 }
 
-tasks.create<com.moowork.gradle.node.task.NodeTask>("jsCompileSass") {
-    dependsOn("jsInstallSass", "jsProcessResources")
+tasks.create<com.moowork.gradle.node.task.NodeTask>("jsClientCompileSass") {
+    dependsOn("jsClientInstallSass", "jsClientProcessResources")
 
     script = file("$projectDir/web/node_modules/sass/sass.js")
     addArgs(
-            "$projectDir/src/jsMain/resources/public/stylesheets/style.scss",
-            "$buildDir/processedResources/js/main/public/stylesheets/style.css"
+            "$projectDir/src/jsClientMain/resources/public/stylesheets/style.scss",
+            "$buildDir/processedResources/jsClient/main/public/stylesheets/style.css"
     )
 
     outputs.cacheIf { true }
-    inputs.dir(file("$projectDir/src/jsMain/resources/public/stylesheets"))
+    inputs.dir(file("$projectDir/src/jsClientMain/resources/public/stylesheets"))
             .withPropertyName("stylesheets")
             .withPathSensitivity(PathSensitivity.RELATIVE)
 
-    outputs.file("$buildDir/processedResources/js/main/public/stylesheets/style.css")
+    outputs.file("$buildDir/processedResources/jsClient/main/public/stylesheets/style.css")
             .withPropertyName("style")
 }
 
-val jsJar = tasks.named<Jar>("jsJar") {
-    dependsOn("jsCompileSass")
+val jsJar = tasks.named<Jar>("jsClientJar") {
+    dependsOn("jsClientCompileSass")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    from(Callable { configurations["jsRuntimeClasspath"].map { if (it.isDirectory) it else zipTree(it) } })
+    from(Callable { configurations["jsClientRuntimeClasspath"].map { if (it.isDirectory) it else zipTree(it) } })
 }
 
-tasks.create<Sync>("jsSync") {
-    dependsOn("jsJar")
+tasks.create<Sync>("jsClientSync") {
+    dependsOn("jsClientJar")
 
     from(Callable { zipTree(jsJar.get().archiveFile) })
     into("${projectDir}/web/website")
 }
 
-tasks.create<com.moowork.gradle.node.task.NodeTask>("jsRun") {
-    dependsOn("jsSync", "npmInstall")
+tasks.create<com.moowork.gradle.node.task.NodeTask>("jsClientRun") {
+    dependsOn("jsClientSync", "npmInstall")
     script = file("web/index.js")
 }
 
