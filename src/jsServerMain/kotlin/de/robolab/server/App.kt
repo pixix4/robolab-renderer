@@ -7,8 +7,8 @@ fun main(){
     DefaultEnvironment.app.get("/") { req, res ->
         res.status(200).send("Hello world!")
     }
-    DefaultEnvironment.http.listen(80) {
-        console.log("listening on port 80")
+    DefaultEnvironment.http.listen(8080) {
+        console.log("listening on port 8080")
     }
     val entries = readdirSync(".")
     for (t in entries.map{it1-> it1 to statSync(it1).let { listOf(it.atime,it.ctime,it.mtime,it.size,it.isDirectory(),it.isFile()) }})

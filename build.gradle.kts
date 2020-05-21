@@ -110,6 +110,9 @@ kotlin {
                 implementation(kotlin("stdlib-js"))
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
+
+                implementation(npm("express", "4.17.1"))
+                implementation(npm("socket.io", "2.3.0"))
             }
         }
         val jsServerTest by getting {
