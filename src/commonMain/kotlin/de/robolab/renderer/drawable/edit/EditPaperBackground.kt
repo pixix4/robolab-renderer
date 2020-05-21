@@ -59,12 +59,12 @@ class EditPaperBackground() {
 
         var lastPosition = Point.ZERO
         view.onPointerDown { event ->
-            lastPosition = event.canvasPoint
+            lastPosition = event.planetPoint
         }
         view.onPointerDrag { event ->
             event.stopPropagation()
 
-            val delta = lastPosition - event.canvasPoint
+            val delta = lastPosition - event.planetPoint
             if (event.ctrlKey || event.altKey) {
                 val size = planetSize ?: Point.ZERO
                 var newSize = size + delta * edge.multiplier
@@ -79,7 +79,7 @@ class EditPaperBackground() {
                 planetOffset = offset + delta
             }
             update()
-            lastPosition = event.canvasPoint
+            lastPosition = event.planetPoint
         }
         view.onPointerSecondaryAction {
             selectedEdge = if (selectedEdge == edge) null else edge
@@ -166,8 +166,10 @@ class EditPaperBackground() {
             // Draw paper sheet separator
             while (line > paperArea.top) {
                 measuringView += LineView(
-                        Point(paperArea.left, line),
-                        Point(paperArea.right, line),
+                        listOf(
+                                Point(paperArea.left, line),
+                                Point(paperArea.right, line)
+                        ),
                         PlottingConstraints.LINE_WIDTH,
                         ViewColor.LINE_COLOR.interpolate(ViewColor.PRIMARY_BACKGROUND_COLOR, 0.5)
                 )
@@ -185,8 +187,10 @@ class EditPaperBackground() {
             // Draw paper sheet separator
             while (line < paperArea.right) {
                 measuringView += LineView(
-                        Point(line, paperArea.bottom),
-                        Point(line, paperArea.top),
+                        listOf(
+                                Point(line, paperArea.bottom),
+                                Point(line, paperArea.top)
+                        ),
                         PlottingConstraints.LINE_WIDTH,
                         ViewColor.LINE_COLOR.interpolate(ViewColor.PRIMARY_BACKGROUND_COLOR, 0.5)
                 )
@@ -201,14 +205,14 @@ class EditPaperBackground() {
         }
 
         // Draw planet outline
-        measuringView += MultiLineView(
+        measuringView += LineView(
                 listOf(
                         planetArea.topRight, planetArea.topLeft, planetArea.bottomLeft, planetArea.bottomRight, planetArea.topRight
                 ),
                 PlottingConstraints.LINE_WIDTH,
                 ViewColor.LINE_COLOR.interpolate(ViewColor.PRIMARY_BACKGROUND_COLOR, 0.5)
         )
-        measuringView += MultiLineView(
+        measuringView += LineView(
                 listOf(
                         paperArea.topRight, paperArea.topLeft, paperArea.bottomLeft, paperArea.bottomRight, paperArea.topRight
                 ),

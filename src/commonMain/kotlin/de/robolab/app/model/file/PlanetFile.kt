@@ -7,7 +7,7 @@ import de.robolab.renderer.utils.History
 import de.robolab.utils.Logger
 import de.westermann.kobserve.property.mapBinding
 
-class PlanetFile(fileContent: String): IEditCallback {
+class PlanetFile(fileContent: String) : IEditCallback {
 
     private val logger = Logger(this)
     val history = History(parseFileContent(fileContent))
@@ -42,11 +42,11 @@ class PlanetFile(fileContent: String): IEditCallback {
         history.clear(parseFileContent(fileContent))
     }
 
-     override fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, controlPoints: List<Point>, groupHistory: Boolean) {
+    override fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, controlPoints: List<Point>, groupHistory: Boolean) {
         var newLines = lines + FileLine.PathLine.create(Path(
                 startPoint, startDirection,
                 endPoint, endDirection,
-                1,
+                if (startPoint == endPoint && startDirection == endDirection) -1 else 1,
                 emptySet(),
                 controlPoints,
                 false
@@ -63,7 +63,7 @@ class PlanetFile(fileContent: String): IEditCallback {
         }
     }
 
-     override fun deletePath(path: Path, groupHistory: Boolean) {
+    override fun deletePath(path: Path, groupHistory: Boolean) {
         val newLines = lines - lines.filter {
             it.isAssociatedTo(path)
         }
@@ -75,7 +75,7 @@ class PlanetFile(fileContent: String): IEditCallback {
         }
     }
 
-     override fun updatePathControlPoints(path: Path, controlPoints: List<Point>, groupHistory: Boolean) {
+    override fun updatePathControlPoints(path: Path, controlPoints: List<Point>, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
         val index = newLines.indexOfFirst { it is FileLine.SplineLine && it.associatedPath?.equalPath(path) == true }
@@ -101,7 +101,7 @@ class PlanetFile(fileContent: String): IEditCallback {
         }
     }
 
-     override fun toggleTargetExposure(target: Coordinate, exposure: Coordinate, groupHistory: Boolean) {
+    override fun toggleTargetExposure(target: Coordinate, exposure: Coordinate, groupHistory: Boolean) {
         val targetPoint = TargetPoint(target, exposure)
         val senderLines = lines.filter { it.isAssociatedTo(targetPoint) }
 
@@ -118,7 +118,7 @@ class PlanetFile(fileContent: String): IEditCallback {
         }
     }
 
-     override fun togglePathExposure(path: Path, exposure: Coordinate, groupHistory: Boolean) {
+    override fun togglePathExposure(path: Path, exposure: Coordinate, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
         val index = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) }
@@ -141,7 +141,7 @@ class PlanetFile(fileContent: String): IEditCallback {
         }
     }
 
-     override fun togglePathSelect(point: Coordinate, direction: Direction, groupHistory: Boolean) {
+    override fun togglePathSelect(point: Coordinate, direction: Direction, groupHistory: Boolean) {
         val pathSelect = PathSelect(point, direction)
         val pathSelectLine = lines.filter { it.isAssociatedTo(pathSelect) }
 
@@ -158,7 +158,7 @@ class PlanetFile(fileContent: String): IEditCallback {
         }
     }
 
-     override fun setStartPoint(point: Coordinate, orientation: Direction, groupHistory: Boolean) {
+    override fun setStartPoint(point: Coordinate, orientation: Direction, groupHistory: Boolean) {
         val startPoint = StartPoint(point, orientation, emptyList())
 
         val index = lines.indexOfFirst { it is FileLine.StartPointLine }
@@ -182,7 +182,7 @@ class PlanetFile(fileContent: String): IEditCallback {
         }
     }
 
-     override fun deleteStartPoint(groupHistory: Boolean) {
+    override fun deleteStartPoint(groupHistory: Boolean) {
         val newLines = lines.toMutableList()
         val startPoint = planet.startPoint ?: return
         newLines.retainAll { !it.isAssociatedTo(startPoint) }
@@ -194,7 +194,7 @@ class PlanetFile(fileContent: String): IEditCallback {
         }
     }
 
-     override fun setBluePoint(point: Coordinate, groupHistory: Boolean) {
+    override fun setBluePoint(point: Coordinate, groupHistory: Boolean) {
         val index = lines.indexOfFirst { it is FileLine.BluePointLine }
 
         val newLines = lines.toMutableList()
@@ -211,7 +211,7 @@ class PlanetFile(fileContent: String): IEditCallback {
         }
     }
 
-     override fun togglePathHiddenState(path: Path, groupHistory: Boolean) {
+    override fun togglePathHiddenState(path: Path, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
         val index = newLines.indexOfFirst { it is FileLine.HiddenLine && it.associatedPath?.equalPath(path) == true }
@@ -237,7 +237,7 @@ class PlanetFile(fileContent: String): IEditCallback {
         }
     }
 
-     override fun setPathWeight(path: Path, weight: Int, groupHistory: Boolean) {
+    override fun setPathWeight(path: Path, weight: Int, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
         val index = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) }
@@ -256,11 +256,78 @@ class PlanetFile(fileContent: String): IEditCallback {
         }
     }
 
-     override fun undo() {
+    override fun createComment(value: String, position: Point, groupHistory: Boolean) {
+        val comment = Comment(position, value)
+
+        val newLines = lines + FileLine.CommentLine.create(comment)
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
+    override fun setCommentValue(comment: Comment, value: String, groupHistory: Boolean) {
+        val newLines = lines.toMutableList()
+
+        val index = newLines.indexOfFirst { it is FileLine.CommentLine && it.data == comment }
+        if (index < 0) {
+            return
+        }
+
+        val p = newLines[index].data as? Comment ?: return
+
+        newLines[index] = FileLine.CommentLine.create(p.copy(message = value))
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
+    override fun setCommentPosition(comment: Comment, position: Point, groupHistory: Boolean) {
+        val newLines = lines.toMutableList()
+
+        val index = newLines.indexOfFirst { it is FileLine.CommentLine && it.data == comment }
+        if (index < 0) {
+            return
+        }
+
+        val p = newLines[index].data as? Comment ?: return
+
+        newLines[index] = FileLine.CommentLine.create(p.copy(point = position))
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
+    override fun deleteComment(comment: Comment, groupHistory: Boolean) {
+        val newLines = lines.toMutableList()
+
+        val index = newLines.indexOfFirst { it is FileLine.CommentLine && it.data == comment }
+        if (index < 0) {
+            return
+        }
+
+        newLines.removeAt(index)
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
+    override fun undo() {
         history.undo()
     }
 
-     override fun redo() {
+    override fun redo() {
         history.redo()
     }
 }

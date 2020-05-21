@@ -147,7 +147,7 @@ abstract class AbsPlanetDrawable() : ITransformationReference {
             transformationState = plotter.transformation.export()
         }
 
-        view.onResize {
+        view.onCanvasResize {
             if (autoCentering) {
                 centerPlanet()
             }

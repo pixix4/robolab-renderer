@@ -2,12 +2,16 @@ package de.robolab.renderer.drawable.general
 
 import de.robolab.planet.Coordinate
 import de.robolab.planet.Planet
-import de.robolab.renderer.animation.IInterpolatable
-import de.robolab.renderer.data.Color
 import de.robolab.renderer.drawable.base.AnimatableManager
-import de.robolab.renderer.utils.DrawContext
+import de.robolab.renderer.drawable.edit.CreatePathManager
+import de.robolab.renderer.drawable.edit.IEditCallback
+import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.property.constObservable
 
-class PointAnimatableManager : AnimatableManager<PointAnimatableManager.AttributePoint, PointAnimatable>() {
+class PointAnimatableManager(
+        private val editProperty: ObservableValue<IEditCallback?> = constObservable(null),
+        private val createPath: CreatePathManager? = null
+) : AnimatableManager<PointAnimatableManager.AttributePoint, PointAnimatable>() {
 
     class AttributePoint(
             val coordinate: Coordinate,
@@ -47,6 +51,6 @@ class PointAnimatableManager : AnimatableManager<PointAnimatableManager.Attribut
     }
 
     override fun createAnimatable(obj: AttributePoint, planet: Planet): PointAnimatable {
-        return PointAnimatable(obj, planet)
+        return PointAnimatable(obj, planet, editProperty, createPath)
     }
 }

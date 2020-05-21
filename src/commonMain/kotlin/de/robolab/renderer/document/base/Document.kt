@@ -24,7 +24,7 @@ class Document() : BaseView() {
         set(value) {
             plotter?.animationTime = value
         }
-    
+
     override var document: Document? = this
 
     var plotter: IPlotter? = null
@@ -46,13 +46,10 @@ class Document() : BaseView() {
     override fun calculateBoundingBox(): Rectangle? {
         return null
     }
-    
+
     override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
         return true
     }
-
-    val onResize = EventHandler<Dimension>()
-    val onUserTransformation = EventHandler<Unit>()
 
     val hoveredStack = mutableListOf<IView>()
 
@@ -64,7 +61,7 @@ class Document() : BaseView() {
         val newStack = newHoverView?.getViewStack() ?: emptyList()
 
         if (oldStack == newStack) return
-        
+
         hoveredStack.clear()
         hoveredStack.addAll(newStack)
 
@@ -129,17 +126,22 @@ class Document() : BaseView() {
         }
     }
 
+    private var pointerDownPrevented = false
     fun emitOnPointerDown(event: PointerEvent): Boolean {
+        pointerDownPrevented = false
         for (view in hoveredStack.asReversed()) {
             view.onPointerDown.emit(event)
 
-            if (!event.bubbles) return true
+            if (!event.bubbles) {
+                pointerDownPrevented = true
+                return true
+            }
         }
         return false
     }
 
     fun emitOnPointerUp(event: PointerEvent): Boolean {
-        if (!event.hasMoved) {
+        if (!event.hasMoved && !pointerDownPrevented) {
             var ignoreDefocus = false
             for (view in hoveredStack.asReversed()) {
                 if (view.focusable) {
@@ -207,6 +209,7 @@ class Document() : BaseView() {
 
     fun emitOnKeyRelease(event: KeyEvent): Boolean {
         if (event.keyCode == KeyCode.ESCAPE) {
+            val focusedStack = focusedStack.toList()
             if (focusedStack.isNotEmpty()) {
                 focusedStack.last().blur()
 
@@ -230,5 +233,29 @@ class Document() : BaseView() {
             if (!event.bubbles) return true
         }
         return false
+    }
+
+    fun emitOnCanvasResize(event: Dimension) {
+        fun emitOnView(view: IView) {
+            view.onCanvasResize.emit(event)
+
+            for (v in view) {
+                emitOnView(v)
+            }
+        }
+
+        emitOnView(this)
+    }
+
+    fun emitOnUserTransformation() {
+        fun emitOnView(view: IView) {
+            view.onUserTransformation.emit()
+
+            for (v in view) {
+                emitOnView(v)
+            }
+        }
+
+        emitOnView(this)
     }
 }

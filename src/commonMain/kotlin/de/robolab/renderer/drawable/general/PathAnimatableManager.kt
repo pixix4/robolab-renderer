@@ -23,7 +23,7 @@ class PathAnimatableManager(
         return PathAnimatable(obj, planet, editProperty)
     }
 
-    override fun objectEquals(p1: Path, p2: Path): Boolean {
-        return p1.equalPath(p2)
+    override fun objectEquals(oldValue: Path, newValue: Path): Boolean {
+        return oldValue.equalPath(newValue)
     }
 }

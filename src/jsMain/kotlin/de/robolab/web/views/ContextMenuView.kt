@@ -131,7 +131,7 @@ class ContextMenuView(
         }
 
         fun open(position: Point, name: String, init: MenuBuilder.() -> Unit) {
-            open(menu(position, name, init))
+            open(menuBilder(position, name, init))
         }
     }
 }

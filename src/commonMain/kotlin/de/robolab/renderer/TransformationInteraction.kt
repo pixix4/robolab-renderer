@@ -17,10 +17,10 @@ class TransformationInteraction(
 
     var isDrag = false
     override fun onPointerDown(event: PointerEvent) {
-        isDrag = true
+        isDrag = false
         val position = plotter.updatePointer(event.mousePoint)
         if (position != null) {
-            event.canvasPoint = position
+            event.planetPoint = position
         }
 
         plotter.rootDocument?.emitOnPointerDown(event)
@@ -28,6 +28,7 @@ class TransformationInteraction(
             return
         }
 
+        isDrag = true
         lastPoint = event.mousePoint
         hasMovedSinceDown = false
     }
@@ -36,7 +37,7 @@ class TransformationInteraction(
         isDrag = false
         val position = plotter.updatePointer(event.mousePoint)
         if (position != null) {
-            event.canvasPoint = position
+            event.planetPoint = position
         }
 
         event.hasMoved = hasMovedSinceDown
@@ -51,7 +52,7 @@ class TransformationInteraction(
         if (isDrag) return
         val position = plotter.updatePointer(event.mousePoint)
         if (position != null) {
-            event.canvasPoint = position
+            event.planetPoint = position
         }
         
         plotter.rootDocument?.emitOnPointerMove(event)
@@ -65,7 +66,7 @@ class TransformationInteraction(
     override fun onPointerDrag(event: PointerEvent) {
         val position = plotter.updatePointer(event.mousePoint)
         if (position != null) {
-            event.canvasPoint = position
+            event.planetPoint = position
         }
 
         event.hasMoved = hasMovedSinceDown
@@ -77,7 +78,7 @@ class TransformationInteraction(
         }
 
         transformation.translateBy(event.mousePoint - lastPoint)
-        plotter.rootDocument?.onUserTransformation?.emit()
+        plotter.rootDocument?.emitOnUserTransformation()
 
         lastPoint = event.mousePoint
     }
@@ -85,7 +86,7 @@ class TransformationInteraction(
     override fun onPointerSecondaryAction(event: PointerEvent) {
         val position = plotter.updatePointer(event.mousePoint)
         if (position != null) {
-            event.canvasPoint = position
+            event.planetPoint = position
         }
 
         plotter.rootDocument?.emitOnPointerSecondaryAction(event)
@@ -100,7 +101,7 @@ class TransformationInteraction(
         isDrag = false
         val position = plotter.updatePointer(event.mousePoint)
         if (position != null) {
-            event.canvasPoint = position
+            event.planetPoint = position
         }
 
         lastPoint = event.mousePoint
@@ -110,7 +111,7 @@ class TransformationInteraction(
         isDrag = false
         val position = plotter.updatePointer(null)
         if (position != null) {
-            event.canvasPoint = position
+            event.planetPoint = position
         }
     }
 
@@ -127,7 +128,7 @@ class TransformationInteraction(
                 transformation.translateBy(delta, ANIMATION_TIME)
             }
         }
-        plotter.rootDocument?.onUserTransformation?.emit()
+        plotter.rootDocument?.emitOnUserTransformation()
 
         plotter.updatePointer(event.point)
         lastPoint = event.point
@@ -135,7 +136,7 @@ class TransformationInteraction(
 
     override fun onZoom(event: ZoomEvent) {
         transformation.scaleBy(event.zoomFactor, event.point)
-        plotter.rootDocument?.onUserTransformation?.emit()
+        plotter.rootDocument?.emitOnUserTransformation()
 
         plotter.updatePointer(event.point)
         lastPoint = event.point
@@ -143,7 +144,7 @@ class TransformationInteraction(
 
     override fun onRotate(event: RotateEvent) {
         transformation.rotateBy(event.angle, event.point)
-        plotter.rootDocument?.onUserTransformation?.emit()
+        plotter.rootDocument?.emitOnUserTransformation()
 
         plotter.updatePointer(event.point)
         lastPoint = event.point
@@ -159,7 +160,7 @@ class TransformationInteraction(
 
         lastDimension = size
 
-        plotter.rootDocument?.onResize?.emit(size)
+        plotter.rootDocument?.emitOnCanvasResize(size)
         plotter.forceRedraw = true
     }
 
@@ -172,12 +173,12 @@ class TransformationInteraction(
         when (event.keyCode) {
             KeyCode.ARROW_UP -> {
                 transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION), ANIMATION_TIME)
-                plotter.rootDocument?.onUserTransformation?.emit()
+                plotter.rootDocument?.emitOnUserTransformation()
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.ARROW_DOWN -> {
                 transformation.translateBy(Point(0.0, -KEYBOARD_TRANSLATION), ANIMATION_TIME)
-                plotter.rootDocument?.onUserTransformation?.emit()
+                plotter.rootDocument?.emitOnUserTransformation()
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.ARROW_LEFT -> {
@@ -185,7 +186,7 @@ class TransformationInteraction(
                     transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
                     transformation.translateBy(Point(KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
-                    plotter.rootDocument?.onUserTransformation?.emit()
+                    plotter.rootDocument?.emitOnUserTransformation()
                 }
                 plotter.updatePointer(lastPoint)
             }
@@ -194,7 +195,7 @@ class TransformationInteraction(
                     transformation.rotateBy(KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
                     transformation.translateBy(Point(-KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
-                    plotter.rootDocument?.onUserTransformation?.emit()
+                    plotter.rootDocument?.emitOnUserTransformation()
                 }
                 plotter.updatePointer(lastPoint)
             }

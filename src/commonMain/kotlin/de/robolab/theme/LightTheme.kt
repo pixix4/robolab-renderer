@@ -73,7 +73,7 @@ object LightTheme : ITheme {
         override val blueColor = Color(41, 128, 185)
 
         override val highlightColor = Color(243, 156, 18)
-        override val editColor = Color(142, 68, 173)
+        override val editColor = Color(26, 188, 156)
 
         override val robotMainColor = Color(243, 156, 18)
         override val robotDisplayColor = Color(240, 240, 240)

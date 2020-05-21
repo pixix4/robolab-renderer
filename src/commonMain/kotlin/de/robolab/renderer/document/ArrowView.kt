@@ -55,8 +55,8 @@ class ArrowView(
         val scaledWidth: Double
 
         if (sizeFactor < 1.0) {
-            scaledSource = source.interpolate(target, 0.5 + sizeFactor / 2)
-            scaledTarget = target.interpolate(source, 0.5 + sizeFactor / 2)
+            scaledSource = target.interpolate(source, 0.5 + sizeFactor / 2)
+            scaledTarget = source.interpolate(target, 0.5 + sizeFactor / 2)
             scaledWidth = width * sizeFactor
         } else {
             scaledSource = source

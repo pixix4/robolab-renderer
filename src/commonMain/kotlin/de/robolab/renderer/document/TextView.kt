@@ -39,6 +39,9 @@ class TextView(
     val textProperty = property(initText)
     var text by textProperty
     private var cursor: Int = 0
+        set(value) {
+            field = max(0, min(text.length, value))
+        }
 
     override fun onDraw(context: DrawContext) {
         val color = context.c(color)
@@ -76,7 +79,7 @@ class TextView(
     private var box = Rectangle.ZERO
     override fun calculateBoundingBox(): Rectangle? {
         val parentBox = super.calculateBoundingBox()
-        
+
         val width = fontSize / 120 * (text.length + 2)
         val height = fontSize / 100 * 1.8
         box = Rectangle(
@@ -94,12 +97,11 @@ class TextView(
 
     init {
         onPointerDown { event ->
-            val left = event.canvasPoint.left - box.left
+            val left = event.planetPoint.left - box.left
             val percent = left / box.width
             cursor = (percent * text.length).roundToInt()
 
             requestRedraw()
-            event.stopPropagation()
         }
 
         onKeyPress { event ->
@@ -109,9 +111,12 @@ class TextView(
                 KeyCode.BACKSPACE -> {
                     if (cursor > 0) {
                         val newText = text.substring(0, cursor - 1) + text.substring(cursor, text.length)
+                        val c = cursor
                         if (changeCallback(newText)) {
                             text = newText
-                            cursor -= 1
+                            if (c == cursor) {
+                                cursor -= 1
+                            }
                         }
                     }
                 }
@@ -124,10 +129,10 @@ class TextView(
                     }
                 }
                 KeyCode.ARROW_LEFT -> {
-                    cursor = max(0, cursor - 1)
+                    cursor -= 1
                 }
                 KeyCode.ARROW_RIGHT -> {
-                    cursor = min(text.length, cursor + 1)
+                    cursor += 1
                 }
                 else -> {
                     var c = event.keyCode.char ?: return@onKeyPress

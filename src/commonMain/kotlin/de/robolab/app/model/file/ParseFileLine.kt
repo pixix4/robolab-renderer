@@ -525,7 +525,7 @@ interface FileLine<T> {
             val point = if (h.size < 2) Point.ZERO else Point(h[0], h[1])
             Comment(
                     point,
-                    match.groupValues[5]
+                    match.groupValues.getOrNull(5) ?: ""
             )
         }
 
@@ -550,7 +550,7 @@ interface FileLine<T> {
         companion object : Parser {
             override val name = "Comment line parser"
             val REGEX =
-                    """^#\s*(COMMENT|comment)\s?(?:\(\s*((-?\d+(?:\.\d+)?)\s*?,\s*?(-?\d+(?:\.\d+)?)(?:\s*?,\s*?[^\s,][^\n,]*)*)\s*\))?(?::\s?(\w[^\n]*?))?\s*(?:#.*?)?$""".toRegex()
+                    """^#\s*(COMMENT|comment)\s?(?:\(\s*((-?\d+(?:\.\d+)?)\s*?,\s*?(-?\d+(?:\.\d+)?)(?:\s*?,\s*?[^\s,][^\n,]*)*)\s*\))?(?::\s?(\w[^\n]*?)?)?\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
                 return REGEX.containsMatchIn(line)

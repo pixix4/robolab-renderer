@@ -1,17 +1,20 @@
 package de.robolab.renderer.document.base
 
 import de.robolab.renderer.animation.*
+import de.robolab.renderer.data.Dimension
 import de.robolab.renderer.data.Point
 import de.robolab.renderer.data.Rectangle
 import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.PointerEvent
 import de.robolab.renderer.utils.DrawContext
+import de.robolab.utils.MenuBuilder
+import de.robolab.utils.menuBilder
 import de.westermann.kobserve.event.EventHandler
 
 interface IView : MutableList<IView>, IAnimatable {
 
     val tag: String?
-    
+
     fun onDraw(context: DrawContext)
     fun onDebugDraw(context: DrawContext)
     fun requestRedraw()
@@ -107,12 +110,15 @@ interface IView : MutableList<IView>, IAnimatable {
     operator fun plusAssign(element: IView) {
         add(element)
     }
+
     operator fun plusAssign(elements: Collection<IView>) {
         addAll(elements)
     }
+
     operator fun minusAssign(element: IView) {
         remove(element)
     }
+
     operator fun minusAssign(elements: Collection<IView>) {
         removeAll(elements)
     }
@@ -132,6 +138,7 @@ interface IView : MutableList<IView>, IAnimatable {
         document?.blurView(this)
     }
 
+    var hoverable: Boolean
     val isHovered: Boolean
         get() = document?.isViewHovered(this) == true
 
@@ -145,6 +152,12 @@ interface IView : MutableList<IView>, IAnimatable {
     val onPointerSecondaryAction: EventHandler<PointerEvent>
     val onKeyPress: EventHandler<KeyEvent>
     val onKeyRelease: EventHandler<KeyEvent>
+
+    val onCanvasResize: EventHandler<Dimension>
+    val onUserTransformation: EventHandler<Unit>
+
+    fun extraPut(key: String, value: Any)
+    fun extraGet(key: String): Any?
 }
 
 fun IView.getViewStack(): List<IView> {
@@ -165,10 +178,27 @@ fun IView.findHoveredView(planetPoint: Point, canvasPoint: Point, epsilon: Doubl
         }
     }
 
+    if (!hoverable) return null
+
     val box = boundingBox
     if ((box == null || planetPoint in box) && checkPoint(planetPoint, canvasPoint, epsilon)) {
         return this
     }
 
     return null
+}
+
+inline fun <reified T : Any> IView.extraGet(): T? {
+    val key = T::class.simpleName ?: "unknown"
+    return extraGet(key) as? T
+}
+
+inline fun <reified T : Any> IView.extraPut(value: T) {
+    val key = T::class.simpleName ?: "unknown"
+    extraPut(key, value)
+}
+
+fun IView.menu(event: PointerEvent, name: String, init: MenuBuilder.() -> Unit) {
+    val contextMenu = menuBilder(event.planetPoint, name, init)
+    document?.plotter?.context?.openContextMenu(contextMenu)
 }

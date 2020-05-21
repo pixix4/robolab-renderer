@@ -12,15 +12,16 @@ abstract class AnimatableManager<T: Any, A : Animatable<T>> {
 
     val view = GroupView(this::class.simpleName)
 
-    open fun objectEquals(p1: T, p2: T): Boolean {
-        return p1 == p2
+    open fun objectEquals(oldValue: T, newValue: T): Boolean {
+        return oldValue == newValue
     }
     
+    protected var objectList: List<T> = emptyList()
     open fun importPlanet(planet: Planet) {
         val newReferenceList = getObjectList(planet)
 
         val updateMap = animatableMap.keys.associateWith { p ->
-            newReferenceList.firstOrNull { objectEquals(it, p) }
+            newReferenceList.firstOrNull { objectEquals(p, it) }
         }
 
         val objectsToCreate = newReferenceList - updateMap.values.filterNotNull()
@@ -43,5 +44,7 @@ abstract class AnimatableManager<T: Any, A : Animatable<T>> {
             animatableMap[o] = animatable
             animatable.onCreate(view)
         }
+
+        objectList = newReferenceList
     }
 }

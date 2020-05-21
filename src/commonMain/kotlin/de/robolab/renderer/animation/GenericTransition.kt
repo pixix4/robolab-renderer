@@ -50,6 +50,8 @@ open class GenericTransition<T>(
 
     fun animate(targetValue: T, duration: Double, offset: Double = 0.0) {
         if (internalValue.isBound) return
+        
+        if (!isRunning && targetValue == this.targetValue) return
 
         transitionList += TransitionHelper(
                 targetValue, duration, offset

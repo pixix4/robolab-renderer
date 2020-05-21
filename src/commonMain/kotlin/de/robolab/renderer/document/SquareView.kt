@@ -57,6 +57,13 @@ class SquareView(
     }
 
     override fun onDraw(context: DrawContext) {
+        if (isHovered) {
+            context.strokeRect(rect.expand(borderWidth / 2), context.theme.plotter.highlightColor, borderWidth)
+        }
+        if (isFocused) {
+            context.strokeRect(rect.expand(borderWidth), context.theme.plotter.highlightColor, borderWidth * 2)
+        }
+
         if (filledFactor < 1.0) {
             val innerRect = rect.shrink(borderWidth / 2)
             context.strokeRect(innerRect, context.c(color), borderWidth)
@@ -76,7 +83,7 @@ class SquareView(
         val parentBox = super.calculateBoundingBox()
         return rect unionNullable parentBox
     }
-    
+
     override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
         return planetPoint in rect
     }

@@ -67,7 +67,7 @@ class SplineView(
     private val pointHelperCache = mutableMapOf<Int, List<PointLengthHelper>>()
     private val distance by property(sourceTransition, targetTransition, controlPointsTransition) {
         pointHelperCache.clear()
-        (listOf(source) + controlPoints + target).windowed(2, 1).sumByDouble { (p0, p1) -> p0.distanceTo(p1) }
+        (listOf(this.source) + this.controlPoints + this.target).windowed(2, 1).sumByDouble { (p0, p1) -> p0.distanceTo(p1) }
     }
 
     private val curve: Curve = BSpline

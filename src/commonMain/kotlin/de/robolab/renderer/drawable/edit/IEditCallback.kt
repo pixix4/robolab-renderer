@@ -1,5 +1,6 @@
 package de.robolab.renderer.drawable.edit
 
+import de.robolab.planet.Comment
 import de.robolab.planet.Coordinate
 import de.robolab.planet.Direction
 import de.robolab.planet.Path
@@ -52,6 +53,23 @@ interface IEditCallback {
     fun setPathWeight(path: Path, weight: Int, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'setPathWeight($path, $weight, $groupHistory)' is not supported!" }
     }
+    
+    fun createComment(value: String, position: Point, groupHistory: Boolean = false) {
+        logger.warn { "Plotter action 'createComment($value, $position, $groupHistory)' is not supported!" }
+    }
+
+    fun setCommentValue(comment: Comment, value: String, groupHistory: Boolean = false) {
+        logger.warn { "Plotter action 'setCommentValue($comment, $value, $groupHistory)' is not supported!" }
+    }
+
+    fun setCommentPosition(comment: Comment, position: Point, groupHistory: Boolean = false) {
+        logger.warn { "Plotter action 'setCommentPosition($comment, $position, $groupHistory)' is not supported!" }
+    }
+
+    fun deleteComment(comment: Comment, groupHistory: Boolean = false) {
+        logger.warn { "Plotter action 'deleteComment($comment, $groupHistory)' is not supported!" }
+    }
+
 
     fun undo() {
         logger.warn { "Plotter action 'undo()' is not supported!" }

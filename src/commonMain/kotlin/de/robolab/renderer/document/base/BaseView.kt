@@ -1,10 +1,7 @@
 package de.robolab.renderer.document.base
 
 import de.robolab.renderer.animation.*
-import de.robolab.renderer.data.Color
-import de.robolab.renderer.data.Point
-import de.robolab.renderer.data.Rectangle
-import de.robolab.renderer.data.unionNullable
+import de.robolab.renderer.data.*
 import de.robolab.renderer.platform.KeyEvent
 import de.robolab.renderer.platform.PointerEvent
 import de.robolab.renderer.utils.DrawContext
@@ -104,6 +101,10 @@ abstract class BaseView(
 
     override fun removeAt(index: Int): IView {
         val view = viewList[index]
+
+        if (view.isFocused) {
+            view.blur()
+        }
 
         callOnDestroy(view) {
             viewList.remove(view)
@@ -293,6 +294,8 @@ abstract class BaseView(
             field = value
         }
 
+    override var hoverable = true
+
     override fun toString(): String {
         val t = tag
         val name = this::class.simpleName ?: return ""
@@ -315,4 +318,17 @@ abstract class BaseView(
     override val onPointerSecondaryAction = EventHandler<PointerEvent>()
     override val onKeyPress = EventHandler<KeyEvent>()
     override val onKeyRelease = EventHandler<KeyEvent>()
+    
+    override val onCanvasResize = EventHandler<Dimension>()
+    override val onUserTransformation = EventHandler<Unit>()
+    
+    private val extra = mutableMapOf<String, Any>()
+
+    override fun extraPut(key: String, value: Any) {
+        extra[key] = value
+    }
+
+    override fun extraGet(key: String): Any? {
+        return extra[key]
+    }
 }

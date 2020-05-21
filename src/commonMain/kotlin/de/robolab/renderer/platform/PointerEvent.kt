@@ -10,6 +10,6 @@ data class PointerEvent(
         val altKey: Boolean = false,
         val shiftKey: Boolean = false
 ): Event() {
-    var canvasPoint: Point = mousePoint
+    var planetPoint: Point = mousePoint
     var hasMoved: Boolean = false
 }

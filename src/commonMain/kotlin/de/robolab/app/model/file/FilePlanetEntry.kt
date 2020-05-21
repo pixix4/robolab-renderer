@@ -15,7 +15,7 @@ import de.robolab.renderer.utils.SvgCanvas
 import de.robolab.renderer.utils.Transformation
 import de.robolab.utils.Logger
 import de.robolab.utils.PreferenceStorage
-import de.robolab.utils.menu
+import de.robolab.utils.menuBilder
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
@@ -70,7 +70,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override val hasContextMenu by enabledProperty
 
-    override fun buildContextMenu(position: Point) = menu(position, "Planet ${planetFile.planet.name}") {
+    override fun buildContextMenu(position: Point) = menuBilder(position, "Planet ${planetFile.planet.name}") {
         action("Save") {
             provider.saveEntry(this@FilePlanetEntry) {
                 logger.info { "Save successful: $it" }
