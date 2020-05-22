@@ -5,7 +5,7 @@ package de.robolab.server.externaljs.events
 import org.w3c.dom.events.Event
 import kotlin.js.Promise
 
-abstract external class EventEmitter{
+external interface EventEmitter{
     val newListener: Event
     val removeListener: Event
     fun<T> addListener(eventName:String, callback: T)

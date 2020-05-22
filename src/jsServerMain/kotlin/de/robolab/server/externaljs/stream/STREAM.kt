@@ -8,7 +8,7 @@ import de.robolab.server.externaljs.events.EventEmitter
 import org.w3c.dom.ErrorEvent
 import org.w3c.dom.events.Event
 
-external class Writable : EventEmitter {
+external interface Writable : EventEmitter {
     val close: Event
 
     val drain:Event
@@ -62,7 +62,7 @@ external class Writable : EventEmitter {
     fun write(chunk:Buffer, callback: JSDynErrorCallback): Boolean
 }
 
-external class Readable : EventEmitter{
+external interface Readable : EventEmitter{
     val readableFlowing: Boolean?
     val close: Event
     val data: Event
