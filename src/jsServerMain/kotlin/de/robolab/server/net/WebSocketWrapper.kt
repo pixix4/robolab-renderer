@@ -1,9 +1,5 @@
 package de.robolab.server.net
 
-class WebSocketWrapper : IAsyncSocket{
+class WebSocketWrapper : IAsyncSocket
 
-}
-
-private class WebSocketListener{
-
-}
+private class WebSocketListener

@@ -1,7 +1,8 @@
 package de.robolab.server
 
+import de.robolab.server.externaljs.fs.readdirSync
+import de.robolab.server.externaljs.fs.statSync
 import de.robolab.server.net.DefaultEnvironment
-import de.robolab.server.externaljs.fs.*
 
 fun main(){
     DefaultEnvironment.app.get("/") { req, res ->

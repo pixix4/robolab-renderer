@@ -124,7 +124,7 @@ kotlin {
     }
 }
 
-val mainClassName = "de.robolab.jfx.Launcher"
+val mainClassName = "de.robolab.client.jfx.Launcher"
 
 val jvmJar = tasks.named<Jar>("jvmJar") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -155,7 +155,7 @@ tasks.create<JavaExec>("buildSassTheme") {
     dependsOn("jvmJar")
 
     group = "application"
-    main = "de.robolab.utils.ThemeGenerator"
+    main = "de.robolab.client.utils.ThemeGenerator"
     classpath(jvmJar)
     args()
 }

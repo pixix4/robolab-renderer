@@ -5,7 +5,7 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.createHtmlView
 import org.w3c.dom.HTMLUListElement
 
-class BulletList() : ViewCollection<ListItem>(createHtmlView<HTMLUListElement>("ul")) {
+class BulletList : ViewCollection<ListItem>(createHtmlView<HTMLUListElement>("ul")) {
     override val html = super.html as HTMLUListElement
 }
 

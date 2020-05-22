@@ -1,6 +1,6 @@
 package de.westermann.kwebview.components
 
-import de.robolab.utils.runAsync
+import de.robolab.client.utils.runAsync
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kwebview.KWebViewDsl
 import de.westermann.kwebview.View
@@ -20,7 +20,7 @@ import kotlin.math.ceil
  *
  * @author lars
  */
-class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
+class Canvas : View(createHtmlView<HTMLCanvasElement>()) {
 
     override val html = super.html as HTMLCanvasElement
 
@@ -59,7 +59,7 @@ class Canvas() : View(createHtmlView<HTMLCanvasElement>()) {
         html.style.height = "${height}px"
 
         // Redraw cached image
-        context.drawImage(tempContext.canvas, 0.0, 0.0);
+        context.drawImage(tempContext.canvas, 0.0, 0.0)
 
         // Apply transformations
         context.scale(dpi, dpi)

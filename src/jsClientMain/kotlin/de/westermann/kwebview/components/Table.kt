@@ -6,7 +6,7 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.createHtmlView
 import org.w3c.dom.HTMLTableElement
 
-class Table() : ViewCollection<View>(createHtmlView<HTMLTableElement>()) {
+class Table : ViewCollection<View>(createHtmlView<HTMLTableElement>()) {
     override val html = super.html as HTMLTableElement
 }
 

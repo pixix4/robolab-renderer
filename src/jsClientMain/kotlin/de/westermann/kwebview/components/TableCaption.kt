@@ -6,7 +6,7 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.createHtmlView
 import org.w3c.dom.HTMLTableCaptionElement
 
-class TableCaption() : ViewCollection<View>(createHtmlView<HTMLTableCaptionElement>("caption")) {
+class TableCaption : ViewCollection<View>(createHtmlView<HTMLTableCaptionElement>("caption")) {
     override val html = super.html as HTMLTableCaptionElement
 }
 

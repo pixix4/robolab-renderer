@@ -6,7 +6,7 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.createHtmlView
 import org.w3c.dom.HTMLDivElement
 
-class BoxView() : ViewCollection<View>(createHtmlView<HTMLDivElement>()) {
+class BoxView : ViewCollection<View>(createHtmlView<HTMLDivElement>()) {
     override val html = super.html as HTMLDivElement
 }
 

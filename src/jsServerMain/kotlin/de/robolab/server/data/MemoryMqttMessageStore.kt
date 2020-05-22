@@ -1,5 +1,3 @@
 package de.robolab.server.data
 
-class MemoryMqttMessageStore : IMqttMessageStore {
-
-}
+class MemoryMqttMessageStore : IMqttMessageStore

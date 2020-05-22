@@ -1,6 +1,6 @@
 package de.westermann.kwebview.extra
 
-import de.robolab.utils.runAfterTimeout
+import de.robolab.client.utils.runAfterTimeout
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue

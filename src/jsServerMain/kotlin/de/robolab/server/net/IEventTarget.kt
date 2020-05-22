@@ -1,4 +1,3 @@
 package de.robolab.server.net
 
-interface IEventTarget {
-}
+interface IEventTarget

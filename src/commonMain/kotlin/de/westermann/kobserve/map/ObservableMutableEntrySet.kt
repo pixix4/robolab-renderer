@@ -139,7 +139,7 @@ class ObservableMutableEntrySet<K, V>(
         }
     }
 
-    inner class MutableEntrySetIterator() : MutableIterator<MutableMap.MutableEntry<K, V>> {
+    inner class MutableEntrySetIterator : MutableIterator<MutableMap.MutableEntry<K, V>> {
 
         private val iterator = backingField.entries.iterator()
 

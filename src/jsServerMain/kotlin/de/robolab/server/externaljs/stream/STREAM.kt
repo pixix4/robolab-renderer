@@ -3,7 +3,6 @@
 package de.robolab.server.externaljs.stream
 
 import de.robolab.server.externaljs.Buffer
-import de.robolab.server.externaljs.JSBiDynErrorCallback
 import de.robolab.server.externaljs.JSDynErrorCallback
 import de.robolab.server.externaljs.events.EventEmitter
 import org.w3c.dom.ErrorEvent

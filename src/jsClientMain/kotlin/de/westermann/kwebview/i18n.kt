@@ -1,6 +1,6 @@
 package de.westermann.kwebview
 
-import de.robolab.utils.runAfterTimeout
+import de.robolab.client.utils.runAfterTimeout
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlin.browser.window
@@ -9,7 +9,7 @@ import kotlin.browser.window
 object i18n {
     private val data: MutableMap<String, Locale> = mutableMapOf()
 
-    private var fallbackLocale: Locale = i18n.Locale.EMPTY
+    private var fallbackLocale: Locale = Locale.EMPTY
 
     val localeProperty = property(Locale.EMPTY)
     var locale by localeProperty
@@ -75,11 +75,11 @@ object i18n {
             result = findKey(fallbackLocale, key)
         }
 
-        if (result == undefined) {
+        return if (result == undefined) {
             console.warn("Cannot translate key '$key'!")
-            return key
+            key
         } else {
-            return result
+            result
         }
     }
 

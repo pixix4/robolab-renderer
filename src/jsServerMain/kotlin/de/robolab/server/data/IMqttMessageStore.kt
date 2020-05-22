@@ -1,4 +1,3 @@
 package de.robolab.server.data
 
-interface IMqttMessageStore {
-}
+interface IMqttMessageStore

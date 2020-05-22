@@ -1,5 +1,3 @@
 package de.robolab.server.net
 
-object AsyncSocketProvider {
-
-}
+object AsyncSocketProvider

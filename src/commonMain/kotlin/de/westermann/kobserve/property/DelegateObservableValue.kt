@@ -3,7 +3,6 @@ package de.westermann.kobserve.property
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
-import de.westermann.kobserve.event.listenTo
 
 open class FunctionObservableValue<T>(
         private val delegateAccessor: DelegateValueAccessor<T>
