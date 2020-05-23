@@ -9,6 +9,6 @@ expect suspend fun sendHttpRequest(
     port:Int,
     path:String,
     body:String?,
-    query: List<Pair<String,String>>,
-    headers: List<Pair<String, String>>
+    query: Map<String, String>,
+    headers: Map<String, List<String>>
 ) : ServerResponse

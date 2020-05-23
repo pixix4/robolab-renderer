@@ -27,8 +27,8 @@ class RESTRobolabServer(
     override suspend fun request(method: HttpMethod,
                                  path:String,
                                  body:String?,
-                                 query: List<Pair<String,String>>,
-                                 headers: List<Pair<String, String>>,
+                                 query: Map<String,String>,
+                                 headers: Map<String, List<String>>,
                                  forceAuth:Boolean): ServerResponse{
         //TODO handleAuth, resend request if possible
         return sendHttpRequest(method,protocol,hostURL,hostPort,path,body,query, headers)

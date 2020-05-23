@@ -12,6 +12,7 @@ import io.ktor.client.utils.EmptyContent
 import io.ktor.http.HttpStatusCode as KtorHttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.util.flattenEntries
+import io.ktor.util.toMap
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.http.HttpMethod as KtorHttpMethod
 
@@ -24,8 +25,8 @@ actual suspend fun sendHttpRequest(
     port:Int,
     path:String,
     body:String?,
-    query: List<Pair<String,String>>,
-    headers: List<Pair<String, String>>
+    query: Map<String,String>,
+    headers: Map<String, List<String>>
 ): ServerResponse {
     val builtApplicators = buildApplicators(query, headers)
     val response: HttpResponse=when(method){
@@ -51,9 +52,9 @@ actual suspend fun sendHttpRequest(
     return response.toRobolabResponse()
 }
 
-private fun buildApplicators(query: List<Pair<String,String>>, headers: List<Pair<String,String>>) : (HttpRequestBuilder.()->Unit) = {
-    query.forEach { this.url.parameters.appendMissing(it.first, listOf(it.second))}
-    headers.forEach { header(it.first, it.second) }
+private fun buildApplicators(query: Map<String,String>, headers: Map<String, List<String>>) : (HttpRequestBuilder.()->Unit) = {
+    query.forEach { this.url.parameters.appendMissing(it.key, listOf(it.value))}
+    headers.forEach { this.headers.appendMissing(it.key, it.value) }
 }
 
 fun HttpMethod.toKtorMethod():KtorHttpMethod = when(this){
@@ -82,5 +83,5 @@ suspend fun HttpResponse.toRobolabResponse():ServerResponse = ServerResponse(
     method = this.request.method.toRobolabMethod(),
     url = this.request.url.encodedPath,
     body = this.readText(fallbackCharset),
-    headers = this.headers.flattenEntries()
+    headers = this.headers.toMap()
 )

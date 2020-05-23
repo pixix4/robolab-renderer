@@ -11,9 +11,9 @@ interface IRobolabServer {
     fun resetAuthSession()
 
     suspend fun request(method: HttpMethod,
-                            path:String,
-                            body:String?=null,
-                            query: List<Pair<String,String>> = emptyList(),
-                            headers: List<Pair<String, String>> = emptyList(),
-                            forceAuth:Boolean=false): ServerResponse
+                        path:String,
+                        body:String?=null,
+                        query: Map<String, String> = emptyMap(),
+                        headers: Map<String, List<String>> = emptyMap(),
+                        forceAuth:Boolean=false): ServerResponse
 }

@@ -8,5 +8,5 @@ data class ServerResponse(
     val method: HttpMethod,
     val url:String,
     val body:String?,
-    val headers:List<Pair<String,String>>
+    val headers:Map<String,List<String>>
 )
