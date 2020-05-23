@@ -1,124 +1,131 @@
 package de.robolab.server.externaljs
 
-typealias NodeError=Error
+typealias NodeError = Error
 
-external interface JSArray<T>{
-    val length:Int
+external interface JSArray<T> {
+    val length: Int
 
-    fun concat(other:JSArray<T>):JSArray<T>
-    fun copyWithin(target:Int):JSArray<T>
-    fun copyWithin(target:Int, start:Int):JSArray<T>
-    fun copyWithin(target:Int, start:Int, end:Int):JSArray<T>
-    fun every(callback:(element:T)->Boolean):Boolean
-    fun every(callback:(element:T,index:Int)->Boolean):Boolean
-    fun every(callback:(element:T,index:Int,array:JSArray<T>)->Boolean):Boolean
-    fun fill(value:T):JSArray<T>
-    fun fill(value:T, start:Int):JSArray<T>
-    fun fill(value:T, start:Int, end:Int):JSArray<T>
-    fun filter(callback:(element:T)->Boolean):JSArray<T>
-    fun filter(callback:(element:T,index:Int)->Boolean):JSArray<T>
-    fun filter(callback:(element:T,index:Int,array:JSArray<T>)->Boolean):JSArray<T>
-    fun find(callback:(element:T)->Boolean):T?
-    fun find(callback:(element:T,index:Int)->Boolean):T?
-    fun find(callback:(element:T,index:Int,array:JSArray<T>)->Boolean):T?
-    fun findIndex(callback:(element:T)->Boolean):Int
-    fun findIndex(callback:(element:T,index:Int)->Boolean):Int
-    fun findIndex(callback:(element:T,index:Int,array:JSArray<T>)->Boolean):Int
-    fun<F> flatMap(callback: (currentValue:T)->JSArray<F>): JSArray<F>
-    fun<F> flatMap(callback: (currentValue:T,index:Int)->JSArray<F>): JSArray<F>
-    fun<F> flatMap(callback: (currentValue:T,index:Int,array:JSArray<T>)->JSArray<F>): JSArray<F>
-    fun forEach(callback:(element:T)->Boolean)
-    fun forEach(callback:(element:T,index:Int)->Boolean)
-    fun forEach(callback:(element:T,index:Int,array:JSArray<T>)->Boolean)
-    fun includes(valueToFind:T):Boolean
-    fun includes(valueToFind:T,fromIndex:Int):Boolean
-    fun indexOf(searchElement:T):Int
-    fun indexOf(searchElement:T,fromIndex:Int):Int
-    fun join():String
-    fun join(separator:String):String
-    fun lastIndexOf(searchElement:T):Int
-    fun lastIndexOf(searchElement:T,fromIndex:Int):Int
-    fun<F> flatMap(callback: (currentValue:T)->F): JSArray<F>
-    fun<F> flatMap(callback: (currentValue:T,index:Int)->F): JSArray<F>
-    fun<F> flatMap(callback: (currentValue:T,index:Int,array:JSArray<T>)->F): JSArray<F>
-    fun pop():T?
-    fun push(element1:T, vararg elementN:T):Int
-    fun<F> reduce(callback: (accumulator:F,currentValue:T)->F):F
-    fun<F> reduce(callback: (accumulator:F,currentValue:T,index:Int)->F):F
-    fun<F> reduce(callback: (accumulator:F,currentValue:T,index:Int,array:JSArray<T>)->F):F
-    fun<F> reduce(callback: (accumulator:F,currentValue:T)->F, initialValue:F):F
-    fun<F> reduce(callback: (accumulator:F,currentValue:T,index:Int)->F, initialValue:F):F
-    fun<F> reduce(callback: (accumulator:F,currentValue:T,index:Int,array:JSArray<T>)->F, initialValue:F):F
-    fun<F> reduceRight(callback: (accumulator:F,currentValue:T)->F):F
-    fun<F> reduceRight(callback: (accumulator:F,currentValue:T,index:Int)->F):F
-    fun<F> reduceRight(callback: (accumulator:F,currentValue:T,index:Int,array:JSArray<T>)->F):F
-    fun<F> reduceRight(callback: (accumulator:F,currentValue:T)->F, initialValue:F):F
-    fun<F> reduceRight(callback: (accumulator:F,currentValue:T,index:Int)->F, initialValue:F):F
-    fun<F> reduceRight(callback: (accumulator:F,currentValue:T,index:Int,array:JSArray<T>)->F, initialValue:F):F
+    fun concat(other: JSArray<T>): JSArray<T>
+    fun copyWithin(target: Int): JSArray<T>
+    fun copyWithin(target: Int, start: Int): JSArray<T>
+    fun copyWithin(target: Int, start: Int, end: Int): JSArray<T>
+    fun every(callback: (element: T) -> Boolean): Boolean
+    fun every(callback: (element: T, index: Int) -> Boolean): Boolean
+    fun every(callback: (element: T, index: Int, array: JSArray<T>) -> Boolean): Boolean
+    fun fill(value: T): JSArray<T>
+    fun fill(value: T, start: Int): JSArray<T>
+    fun fill(value: T, start: Int, end: Int): JSArray<T>
+    fun filter(callback: (element: T) -> Boolean): JSArray<T>
+    fun filter(callback: (element: T, index: Int) -> Boolean): JSArray<T>
+    fun filter(callback: (element: T, index: Int, array: JSArray<T>) -> Boolean): JSArray<T>
+    fun find(callback: (element: T) -> Boolean): T?
+    fun find(callback: (element: T, index: Int) -> Boolean): T?
+    fun find(callback: (element: T, index: Int, array: JSArray<T>) -> Boolean): T?
+    fun findIndex(callback: (element: T) -> Boolean): Int
+    fun findIndex(callback: (element: T, index: Int) -> Boolean): Int
+    fun findIndex(callback: (element: T, index: Int, array: JSArray<T>) -> Boolean): Int
+    fun <F> flatMap(callback: (currentValue: T) -> JSArray<F>): JSArray<F>
+    fun <F> flatMap(callback: (currentValue: T, index: Int) -> JSArray<F>): JSArray<F>
+    fun <F> flatMap(callback: (currentValue: T, index: Int, array: JSArray<T>) -> JSArray<F>): JSArray<F>
+    fun forEach(callback: (element: T) -> Boolean)
+    fun forEach(callback: (element: T, index: Int) -> Boolean)
+    fun forEach(callback: (element: T, index: Int, array: JSArray<T>) -> Boolean)
+    fun includes(valueToFind: T): Boolean
+    fun includes(valueToFind: T, fromIndex: Int): Boolean
+    fun indexOf(searchElement: T): Int
+    fun indexOf(searchElement: T, fromIndex: Int): Int
+    fun join(): String
+    fun join(separator: String): String
+    fun lastIndexOf(searchElement: T): Int
+    fun lastIndexOf(searchElement: T, fromIndex: Int): Int
+    fun <F> flatMap(callback: (currentValue: T) -> F): JSArray<F>
+    fun <F> flatMap(callback: (currentValue: T, index: Int) -> F): JSArray<F>
+    fun <F> flatMap(callback: (currentValue: T, index: Int, array: JSArray<T>) -> F): JSArray<F>
+    fun pop(): T?
+    fun push(element1: T, vararg elementN: T): Int
+    fun <F> reduce(callback: (accumulator: F, currentValue: T) -> F): F
+    fun <F> reduce(callback: (accumulator: F, currentValue: T, index: Int) -> F): F
+    fun <F> reduce(callback: (accumulator: F, currentValue: T, index: Int, array: JSArray<T>) -> F): F
+    fun <F> reduce(callback: (accumulator: F, currentValue: T) -> F, initialValue: F): F
+    fun <F> reduce(callback: (accumulator: F, currentValue: T, index: Int) -> F, initialValue: F): F
+    fun <F> reduce(callback: (accumulator: F, currentValue: T, index: Int, array: JSArray<T>) -> F, initialValue: F): F
+    fun <F> reduceRight(callback: (accumulator: F, currentValue: T) -> F): F
+    fun <F> reduceRight(callback: (accumulator: F, currentValue: T, index: Int) -> F): F
+    fun <F> reduceRight(callback: (accumulator: F, currentValue: T, index: Int, array: JSArray<T>) -> F): F
+    fun <F> reduceRight(callback: (accumulator: F, currentValue: T) -> F, initialValue: F): F
+    fun <F> reduceRight(callback: (accumulator: F, currentValue: T, index: Int) -> F, initialValue: F): F
+    fun <F> reduceRight(
+        callback: (accumulator: F, currentValue: T, index: Int, array: JSArray<T>) -> F,
+        initialValue: F
+    ): F
+
     fun reverse(): JSArray<T>
     fun shift(): T?
     fun slice(): JSArray<T>
-    fun slice(begin:Int):JSArray<T>
-    fun slice(begin:Int,end:Int):JSArray<T>
-    fun some(callback:(element:T)->Boolean):Boolean
-    fun some(callback:(element:T,index:Int)->Boolean):Boolean
-    fun some(callback:(element:T,index:Int,array:JSArray<T>)->Boolean):Boolean
+    fun slice(begin: Int): JSArray<T>
+    fun slice(begin: Int, end: Int): JSArray<T>
+    fun some(callback: (element: T) -> Boolean): Boolean
+    fun some(callback: (element: T, index: Int) -> Boolean): Boolean
+    fun some(callback: (element: T, index: Int, array: JSArray<T>) -> Boolean): Boolean
     fun sort(): JSArray<T>
-    fun sort(compareFunction:(firstEl:T,secondEl:T)->Int):JSArray<T>
-    fun splice(start:Int):JSArray<T>
-    fun splice(start:Int, deleteCount:Int):JSArray<T>
-    fun splice(start:Int, deleteCount:Int, item1:T):JSArray<T>
-    fun splice(start:Int, deleteCount:Int, item1:T, item2:T):JSArray<T>
-    fun splice(start:Int, deleteCount:Int, item1:T, item2:T, vararg itemN:T):JSArray<T>
-    fun toLocaleString():String
-    fun toLocaleString(locales:String):String
-    fun toLocaleString(locales:String,options:dynamic):String
-    fun unshift(element1:T, vararg elementN:T):Int
+    fun sort(compareFunction: (firstEl: T, secondEl: T) -> Int): JSArray<T>
+    fun splice(start: Int): JSArray<T>
+    fun splice(start: Int, deleteCount: Int): JSArray<T>
+    fun splice(start: Int, deleteCount: Int, item1: T): JSArray<T>
+    fun splice(start: Int, deleteCount: Int, item1: T, item2: T): JSArray<T>
+    fun splice(start: Int, deleteCount: Int, item1: T, item2: T, vararg itemN: T): JSArray<T>
+    fun toLocaleString(): String
+    fun toLocaleString(locales: String): String
+    fun toLocaleString(locales: String, options: dynamic): String
+    fun unshift(element1: T, vararg elementN: T): Int
     fun values(): Iterator<T>
 }
 typealias DynJSArray = JSArray<dynamic>
 
-fun<T> JSArray<T>.toList():List<T>{
+fun <T> JSArray<T>.toList(): List<T> {
     return this.toMutableList().toList()
 }
 
-fun<T> JSArray<T>.toMutableList():MutableList<T>{
+fun <T> JSArray<T>.toMutableList(): MutableList<T> {
     val lst = mutableListOf<T>()
-    this.forEach{ element->
+    this.forEach { element ->
         lst.add(element)
     }
     return lst
 }
 
-fun<T> List<T>.toJSArray():JSArray<T>{
-    val arr= emptyJSArray<T>()
-    for(element:T in this)
+fun <T> List<T>.toJSArray(): JSArray<T> {
+    val arr = emptyJSArray<T>()
+    for (element: T in this)
         arr.push(element)
     return arr
 }
 
-fun<T> emptyJSArray(): JSArray<T>{
+fun <T> emptyJSArray(): JSArray<T> {
     return js("[]").unsafeCast<JSArray<T>>()
 }
 
-fun emptyJSArray(): DynJSArray{
+fun emptyJSArray(): DynJSArray {
     return js("[]").unsafeCast<DynJSArray>()
 }
 
-fun <T> jsArrayOf(vararg elements:T) : JSArray<T>{
-    val arr= emptyJSArray<T>()
-    for(element:T in elements)
+private val jsIsArray: (Any?) -> Boolean = js("Array.isArray") as (Any?) -> Boolean
+
+fun isJSArray(obj: Any?): Boolean = jsIsArray(obj)
+
+fun <T> jsArrayOf(vararg elements: T): JSArray<T> {
+    val arr = emptyJSArray<T>()
+    for (element: T in elements)
         arr.push(element)
     return arr
 }
 
-fun jsArrayOf(vararg elements:dynamic): DynJSArray{
-    val arr= emptyJSArray()
-    for(element:dynamic in elements)
+fun jsArrayOf(vararg elements: dynamic): DynJSArray {
+    val arr = emptyJSArray()
+    for (element: dynamic in elements)
         arr.push(element)
     return arr
 }
-
 
 
 external class Buffer {

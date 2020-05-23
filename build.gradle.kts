@@ -14,6 +14,7 @@ repositories {
 
 val serializationVersion  = "0.20.0"
 val klockVersion = "1.10.0"
+val ktorVersion = "1.3.2"
 kotlin {
     jvm {
         val main by compilations.getting {
@@ -82,6 +83,8 @@ kotlin {
                 implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
+                implementation("io.ktor:ktor-client-core:$ktorVersion")
+                implementation("io.ktor:ktor-client-apache:$ktorVersion")
             }
         }
         val jvmTest by getting {
@@ -113,6 +116,7 @@ kotlin {
 
                 implementation(npm("express", "4.17.1"))
                 implementation(npm("socket.io", "2.3.0"))
+                implementation(npm("kotlinx-coroutines-core","1.3.7"))
             }
         }
         val jsServerTest by getting {

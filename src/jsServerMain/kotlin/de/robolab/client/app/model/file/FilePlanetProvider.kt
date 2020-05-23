@@ -7,10 +7,12 @@ import de.westermann.kobserve.base.ObservableMutableList
 import de.westermann.kobserve.base.ObservableProperty
 
 actual class FilePlanetProvider actual constructor() : IProvider {
-    actual fun loadEntry(entry: FilePlanetEntry, onFinish: (String?) -> Unit) {throw UnsupportedOperationException()
+    actual fun loadEntry(entry: FilePlanetEntry, onFinish: (String?) -> Unit) {
+        throw UnsupportedOperationException()
     }
 
-    actual fun saveEntry(entry: FilePlanetEntry, onFinish: (Boolean) -> Unit) {throw UnsupportedOperationException()
+    actual fun saveEntry(entry: FilePlanetEntry, onFinish: (Boolean) -> Unit) {
+        throw UnsupportedOperationException()
     }
 
     actual val planetList: ObservableMutableList<FilePlanetEntry>

@@ -12,11 +12,11 @@ import kotlin.js.json
 object InfoRouter {
     val router: Router = createRouter()
 
-    init{
-        router.get("/exam"){req,res->
-            val result: JsonObject = kotlinx.serialization.json.json{
+    init {
+        router.get("/exam") { _, res ->
+            val result: JsonObject = kotlinx.serialization.json.json {
                 "isExam" to Config.Info.examEnabled
-                if(Config.Info.examEnabled){
+                if (Config.Info.examEnabled) {
                     "smallPlanetID" to Config.Info.examPlanetSmallID
                     "smallPlanetName" to Config.Info.examPlanetSmallName
                     "largePlanetID" to Config.Info.examPlanetLargeID

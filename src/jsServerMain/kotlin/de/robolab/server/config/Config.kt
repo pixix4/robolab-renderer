@@ -2,7 +2,7 @@ package de.robolab.server.config
 
 object Config {
 
-    object Beverage{
+    object Beverage {
         //URL which should be redirected to when requesting /mate
         val payPalMateURL: String? = null
 
@@ -16,27 +16,27 @@ object Config {
         val payPalMateForcedText: Boolean = false
     }
 
-    object Planets{
+    object Planets {
         //Directory to use for planet-storage
-        val directory:String = "./planets/"
+        val directory: String = "./planets/"
     }
 
     //--------INFO--------
 
-    object Info{
+    object Info {
         //Is exam-mode enabled?
-        val examEnabled:Boolean = false
+        val examEnabled: Boolean = false
 
         //ID of the largePlanet. MUST be non-null if examEnabled is true
-        val examPlanetLargeID:String? = "MORE-HUGE"
+        val examPlanetLargeID: String? = "MORE-HUGE"
 
         //ID of the smallPlanet. MUST be non-null if examEnabled is true
-        val examPlanetSmallID:String? = "LESS-TINY"
+        val examPlanetSmallID: String? = "LESS-TINY"
 
         //Fallback-Name for smallPlanet when it could not be found via ID
-        val examPlanetLargeName:String = "ExminatorBig"
+        val examPlanetLargeName: String = "ExminatorBig"
 
         //Fallback-Name for smallPlanet when it could not be found via ID
-        val examPlanetSmallName:String = "ExminatorSmall"
+        val examPlanetSmallName: String = "ExminatorSmall"
     }
 }
