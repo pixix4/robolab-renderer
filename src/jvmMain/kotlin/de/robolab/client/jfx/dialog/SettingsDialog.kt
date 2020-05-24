@@ -77,7 +77,7 @@ class SettingsDialog : GenericDialog() {
                 field("Reset all settings") {
                     button("Reset") {
                         setOnAction {
-                            PreferenceStorage.reset()
+                            PreferenceStorage.clear()
                         }
                     }
                 }

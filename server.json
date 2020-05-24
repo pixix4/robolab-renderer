@@ -1,0 +1,17 @@
+{
+    "beverage": {
+        "payPalMateURL": "",
+        "payPalMateText": "Please forward all of your money (or just 1.50€) to Lars Westermann",
+        "payPalMateForcedText": "false"
+    },
+    "info": {
+        "examEnabled": "false",
+        "examPlanetLargeID": "MORE-HUGE",
+        "examPlanetSmallID": "LESS-TINY",
+        "examPlanetLargeName": "ExminatorBig",
+        "examPlanetSmallName": "ExminatorSmall"
+    },
+    "planets": {
+        "directory": "./planets/"
+    }
+}

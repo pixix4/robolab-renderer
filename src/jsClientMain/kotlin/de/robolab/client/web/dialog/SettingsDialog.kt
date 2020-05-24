@@ -62,7 +62,7 @@ class SettingsDialog : Dialog("Settings") {
 
             button("Reset all settings") {
                 onClick {
-                    PreferenceStorage.reset()
+                    PreferenceStorage.clear()
                 }
             }
         }

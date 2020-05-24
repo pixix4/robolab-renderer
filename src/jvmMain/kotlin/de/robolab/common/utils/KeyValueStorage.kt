@@ -26,4 +26,8 @@ actual class KeyValueStorage {
     actual fun clear() {
         storage.clear()
     }
+    
+    actual fun keys(): Set<String> {
+        return storage.keys().toSet()
+    }
 }

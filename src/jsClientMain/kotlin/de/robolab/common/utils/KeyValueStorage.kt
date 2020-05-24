@@ -24,4 +24,10 @@ actual class KeyValueStorage {
     actual fun clear() {
         window.localStorage.clear()
     }
+    
+    actual fun keys(): Set<String> {
+        val count = window.localStorage.length
+        
+        return (0 until count).mapNotNull { window.localStorage.key(it) }.toSet()
+    }
 }
