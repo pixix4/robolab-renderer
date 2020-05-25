@@ -24,7 +24,7 @@ class ContentTypeHeader(value: String) : Header(name, value) {
         const val name: String = "Content-Type"
 
         private val mimeRegex: Regex = regex {
-            capture("class"){
+            capture {
                 multiple {
                     characterClass {
                         +CharacterClass.WordCharacter

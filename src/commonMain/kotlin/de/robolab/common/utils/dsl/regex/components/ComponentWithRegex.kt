@@ -30,7 +30,7 @@ abstract class ComponentWithRegex(components: List<IRegexComponent> = emptyList(
     fun compiled(regex: String) = compiled(regex.toRegex())
 
     fun capture(block: CaptureComponent.() -> Unit) = addAndRun(CaptureComponent(), block)
-    fun capture(name: String, block: CaptureComponent.() -> Unit) = addAndRun(CaptureComponent(name), block)
+    //fun capture(name: String, block: CaptureComponent.() -> Unit) = addAndRun(CaptureComponent(name), block)
 
     fun group(block: GroupComponent.() -> Unit) = addAndRun(GroupComponent(), block)
 
