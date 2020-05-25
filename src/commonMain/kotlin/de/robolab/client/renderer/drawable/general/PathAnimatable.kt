@@ -1,12 +1,12 @@
 package de.robolab.client.renderer.drawable.general
 
+import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.drawable.base.Animatable
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.drawable.edit.PathEditManager
 import de.robolab.client.renderer.drawable.utils.*
 import de.robolab.client.renderer.events.KeyCode
-import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.*
@@ -28,12 +28,12 @@ class PathAnimatable(
 ) : Animatable<Path>(reference) {
 
     override val view = SplineView(
-            getSourcePointFromPath(reference),
-            getTargetPointFromPath(reference),
-            getControlPointsFromPath(reference),
-            PlottingConstraints.LINE_WIDTH,
-            getColor(planet, reference) ?: ViewColor.LINE_COLOR,
-            reference.hidden
+        getSourcePointFromPath(reference),
+        getTargetPointFromPath(reference),
+        getControlPointsFromPath(reference),
+        PlottingConstraints.LINE_WIDTH,
+        getColor(planet, reference) ?: ViewColor.LINE_COLOR,
+        reference.hidden
     )
 
     private val isWeightVisibleProperty = property(reference.weight?.let { it > 0.0 } ?: false)
@@ -62,12 +62,12 @@ class PathAnimatable(
     }
 
     private val weightView = TextView(
-            getOrthogonal(0.5, true).first,
-            12.0,
-            reference.weight?.toString() ?: "0",
-            ViewColor.LINE_COLOR,
-            ICanvas.FontAlignment.CENTER,
-            ICanvas.FontWeight.NORMAL
+        getOrthogonal(0.5, true).first,
+        12.0,
+        reference.weight?.toString() ?: "0",
+        ViewColor.LINE_COLOR,
+        ICanvas.FontAlignment.CENTER,
+        ICanvas.FontWeight.NORMAL
     ) { newValue ->
         val callback = editProperty.value ?: return@TextView false
 
@@ -81,20 +81,33 @@ class PathAnimatable(
     }
 
     private val blockedView = LineView(
-            getOrthogonal(if (isOneWayPath) 1.0 else 0.5, true).toList(),
-            PlottingConstraints.LINE_WIDTH,
-            ViewColor.POINT_RED
+        getOrthogonal(if (isOneWayPath) 1.0 else 0.5, true).toList(),
+        PlottingConstraints.LINE_WIDTH,
+        ViewColor.POINT_RED
     ).also {
         it.animationTime = 0.0
     }
 
-    private val arrowView = getOrthogonal(if (isOneWayPath) 1.0 else 0.5, false).let { (first, second) ->
-        val second2 = first + (first - second).orthogonal().normalize() * PlottingConstraints.ARROW_LENGTH
+    private fun getArrowPosition(): Pair<Point, Point> {
+        return if (isOneWayPath) {
+            val (first, second) = getOrthogonal(1.0, false)
+
+            val second2 = first + (first - second).orthogonal().normalize() * PlottingConstraints.ARROW_LENGTH
+            first to second2
+        } else {
+            val (first, second) = getOrthogonal(0.5, false)
+            val length = (second - first).orthogonal().normalize() * PlottingConstraints.ARROW_LENGTH / 2
+
+            first - length to first + length
+        }
+    }
+
+    private val arrowView = getArrowPosition().let { (first, second) ->
         ArrowView(
-                first,
-                second2,
-                PlottingConstraints.LINE_WIDTH * 0.65,
-                ViewColor.LINE_COLOR
+            first,
+            second,
+            PlottingConstraints.LINE_WIDTH * 0.65,
+            ViewColor.LINE_COLOR
         )
     }.also {
         it.animationTime = 0.0
@@ -118,10 +131,9 @@ class PathAnimatable(
 
         blockedView.setPoints(getOrthogonal(if (isOneWayPath) 1.0 else 0.5, true).toList())
 
-        val (first, second) = getOrthogonal(if (isOneWayPath) 1.0 else 0.5, false)
-        val second2 = first + (first - second).orthogonal().normalize() * PlottingConstraints.ARROW_LENGTH
+        val (first, second) = getArrowPosition()
         arrowView.setSource(first)
-        arrowView.setTarget(second2)
+        arrowView.setTarget(second)
 
         pathEditManager?.onUpdate()
     }
@@ -164,8 +176,8 @@ class PathAnimatable(
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             if (event.ctrlKey && focusedView != null) {
                 val exposureCoordinate = Coordinate(
-                        focusedView.center.left.roundToInt(),
-                        focusedView.center.top.roundToInt()
+                    focusedView.center.left.roundToInt(),
+                    focusedView.center.top.roundToInt()
                 )
 
                 callback.togglePathExposure(this.reference, exposureCoordinate)
@@ -180,7 +192,10 @@ class PathAnimatable(
 
             val path = this.reference
 
-            view.menu(event, "Path (${path.source.x}, ${path.source.y}, ${path.sourceDirection.name.first()}) -> (${path.target.x}, ${path.target.y}, ${path.targetDirection.name.first()})") {
+            view.menu(
+                event,
+                "Path (${path.source.x}, ${path.source.y}, ${path.sourceDirection.name.first()}) -> (${path.target.x}, ${path.target.y}, ${path.targetDirection.name.first()})"
+            ) {
                 action("Reset control points") {
                     callback.updatePathControlPoints(path, emptyList())
                 }
@@ -247,11 +262,11 @@ class PathAnimatable(
 
         fun getControlPointsFromPath(path: Path): List<Point> {
             return getControlPointsFromPath(
-                    path.source.toPoint(),
-                    path.sourceDirection,
-                    path.target.toPoint(),
-                    path.targetDirection,
-                    path.controlPoints
+                path.source.toPoint(),
+                path.sourceDirection,
+                path.target.toPoint(),
+                path.targetDirection,
+                path.controlPoints
             )
         }
 
@@ -270,9 +285,14 @@ class PathAnimatable(
                 }
 
                 return listOfNotNull(
-                        startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
-                        if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(startPoint, startDirection, linePoints.first())) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
-                        *linePoints.toTypedArray()
+                    startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
+                    if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(
+                            startPoint,
+                            startDirection,
+                            linePoints.first()
+                        )
+                    ) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
+                    *linePoints.toTypedArray()
                 )
             }
 
@@ -280,23 +300,39 @@ class PathAnimatable(
                 controlPoints
             } else {
                 PathGenerator.generateControlPoints(
-                        startPoint,
-                        startDirection,
-                        endPoint,
-                        endDirection
+                    startPoint,
+                    startDirection,
+                    endPoint,
+                    endDirection
                 )
             }
 
             return listOfNotNull(
-                    startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
-                    if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(startPoint, startDirection, linePoints.first())) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
-                    *linePoints.toTypedArray(),
-                    if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(endPoint, endDirection, linePoints.last())) null else endPoint.shift(endDirection, PlottingConstraints.CURVE_SECOND_POINT),
-                    endPoint.shift(endDirection, PlottingConstraints.CURVE_FIRST_POINT)
+                startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
+                if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(
+                        startPoint,
+                        startDirection,
+                        linePoints.first()
+                    )
+                ) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
+                *linePoints.toTypedArray(),
+                if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(
+                        endPoint,
+                        endDirection,
+                        linePoints.last()
+                    )
+                ) null else endPoint.shift(endDirection, PlottingConstraints.CURVE_SECOND_POINT),
+                endPoint.shift(endDirection, PlottingConstraints.CURVE_FIRST_POINT)
             )
         }
 
-        inline fun multiEval(count: Int, controlPoints: List<Point>, startPoint: Point, endPoint: Point?, eval: (Double) -> Point): List<Point> {
+        inline fun multiEval(
+            count: Int,
+            controlPoints: List<Point>,
+            startPoint: Point,
+            endPoint: Point?,
+            eval: (Double) -> Point
+        ): List<Point> {
             val realCount = max(16, power2(log2(count - 1) + 1))
 
             val points = arrayOfNulls<Point>(realCount + 1)
@@ -315,13 +351,15 @@ class PathAnimatable(
 
             points[index] = (controlPoints.last())
 
-            val startPointEdge = startPoint + (controlPoints.first() - startPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
+            val startPointEdge =
+                startPoint + (controlPoints.first() - startPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
 
             if (endPoint == null) {
                 return listOf(startPointEdge) + points.take(index + 1).requireNoNulls()
             }
 
-            val endPointEdge = endPoint + (controlPoints.last() - endPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
+            val endPointEdge =
+                endPoint + (controlPoints.last() - endPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
             return listOf(startPointEdge) + points.take(index + 1).requireNoNulls() + endPointEdge
         }
     }
