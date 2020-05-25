@@ -53,12 +53,14 @@ class MainApp : App(MainView::class) {
                 StylesheetLoader.load()
             }
 
-            val robolabServer = RESTRobolabServer("localhost",8080)
-            GlobalScope.launch{
+            val robolabServer = RESTRobolabServer("localhost", 8080)
+            GlobalScope.launch {
                 val response = robolabServer.listPlanets()
-                println("PlanetList-Response (MIME-Type: ${response.typedHeaders.contentTypeHeaders.singleOrNull()?.mimeType}): " +
-                        "${response.planets.size} Planets found (status: ${response.status})")
-                for(info in response.planets){
+                println(
+                    "PlanetList-Response (MIME-Type: ${response.typedHeaders.contentTypeHeaders.singleOrNull()?.mimeType}): " +
+                            "${response.planets.size} Planets found (status: ${response.status})"
+                )
+                for (info in response.planets) {
                     println("\t'${info.id.id}' -> '${info.name}'")
                 }
             }

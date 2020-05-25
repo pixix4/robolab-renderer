@@ -52,6 +52,10 @@ class SettingsDialog : GenericDialog() {
                 field("Client id") {
                     textfield(PreferenceStorage.clientIdProperty.toFx())
                 }
+
+                field("Log uri") {
+                    textfield(PreferenceStorage.logUriProperty.toFx())
+                }
             }
 
             fieldset("Advanced") {

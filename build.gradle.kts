@@ -48,7 +48,9 @@ kotlin {
                 implementation(kotlin("stdlib-common"))
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.7")
                 implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
+
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
             }
         }
@@ -84,6 +86,8 @@ kotlin {
                 implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
+
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-apache:$ktorVersion")
             }
@@ -100,6 +104,7 @@ kotlin {
                 implementation(kotlin("stdlib-js"))
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
             }
         }
@@ -115,10 +120,10 @@ kotlin {
                 implementation(kotlin("stdlib-js"))
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
 
                 implementation(npm("express", "4.17.1"))
                 implementation(npm("socket.io", "2.3.0"))
-                implementation(npm("kotlinx-coroutines-core","1.3.7"))
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
             }
         }

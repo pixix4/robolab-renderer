@@ -49,6 +49,10 @@ class SettingsDialog : Dialog("Settings") {
             dialogFormEntry("Client id") {
                 inputView(PreferenceStorage.clientIdProperty)
             }
+
+            dialogFormEntry("Log uri") {
+                inputView(PreferenceStorage.logUriProperty)
+            }
         }
 
         dialogFormGroup("Advanced") {

@@ -17,10 +17,6 @@ class MessageManager(private val messageProvider: RobolabMessageProvider) {
     init {
         messageProvider.onMessage += this::onRobolabMessage
         messageProvider.onMessageList += this::onRobolabMessageList
-
-        runAfterTimeout(1000) {
-            messageProvider.loadMqttLog()
-        }
     }
 
     private fun onRobolabMessage(message: RobolabMessage) {

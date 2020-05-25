@@ -13,6 +13,8 @@ import io.ktor.http.URLProtocol
 import io.ktor.util.flattenEntries
 import io.ktor.util.toMap
 import io.ktor.utils.io.charsets.Charsets
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import io.ktor.http.HttpMethod as KtorHttpMethod
 
 expect val client: HttpClient
@@ -85,3 +87,22 @@ suspend fun HttpResponse.toRobolabResponse(): ServerResponse =
         body = this.readText(fallbackCharset),
         headers = this.headers.toMap()
     )
+
+
+val RobolabScope = MainScope()
+fun sendHttpRequest(
+    method: HttpMethod,
+    scheme: String,
+    host:String,
+    port:Int,
+    path:String,
+    body:String?,
+    query: Map<String,String>,
+    headers: Map<String, List<String>>,
+    callback: (ServerResponse) -> Unit
+) {
+    RobolabScope.launch {
+        val response = sendHttpRequest(method, scheme, host, port, path, body, query, headers)
+        callback(response)
+    }
+}

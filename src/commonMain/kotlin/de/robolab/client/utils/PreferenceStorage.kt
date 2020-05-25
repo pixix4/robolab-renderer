@@ -39,6 +39,9 @@ object PreferenceStorage: TypedStorage() {
 
     val passwordProperty = item("PASSWORD", "")
     var password by passwordProperty
+    
+    val logUriProperty = item("LOG_URI", "https://mothership.inf.tu-dresden.de/logs/mqtt/latest/?count=100")
+    var logUri by logUriProperty
 
     val logLevelProperty = item("LOG_LEVEL", Logger.Level.WARN)
     val logLevel by logLevelProperty

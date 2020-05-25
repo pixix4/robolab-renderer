@@ -4,6 +4,8 @@ import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 import de.robolab.client.communication.mqtt.MqttMessage
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
+import de.robolab.client.net.http
+import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.event.EventHandler
 import kotlinx.serialization.json.Json
@@ -20,8 +22,18 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
     val onMessage = EventHandler<RobolabMessage>()
     val onMessageList = EventHandler<List<RobolabMessage>>()
 
+    private var logLoaded = false
+
     init {
         mqttConnection.onMessage += this::onMessage
+
+        mqttConnection.connectionStateProperty.onChange {
+            if (mqttConnection.connectionState is RobolabMqttConnection.Connected && !logLoaded) {
+                logLoaded = true
+
+                loadMqttLog()
+            }
+        }
     }
 
     private val jsonSerializer = Json(JsonConfiguration.Stable)
@@ -30,11 +42,11 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
         val groupId = message.topic.substringAfterLast('/').substringAfterLast('-')
 
         var metadata = RobolabMessage.Metadata(
-                message.timeArrived,
-                groupId,
-                From.UNKNOWN,
-                message.topic,
-                message.message
+            message.timeArrived,
+            groupId,
+            From.UNKNOWN,
+            message.topic,
+            message.message
         )
 
 
@@ -47,7 +59,8 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
                     metadata,
                     RobolabMessage.IllegalMessage.Reason.NotParsable,
                     e.message
-            ))
+                )
+            )
             return null
         }
 
@@ -55,8 +68,8 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
 
         val robolabMessage = try {
             jsonMessage.type.parseMessage(
-                    metadata,
-                    jsonMessage
+                metadata,
+                jsonMessage
             )
         } catch (e: IllegalFromException) {
             logger.error { "Illegal \"from\" value (${e.actualFrom}) for message type ${e.messageType} in message ${metadata.rawMessage}" }
@@ -89,20 +102,29 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
         val content = rawContentStr.replace("\\\"", "\"").replace("\\\\", "\\")
 
         return MqttMessage(
-                date.utc.unixMillisLong,
-                topic,
-                content
+            date.utc.unixMillisLong,
+            topic,
+            content
         )
     }
 
-    fun loadMqttLog() {
-        httpRequest("demo/mqtt.console.log") { content ->
-            if (content == null) {
-                logger.warn { "Cannot load mqtt.console.log!" }
-            } else {
-                val list = content.splitToSequence('\n').mapNotNull { parseMqttLogLine(it) }.mapNotNull { parseMqttMessage(it) }
-                onMessageList.emit(list.toList())
+    private fun loadMqttLog() {
+        try {
+            http {
+                url(PreferenceStorage.logUri)
+            }.exec { response ->
+                if (response.body == null) {
+                    logger.warn { "Cannot load mqtt log!" }
+                } else {
+                    val list = response.body
+                        .splitToSequence('\n')
+                        .mapNotNull { parseMqttLogLine(it) }
+                        .mapNotNull { parseMqttMessage(it) }
+                    onMessageList.emit(list.toList())
+                }
             }
+        } catch (e: Exception) {
+            logger.warn { "Cannot load mqtt log!" }
         }
     }
 
