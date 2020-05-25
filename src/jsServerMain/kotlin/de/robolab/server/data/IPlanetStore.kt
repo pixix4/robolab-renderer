@@ -11,5 +11,5 @@ interface IPlanetStore {
     suspend fun get(id: ID): SPlanet?
     suspend fun get(name: String): List<SPlanet>
 
-    suspend fun getIDs(): List<ID>
+    suspend fun listPlanets(): List<Pair<ID,String>>
 }

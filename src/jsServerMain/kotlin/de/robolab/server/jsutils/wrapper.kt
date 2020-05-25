@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package de.robolab.server.jsutils
 
 typealias JSBiCallback<E, T> = (err: E, res: T) -> Unit
@@ -6,13 +8,13 @@ typealias JSDynErrorCallback = JSErrorCallback<dynamic>
 typealias JSBiDynErrorCallback<T> = JSBiCallback<dynamic, T>
 typealias JSDynBiCallback = JSBiDynErrorCallback<dynamic>
 
-fun Any?.hasJSValue() = (this != null) && (this != undefined)
+inline fun Any?.hasJSValue() = (this != null) && (this != undefined)
 
-fun Any?.isUndefined() = this == undefined
+inline fun Any?.isUndefined() = this == undefined
 
-fun Any?.isNull() = this == null
+inline fun Any?.isNull() = this == null
 
-fun Any?.truthy() = !this.falsy()
+inline fun Any?.truthy() = !this.falsy()
 
 @Suppress("DUPLICATE_LABEL_IN_WHEN")
 fun Any?.falsy() = when (this) {

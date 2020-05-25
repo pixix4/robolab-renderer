@@ -16,8 +16,8 @@ class FilePlanetStore(val directory: String) : IPlanetStore {
 
     override suspend fun get(name: String): List<SPlanet> = listOf(SPlanet(), SPlanet())
 
-    override suspend fun getIDs(): List<ID> {
-        return listOf("123", "HELLO-WORLD").map { ID(it) }
+    override suspend fun listPlanets(): List<Pair<ID,String>> {
+        return listOf("123" to "Planet-456", "HELLO-WORLD" to "FooBarrisson").map { ID(it.first) to it.second }
     }
 
 }

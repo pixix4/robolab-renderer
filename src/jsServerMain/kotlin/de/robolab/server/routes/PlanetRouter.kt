@@ -5,11 +5,8 @@ import de.robolab.server.config.Config
 import de.robolab.server.data.FilePlanetStore
 import de.robolab.server.jsutils.promise
 import de.robolab.common.planet.ID
-import de.robolab.server.externaljs.JSArray
+import de.robolab.server.externaljs.*
 import de.robolab.server.externaljs.express.*
-import de.robolab.server.externaljs.toJSArray
-import de.robolab.server.externaljs.isJSArray
-import de.robolab.server.externaljs.toList
 import de.robolab.server.jsutils.jsTruthy
 import de.robolab.server.model.ServerPlanet as SPlanet
 
@@ -21,13 +18,18 @@ object PlanetRouter {
     init {
         router.getPromise("/") { _, res ->
             promise {
-                val ids: List<ID> = planetStore.getIDs()
-                val strIDs: List<String> = ids.map { it.id }
+                val ids: List<Pair<ID,String>> = planetStore.listPlanets()
+                val strIDs: List<Pair<String,String>> = ids.map { it.first.id to it.second }
                 res.status(HttpStatusCode.Ok)
-                res.format("text" to {
-                    res.send(strIDs.joinToString("\n"))
-                }, "json" to {
-                    res.send(strIDs.toJSArray())
+                res.format("json" to {
+                    res.send(strIDs.map {
+                        val obj = emptyJSObject()
+                        obj["id"] = it.first
+                        obj["name"] = it.second
+                        return@map obj
+                    }.toJSArray())
+                },"text" to {
+                    res.send(strIDs.joinToString("\n") { "${it.first}:${it.second}" })
                 })
             }
         }

@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package de.robolab.server.externaljs
 
 typealias NodeError = Error
@@ -101,12 +103,16 @@ fun <T> List<T>.toJSArray(): JSArray<T> {
     return arr
 }
 
-fun <T> emptyJSArray(): JSArray<T> {
+inline fun <T> emptyJSArray(): JSArray<T> {
     return js("[]").unsafeCast<JSArray<T>>()
 }
 
-fun emptyJSArray(): DynJSArray {
+inline fun emptyJSArray(): DynJSArray {
     return js("[]").unsafeCast<DynJSArray>()
+}
+
+inline fun emptyJSObject(): dynamic{
+    return js("{}")
 }
 
 private val jsIsArray: (Any?) -> Boolean = js("Array.isArray") as (Any?) -> Boolean
