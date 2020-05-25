@@ -1,11 +1,13 @@
 package de.robolab.server
 
+import de.robolab.server.jsutils.jsTruthy
 import de.robolab.server.net.DefaultEnvironment
 import de.robolab.server.routes.BeverageRouter
 import de.robolab.server.routes.InfoRouter
 import de.robolab.server.routes.PlanetRouter
 
 fun main() {
+
     DefaultEnvironment.app.use("/tea", BeverageRouter.teaRouter)
     DefaultEnvironment.app.use("/coffee", BeverageRouter.coffeeRouter)
     DefaultEnvironment.app.use("/mate", BeverageRouter.mateRouter)
@@ -17,5 +19,7 @@ fun main() {
     DefaultEnvironment.http.listen(8080) {
         console.log("listening on port 8080")
     }
+    var a: Any? = null
+    a.jsTruthy()
     console.log("\n\n\tHello, Kotlin/JS!\n\n")
 }

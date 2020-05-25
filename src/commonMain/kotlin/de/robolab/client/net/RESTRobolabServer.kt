@@ -31,6 +31,15 @@ class RESTRobolabServer(
                                  headers: Map<String, List<String>>,
                                  forceAuth:Boolean): ServerResponse{
         //TODO handleAuth, resend request if possible
-        return sendHttpRequest(method,protocol,hostURL,hostPort,path,body,query, headers)
+        return sendHttpRequest(
+            method,
+            protocol,
+            hostURL,
+            hostPort,
+            path,
+            body,
+            query,
+            headers
+        )
     }
 }

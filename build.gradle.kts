@@ -49,6 +49,7 @@ kotlin {
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
                 implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
+                implementation("io.ktor:ktor-client-core:$ktorVersion")
             }
         }
         val commonTest by getting {
@@ -99,6 +100,7 @@ kotlin {
                 implementation(kotlin("stdlib-js"))
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
+                implementation("io.ktor:ktor-client-js:$ktorVersion")
             }
         }
         val jsClientTest by getting {
@@ -117,6 +119,7 @@ kotlin {
                 implementation(npm("express", "4.17.1"))
                 implementation(npm("socket.io", "2.3.0"))
                 implementation(npm("kotlinx-coroutines-core","1.3.7"))
+                implementation("io.ktor:ktor-client-js:$ktorVersion")
             }
         }
         val jsServerTest by getting {

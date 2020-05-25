@@ -30,9 +30,7 @@ fun Any?.falsy() = when (this) {
 }
 
 private val jsTruthyTest: (Any?) -> Boolean = js(
-    "function jsTruthy(val){" +
-            "return !!val" +
-            "}"
+    """function jsTruthy(val){return !!val}"""
 ) as ((Any?) -> Boolean)
 
 fun Any?.jsFalsy() = !jsTruthyTest(this)

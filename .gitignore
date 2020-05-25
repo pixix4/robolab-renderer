@@ -14,3 +14,4 @@ node_modules/
 .lck
 planet/*.exam
 planet/*.exam.*
+npm-debug.log
