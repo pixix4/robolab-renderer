@@ -6,6 +6,14 @@ import kotlin.jvm.JvmName
 class RequestBuilder {
     private var method: HttpMethod = HttpMethod.GET
     private var protocol: String = "http"
+        set(value) {
+            field = value
+
+            when (value.toLowerCase()) {
+                "http" -> port = 80
+                "https" -> port = 443
+            }
+        }
     private var host: String = ""
     private var port: Int = 80
     private var path: String = "/"
