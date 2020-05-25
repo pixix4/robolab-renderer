@@ -39,6 +39,6 @@ class LivePlanetDrawable : AbsPlanetDrawable() {
                 serverLayer
         )
 
-        //overlayerViews.addAll(robotDrawable)
+        overlayerViews.add(robotDrawable.view)
     }
 }
