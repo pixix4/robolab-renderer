@@ -7,7 +7,7 @@ data class Coordinate(val x: Int, val y: Int) {
             return Color.UNKNOWN
         }
 
-        if ((this.x + this.y) % 2 == (bluePoint.x + bluePoint.y) % 2) {
+        if (((this.x + this.y) % 2 == 0) == ((bluePoint.x + bluePoint.y) % 2 == 0)) {
             return Color.BLUE
         }
         return Color.RED
