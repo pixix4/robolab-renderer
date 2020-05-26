@@ -136,7 +136,7 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
         val selectedIndex = selectedIndexProperty.value
         val lastIndex = messages.lastIndex
 
-        selectedIndex != null && selectedIndex < lastIndex
+        selectedIndex != null && selectedIndex <= lastIndex
     }
 
     private fun redo() {

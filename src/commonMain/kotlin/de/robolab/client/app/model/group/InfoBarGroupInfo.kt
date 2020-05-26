@@ -6,6 +6,7 @@ import de.robolab.client.app.model.IInfoBarContent
 import de.robolab.client.communication.RobolabMessage
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.property.constObservable
+import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
 import kotlin.math.roundToInt
 
@@ -18,7 +19,9 @@ class InfoBarGroupInfo(private val attemptPlanetEntry: AttemptPlanetEntry) : IIn
     val selectedIndexProperty = attemptPlanetEntry.selectedIndexProperty
 
 
-    val messageCountStringProperty = messages.mapBinding { it.size.toString() }
+    val messageCountStringProperty = messages.join(attemptPlanetEntry.selectedIndexProperty) { messages, index ->
+        "${messages.size} (${index?.let { "${index + 1} of ${messages.size}" } ?: "live"})"
+    }
 
     val firstMessageTimeStringProperty = messages.mapBinding { list ->
         list.firstOrNull()?.metadata?.time?.let {
