@@ -94,6 +94,7 @@ kotlin {
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.3.7")
 
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-apache:$ktorVersion")

@@ -3,12 +3,8 @@ package de.robolab.client.jfx
 import de.robolab.client.jfx.style.StylesheetLoader
 import de.robolab.client.jfx.style.SystemTheme.getSystemTheme
 import de.robolab.client.jfx.style.SystemTheme.isSystemThemeSupported
-import de.robolab.client.net.RESTRobolabServer
-import de.robolab.client.net.requests.listPlanets
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAfterTimeoutInterval
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import tornadofx.App
 
 
@@ -18,6 +14,8 @@ class MainApp : App(MainView::class) {
 
         @JvmStatic
         fun main(args: Array<String>) {
+            Thread.setDefaultUncaughtExceptionHandler(ErrorHandler())
+
             System.setProperty("awt.useSystemAAFontSettings", "on")
             System.setProperty("jdk.gtk.version", "3")
             System.setProperty("prism.lcdtext", "false")
@@ -51,18 +49,6 @@ class MainApp : App(MainView::class) {
             // Otherwise a Toolkit not initialized exception may be thrown.
             PreferenceStorage.selectedThemeProperty.onChange {
                 StylesheetLoader.load()
-            }
-
-            val robolabServer = RESTRobolabServer("localhost", 8080)
-            GlobalScope.launch {
-                val response = robolabServer.listPlanets()
-                println(
-                    "PlanetList-Response (MIME-Type: ${response.typedHeaders.contentTypeHeaders.singleOrNull()?.mimeType}): " +
-                            "${response.planets.size} Planets found (status: ${response.status})"
-                )
-                for (info in response.planets) {
-                    println("\t'${info.id.id}' -> '${info.name}'")
-                }
             }
 
             launch(MainApp::class.java)

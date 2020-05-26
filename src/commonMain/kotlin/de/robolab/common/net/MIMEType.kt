@@ -23,6 +23,7 @@ enum class MIMESuperType(typeKey:String){
 enum class MIMEType(primaryName: String, vararg alsoKnownAs:String) {
     PlainText("text/plain"),
     HTML("text/html"),
+    OCTET_STREAM("application/octet-stream"),
     JSON("application/json");
 
     val primaryName = primaryName.toLowerCase()
