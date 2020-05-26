@@ -12,10 +12,15 @@ import org.w3c.dom.events.MouseEvent
 import kotlin.browser.window
 import kotlin.math.PI
 
+fun test(): (HTMLElement) -> Hammer {
+    return js("""function (elem) { return Hammer(elem, {}) }""") as (HTMLElement) -> Hammer
+}
+
 class WebCanvas(val canvas: Canvas) : ICanvas {
 
     private val context = canvas.context
-    private val hammer = Hammer(canvas.html, object {})
+    // private val hammer = Hammer(canvas.html, js("{}"))
+    private val hammer = test()(canvas.html)
     private val logger = Logger(this)
 
     private fun mouseEventToPointerEvent(event: MouseEvent): PointerEvent {

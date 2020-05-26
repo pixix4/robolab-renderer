@@ -46,11 +46,15 @@ external interface `T$0` {
 }
 
 external interface ISubscriptionMap {
-    @nativeGetter
-    operator fun get(topic: String): `T$0`?
 
-    @nativeSetter
-    operator fun set(topic: String, value: `T$0`)
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline operator fun ISubscriptionMap.get(topic: String): `T$0`? = asDynamic()[topic]
+
+@Suppress("NOTHING_TO_INLINE")
+inline operator fun ISubscriptionMap.set(topic: String, value: `T$0`) {
+    asDynamic()[topic] = value
 }
 
 typealias ClientSubscribeCallback = (err: Error, granted: Array<ISubscriptionGrant>) -> Unit

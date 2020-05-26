@@ -12,7 +12,7 @@ repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
-val serializationVersion  = "0.20.0"
+val serializationVersion = "0.20.0"
 val klockVersion = "1.10.0"
 val ktorVersion = "1.3.2"
 kotlin {
@@ -25,9 +25,16 @@ kotlin {
         }
     }
     js("jsClient") {
+        browser {
+            dceTask {
+                keep(
+                    "ktor-ktor-io.\$\$importsForInline\$\$.ktor-ktor-io.io.ktor.utils.io"
+                )
+            }
+        }
         val main by compilations.getting {
             kotlinOptions {
-                moduleKind = "umd"
+                moduleKind = "commonjs"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
             }
         }
@@ -106,6 +113,12 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
+
+
+                implementation(npm("mqtt", "4.1.0"))
+                implementation(npm("abort-controller", "3.0.0"))
+                implementation(npm("text-encoding"))
+                implementation(npm("hammerjs"))
             }
         }
         val jsClientTest by getting {
@@ -121,10 +134,10 @@ kotlin {
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
+                implementation("io.ktor:ktor-client-js:$ktorVersion")
 
                 implementation(npm("express", "4.17.1"))
                 implementation(npm("socket.io", "2.3.0"))
-                implementation("io.ktor:ktor-client-js:$ktorVersion")
             }
         }
         val jsServerTest by getting {
@@ -177,7 +190,7 @@ tasks.create<com.moowork.gradle.node.npm.NpmTask>("jsClientInstallSass") {
 
     outputs.cacheIf { true }
     outputs.dir(file("${project.projectDir}/web/node_modules/sass"))
-            .withPropertyName("sassCompiler")
+        .withPropertyName("sassCompiler")
 
 }
 
@@ -186,36 +199,37 @@ tasks.create<com.moowork.gradle.node.task.NodeTask>("jsClientCompileSass") {
 
     script = file("$projectDir/web/node_modules/sass/sass.js")
     addArgs(
-            "$projectDir/src/jsClientMain/resources/public/stylesheets/style.scss",
-            "$buildDir/processedResources/jsClient/main/public/stylesheets/style.css"
+        "$projectDir/src/jsClientMain/resources/public/stylesheets/style.scss",
+        "$buildDir/processedResources/jsClient/main/public/stylesheets/style.css"
     )
 
     outputs.cacheIf { true }
     inputs.dir(file("$projectDir/src/jsClientMain/resources/public/stylesheets"))
-            .withPropertyName("stylesheets")
-            .withPathSensitivity(PathSensitivity.RELATIVE)
+        .withPropertyName("stylesheets")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
 
     outputs.file("$buildDir/processedResources/jsClient/main/public/stylesheets/style.css")
-            .withPropertyName("style")
+        .withPropertyName("style")
 }
 
-val jsJar = tasks.named<Jar>("jsClientJar") {
+tasks.named("jsClientBrowserDistributeResources") {
     dependsOn("jsClientCompileSass")
+}
+
+val jsClientBrowserProductionWebpack = tasks.named("jsClientBrowserProductionWebpack")
+
+val jsClientJar = tasks.named<Jar>("jsClientJar") {
+    dependsOn("jsClientBrowserProductionWebpack")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    from(Callable { configurations["jsClientRuntimeClasspath"].map { if (it.isDirectory) it else zipTree(it) } })
+    from(jsClientBrowserProductionWebpack)
 }
 
 tasks.create<Sync>("jsClientSync") {
     dependsOn("jsClientJar")
 
-    from(Callable { zipTree(jsJar.get().archiveFile) })
+    from(Callable { zipTree(jsClientJar.get().archiveFile) })
     into("${projectDir}/web/website")
-}
-
-tasks.create<com.moowork.gradle.node.task.NodeTask>("jsClientRun") {
-    dependsOn("jsClientSync", "npmInstall")
-    script = file("web/index.js")
 }
 
 node {
