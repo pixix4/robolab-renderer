@@ -27,6 +27,9 @@ fun Stylesheet.initInfoBarStyle() {
 
         val c = MainStyle.theme.ui.borderColor.toFx().css
 
+        Stylesheet.filler {
+            backgroundColor = multi(Color.TRANSPARENT)
+        }
         Stylesheet.columnHeader {
             backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
             properties["-fx-table-cell-border-color"] = Unit to { _ -> c }
