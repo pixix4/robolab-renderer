@@ -10,7 +10,7 @@ import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
 import kotlin.math.roundToInt
 
-class InfoBarGroupInfo(private val attemptPlanetEntry: AttemptPlanetEntry) : IInfoBarContent {
+class InfoBarGroupInfo(attemptPlanetEntry: AttemptPlanetEntry) : IInfoBarContent {
 
     override val nameProperty = constObservable("Overview")
 
@@ -20,7 +20,7 @@ class InfoBarGroupInfo(private val attemptPlanetEntry: AttemptPlanetEntry) : IIn
 
 
     val messageCountStringProperty = messages.join(attemptPlanetEntry.selectedIndexProperty) { messages, index ->
-        "${messages.size} (${index?.let { "${index + 1} of ${messages.size}" } ?: "live"})"
+        "${messages.size} (${if (index < messages.size - 1) "${index + 1} of ${messages.size}" else  "live"})"
     }
 
     val firstMessageTimeStringProperty = messages.mapBinding { list ->
@@ -47,6 +47,5 @@ class InfoBarGroupInfo(private val attemptPlanetEntry: AttemptPlanetEntry) : IIn
     companion object {
         val TIME_FORMAT = DateFormat("HH:mm:ss")
         val TIME_FORMAT_DETAILED = DateFormat("HH:mm:ss.SSS")
-
     }
 }

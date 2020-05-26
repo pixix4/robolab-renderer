@@ -49,7 +49,15 @@ class InfoBarGroupView(private val content: InfoBarGroupInfo) : View() {
                 content.selectedIndexProperty.value = index
             }
             selectionModel.selectedIndexProperty().onChange {
+                if (it != content.selectedIndexProperty.value)
                 content.selectedIndexProperty.value = it
+            }
+
+            content.selectedIndexProperty.onChange {
+                if (content.selectedIndexProperty.value != selectionModel.selectedIndex) {
+                    selectionModel.select(content.selectedIndexProperty.value)
+                    // selectionModel.selectedIndex = content.selectedIndexProperty.value
+                }
             }
         }
     }

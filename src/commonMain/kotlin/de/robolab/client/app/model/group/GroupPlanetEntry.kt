@@ -1,3 +1,5 @@
+@file:Suppress("USELESS_CAST")
+
 package de.robolab.client.app.model.group
 
 import com.soywiz.klock.DateFormat
@@ -108,59 +110,36 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
 
     override val toolBarLeft = emptyList<List<ToolBarEntry>>()
 
-    val selectedIndexProperty = property<Int?>(null)
+    val selectedIndexProperty = property(messages.lastIndex)
 
     private val canUndoProperty = property(selectedIndexProperty, messages) {
-        val selectedIndex = selectedIndexProperty.value
-        val lastIndex = messages.lastIndex
-
-        if (selectedIndex == null) {
-            lastIndex > 0
-        } else {
-            selectedIndex > 0
-        }
+        selectedIndexProperty.value > 0
     }
 
     private fun undo() {
-        val selectedIndex = selectedIndexProperty.value
-        val lastIndex = messages.lastIndex
-
-        if (selectedIndex == null) {
-            selectedIndexProperty.value = max(0, lastIndex - 1)
-        } else {
-            selectedIndexProperty.value = max(0, selectedIndex - 1)
-        }
+        selectedIndexProperty.value = max(0, selectedIndexProperty.value - 1)
     }
 
     private val canRedoProperty = property(selectedIndexProperty, messages) {
         val selectedIndex = selectedIndexProperty.value
         val lastIndex = messages.lastIndex
 
-        selectedIndex != null && selectedIndex <= lastIndex
+        selectedIndex < lastIndex
     }
 
     private fun redo() {
-        val selectedIndex = selectedIndexProperty.value
-        val lastIndex = messages.lastIndex
-
-        if (selectedIndex != null) {
-            if (selectedIndex >= lastIndex) {
-                selectedIndexProperty.value = null
-            } else {
-                selectedIndexProperty.value = min(lastIndex, selectedIndex + 1)
-            }
-        }
+        selectedIndexProperty.value = min(messages.lastIndex, selectedIndexProperty.value + 1)
     }
 
     override val toolBarRight: List<List<ToolBarEntry>> = listOf(
-            listOf(
-                    ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.UNDO), enabledProperty = canUndoProperty) {
-                        undo()
-                    },
-                    ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.REDO), enabledProperty = canRedoProperty) {
-                        redo()
-                    }
-            )
+        listOf(
+            ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.UNDO), enabledProperty = canUndoProperty) {
+                undo()
+            },
+            ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.REDO), enabledProperty = canRedoProperty) {
+                redo()
+            }
+        )
     )
 
     override val infoBarList: List<IInfoBarContent> = listOf(InfoBarGroupInfo(this))
@@ -185,7 +164,7 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     private var mqttPlanet = Planet.EMPTY
     fun update() {
         val selectedIndex = selectedIndexProperty.value
-        val m = if (selectedIndex == null) messages else messages.subList(0, selectedIndex + 1)
+        val m = if (selectedIndex >= messages.lastIndex) messages else messages.subList(0, selectedIndex + 1)
 
         serverPlanet = m.toServerPlanet()
         planetNameProperty.value = serverPlanet.name
@@ -198,6 +177,11 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
 
     init {
         selectedIndexProperty.onChange { update() }
+        messages.onChange {
+            if (messages.lastIndex - 1 <= selectedIndexProperty.value) {
+                selectedIndexProperty.value = messages.lastIndex
+            }
+        }
 
         backgroundPlanet.onChange {
             drawable.importBackgroundPlanet(backgroundPlanet.value)
