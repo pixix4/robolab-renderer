@@ -8,7 +8,9 @@ class LivePlanetDrawable : AbsPlanetDrawable() {
     private val backgroundLayer = PlanetLayer {
         it.withAlpha(0.2)
     }
-    private val mqttLayer = PlanetLayer()
+    private val mqttLayer = PlanetLayer {
+        it.withAlpha(0.5)
+    }
     private val serverLayer = PlanetLayer()
 
     private val robotDrawable = RobotDrawable()

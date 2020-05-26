@@ -41,6 +41,9 @@ class RobotDrawable {
     ) : IInterpolatable<DrawRobot> {
 
         override fun interpolate(toValue: DrawRobot, progress: Double): DrawRobot {
+            if (position == toValue.position && orientation == toValue.orientation) {
+                return this
+            }
             val orientationDelta = when {
                 orientation - toValue.orientation > PI -> toValue.orientation - (orientation - 2 * PI)
                 toValue.orientation - orientation > PI -> (toValue.orientation - 2 * PI) - orientation
@@ -48,7 +51,7 @@ class RobotDrawable {
             }
 
             if (robot != null && toValue.robot != null) {
-                if (robot.beforePoint && toValue.robot.afterPoint) {
+                if (robot.beforePoint || toValue.robot.afterPoint) {
                     return DrawRobot(
                         position.interpolate(toValue.position, progress),
                         orientation + orientationDelta * progress,

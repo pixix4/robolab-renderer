@@ -139,25 +139,18 @@ fun List<RobolabMessage>.toMqttPlanet(): Planet {
 }
 
 fun List<RobolabMessage>.toRobot(groupNumber: Int?): RobotDrawable.Robot? {
-    var currentPoint = Coordinate(0, 0)
+    var currentPoint: Coordinate? = null
     var currentDirection = Direction.NORTH
     var beforePoint = true
+
     loop@ for (message in this) {
         when (message) {
+            is RobolabMessage.PathUnveiledMessage -> {
+
+            }
             is RobolabMessage.PathMessage -> {
-                var path = message.path
-
-                if (currentPoint == path.source) {
-                    if (currentPoint == path.target && currentDirection == path.targetDirection) {
-                        // Loop
-                        path = path.reversed()
-                    }
-                } else if (currentPoint == path.target) {
-                    path = path.reversed()
-                }
-
-                currentPoint = path.target
-                currentDirection = path.targetDirection
+                currentPoint = message.path.target
+                currentDirection = message.path.targetDirection
 
                 beforePoint = true
             }
@@ -177,5 +170,5 @@ fun List<RobolabMessage>.toRobot(groupNumber: Int?): RobotDrawable.Robot? {
         }
     }
 
-    return RobotDrawable.Robot(currentPoint, currentDirection, beforePoint, groupNumber)
+    return RobotDrawable.Robot(currentPoint ?: return null, currentDirection, beforePoint, groupNumber)
 }

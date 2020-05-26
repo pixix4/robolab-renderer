@@ -185,7 +185,7 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     private var mqttPlanet = Planet.EMPTY
     fun update() {
         val selectedIndex = selectedIndexProperty.value
-        val m = if (selectedIndex == null) messages else messages.subList(0, selectedIndex - 1)
+        val m = if (selectedIndex == null) messages else messages.subList(0, selectedIndex + 1)
 
         serverPlanet = m.toServerPlanet()
         planetNameProperty.value = serverPlanet.name
