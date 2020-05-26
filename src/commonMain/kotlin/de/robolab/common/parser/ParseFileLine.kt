@@ -19,7 +19,7 @@ interface FileLine<T> {
 
     sealed class BlockMode(val previousBlockHead: FileLine<*>?) {
         class Head(
-                previousBlockHead: FileLine<*>?
+            previousBlockHead: FileLine<*>?
         ) : BlockMode(previousBlockHead)
 
         class Append(
@@ -30,7 +30,7 @@ interface FileLine<T> {
         }
 
         class Skip(
-                previousBlockHead: FileLine<*>?
+            previousBlockHead: FileLine<*>?
         ) : BlockMode(previousBlockHead)
 
         object Unknown : BlockMode(null)
@@ -91,15 +91,17 @@ interface FileLine<T> {
 
         override val data = REGEX.matchEntire(line.trim())!!.let { match ->
             Path(
-                    parseCoordinate(match.groupValues[1]),
-                    parseDirection(match.groupValues[2])!!,
-                    parseCoordinate(match.groupValues[3]),
-                    parseDirection(match.groupValues[4])!!,
-                    match.groupValues[5].toInt(),
-                    match.groupValues.getOrNull(6)?.split(" ")?.filter { it.isNotBlank() }?.map { parseCoordinate(it) }?.toSet()
-                            ?: emptySet(),
-                    emptyList(),
-                    false
+                parseCoordinate(match.groupValues[1]),
+                parseDirection(match.groupValues[2])!!,
+                parseCoordinate(match.groupValues[3]),
+                parseDirection(match.groupValues[4])!!,
+                match.groupValues[5].toInt(),
+                match.groupValues.getOrNull(6)?.split(" ")?.filter { it.isNotBlank() }?.map { parseCoordinate(it) }
+                    ?.toSet()
+                    ?: emptySet(),
+                emptyList(),
+                hidden = false,
+                showDirectionArrow = false
             )
         }
 
@@ -109,7 +111,7 @@ interface FileLine<T> {
             blockMode = BlockMode.Head(builder.previousBlockHead)
             builder.previousBlockHead = this
             builder.planet = builder.planet.copy(
-                    pathList = builder.planet.pathList + data
+                pathList = builder.planet.pathList + data
             )
         }
 
@@ -122,7 +124,7 @@ interface FileLine<T> {
         companion object : Parser {
             override val name = "Path line parser"
             val REGEX =
-                    """^(-?\d+,-?\d+),([NESW]) (-?\d+,-?\d+),([NESW]) (-?\d+)((?: -?\d+,-?\d+)*)( blocked)?\s*(?:#.*?)?$""".toRegex()
+                """^(-?\d+,-?\d+),([NESW]) (-?\d+,-?\d+),([NESW]) (-?\d+)((?: -?\d+,-?\d+)*)( blocked)?\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
                 return REGEX.containsMatchIn(line)
@@ -159,9 +161,9 @@ interface FileLine<T> {
 
         override val data = REGEX.matchEntire(line.trim())!!.let { match ->
             StartPoint(
-                    parseCoordinate(match.groupValues[1]),
-                    parseDirection(match.groupValues[3]) ?: Direction.NORTH,
-                    emptyList()
+                parseCoordinate(match.groupValues[1]),
+                parseDirection(match.groupValues[3]) ?: Direction.NORTH,
+                emptyList()
             )
         }
 
@@ -171,7 +173,7 @@ interface FileLine<T> {
             blockMode = BlockMode.Head(builder.previousBlockHead)
             builder.previousBlockHead = this
             builder.planet = builder.planet.copy(
-                    startPoint = data
+                startPoint = data
             )
         }
 
@@ -189,7 +191,7 @@ interface FileLine<T> {
         companion object : Parser {
             override val name = "Start point line parser"
             val REGEX =
-                    """^start (-?\d+,-?\d+)(,([NESW]))?\s*(?:#.*?)?$""".toRegex()
+                """^start (-?\d+,-?\d+)(,([NESW]))?\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
                 return REGEX.containsMatchIn(line)
@@ -222,7 +224,7 @@ interface FileLine<T> {
             blockMode = BlockMode.Head(builder.previousBlockHead)
             builder.previousBlockHead = this
             builder.planet = builder.planet.copy(
-                    bluePoint = data
+                bluePoint = data
             )
         }
 
@@ -235,7 +237,7 @@ interface FileLine<T> {
         companion object : Parser {
             override val name = "Blue point line parser"
             val REGEX =
-                    """^blue (-?\d+,-?\d+)\s*(?:#.*?)?$""".toRegex()
+                """^blue (-?\d+,-?\d+)\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
                 return REGEX.containsMatchIn(line)
@@ -258,8 +260,8 @@ interface FileLine<T> {
 
         override val data = REGEX.matchEntire(line.trim())!!.let { match ->
             PathSelect(
-                    parseCoordinate(match.groupValues[2]),
-                    parseDirection(match.groupValues[1])!!
+                parseCoordinate(match.groupValues[2]),
+                parseDirection(match.groupValues[1])!!
             )
         }
 
@@ -269,7 +271,7 @@ interface FileLine<T> {
             blockMode = BlockMode.Head(builder.previousBlockHead)
             builder.previousBlockHead = this
             builder.planet = builder.planet.copy(
-                    pathSelectList = builder.planet.pathSelectList + data
+                pathSelectList = builder.planet.pathSelectList + data
             )
         }
 
@@ -282,7 +284,7 @@ interface FileLine<T> {
         companion object : Parser {
             override val name = "Path select line parser"
             val REGEX =
-                    """^direction ([NSWE]) (-?\d+,-?\d+)\s*(?:#.*?)?$""".toRegex()
+                """^direction ([NSWE]) (-?\d+,-?\d+)\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
                 return REGEX.containsMatchIn(line)
@@ -307,8 +309,8 @@ interface FileLine<T> {
 
         override val data = REGEX.matchEntire(line.trim())!!.let { match ->
             TargetPoint(
-                    parseCoordinate(match.groupValues[1]),
-                    parseCoordinate(match.groupValues[2])
+                parseCoordinate(match.groupValues[1]),
+                parseCoordinate(match.groupValues[2])
             )
         }
 
@@ -318,7 +320,7 @@ interface FileLine<T> {
             blockMode = BlockMode.Head(builder.previousBlockHead)
             builder.previousBlockHead = this
             builder.planet = builder.planet.copy(
-                    targetList = builder.planet.targetList + data
+                targetList = builder.planet.targetList + data
             )
         }
 
@@ -331,7 +333,7 @@ interface FileLine<T> {
         companion object : Parser {
             override val name = "Target line parser"
             val REGEX =
-                    """^target (-?\d+,-?\d+) (-?\d+,-?\d+)\s*(?:#.*?)?$""".toRegex()
+                """^target (-?\d+,-?\d+) (-?\d+,-?\d+)\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
                 return REGEX.containsMatchIn(line)
@@ -362,7 +364,7 @@ interface FileLine<T> {
             blockMode = BlockMode.Head(builder.previousBlockHead)
             builder.previousBlockHead = this
             builder.planet = builder.planet.copy(
-                    name = data
+                name = data
             )
         }
 
@@ -375,7 +377,7 @@ interface FileLine<T> {
         companion object : Parser {
             override val name = "Name line parser"
             val REGEX =
-                    """^#\s*(NAME|name)\s?(?::\s*(\w[^\n]*?))?\s*(?:#.*?)?$""".toRegex()
+                """^#\s*(NAME|name)\s?(?::\s*(\w[^\n]*?))?\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
                 return REGEX.containsMatchIn(line)
@@ -405,27 +407,27 @@ interface FileLine<T> {
 
         override fun buildPlanet(builder: BuildAccumulator) {
             val previousBlockHead = builder.previousBlockHead
-                    ?: throw IllegalArgumentException("Spline line: previous block is null")
+                ?: throw IllegalArgumentException("Spline line: previous block is null")
             blockMode = BlockMode.Append(previousBlockHead)
 
             if (previousBlockHead is PathLine) {
                 val path = builder.planet.pathList.last().copy(
-                        controlPoints = data
+                    controlPoints = data
                 )
                 associatedPath = path
                 builder.planet = builder.planet.copy(
-                        pathList = builder.planet.pathList.dropLast(1) + path
+                    pathList = builder.planet.pathList.dropLast(1) + path
                 )
                 return
             }
             if (previousBlockHead is StartPointLine) {
                 val startPoint = builder.planet.startPoint
-                        ?: throw IllegalArgumentException("Spline line: start point is null")
+                    ?: throw IllegalArgumentException("Spline line: start point is null")
                 associatedPath = previousBlockHead.data.path
                 builder.planet = builder.planet.copy(
-                        startPoint = startPoint.copy(
-                                controlPoints = data
-                        )
+                    startPoint = startPoint.copy(
+                        controlPoints = data
+                    )
                 )
                 return
             }
@@ -444,7 +446,7 @@ interface FileLine<T> {
         companion object : Parser {
             override val name = "Spline line parser"
             val REGEX =
-                    """^#\s*(SPLINE|spline)\s?(?:\(\s*((?:[^\s,][^\n,]*?)?(?:\s*?,\s*?[^\s,][^\n,]*?)*)\s*\))?(?::\s?((?:-?\d+(?:\.\d+)?\s*?,\s*?(?:-?\d+(?:\.\d+)?))(?:\s*?\|\s*?(?:-?\d+(?:\.\d+)?\s*?,\s*?(?:-?\d+(?:\.\d+)?)))*)?)[ \t]*\s*(?:#.*?)?$""".toRegex()
+                """^#\s*(SPLINE|spline)\s?(?:\(\s*((?:[^\s,][^\n,]*?)?(?:\s*?,\s*?[^\s,][^\n,]*?)*)\s*\))?(?::\s?((?:-?\d+(?:\.\d+)?\s*?,\s*?(?:-?\d+(?:\.\d+)?))(?:\s*?\|\s*?(?:-?\d+(?:\.\d+)?\s*?,\s*?(?:-?\d+(?:\.\d+)?)))*)?)[ \t]*\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
                 return REGEX.containsMatchIn(line)
@@ -483,11 +485,11 @@ interface FileLine<T> {
             blockMode = BlockMode.Append(previousBlockHead)
 
             val path = builder.planet.pathList.last().copy(
-                    hidden = true
+                hidden = true
             )
             associatedPath = path
             builder.planet = builder.planet.copy(
-                    pathList = builder.planet.pathList.dropLast(1) + path
+                pathList = builder.planet.pathList.dropLast(1) + path
             )
         }
 
@@ -502,7 +504,7 @@ interface FileLine<T> {
         companion object : Parser {
             override val name = "Hidden line parser"
             val REGEX =
-                    """^#\s*(HIDDEN|hidden)\s*(?:#.*?)?$""".toRegex()
+                """^#\s*(HIDDEN|hidden)\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
                 return REGEX.containsMatchIn(line)
@@ -524,8 +526,8 @@ interface FileLine<T> {
             val h = match.groupValues[2].split(',').map { it.trim().toDouble() }
             val point = if (h.size < 2) Point.ZERO else Point(h[0], h[1])
             Comment(
-                    point,
-                    match.groupValues.getOrNull(5) ?: ""
+                point,
+                match.groupValues.getOrNull(5) ?: ""
             )
         }
 
@@ -535,7 +537,7 @@ interface FileLine<T> {
             blockMode = BlockMode.Head(builder.previousBlockHead)
             builder.previousBlockHead = this
             builder.planet = builder.planet.copy(
-                    commentList = builder.planet.commentList + data
+                commentList = builder.planet.commentList + data
             )
         }
 
@@ -550,7 +552,7 @@ interface FileLine<T> {
         companion object : Parser {
             override val name = "Comment line parser"
             val REGEX =
-                    """^#\s*(COMMENT|comment)\s?(?:\(\s*((-?\d+(?:\.\d+)?)\s*?,\s*?(-?\d+(?:\.\d+)?)(?:\s*?,\s*?[^\s,][^\n,]*)*)\s*\))?(?::\s?(\w[^\n]*?)?)?\s*(?:#.*?)?$""".toRegex()
+                """^#\s*(COMMENT|comment)\s?(?:\(\s*((-?\d+(?:\.\d+)?)\s*?,\s*?(-?\d+(?:\.\d+)?)(?:\s*?,\s*?[^\s,][^\n,]*)*)\s*\))?(?::\s?(\w[^\n]*?)?)?\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
                 return REGEX.containsMatchIn(line)
@@ -560,7 +562,8 @@ interface FileLine<T> {
                 return CommentLine(line)
             }
 
-            fun serialize(comment: Comment) = "# comment (${comment.point.x.toFixed(2)},${comment.point.y.toFixed(2)}): ${comment.message}"
+            fun serialize(comment: Comment) =
+                "# comment (${comment.point.x.toFixed(2)},${comment.point.y.toFixed(2)}): ${comment.message}"
 
             fun create(comment: Comment) = createInstance(serialize(comment))
         }
@@ -602,16 +605,16 @@ private fun serializeDirection(direction: Direction) = when (direction) {
 }
 
 private val parserList = listOf(
-        FileLine.PathLine,
-        FileLine.StartPointLine,
-        FileLine.BluePointLine,
-        FileLine.PathSelectLine,
-        FileLine.TargetLine,
-        FileLine.NameLine,
-        FileLine.SplineLine,
-        FileLine.HiddenLine,
-        FileLine.CommentLine,
-        FileLine.BlankLine
+    FileLine.PathLine,
+    FileLine.StartPointLine,
+    FileLine.BluePointLine,
+    FileLine.PathSelectLine,
+    FileLine.TargetLine,
+    FileLine.NameLine,
+    FileLine.SplineLine,
+    FileLine.HiddenLine,
+    FileLine.CommentLine,
+    FileLine.BlankLine
 )
 
 fun parseLine(line: String): FileLine<*> {

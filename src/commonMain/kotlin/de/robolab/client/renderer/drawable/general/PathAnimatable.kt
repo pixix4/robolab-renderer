@@ -38,7 +38,7 @@ class PathAnimatable(
 
     private val isWeightVisibleProperty = property(reference.weight?.let { it > 0.0 } ?: false)
     private val isBlockedProperty = property(reference.weight?.let { it < 0.0 } ?: false)
-    private val isArrowVisibleProperty = property(reference.weight == null)
+    private val isArrowVisibleProperty = property(reference.showDirectionArrow)
 
     val isOneWayPath
         get() = reference.source == reference.target && reference.sourceDirection == reference.targetDirection
@@ -124,7 +124,7 @@ class PathAnimatable(
 
         isWeightVisibleProperty.value = reference.weight?.let { it > 0.0 } ?: false
         isBlockedProperty.value = reference.weight?.let { it < 0.0 } ?: false
-        isArrowVisibleProperty.value = reference.weight == null
+        isArrowVisibleProperty.value = reference.showDirectionArrow
 
         weightView.setCenter(getOrthogonal(0.5, true).first)
         weightView.text = reference.weight?.toString() ?: "0"

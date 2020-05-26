@@ -53,7 +53,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
         val jsonMessage = try {
             jsonSerializer.parse(JsonMessage.serializer(), message.message)
         } catch (e: Exception) {
-            logger.error { e }
+            logger.error { "Group $groupId: " + e.message }
             onRobolabMessage(
                 RobolabMessage.IllegalMessage(
                     metadata,
@@ -72,11 +72,11 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
                 jsonMessage
             )
         } catch (e: IllegalFromException) {
-            logger.error { "Illegal \"from\" value (${e.actualFrom}) for message type ${e.messageType} in message ${metadata.rawMessage}" }
+            logger.error { "Group $groupId: " + "Illegal \"from\" value (${e.actualFrom}) for message type ${e.messageType} in message ${metadata.rawMessage}" }
             RobolabMessage.IllegalMessage(metadata, RobolabMessage.IllegalMessage.Reason.IllegalFromValue)
         } catch (e: MissingJsonArgumentException) {
-            logger.error { "Missing argument \"${e.name}\" in message ${metadata.rawMessage}" }
-            RobolabMessage.IllegalMessage(metadata, RobolabMessage.IllegalMessage.Reason.MissingArgument(e.name))
+            logger.error { "Group $groupId: " + "Missing argument \"${e.argumentName}\" in message ${metadata.rawMessage}" }
+            RobolabMessage.IllegalMessage(metadata, RobolabMessage.IllegalMessage.Reason.MissingArgument(e.argumentName))
         } catch (e: IgnoreMessageException) {
             return null
         } catch (e: WrongTopicException) {
@@ -104,7 +104,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
         return MqttMessage(
             date.utc.unixMillisLong,
             topic,
-            content
+            content.replace("\\n","\n")
         )
     }
 

@@ -15,7 +15,8 @@ data class StartPoint(
         null,
         emptySet(),
         controlPoints,
-        false
+        hidden = false,
+        showDirectionArrow = true
     )
 
     fun equalPoint(other: StartPoint) = point == other.point && orientation == other.orientation

@@ -5,7 +5,8 @@ import de.robolab.common.planet.*
 fun Planet.getStartPath(): Path? =
         if (startPoint == null) null
         else Path(startPoint.point, startPoint.orientation.opposite(), startPoint.point, startPoint.orientation.opposite(),
-                -1, emptySet(), emptyList(), false)
+                -1, emptySet(), emptyList(), hidden = false, showDirectionArrow = true
+        )
 
 fun Planet.asUnexplored(name: String = this.name): Planet = Planet(name, startPoint, bluePoint, emptyList(), emptyList(), emptyList(), emptyList())
 

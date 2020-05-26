@@ -10,34 +10,35 @@ data class JsonMessage(
     val from: From,
     val type: Type,
     val payload: Payload = Payload(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        )
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    )
 ) {
 
     fun parsePlanet() = (payload::planetName.parsed()) to (payload::startX.parsed() to payload::startY.parsed())
 
     fun parsePath() = Path(
-            Coordinate(payload::startX.parsed(), payload::startY.parsed()),
-            payload::startDirection.parsed(),
-            Coordinate(payload::endX.parsed(), payload::endY.parsed()),
-            payload::endDirection.parsed(),
-            if (from == From.CLIENT) null else payload::pathWeight.parsed(),
-            emptySet(),
-            emptyList(),
-            false
+        Coordinate(payload::startX.parsed(), payload::startY.parsed()),
+        payload::startDirection.parsed(),
+        Coordinate(payload::endX.parsed(), payload::endY.parsed()),
+        payload::endDirection.parsed(),
+        if (from == From.CLIENT) null else payload::pathWeight.parsed(),
+        emptySet(),
+        emptyList(),
+        hidden = false,
+        showDirectionArrow = false
     )
 
     fun parseStartPoint() = Coordinate(payload::startX.parsed(), payload::startY.parsed())
@@ -264,9 +265,10 @@ enum class Type {
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.CONTROLLER, this)
             message.requireFrom(From.DEBUG)
-            val bluePoint = if (message.payload.message == "firstBluePoint" && message.payload.startX != null && message.payload.startY != null) {
-                Coordinate(message.payload.startX, message.payload.startY)
-            } else null
+            val bluePoint =
+                if (message.payload.message == "firstBluePoint" && message.payload.startX != null && message.payload.startY != null) {
+                    Coordinate(message.payload.startX, message.payload.startY)
+                } else null
             return RobolabMessage.DebugMessage(
                 metadata,
                 message.payload::message.parsed(),
@@ -293,13 +295,13 @@ data class Payload(
     val startX: Int? = null,
     val startY: Int? = null,
     @Serializable(with = DirectionSerializer::class)
-        val startDirection: Direction? = null,
+    val startDirection: Direction? = null,
     @Serializable(with = DirectionSerializer::class)
-        val startOrientation: Direction? = null,
+    val startOrientation: Direction? = null,
     val endX: Int? = null,
     val endY: Int? = null,
     @Serializable(with = DirectionSerializer::class)
-        val endDirection: Direction? = null,
+    val endDirection: Direction? = null,
     val targetX: Int? = null,
     val targetY: Int? = null,
     val pathStatus: PathStatus? = null,
@@ -321,7 +323,7 @@ enum class PathStatus {
 object DirectionSerializer : KSerializer<Direction> {
 
     override val descriptor: SerialDescriptor =
-            PrimitiveDescriptor("WithCustomDefault", PrimitiveKind.INT)
+        PrimitiveDescriptor("WithCustomDefault", PrimitiveKind.INT)
 
     override fun serialize(encoder: Encoder, value: Direction) {
         val int = when (value) {

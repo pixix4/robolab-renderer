@@ -28,9 +28,15 @@ data class Planet(
             pathList = tmp.pathList.map { path ->
                 val backgroundPath = reference.pathList.find { it.equalPath(path) } ?: return@map path
 
-                path.copy(
-                    controlPoints = backgroundPath.controlPoints
-                )
+                if (backgroundPath.source == path.source && backgroundPath.sourceDirection == path.sourceDirection) {
+                    path.copy(
+                        controlPoints = backgroundPath.controlPoints
+                    )
+                } else {
+                    path.copy(
+                        controlPoints = backgroundPath.controlPoints.reversed()
+                    )
+                }
             }
         )
 

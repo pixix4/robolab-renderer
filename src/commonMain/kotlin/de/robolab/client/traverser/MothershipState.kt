@@ -48,7 +48,8 @@ data class MothershipState(
                 drivenPath = Path(
                         planet.startPoint.point, planet.startPoint.orientation.opposite(),
                         planet.startPoint.point, planet.startPoint.orientation.opposite(),
-                        -1, emptySet(), emptyList(), false),
+                        -1, emptySet(), emptyList(), hidden = false, showDirectionArrow = false
+                ),
                 currentTarget = null,
                 newTargets = emptyList(),
                 newPaths = emptyList(),

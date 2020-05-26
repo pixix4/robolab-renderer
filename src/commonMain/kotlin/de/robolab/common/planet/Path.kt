@@ -10,7 +10,8 @@ data class Path(
     val weight: Int?,
     val exposure: Set<Coordinate>,
     val controlPoints: List<Point>,
-    val hidden: Boolean
+    val hidden: Boolean,
+    val showDirectionArrow: Boolean
 ) {
 
     val blocked: Boolean

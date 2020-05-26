@@ -59,8 +59,8 @@ class RobolabMqttConnection {
                 }
 
                 override fun onMessage(topic: String, message: String) {
-                    val time = DateTime.nowUnixLong()
-                    onMessage.emit(MqttMessage(time, topic, message))
+                    val time = DateTime.nowLocal().local.unixMillisLong
+                    onMessage.emit(MqttMessage(time, topic, message.replace("\\n","\n")))
                 }
             })
             logger.info { "Connecting to ${PreferenceStorage.serverUri}" }

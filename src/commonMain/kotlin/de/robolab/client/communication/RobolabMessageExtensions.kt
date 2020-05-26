@@ -80,7 +80,6 @@ fun List<RobolabMessage>.toServerPlanet(): Planet {
 fun List<RobolabMessage>.toMqttPlanet(): Planet {
     var name = ""
     var startPoint: StartPoint? = null
-    var bluePoint: Coordinate? = null
     val pathList = mutableListOf<Path>()
     val targetList = mutableListOf<TargetPoint>()
     val pathSelectList = mutableListOf<PathSelect>()
@@ -121,33 +120,9 @@ fun List<RobolabMessage>.toMqttPlanet(): Planet {
                 currentPoint = message.startPoint
                 currentDirection = message.startOrientation
             }
-            is RobolabMessage.SetPlanetMessage -> {
-
-            }
             is RobolabMessage.TargetMessage -> {
                 targetList.clear()
                 targetList += TargetPoint(message.target, currentPoint)
-            }
-            is RobolabMessage.TargetReachedMessage -> {
-
-            }
-            is RobolabMessage.ExplorationCompletedMessage -> {
-
-            }
-            is RobolabMessage.DoneMessage -> {
-
-            }
-            is RobolabMessage.TestplanetMessage -> {
-
-            }
-            is RobolabMessage.ReadyMessage -> {
-
-            }
-            is RobolabMessage.DebugMessage -> {
-
-            }
-            is RobolabMessage.IllegalMessage -> {
-
             }
         }
     }
@@ -155,7 +130,7 @@ fun List<RobolabMessage>.toMqttPlanet(): Planet {
     return Planet(
         name,
         startPoint,
-        bluePoint,
+        null,
         pathList,
         targetList,
         pathSelectList,
@@ -168,7 +143,6 @@ fun List<RobolabMessage>.toRobot(groupNumber: Int?): RobotDrawable.Robot? {
     var currentDirection = Direction.NORTH
     var beforePoint = true
     loop@ for (message in this) {
-
         when (message) {
             is RobolabMessage.PathMessage -> {
                 var path = message.path

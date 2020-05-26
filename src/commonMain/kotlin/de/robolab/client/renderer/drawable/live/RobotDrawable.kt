@@ -64,7 +64,8 @@ class RobotDrawable {
                     1,
                     emptySet(),
                     emptyList(),
-                    false
+                    hidden = false,
+                    showDirectionArrow = false
                 )
                 val planetPath = planet?.pathList?.find { it.equalPath(path) }
                 if (planetPath != null) {

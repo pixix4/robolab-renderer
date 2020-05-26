@@ -57,7 +57,8 @@ class PlanetFile(fileContent: String) : IEditCallback {
                 if (startPoint == endPoint && startDirection == endDirection) -1 else 1,
                 emptySet(),
                 controlPoints,
-                false
+                hidden = false,
+                showDirectionArrow = false
             )
         )
 
