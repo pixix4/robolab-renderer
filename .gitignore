@@ -15,3 +15,4 @@ node_modules/
 planet/*.exam
 planet/*.exam.*
 npm-debug.log
+console.log

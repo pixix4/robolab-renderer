@@ -14,7 +14,8 @@ class MainController {
     private val selectedEntryProperty = property<ISideBarPlottable?>(null)
 
     private val connection = RobolabMqttConnection()
-    private val messageManager = MessageManager(RobolabMessageProvider(connection))
+    private val robolabMessageProvider = RobolabMessageProvider(connection)
+    private val messageManager = MessageManager(robolabMessageProvider)
 
     val applicationTitleProperty =
         selectedEntryProperty.nullableFlatMapBinding { it?.tabNameProperty }.mapBinding { name ->
@@ -29,5 +30,9 @@ class MainController {
 
     init {
         ConsoleGreeter.greet()
+    }
+    
+    fun importLogFile(log: String) {
+        robolabMessageProvider.importMqttLog(log)
     }
 }

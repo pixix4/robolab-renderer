@@ -3,16 +3,22 @@ package de.robolab.client.jfx
 import de.robolab.client.app.controller.MainController
 import de.robolab.client.jfx.adapter.toFx
 import de.robolab.client.jfx.view.*
+import de.robolab.common.utils.Logger
 import de.westermann.kobserve.property.DelegatePropertyAccessor
 import de.westermann.kobserve.property.property
 import javafx.application.Platform
 import javafx.scene.image.Image
+import javafx.scene.input.TransferMode
 import javafx.scene.layout.Priority
 import tornadofx.*
+import java.io.File
+import java.lang.Exception
 import kotlin.system.exitProcess
+
 
 class MainView : View() {
 
+    private val logger = Logger("MainView")
     private val mainController = MainController()
 
     override val root = hbox {
@@ -133,6 +139,26 @@ class MainView : View() {
             }
 
         }
+
+        setOnDragOver {  event ->
+            if (event.gestureSource != this && event.dragboard.hasFiles()) {
+                event.acceptTransferModes(TransferMode.COPY, TransferMode.LINK);
+            }
+            event.consume();
+        }
+
+        setOnDragDropped { event ->
+            var success = false
+            if (event.dragboard.hasFiles()) {
+                for (file in event.dragboard.files) {
+                    importFile(file)
+                }
+                success = true
+            }
+            event.isDropCompleted = success
+
+            event.consume()
+        }
     }
 
     override fun onUndock() {
@@ -144,5 +170,13 @@ class MainView : View() {
 
         primaryStage.isMaximized = true
         primaryStage.requestFocus()
+    }
+
+    private fun importFile(file: File) {
+        try {
+            mainController.importLogFile(file.readText())
+        } catch (e: Exception) {
+            logger.w { "Cannot import log file '${file.absolutePath}'" }
+        }
     }
 }

@@ -73,7 +73,7 @@ abstract class GenericDialog : View() {
 
     companion object {
         inline fun <reified D : GenericDialog> open(vararg params: Pair<String, Any?>) {
-            find(D::class, FX.defaultScope, params.toMap()).openModal(StageStyle.UNDECORATED, resizable = false)
+            find(D::class, FX.defaultScope, params.toMap()).openModal(StageStyle.UTILITY, resizable = false)
         }
     }
 }

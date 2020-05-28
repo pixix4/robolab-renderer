@@ -107,6 +107,14 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
             content.replace("\\n","\n")
         )
     }
+    
+    fun importMqttLog(log: String) {
+        val list = log
+            .splitToSequence('\n')
+            .mapNotNull { parseMqttLogLine(it) }
+            .mapNotNull { parseMqttMessage(it) }
+        onMessageList.emit(list.toList())
+    }
 
     private fun loadMqttLog() {
         try {
@@ -116,11 +124,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
                 if (response.body == null) {
                     logger.warn { "Cannot load mqtt log!" }
                 } else {
-                    val list = response.body
-                        .splitToSequence('\n')
-                        .mapNotNull { parseMqttLogLine(it) }
-                        .mapNotNull { parseMqttMessage(it) }
-                    onMessageList.emit(list.toList())
+                    importMqttLog(response.body)
                 }
             }
         } catch (e: Exception) {
