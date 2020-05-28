@@ -1,3 +1,6 @@
 package de.robolab.client.net
 
-actual val client : io.ktor.client.HttpClient = throw UnsupportedOperationException("Server cannot send messages")
+import io.ktor.client.HttpClient
+
+actual val client : HttpClient
+    get() = throw UnsupportedOperationException("Server cannot send messages")

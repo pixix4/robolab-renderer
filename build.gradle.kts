@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_VARIABLE")
+@file:Suppress("UNUSED_VARIABLE", "SuspiciousCollectionReassignment")
 
 plugins {
     kotlin("multiplatform") version "1.3.72"
@@ -21,6 +21,7 @@ kotlin {
             kotlinOptions {
                 jvmTarget = "11"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
+                freeCompilerArgs += "-Xinline-classes"
             }
         }
     }
@@ -36,6 +37,7 @@ kotlin {
             kotlinOptions {
                 moduleKind = "commonjs"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
+                freeCompilerArgs += "-Xinline-classes"
             }
         }
     }
@@ -45,6 +47,7 @@ kotlin {
             kotlinOptions {
                 moduleKind = "commonjs"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
+                freeCompilerArgs += "-Xinline-classes"
             }
         }
     }

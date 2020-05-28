@@ -5,7 +5,9 @@ import de.robolab.client.jfx.style.SystemTheme.getSystemTheme
 import de.robolab.client.jfx.style.SystemTheme.isSystemThemeSupported
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAfterTimeoutInterval
+import de.robolab.common.utils.ConfigFile
 import tornadofx.App
+import java.nio.file.Paths
 
 
 class MainApp : App(MainView::class) {
@@ -23,6 +25,14 @@ class MainApp : App(MainView::class) {
             System.setProperty("swing.aatext", "true")
             System.setProperty("swing.crossplatformlaf", "com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
             System.setProperty("swing.defaultlaf", "com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
+
+            for (arg in args) {
+                try {
+                    val path = Paths.get(arg)
+                    ConfigFile.localPath = path
+                } catch (e: Exception) {
+                }
+            }
 
             PreferenceStorage.useSystemThemeProperty.onChange {
                 if (PreferenceStorage.useSystemTheme) {

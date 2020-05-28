@@ -2,22 +2,19 @@ package de.robolab.common.utils
 
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
-import de.robolab.client.utils.PreferenceStorage
 
 class Logger(val name: String) {
-
-    val level by PreferenceStorage.logLevelProperty
 
     val output = LoggerOutput()
 
     fun log(level: Level, msg: () -> Any?) {
-        if (level.index <= this.level.index) {
+        if (level.index <= level.index) {
             output.log(this, level, msg())
         }
     }
 
     fun log(level: Level, msg: Any?) {
-        if (level.index <= this.level.index) {
+        if (level.index <= level.index) {
             output.log(this, level, msg)
         }
     }
@@ -57,6 +54,8 @@ class Logger(val name: String) {
 
     companion object {
         val DEFAULT = Logger("DefaultLogger")
+
+        var level = Level.DEBUG
 
         private val loggerCache = mutableMapOf<String, Logger>()
         operator fun invoke(thisRef: Any?): Logger {
