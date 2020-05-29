@@ -8,6 +8,13 @@ import de.robolab.client.net.http
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.event.EventHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 
@@ -76,7 +83,10 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
             RobolabMessage.IllegalMessage(metadata, RobolabMessage.IllegalMessage.Reason.IllegalFromValue)
         } catch (e: MissingJsonArgumentException) {
             logger.warn { "Group $groupId: " + "Missing argument \"${e.argumentName}\" in message ${metadata.rawMessage}" }
-            RobolabMessage.IllegalMessage(metadata, RobolabMessage.IllegalMessage.Reason.MissingArgument(e.argumentName))
+            RobolabMessage.IllegalMessage(
+                metadata,
+                RobolabMessage.IllegalMessage.Reason.MissingArgument(e.argumentName)
+            )
         } catch (e: IgnoreMessageException) {
             return null
         } catch (e: WrongTopicException) {
@@ -104,16 +114,22 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
         return MqttMessage(
             date.utc.unixMillisLong,
             topic,
-            content.replace("\\n","\n")
+            content.replace("\\n", "\n")
         )
     }
-    
+
     fun importMqttLog(log: String) {
-        val list = log
-            .splitToSequence('\n')
-            .mapNotNull { parseMqttLogLine(it) }
-            .mapNotNull { parseMqttMessage(it) }
-        onMessageList.emit(list.toList())
+        GlobalScope.launch(Dispatchers.Default) {
+            log.splitToSequence('\n')
+                .asFlow()
+                .mapNotNull { parseMqttLogLine(it) }
+                .mapNotNull { parseMqttMessage(it) }
+                .collect { message ->
+                    withContext(Dispatchers.Main) {
+                        onMessage.emit(message)
+                    }
+                }
+        }
     }
 
     private fun loadMqttLog() {
