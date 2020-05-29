@@ -84,8 +84,10 @@ class SideBarController(
                 }
             }
             is ISideBarPlottable -> {
+                val old = selectedEntryProperty.value
                 entry.onOpen()
                 selectedEntryProperty.value = entry
+                old?.onClose()
             }
         }
     }

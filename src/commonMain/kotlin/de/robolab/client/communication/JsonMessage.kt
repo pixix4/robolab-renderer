@@ -102,7 +102,6 @@ enum class Type {
         }
     },
 
-
     @SerialName("planet")
     PLANET {
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
@@ -121,13 +120,15 @@ enum class Type {
     SET_PLANET {
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.CONTROLLER, this)
+            val planetName = message.payload.planetName ?: message.payload.message?.let {
+                ".* planet set to (.*) for .*".toRegex().matchEntire(it)?.groupValues?.getOrNull(1)
+            }
             return RobolabMessage.SetPlanetMessage(
                 metadata,
-                message.payload::planetName.parsed()
+                planetName ?: message.payload::planetName.parsed()
             )
         }
     },
-
 
     @SerialName("path")
     PATH {
@@ -140,7 +141,6 @@ enum class Type {
             )
         }
     },
-
 
     @SerialName("pathSelect")
     PATH_SELECT {
@@ -160,7 +160,6 @@ enum class Type {
         }
     },
 
-
     @SerialName("pathUnveiled")
     PATH_UNVEILED {
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
@@ -172,7 +171,6 @@ enum class Type {
             )
         }
     },
-
 
     @SerialName("target")
     TARGET {

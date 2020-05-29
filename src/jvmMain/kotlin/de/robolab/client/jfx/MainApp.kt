@@ -1,13 +1,17 @@
 package de.robolab.client.jfx
 
+import com.sun.javafx.application.LauncherImpl
 import de.robolab.client.jfx.style.StylesheetLoader
 import de.robolab.client.jfx.style.SystemTheme.getSystemTheme
 import de.robolab.client.jfx.style.SystemTheme.isSystemThemeSupported
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAfterTimeoutInterval
 import de.robolab.common.utils.ConfigFile
+import de.robolab.common.utils.Logger
+import de.westermann.kobserve.event.now
 import tornadofx.App
 import java.nio.file.Paths
+import kotlin.concurrent.thread
 
 
 class MainApp : App(MainView::class) {
@@ -61,7 +65,31 @@ class MainApp : App(MainView::class) {
                 StylesheetLoader.load()
             }
 
-            launch(MainApp::class.java)
+            setupMemoryDebugThread()
+
+            LauncherImpl.launchApplication(MainApp::class.java, MainAppPreloader::class.java, args)
+        }
+    }
+}
+
+fun setupMemoryDebugThread() {
+    fun createThread() {
+        thread(name = "MemoryDebugThread") {
+            val logger = Logger("Memory logger")
+            while (PreferenceStorage.debugMode) {
+                Thread.sleep(1_000)
+                logger.i {
+                    val bytes = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
+                    val mb = bytes / 1024 / 1024
+                    "Mem: ${mb}MB"
+                }
+            }
+        }
+    }
+
+    PreferenceStorage.debugModeProperty.onChange.now {
+        if (PreferenceStorage.debugMode) {
+            createThread()
         }
     }
 }

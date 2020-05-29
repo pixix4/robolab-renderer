@@ -1,5 +1,3 @@
-@file:Suppress("USELESS_CAST")
-
 package de.robolab.client.app.model.group
 
 import com.soywiz.klock.DateFormat
@@ -13,9 +11,7 @@ import de.robolab.client.communication.toRobot
 import de.robolab.client.communication.toServerPlanet
 import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
 import de.robolab.common.planet.Planet
-import de.robolab.common.utils.Logger
 import de.westermann.kobserve.base.ObservableList
-import de.westermann.kobserve.list.mapObservable
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
@@ -28,7 +24,7 @@ class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanet
 
     val attempts = observableListOf<AttemptPlanetEntry>()
 
-    override val entryList: ObservableList<ISideBarEntry> = attempts.mapObservable { it as ISideBarEntry }
+    override val entryList: ObservableList<ISideBarEntry> = attempts
 
     override val titleProperty = constObservable(groupName)
 
@@ -50,15 +46,11 @@ class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanet
         }
 
         val attempt = if (message is RobolabMessage.ReadyMessage || attempts.isEmpty()) {
-            val attempt = AttemptPlanetEntry(message.metadata.time, this)
-            attempt.messages.add(message)
-            attempts.add(attempt)
-            attempt
+            AttemptPlanetEntry(message.metadata.time, this).also { attempts.add(it) }
         } else {
-            val attempt = attempts.last()
-            attempt.messages.add(message)
-            attempt
+            attempts.last()
         }
+        attempt.messages.add(message)
 
         if (updateAttempt) {
             attempt.update()
@@ -85,8 +77,6 @@ class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanet
 }
 
 class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEntry) : ISideBarPlottable {
-
-    private val logger = Logger(this)
 
     val messages = observableListOf<RobolabMessage>()
 
@@ -116,7 +106,7 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
         selectedIndexProperty.value > 0
     }
 
-    private fun undo() {
+    fun undo() {
         selectedIndexProperty.value = max(0, selectedIndexProperty.value - 1)
     }
 
@@ -127,7 +117,7 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
         selectedIndex < lastIndex
     }
 
-    private fun redo() {
+    fun redo() {
         selectedIndexProperty.value = min(messages.lastIndex, selectedIndexProperty.value + 1)
     }
 
@@ -163,6 +153,8 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     private var serverPlanet = Planet.EMPTY
     private var mqttPlanet = Planet.EMPTY
     fun update() {
+        if (!isOpen) return
+
         val selectedIndex = selectedIndexProperty.value
         val m = if (selectedIndex >= messages.lastIndex) messages else messages.subList(0, selectedIndex + 1)
 
@@ -173,6 +165,16 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
         drawable.importServerPlanet(serverPlanet.importSplines(backgroundPlanet.value))
         drawable.importMqttPlanet(mqttPlanet.importSplines(backgroundPlanet.value))
         drawable.importRobot(m.toRobot(parent.groupName.toIntOrNull()))
+    }
+
+    var isOpen = false
+    override fun onOpen() {
+        isOpen = true
+        update()
+    }
+
+    override fun onClose() {
+        isOpen = false
     }
 
     init {

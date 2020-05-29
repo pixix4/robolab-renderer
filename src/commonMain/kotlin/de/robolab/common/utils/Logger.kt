@@ -8,13 +8,13 @@ class Logger(val name: String) {
     val output = LoggerOutput()
 
     fun log(level: Level, msg: () -> Any?) {
-        if (level.index <= level.index) {
+        if (level.index <= Logger.level.index) {
             output.log(this, level, msg())
         }
     }
 
     fun log(level: Level, msg: Any?) {
-        if (level.index <= level.index) {
+        if (level.index <= Logger.level.index) {
             output.log(this, level, msg)
         }
     }

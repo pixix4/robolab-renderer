@@ -59,7 +59,7 @@ class InfoBar(private val infoBarController: InfoBarController, infoBarActivePro
                 contentView.add(NullableViewContainer(content.traverserProperty))
             }
             is InfoBarGroupInfo -> {
-                contentView.add(InfoBarGroupView(content))
+                contentView.add(InfoBarGroupView(content, contentView))
             }
         }
     }

@@ -5,6 +5,7 @@ import de.robolab.client.renderer.drawable.edit.EditPaperBackground
 import de.robolab.client.theme.Theme
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.TypedStorage
+import de.westermann.kobserve.event.now
 import kotlin.random.Random
 
 object PreferenceStorage : TypedStorage() {
@@ -68,8 +69,7 @@ object PreferenceStorage : TypedStorage() {
     val paperPrecision by paperPrecisionProperty
 
     init {
-        Logger.level = logLevel
-        logLevelProperty.onChange {
+        logLevelProperty.onChange.now {
             Logger.level = logLevel
         }
     }

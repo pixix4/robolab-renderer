@@ -5,6 +5,7 @@ import de.robolab.client.app.model.ISideBarEntry
 import de.robolab.client.app.model.file.FilePlanetProvider
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessage
+import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.list.mapObservable
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sortByObservable
@@ -20,9 +21,8 @@ class GroupPlanetProvider(
 
     override val searchStringProperty = property("")
 
-    override val entryList = groupList
+    override val entryList: ObservableList<ISideBarEntry> = groupList
             .sortByObservable { it.groupName }
-            .mapObservable { it as ISideBarEntry }
 
     private fun onMessage(message: RobolabMessage) {
         val group = groupList.find { it.groupName == message.metadata.groupId }

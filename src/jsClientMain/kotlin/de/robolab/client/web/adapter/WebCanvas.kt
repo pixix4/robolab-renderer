@@ -8,6 +8,7 @@ import de.robolab.client.web.views.ContextMenuView
 import de.robolab.common.utils.*
 import de.westermann.kwebview.components.Canvas
 import org.w3c.dom.*
+import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
 import kotlin.browser.window
 import kotlin.math.PI
@@ -21,7 +22,6 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
     private val context = canvas.context
     // private val hammer = Hammer(canvas.html, js("{}"))
     private val hammer = test()(canvas.html)
-    private val logger = Logger(this)
 
     private fun mouseEventToPointerEvent(event: MouseEvent): PointerEvent {
         return PointerEvent(
@@ -124,7 +124,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         }
 
         canvas.onKeyDown { event ->
-            val code = event.key.toCommon() ?: return@onKeyDown
+            val code = event.toCommon() ?: return@onKeyDown
             event.stopPropagation()
             event.preventDefault()
             listener.onKeyPress(
@@ -138,7 +138,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
             )
         }
         canvas.onKeyPress { event ->
-            val code = event.key.toCommon() ?: return@onKeyPress
+            val code = event.toCommon() ?: return@onKeyPress
             event.stopPropagation()
             event.preventDefault()
             listener.onKeyPress(
@@ -152,7 +152,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
             )
         }
         canvas.onKeyUp { event ->
-            val code = event.key.toCommon() ?: return@onKeyUp
+            val code = event.toCommon() ?: return@onKeyUp
             event.stopPropagation()
             event.preventDefault()
             listener.onKeyRelease(
@@ -405,116 +405,6 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         ))
     }
 
-    private fun String.toCommon() = when (this.toLowerCase()) {
-        "," -> KeyCode.COMMA
-        "<" -> KeyCode.ANGLE_BRACKET_LEFT
-        "." -> KeyCode.PERIOD
-        ">" -> KeyCode.ANGLE_BRACKET_RIGHT
-        "/" -> KeyCode.SLASH
-        "?" -> KeyCode.QUESTION_MARK
-        ";" -> KeyCode.SEMICOLON
-        ":" -> KeyCode.COLON
-        "'" -> KeyCode.QUOTE
-        "\"" -> KeyCode.DOUBLE_QUOTE
-        "\\" -> KeyCode.BACKSLASH
-        "|" -> KeyCode.PIPE
-        "[" -> KeyCode.SQUARE_BRACKET_LEFT
-        "{" -> KeyCode.CURLY_BRACKET_LEFT
-        "]" -> KeyCode.SQUARE_BRACKET_RIGHT
-        "}" -> KeyCode.CURLY_BRACKET_RIGHT
-        "!" -> KeyCode.EXCLAMATION_MARK
-        "@" -> KeyCode.AT
-        "#" -> KeyCode.HASH
-        "$" -> KeyCode.DOLLAR
-        "€" -> KeyCode.EURO
-        "%" -> KeyCode.PERCENT
-        "&" -> KeyCode.AND
-        "*" -> KeyCode.MULTIPLY
-        "(" -> KeyCode.ROUND_BRACKET_LEFT
-        ")" -> KeyCode.ROUND_BRACKET_RIGHT
-        "-" -> KeyCode.MINUS
-        "_" -> KeyCode.UNDERSCORE
-        "=" -> KeyCode.EQUALS
-        "+" -> KeyCode.PLUS
-        "1" -> KeyCode.NUM_1
-        "2" -> KeyCode.NUM_2
-        "3" -> KeyCode.NUM_3
-        "4" -> KeyCode.NUM_4
-        "5" -> KeyCode.NUM_5
-        "6" -> KeyCode.NUM_6
-        "7" -> KeyCode.NUM_7
-        "8" -> KeyCode.NUM_8
-        "9" -> KeyCode.NUM_9
-        "0" -> KeyCode.NUM_0
-        "a" -> KeyCode.A
-        "b" -> KeyCode.B
-        "c" -> KeyCode.C
-        "d" -> KeyCode.D
-        "e" -> KeyCode.E
-        "f" -> KeyCode.F
-        "g" -> KeyCode.G
-        "h" -> KeyCode.H
-        "i" -> KeyCode.I
-        "j" -> KeyCode.J
-        "k" -> KeyCode.K
-        "l" -> KeyCode.L
-        "m" -> KeyCode.M
-        "n" -> KeyCode.N
-        "o" -> KeyCode.O
-        "p" -> KeyCode.P
-        "q" -> KeyCode.Q
-        "r" -> KeyCode.R
-        "s" -> KeyCode.S
-        "t" -> KeyCode.T
-        "u" -> KeyCode.U
-        "v" -> KeyCode.V
-        "w" -> KeyCode.W
-        "x" -> KeyCode.X
-        "y" -> KeyCode.Y
-        "z" -> KeyCode.Z
-        " " -> KeyCode.SPACE
-        "tab" -> KeyCode.TAB
-        "shift" -> KeyCode.SHIFT
-        "control" -> KeyCode.CTRL
-        "alt" -> KeyCode.ALT
-        "altgraph" -> KeyCode.ALT_GRAPHICS
-        "print" -> KeyCode.PRINT
-        "escape" -> KeyCode.ESCAPE
-        "home" -> KeyCode.HOME
-        "end" -> KeyCode.END
-        "insert" -> KeyCode.INSERT
-        "delete" -> KeyCode.DELETE
-        "backspace" -> KeyCode.BACKSPACE
-        "enter" -> KeyCode.ENTER
-        "pageup" -> KeyCode.PAGE_UP
-        "pagedown" -> KeyCode.PAGE_DOWN
-        "arrowup" -> KeyCode.ARROW_UP
-        "arrowleft" -> KeyCode.ARROW_LEFT
-        "arrowdown" -> KeyCode.ARROW_DOWN
-        "arrowright" -> KeyCode.ARROW_RIGHT
-        "undo" -> KeyCode.UNDO
-        "redo" -> KeyCode.REDO
-        "cut" -> KeyCode.CUT
-        "copy" -> KeyCode.COPY
-        "paste" -> KeyCode.PASTE
-        "find" -> KeyCode.FIND
-        // "f1" -> KeyCode.F1
-        // "f2" -> KeyCode.F2
-        // "f3" -> KeyCode.F3
-        // "f4" -> KeyCode.F4
-        // "f5" -> KeyCode.F5
-        // "f6" -> KeyCode.F6
-        // "f7" -> KeyCode.F7
-        // "f8" -> KeyCode.F8
-        // "f9" -> KeyCode.F9
-        // "f10" -> KeyCode.F10
-        // "f11" -> KeyCode.F11
-        // "f12" -> KeyCode.F12
-        else -> {
-            logger.info { "Unsupported keyCode: $this" }
-            null
-        }
-    }
 
     init {
         context.lineCap = CanvasLineCap.BUTT
@@ -538,5 +428,116 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         const val DOM_DELTA_PIXEL = 0
         const val DOM_DELTA_LINE = 1
         const val DOM_DELTA_PAGE = 2
+    }
+}
+
+fun KeyboardEvent.toCommon() = when (key.toLowerCase()) {
+    "," -> KeyCode.COMMA
+    "<" -> KeyCode.ANGLE_BRACKET_LEFT
+    "." -> KeyCode.PERIOD
+    ">" -> KeyCode.ANGLE_BRACKET_RIGHT
+    "/" -> KeyCode.SLASH
+    "?" -> KeyCode.QUESTION_MARK
+    ";" -> KeyCode.SEMICOLON
+    ":" -> KeyCode.COLON
+    "'" -> KeyCode.QUOTE
+    "\"" -> KeyCode.DOUBLE_QUOTE
+    "\\" -> KeyCode.BACKSLASH
+    "|" -> KeyCode.PIPE
+    "[" -> KeyCode.SQUARE_BRACKET_LEFT
+    "{" -> KeyCode.CURLY_BRACKET_LEFT
+    "]" -> KeyCode.SQUARE_BRACKET_RIGHT
+    "}" -> KeyCode.CURLY_BRACKET_RIGHT
+    "!" -> KeyCode.EXCLAMATION_MARK
+    "@" -> KeyCode.AT
+    "#" -> KeyCode.HASH
+    "$" -> KeyCode.DOLLAR
+    "€" -> KeyCode.EURO
+    "%" -> KeyCode.PERCENT
+    "&" -> KeyCode.AND
+    "*" -> KeyCode.MULTIPLY
+    "(" -> KeyCode.ROUND_BRACKET_LEFT
+    ")" -> KeyCode.ROUND_BRACKET_RIGHT
+    "-" -> KeyCode.MINUS
+    "_" -> KeyCode.UNDERSCORE
+    "=" -> KeyCode.EQUALS
+    "+" -> KeyCode.PLUS
+    "1" -> KeyCode.NUM_1
+    "2" -> KeyCode.NUM_2
+    "3" -> KeyCode.NUM_3
+    "4" -> KeyCode.NUM_4
+    "5" -> KeyCode.NUM_5
+    "6" -> KeyCode.NUM_6
+    "7" -> KeyCode.NUM_7
+    "8" -> KeyCode.NUM_8
+    "9" -> KeyCode.NUM_9
+    "0" -> KeyCode.NUM_0
+    "a" -> KeyCode.A
+    "b" -> KeyCode.B
+    "c" -> KeyCode.C
+    "d" -> KeyCode.D
+    "e" -> KeyCode.E
+    "f" -> KeyCode.F
+    "g" -> KeyCode.G
+    "h" -> KeyCode.H
+    "i" -> KeyCode.I
+    "j" -> KeyCode.J
+    "k" -> KeyCode.K
+    "l" -> KeyCode.L
+    "m" -> KeyCode.M
+    "n" -> KeyCode.N
+    "o" -> KeyCode.O
+    "p" -> KeyCode.P
+    "q" -> KeyCode.Q
+    "r" -> KeyCode.R
+    "s" -> KeyCode.S
+    "t" -> KeyCode.T
+    "u" -> KeyCode.U
+    "v" -> KeyCode.V
+    "w" -> KeyCode.W
+    "x" -> KeyCode.X
+    "y" -> KeyCode.Y
+    "z" -> KeyCode.Z
+    " " -> KeyCode.SPACE
+    "tab" -> KeyCode.TAB
+    "shift" -> KeyCode.SHIFT
+    "control" -> KeyCode.CTRL
+    "alt" -> KeyCode.ALT
+    "altgraph" -> KeyCode.ALT_GRAPHICS
+    "print" -> KeyCode.PRINT
+    "escape" -> KeyCode.ESCAPE
+    "home" -> KeyCode.HOME
+    "end" -> KeyCode.END
+    "insert" -> KeyCode.INSERT
+    "delete" -> KeyCode.DELETE
+    "backspace" -> KeyCode.BACKSPACE
+    "enter" -> KeyCode.ENTER
+    "pageup" -> KeyCode.PAGE_UP
+    "pagedown" -> KeyCode.PAGE_DOWN
+    "arrowup" -> KeyCode.ARROW_UP
+    "arrowleft" -> KeyCode.ARROW_LEFT
+    "arrowdown" -> KeyCode.ARROW_DOWN
+    "arrowright" -> KeyCode.ARROW_RIGHT
+    "undo" -> KeyCode.UNDO
+    "redo" -> KeyCode.REDO
+    "cut" -> KeyCode.CUT
+    "copy" -> KeyCode.COPY
+    "paste" -> KeyCode.PASTE
+    "find" -> KeyCode.FIND
+    // "f1" -> KeyCode.F1
+    // "f2" -> KeyCode.F2
+    // "f3" -> KeyCode.F3
+    // "f4" -> KeyCode.F4
+    // "f5" -> KeyCode.F5
+    // "f6" -> KeyCode.F6
+    // "f7" -> KeyCode.F7
+    // "f8" -> KeyCode.F8
+    // "f9" -> KeyCode.F9
+    // "f10" -> KeyCode.F10
+    // "f11" -> KeyCode.F11
+    // "f12" -> KeyCode.F12
+    else -> {
+        Logger("KeyMapper").info { "Unsupported keyCode: $this" }
+        null
     }
 }

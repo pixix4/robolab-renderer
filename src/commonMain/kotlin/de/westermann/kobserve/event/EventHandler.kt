@@ -213,3 +213,12 @@ fun <T> EventHandler<T>.once(listener: (T) -> Unit) {
         removeListener(temp)
     }
 }
+
+fun <T> EventHandler<T>.now(value: T, listener: (T) -> Unit) {
+    addListener(listener)
+    listener(value)
+}
+
+fun EventHandler<Unit>.now(listener: (Unit) -> Unit) {
+    now(Unit, listener)
+}

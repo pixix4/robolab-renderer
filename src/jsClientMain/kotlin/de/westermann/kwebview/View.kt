@@ -1,8 +1,8 @@
 package de.westermann.kwebview
 
+import de.robolab.client.utils.buildJsInterface
 import de.westermann.kobserve.event.EventHandler
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.TouchEvent
+import org.w3c.dom.*
 import org.w3c.dom.css.CSSStyleDeclaration
 import org.w3c.dom.events.FocusEvent
 import org.w3c.dom.events.KeyboardEvent
@@ -40,26 +40,59 @@ abstract class View(view: HTMLElement = createHtmlView()) {
     val offsetHeight: Int
         get() = html.offsetHeight
 
+
+    val scrollLeft: Double
+        get() = html.scrollLeft
+    val scrollTop: Double
+        get() = html.scrollTop
+    val scrollWidth: Int
+        get() = html.scrollWidth
+    val scrollHeight: Int
+        get() = html.scrollHeight
+
+    fun scrollTo(left: Number? = null, top: Number? = null, behavior: ScrollBehavior? = ScrollBehavior.AUTO) {
+        html.scrollTo(buildJsInterface {
+            this.left = left?.toDouble()
+            this.top = top?.toDouble()
+            this.behavior = behavior
+        })
+    }
+
+    fun scrollBy(left: Number? = null, top: Number? = null, behavior: ScrollBehavior? = ScrollBehavior.AUTO) {
+        html.scrollBy(buildJsInterface {
+            this.left = left?.toDouble()
+            this.top = top?.toDouble()
+            this.behavior = behavior
+        })
+    }
+
+    fun offsetLeftTotal(maxDepth: Int = Int.MAX_VALUE): Int {
+        var element: HTMLElement? = html
+        var offset = 0
+        var depth = 0
+        while (element != null && depth <= maxDepth) {
+            offset += element.offsetLeft
+            element = element.offsetParent as? HTMLElement
+            depth += 1
+        }
+        return offset
+    }
     val offsetLeftTotal: Int
-        get() {
-            var element: HTMLElement? = html
-            var offset = 0
-            while (element != null) {
-                offset += element.offsetLeft
-                element = element.offsetParent as? HTMLElement
-            }
-            return offset
+        get() = offsetLeftTotal()
+
+    fun offsetTopTotal(maxDepth: Int = Int.MAX_VALUE): Int {
+        var element: HTMLElement? = html
+        var offset = 0
+        var depth = 0
+        while (element != null && depth <= maxDepth) {
+            offset += element.offsetTop
+            element = element.offsetParent as? HTMLElement
+            depth += 1
         }
+        return offset
+    }
     val offsetTopTotal: Int
-        get() {
-            var element: HTMLElement? = html
-            var offset = 0
-            while (element != null) {
-                offset += element.offsetTop
-                element = element.offsetParent as? HTMLElement
-            }
-            return offset
-        }
+        get() = offsetTopTotal()
 
     val dimension: Dimension
         get() = html.getBoundingClientRect().toDimension()
@@ -81,6 +114,10 @@ abstract class View(view: HTMLElement = createHtmlView()) {
 
     fun click() {
         html.click()
+    }
+
+    fun allowFocus() {
+        html.tabIndex = 0
     }
 
     val onClick = EventHandler<MouseEvent>()
@@ -106,6 +143,9 @@ abstract class View(view: HTMLElement = createHtmlView()) {
 
     val onFocus = EventHandler<FocusEvent>()
     val onBlur = EventHandler<FocusEvent>()
+
+    val onDragOver = EventHandler<DragEvent>()
+    val onDrop = EventHandler<DragEvent>()
 
     init {
         onClick.bind(view, "click")
@@ -133,5 +173,8 @@ abstract class View(view: HTMLElement = createHtmlView()) {
 
         onFocus.bind(view, "focus")
         onBlur.bind(view, "blur")
+
+        onDragOver.bind(view, "dragover")
+        onDrop.bind(view, "drop")
     }
 }
