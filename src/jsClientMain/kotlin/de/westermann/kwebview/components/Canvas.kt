@@ -24,7 +24,7 @@ class Canvas : View(createHtmlView<HTMLCanvasElement>()) {
 
     override val html = super.html as HTMLCanvasElement
 
-    val context = html.getContext("2d") as CanvasRenderingContext2D
+    val context = html.getContext("2d", js("{ alpha: false }")) as CanvasRenderingContext2D
 
     val onResize = EventHandler<Unit>()
 
@@ -92,4 +92,4 @@ class Canvas : View(createHtmlView<HTMLCanvasElement>()) {
 
 @KWebViewDsl
 fun ViewCollection<in Canvas>.canvas(init: Canvas.() -> Unit = {}) =
-        Canvas().also(this::append).also(init)
+    Canvas().also(this::append).also(init)

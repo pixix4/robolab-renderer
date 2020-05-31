@@ -2,18 +2,18 @@ package de.robolab.client.renderer.utils
 
 import de.robolab.client.renderer.canvas.ICanvasListener
 import de.robolab.client.renderer.events.*
-import de.robolab.client.renderer.plotter.DefaultPlotter
+import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import kotlin.math.PI
 
 class TransformationInteraction(
-        private val plotter: DefaultPlotter
+        private val plotter: PlotterWindow
 ) : ICanvasListener {
     private val transformation = plotter.transformation
 
     private var lastPoint: Point = Point.ZERO
-    var lastDimension: Dimension = Dimension.ZERO
+    var lastDimension: Dimension = plotter.dimension
     private var hasMovedSinceDown = false
 
     var isDrag = false
@@ -119,10 +119,10 @@ class TransformationInteraction(
     override fun onScroll(event: ScrollEvent) {
         when {
             event.ctrlKey -> {
-                transformation.scaleBy(1.0 + event.delta.top / 40.0 * 0.1, event.point, ANIMATION_TIME)
+                transformation.scaleBy(1.0 + event.delta.top / 40.0 * 0.1, event.mousePoint, ANIMATION_TIME)
             }
             event.altKey -> {
-                transformation.rotateBy(event.delta.top / 40.0 * PI / 32, event.point, ANIMATION_TIME)
+                transformation.rotateBy(event.delta.top / 40.0 * PI / 32, event.mousePoint, ANIMATION_TIME)
             }
             else -> {
                 val delta = if (event.shiftKey) event.delta.let { Point(it.y, it.x) } else event.delta
@@ -131,24 +131,24 @@ class TransformationInteraction(
         }
         plotter.rootDocument?.emitOnUserTransformation()
 
-        plotter.updatePointer(event.point)
-        lastPoint = event.point
+        plotter.updatePointer(event.mousePoint)
+        lastPoint = event.mousePoint
     }
 
     override fun onZoom(event: ZoomEvent) {
-        transformation.scaleBy(event.zoomFactor, event.point)
+        transformation.scaleBy(event.zoomFactor, event.mousePoint)
         plotter.rootDocument?.emitOnUserTransformation()
 
-        plotter.updatePointer(event.point)
-        lastPoint = event.point
+        plotter.updatePointer(event.mousePoint)
+        lastPoint = event.mousePoint
     }
 
     override fun onRotate(event: RotateEvent) {
-        transformation.rotateBy(event.angle, event.point)
+        transformation.rotateBy(event.angle, event.mousePoint)
         plotter.rootDocument?.emitOnUserTransformation()
 
-        plotter.updatePointer(event.point)
-        lastPoint = event.point
+        plotter.updatePointer(event.mousePoint)
+        lastPoint = event.mousePoint
     }
 
     override fun onResize(size: Dimension) {
@@ -162,7 +162,7 @@ class TransformationInteraction(
         lastDimension = size
 
         plotter.rootDocument?.emitOnCanvasResize(size)
-        plotter.forceRedraw = true
+        plotter.rootDocument?.requestRedraw()
     }
 
     override fun onKeyPress(event: KeyEvent) {

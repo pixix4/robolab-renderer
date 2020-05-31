@@ -5,16 +5,16 @@ import kotlin.math.max
 import kotlin.math.min
 
 data class Rectangle(
-        val left: Double,
-        val top: Double,
-        val width: Double,
-        val height: Double
+    val left: Double,
+    val top: Double,
+    val width: Double,
+    val height: Double
 ) : IInterpolatable<Rectangle> {
 
     val right: Double by lazy { left + width }
     val bottom: Double by lazy { top + height }
     val center: Point by lazy { Point(left + width / 2, top + height / 2) }
-    
+
     val bottomLeft: Point by lazy { Point(left, bottom) }
     val bottomRight: Point by lazy { Point(right, bottom) }
     val topLeft: Point by lazy { Point(left, top) }
@@ -32,10 +32,10 @@ data class Rectangle(
     fun shrink(size: Double) = shrink(size, size)
 
     fun expand(vertical: Double, horizontal: Double) = Rectangle(
-            left - horizontal,
-            top - vertical,
-            width + 2 * horizontal,
-            height + 2 * vertical
+        left - horizontal,
+        top - vertical,
+        width + 2 * horizontal,
+        height + 2 * vertical
     )
 
     fun shrink(vertical: Double, horizontal: Double) = expand(-vertical, -horizontal)
@@ -45,10 +45,10 @@ data class Rectangle(
     }
 
     override fun interpolate(toValue: Rectangle, progress: Double) = Rectangle(
-            left * (1 - progress) + toValue.left * progress,
-            top * (1 - progress) + toValue.top * progress,
-            width * (1 - progress) + toValue.width * progress,
-            height * (1 - progress) + toValue.height * progress
+        left * (1 - progress) + toValue.left * progress,
+        top * (1 - progress) + toValue.top * progress,
+        width * (1 - progress) + toValue.width * progress,
+        height * (1 - progress) + toValue.height * progress
     )
 
     override fun interpolateToNull(progress: Double): Rectangle {
@@ -58,10 +58,10 @@ data class Rectangle(
     }
 
     fun toEdgeList() = listOf(
-            Point(left, top),
-            Point(right, top),
-            Point(right, bottom),
-            Point(left, bottom)
+        Point(left, top),
+        Point(right, top),
+        Point(right, bottom),
+        Point(left, bottom)
     )
 
     companion object {
@@ -72,22 +72,22 @@ data class Rectangle(
 
             val min = points.reduce { acc, point ->
                 Point(
-                        min(acc.left, point.left),
-                        min(acc.top, point.top)
+                    min(acc.left, point.left),
+                    min(acc.top, point.top)
                 )
             }
             val max = points.reduce { acc, point ->
                 Point(
-                        max(acc.left, point.left),
-                        max(acc.top, point.top)
+                    max(acc.left, point.left),
+                    max(acc.top, point.top)
                 )
             }
 
             return Rectangle(
-                    min.left,
-                    min.top,
-                    max.left - min.left,
-                    max.top - min.top
+                min.left,
+                min.top,
+                max.left - min.left,
+                max.top - min.top
             )
         }
 
@@ -100,21 +100,21 @@ data class Rectangle(
             var top = origin.top
             var width = size.width
             var height = size.height
-            
+
             if (width < 0.0) {
                 left += width
-                width *= -1-0
+                width *= -1 - 0
             }
             if (height < 0.0) {
                 top += height
-                height *= -1-0
+                height *= -1 - 0
             }
-            
+
             return Rectangle(
-                    left,
-                    top,
-                    width,
-                    height
+                left,
+                top,
+                width,
+                height
             )
         }
     }
@@ -122,4 +122,21 @@ data class Rectangle(
 
 infix fun Rectangle?.unionNullable(other: Rectangle?): Rectangle? {
     return (this ?: return other) union (other ?: return this)
+}
+
+val Rectangle.dimension
+    get() = Dimension(width, height)
+
+fun Rectangle.splitVertical(split: Double = 0.5): Pair<Rectangle, Rectangle> {
+    return Pair(
+        Rectangle(left, top, width, height * split),
+        Rectangle(left, top + height * split, width, height * (1.0 - split))
+    )
+}
+
+fun Rectangle.splitHorizontal(split: Double = 0.5): Pair<Rectangle, Rectangle> {
+    return Pair(
+        Rectangle(left, top, width * split, height),
+        Rectangle(left + width * split, top, width * (1.0 - split), height)
+    )
 }

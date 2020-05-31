@@ -146,7 +146,7 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     private val planetNameProperty = property("")
     private val backgroundPlanet = planetNameProperty.nullableFlatMapBinding {
         val entry = parent.filePlanetProvider.findByName(it)
-        entry?.onOpen()
+        entry?.loadFile()
         entry?.planetFile?.planetProperty
     }.mapBinding { it ?: Planet.EMPTY }
 
@@ -168,14 +168,6 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     }
 
     var isOpen = false
-    override fun onOpen() {
-        isOpen = true
-        update()
-    }
-
-    override fun onClose() {
-        isOpen = false
-    }
 
     init {
         selectedIndexProperty.onChange { update() }
@@ -189,6 +181,15 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
             drawable.importBackgroundPlanet(backgroundPlanet.value)
             drawable.importServerPlanet(serverPlanet.importSplines(backgroundPlanet.value))
             drawable.importMqttPlanet(mqttPlanet.importSplines(backgroundPlanet.value))
+        }
+
+        document.onAttach {
+            isOpen = true
+            update()
+        }
+
+        document.onDetach {
+            isOpen = false
         }
     }
 

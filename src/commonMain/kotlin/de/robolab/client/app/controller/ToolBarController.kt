@@ -7,7 +7,7 @@ import de.westermann.kobserve.property.nullableFlatMapBinding
 import kotlin.math.roundToInt
 
 class ToolBarController(
-    val selectedEntryProperty: ObservableProperty<ISideBarPlottable?>,
+    selectedEntryProperty: ObservableProperty<ISideBarPlottable?>,
     private val canvasController: CanvasController
 ) {
     val leftActionListProperty = selectedEntryProperty.mapBinding { it?.toolBarLeft ?: emptyList() }
@@ -31,5 +31,21 @@ class ToolBarController(
 
     fun resetZoom() {
         canvasController.resetZoom()
+    }
+
+    fun splitHorizontal() {
+        canvasController.plotter.splitHorizontal()
+    }
+
+    fun splitVertical() {
+        canvasController.plotter.splitVertical()
+    }
+
+    fun close() {
+        canvasController.plotter.close()
+    }
+
+    fun setGridLayout(rowCount: Int, colCount: Int) {
+        canvasController.plotter.setGridLayout(rowCount, colCount)
     }
 }

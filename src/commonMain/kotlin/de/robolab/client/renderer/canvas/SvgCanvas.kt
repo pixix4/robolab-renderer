@@ -3,6 +3,7 @@ package de.robolab.client.renderer.canvas
 import de.robolab.client.utils.ContextMenu
 import de.robolab.common.parser.toFixed
 import de.robolab.common.utils.Color
+import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 import kotlin.math.PI
@@ -10,8 +11,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class SvgCanvas(
-    override val width: Double,
-    override val height: Double
+    override val dimension: Dimension
 ) : ICanvas {
     override fun setListener(listener: ICanvasListener) {
     }
@@ -29,7 +29,7 @@ class SvgCanvas(
             append("""<?xml version="1.0" encoding="UTF-8"?>""")
             append('\n')
             append(
-                """<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width.toFixed(2)} ${height.toFixed(
+                """<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dimension.width.toFixed(2)} ${dimension.height.toFixed(
                     2
                 )}">"""
             )
@@ -39,11 +39,6 @@ class SvgCanvas(
             append("""</svg>""")
             append('\n')
         }
-    }
-
-    override fun clear(color: Color) {
-        stringBuilder.clear()
-        append("""<rect width="100%" height="100%" fill="$color" />""")
     }
 
     override fun fillRect(rectangle: Rectangle, color: Color) {
@@ -141,7 +136,12 @@ class SvgCanvas(
     }
 
     override fun openContextMenu(menu: ContextMenu) {
+    }
 
+    override fun startClip(rectangle: Rectangle) {
+    }
+
+    override fun endClip() {
     }
 
     companion object {

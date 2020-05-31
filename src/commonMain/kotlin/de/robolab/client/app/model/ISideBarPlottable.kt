@@ -16,7 +16,4 @@ interface ISideBarPlottable : ISideBarEntry {
     val document: Document
 
     val enabledProperty: ObservableValue<Boolean>
-
-    fun onOpen() {}
-    fun onClose() {}
 }

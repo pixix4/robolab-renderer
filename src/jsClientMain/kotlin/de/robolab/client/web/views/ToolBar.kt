@@ -5,6 +5,7 @@ import de.robolab.client.app.model.ToolBarEntry
 import de.robolab.client.web.dialog.Dialog
 import de.robolab.client.web.dialog.SettingsDialog
 import de.robolab.client.web.views.utils.buttonGroup
+import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
@@ -99,6 +100,48 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
         boxView("tool-bar-right") {
 
             setupToolbar(toolBarController.rightActionListProperty)
+
+            buttonGroup {
+                button {
+                    iconView(MaterialIcon.MORE_VERT)
+                    title = "Split vertical"
+
+                    onClick {
+                        toolBarController.splitVertical()
+                    }
+                }
+                button {
+                    iconView(MaterialIcon.MORE_HORIZ)
+                    title = "Split horizontal"
+
+                    onClick {
+                        toolBarController.splitHorizontal()
+                    }
+                }
+                button {
+                    iconView(MaterialIcon.CLOSE)
+                    title = "Close window"
+
+                    onClick {
+                        toolBarController.close()
+                    }
+                }
+                button {
+                    iconView(MaterialIcon.ARROW_DROP_DOWN)
+
+                    onClick {
+                        ContextMenuView.open(Point(it.clientX, it.clientY), "Window layout") {
+                            for (row in 1..3) {
+                                for (col in 1..3) {
+                                    action("${row}x$col layout") {
+                                        toolBarController.setGridLayout(row, col)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             buttonGroup {
                 button {

@@ -8,8 +8,9 @@ import de.robolab.client.renderer.canvas.SvgCanvas
 import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.client.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
-import de.robolab.client.renderer.plotter.ExportPlotter
+import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.client.renderer.utils.Transformation
+import de.robolab.client.theme.LightTheme
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.menuBilder
 import de.robolab.common.parser.PlanetFile
@@ -112,7 +113,8 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
     val content: String
         get() = planetFile.content
 
-    override fun onOpen() {
+
+    fun loadFile() {
         if (!enabledProperty.value) {
             provider.loadEntry(this) { content ->
                 if (content != null) {
@@ -122,7 +124,6 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
             }
         }
     }
-
 
     fun exportAsSVG(name: String = "") {
         var fileName = name
@@ -148,7 +149,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     private fun exportSVG(): String {
         val dimension = exportGetSize()
-        val canvas = SvgCanvas(dimension.width, dimension.height)
+        val canvas = SvgCanvas(dimension)
 
         exportRender(canvas)
 
@@ -174,7 +175,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
         drawable.drawName = true
         drawable.importPlanet(planetFile.planet)
 
-        val plotter = ExportPlotter(canvas, drawable.view)
+        val plotter = PlotterWindow(canvas, drawable.view, LightTheme, 0.0)
 
         drawable.centerPlanet()
 
@@ -203,6 +204,10 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
     init {
         planetFile.history.onChange {
             drawable.importPlanet(planetFile.planet)
+        }
+
+        document.onAttach {
+            loadFile()
         }
     }
 }

@@ -9,7 +9,7 @@ import de.robolab.common.utils.Dimension
 import java.io.File
 
 actual fun exportPNGCanvas(dimension: Dimension): ICanvas {
-    return AwtCanvas(dimension.width, dimension.height, PreferenceStorage.exportScale)
+    return AwtCanvas(dimension, PreferenceStorage.exportScale)
 }
 
 actual fun saveExportSVG(name: String, content: String) {

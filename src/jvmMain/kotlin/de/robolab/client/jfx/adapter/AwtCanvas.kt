@@ -4,6 +4,7 @@ import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.ICanvasListener
 import de.robolab.client.utils.ContextMenu
 import de.robolab.common.utils.Color
+import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 import java.awt.BasicStroke
@@ -17,13 +18,12 @@ import javax.imageio.ImageIO
 import kotlin.math.PI
 
 class AwtCanvas(
-    override val width: Double,
-    override val height: Double,
+    override val dimension: Dimension,
     private val scale: Double
 ) : ICanvas {
 
     private val bufferedImage =
-        BufferedImage((width * scale).toInt(), (height * scale).toInt(), BufferedImage.TYPE_INT_ARGB)
+        BufferedImage((dimension.width * scale).toInt(), (dimension.height * scale).toInt(), BufferedImage.TYPE_INT_ARGB)
     private val context = bufferedImage.createGraphics()
 
     fun writePNG(file: File) {
@@ -36,17 +36,6 @@ class AwtCanvas(
 
 
     override fun setListener(listener: ICanvasListener) {
-    }
-
-    override fun clear(color: Color) {
-        fillRect(
-            Rectangle(
-                0.0,
-                0.0,
-                width,
-                height
-            ), color
-        )
     }
 
     override fun fillRect(rectangle: Rectangle, color: Color) {
@@ -202,7 +191,12 @@ class AwtCanvas(
     }
 
     override fun openContextMenu(menu: ContextMenu) {
+    }
 
+    override fun startClip(rectangle: Rectangle) {
+    }
+
+    override fun endClip() {
     }
 
     init {

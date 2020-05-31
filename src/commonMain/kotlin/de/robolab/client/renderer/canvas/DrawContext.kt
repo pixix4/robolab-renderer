@@ -33,9 +33,9 @@ class DrawContext(
     private fun updateArea() {
         area = Rectangle.fromEdges(
             transformation.canvasToPlanet(Point(0.0, 0.0)),
-            transformation.canvasToPlanet(Point(canvas.width, 0.0)),
-            transformation.canvasToPlanet(Point(0.0, canvas.height)),
-            transformation.canvasToPlanet(Point(canvas.width, canvas.height))
+            transformation.canvasToPlanet(Point(canvas.dimension.width, 0.0)),
+            transformation.canvasToPlanet(Point(0.0, canvas.dimension.height)),
+            transformation.canvasToPlanet(Point(canvas.dimension.width, canvas.dimension.height))
         )
     }
 

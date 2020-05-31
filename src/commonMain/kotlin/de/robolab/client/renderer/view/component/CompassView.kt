@@ -12,7 +12,7 @@ class CompassView: BaseView() {
 
     private var compassCenter = Point.ZERO
     override fun onDraw(context: DrawContext) {
-        compassCenter = Point(context.width - RIGHT_PADDING, TOP_PADDING)
+        compassCenter = Point(context.dimension.width - RIGHT_PADDING, TOP_PADDING)
         context.canvas.fillArc(
                 compassCenter,
                 RADIUS,

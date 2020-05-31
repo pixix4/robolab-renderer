@@ -11,7 +11,9 @@ import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import javafx.geometry.Side
 import javafx.scene.control.Button
+import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
 import javafx.scene.text.FontWeight
 import tornadofx.*
@@ -40,6 +42,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                 for (button in group) {
                     button(button.nameProperty.toFx()) {
                         bindIcon(button.iconProperty)
+                        tooltipProperty().bind(button.toolTipProperty.mapBinding { Tooltip(it) }.toFx())
 
                         bindSelectedProperty(button.selectedProperty) {
                             button.onClick()
@@ -68,6 +71,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
             hbox {
                 button {
                     graphic = iconNoAdd(MaterialIcon.MENU)
+                    tooltip("Toggle side bar")
 
                     bindSelectedProperty(sideBarActiveProperty)
                 }
@@ -91,18 +95,64 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
 
             buttonGroup {
                 button {
+                    graphic = iconNoAdd(MaterialIcon.MORE_VERT)
+                    tooltip("Split vertical")
+                    setOnAction {
+                        toolBarController.splitVertical()
+                    }
+                }
+                button {
+                    graphic = iconNoAdd(MaterialIcon.MORE_HORIZ)
+                    tooltip("Split horizontal")
+                    setOnAction {
+                        toolBarController.splitHorizontal()
+                    }
+                }
+                button {
+                    graphic = iconNoAdd(MaterialIcon.CLOSE)
+                    tooltip("Close window")
+                    setOnAction {
+                        toolBarController.close()
+                    }
+                }
+                button {
+                    graphic = iconNoAdd(MaterialIcon.ARROW_DROP_DOWN)
+                    contextmenu {
+                        for (row in 1..3) {
+                            for (col in 1..3) {
+                                item("${row}x$col layout") {
+                                    setOnAction {
+                                        toolBarController.setGridLayout(row, col)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    setOnAction {
+                        contextMenu.show(this, Side.BOTTOM, 0.0, 0.0)
+                    }
+                }
+
+                paddingRight = 8
+            }
+
+            buttonGroup {
+                button {
                     graphic = iconNoAdd(MaterialIcon.REMOVE)
+                    tooltip("Zoom out")
                     setOnAction {
                         toolBarController.zoomOut()
                     }
                 }
                 button(toolBarController.zoomProperty.toFx()) {
+                    tooltip("Reset zoom")
                     setOnAction {
                         toolBarController.resetZoom()
                     }
                 }
                 button {
                     graphic = iconNoAdd(MaterialIcon.ADD)
+                    tooltip("Zoom in")
                     setOnAction {
                         toolBarController.zoomIn()
                     }
@@ -114,6 +164,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
             hbox {
                 button {
                     graphic = iconNoAdd(MaterialIcon.SETTINGS)
+                    tooltip("Open settings")
 
                     setOnAction {
                         SettingsDialog.open()
@@ -125,6 +176,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
 
             button {
                 graphic = iconNoAdd(MaterialIcon.MENU)
+                tooltip("Toggle info bar")
 
                 bindSelectedProperty(infoBarActiveProperty)
             }

@@ -2,6 +2,7 @@ package de.robolab.client.renderer.canvas
 
 import de.robolab.client.utils.ContextMenu
 import de.robolab.common.utils.Color
+import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 
@@ -9,11 +10,7 @@ interface ICanvas {
 
     fun setListener(listener: ICanvasListener)
 
-    val width: Double
-
-    val height: Double
-
-    fun clear(color: Color)
+    val dimension: Dimension
 
     fun fillRect(rectangle: Rectangle, color: Color)
 
@@ -34,6 +31,9 @@ interface ICanvas {
     fun strokeArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color, width: Double = 1.0)
 
     fun openContextMenu(menu: ContextMenu)
+
+    fun startClip(rectangle: Rectangle)
+    fun endClip()
 
     enum class FontAlignment {
         LEFT, CENTER, RIGHT

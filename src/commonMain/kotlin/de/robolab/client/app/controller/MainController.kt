@@ -22,8 +22,8 @@ class MainController {
             if (name == null) "RobolabRenderer" else "RobolabRenderer - $name"
         }
 
-    val sideBarController = SideBarController(selectedEntryProperty, messageManager, connection)
     val canvasController = CanvasController(selectedEntryProperty)
+    val sideBarController = SideBarController(selectedEntryProperty, messageManager, connection, canvasController)
     val toolBarController = ToolBarController(selectedEntryProperty, canvasController)
     val statusBarController = StatusBarController(canvasController)
     val infoBarController = InfoBarController(selectedEntryProperty)

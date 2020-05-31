@@ -18,7 +18,8 @@ import de.westermann.kobserve.property.property
 class SideBarController(
     val selectedEntryProperty: ObservableProperty<ISideBarPlottable?>,
     messageManager: MessageManager,
-    private val connection: RobolabMqttConnection
+    private val connection: RobolabMqttConnection,
+    private val canvasController: CanvasController
 ) {
 
     private val filePlanetProvider = FilePlanetProvider()
@@ -84,10 +85,7 @@ class SideBarController(
                 }
             }
             is ISideBarPlottable -> {
-                val old = selectedEntryProperty.value
-                entry.onOpen()
-                selectedEntryProperty.value = entry
-                old?.onClose()
+                canvasController.open(entry)
             }
         }
     }

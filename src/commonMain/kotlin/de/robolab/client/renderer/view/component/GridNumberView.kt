@@ -28,11 +28,11 @@ class GridNumberView : BaseView() {
                 val x3 = 30.0
                 val y3 = (x3 - x1) / (x2 - x1) * (y2 - y1) + y1
 
-                if (y3 > context.height - 50) continue
+                if (y3 > context.dimension.height - 50) continue
 
                 Point(x3, y3)
             } else {
-                val y3 = context.canvas.height - 30.0
+                val y3 = context.canvas.dimension.height - 30.0
                 val x3 = (y3 - y1) / (y2 - y1) * (x2 - x1) + x1
 
                 if (x3 < 50) continue
@@ -52,7 +52,7 @@ class GridNumberView : BaseView() {
             val (x1, y1) = context.transformation.planetToCanvas(Point(left.toDouble(), rectangle.top))
             val (x2, y2) = context.transformation.planetToCanvas(Point(left.toDouble(), rectangle.bottom))
             val p = if (isDefaultAxesOrientation) {
-                val y3 = context.canvas.height - 30.0
+                val y3 = context.canvas.dimension.height - 30.0
                 val x3 = (y3 - y1) / (y2 - y1) * (x2 - x1) + x1
                 Point(x3, y3)
             } else {

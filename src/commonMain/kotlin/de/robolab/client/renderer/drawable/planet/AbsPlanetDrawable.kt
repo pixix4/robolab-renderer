@@ -3,7 +3,7 @@ package de.robolab.client.renderer.drawable.planet
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.renderer.drawable.utils.BSpline
-import de.robolab.client.renderer.plotter.IPlotter
+import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.client.renderer.utils.ITransformationReference
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.utils.Transformation
@@ -41,7 +41,7 @@ abstract class AbsPlanetDrawable : ITransformationReference {
     val drawBackgroundProperty = property(true)
     var drawBackground by drawBackgroundProperty
 
-    val plotterProperty = property<IPlotter?>(null)
+    val plotterProperty = property<PlotterWindow?>(null)
     var plotter by plotterProperty
 
     val transformationProperty = plotterProperty.mapBinding { it?.transformation }
@@ -109,7 +109,7 @@ abstract class AbsPlanetDrawable : ITransformationReference {
     override fun centerPlanet(duration: Double) {
         val transformation = plotter?.transformation ?: return
         val targetCenter = centerOfPlanets
-        val size = (plotter?.size ?: Dimension.ZERO) / Point(2.0, -2.0)
+        val size = (plotter?.dimension ?: Dimension.ZERO) / Point(2.0, -2.0)
         val point = (targetCenter * transformation.scaledGridWidth - size) * Point(if (flipView) 1.0 else -1.0, 1.0)
 
         transformation.translateTo(point, duration)

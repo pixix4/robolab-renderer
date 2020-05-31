@@ -3,7 +3,7 @@ package de.robolab.client.renderer.view.base
 import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.renderer.events.KeyEvent
 import de.robolab.client.renderer.events.PointerEvent
-import de.robolab.client.renderer.plotter.IPlotter
+import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
@@ -27,17 +27,17 @@ class Document() : BaseView() {
 
     override var document: Document? = this
 
-    var plotter: IPlotter? = null
+    var plotter: PlotterWindow? = null
 
-    val onAttach = EventHandler<IPlotter>()
-    val onDetach = EventHandler<IPlotter>()
-    fun onAttach(plotter: IPlotter) {
+    val onAttach = EventHandler<PlotterWindow>()
+    val onDetach = EventHandler<PlotterWindow>()
+    fun onAttach(plotter: PlotterWindow) {
         this.plotter = plotter
 
         onAttach.emit(plotter)
     }
 
-    fun onDetach(plotter: IPlotter) {
+    fun onDetach(plotter: PlotterWindow) {
         this.plotter = null
 
         onDetach.emit(plotter)

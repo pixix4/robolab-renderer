@@ -20,26 +20,27 @@ fun test(): (HTMLElement) -> Hammer {
 class WebCanvas(val canvas: Canvas) : ICanvas {
 
     private val context = canvas.context
+
     // private val hammer = Hammer(canvas.html, js("{}"))
     private val hammer = test()(canvas.html)
 
     private fun mouseEventToPointerEvent(event: MouseEvent): PointerEvent {
         return PointerEvent(
-                Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
-                Dimension(width, height),
-                event.ctrlKey,
-                event.altKey,
-                event.shiftKey
+            Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
+            dimension,
+            event.ctrlKey,
+            event.altKey,
+            event.shiftKey
         )
     }
 
     private fun hammerEventToPointerEvent(event: HammerEvent): PointerEvent {
         return PointerEvent(
-                Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
-                Dimension(width, height),
-                event.ctrlKey,
-                event.altKey,
-                event.shiftKey
+            Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
+            dimension,
+            event.ctrlKey,
+            event.altKey,
+            event.shiftKey
         )
     }
 
@@ -65,7 +66,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                             event.ctrlKey,
                             event.altKey,
                             event.shiftKey
-                    )
+                        )
                     )
                 }
                 MOUSE_BUTTON_BACK -> {
@@ -76,7 +77,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                             event.ctrlKey,
                             event.altKey,
                             event.shiftKey
-                    )
+                        )
                     )
                 }
             }
@@ -115,11 +116,11 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                 ScrollEvent(
                     Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
                     Point(event.deltaX * factor * WHEEL_FACTOR, event.deltaY * factor * WHEEL_FACTOR),
-                    Dimension(width, height),
+                    dimension,
                     event.ctrlKey,
                     event.altKey,
                     event.shiftKey
-            )
+                )
             )
         }
 
@@ -134,7 +135,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                     event.ctrlKey,
                     event.altKey,
                     event.shiftKey
-            )
+                )
             )
         }
         canvas.onKeyPress { event ->
@@ -148,7 +149,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                     event.ctrlKey,
                     event.altKey,
                     event.shiftKey
-            )
+                )
             )
         }
         canvas.onKeyUp { event ->
@@ -162,7 +163,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                     event.ctrlKey,
                     event.altKey,
                     event.shiftKey
-            )
+                )
             )
         }
 
@@ -213,11 +214,11 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                 ZoomEvent(
                     Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
                     delta,
-                    Dimension(width, height),
+                    dimension,
                     event.ctrlKey,
                     event.altKey,
                     event.shiftKey
-            )
+                )
             )
             lastScale = event.scale
         }
@@ -239,11 +240,11 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                 RotateEvent(
                     Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
                     delta,
-                    Dimension(width, height),
+                    dimension,
                     event.ctrlKey,
                     event.altKey,
                     event.shiftKey
-            )
+                )
             )
             lastRotation = event.rotation
         }
@@ -252,34 +253,21 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         }
 
         canvas.onResize {
-            listener.onResize(Dimension(width, height))
+            listener.onResize(dimension)
         }
     }
 
-    override val width: Double
-        get() = canvas.fixedWidth.toDouble()
-
-    override val height: Double
-        get() = canvas.fixedHeight.toDouble()
-
-    override fun clear(color: Color) {
-        fillRect(
-            Rectangle(
-                -1.0,
-                -1.0,
-                width + 2.0,
-                height + 2.0
-        ), color)
-    }
+    override val dimension: Dimension
+        get() = Dimension(canvas.fixedWidth.toDouble(), canvas.fixedHeight.toDouble())
 
     override fun fillRect(rectangle: Rectangle, color: Color) {
         context.fillStyle = color.toString()
 
         context.fillRect(
-                rectangle.left,
-                rectangle.top,
-                rectangle.width,
-                rectangle.height
+            rectangle.left,
+            rectangle.top,
+            rectangle.width,
+            rectangle.height
         )
     }
 
@@ -288,10 +276,10 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         context.lineWidth = width
 
         context.strokeRect(
-                rectangle.left,
-                rectangle.top,
-                rectangle.width,
-                rectangle.height
+            rectangle.left,
+            rectangle.top,
+            rectangle.width,
+            rectangle.height
         )
     }
 
@@ -347,7 +335,14 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         context.lineDashOffset = 0.0
     }
 
-    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment, fontWeight: ICanvas.FontWeight) {
+    override fun fillText(
+        text: String,
+        position: Point,
+        color: Color,
+        fontSize: Double,
+        alignment: ICanvas.FontAlignment,
+        fontWeight: ICanvas.FontWeight
+    ) {
         context.fillStyle = color.toString()
         context.textAlign = when (alignment) {
             ICanvas.FontAlignment.LEFT -> CanvasTextAlign.LEFT
@@ -370,41 +365,60 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         context.beginPath()
 
         context.arc(
-                center.left,
-                center.top,
-                radius,
-                2.0 * PI - startAngle,
-                2.0 * PI - (startAngle + extendAngle),
-                anticlockwise = true
+            center.left,
+            center.top,
+            radius,
+            2.0 * PI - startAngle,
+            2.0 * PI - (startAngle + extendAngle),
+            anticlockwise = true
         )
 
         context.fill()
     }
 
-    override fun strokeArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color, width: Double) {
+    override fun strokeArc(
+        center: Point,
+        radius: Double,
+        startAngle: Double,
+        extendAngle: Double,
+        color: Color,
+        width: Double
+    ) {
         context.strokeStyle = color.toString()
         context.lineWidth = width
 
         context.beginPath()
 
         context.arc(
-                center.left,
-                center.top,
-                radius,
-                2.0 * PI - startAngle,
-                2.0 * PI - (startAngle + extendAngle),
-                anticlockwise = true
+            center.left,
+            center.top,
+            radius,
+            2.0 * PI - startAngle,
+            2.0 * PI - (startAngle + extendAngle),
+            anticlockwise = true
         )
 
         context.stroke()
     }
 
     override fun openContextMenu(menu: ContextMenu) {
-        ContextMenuView.open(menu.copy(
+        ContextMenuView.open(
+            menu.copy(
                 position = menu.position + Point(canvas.offsetLeftTotal, canvas.offsetTopTotal)
-        ))
+            )
+        )
     }
 
+    override fun startClip(rectangle: Rectangle) {
+        context.save()
+        val region = Path2D()
+        region.rect(rectangle.left, rectangle.top, rectangle.width, rectangle.height)
+        context.clip(region)
+    }
+
+    override fun endClip() {
+        context.restore()
+    }
 
     init {
         context.lineCap = CanvasLineCap.BUTT

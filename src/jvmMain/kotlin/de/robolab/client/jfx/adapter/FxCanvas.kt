@@ -29,11 +29,11 @@ class FxCanvas : ICanvas {
                 listener.onPointerDown(
                     PointerEvent(
                         Point(event.x, event.y),
-                        Dimension(width, height),
+                        dimension,
                         event.isControlDown,
                         event.isAltDown,
                         event.isShiftDown
-                )
+                    )
                 )
             }
         }
@@ -42,11 +42,11 @@ class FxCanvas : ICanvas {
                 listener.onPointerUp(
                     PointerEvent(
                         Point(event.x, event.y),
-                        Dimension(width, height),
+                        dimension,
                         event.isControlDown,
                         event.isAltDown,
                         event.isShiftDown
-                )
+                    )
                 )
             }
         }
@@ -54,22 +54,22 @@ class FxCanvas : ICanvas {
             listener.onPointerDrag(
                 PointerEvent(
                     Point(event.x, event.y),
-                    Dimension(width, height),
+                    dimension,
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
-            )
+                )
             )
         }
         canvas.setOnMouseMoved { event ->
             listener.onPointerMove(
                 PointerEvent(
                     Point(event.x, event.y),
-                    Dimension(width, height),
+                    dimension,
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
-            )
+                )
             )
         }
         canvas.setOnMouseClicked { event ->
@@ -77,11 +77,11 @@ class FxCanvas : ICanvas {
                 MouseButton.SECONDARY -> listener.onPointerSecondaryAction(
                     PointerEvent(
                         Point(event.x, event.y),
-                        Dimension(width, height),
+                        dimension,
                         event.isControlDown,
                         event.isAltDown,
                         event.isShiftDown
-                )
+                    )
                 )
                 MouseButton.FORWARD -> listener.onKeyPress(
                     KeyEvent(
@@ -90,7 +90,7 @@ class FxCanvas : ICanvas {
                         event.isControlDown,
                         event.isAltDown,
                         event.isShiftDown
-                )
+                    )
                 )
                 MouseButton.BACK -> listener.onKeyPress(
                     KeyEvent(
@@ -99,7 +99,7 @@ class FxCanvas : ICanvas {
                         event.isControlDown,
                         event.isAltDown,
                         event.isShiftDown
-                )
+                    )
                 )
                 else -> {
                 }
@@ -109,22 +109,22 @@ class FxCanvas : ICanvas {
             listener.onPointerEnter(
                 PointerEvent(
                     Point(event.x, event.y),
-                    Dimension(width, height),
+                    dimension,
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
-            )
+                )
             )
         }
         canvas.setOnMouseExited { event ->
             listener.onPointerLeave(
                 PointerEvent(
                     Point(event.x, event.y),
-                    Dimension(width, height),
+                    dimension,
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
-            )
+                )
             )
         }
         canvas.setOnScroll { event ->
@@ -132,11 +132,11 @@ class FxCanvas : ICanvas {
                 ScrollEvent(
                     Point(event.x, event.y),
                     Point(event.deltaX, event.deltaY),
-                    Dimension(width, height),
+                    dimension,
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
-            )
+                )
             )
         }
         canvas.setOnZoom { event ->
@@ -144,11 +144,11 @@ class FxCanvas : ICanvas {
                 ZoomEvent(
                     Point(event.x, event.y),
                     event.zoomFactor,
-                    Dimension(width, height),
+                    dimension,
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
-            )
+                )
             )
         }
         canvas.setOnRotate { event ->
@@ -156,15 +156,15 @@ class FxCanvas : ICanvas {
                 RotateEvent(
                     Point(event.x, event.y),
                     event.angle / 180.0 * PI,
-                    Dimension(width, height),
+                    dimension,
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
-            )
+                )
             )
         }
         canvas.addDrawHook {
-            listener.onResize(Dimension(width, height))
+            listener.onResize(dimension)
         }
         canvas.setOnKeyPressed { event ->
             val code = event.code.toCommon() ?: return@setOnKeyPressed
@@ -175,35 +175,22 @@ class FxCanvas : ICanvas {
                     event.isControlDown,
                     event.isAltDown,
                     event.isShiftDown
-            )
+                )
             )
         }
     }
 
-    override val width: Double
-        get() = canvas.width
-
-    override val height: Double
-        get() = canvas.height
-
-    override fun clear(color: Color) {
-        fillRect(
-            Rectangle(
-                0.0,
-                0.0,
-                width,
-                height
-        ), color)
-    }
+    override val dimension: Dimension
+        get() = Dimension(canvas.width, canvas.height)
 
     override fun fillRect(rectangle: Rectangle, color: Color) {
         context.fill = color.toFx()
 
         context.fillRect(
-                rectangle.left,
-                rectangle.top,
-                rectangle.width,
-                rectangle.height
+            rectangle.left,
+            rectangle.top,
+            rectangle.width,
+            rectangle.height
         )
     }
 
@@ -212,10 +199,10 @@ class FxCanvas : ICanvas {
         context.lineWidth = width
 
         context.strokeRect(
-                rectangle.left,
-                rectangle.top,
-                rectangle.width,
-                rectangle.height
+            rectangle.left,
+            rectangle.top,
+            rectangle.width,
+            rectangle.height
         )
     }
 
@@ -223,9 +210,9 @@ class FxCanvas : ICanvas {
         context.fill = color.toFx()
 
         context.fillPolygon(
-                points.map { it.left }.toDoubleArray(),
-                points.map { it.top }.toDoubleArray(),
-                points.size
+            points.map { it.left }.toDoubleArray(),
+            points.map { it.top }.toDoubleArray(),
+            points.size
         )
     }
 
@@ -234,9 +221,9 @@ class FxCanvas : ICanvas {
         context.lineWidth = width
 
         context.strokePolygon(
-                points.map { it.left }.toDoubleArray(),
-                points.map { it.top }.toDoubleArray(),
-                points.size
+            points.map { it.left }.toDoubleArray(),
+            points.map { it.top }.toDoubleArray(),
+            points.size
         )
     }
 
@@ -275,7 +262,14 @@ class FxCanvas : ICanvas {
         context.lineDashOffset = 0.0
     }
 
-    override fun fillText(text: String, position: Point, color: Color, fontSize: Double, alignment: ICanvas.FontAlignment, fontWeight: ICanvas.FontWeight) {
+    override fun fillText(
+        text: String,
+        position: Point,
+        color: Color,
+        fontSize: Double,
+        alignment: ICanvas.FontAlignment,
+        fontWeight: ICanvas.FontWeight
+    ) {
         context.fill = color.toFx()
         context.textAlign = when (alignment) {
             ICanvas.FontAlignment.LEFT -> TextAlignment.LEFT
@@ -295,37 +289,59 @@ class FxCanvas : ICanvas {
         context.fill = color.toFx()
 
         context.fillArc(
-                center.left - radius,
-                center.top - radius,
-                radius * 2,
-                radius * 2,
-                startAngle / PI * 180.0,
-                extendAngle / PI * 180.0,
-                ArcType.CHORD
+            center.left - radius,
+            center.top - radius,
+            radius * 2,
+            radius * 2,
+            startAngle / PI * 180.0,
+            extendAngle / PI * 180.0,
+            ArcType.CHORD
         )
     }
 
-    override fun strokeArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color, width: Double) {
+    override fun strokeArc(
+        center: Point,
+        radius: Double,
+        startAngle: Double,
+        extendAngle: Double,
+        color: Color,
+        width: Double
+    ) {
         context.stroke = color.toFx()
         context.lineWidth = width
 
         context.strokeArc(
-                center.left - radius,
-                center.top - radius,
-                radius * 2,
-                radius * 2,
-                startAngle / PI * 180.0,
-                extendAngle / PI * 180.0,
-                ArcType.OPEN
+            center.left - radius,
+            center.top - radius,
+            radius * 2,
+            radius * 2,
+            startAngle / PI * 180.0,
+            extendAngle / PI * 180.0,
+            ArcType.OPEN
         )
     }
 
     override fun openContextMenu(menu: ContextMenu) {
         val position = canvas.localToScreen(
-                menu.position.x,
-                menu.position.y
+            menu.position.x,
+            menu.position.y
         )
         menu.toFx().show(canvas, position.x, position.y)
+    }
+
+    override fun startClip(rectangle: Rectangle) {
+        context.save()
+
+        if (rectangle.left == 0.0 && rectangle.top == 0.0 && rectangle.width == canvas.width && rectangle.height == canvas.height) {
+            return
+        }
+        context.beginPath()
+        context.rect(rectangle.left, rectangle.top, rectangle.width, rectangle.height)
+        context.clip()
+    }
+
+    override fun endClip() {
+        context.restore()
     }
 
     fun javafx.scene.input.KeyCode.toCommon() = when (this) {
