@@ -168,7 +168,21 @@ class FxCanvas : ICanvas {
         }
         canvas.setOnKeyPressed { event ->
             val code = event.code.toCommon() ?: return@setOnKeyPressed
+            event.consume()
             listener.onKeyPress(
+                KeyEvent(
+                    code,
+                    event.text,
+                    event.isControlDown,
+                    event.isAltDown,
+                    event.isShiftDown
+                )
+            )
+        }
+        canvas.setOnKeyReleased { event ->
+            val code = event.code.toCommon() ?: return@setOnKeyReleased
+            event.consume()
+            listener.onKeyRelease(
                 KeyEvent(
                     code,
                     event.text,

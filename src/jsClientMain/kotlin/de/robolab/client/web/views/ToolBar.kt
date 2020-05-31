@@ -103,48 +103,6 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
 
             buttonGroup {
                 button {
-                    iconView(MaterialIcon.MORE_VERT)
-                    title = "Split vertical"
-
-                    onClick {
-                        toolBarController.splitVertical()
-                    }
-                }
-                button {
-                    iconView(MaterialIcon.MORE_HORIZ)
-                    title = "Split horizontal"
-
-                    onClick {
-                        toolBarController.splitHorizontal()
-                    }
-                }
-                button {
-                    iconView(MaterialIcon.CLOSE)
-                    title = "Close window"
-
-                    onClick {
-                        toolBarController.close()
-                    }
-                }
-                button {
-                    iconView(MaterialIcon.ARROW_DROP_DOWN)
-
-                    onClick {
-                        ContextMenuView.open(Point(it.clientX, it.clientY), "Window layout") {
-                            for (row in 1..3) {
-                                for (col in 1..3) {
-                                    action("${row}x$col layout") {
-                                        toolBarController.setGridLayout(row, col)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            buttonGroup {
-                button {
                     iconView(MaterialIcon.REMOVE)
                     title = "Zoom out"
 
@@ -169,23 +127,54 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                 }
             }
 
-            button {
-                iconView(MaterialIcon.SETTINGS)
-                title = "Open settings"
+            buttonGroup {
+                button {
+                    iconView(MaterialIcon.VIEW_AGENDA)
+                    title = "Window layout"
 
-                onClick {
-                    Dialog.open(SettingsDialog())
+                    onClick {
+                        ContextMenuView.open(Point(it.clientX, it.clientY), "Window layout") {
+                            action("Split vertical") {
+                                toolBarController.splitVertical()
+                            }
+                            action("Split horizontal") {
+                                toolBarController.splitHorizontal()
+                            }
+                            action("Close window") {
+                                toolBarController.closeWindow()
+                            }
+                            menu("Fixed layout") {
+                                for (row in 1..3) {
+                                    for (col in 1..3) {
+                                        action("${row}x$col layout") {
+                                            toolBarController.setGridLayout(row, col)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                button {
+                    iconView(MaterialIcon.SETTINGS)
+                    title = "Open settings"
+
+                    onClick {
+                        Dialog.open(SettingsDialog())
+                    }
                 }
             }
 
-            button {
-                iconView(MaterialIcon.MENU)
-                title = "Toggle info bar"
+            buttonGroup {
+                button {
+                    iconView(MaterialIcon.MENU)
+                    title = "Toggle info bar"
 
-                classList.bind("active", infoBarActiveProperty)
+                    classList.bind("active", infoBarActiveProperty)
 
-                onClick {
-                    infoBarActiveProperty.value = !infoBarActiveProperty.value
+                    onClick {
+                        infoBarActiveProperty.value = !infoBarActiveProperty.value
+                    }
                 }
             }
         }

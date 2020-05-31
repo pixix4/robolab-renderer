@@ -41,8 +41,8 @@ class ToolBarController(
         canvasController.plotter.splitVertical()
     }
 
-    fun close() {
-        canvasController.plotter.close()
+    fun closeWindow() {
+        canvasController.plotter.closeWindow()
     }
 
     fun setGridLayout(rowCount: Int, colCount: Int) {

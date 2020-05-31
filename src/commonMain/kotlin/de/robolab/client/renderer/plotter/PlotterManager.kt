@@ -88,24 +88,48 @@ class PlotterManager(
                 window.plotter.onDraw()
                 window.canvas.endClip()
 
-                canvas.strokeLine(
-                    listOf(
-                        window.canvas.clip.topRight,
-                        window.canvas.clip.bottomRight,
-                        window.canvas.clip.bottomLeft
-                    ),
-                    theme.ui.borderColor,
-                    1.0
-                )
+                if (window.layout.bottom < 1.0) {
+                    if (window.layout.right < 1.0) {
+                        canvas.strokeLine(
+                            listOf(
+                                window.canvas.clip.topRight,
+                                window.canvas.clip.bottomRight,
+                                window.canvas.clip.bottomLeft
+                            ),
+                            theme.ui.borderColor,
+                            1.0
+                        )
+                    } else {
+                        canvas.strokeLine(
+                            listOf(
+                                window.canvas.clip.bottomRight,
+                                window.canvas.clip.bottomLeft
+                            ),
+                            theme.ui.borderColor,
+                            1.0
+                        )
+                    }
+                } else if (window.layout.right < 1.0) {
+                    canvas.strokeLine(
+                        listOf(
+                            window.canvas.clip.topRight,
+                            window.canvas.clip.bottomRight
+                        ),
+                        theme.ui.borderColor,
+                        1.0
+                    )
+                }
             }
         }
         requestRedraw = false
 
-        canvas.strokeRect(
-            activeWindow.canvas.clip.shrink(1.0),
-            theme.ui.themeColor,
-            2.0
-        )
+        if (windows.size > 1) {
+            canvas.strokeRect(
+                activeWindow.canvas.clip.shrink(1.0),
+                theme.ui.themeColor,
+                2.0
+            )
+        }
     }
 
     private var requestRedraw = false
@@ -226,7 +250,7 @@ class PlotterManager(
         split(true)
     }
 
-    fun close() {
+    fun closeWindow() {
         if (windowList.size <= 1) return
 
         val activeWindow = activeWindow
@@ -298,6 +322,8 @@ class PlotterManager(
             for (window in windowList) {
                 window.plotter.theme = theme
             }
+
+            requestRedraw = true
         }
 
         canvas.setListener(object : ICanvasListener {
@@ -353,6 +379,76 @@ class PlotterManager(
             }
 
             override fun onKeyPress(event: KeyEvent) {
+                if (event.ctrlKey) {
+                    when (event.keyCode) {
+                        KeyCode.ARROW_UP -> {
+                            val current = activeWindow.layout
+                            val next = windowList.find {
+                                it.layout.bottom.equalsDelta(current.top) &&
+                                        it.layout.left < current.right &&
+                                        it.layout.right > current.left
+                            }
+
+                            if (next != null) {
+                                setActive(next)
+                                return
+                            }
+                        }
+                        KeyCode.ARROW_LEFT -> {
+                            val current = activeWindow.layout
+                            val next = windowList.find {
+                                it.layout.right.equalsDelta(current.left) &&
+                                        it.layout.top < current.bottom &&
+                                        it.layout.bottom > current.top
+                            }
+
+                            if (next != null) {
+                                setActive(next)
+                                return
+                            }
+                        }
+                        KeyCode.ARROW_DOWN -> {
+                            val current = activeWindow.layout
+                            val next = windowList.find {
+                                it.layout.top.equalsDelta(current.bottom) &&
+                                        it.layout.left < current.right &&
+                                        it.layout.right > current.left
+                            }
+
+                            if (next != null) {
+                                setActive(next)
+                                return
+                            }
+                        }
+                        KeyCode.ARROW_RIGHT -> {
+                            val current = activeWindow.layout
+                            val next = windowList.find {
+                                it.layout.left.equalsDelta(current.right) &&
+                                        it.layout.top < current.bottom &&
+                                        it.layout.bottom > current.top
+                            }
+
+                            if (next != null) {
+                                setActive(next)
+                                return
+                            }
+                        }
+                        KeyCode.V -> {
+                            splitVertical()
+                            return
+                        }
+                        KeyCode.H -> {
+                            splitHorizontal()
+                            return
+                        }
+                        KeyCode.B -> {
+                            closeWindow()
+                            return
+                        }
+                        else -> {
+                        }
+                    }
+                }
                 activeWindow.canvas.transformListener.onKeyPress(event)
             }
 

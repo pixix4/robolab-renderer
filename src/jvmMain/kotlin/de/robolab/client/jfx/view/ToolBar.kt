@@ -95,49 +95,6 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
 
             buttonGroup {
                 button {
-                    graphic = iconNoAdd(MaterialIcon.MORE_VERT)
-                    tooltip("Split vertical")
-                    setOnAction {
-                        toolBarController.splitVertical()
-                    }
-                }
-                button {
-                    graphic = iconNoAdd(MaterialIcon.MORE_HORIZ)
-                    tooltip("Split horizontal")
-                    setOnAction {
-                        toolBarController.splitHorizontal()
-                    }
-                }
-                button {
-                    graphic = iconNoAdd(MaterialIcon.CLOSE)
-                    tooltip("Close window")
-                    setOnAction {
-                        toolBarController.close()
-                    }
-                }
-                button {
-                    graphic = iconNoAdd(MaterialIcon.ARROW_DROP_DOWN)
-                    contextmenu {
-                        for (row in 1..3) {
-                            for (col in 1..3) {
-                                item("${row}x$col layout") {
-                                    setOnAction {
-                                        toolBarController.setGridLayout(row, col)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    setOnAction {
-                        contextMenu.show(this, Side.BOTTOM, 0.0, 0.0)
-                    }
-                }
-
-                paddingRight = 8
-            }
-
-            buttonGroup {
-                button {
                     graphic = iconNoAdd(MaterialIcon.REMOVE)
                     tooltip("Zoom out")
                     setOnAction {
@@ -161,7 +118,40 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                 paddingRight = 8
             }
 
-            hbox {
+            buttonGroup {
+                button {
+                    graphic = iconNoAdd(MaterialIcon.VIEW_AGENDA)
+                    tooltip("Window layout")
+                    contextmenu {
+                        item("Split vertical") {
+                            setOnAction {
+                                toolBarController.splitVertical()
+                            }
+                        }
+                        item("Split horizontal") {
+                            setOnAction {
+                                toolBarController.splitHorizontal()
+                            }
+                        }
+                        item("Close window") {
+                            setOnAction {
+                                toolBarController.closeWindow()
+                            }
+                        }
+                        for (row in 1..3) {
+                            for (col in 1..3) {
+                                item("${row}x$col layout") {
+                                    setOnAction {
+                                        toolBarController.setGridLayout(row, col)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    setOnAction {
+                        contextMenu.show(this, Side.BOTTOM, 0.0, 0.0)
+                    }
+                }
                 button {
                     graphic = iconNoAdd(MaterialIcon.SETTINGS)
                     tooltip("Open settings")
@@ -174,11 +164,13 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                 paddingRight = 8
             }
 
-            button {
-                graphic = iconNoAdd(MaterialIcon.MENU)
-                tooltip("Toggle info bar")
+            buttonGroup {
+                button {
+                    graphic = iconNoAdd(MaterialIcon.MENU)
+                    tooltip("Toggle info bar")
 
-                bindSelectedProperty(infoBarActiveProperty)
+                    bindSelectedProperty(infoBarActiveProperty)
+                }
             }
         }
     }
