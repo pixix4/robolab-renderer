@@ -7,7 +7,8 @@ import javafx.scene.control.Label
 import javafx.scene.control.TextArea
 import javafx.scene.layout.VBox
 import javafx.scene.text.FontSmoothingType
-import tornadofx.*
+import tornadofx.add
+import tornadofx.style
 import java.io.PrintWriter
 import java.io.StringWriter
 
@@ -16,11 +17,16 @@ class ErrorHandler : Thread.UncaughtExceptionHandler {
     override fun uncaughtException(t: Thread, error: Throwable) {
         val log = Logger(t.name)
 
-        log.error {
-            val writer = StringWriter()
-            error.printStackTrace(PrintWriter(writer))
-            writer.toString()
+        val writer = StringWriter()
+        error.printStackTrace(PrintWriter(writer))
+        val message = writer.toString()
+
+        if (isSilent(error)) {
+            log.warn("Silent uncaught exception. This error is known and comes from the underlying javafx system where it cannot be fixed.\nIf you think this is a false positive please report this error message: $message")
+            return
         }
+
+        log.error(message)
 
         if (isCycle(error)) {
             log.info("Detected cycle handling error, aborting.")
@@ -28,6 +34,13 @@ class ErrorHandler : Thread.UncaughtExceptionHandler {
             Platform.runLater {
                 showErrorDialog(error)
             }
+        }
+    }
+
+    private fun isSilent(error: Throwable): Boolean {
+        // Wayland drag n drop error
+        return error.stackTrace.any {
+            it.className == "javafx.scene.Scene\$DropTargetListener" && it.methodName == "drop"
         }
     }
 
