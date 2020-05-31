@@ -8,8 +8,7 @@ import de.robolab.common.utils.Rectangle
 class DrawContext(
     val canvas: ICanvas,
     val transformation: Transformation,
-    var theme: ITheme,
-    var debug: Boolean
+    var theme: ITheme
 ) : ICanvas by TransformationCanvas(canvas, transformation) {
 
     var renderedViewCount = 0
@@ -20,8 +19,7 @@ class DrawContext(
                 theme.plotter.primaryBackgroundColor.interpolate(it, alphaFactor)
             },
             transformation,
-            theme,
-            debug
+            theme
         )
         context.area = area
         return context

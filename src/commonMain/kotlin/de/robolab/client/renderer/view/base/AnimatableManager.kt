@@ -12,6 +12,14 @@ class AnimatableManager {
     val onAnimationStart = EventHandler<Unit>()
     val onAnimationFinish = EventHandler<Unit>()
 
+    var enabled = false
+    set(value) {
+        field = value
+        for (animation in animatableMap.keys) {
+            animation.enabled = enabled
+        }
+    }
+
     private var forceRedraw = false
     private var internalIsRunning = false
     val isRunning: Boolean
@@ -36,6 +44,7 @@ class AnimatableManager {
     }
 
     fun registerAnimatable(element: IAnimatable) {
+        element.enabled = enabled
         animatableMap += element to listOf(
             element.onAnimationStart.reference {
                 checkEvents()
@@ -77,10 +86,10 @@ class AnimatableManager {
     }
 
     fun onFinish(callback: (Unit) -> Unit) {
-        if (!isRunning) {
-            callback(Unit)
-        } else {
+        if (animatableMap.keys.any { it.isRunning }) {
             onAnimationFinish.once(callback)
+        } else {
+            callback(Unit)
         }
     }
 

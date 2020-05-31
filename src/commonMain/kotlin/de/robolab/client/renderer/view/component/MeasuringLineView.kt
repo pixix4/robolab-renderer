@@ -98,6 +98,10 @@ class MeasuringLineView(
             ICanvas.FontWeight.NORMAL
     )
 
+    override fun debugStringParameter(): List<Any?> {
+        return listOf(source, target)
+    }
+
     init {
         add(labelView)
 

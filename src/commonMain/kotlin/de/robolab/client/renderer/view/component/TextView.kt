@@ -96,6 +96,10 @@ class TextView(
         return planetPoint in box
     }
 
+    override fun debugStringParameter(): List<Any?> {
+        return listOf(center, text)
+    }
+
     init {
         onPointerDown { event ->
             val left = event.planetPoint.left - box.left

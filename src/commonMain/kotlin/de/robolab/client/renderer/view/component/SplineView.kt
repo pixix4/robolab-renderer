@@ -183,6 +183,10 @@ class SplineView(
         return points.any { it.distanceTo(planetPoint) - epsilon < width / 2 }
     }
 
+    override fun debugStringParameter(): List<Any?> {
+        return listOf(source, target)
+    }
+
     data class PointLengthHelper(
         val point: Point,
         var length: Double = 0.0

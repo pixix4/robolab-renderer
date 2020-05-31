@@ -7,6 +7,7 @@ interface IAnimatable {
     fun onUpdate(msOffset: Double): Boolean
     
     val isRunning: Boolean
+    var enabled: Boolean
     
     val onAnimationStart: EventHandler<Unit>
     val onAnimationFinish: EventHandler<Unit>

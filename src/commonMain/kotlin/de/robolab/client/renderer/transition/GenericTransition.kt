@@ -10,8 +10,8 @@ import kotlin.math.max
 import kotlin.math.min
 
 open class GenericTransition<T>(
-        initialValue: T,
-        private val interpolate: (from: T, to: T, progress: Double) -> T
+    initialValue: T,
+    private val interpolate: (from: T, to: T, progress: Double) -> T
 ) : IAnimatable, ObservableProperty<T> {
 
     private var fromValue = initialValue
@@ -25,6 +25,15 @@ open class GenericTransition<T>(
 
     private val internalValue = property(initialValue)
     final override val onChange = EventHandler<Unit>()
+
+    override var enabled: Boolean = true
+        set(value) {
+            field = value
+
+            if (!value && isRunning) {
+                resetValue(targetValue)
+            }
+        }
 
     override var binding: Binding<T>
         get() = internalValue.binding
@@ -41,22 +50,27 @@ open class GenericTransition<T>(
     init {
         onChange.listenTo(internalValue.onChange)
     }
-    
+
     override val isRunning: Boolean
-    get() = transitionList.isNotEmpty()
+        get() = transitionList.isNotEmpty()
 
     override val onAnimationStart = EventHandler<Unit>()
     override val onAnimationFinish = EventHandler<Unit>()
 
     fun animate(targetValue: T, duration: Double, offset: Double = 0.0) {
         if (internalValue.isBound) return
-        
+
         if (!isRunning && targetValue == this.targetValue) return
 
+        if (!enabled) {
+            resetValue(targetValue)
+            return
+        }
+
         transitionList += TransitionHelper(
-                targetValue, duration, offset
+            targetValue, duration, offset
         )
-        
+
         if (transitionList.size == 1) {
             onAnimationStart.emit()
         }
@@ -67,10 +81,10 @@ open class GenericTransition<T>(
     fun resetValue(newValue: T) {
         if (internalValue.isBound) return
 
-        fromValue = newValue
-        internalValue.set(newValue)
-
         transitionList.clear()
+        transitionList += TransitionHelper(
+            newValue, 0.0, 0.0
+        )
 
         onUpdate(0.0)
     }
@@ -101,9 +115,9 @@ open class GenericTransition<T>(
     }
 
     private inner class TransitionHelper(
-            val toValue: T,
-            duration: Double,
-            private val offset: Double
+        val toValue: T,
+        duration: Double,
+        private val offset: Double
     ) {
         private val total = duration + offset
         private var progress = if (total <= 0.0) 1.0 else 0.0

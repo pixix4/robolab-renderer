@@ -6,10 +6,14 @@ import de.robolab.client.renderer.view.base.IView
 import de.robolab.common.utils.Point
 
 class GroupTransformView(
-        val contextTransformation: (DrawContext) -> DrawContext
-): BaseView() {
-    
-    constructor(contextTransformation: (DrawContext) -> DrawContext, vararg viewList: IView): this(contextTransformation) {
+    tag: String?,
+    val contextTransformation: (DrawContext) -> DrawContext
+) : BaseView(tag) {
+
+    constructor(tag: String?, contextTransformation: (DrawContext) -> DrawContext, vararg viewList: IView) : this(
+        tag,
+        contextTransformation
+    ) {
         addAll(viewList)
     }
 

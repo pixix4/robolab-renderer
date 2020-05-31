@@ -77,6 +77,10 @@ class SenderView(
         return false
     }
 
+    override fun debugStringParameter(): List<Any?> {
+        return listOf(center)
+    }
+
     override fun onCreate() {
         setColors(initColors)
     }

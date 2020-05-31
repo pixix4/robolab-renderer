@@ -71,6 +71,8 @@ class PlotterManager(
     val activePlotterProperty = activeWindowProperty.mapBinding { it.plotter }
     val activePlotter by activePlotterProperty
 
+    private var debugMode = PreferenceStorage.debugMode
+
     private fun render(msOffset: Double) {
         val windows = windowList
         if (requestRedraw) {
@@ -86,6 +88,9 @@ class PlotterManager(
             if (windowChanged || requestRedraw) {
                 window.canvas.startClip(window.canvas.clip)
                 window.plotter.onDraw()
+                if (debugMode) {
+                    window.plotter.onDebugDraw()
+                }
                 window.canvas.endClip()
 
                 if (window.layout.bottom < 1.0) {
@@ -321,6 +326,16 @@ class PlotterManager(
 
             for (window in windowList) {
                 window.plotter.theme = theme
+            }
+
+            requestRedraw = true
+        }
+
+        PreferenceStorage.debugModeProperty.onChange {
+            debugMode = PreferenceStorage.debugMode
+
+            if (debugMode) {
+                activeWindow.plotter.debug()
             }
 
             requestRedraw = true

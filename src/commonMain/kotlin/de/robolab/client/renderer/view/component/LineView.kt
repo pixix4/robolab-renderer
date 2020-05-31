@@ -151,6 +151,10 @@ class LineView(
         return false
     }
 
+    override fun debugStringParameter(): List<Any?> {
+        return listOf(source, target)
+    }
+
     override fun onCreate() {
         setProgress(1.0)
     }

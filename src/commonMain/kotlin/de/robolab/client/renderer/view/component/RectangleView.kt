@@ -11,20 +11,22 @@ import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.unionNullable
 
 class RectangleView(
-    private val initRectangle: Rectangle?,
-    color: ViewColor
+    initRectangle: Rectangle?,
+    initColor: ViewColor
 ) : BaseView() {
 
     private val rectangleTransition = transition(null, nullableInterpolator<Rectangle>())
-    
+
     val rectangle by rectangleTransition
     fun setRectangle(rectangle: Rectangle?, duration: Double = animationTime, offset: Double = 0.0) {
+        lastRectangle = rectangle
         rectangleTransition.animate(rectangle, duration, offset)
     }
 
-    private val colorTransition = ValueTransition(color)
+    private val colorTransition = ValueTransition(initColor)
     val color by colorTransition
     fun setColor(color: ViewColor, duration: Double = animationTime, offset: Double = 0.0) {
+        lastColor = color
         colorTransition.animate(color, duration, offset)
     }
 
@@ -39,19 +41,26 @@ class RectangleView(
         val parentBox = super.calculateBoundingBox()
         return rectangle unionNullable parentBox
     }
-    
+
     override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
         val rect = rectangle ?: return false
         return planetPoint in rect
     }
 
+    override fun debugStringParameter(): List<Any?> {
+        return listOf(rectangle)
+    }
+
+    private var lastRectangle = initRectangle
+    private var lastColor = initColor
     override fun onCreate() {
-        setRectangle(initRectangle)
+        setRectangle(lastRectangle)
+        setColor(lastColor)
     }
 
     override fun onDestroy(onFinish: () -> Unit) {
-        setRectangle(null)
-        setColor(ViewColor.TRANSPARENT)
+        rectangleTransition.animate(null, animationTime, 0.0)
+        colorTransition.animate(ViewColor.TRANSPARENT, animationTime, 0.0)
 
         animatableManager.onFinish(onFinish)
     }

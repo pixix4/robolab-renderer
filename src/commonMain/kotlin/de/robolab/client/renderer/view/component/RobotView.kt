@@ -91,6 +91,10 @@ class RobotView(
         return false
     }
 
+    override fun debugStringParameter(): List<Any?> {
+        return listOf(robot)
+    }
+
     companion object {
         val ROBOT_WHEEL = listOf(
             Point(-0.7, 0.0),

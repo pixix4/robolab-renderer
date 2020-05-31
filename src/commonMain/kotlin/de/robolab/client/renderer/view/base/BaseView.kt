@@ -8,10 +8,15 @@ import de.robolab.common.utils.*
 import de.westermann.kobserve.event.EventHandler
 
 abstract class BaseView(
-        override val tag: String? = null
+    override val tag: String? = null
 ) : IView {
 
     val animatableManager = AnimatableManager()
+
+    override var enabled: Boolean
+        get() = document != null
+        set(value) {
+        }
 
     override val isRunning: Boolean
         get() = animatableManager.isRunning
@@ -68,8 +73,19 @@ abstract class BaseView(
     }
 
     override fun add(index: Int, element: IView) {
-        if (element.parent != null) {
-            throw IllegalStateException("View $element already has a parent (${element.parent}) and cannot be added to $this")
+        val oldParent = element.parent
+        if (oldParent != null) {
+            if (oldParent == this) {
+                removeTodo.remove(element)
+                callOnCreate(element)
+                updateBoundingBox()
+                return
+            }
+            if (oldParent is BaseView) {
+                oldParent.finishRemove(element)
+            } else {
+                throw IllegalStateException("View $element already has a parent (${element.parent}) and cannot be added to $this")
+            }
         }
         viewList.add(index, element)
 
@@ -77,6 +93,7 @@ abstract class BaseView(
         element.parent = this
 
         callOnCreate(element)
+        updateBoundingBox()
 
         animatableManager.registerAnimatable(element)
         requestRedraw()
@@ -99,6 +116,22 @@ abstract class BaseView(
         }
     }
 
+    private val removeTodo = mutableListOf<IView>()
+    fun finishRemove(view: IView) {
+        if (!removeTodo.remove(view)) {
+            return
+        }
+
+        viewList.remove(view)
+
+        view.parent = null
+        view.document = null
+
+        updateBoundingBox()
+        animatableManager.unregisterAnimatable(view)
+        requestRedraw()
+    }
+
     override fun removeAt(index: Int): IView {
         val view = viewList[index]
 
@@ -106,14 +139,9 @@ abstract class BaseView(
             view.blur()
         }
 
+        removeTodo.add(view)
         callOnDestroy(view) {
-            viewList.remove(view)
-
-            view.parent = null
-            view.document = null
-
-            animatableManager.unregisterAnimatable(view)
-            requestRedraw()
+            finishRemove(view)
         }
 
         return view
@@ -199,7 +227,7 @@ abstract class BaseView(
 
     private fun updateBoundingBox() {
         val box = calculateBoundingBox()
-        
+
         if (box != boundingBox) {
             boundingBox = box
 
@@ -212,7 +240,9 @@ abstract class BaseView(
     override fun onUpdate(msOffset: Double): Boolean {
         val hasChanged = animatableManager.onUpdate(msOffset)
 
-        updateBoundingBox()
+        if (hasChanged) {
+            updateBoundingBox()
+        }
 
         return hasChanged
     }
@@ -241,22 +271,30 @@ abstract class BaseView(
             context.strokeRect(box, color, width)
 
             val s = 0.02
-            context.strokeLine(listOf(
+            context.strokeLine(
+                listOf(
                     Point(box.left + s, box.top),
                     Point(box.left, box.top + s)
-            ), color, width)
-            context.strokeLine(listOf(
+                ), color, width
+            )
+            context.strokeLine(
+                listOf(
                     Point(box.left + s, box.bottom),
                     Point(box.left, box.bottom - s)
-            ), color, width)
-            context.strokeLine(listOf(
+                ), color, width
+            )
+            context.strokeLine(
+                listOf(
                     Point(box.right - s, box.top),
                     Point(box.right, box.top + s)
-            ), color, width)
-            context.strokeLine(listOf(
+                ), color, width
+            )
+            context.strokeLine(
+                listOf(
                     Point(box.right - s, box.bottom),
                     Point(box.right, box.bottom - s)
-            ), color, width)
+                ), color, width
+            )
         }
 
         for (view in viewList) {
@@ -274,6 +312,7 @@ abstract class BaseView(
     override var document: Document? = null
         set(value) {
             field = value
+            animatableManager.enabled = value != null
             for (view in viewList) {
                 view.document = value
             }
@@ -296,10 +335,15 @@ abstract class BaseView(
 
     override var hoverable = true
 
+    open fun debugStringParameter(): List<Any?> {
+        return emptyList()
+    }
+
     override fun toString(): String {
-        val t = tag
+        val params = if (tag == null) debugStringParameter() else listOf(tag) + debugStringParameter()
+
         val name = this::class.simpleName ?: return ""
-        return if (t == null) name else "$name($t)"
+        return if (params.isEmpty()) name else "$name(${params.joinToString(", ")})"
     }
 
     override val onFocus = EventHandler<Unit>()
@@ -318,10 +362,10 @@ abstract class BaseView(
     override val onPointerSecondaryAction = EventHandler<PointerEvent>()
     override val onKeyPress = EventHandler<KeyEvent>()
     override val onKeyRelease = EventHandler<KeyEvent>()
-    
+
     override val onCanvasResize = EventHandler<Dimension>()
     override val onUserTransformation = EventHandler<Unit>()
-    
+
     private val extra = mutableMapOf<String, Any>()
 
     override fun extraPut(key: String, value: Any) {

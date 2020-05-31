@@ -19,6 +19,10 @@ abstract class AnimatableManager<T: Any, A : Animatable<T>> {
     protected var objectList: List<T> = emptyList()
     open fun importPlanet(planet: Planet) {
         val newReferenceList = getObjectList(planet)
+        if (newReferenceList == objectList) {
+            // Nothing to do
+            return
+        }
 
         val updateMap = animatableMap.keys.associateWith { p ->
             newReferenceList.firstOrNull { objectEquals(p, it) }
@@ -28,8 +32,8 @@ abstract class AnimatableManager<T: Any, A : Animatable<T>> {
         val objectsToDelete = updateMap.filterValues { it == null }.keys
 
         for (o in objectsToDelete) {
-            val animatable = animatableMap.remove(o)
-            animatable?.onDestroy(view)
+            val animatable = animatableMap.remove(o) ?: continue
+            animatable.onDestroy(view)
         }
 
         for ((old, n) in updateMap) {

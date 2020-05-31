@@ -22,6 +22,7 @@ class EditPlanetLayer(
     private val commentManager = CommentAnimatableManager(editProperty)
 
     override val view = GroupTransformView(
+        "Edit planet layer",
             contextTransformation,
             targetManager.view,
             senderManager.view,

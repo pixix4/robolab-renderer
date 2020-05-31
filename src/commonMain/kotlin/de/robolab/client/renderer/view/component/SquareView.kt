@@ -88,6 +88,10 @@ class SquareView(
         return planetPoint in rect
     }
 
+    override fun debugStringParameter(): List<Any?> {
+        return listOf(center)
+    }
+
     override fun onCreate() {
         setSize(initSize)
     }

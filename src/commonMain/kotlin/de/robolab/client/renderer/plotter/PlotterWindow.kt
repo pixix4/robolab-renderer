@@ -8,7 +8,6 @@ import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.client.renderer.view.base.Document
 import de.robolab.client.renderer.view.base.IView
 import de.robolab.client.theme.ITheme
-import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.*
 import de.westermann.kobserve.property.property
 
@@ -30,7 +29,7 @@ class PlotterWindow(
         }
 
     val transformation = Transformation()
-    val context = DrawContext(canvas, transformation, theme, PreferenceStorage.debugMode)
+    val context = DrawContext(canvas, transformation, theme)
 
     private val interaction = TransformationInteraction(this)
 
@@ -68,11 +67,11 @@ class PlotterWindow(
 
         //context.canvas.fillText("Active: $isActive", Point(16.0, 16.0), Color.RED)
         //context.canvas.fillText("FPS: ${fps.toInt()}", Point(16.0, 32.0), Color.RED)
-        context.canvas.fillText(
-            "Rendered view count: ${context.renderedViewCount}",
-            Point(16.0, 48.0),
-            Color.RED
-        )
+        // context.canvas.fillText(
+        //     "Rendered view count: ${context.renderedViewCount}",
+        //     Point(16.0, 48.0),
+        //     Color.RED
+        // )
     }
 
     fun render(msOffset: Double) {
