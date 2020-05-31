@@ -81,10 +81,6 @@ abstract class BaseObservableList<T>(
         return backingField.lastIndexOf(element)
     }
 
-    override fun equals(other: Any?): Boolean {
-        return backingField.equals(other)
-    }
-
     override fun hashCode(): Int {
         return backingField.hashCode()
     }

@@ -14,7 +14,8 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
 
-class SideBar(private val sideBarController: SideBarController, sideBarActiveProperty: ObservableProperty<Boolean>) : ViewCollection<View>() {
+class SideBar(private val sideBarController: SideBarController, sideBarActiveProperty: ObservableProperty<Boolean>) :
+    ViewCollection<View>() {
 
     private fun createEntry(entry: ISideBarEntry) = SideBarEntry(entry, sideBarController)
 
@@ -49,9 +50,10 @@ class SideBar(private val sideBarController: SideBarController, sideBarActivePro
                 }
             }
             boxView("side-bar-group-head") {
-                textView(sideBarController.selectedGroupProperty.nullableFlatMapBinding { it?.tabNameProperty }.mapBinding {
-                    it ?: ""
-                })
+                textView(sideBarController.selectedGroupProperty.nullableFlatMapBinding { it?.tabNameProperty }
+                    .mapBinding {
+                        it ?: ""
+                    })
 
                 classList.bind("active", sideBarController.selectedGroupProperty.mapBinding { it != null })
 
@@ -67,9 +69,15 @@ class SideBar(private val sideBarController: SideBarController, sideBarActivePro
             }
         }
         boxView("side-bar-footer") {
-            classList.bind("success", sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.SUCCESS })
-            classList.bind("warn", sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.WARN })
-            classList.bind("error", sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.ERROR })
+            classList.bind(
+                "success",
+                sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.SUCCESS })
+            classList.bind(
+                "warn",
+                sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.WARN })
+            classList.bind(
+                "error",
+                sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.ERROR })
 
             textView(sideBarController.statusMessage)
             textView(sideBarController.statusActionLabel) {

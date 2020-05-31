@@ -25,7 +25,6 @@ class ListFactory<T, V : View>(
             animateRemove: Int? = null
     ) : this(container, factory, animateAdd, animateRemove) {
         this.listProperty.bind(listProperty)
-        invalidate(listProperty.value)
     }
 
     constructor(

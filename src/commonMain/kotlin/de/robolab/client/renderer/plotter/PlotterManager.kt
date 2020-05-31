@@ -376,6 +376,7 @@ class PlotterManager(
                 for (window in windowList) {
                     window.updateClipping(size)
                 }
+                requestRedraw = true
             }
 
             override fun onKeyPress(event: KeyEvent) {

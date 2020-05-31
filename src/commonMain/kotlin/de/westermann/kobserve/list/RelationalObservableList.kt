@@ -135,18 +135,6 @@ abstract class RelationalObservableList<T>(
         return -1
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || other !is List<*>) return false
-        if (size != other.size) return false
-
-        for (index in 0 until size) {
-            if (this[index] != other[index]) return false
-        }
-
-        return true
-    }
-
     override fun hashCode(): Int {
         var result = parent.hashCode()
         result = 31 * result + relation.hashCode()

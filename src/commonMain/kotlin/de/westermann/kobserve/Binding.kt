@@ -33,15 +33,15 @@ sealed class Binding<T> {
      * Create an event listener that listens to source and applies all changes to target
      */
     protected fun listen(
-            source: ObservableValue<T>,
-            target: ObservableProperty<T>
+        source: ObservableValue<T>,
+        target: ObservableProperty<T>
     ): EventListener<Unit> =
-            source.onChange.reference {
-                val newValue = source.value
-                if (target.value != newValue) {
-                    target.value = newValue
-                }
+        source.onChange.reference {
+            val newValue = source.value
+            if (target.value != newValue) {
+                target.value = newValue
             }
+        }
 
     /**
      * Represents an unbound property state.
@@ -80,7 +80,8 @@ sealed class Binding<T> {
     /**
      * Represents a bidirectional binding state.
      */
-    class BidirectionalBinding<T>(property: ObservableProperty<T>, private val target: ObservableProperty<T>) : Binding<T>() {
+    class BidirectionalBinding<T>(property: ObservableProperty<T>, private val target: ObservableProperty<T>) :
+        Binding<T>() {
 
         override val isWritable: Boolean
             get() = target.isWritable
