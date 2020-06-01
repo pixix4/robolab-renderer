@@ -74,6 +74,8 @@ data class Point(
             left * sin(rotation) + top * cos(rotation)
     )
 
+    fun inverse() = Point(-x, -y)
+
     infix fun dotProduct(other: Point) = left * other.left + top * other.top
 
     infix fun projectOnto(basis: Point): Pair<Double, Point> {

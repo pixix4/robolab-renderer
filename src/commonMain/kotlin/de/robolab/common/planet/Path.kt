@@ -18,8 +18,12 @@ data class Path(
         get() = weight != null && weight < 0
 
     fun length(controlPoints: List<Point> = this.controlPoints): Double {
-        return (listOf(Point(source.x, source.y)) + controlPoints + Point(target.x, target.y)).windowed(2, 1).sumByDouble { (p0, p1) -> p0.distanceTo(p1) }
+        return (listOf(Point(source.x, source.y)) + controlPoints + Point(target.x, target.y)).windowed(2, 1)
+            .sumByDouble { (p0, p1) -> p0.distanceTo(p1) }
     }
+
+    val isOneWayPath: Boolean
+        get() = source == target && sourceDirection == targetDirection
 
     fun equalPath(other: Path): Boolean {
         val thisP0 = source to sourceDirection
@@ -41,11 +45,11 @@ data class Path(
 
     fun reversed(): Path {
         return copy(
-                source = target,
-                sourceDirection = targetDirection,
-                target = source,
-                targetDirection = sourceDirection,
-                controlPoints = controlPoints.reversed()
+            source = target,
+            sourceDirection = targetDirection,
+            target = source,
+            targetDirection = sourceDirection,
+            controlPoints = controlPoints.reversed()
         )
     }
 

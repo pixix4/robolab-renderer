@@ -14,6 +14,8 @@ import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Point
 import kotlin.math.PI
 import kotlin.math.atan2
+import kotlin.math.max
+import kotlin.math.min
 
 class RobotDrawable {
 
@@ -39,6 +41,49 @@ class RobotDrawable {
         val orientation: Double,
         private val robot: Robot?
     ) : IInterpolatable<DrawRobot> {
+
+        fun getAnimationTimeMultiplier(toValue: DrawRobot): Double {
+            if (position == toValue.position && orientation == toValue.orientation) {
+                return 1.0
+            }
+
+            if (robot != null && toValue.robot != null) {
+                if (robot.beforePoint || toValue.robot.afterPoint) {
+                    return 1.0
+                }
+
+                var path = Path(
+                    robot.point,
+                    robot.direction,
+                    toValue.robot.point,
+                    toValue.robot.direction,
+                    1,
+                    emptySet(),
+                    emptyList(),
+                    hidden = false,
+                    showDirectionArrow = false
+                )
+                val planetPath = planet?.pathList?.find { it.equalPath(path) }
+                if (planetPath != null) {
+                    path = if (path.source == planetPath.source && path.sourceDirection == planetPath.sourceDirection) {
+                        path.copy(
+                            controlPoints = planetPath.controlPoints
+                        )
+                    } else {
+                        path.copy(
+                            controlPoints = planetPath.controlPoints.reversed()
+                        )
+                    }
+                }
+
+                val points = PathAnimatable.getControlPointsFromPath(path)
+                val length = path.length(points)
+
+                return max(0.5, min(10.0, length))
+            }
+
+            return 1.0
+        }
 
         override fun interpolate(toValue: DrawRobot, progress: Double): DrawRobot {
             if (position == toValue.position && orientation == toValue.orientation) {
@@ -84,8 +129,34 @@ class RobotDrawable {
                 }
 
                 val points = PathAnimatable.getControlPointsFromPath(path)
-                val position = BSpline.eval(progress, points)
-                val d = BSpline.evalGradient(progress, points)
+
+                val position: Point
+                val d: Point
+
+                if (path.isOneWayPath) {
+                    val driveInterval = 0.4
+                    when {
+                        progress < driveInterval -> {
+                            val t = progress / driveInterval
+                            position = BSpline.eval(t, points)
+                            d = BSpline.evalGradient(t, points)
+                        }
+                        progress < 1.0 - driveInterval -> {
+                            val t = (progress - driveInterval) / (1.0 - driveInterval - driveInterval)
+                            position = BSpline.eval(1.0, points)
+                            val o = BSpline.evalGradient(1.0, points)
+                            d = o.rotate(PI * t)
+                        }
+                        else -> {
+                            val t = (1.0 - progress) / driveInterval
+                            position = BSpline.eval(t, points)
+                            d = BSpline.evalGradient(t, points).inverse()
+                        }
+                    }
+                } else {
+                    position = BSpline.eval(progress, points)
+                    d = BSpline.evalGradient(progress, points)
+                }
 
                 return DrawRobot(
                     position,
@@ -126,10 +197,11 @@ class RobotDrawable {
         } else {
             val drawable = getDrawRobot(robot)
 
+            val animationTimeMultiplier = view.robot.getAnimationTimeMultiplier(drawable)
             if (view.color == ViewColor.TRANSPARENT) {
                 view.setRobot(drawable, 0.0)
             } else {
-                view.setRobot(drawable)
+                view.setRobot(drawable, view.animationTime * animationTimeMultiplier)
             }
 
             view.number = robot.groupNumber
