@@ -7,12 +7,20 @@ import de.robolab.common.utils.Logger
 import de.robolab.common.utils.toDashCase
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.init
+import org.w3c.dom.HTMLElement
 import org.w3c.files.File
 import org.w3c.files.FileReader
 import kotlin.browser.document
 
 fun main() {
+
+    val debugView = if (PreferenceStorage.debugMode) {
+        createDebugView().also {
+            document.body?.appendChild(it.html)
+        }
+    } else null
 
     val mainController = MainController()
 
@@ -21,6 +29,9 @@ fun main() {
 
     init {
         clear()
+        if (debugView != null) {
+            add(debugView)
+        }
 
         dataset.bind("theme", PreferenceStorage.selectedThemeProperty.mapBinding { it.name.toDashCase() })
 
@@ -41,11 +52,11 @@ fun main() {
         onDrop { event ->
             event.stopPropagation()
             event.preventDefault()
-            val files = event.dataTransfer?.files?.let {fileList ->
+            val files = event.dataTransfer?.files?.let { fileList ->
                 (0 until fileList.length).map { fileList.item(it)!! }
             } ?: return@onDrop
 
-            for (file in files ) {
+            for (file in files) {
                 importFile(file, mainController)
             }
         }
@@ -70,4 +81,39 @@ private fun importFile(file: File, mainController: MainController) {
     }
 
     reader.readAsText(file)
+}
+
+fun createDebugView(): BoxView {
+    val box = BoxView()
+    box.classList += "debug-terminal"
+
+    val native: (HTMLElement) -> Unit = js(
+        """
+        function(html) {
+            if (typeof console != "undefined") {
+                if (typeof console.log != 'undefined') {
+                    console.olog = console.log;
+                } else {
+                    console.olog = function () {};
+                }
+            }
+
+            console.log = function () {
+                console.olog.apply(null, arguments);
+                var message = Array.prototype.slice.call(arguments).join(" ");
+                message = message.replace(/%c/g, "");
+                message = message.replace(/ color: initial/g, "");
+                message = message.replace(/ color: [#0-9a-zA-Z]+/g, "");
+                
+                var pre = document.createElement("pre");
+                pre.textContent = message;
+                html.appendChild(pre);
+            };
+            console.error = console.debug = console.info = console.log;
+        }
+    """
+    )
+
+    native(box.html)
+    return box
 }

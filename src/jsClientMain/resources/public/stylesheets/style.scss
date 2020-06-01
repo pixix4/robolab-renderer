@@ -33,3 +33,23 @@ body, html {
 .noscript {
   text-align: center;
 }
+
+.debug-terminal {
+  position: fixed;
+  z-index: 100;
+  bottom: 1rem;
+  right: 1rem;
+  width: 40rem;
+  height: 20rem;
+  background-color: var(--primary-background);
+  color: var(--primary-text-color);
+  border: solid 1px var(--border-color);
+  overflow: scroll;
+  user-select: text;
+  padding: 0.5rem;
+
+  pre {
+    font-family: 'Roboto Mono';
+    line-height: 1rem;
+  }
+}

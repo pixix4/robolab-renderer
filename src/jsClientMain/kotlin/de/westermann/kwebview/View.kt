@@ -174,7 +174,9 @@ abstract class View(view: HTMLElement = createHtmlView()) {
         onFocus.bind(view, "focus")
         onBlur.bind(view, "blur")
 
-        onDragOver.bind(view, "dragover")
-        onDrop.bind(view, "drop")
+        if (js("!!window.DragEvent") == true) {
+            onDragOver.bind(view, "dragover")
+            onDrop.bind(view, "drop")
+        }
     }
 }
