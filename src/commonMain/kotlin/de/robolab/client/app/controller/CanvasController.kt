@@ -5,6 +5,7 @@ import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.plotter.PlotterManager
 import de.robolab.client.renderer.utils.Pointer
 import de.robolab.client.renderer.utils.TransformationInteraction
+import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.parser.toFixed
 import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Path
@@ -26,7 +27,10 @@ class CanvasController(
             throw IllegalStateException("Plotter is already initialized!")
         }
 
-        plotter = PlotterManager(canvas, 1000.0)
+        plotter = PlotterManager(canvas, PreferenceStorage.animationTime)
+        PreferenceStorage.animationTimeProperty.onChange {
+            plotter.animationTime = PreferenceStorage.animationTime
+        }
 
         plotter.activeWindowProperty.onChange {
             selectedEntryProperty.value = plotterMap[plotter.activeWindow]

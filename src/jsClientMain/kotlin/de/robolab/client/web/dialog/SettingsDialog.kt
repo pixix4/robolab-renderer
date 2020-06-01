@@ -34,6 +34,13 @@ class SettingsDialog : Dialog("Settings") {
                     step = 0.1
                 }
             }
+            dialogFormEntry("Animation time") {
+                inputView(InputType.NUMBER, PreferenceStorage.animationTimeProperty.bindStringParsing()) {
+                    min = 0.0
+                    max = 100000.0
+                    step = 1.0
+                }
+            }
         }
 
         dialogFormGroup("Connection") {

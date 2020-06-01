@@ -14,8 +14,16 @@ import kotlin.math.absoluteValue
 
 class PlotterManager(
     private val canvas: ICanvas,
-    private val animationTime: Double
+    animationTime: Double
 ) {
+
+    var animationTime = animationTime
+        set(value) {
+            field = value
+            for (window in windowList) {
+                window.plotter.animationTime = value
+            }
+        }
 
     private val timer = CommonTimer(60.0)
 

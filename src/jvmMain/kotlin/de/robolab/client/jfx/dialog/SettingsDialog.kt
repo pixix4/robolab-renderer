@@ -37,6 +37,12 @@ class SettingsDialog : GenericDialog() {
                         DoubleStringConverter(PreferenceStorage.exportScaleProperty.default)
                     )
                 }
+                field("Animation time") {
+                    textfield(
+                        PreferenceStorage.animationTimeProperty.toFx(),
+                        DoubleStringConverter(PreferenceStorage.animationTimeProperty.default)
+                    )
+                }
             }
 
             fieldset("Connection") {

@@ -21,6 +21,9 @@ object PreferenceStorage : TypedStorage() {
     val exportScaleProperty = item("plotting.exportScale", 4.0)
     var exportScale by exportScaleProperty
 
+    val animationTimeProperty = item("plotting.animationTime", 1000.0)
+    var animationTime by animationTimeProperty
+
 
     val selectedThemeProperty = item("ui.theme", Theme.DEFAULT)
     var selectedTheme by selectedThemeProperty
