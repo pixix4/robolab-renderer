@@ -272,10 +272,10 @@ class PlanetFile(fileContent: String) : IEditCallback {
         }
     }
 
-    override fun createComment(value: String, position: Point, groupHistory: Boolean) {
+    override fun createComment(value: List<String>, position: Point, groupHistory: Boolean) {
         val comment = Comment(position, value)
 
-        val newLines = lines + FileLine.CommentLine.create(comment)
+        val newLines = lines + FileLine.CommentLine.createAll(comment)
 
         if (groupHistory) {
             history.replace(newLines)
@@ -284,17 +284,18 @@ class PlanetFile(fileContent: String) : IEditCallback {
         }
     }
 
-    override fun setCommentValue(comment: Comment, value: String, groupHistory: Boolean) {
+    override fun setCommentValue(comment: Comment, value: List<String>, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
-        val index = newLines.indexOfFirst { it is FileLine.CommentLine && it.data == comment }
+        val index = newLines.indexOfFirst { it is FileLine.CommentLine && it.isAssociatedTo(comment) }
         if (index < 0) {
             return
         }
 
-        val p = newLines[index].data as? Comment ?: return
-
-        newLines[index] = FileLine.CommentLine.create(p.copy(message = value))
+        newLines.removeAll {
+            it.isAssociatedTo(comment)
+        }
+        newLines.addAll(index, FileLine.CommentLine.createAll(comment.copy(lines = value)))
 
         if (groupHistory) {
             history.replace(newLines)
@@ -306,14 +307,15 @@ class PlanetFile(fileContent: String) : IEditCallback {
     override fun setCommentPosition(comment: Comment, position: Point, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
-        val index = newLines.indexOfFirst { it is FileLine.CommentLine && it.data == comment }
+        val index = newLines.indexOfFirst { it is FileLine.CommentLine && it.isAssociatedTo(comment) }
         if (index < 0) {
             return
         }
 
-        val p = newLines[index].data as? Comment ?: return
-
-        newLines[index] = FileLine.CommentLine.create(p.copy(point = position))
+        newLines.removeAll {
+            it.isAssociatedTo(comment)
+        }
+        newLines.addAll(index, FileLine.CommentLine.createAll(comment.copy(point = position)))
 
         if (groupHistory) {
             history.replace(newLines)
@@ -325,12 +327,9 @@ class PlanetFile(fileContent: String) : IEditCallback {
     override fun deleteComment(comment: Comment, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
-        val index = newLines.indexOfFirst { it is FileLine.CommentLine && it.data == comment }
-        if (index < 0) {
-            return
+        newLines.removeAll {
+            it.isAssociatedTo(comment)
         }
-
-        newLines.removeAt(index)
 
         if (groupHistory) {
             history.replace(newLines)

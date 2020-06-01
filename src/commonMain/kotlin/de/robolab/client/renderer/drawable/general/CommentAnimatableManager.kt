@@ -18,7 +18,7 @@ class CommentAnimatableManager(
             return false
         }
 
-        return oldValue.message == newValue.message || oldValue.point == newValue.point
+        return oldValue.lines == newValue.lines || oldValue.point == newValue.point
     }
 
     override fun getObjectList(planet: Planet): List<Comment> {

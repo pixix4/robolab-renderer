@@ -4,5 +4,5 @@ import de.robolab.common.utils.Point
 
 data class Comment(
     val point: Point,
-    val message: String
+    val lines: List<String>
 )

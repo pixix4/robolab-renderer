@@ -21,14 +21,14 @@ class CommentAnimatable(
     override val view = TextView(
             reference.point,
             12.0,
-            reference.message,
+            reference.lines.joinToString("\n"),
             ViewColor.LINE_COLOR,
             ICanvas.FontAlignment.CENTER,
             ICanvas.FontWeight.NORMAL
     ) {
         val callback = editProperty.value ?: return@TextView false
 
-        callback.setCommentValue(this.reference, it)
+        callback.setCommentValue(this.reference, it.split('\n'))
 
         true
     }
@@ -37,7 +37,8 @@ class CommentAnimatable(
         super.onUpdate(obj, planet)
 
         view.setCenter(reference.point)
-        view.text = reference.message
+        view.text = reference.lines.joinToString("\n")
+        view.requestRedraw()
     }
 
     init {

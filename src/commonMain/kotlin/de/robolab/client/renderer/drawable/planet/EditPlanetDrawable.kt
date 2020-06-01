@@ -96,7 +96,7 @@ class EditPlanetDrawable(
 
             view.menu(event, "Planet") {
                 action("Create comment") {
-                    callback.createComment("Comment", event.planetPoint)
+                    callback.createComment(listOf("Comment"), event.planetPoint)
                 }
             }
 

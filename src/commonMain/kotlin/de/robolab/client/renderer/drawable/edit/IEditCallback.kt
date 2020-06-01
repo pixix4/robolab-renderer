@@ -54,11 +54,11 @@ interface IEditCallback {
         logger.warn { "Plotter action 'setPathWeight($path, $weight, $groupHistory)' is not supported!" }
     }
     
-    fun createComment(value: String, position: Point, groupHistory: Boolean = false) {
+    fun createComment(value: List<String>, position: Point, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'createComment($value, $position, $groupHistory)' is not supported!" }
     }
 
-    fun setCommentValue(comment: Comment, value: String, groupHistory: Boolean = false) {
+    fun setCommentValue(comment: Comment, value: List<String>, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'setCommentValue($comment, $value, $groupHistory)' is not supported!" }
     }
 

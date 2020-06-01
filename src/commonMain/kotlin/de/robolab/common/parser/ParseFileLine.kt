@@ -527,7 +527,7 @@ interface FileLine<T> {
             val point = if (h.size < 2) Point.ZERO else Point(h[0], h[1])
             Comment(
                 point,
-                match.groupValues.getOrNull(5) ?: ""
+                listOf(match.groupValues.getOrNull(5) ?: "")
             )
         }
 
@@ -543,7 +543,7 @@ interface FileLine<T> {
 
         override fun isAssociatedTo(obj: Any): Boolean {
             if (obj is Comment) {
-                return obj == data
+                return obj.point == data.point && obj.lines.firstOrNull() == data.lines.firstOrNull()
             }
 
             return super.isAssociatedTo(obj)
@@ -552,7 +552,7 @@ interface FileLine<T> {
         companion object : Parser {
             override val name = "Comment line parser"
             val REGEX =
-                """^#\s*(COMMENT|comment)\s?(?:\(\s*((-?\d+(?:\.\d+)?)\s*?,\s*?(-?\d+(?:\.\d+)?)(?:\s*?,\s*?[^\s,][^\n,]*)*)\s*\))?(?::\s?(\w[^\n]*?)?)?\s*(?:#.*?)?$""".toRegex()
+                """^#\s*(COMMENT|comment)\s?(?:\(\s*((-?\d+(?:\.\d+)?)\s*?,\s*?(-?\d+(?:\.\d+)?))\s*\))(?::\s?(\w[^\n]*?)?)?\s*(?:#.*?)?$""".toRegex()
 
             override fun testLine(line: String): Boolean {
                 return REGEX.containsMatchIn(line)
@@ -563,9 +563,52 @@ interface FileLine<T> {
             }
 
             fun serialize(comment: Comment) =
-                "# comment (${comment.point.x.toFixed(2)},${comment.point.y.toFixed(2)}): ${comment.message}"
+                "# comment (${comment.point.x.toFixed(2)},${comment.point.y.toFixed(2)}): ${comment.lines.firstOrNull() ?: ""}"
 
             fun create(comment: Comment) = createInstance(serialize(comment))
+            fun createAll(comment: Comment) =
+                listOf(createInstance(serialize(comment))) + comment.lines.drop(1).map { CommentSubLine.create(it) }
+        }
+    }
+
+    class CommentSubLine(override val line: String) : FileLine<String> {
+
+        override val data = REGEX.matchEntire(line.trim())?.let { match ->
+            match.groupValues.getOrNull(2) ?: ""
+        } ?: ""
+
+        override var blockMode: BlockMode = BlockMode.Unknown
+
+        override fun buildPlanet(builder: BuildAccumulator) {
+            val previousBlockHead = builder.previousBlockHead
+            if (previousBlockHead == null || previousBlockHead !is CommentLine) {
+                throw IllegalArgumentException("Comment sub line: previous block is not a comment")
+            }
+            blockMode = BlockMode.Append(previousBlockHead)
+
+            val lastComment = builder.planet.commentList.last()
+            builder.planet = builder.planet.copy(
+                commentList = builder.planet.commentList - lastComment + lastComment.copy(lines = lastComment.lines + data)
+            )
+        }
+
+        companion object : Parser {
+            override val name = "Comment line parser"
+            val REGEX =
+                """^#\s*(COMMENT|comment)\s?(?::\s?(\w[^\n]*?)?)?\s*(?:#.*?)?$""".toRegex()
+
+            override fun testLine(line: String): Boolean {
+                return REGEX.containsMatchIn(line)
+            }
+
+            override fun createInstance(line: String): FileLine<*> {
+                return CommentSubLine(line)
+            }
+
+            fun serialize(comment: String) =
+                "# comment: $comment"
+
+            fun create(comment: String) = createInstance(serialize(comment))
         }
     }
 
@@ -614,6 +657,7 @@ private val parserList = listOf(
     FileLine.SplineLine,
     FileLine.HiddenLine,
     FileLine.CommentLine,
+    FileLine.CommentSubLine,
     FileLine.BlankLine
 )
 

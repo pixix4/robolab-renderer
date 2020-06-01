@@ -1,10 +1,10 @@
 package de.robolab.client.renderer.view.component
 
+import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.events.KeyCode
-import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.common.utils.Point
@@ -39,36 +39,73 @@ class TextView(
 
     val textProperty = property(initText)
     var text by textProperty
-    private var cursor: Int = 0
+    private var cursor: Cursor = Cursor()
         set(value) {
-            field = max(0, min(text.length, value))
+            field = value.checkBoundary(text)
         }
+
+    data class Cursor(val line: Int = 0, val char: Int = 0) {
+        fun checkBoundary(text: String): Cursor {
+            val lines = text.split("\n")
+
+            val line = max(0, min(lines.lastIndex, line))
+            val char = max(0, min(lines[line].length, char))
+
+            return Cursor(line, char)
+        }
+
+        fun index(text: String): Int {
+            val lines = text.split("\n")
+
+            var index = 0
+
+            for (i in 0 until line) {
+                index += lines[i].length + 1
+            }
+            index += char
+
+            return max(0, min(text.length, index))
+        }
+    }
 
     override fun onDraw(context: DrawContext) {
         val color = context.c(color)
         if (focusable && (isHovered || isFocused)) {
-            context.fillRect(box, color.a(0.1))
+            context.fillText(text, center, color.a(0.15), fontSize, alignment, fontWeight)
+            context.fillRect(box, color.a(0.15))
 
-            val charSize = Point(fontSize / 120, 0.0)
-            val start = Point(box.left + charSize.left, box.top + box.height / 2)
-            var postion = start + charSize / 2
+            val lines = text.split("\n")
 
-            if (isFocused) {
-                val cursorPosition = start + charSize * cursor
+            val charWidth = fontSize / CHAR_WIDTH
+            val charHeight = fontSize / CHAR_HEIGHT
+            val charIterator = Point(charWidth, 0.0)
 
-                context.strokeLine(listOf(
-                        Point(cursorPosition.left, box.top * 0.1 + box.bottom * 0.9),
-                        Point(cursorPosition.left, box.top * 0.9 + box.bottom * 0.1)
-                ), color, PlottingConstraints.LINE_WIDTH / 2)
+            for ((lineIndex, line) in lines.withIndex()) {
+                val start = Point(box.left + charWidth, box.bottom - charHeight / 2 - lineIndex * charHeight)
 
-                context.strokeLine(listOf(
-                        box.topLeft, box.topRight
-                ), color, PlottingConstraints.LINE_WIDTH)
+                if (isFocused && lineIndex == cursor.line) {
+                    val cursorPosition = start + charIterator * cursor.char
+
+                    context.strokeLine(
+                        listOf(
+                            Point(cursorPosition.left, start.top),
+                            Point(cursorPosition.left, start.top - charHeight)
+                        ), color, PlottingConstraints.LINE_WIDTH / 2
+                    )
+                }
+
+                var postion = start + Point(charWidth / 2, -charHeight / 2)
+                for (char in line) {
+                    context.fillText(char.toString(), postion, color, fontSize, alignment, fontWeight)
+                    postion += charIterator
+                }
             }
-
-            for (char in text) {
-                context.fillText(char.toString(), postion, color, fontSize, alignment, fontWeight)
-                postion += charSize
+            if (isFocused) {
+                context.strokeLine(
+                    listOf(
+                        box.topLeft, box.topRight
+                    ), color, PlottingConstraints.LINE_WIDTH
+                )
             }
         } else {
             context.fillText(text, center, color, fontSize, alignment, fontWeight)
@@ -81,13 +118,15 @@ class TextView(
     override fun calculateBoundingBox(): Rectangle? {
         val parentBox = super.calculateBoundingBox()
 
-        val width = fontSize / 120 * (text.length + 2)
-        val height = fontSize / 100 * 1.8
+        val lines = text.split("\n")
+
+        val width = fontSize / CHAR_WIDTH * ((lines.maxBy { it.length }?.length ?: 0) + 2)
+        val height = fontSize / CHAR_HEIGHT * (lines.size + 0.8)
         box = Rectangle(
-                center.left - width / 2,
-                center.top - height / 2.2,
-                width,
-                height
+            center.left - width / 2,
+            center.top - height / 2.2,
+            width,
+            height
         )
         return box unionNullable parentBox
     }
@@ -97,47 +136,96 @@ class TextView(
     }
 
     override fun debugStringParameter(): List<Any?> {
-        return listOf(center, text)
+        return listOf(center, text.replace("\n", "\\n"))
     }
 
     init {
         onPointerDown { event ->
-            val left = event.planetPoint.left - box.left
-            val percent = left / box.width
-            cursor = (percent * text.length).roundToInt()
+            val lines = text.split("\n")
+
+            val charCount = lines.maxBy { it.length }?.length ?: 0
+            val lineCount = lines.size
+
+            val textBox = box.shrink(0.0, fontSize / CHAR_WIDTH)
+
+            val left = event.planetPoint.left - textBox.left
+            val top =  textBox.bottom - event.planetPoint.top - fontSize / CHAR_HEIGHT / 2
+
+            val charSize = Point(
+                1.0 / charCount * textBox.width,
+                1.0 / lineCount * textBox.height
+            )
+
+            cursor = Cursor(
+                (top / charSize.height).roundToInt(),
+                (left / charSize.width).roundToInt()
+            )
 
             requestRedraw()
         }
 
         onKeyPress { event ->
             if (!isFocused) return@onKeyPress
+            val index = cursor.index(text)
 
             when (event.keyCode) {
                 KeyCode.BACKSPACE -> {
-                    if (cursor > 0) {
-                        val newText = text.substring(0, cursor - 1) + text.substring(cursor, text.length)
+                    if (index > 0) {
+                        val oldChar = text[index]
+                        val newText = text.substring(0, index - 1) + text.substring(index, text.length)
                         val c = cursor
                         if (changeCallback(newText)) {
                             text = newText
                             if (c == cursor) {
-                                cursor -= 1
+                                if (oldChar == '\n') {
+                                    cursor = cursor.copy(line = cursor.line - 1, char = Int.MAX_VALUE)
+                                } else {
+                                    cursor = cursor.copy(char = cursor.char - 1)
+                                }
                             }
                         }
                     }
                 }
                 KeyCode.DELETE -> {
-                    if (cursor < text.length) {
-                        val newText = text.substring(0, cursor) + text.substring(cursor + 1, text.length)
+                    if (index < text.length) {
+                        val newText = text.substring(0, index) + text.substring(index + 1, text.length)
                         if (changeCallback(newText)) {
                             text = newText
                         }
                     }
                 }
                 KeyCode.ARROW_LEFT -> {
-                    cursor -= 1
+                    cursor = cursor.copy(char = cursor.char - 1)
                 }
                 KeyCode.ARROW_RIGHT -> {
-                    cursor += 1
+                    cursor = cursor.copy(char = cursor.char + 1)
+                }
+                KeyCode.ARROW_UP -> {
+                    cursor = cursor.copy(line = cursor.line - 1)
+                }
+                KeyCode.ARROW_DOWN -> {
+                    cursor = cursor.copy(line = cursor.line + 1)
+                }
+                KeyCode.END -> {
+                    cursor = if (event.ctrlKey) {
+                        Cursor(Int.MAX_VALUE, Int.MAX_VALUE)
+                    } else {
+                        cursor.copy(char = Int.MAX_VALUE)
+                    }
+                }
+                KeyCode.HOME -> {
+                    cursor = if (event.ctrlKey) {
+                        Cursor(0, 0)
+                    } else {
+                        cursor.copy(char = 0)
+                    }
+                }
+                KeyCode.ENTER -> {
+                    val newText = text.substring(0, index) + "\n" + text.substring(index, text.length)
+                    if (changeCallback(newText)) {
+                        text = newText
+                        cursor = cursor.copy(line = cursor.line + 1, char = 0)
+                    }
                 }
                 else -> {
                     var c = event.keyCode.char ?: return@onKeyPress
@@ -146,10 +234,10 @@ class TextView(
                         c = c.toLowerCase()
                     }
 
-                    val newText = text.substring(0, cursor) + c + text.substring(cursor, text.length)
+                    val newText = text.substring(0, index) + c + text.substring(index, text.length)
                     if (changeCallback(newText)) {
                         text = newText
-                        cursor += 1
+                        cursor = cursor.copy(char = cursor.char + 1)
                     }
                 }
             }
@@ -159,7 +247,12 @@ class TextView(
         }
 
         textProperty.onChange {
-            cursor = min(cursor, text.length)
+            cursor = cursor
         }
+    }
+
+    companion object {
+        private const val CHAR_WIDTH: Int = 140
+        private const val CHAR_HEIGHT: Int = 100
     }
 }
