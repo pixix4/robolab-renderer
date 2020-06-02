@@ -1,6 +1,7 @@
 package de.robolab.client.renderer.canvas
 
 import de.robolab.client.renderer.events.*
+import de.robolab.client.utils.ContextMenu
 import de.robolab.common.utils.*
 
 class ClippingCanvas(private val canvas: ICanvas, initClip: Rectangle) : ICanvas by canvas {
@@ -121,6 +122,12 @@ class ClippingCanvas(private val canvas: ICanvas, initClip: Rectangle) : ICanvas
         width: Double
     ) {
         canvas.strokeArc(center.removeClip(), radius, startAngle, extendAngle, color, width)
+    }
+
+    override fun openContextMenu(menu: ContextMenu) {
+        canvas.openContextMenu(menu.copy(
+            position = menu.position.removeClip()
+        ))
     }
 
     @Suppress("NOTHING_TO_INLINE")
