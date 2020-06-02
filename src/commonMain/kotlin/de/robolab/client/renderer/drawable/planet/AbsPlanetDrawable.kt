@@ -109,7 +109,7 @@ abstract class AbsPlanetDrawable : ITransformationReference {
     override fun centerPlanet(duration: Double) {
         val transformation = plotter?.transformation ?: return
         val targetCenter = centerOfPlanets
-        val size = (plotter?.dimension ?: Dimension.ZERO) / Point(2.0, -2.0)
+        val size = (plotter?.dimension ?: Dimension.ZERO) / Point(2.0, -2.0) * Point(if (flipView) -1.0 else 1.0, 1.0)
         val point = (targetCenter * transformation.scaledGridWidth - size) * Point(if (flipView) 1.0 else -1.0, 1.0)
 
         transformation.translateTo(point, duration)
