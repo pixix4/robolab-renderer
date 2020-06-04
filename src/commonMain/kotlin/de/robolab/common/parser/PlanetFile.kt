@@ -273,7 +273,7 @@ class PlanetFile(fileContent: String) : IEditCallback {
     }
 
     override fun createComment(value: List<String>, position: Point, groupHistory: Boolean) {
-        val comment = Comment(position, value)
+        val comment = Comment(position, Comment.Alignment.CENTER, value)
 
         val newLines = lines + FileLine.CommentLine.createAll(comment)
 

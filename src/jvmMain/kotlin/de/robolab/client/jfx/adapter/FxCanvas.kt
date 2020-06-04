@@ -292,8 +292,8 @@ class FxCanvas : ICanvas {
         }
         context.textBaseline = VPos.CENTER
         context.font = when (fontWeight) {
-            ICanvas.FontWeight.NORMAL -> Font.font(fontSize)
-            ICanvas.FontWeight.BOLD -> Font.font(null, FontWeight.BOLD, fontSize)
+            ICanvas.FontWeight.NORMAL -> Font.font("Roboto Mono", fontSize)
+            ICanvas.FontWeight.BOLD -> Font.font("Roboto Mono", FontWeight.BOLD, fontSize)
         }
 
         context.fillText(text, position.left, position.top)

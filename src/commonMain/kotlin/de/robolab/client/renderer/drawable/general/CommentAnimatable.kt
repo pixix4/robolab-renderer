@@ -18,12 +18,19 @@ class CommentAnimatable(
     private val editProperty: ObservableValue<IEditCallback?>
 ) : Animatable<Comment>(reference) {
 
+    private val Comment.fontAlignment
+    get() = when(alignment) {
+        Comment.Alignment.LEFT -> ICanvas.FontAlignment.LEFT
+        Comment.Alignment.CENTER ->  ICanvas.FontAlignment.CENTER
+        Comment.Alignment.RIGHT ->  ICanvas.FontAlignment.RIGHT
+    }
+
     override val view = TextView(
             reference.point,
             12.0,
             reference.lines.joinToString("\n"),
             ViewColor.LINE_COLOR,
-            ICanvas.FontAlignment.CENTER,
+            reference.fontAlignment,
             ICanvas.FontWeight.NORMAL
     ) {
         val callback = editProperty.value ?: return@TextView false
@@ -36,8 +43,9 @@ class CommentAnimatable(
     override fun onUpdate(obj: Comment, planet: Planet) {
         super.onUpdate(obj, planet)
 
-        view.setCenter(reference.point)
+        view.setSource(reference.point)
         view.text = reference.lines.joinToString("\n")
+        view.alignment = reference.fontAlignment
         view.requestRedraw()
     }
 

@@ -106,7 +106,7 @@ class MeasuringLineView(
         add(labelView)
 
         labelPositionProperty.onChange {
-            labelView.setCenter(labelPositionProperty.value, 0.0)
+            labelView.setSource(labelPositionProperty.value, 0.0)
         }
         distanceStringProperty.onChange {
             labelView.text = distanceStringProperty.value

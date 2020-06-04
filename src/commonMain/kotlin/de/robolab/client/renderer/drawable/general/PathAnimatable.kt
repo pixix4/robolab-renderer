@@ -126,7 +126,7 @@ class PathAnimatable(
         isBlockedProperty.value = reference.weight?.let { it < 0.0 } ?: false
         isArrowVisibleProperty.value = reference.showDirectionArrow
 
-        weightView.setCenter(getOrthogonal(0.5, true).first)
+        weightView.setSource(getOrthogonal(0.5, true).first)
         weightView.text = reference.weight?.toString() ?: "0"
 
         blockedView.setPoints(getOrthogonal(if (isOneWayPath) 1.0 else 0.5, true).toList())

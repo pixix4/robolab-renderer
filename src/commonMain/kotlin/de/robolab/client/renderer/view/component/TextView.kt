@@ -16,19 +16,19 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 class TextView(
-    center: Point,
+    initSource: Point,
     private val fontSize: Double,
     initText: String,
     color: ViewColor,
-    private val alignment: ICanvas.FontAlignment,
+    var alignment: ICanvas.FontAlignment,
     private val fontWeight: ICanvas.FontWeight,
     private val changeCallback: (String) -> Boolean = { false }
 ) : BaseView() {
 
-    val centerTransition = transition(center)
-    val center by centerTransition
-    fun setCenter(center: Point, duration: Double = animationTime, offset: Double = 0.0) {
-        centerTransition.animate(center, duration, offset)
+    val sourceTransition = transition(initSource)
+    val source by sourceTransition
+    fun setSource(source: Point, duration: Double = animationTime, offset: Double = 0.0) {
+        sourceTransition.animate(source, duration, offset)
     }
 
     val colorTransition = transition(color)
@@ -68,120 +68,144 @@ class TextView(
         }
     }
 
+    data class AttributeLine(
+        val line: String,
+        val index: Int,
+        val box: Rectangle
+    )
+
+    private var innerBox: Rectangle = Rectangle.ZERO
+    private var outerBox: Rectangle = Rectangle.ZERO
+    private fun calcLineBoxes(): List<AttributeLine> {
+        val lines = text.split("\n")
+
+        val charWidth = fontSize / CHAR_WIDTH
+        val charHeight = fontSize / CHAR_HEIGHT
+
+        val maxLineCharCount = lines.maxBy { it.length }?.length ?: 0
+
+        val width = charWidth * (lines.maxBy { it.length }?.length ?: 0)
+        val height = charHeight * lines.size
+
+        innerBox = Rectangle(
+            when (alignment) {
+                ICanvas.FontAlignment.LEFT -> source.left
+                ICanvas.FontAlignment.CENTER -> source.left - width / 2
+                ICanvas.FontAlignment.RIGHT -> source.left - width
+            },
+            source.top - height / 2.0,
+            width,
+            height
+        )
+        outerBox = innerBox.expand(0.8 * charHeight, 2 * charWidth)
+
+        return lines.mapIndexed { lineIndex, line ->
+            val lineWidth = innerBox.width * (line.length / maxLineCharCount.toDouble())
+            AttributeLine(
+                line,
+                lineIndex,
+                Rectangle(
+                    when (alignment) {
+                        ICanvas.FontAlignment.LEFT -> innerBox.left
+                        ICanvas.FontAlignment.CENTER -> innerBox.left + (innerBox.width - lineWidth) / 2
+                        ICanvas.FontAlignment.RIGHT -> innerBox.left + (innerBox.width - lineWidth)
+                    },
+                    innerBox.bottom - charHeight * (lineIndex + 1),
+                    lineWidth,
+                    charHeight
+                )
+            )
+        }
+    }
+
     override fun onDraw(context: DrawContext) {
         val color = context.c(color)
         if (focusable && (isHovered || isFocused)) {
-            context.fillText(text, center, color.a(0.15), fontSize, alignment, fontWeight)
-            context.fillRect(box, color.a(0.15))
+            context.fillRect(outerBox, color.a(0.15))
+        }
 
-            val lines = text.split("\n")
+        val charWidth = fontSize / CHAR_WIDTH
+        val charHeight = fontSize / CHAR_HEIGHT
+        val charIterator = Point(charWidth, 0.0)
 
-            val charWidth = fontSize / CHAR_WIDTH
-            val charHeight = fontSize / CHAR_HEIGHT
-            val charIterator = Point(charWidth, 0.0)
+        for ((line, index, box) in calcLineBoxes()) {
+            if (isFocused && index == cursor.line) {
 
-            for ((lineIndex, line) in lines.withIndex()) {
-                val start = Point(box.left + charWidth, box.bottom - charHeight / 2 - lineIndex * charHeight)
+                val cursorPosition = box.topLeft + charIterator * cursor.char
 
-                if (isFocused && lineIndex == cursor.line) {
-                    val cursorPosition = start + charIterator * cursor.char
-
-                    context.strokeLine(
-                        listOf(
-                            Point(cursorPosition.left, start.top),
-                            Point(cursorPosition.left, start.top - charHeight)
-                        ), color, PlottingConstraints.LINE_WIDTH / 2
-                    )
-                }
-
-                var postion = start + Point(charWidth / 2, -charHeight / 2)
-                for (char in line) {
-                    context.fillText(char.toString(), postion, color, fontSize, alignment, fontWeight)
-                    postion += charIterator
-                }
-            }
-            if (isFocused) {
                 context.strokeLine(
                     listOf(
-                        box.topLeft, box.topRight
-                    ), color, PlottingConstraints.LINE_WIDTH
+                        Point(cursorPosition.left, box.top),
+                        Point(cursorPosition.left, box.bottom)
+                    ), color, PlottingConstraints.LINE_WIDTH / 2
                 )
             }
-        } else {
-            context.fillText(text, center, color, fontSize, alignment, fontWeight)
+
+            var iterator = box.topLeft + Point(charWidth / 2, charHeight / 2)
+            for (char in line) {
+                context.fillText(char.toString(), iterator, color, fontSize, ICanvas.FontAlignment.CENTER, fontWeight)
+                iterator += charIterator
+            }
+        }
+
+        if (isFocused) {
+            context.strokeLine(
+                listOf(
+                    outerBox.topLeft, outerBox.topRight
+                ), color, PlottingConstraints.LINE_WIDTH
+            )
         }
 
         super.onDraw(context)
     }
 
-    private var box = Rectangle.ZERO
     override fun calculateBoundingBox(): Rectangle? {
         val parentBox = super.calculateBoundingBox()
 
-        val lines = text.split("\n")
-
-        val width = fontSize / CHAR_WIDTH * ((lines.maxBy { it.length }?.length ?: 0) + 2)
-        val height = fontSize / CHAR_HEIGHT * (lines.size + 0.8)
-        box = Rectangle(
-            center.left - width / 2,
-            center.top - height / 2.2,
-            width,
-            height
-        )
-        return box unionNullable parentBox
+        calcLineBoxes()
+        return outerBox unionNullable parentBox
     }
 
     override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
-        return planetPoint in box
+        return planetPoint in outerBox
     }
 
     override fun debugStringParameter(): List<Any?> {
-        return listOf(center, text.replace("\n", "\\n"))
+        return listOf(source, text.replace("\n", "\\n"))
     }
 
     init {
         onPointerDown { event ->
-            val lines = text.split("\n")
 
-            val charCount = lines.maxBy { it.length }?.length ?: 0
-            val lineCount = lines.size
-
-            val textBox = box.shrink(0.0, fontSize / CHAR_WIDTH)
-
-            val left = event.planetPoint.left - textBox.left
-            val top =  textBox.bottom - event.planetPoint.top - fontSize / CHAR_HEIGHT / 2
-
-            val charSize = Point(
-                1.0 / charCount * textBox.width,
-                1.0 / lineCount * textBox.height
-            )
-
-            cursor = Cursor(
-                (top / charSize.height).roundToInt(),
-                (left / charSize.width).roundToInt()
-            )
+            for ((line, index, box) in calcLineBoxes()) {
+                if (event.planetPoint in box) {
+                    cursor = Cursor(
+                        index,
+                        ((event.planetPoint.left - box.left) / box.width * line.length).roundToInt()
+                    )
+                }
+            }
 
             requestRedraw()
         }
 
         onKeyPress { event ->
             if (!isFocused) return@onKeyPress
+            val text = text
             val index = cursor.index(text)
 
             when (event.keyCode) {
                 KeyCode.BACKSPACE -> {
                     if (index > 0) {
-                        val oldChar = text[index]
+                        val oldChar = text.getOrNull(index - 1)
                         val newText = text.substring(0, index - 1) + text.substring(index, text.length)
                         val c = cursor
                         if (changeCallback(newText)) {
-                            text = newText
-                            if (c == cursor) {
-                                if (oldChar == '\n') {
-                                    cursor = cursor.copy(line = cursor.line - 1, char = Int.MAX_VALUE)
-                                } else {
-                                    cursor = cursor.copy(char = cursor.char - 1)
-                                }
+                            this.text = newText
+                            cursor = if (oldChar == '\n') {
+                                c.copy(line = c.line - 1, char = Int.MAX_VALUE)
+                            } else {
+                                c.copy(char = c.char - 1)
                             }
                         }
                     }
@@ -190,7 +214,7 @@ class TextView(
                     if (index < text.length) {
                         val newText = text.substring(0, index) + text.substring(index + 1, text.length)
                         if (changeCallback(newText)) {
-                            text = newText
+                            this.text = newText
                         }
                     }
                 }
@@ -223,7 +247,7 @@ class TextView(
                 KeyCode.ENTER -> {
                     val newText = text.substring(0, index) + "\n" + text.substring(index, text.length)
                     if (changeCallback(newText)) {
-                        text = newText
+                        this.text = newText
                         cursor = cursor.copy(line = cursor.line + 1, char = 0)
                     }
                 }
@@ -236,7 +260,7 @@ class TextView(
 
                     val newText = text.substring(0, index) + c + text.substring(index, text.length)
                     if (changeCallback(newText)) {
-                        text = newText
+                        this.text = newText
                         cursor = cursor.copy(char = cursor.char + 1)
                     }
                 }
