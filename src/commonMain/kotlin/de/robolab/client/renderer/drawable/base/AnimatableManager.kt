@@ -16,10 +16,17 @@ abstract class AnimatableManager<T : Any, A : Animatable<T>> {
         return oldValue == newValue
     }
 
+    open fun forceUpdate(oldPlanet: Planet, newPlanet: Planet): Boolean {
+        return false
+    }
+
+    private var planet = Planet.EMPTY
     protected var objectList: List<T> = emptyList()
     fun importPlanet(planet: Planet) {
+        val oldPlanet = this.planet
+        this.planet = planet
         val newReferenceList = getObjectList(planet)
-        if (newReferenceList == objectList) {
+        if (newReferenceList == objectList && !forceUpdate(oldPlanet, planet)) {
             // Nothing to do
             return
         }

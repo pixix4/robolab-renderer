@@ -8,33 +8,32 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.readText
 import io.ktor.client.statement.request
 import io.ktor.client.utils.EmptyContent
-import io.ktor.http.HttpStatusCode as KtorHttpStatusCode
 import io.ktor.http.URLProtocol
-import io.ktor.util.flattenEntries
 import io.ktor.util.toMap
 import io.ktor.utils.io.charsets.Charsets
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import io.ktor.http.HttpMethod as KtorHttpMethod
+import io.ktor.http.HttpStatusCode as KtorHttpStatusCode
 
 expect val client: HttpClient
 
 suspend fun sendHttpRequest(
     method: HttpMethod,
     scheme: String,
-    host:String,
-    port:Int,
-    path:String,
-    body:String?,
-    query: Map<String,String>,
+    host: String,
+    port: Int,
+    path: String,
+    body: String?,
+    query: Map<String, String>,
     headers: Map<String, List<String>>
 ): ServerResponse {
     val builtApplicators = buildApplicators(query, headers)
-    val response: HttpResponse=when(method){
-        HttpMethod.GET -> client.get(scheme, host, port, path,body?:EmptyContent, builtApplicators)
-        HttpMethod.PUT -> client.put(scheme, host, port, path, body?:EmptyContent, builtApplicators)
-        HttpMethod.POST -> client.post(scheme, host, port, path, body?:EmptyContent, builtApplicators)
-        HttpMethod.DELETE -> client.delete(scheme, host, port, path, body?:EmptyContent, builtApplicators)
+    val response: HttpResponse = when (method) {
+        HttpMethod.GET -> client.get(scheme, host, port, path, body ?: EmptyContent, builtApplicators)
+        HttpMethod.PUT -> client.put(scheme, host, port, path, body ?: EmptyContent, builtApplicators)
+        HttpMethod.POST -> client.post(scheme, host, port, path, body ?: EmptyContent, builtApplicators)
+        HttpMethod.DELETE -> client.delete(scheme, host, port, path, body ?: EmptyContent, builtApplicators)
         else -> client.request {
             this.method = method.toKtorMethod()
             this.host = host
@@ -45,7 +44,7 @@ suspend fun sendHttpRequest(
                 this.host = host
                 this.port = port
             }
-            if(body!=null)
+            if (body != null)
                 this.body = body
             builtApplicators(this)
         }
@@ -53,12 +52,15 @@ suspend fun sendHttpRequest(
     return response.toRobolabResponse()
 }
 
-private fun buildApplicators(query: Map<String,String>, headers: Map<String, List<String>>) : (HttpRequestBuilder.()->Unit) = {
-    query.forEach { this.url.parameters.appendMissing(it.key, listOf(it.value))}
+private fun buildApplicators(
+    query: Map<String, String>,
+    headers: Map<String, List<String>>
+): (HttpRequestBuilder.() -> Unit) = {
+    query.forEach { this.url.parameters.appendMissing(it.key, listOf(it.value)) }
     headers.forEach { this.headers.appendMissing(it.key, it.value) }
 }
 
-fun HttpMethod.toKtorMethod():KtorHttpMethod = when(this){
+fun HttpMethod.toKtorMethod(): KtorHttpMethod = when (this) {
     HttpMethod.GET -> KtorHttpMethod.Get
     HttpMethod.DELETE -> KtorHttpMethod.Delete
     HttpMethod.POST -> KtorHttpMethod.Post
@@ -66,7 +68,7 @@ fun HttpMethod.toKtorMethod():KtorHttpMethod = when(this){
     else -> KtorHttpMethod.parse(this.name)
 }
 
-fun KtorHttpMethod.toRobolabMethod():HttpMethod = when(this){
+fun KtorHttpMethod.toRobolabMethod(): HttpMethod = when (this) {
     KtorHttpMethod.Get -> HttpMethod.GET
     KtorHttpMethod.Delete -> HttpMethod.DELETE
     KtorHttpMethod.Post -> HttpMethod.POST
@@ -75,7 +77,7 @@ fun KtorHttpMethod.toRobolabMethod():HttpMethod = when(this){
 }
 
 fun KtorHttpStatusCode.toRobolabStatusCode(): HttpStatusCode =
-    HttpStatusCode.get(this.value)?: throw IllegalArgumentException("Unknown http-status-code: $this")
+    HttpStatusCode.get(this.value) ?: throw IllegalArgumentException("Unknown http-status-code: $this")
 
 private val fallbackCharset = Charsets.UTF_8
 
@@ -93,11 +95,11 @@ val RobolabScope = MainScope()
 fun sendHttpRequest(
     method: HttpMethod,
     scheme: String,
-    host:String,
-    port:Int,
-    path:String,
-    body:String?,
-    query: Map<String,String>,
+    host: String,
+    port: Int,
+    path: String,
+    body: String?,
+    query: Map<String, String>,
     headers: Map<String, List<String>>,
     callback: (ServerResponse) -> Unit
 ) {

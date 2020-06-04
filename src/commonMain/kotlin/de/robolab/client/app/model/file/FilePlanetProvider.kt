@@ -4,9 +4,9 @@ import de.robolab.client.app.model.IProvider
 import de.westermann.kobserve.base.ObservableMutableList
 
 expect class FilePlanetProvider() : IProvider {
-    fun loadEntry(entry: FilePlanetEntry, onFinish: (String?) -> Unit)
+    suspend fun loadEntry(entry: FilePlanetEntry): String?
 
-    fun saveEntry(entry: FilePlanetEntry, onFinish: (Boolean) -> Unit)
+    suspend fun saveEntry(entry: FilePlanetEntry): Boolean
 
     val planetList: ObservableMutableList<FilePlanetEntry>
 }

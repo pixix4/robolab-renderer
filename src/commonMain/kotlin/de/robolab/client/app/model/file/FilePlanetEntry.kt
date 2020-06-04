@@ -24,6 +24,9 @@ import de.westermann.kobserve.not
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class FilePlanetEntry(val filename: String, private val provider: FilePlanetProvider) : INavigationBarPlottable {
 
@@ -84,8 +87,9 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override fun buildContextMenu(position: Point) = menuBilder(position, "Planet ${planetFile.planet.name}") {
         action("Save") {
-            provider.saveEntry(this@FilePlanetEntry) {
-                logger.info { "Save successful: $it" }
+            GlobalScope.launch(Dispatchers.Main) {
+                val success = provider.saveEntry(this@FilePlanetEntry)
+                logger.info { "Save successful: $success" }
             }
         }
     }
@@ -118,13 +122,12 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
         get() = planetFile.content
 
 
-    fun loadFile() {
+    suspend fun loadFile() {
         if (!enabledProperty.value) {
-            provider.loadEntry(this) { content ->
-                if (content != null) {
-                    planetFile.resetContent(content)
-                    enabledProperty.value = true
-                }
+            val content = provider.loadEntry(this)
+            if (content != null) {
+                planetFile.resetContent(content)
+                enabledProperty.value = true
             }
         }
     }
@@ -211,7 +214,9 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
         }
 
         document.onAttach {
-            loadFile()
+            GlobalScope.launch(Dispatchers.Main) {
+                loadFile()
+            }
         }
     }
 }

@@ -15,19 +15,25 @@ class LivePlanetDrawable : AbsPlanetDrawable() {
 
     private val robotDrawable = RobotDrawable()
 
-    fun importBackgroundPlanet(planet: Planet) {
+    fun importBackgroundPlanet(planet: Planet, isPartialUpdate: Boolean = false) {
         backgroundLayer.importPlanet(planet)
-        importPlanets()
+        if (!isPartialUpdate) {
+            importPlanets()
+        }
     }
 
-    fun importMqttPlanet(planet: Planet) {
+    fun importMqttPlanet(planet: Planet, isPartialUpdate: Boolean = false) {
         mqttLayer.importPlanet(planet.importSplines(backgroundLayer.planet))
-        importPlanets()
+        if (!isPartialUpdate) {
+            importPlanets()
+        }
     }
 
-    fun importServerPlanet(planet: Planet) {
+    fun importServerPlanet(planet: Planet, isPartialUpdate: Boolean = false) {
         serverLayer.importPlanet(planet.importSplines(backgroundLayer.planet))
-        importPlanets()
+        if (!isPartialUpdate) {
+            importPlanets()
+        }
     }
 
     fun importRobot(robot: RobotDrawable.Robot?) {

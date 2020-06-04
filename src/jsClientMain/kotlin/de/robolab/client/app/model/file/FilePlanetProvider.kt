@@ -1,14 +1,20 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.model.IProvider
 import de.robolab.client.app.model.INavigationBarEntry
+import de.robolab.client.app.model.IProvider
+import de.robolab.client.net.http
+import de.robolab.client.net.web
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableMutableList
-import de.westermann.kobserve.list.mapObservable
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sortByObservable
 import de.westermann.kobserve.property.property
-import kotlin.browser.window
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.serializer
 
 actual class FilePlanetProvider actual constructor() : IProvider {
 
@@ -16,40 +22,41 @@ actual class FilePlanetProvider actual constructor() : IProvider {
 
     actual val planetList: ObservableMutableList<FilePlanetEntry> = observableListOf()
     override val entryList: ObservableList<INavigationBarEntry> = planetList
-            .sortByObservable { it.titleProperty.value.toLowerCase() }
-            .mapObservable { it as INavigationBarEntry }
+        .sortByObservable { it.titleProperty.value.toLowerCase() }
 
-    actual fun loadEntry(entry: FilePlanetEntry, onFinish: (String?) -> Unit) {
-        window.fetch(entry.filename).then {
-            it.text()
-        }.then { content ->
-            onFinish(content)
-        }.catch {
-            onFinish(null)
+    actual suspend fun loadEntry(entry: FilePlanetEntry): String? {
+        return http {
+            web(entry.filename)
+        }.exec().body
+    }
+
+    actual suspend fun saveEntry(entry: FilePlanetEntry): Boolean {
+        return false
+    }
+
+    private suspend fun loadPlanet(name: String) {
+        val filename = "/planet/$name"
+        val fileEntry = FilePlanetEntry(filename, this)
+
+        withContext(Dispatchers.Main) {
+            planetList += fileEntry
         }
     }
 
-    actual fun saveEntry(entry: FilePlanetEntry, onFinish: (Boolean) -> Unit) {
-        onFinish(false)
-    }
-
-    private fun loadPlanet(name: String) {
-        val filename = "/planet/$name"
-        planetList += FilePlanetEntry(filename, this)
-    }
-
-    private fun loadPlanetList(planets: List<String>) {
+    private suspend fun loadPlanetList(planets: List<String>) {
         for (file in planets) {
             loadPlanet(file)
         }
     }
 
     init {
-        window.fetch("/planets").then {
-            it.json()
-        }.then { list ->
-            if (list is Array<*>) {
-                loadPlanetList(list.filterIsInstance<String>())
+        GlobalScope.launch(Dispatchers.Default) {
+            val response = http {
+                web("/planets")
+            }.exec().parse(String.serializer().list)
+
+            if (response != null) {
+                loadPlanetList(response)
             }
         }
     }

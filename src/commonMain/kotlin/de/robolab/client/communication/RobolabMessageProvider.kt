@@ -118,25 +118,25 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
         )
     }
 
-    fun importMqttLog(log: String) {
-        GlobalScope.launch(Dispatchers.Default) {
-            log.splitToSequence('\n')
-                .asFlow()
-                .mapNotNull { parseMqttLogLine(it) }
-                .mapNotNull { parseMqttMessage(it) }
-                .collect { message ->
-                    withContext(Dispatchers.Main) {
-                        onMessage.emit(message)
-                    }
+    suspend fun importMqttLog(log: String) {
+        log.splitToSequence('\n')
+            .asFlow()
+            .mapNotNull { parseMqttLogLine(it) }
+            .mapNotNull { parseMqttMessage(it) }
+            .collect { message ->
+                withContext(Dispatchers.Main) {
+                    onMessage.emit(message)
                 }
-        }
+            }
     }
 
     private fun loadMqttLog() {
         try {
-            http {
-                url(PreferenceStorage.logUri)
-            }.exec { response ->
+            GlobalScope.launch(Dispatchers.Default) {
+                val response = http {
+                    url(PreferenceStorage.logUri)
+                }.exec()
+
                 if (response.body == null) {
                     logger.warn { "Cannot load mqtt log!" }
                 } else {

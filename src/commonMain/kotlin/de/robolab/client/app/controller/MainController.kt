@@ -8,6 +8,9 @@ import de.robolab.common.utils.ConsoleGreeter
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainController {
 
@@ -31,8 +34,10 @@ class MainController {
     init {
         ConsoleGreeter.greet()
     }
-    
+
     fun importLogFile(log: String) {
-        robolabMessageProvider.importMqttLog(log)
+        GlobalScope.launch(Dispatchers.Default) {
+            robolabMessageProvider.importMqttLog(log)
+        }
     }
 }

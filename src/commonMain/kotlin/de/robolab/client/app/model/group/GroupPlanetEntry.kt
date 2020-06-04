@@ -15,6 +15,9 @@ import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
 
@@ -153,9 +156,11 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     private val planetNameProperty = property("")
     private val backgroundPlanet = planetNameProperty.nullableFlatMapBinding {
         val entry = parent.filePlanetProvider.findByName(it)
-        entry?.loadFile()
+        GlobalScope.launch(Dispatchers.Main) {
+            entry?.loadFile()
+        }
         entry?.planetFile?.planetProperty
-    }.mapBinding { it ?: Planet.EMPTY }
+    }
 
     private var serverPlanet = Planet.EMPTY
     private var mqttPlanet = Planet.EMPTY
@@ -166,11 +171,14 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
         val m = if (selectedIndex >= messages.lastIndex) messages else messages.subList(0, selectedIndex + 1)
 
         serverPlanet = m.toServerPlanet()
-        planetNameProperty.value = serverPlanet.name
+        if (planetNameProperty.value != serverPlanet.name) {
+            planetNameProperty.value = serverPlanet.name
+        }
         mqttPlanet = m.toMqttPlanet()
 
-        drawable.importServerPlanet(serverPlanet.importSplines(backgroundPlanet.value))
-        drawable.importMqttPlanet(mqttPlanet.importSplines(backgroundPlanet.value))
+        val planet = backgroundPlanet.value ?: Planet.EMPTY
+        drawable.importServerPlanet(serverPlanet.importSplines(planet), true)
+        drawable.importMqttPlanet(mqttPlanet.importSplines(planet))
         drawable.importRobot(m.toRobot(parent.groupName.toIntOrNull()))
     }
 
@@ -185,9 +193,11 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
         }
 
         backgroundPlanet.onChange {
-            drawable.importBackgroundPlanet(backgroundPlanet.value)
-            drawable.importServerPlanet(serverPlanet.importSplines(backgroundPlanet.value))
-            drawable.importMqttPlanet(mqttPlanet.importSplines(backgroundPlanet.value))
+            val planet = backgroundPlanet.value ?: Planet.EMPTY
+            println("Background planet changed to ${planet.name}")
+            drawable.importBackgroundPlanet(planet, true)
+            drawable.importServerPlanet(serverPlanet.importSplines(planet), true)
+            drawable.importMqttPlanet(mqttPlanet.importSplines(planet))
         }
 
         document.onAttach {
