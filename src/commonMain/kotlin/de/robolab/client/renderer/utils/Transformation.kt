@@ -16,6 +16,7 @@ class Transformation(
     initTranslation: Point = Point.ZERO,
     initScale: Double = 1.0,
     initRotation: Double = 0.0,
+    override val gridWidth: Double = PIXEL_PER_UNIT,
     pixelPerUnitDimension: Dimension = PIXEL_PER_UNIT_DIMENSION
 ) : ITransformation {
 
@@ -42,8 +43,6 @@ class Transformation(
         } else internalPixelPerUnitDimension
     }
     override val pixelPerUnitDimension: Dimension by pixelPerUnitDimensionProperty
-
-    override val gridWidth = PIXEL_PER_UNIT
 
     private var hasChanges = false
 

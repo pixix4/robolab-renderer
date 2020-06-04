@@ -6,7 +6,7 @@ import de.robolab.common.utils.Color
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 
-class TransformationCanvas(private val canvas: ICanvas, private val transformation: ITransformation) : ICanvas by canvas {
+class TransformationCanvas(private val canvas: ICanvas, val transformation: ITransformation) : ICanvas by canvas {
 
     override fun fillRect(rectangle: Rectangle, color: Color) {
         fillPolygon(
@@ -38,28 +38,11 @@ class TransformationCanvas(private val canvas: ICanvas, private val transformati
         )
     }
 
-    private fun prepareLine(points: List<Point>): List<Point> {
-        // Dirty bug fix to solve the "mountain" error on paths
-        // Remove overlapping points
-        var last = transformation.planetToCanvas(points.first())
-        val canvasPoints = mutableListOf(last)
-        for (point in points) {
-            val new = transformation.planetToCanvas(point)
-
-            if (new.manhattanDistanceTo(last) >= 1) {
-                canvasPoints += new
-                last = new
-            }
-        }
-
-        return canvasPoints
-    }
-
     override fun strokeLine(points: List<Point>, color: Color, width: Double) {
         if (points.isEmpty()) return
 
         canvas.strokeLine(
-                prepareLine(points), //points.map(transformation::planetToCanvas),
+            points.map(transformation::planetToCanvas),
                 color,
                 width * transformation.scaledGridWidth
         )
@@ -69,7 +52,7 @@ class TransformationCanvas(private val canvas: ICanvas, private val transformati
         if (points.isEmpty()) return
 
         canvas.dashLine(
-                prepareLine(points), //points.map(transformation::planetToCanvas),
+            points.map(transformation::planetToCanvas),
                 color,
                 width * transformation.scaledGridWidth,
                 dashes.map { it * transformation.scaledGridWidth },

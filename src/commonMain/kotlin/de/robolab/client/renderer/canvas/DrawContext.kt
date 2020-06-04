@@ -2,6 +2,7 @@ package de.robolab.client.renderer.canvas
 
 import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.theme.ITheme
+import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 

@@ -3,10 +3,13 @@ package de.robolab.client.renderer.view.component
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.canvas.ICanvas
+import de.robolab.client.renderer.canvas.TransformationCanvas
 import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.events.KeyCode
+import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
+import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.unionNullable
@@ -72,7 +75,14 @@ class TextView(
         val line: String,
         val index: Int,
         val box: Rectangle
-    )
+    ) {
+        fun cursorPositionToBoxLeft(innerBox: Rectangle, char: Int): Double {
+            return box.width * char / line.length + box.left - innerBox.left
+        }
+        fun boxLeftToCursorPosition(innerBox: Rectangle, left: Double): Int {
+            return ((left + innerBox.left - box.left) * line.length / box.width).roundToInt()
+        }
+     }
 
     private var innerBox: Rectangle = Rectangle.ZERO
     private var outerBox: Rectangle = Rectangle.ZERO
@@ -120,20 +130,30 @@ class TextView(
 
     override fun onDraw(context: DrawContext) {
         val color = context.c(color)
+
+        val transformation = Transformation(
+            gridWidth = 1.0,
+            pixelPerUnitDimension = Dimension.ONE
+        )
+        transformation.rotateTo(-context.transformation.rotation, innerBox.center)
+
+        val canvas = TransformationCanvas(context, transformation)
+
+        val lineBoxes = calcLineBoxes()
         if (focusable && (isHovered || isFocused)) {
-            context.fillRect(outerBox, color.a(0.15))
+            canvas.fillRect(outerBox, color.a(0.15))
         }
 
         val charWidth = fontSize / CHAR_WIDTH
         val charHeight = fontSize / CHAR_HEIGHT
         val charIterator = Point(charWidth, 0.0)
 
-        for ((line, index, box) in calcLineBoxes()) {
+        for ((line, index, box) in lineBoxes) {
             if (isFocused && index == cursor.line) {
 
                 val cursorPosition = box.topLeft + charIterator * cursor.char
 
-                context.strokeLine(
+                canvas.strokeLine(
                     listOf(
                         Point(cursorPosition.left, box.top),
                         Point(cursorPosition.left, box.bottom)
@@ -143,13 +163,13 @@ class TextView(
 
             var iterator = box.topLeft + Point(charWidth / 2, charHeight / 2)
             for (char in line) {
-                context.fillText(char.toString(), iterator, color, fontSize, ICanvas.FontAlignment.CENTER, fontWeight)
+                canvas.fillText(char.toString(), iterator, color, fontSize, ICanvas.FontAlignment.CENTER, fontWeight)
                 iterator += charIterator
             }
         }
 
         if (isFocused) {
-            context.strokeLine(
+            canvas.strokeLine(
                 listOf(
                     outerBox.topLeft, outerBox.topRight
                 ), color, PlottingConstraints.LINE_WIDTH
@@ -219,16 +239,44 @@ class TextView(
                     }
                 }
                 KeyCode.ARROW_LEFT -> {
-                    cursor = cursor.copy(char = cursor.char - 1)
+                    cursor = if (cursor.char == 0 && cursor.line > 0) {
+                        Cursor(cursor.line - 1, Int.MAX_VALUE)
+                    } else {
+                        cursor.copy(char = cursor.char - 1)
+                    }
                 }
                 KeyCode.ARROW_RIGHT -> {
-                    cursor = cursor.copy(char = cursor.char + 1)
+                    val lines = text.split('\n')
+                    val line = lines.getOrNull(cursor.line) ?: ""
+                    cursor = if (line.length == cursor.char && cursor.line < lines.lastIndex) {
+                        Cursor(cursor.line + 1, 0)
+                    } else {
+                        cursor.copy(char = cursor.char + 1)
+                    }
                 }
                 KeyCode.ARROW_UP -> {
-                    cursor = cursor.copy(line = cursor.line - 1)
+                    val lines = calcLineBoxes()
+                    if (cursor.line > 0) {
+                        val currentLine = lines[cursor.line]
+                        val nextLine = lines.getOrNull(cursor.line - 1) ?: return@onKeyPress
+
+                        // Magic number to fix rounding direction on 0.5 line offset to right char
+                        val left = currentLine.cursorPositionToBoxLeft(innerBox, cursor.char) + 0.02
+                        val char = nextLine.boxLeftToCursorPosition(innerBox, left)
+                        cursor = Cursor(cursor.line - 1, char)
+                    }
                 }
                 KeyCode.ARROW_DOWN -> {
-                    cursor = cursor.copy(line = cursor.line + 1)
+                    val lines = calcLineBoxes()
+                    if (cursor.line < lines.lastIndex) {
+                        val currentLine = lines[cursor.line]
+                        val nextLine = lines.getOrNull(cursor.line + 1) ?: return@onKeyPress
+
+                        // Magic number to fix rounding direction on 0.5 line offset to left char
+                        val left = currentLine.cursorPositionToBoxLeft(innerBox, cursor.char) - 0.02
+                        val char = nextLine.boxLeftToCursorPosition(innerBox, left)
+                        cursor = Cursor(cursor.line + 1, char)
+                    }
                 }
                 KeyCode.END -> {
                     cursor = if (event.ctrlKey) {
