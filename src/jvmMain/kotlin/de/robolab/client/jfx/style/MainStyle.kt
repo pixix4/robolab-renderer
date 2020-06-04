@@ -50,20 +50,32 @@ class MainStyle : Stylesheet() {
         fun updateTheme() {
             theme = PreferenceStorage.selectedTheme.theme
         }
+
+        val monospaceFonts = listOf(
+            "/RobotoMono/RobotoMono-Regular.ttf",
+            "/RobotoMono/RobotoMono-Bold.ttf",
+            "/RobotoMono/RobotoMono-Italic.ttf",
+            "/RobotoMono/RobotoMono-BoldItalic.ttf"
+        )
+
+        val defaultFonts = listOf(
+            "/Roboto/Roboto-Regular.ttf",
+            "/Roboto/Roboto-Bold.ttf",
+            "/Roboto/Roboto-Italic.ttf",
+            "/Roboto/Roboto-BoldItalic.ttf"
+        )
     }
 
     init {
         updateTheme()
 
-        loadFont("/RobotoMono/RobotoMono-Regular.ttf", 12)
-        loadFont("/RobotoMono/RobotoMono-Bold.ttf", 12)
-        loadFont("/RobotoMono/RobotoMono-Italic.ttf", 12)
-        loadFont("/RobotoMono/RobotoMono-BoldItalic.ttf", 12)
+        for (font in monospaceFonts) {
+            loadFont(font, 12)
+        }
 
-        loadFont("/Roboto/Roboto-Regular.ttf", 12)
-        loadFont("/Roboto/Roboto-Bold.ttf", 12)
-        loadFont("/Roboto/Roboto-Italic.ttf", 12)
-        loadFont("/Roboto/Roboto-BoldItalic.ttf", 12)
+        for (font in defaultFonts) {
+            loadFont(font, 12)
+        }
 
         star {
             faintFocusColor = Color.TRANSPARENT

@@ -1,5 +1,6 @@
 package de.robolab.client.jfx.adapter
 
+import de.robolab.client.jfx.style.MainStyle
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.ICanvasListener
 import de.robolab.client.utils.ContextMenu
@@ -9,13 +10,16 @@ import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 import java.awt.BasicStroke
 import java.awt.Font
+import java.awt.GraphicsEnvironment
 import java.awt.RenderingHints
 import java.awt.geom.Path2D
 import java.awt.geom.Rectangle2D
 import java.awt.image.BufferedImage
 import java.io.File
+import java.lang.invoke.MethodHandles
 import javax.imageio.ImageIO
 import kotlin.math.PI
+
 
 class AwtCanvas(
     override val dimension: Dimension,
@@ -131,7 +135,7 @@ class AwtCanvas(
             ICanvas.FontWeight.NORMAL -> Font.PLAIN
             ICanvas.FontWeight.BOLD -> Font.BOLD
         }
-        context.font = Font(Font.SANS_SERIF, mask, fontSize.toInt())
+        context.font = Font("Roboto Mono", mask, fontSize.toInt())
 
         val metrics = context.fontMetrics
 
@@ -200,12 +204,33 @@ class AwtCanvas(
     }
 
     init {
+        importFonts()
+
         context.addRenderingHints(
             mutableMapOf(
                 RenderingHints.KEY_ANTIALIASING to RenderingHints.VALUE_ANTIALIAS_ON
             )
         )
         context.scale(scale, scale)
+    }
+
+    companion object {
+        private fun importFont(path: String) {
+            val ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
+            val stream = MethodHandles.lookup().lookupClass().getResourceAsStream(path) ?: return
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, stream))
+        }
+
+        private var isImported = false
+        fun importFonts() {
+            if (!isImported) {
+                isImported = true
+
+                for (font in MainStyle.monospaceFonts) {
+                    importFont(font)
+                }
+            }
+        }
     }
 }
 

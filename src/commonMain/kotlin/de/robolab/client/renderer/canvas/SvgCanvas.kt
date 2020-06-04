@@ -25,14 +25,17 @@ class SvgCanvas(
     fun buildFile(): String {
         val content = stringBuilder.joinToString("\n") { "    $it" }
 
+        val width = dimension.width.toFixed(2)
+        val height = dimension.height.toFixed(2)
+
         return buildString {
             append("""<?xml version="1.0" encoding="UTF-8"?>""")
             append('\n')
-            append(
-                """<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dimension.width.toFixed(2)} ${dimension.height.toFixed(
-                    2
-                )}">"""
-            )
+            append("""<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 $width $height">""".trimMargin())
+            append('\n')
+            append("""<style type="text/css">""")
+            append(FONT_LOADER)
+            append("""</style>""")
             append('\n')
             append(content)
             append('\n')
@@ -92,7 +95,7 @@ class SvgCanvas(
             ICanvas.FontWeight.BOLD -> "bold"
         }
         append(
-            """<text x="${position.left}" y="${position.top}" fill="$color" stroke="none" font-family="sans-serif" font-weight="$weight" font-size="${fontSize.toFixed(
+            """<text x="${position.left}" y="${position.top}" fill="$color" stroke="none" font-family="Roboto Mono" font-weight="$weight" font-size="${fontSize.toFixed(
                 2
             )}" text-anchor="$anchor" dominant-baseline="middle">$text</text>""".trimMargin()
         )
@@ -146,5 +149,24 @@ class SvgCanvas(
 
     companion object {
         private const val STROKE_CONST = """stroke-linecap="butt" stroke-linejoin="miter""""
+
+        private const val FONT_LOADER = """
+@font-face {
+  font-family: 'Roboto Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Roboto Mono'), local('RobotoMono-Regular'), url(https://fonts.gstatic.com/s/robotomono/v7/L0x5DF4xlVMF-BfR8bXMIjhLq38.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Roboto Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Roboto Mono Bold'), local('RobotoMono-Bold'), url(https://fonts.gstatic.com/s/robotomono/v7/L0xkDF4xlVMF-BfR8bXMIjDwjmqxf78.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+"""
     }
 }
