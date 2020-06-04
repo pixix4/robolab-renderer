@@ -5,9 +5,10 @@ import de.robolab.client.app.model.group.InfoBarGroupInfo
 import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.jfx.adapter.toFx
 import javafx.scene.layout.Priority
+import javafx.scene.layout.Region
 import tornadofx.*
 
-class InfoBarGroupView(private val content: InfoBarGroupInfo) : View() {
+class InfoBarGroupView(private val contentInfo: InfoBarGroupInfo) : View() {
 
     override val root = vbox {
         vgrow = Priority.ALWAYS
@@ -16,21 +17,21 @@ class InfoBarGroupView(private val content: InfoBarGroupInfo) : View() {
         form {
             fieldset("Attempt info") {
                 field("Messages") {
-                    label(content.messageCountStringProperty.toFx())
+                    label(contentInfo.messageCountStringProperty.toFx())
                 }
                 field("First message") {
-                    label(content.firstMessageTimeStringProperty.toFx())
+                    label(contentInfo.firstMessageTimeStringProperty.toFx())
                 }
                 field("Last message") {
-                    label(content.lastMessageTimeStringProperty.toFx())
+                    label(contentInfo.lastMessageTimeStringProperty.toFx())
                 }
                 field("Attempt duration") {
-                    label(content.attemptDurationStringProperty.toFx())
+                    label(contentInfo.attemptDurationStringProperty.toFx())
                 }
             }
         }
 
-        tableview(content.messages.toFx()) {
+        tableview(contentInfo.messages.toFx()) {
             vgrow = Priority.ALWAYS
             hgrow = Priority.ALWAYS
 
@@ -45,18 +46,17 @@ class InfoBarGroupView(private val content: InfoBarGroupInfo) : View() {
             }
 
             onSelectionChange {
-                val index = content.messages.indexOf(it ?: return@onSelectionChange)
-                content.selectedIndexProperty.value = index
+                val index = contentInfo.messages.indexOf(it ?: return@onSelectionChange)
+                contentInfo.selectedIndexProperty.value = index
             }
             selectionModel.selectedIndexProperty().onChange {
-                if (it != content.selectedIndexProperty.value)
-                content.selectedIndexProperty.value = it
+                if (it != contentInfo.selectedIndexProperty.value)
+                    contentInfo.selectedIndexProperty.value = it
             }
 
-            content.selectedIndexProperty.onChange {
-                if (content.selectedIndexProperty.value != selectionModel.selectedIndex) {
-                    selectionModel.select(content.selectedIndexProperty.value)
-                    // selectionModel.selectedIndex = content.selectedIndexProperty.value
+            contentInfo.selectedIndexProperty.onChange {
+                if (contentInfo.selectedIndexProperty.value != selectionModel.selectedIndex) {
+                    selectionModel.select(contentInfo.selectedIndexProperty.value)
                 }
             }
         }

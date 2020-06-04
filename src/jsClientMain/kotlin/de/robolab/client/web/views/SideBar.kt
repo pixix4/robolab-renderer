@@ -1,8 +1,8 @@
 package de.robolab.client.web.views
 
-import de.robolab.client.app.controller.SideBarController
-import de.robolab.client.app.model.ISideBarEntry
-import de.robolab.client.app.model.ISideBarPlottable
+import de.robolab.client.app.controller.NavigationBarController
+import de.robolab.client.app.model.INavigationBarEntry
+import de.robolab.client.app.model.INavigationBarPlottable
 import de.robolab.client.web.views.utils.buttonGroup
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableProperty
@@ -14,21 +14,21 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
 
-class SideBar(private val sideBarController: SideBarController, sideBarActiveProperty: ObservableProperty<Boolean>) :
+class SideBar(private val navigationBarController: NavigationBarController, sideBarActiveProperty: ObservableProperty<Boolean>) :
     ViewCollection<View>() {
 
-    private fun createEntry(entry: ISideBarEntry) = SideBarEntry(entry, sideBarController)
+    private fun createEntry(entry: INavigationBarEntry) = SideBarEntry(entry, navigationBarController)
 
     init {
         classList.bind("active", sideBarActiveProperty)
 
         boxView("side-bar-header") {
             buttonGroup {
-                for (tab in SideBarController.Tab.values()) {
+                for (tab in NavigationBarController.Tab.values()) {
                     button(tab.label) {
-                        classList.bind("active", sideBarController.tabProperty.mapBinding { it == tab })
+                        classList.bind("active", navigationBarController.tabProperty.mapBinding { it == tab })
                         onClick {
-                            sideBarController.tabProperty.value = tab
+                            navigationBarController.tabProperty.value = tab
                         }
                     }
                 }
@@ -36,7 +36,7 @@ class SideBar(private val sideBarController: SideBarController, sideBarActivePro
         }
         boxView("side-bar-content") {
             boxView("side-bar-search") {
-                val searchView = inputView(InputType.SEARCH, sideBarController.searchStringProperty) {
+                val searchView = inputView(InputType.SEARCH, navigationBarController.searchStringProperty) {
                     placeholder = "Search…"
                 }
 
@@ -44,25 +44,25 @@ class SideBar(private val sideBarController: SideBarController, sideBarActivePro
                     onClick {
                         it.preventDefault()
                         it.stopPropagation()
-                        sideBarController.searchStringProperty.value = ""
+                        navigationBarController.searchStringProperty.value = ""
                         searchView.focus()
                     }
                 }
             }
             boxView("side-bar-group-head") {
-                textView(sideBarController.selectedGroupProperty.nullableFlatMapBinding { it?.tabNameProperty }
+                textView(navigationBarController.selectedGroupProperty.nullableFlatMapBinding { it?.tabNameProperty }
                     .mapBinding {
                         it ?: ""
                     })
 
-                classList.bind("active", sideBarController.selectedGroupProperty.mapBinding { it != null })
+                classList.bind("active", navigationBarController.selectedGroupProperty.mapBinding { it != null })
 
                 onClick {
-                    sideBarController.closeGroup()
+                    navigationBarController.closeGroup()
                 }
             }
             boxView("side-bar-list") {
-                listFactory(sideBarController.filteredEntryListProperty, this@SideBar::createEntry)
+                listFactory(navigationBarController.filteredEntryListProperty, this@SideBar::createEntry)
             }
             boxView("side-bar-empty") {
                 textView("Nothing to show!")
@@ -71,18 +71,18 @@ class SideBar(private val sideBarController: SideBarController, sideBarActivePro
         boxView("side-bar-footer") {
             classList.bind(
                 "success",
-                sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.SUCCESS })
+                navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.SUCCESS })
             classList.bind(
                 "warn",
-                sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.WARN })
+                navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.WARN })
             classList.bind(
                 "error",
-                sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.ERROR })
+                navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.ERROR })
 
-            textView(sideBarController.statusMessage)
-            textView(sideBarController.statusActionLabel) {
+            textView(navigationBarController.statusMessage)
+            textView(navigationBarController.statusActionLabel) {
                 onClick {
-                    sideBarController.onStatusAction()
+                    navigationBarController.onStatusAction()
                 }
             }
         }
@@ -98,9 +98,9 @@ class SideBar(private val sideBarController: SideBarController, sideBarActivePro
     }
 }
 
-class SideBarEntry(entry: ISideBarEntry, sideBarController: SideBarController) : ViewCollection<View>() {
+class SideBarEntry(entry: INavigationBarEntry, navigationBarController: NavigationBarController) : ViewCollection<View>() {
 
-    private val selectedProperty = sideBarController.selectedElementListProperty.mapBinding { entry in it }
+    private val selectedProperty = navigationBarController.selectedElementListProperty.mapBinding { entry in it }
 
     init {
         textView(entry.titleProperty)
@@ -112,12 +112,12 @@ class SideBarEntry(entry: ISideBarEntry, sideBarController: SideBarController) :
 
         classList.bind("active", selectedProperty)
 
-        if (entry is ISideBarPlottable) {
+        if (entry is INavigationBarPlottable) {
             classList.bind("disabled", !entry.enabledProperty)
         }
 
         onClick {
-            sideBarController.open(entry)
+            navigationBarController.open(entry)
         }
 
         onContext { event ->

@@ -12,19 +12,17 @@ import de.robolab.client.communication.toServerPlanet
 import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableList
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.property.constObservable
-import de.westermann.kobserve.property.mapBinding
-import de.westermann.kobserve.property.nullableFlatMapBinding
-import de.westermann.kobserve.property.property
+import de.westermann.kobserve.property.*
 import kotlin.math.max
 import kotlin.math.min
 
-class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanetProvider) : ISideBarGroup {
+class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanetProvider) : INavigationBarGroup {
 
     val attempts = observableListOf<AttemptPlanetEntry>()
 
-    override val entryList: ObservableList<ISideBarEntry> = attempts
+    override val entryList: ObservableList<INavigationBarEntry> = attempts
 
     override val titleProperty = constObservable(groupName)
 
@@ -36,7 +34,7 @@ class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanet
 
     override val unsavedChangesProperty = constObservable(false)
 
-    override val parent: ISideBarGroup? = null
+    override val parent: INavigationBarGroup? = null
 
     override val hasContextMenu: Boolean = false
 
@@ -76,7 +74,7 @@ class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanet
     }
 }
 
-class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEntry) : ISideBarPlottable {
+class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEntry) : INavigationBarPlottable {
 
     val messages = observableListOf<RobolabMessage>()
 
@@ -131,6 +129,15 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
             }
         )
     )
+
+    override val detailBoxProperty: ObservableValue<IDetailBox> = messages.join(selectedIndexProperty) { _, i ->
+        val message = messages.getOrNull(i)
+        if (message == null) {
+            object : IDetailBox {}
+        } else {
+            JsonDetailBox(message)
+        }
+    }
 
     override val infoBarList: List<IInfoBarContent> = listOf(InfoBarGroupInfo(this))
     override val selectedInfoBarIndexProperty = property<Int?>(0)

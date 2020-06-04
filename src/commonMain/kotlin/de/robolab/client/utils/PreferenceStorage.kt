@@ -1,6 +1,6 @@
 package de.robolab.client.utils
 
-import de.robolab.client.app.controller.SideBarController
+import de.robolab.client.app.controller.NavigationBarController
 import de.robolab.client.renderer.drawable.edit.EditPaperBackground
 import de.robolab.client.theme.Theme
 import de.robolab.common.utils.Logger
@@ -31,7 +31,7 @@ object PreferenceStorage : TypedStorage() {
     val useSystemThemeProperty = item("ui.useSystemTheme", true)
     var useSystemTheme by useSystemThemeProperty
 
-    val selectedSideBarTabProperty = item("ui.selectedSideBarTab", SideBarController.Tab.FILE)
+    val selectedSideBarTabProperty = item("ui.selectedSideBarTab", NavigationBarController.Tab.FILE)
     var selectedSideBarTab by selectedSideBarTabProperty
 
 

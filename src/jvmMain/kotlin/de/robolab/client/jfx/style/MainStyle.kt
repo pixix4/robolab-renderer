@@ -15,9 +15,10 @@ class MainStyle : Stylesheet() {
         val iconView by cssclass()
         val listCellGraphic by cssclass()
 
-        val sideBar by cssclass()
+        val navigationBar by cssclass()
         val statusBar by cssclass()
         val infoBar by cssclass()
+        val detailBox by cssclass()
         val codeArea by cssclass()
         val dialog by cssclass()
 
@@ -25,7 +26,7 @@ class MainStyle : Stylesheet() {
         val warn by cssclass()
         val error by cssclass()
 
-        val sideBarBackButton by cssclass()
+        val navigationBarBackButton by cssclass()
 
         val disabled by cssclass()
         val active by cssclass()
@@ -98,7 +99,7 @@ class MainStyle : Stylesheet() {
         initFormStyle()
         initInfoBarStyle()
         initMainCanvasStyle()
-        initSideBarStyle()
+        initNavigationBarStyle()
         initStatusBarStyle()
         initToolBarStyle()
 

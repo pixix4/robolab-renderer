@@ -1,8 +1,8 @@
 package de.robolab.client.jfx.view
 
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
-import de.robolab.client.app.controller.SideBarController
-import de.robolab.client.app.model.ISideBarPlottable
+import de.robolab.client.app.controller.NavigationBarController
+import de.robolab.client.app.model.INavigationBarPlottable
 import de.robolab.client.jfx.adapter.toFx
 import de.robolab.client.jfx.style.MainStyle
 import de.robolab.client.jfx.utils.buttonGroup
@@ -18,10 +18,10 @@ import javafx.scene.layout.Priority
 import javafx.scene.text.FontWeight
 import tornadofx.*
 
-class SideBar(sideBarController: SideBarController) : View() {
+class NavigationBar(navigationBarController: NavigationBarController) : View() {
 
     override val root = vbox {
-        addClass(MainStyle.sideBar)
+        addClass(MainStyle.navigationBar)
 
         hbox {
             addClass(MainStyle.toolBar)
@@ -31,10 +31,10 @@ class SideBar(sideBarController: SideBarController) : View() {
             //spacer()
             buttonGroup {
                 hgrow = Priority.ALWAYS
-                for (tab in SideBarController.Tab.values()) {
+                for (tab in NavigationBarController.Tab.values()) {
                     button(tab.label) {
-                        bindSelectedProperty(sideBarController.tabProperty.mapBinding { it == tab }) {
-                            sideBarController.tabProperty.value = tab
+                        bindSelectedProperty(navigationBarController.tabProperty.mapBinding { it == tab }) {
+                            navigationBarController.tabProperty.value = tab
                         }
                         textOverrun = OverrunStyle.CLIP
 
@@ -46,7 +46,7 @@ class SideBar(sideBarController: SideBarController) : View() {
         }
 
         hbox {
-            textfield(sideBarController.searchStringProperty.toFx()) {
+            textfield(navigationBarController.searchStringProperty.toFx()) {
                 hgrow = Priority.ALWAYS
                 promptText = "Search…"
             }
@@ -58,11 +58,11 @@ class SideBar(sideBarController: SideBarController) : View() {
 
         hbox {
             hgrow = Priority.ALWAYS
-            val sideBarBackButton = hbox {
-                addClass(MainStyle.sideBarBackButton)
+            val navigationBarBackButton = hbox {
+                addClass(MainStyle.navigationBarBackButton)
                 hgrow = Priority.ALWAYS
 
-                label(sideBarController.selectedGroupProperty.nullableFlatMapBinding { it?.tabNameProperty }.mapBinding {
+                label(navigationBarController.selectedGroupProperty.nullableFlatMapBinding { it?.tabNameProperty }.mapBinding {
                     it ?: ""
                 }.toFx()) {
                     style {
@@ -73,26 +73,26 @@ class SideBar(sideBarController: SideBarController) : View() {
 
 
                 setOnMouseClicked {
-                    sideBarController.closeGroup()
+                    navigationBarController.closeGroup()
                 }
             }
 
-            val isVisible = sideBarController.selectedGroupProperty.mapBinding { it != null }
+            val isVisible = navigationBarController.selectedGroupProperty.mapBinding { it != null }
 
             if (!isVisible.value) {
-                sideBarBackButton.removeFromParent()
+                navigationBarBackButton.removeFromParent()
             }
 
             isVisible.onChange {
                 if (isVisible.value) {
-                    add(sideBarBackButton)
+                    add(navigationBarBackButton)
                 } else {
-                    sideBarBackButton.removeFromParent()
+                    navigationBarBackButton.removeFromParent()
                 }
             }
         }
 
-        listview(sideBarController.filteredEntryListProperty.mapBinding { it.toFx() }.toFx()) {
+        listview(navigationBarController.filteredEntryListProperty.mapBinding { it.toFx() }.toFx()) {
             vgrow = Priority.ALWAYS
 
             setCellFactory {
@@ -100,7 +100,7 @@ class SideBar(sideBarController: SideBarController) : View() {
             }
 
             cellFormat { provider ->
-                val selectedProperty = sideBarController.selectedElementListProperty.mapBinding { provider in it }
+                val selectedProperty = navigationBarController.selectedElementListProperty.mapBinding { provider in it }
 
                 graphic = vbox {
                     addClass(MainStyle.listCellGraphic)
@@ -110,7 +110,7 @@ class SideBar(sideBarController: SideBarController) : View() {
                         style {
                             padding = box(0.4.em, 0.5.em)
                         }
-                        if (provider is ISideBarPlottable) {
+                        if (provider is INavigationBarPlottable) {
                             bindClass(MainStyle.disabled, !provider.enabledProperty)
                         }
                         vbox {
@@ -147,25 +147,25 @@ class SideBar(sideBarController: SideBarController) : View() {
             }
 
             onUserSelect(1) {
-                sideBarController.open(it)
+                navigationBarController.open(it)
             }
         }
 
         hbox {
-            bindClass(MainStyle.success, sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.SUCCESS })
-            bindClass(MainStyle.warn, sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.WARN })
-            bindClass(MainStyle.error, sideBarController.statusColor.mapBinding { it == SideBarController.StatusColor.ERROR })
+            bindClass(MainStyle.success, navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.SUCCESS })
+            bindClass(MainStyle.warn, navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.WARN })
+            bindClass(MainStyle.error, navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.ERROR })
 
             style {
                 prefHeight = 2.em
                 padding = box(0.4.em, 0.5.em)
             }
 
-            label(sideBarController.statusMessage.toFx())
+            label(navigationBarController.statusMessage.toFx())
             spacer()
-            label(sideBarController.statusActionLabel.toFx()) {
+            label(navigationBarController.statusActionLabel.toFx()) {
                 setOnMouseClicked {
-                    sideBarController.onStatusAction()
+                    navigationBarController.onStatusAction()
                 }
 
                 style {

@@ -1,7 +1,7 @@
 package de.robolab.client.app.model.file
 
 import de.robolab.client.app.model.IProvider
-import de.robolab.client.app.model.ISideBarEntry
+import de.robolab.client.app.model.INavigationBarEntry
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableMutableList
 import de.westermann.kobserve.list.mapObservable
@@ -17,9 +17,9 @@ actual class FilePlanetProvider actual constructor() : IProvider {
     override val searchStringProperty = property("")
 
     actual val planetList: ObservableMutableList<FilePlanetEntry> = observableListOf()
-    override val entryList: ObservableList<ISideBarEntry> = planetList
+    override val entryList: ObservableList<INavigationBarEntry> = planetList
             .sortByObservable { it.titleProperty.value.toLowerCase() }
-            .mapObservable { it as ISideBarEntry }
+            .mapObservable { it as INavigationBarEntry }
 
     actual fun loadEntry(entry: FilePlanetEntry, onFinish: (String?) -> Unit) {
         try {

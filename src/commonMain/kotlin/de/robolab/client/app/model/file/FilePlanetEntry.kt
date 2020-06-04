@@ -1,7 +1,8 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.model.ISideBarGroup
-import de.robolab.client.app.model.ISideBarPlottable
+import de.robolab.client.app.model.IDetailBox
+import de.robolab.client.app.model.INavigationBarGroup
+import de.robolab.client.app.model.INavigationBarPlottable
 import de.robolab.client.app.model.ToolBarEntry
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.SvgCanvas
@@ -18,12 +19,13 @@ import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
-class FilePlanetEntry(val filename: String, private val provider: FilePlanetProvider) : ISideBarPlottable {
+class FilePlanetEntry(val filename: String, private val provider: FilePlanetProvider) : INavigationBarPlottable {
 
     private val logger = Logger(this)
 
@@ -109,6 +111,8 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override val infoBarList = listOf(InfoBarFileEditor(this), InfoBarTraverser(this))
     override val selectedInfoBarIndexProperty = property<Int?>(0)
+
+    override val detailBoxProperty: ObservableValue<IDetailBox> = constObservable(object : IDetailBox {})
 
     val content: String
         get() = planetFile.content
@@ -197,7 +201,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override val tabNameProperty = titleProperty
 
-    override val parent: ISideBarGroup? = null
+    override val parent: INavigationBarGroup? = null
 
     override val unsavedChangesProperty = planetFile.history.canUndoProperty
 

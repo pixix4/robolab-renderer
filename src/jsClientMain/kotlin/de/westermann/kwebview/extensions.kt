@@ -1,14 +1,14 @@
 package de.westermann.kwebview
 
+import de.robolab.common.utils.Dimension
+import de.robolab.common.utils.Point
+import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.property
 import org.w3c.dom.DOMRect
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.events.Event
-import org.w3c.dom.events.EventListener
-import org.w3c.dom.events.EventTarget
-import org.w3c.dom.events.KeyboardEvent
+import org.w3c.dom.events.*
 import kotlin.browser.document
 
 inline fun <reified V : HTMLElement> createHtmlView(tag: String? = null): V {
@@ -49,7 +49,8 @@ inline fun <reified T> EventHandler<T>.bind(element: EventTarget, event: String)
     updateState()
 }
 
-fun DOMRect.toDimension(): Dimension = Dimension(x, y, width, height)
+fun DOMRect.toRectangle(): Rectangle = Rectangle(x, y, width, height)
+val MouseEvent.clientPosition get() = Point(clientX, clientY)
 
 external fun delete(p: dynamic): Boolean = definedExternally
 

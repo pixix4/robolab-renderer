@@ -1,6 +1,6 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.ISideBarPlottable
+import de.robolab.client.app.model.INavigationBarPlottable
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessageProvider
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
@@ -11,7 +11,7 @@ import de.westermann.kobserve.property.property
 
 class MainController {
 
-    private val selectedEntryProperty = property<ISideBarPlottable?>(null)
+    private val selectedEntryProperty = property<INavigationBarPlottable?>(null)
 
     private val connection = RobolabMqttConnection()
     private val robolabMessageProvider = RobolabMessageProvider(connection)
@@ -23,7 +23,7 @@ class MainController {
         }
 
     val canvasController = CanvasController(selectedEntryProperty)
-    val sideBarController = SideBarController(selectedEntryProperty, messageManager, connection, canvasController)
+    val sideBarController = NavigationBarController(selectedEntryProperty, messageManager, connection, canvasController)
     val toolBarController = ToolBarController(selectedEntryProperty, canvasController)
     val statusBarController = StatusBarController(canvasController)
     val infoBarController = InfoBarController(selectedEntryProperty)

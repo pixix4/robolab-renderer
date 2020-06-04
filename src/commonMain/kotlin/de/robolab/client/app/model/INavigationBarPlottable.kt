@@ -4,12 +4,13 @@ import de.robolab.client.renderer.view.base.Document
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 
-interface ISideBarPlottable : ISideBarEntry {
+interface INavigationBarPlottable : INavigationBarEntry {
 
     val toolBarLeft: List<List<ToolBarEntry>>
     val toolBarRight: List<List<ToolBarEntry>>
 
     val infoBarList: List<IInfoBarContent>
+    val detailBoxProperty: ObservableValue<IDetailBox>
 
     val selectedInfoBarIndexProperty: ObservableProperty<Int?>
 

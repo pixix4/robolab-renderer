@@ -6,9 +6,9 @@ import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
 import tornadofx.*
 
-fun Stylesheet.initSideBarStyle() {
+fun Stylesheet.initNavigationBarStyle() {
 
-    MainStyle.sideBar {
+    MainStyle.navigationBar {
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(0.px, 1.px, 0.px, 0.px))
         borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
@@ -85,7 +85,7 @@ fun Stylesheet.initSideBarStyle() {
         }
     }
 
-    MainStyle.sideBarBackButton {
+    MainStyle.navigationBarBackButton {
         borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px, 0.px, 0.px, 0.px))

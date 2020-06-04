@@ -40,7 +40,7 @@ class MainView : View() {
         val sideBarContainer = stackpane {
             minWidth = 260.0
 
-            add(SideBar(mainController.sideBarController))
+            add(NavigationBar(mainController.sideBarController))
 
             visibleWhen(toolBar.sideBarActiveProperty.toFx())
         }

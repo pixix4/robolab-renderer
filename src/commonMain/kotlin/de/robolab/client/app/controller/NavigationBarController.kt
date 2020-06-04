@@ -1,8 +1,8 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.ISideBarEntry
-import de.robolab.client.app.model.ISideBarGroup
-import de.robolab.client.app.model.ISideBarPlottable
+import de.robolab.client.app.model.INavigationBarEntry
+import de.robolab.client.app.model.INavigationBarGroup
+import de.robolab.client.app.model.INavigationBarPlottable
 import de.robolab.client.app.model.file.FilePlanetProvider
 import de.robolab.client.app.model.group.GroupPlanetProvider
 import de.robolab.client.communication.MessageManager
@@ -15,8 +15,8 @@ import de.westermann.kobserve.property.flattenMutableBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
-class SideBarController(
-    val selectedEntryProperty: ObservableProperty<ISideBarPlottable?>,
+class NavigationBarController(
+    val selectedEntryProperty: ObservableProperty<INavigationBarPlottable?>,
     messageManager: MessageManager,
     private val connection: RobolabMqttConnection,
     private val canvasController: CanvasController
@@ -27,12 +27,12 @@ class SideBarController(
 
     val tabProperty = PreferenceStorage.selectedSideBarTabProperty
 
-    val selectedGroupProperty = property<ISideBarGroup?>(null)
+    val selectedGroupProperty = property<INavigationBarGroup?>(null)
 
     val selectedElementListProperty = selectedEntryProperty.mapBinding {
-        var list = emptyList<ISideBarEntry>()
+        var list = emptyList<INavigationBarEntry>()
 
-        var elem: ISideBarEntry? = it
+        var elem: INavigationBarEntry? = it
         while (elem != null) {
             list = list + elem
             elem = elem.parent
@@ -75,16 +75,16 @@ class SideBarController(
         }
     }
 
-    fun open(entry: ISideBarEntry) {
+    fun open(entry: INavigationBarEntry) {
         when (entry) {
-            is ISideBarGroup -> {
+            is INavigationBarGroup -> {
                 if (selectedGroupProperty.value == entry) {
                     selectedGroupProperty.value = entry.parent
                 } else {
                     selectedGroupProperty.value = entry
                 }
             }
-            is ISideBarPlottable -> {
+            is INavigationBarPlottable -> {
                 canvasController.open(entry)
             }
         }

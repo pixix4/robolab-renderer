@@ -4,7 +4,7 @@ import de.robolab.client.utils.ContextMenu
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableValue
 
-interface ISideBarEntry {
+interface INavigationBarEntry {
 
     val titleProperty: ObservableValue<String>
     val subtitleProperty: ObservableValue<String>
@@ -17,5 +17,5 @@ interface ISideBarEntry {
         throw UnsupportedOperationException()
     }
 
-    val parent: ISideBarGroup?
+    val parent: INavigationBarGroup?
 }

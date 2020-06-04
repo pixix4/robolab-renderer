@@ -1,6 +1,7 @@
 package de.westermann.kwebview
 
 import de.robolab.client.utils.buildJsInterface
+import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.event.EventHandler
 import org.w3c.dom.*
 import org.w3c.dom.css.CSSStyleDeclaration
@@ -94,8 +95,8 @@ abstract class View(view: HTMLElement = createHtmlView()) {
     val offsetTopTotal: Int
         get() = offsetTopTotal()
 
-    val dimension: Dimension
-        get() = html.getBoundingClientRect().toDimension()
+    val dimension: Rectangle
+        get() = html.getBoundingClientRect().toRectangle()
 
     var title by AttributeDelegate()
 

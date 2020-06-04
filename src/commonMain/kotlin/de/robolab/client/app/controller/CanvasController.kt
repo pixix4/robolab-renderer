@@ -1,6 +1,6 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.ISideBarPlottable
+import de.robolab.client.app.model.INavigationBarPlottable
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.plotter.PlotterManager
 import de.robolab.client.renderer.utils.Pointer
@@ -18,7 +18,7 @@ import kotlin.math.PI
 import kotlin.math.roundToInt
 
 class CanvasController(
-    private val selectedEntryProperty: ObservableProperty<ISideBarPlottable?>
+    private val selectedEntryProperty: ObservableProperty<INavigationBarPlottable?>
 ) {
 
     lateinit var plotter: PlotterManager
@@ -39,8 +39,8 @@ class CanvasController(
         zoomProperty.bind(plotter.activePlotterProperty.flatMapBinding { it.transformation.scaleProperty })
     }
 
-    private var plotterMap = mapOf<PlotterManager.Window, ISideBarPlottable>()
-    fun open(plottable: ISideBarPlottable) {
+    private var plotterMap = mapOf<PlotterManager.Window, INavigationBarPlottable>()
+    fun open(plottable: INavigationBarPlottable) {
         val window = plotter.windowList.find { it.plotter.rootDocument == plottable.document }
 
         if (window != null) {
