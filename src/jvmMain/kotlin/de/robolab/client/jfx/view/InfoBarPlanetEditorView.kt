@@ -46,16 +46,16 @@ class InfoBarPlanetEditorView(private val contentProperty: ObservableProperty<St
         change()
 
         editor.richChanges()
-                .filter { ch -> ch.inserted != ch.removed }
-                .subscribe {
-                    if (updateOnTextChange) {
-                        try {
-                            contentProperty.value = editor.text
-                        } catch (_: Exception) {
-                        }
+            .filter { ch -> ch.inserted != ch.removed }
+            .subscribe {
+                if (updateOnTextChange) {
+                    try {
+                        contentProperty.value = editor.text
+                    } catch (_: Exception) {
                     }
-                    updateStyle()
                 }
+                updateStyle()
+            }
         editor.selectionProperty().addListener { _ ->
             if (updateOnTextChange) {
                 // TODO Cursor
@@ -90,14 +90,16 @@ class InfoBarPlanetEditorView(private val contentProperty: ObservableProperty<St
         val spansBuilder = StyleSpansBuilder<Collection<String>>()
         for (line in lines) {
             val valid =
-                    FileLine.PathLine.REGEX.matches(line) ||
-                            FileLine.StartPointLine.REGEX.matches(line) ||
-                            FileLine.TargetLine.REGEX.matches(line) ||
-                            FileLine.BluePointLine.REGEX.matches(line) ||
-                            FileLine.PathSelectLine.REGEX.matches(line) ||
-                            FileLine.NameLine.REGEX.matches(line) ||
-                            FileLine.SplineLine.REGEX.matches(line) ||
-                            FileLine.HiddenLine.REGEX.matches(line)
+                FileLine.PathLine.REGEX.matches(line) ||
+                        FileLine.StartPointLine.REGEX.matches(line) ||
+                        FileLine.TargetLine.REGEX.matches(line) ||
+                        FileLine.BluePointLine.REGEX.matches(line) ||
+                        FileLine.PathSelectLine.REGEX.matches(line) ||
+                        FileLine.NameLine.REGEX.matches(line) ||
+                        FileLine.SplineLine.REGEX.matches(line) ||
+                        FileLine.CommentLine.REGEX.matches(line) ||
+                        FileLine.CommentSubLine.REGEX.matches(line) ||
+                        FileLine.HiddenLine.REGEX.matches(line)
 
             if (valid) {
                 val matcher = PATTERN.matcher(line)
@@ -136,7 +138,19 @@ class InfoBarPlanetEditorView(private val contentProperty: ObservableProperty<St
     }
 
     companion object {
-        private val KEYWORDS = arrayOf("name", "spline", "comment", "blue", "start", "target", "direction")
+        private val KEYWORDS = arrayOf(
+            "comment",
+            "left",
+            "center",
+            "right",
+            "name",
+            "spline",
+            "comment",
+            "blue",
+            "start",
+            "target",
+            "direction"
+        )
 
         private val KEYWORD_PATTERN = ("\\b(" + KEYWORDS.joinToString("|") + ")\\b").toRegex()
         private val DIRECTION_PATTERN = "\\b([NESWnesw])\\b".toRegex()
@@ -147,13 +161,13 @@ class InfoBarPlanetEditorView(private val contentProperty: ObservableProperty<St
         private val TRAILING_WHITESPACE = "\\s*$".toRegex()
 
         private val PATTERN = Pattern.compile(
-                "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
-                        + "|(?<DIRECTION>" + DIRECTION_PATTERN + ")"
-                        + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
-                        + "|(?<HASH>" + HASH_PATTERN + ")"
-                        + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
-                        + "|(?<TRAILING>" + TRAILING_WHITESPACE + ")"
-                        + "|(?<STRING>" + STRING_PATTERN + ")"
+            "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
+                    + "|(?<DIRECTION>" + DIRECTION_PATTERN + ")"
+                    + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
+                    + "|(?<HASH>" + HASH_PATTERN + ")"
+                    + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
+                    + "|(?<TRAILING>" + TRAILING_WHITESPACE + ")"
+                    + "|(?<STRING>" + STRING_PATTERN + ")"
         )
     }
 }
