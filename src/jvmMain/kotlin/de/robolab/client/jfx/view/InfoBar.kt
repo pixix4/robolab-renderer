@@ -62,7 +62,7 @@ class InfoBar(private val infoBarController: InfoBarController) : View() {
 
         when (content) {
             is InfoBarFileEditor -> {
-                contentBox.add(InfoBarPlanetEditorView(content.contentProperty))
+                contentBox.add(InfoBarPlanetEditorView(content))
             }
             is InfoBarTraverser -> {
                 if (content.traverserProperty.value == null) {

@@ -47,6 +47,14 @@ class InfoBarFileEditor(private val filePlanetEntry: FilePlanetEntry) : IInfoBar
     }, filePlanetEntry.planetFile.planetProperty)
     var content by contentProperty
 
+    fun undo() {
+        filePlanetEntry.planetFile.history.undo()
+    }
+
+    fun redo() {
+        filePlanetEntry.planetFile.history.redo()
+    }
+
     sealed class Change {
         data class LineModified(val line: List<Int>) : Change()
         data class LineCountModified(val from: Int, val to: Int) : Change()

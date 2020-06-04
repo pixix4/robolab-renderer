@@ -1,5 +1,6 @@
 package de.robolab.client.jfx.view
 
+import de.robolab.client.app.model.file.InfoBarFileEditor
 import de.robolab.client.jfx.style.MainStyle
 import de.robolab.common.parser.FileLine
 import de.westermann.kobserve.base.ObservableProperty
@@ -20,9 +21,11 @@ import java.util.regex.Pattern
  * @author lars
  */
 @Suppress("RedundantLambdaArrow")
-class InfoBarPlanetEditorView(private val contentProperty: ObservableProperty<String>) : View() {
+class InfoBarPlanetEditorView(private val content: InfoBarFileEditor) : View() {
     private val editor: CodeArea = CodeArea()
     override val root: Parent = editor
+
+    private val contentProperty = content.contentProperty
 
     private var updateOnTextChange = true
 
@@ -64,10 +67,10 @@ class InfoBarPlanetEditorView(private val contentProperty: ObservableProperty<St
 
         editor.setOnKeyPressed { event ->
             if (event.isControlDown && event.code == KeyCode.Z) {
-                // TODO undo
+                content.undo()
             }
             if (event.isControlDown && event.isShiftDown && event.code == KeyCode.Z) {
-                // TODO redo
+                content.redo()
             }
         }
 
