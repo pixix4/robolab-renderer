@@ -305,4 +305,7 @@
   .CodeMirror-activeline-background {
     background: var(--editor-selected-line-color);
   }
+  .CodeMirror-scrollbar-filler {
+    background-color: var(--tertiary-background);
+  }
 }
