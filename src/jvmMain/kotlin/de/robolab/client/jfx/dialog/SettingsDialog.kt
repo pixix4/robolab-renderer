@@ -18,6 +18,8 @@ class SettingsDialog : GenericDialog() {
                         ThemePropertySelectorMapper.selectedThemeGroupProperty.toFx(),
                         ThemePropertySelectorMapper.themeGroupList
                     )
+                }
+                field("Variant") {
                     combobox(
                         ThemePropertySelectorMapper.selectedThemeVariantProperty.toFx(),
                         ThemePropertySelectorMapper.themeVariantList

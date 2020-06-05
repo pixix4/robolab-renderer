@@ -1,6 +1,5 @@
 package de.robolab.client.web
 
-import de.robolab.client.app.controller.FileImportController
 import de.robolab.client.app.controller.MainController
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.web.views.*
@@ -13,12 +12,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
-import org.w3c.files.File
 import kotlin.browser.document
+import kotlin.browser.window
 
 fun main() {
 
-    val debugView = if (PreferenceStorage.debugMode) {
+    val debugView = if (PreferenceStorage.debugMode || window.location.search.contains("debug", true)) {
         createDebugView().also {
             document.body?.appendChild(it.html)
         }
