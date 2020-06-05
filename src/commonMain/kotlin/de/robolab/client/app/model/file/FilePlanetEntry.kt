@@ -116,7 +116,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
     override val infoBarList = listOf(InfoBarFileEditor(this), InfoBarTraverser(this))
     override val selectedInfoBarIndexProperty = property<Int?>(0)
 
-    override val detailBoxProperty: ObservableValue<IDetailBox> = constObservable(object : IDetailBox {})
+    override val detailBoxProperty: ObservableValue<IDetailBox> = constObservable(PlanetStatisticsDetailBox(planetFile))
 
     val content: String
         get() = planetFile.content

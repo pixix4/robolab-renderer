@@ -4,6 +4,7 @@ import de.robolab.client.app.controller.InfoBarController
 import de.robolab.client.app.controller.TraverserBarController
 import de.robolab.client.app.model.file.InfoBarFileEditor
 import de.robolab.client.app.model.file.InfoBarTraverser
+import de.robolab.client.app.model.file.PlanetStatisticsDetailBox
 import de.robolab.client.app.model.group.InfoBarGroupInfo
 import de.robolab.client.app.model.group.JsonDetailBox
 import de.robolab.client.web.views.utils.buttonGroup
@@ -19,11 +20,13 @@ import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.boxView
 import de.westermann.kwebview.components.button
 import kotlin.browser.document
-import kotlin.browser.window
 import kotlin.math.max
 import kotlin.math.min
 
-class InfoBar(private val infoBarController: InfoBarController, infoBarActiveProperty: ObservableProperty<Boolean>) : ViewCollection<View>() {
+class InfoBar(
+    private val infoBarController: InfoBarController,
+    infoBarActiveProperty: ObservableProperty<Boolean>
+) : ViewCollection<View>() {
 
     private val headerView: BoxView
     private val contentView: BoxView
@@ -80,6 +83,9 @@ class InfoBar(private val infoBarController: InfoBarController, infoBarActivePro
         when (data) {
             is JsonDetailBox -> {
                 detailsView.add(DetailBoxJson(data))
+            }
+            is PlanetStatisticsDetailBox -> {
+                detailsView.add(DetailBoxPlanetStatistics(data))
             }
         }
     }

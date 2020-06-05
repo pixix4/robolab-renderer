@@ -33,28 +33,33 @@ class PointAnimatableManager(
         }
     }
 
-    private fun isPointHidden(point: Coordinate, planet: Planet): Boolean {
-        var hidden = point != planet.startPoint?.point
-        hidden = hidden && planet.pathList.asSequence().filter { it.connectsWith(point) }.all { it.hidden }
-        return hidden
-    }
-
     override fun forceUpdate(oldPlanet: Planet, newPlanet: Planet): Boolean {
-        return oldPlanet.bluePoint != newPlanet.bluePoint
+        return oldPlanet.bluePoint != newPlanet.bluePoint || oldPlanet.pathList != newPlanet.pathList
     }
 
     override fun getObjectList(planet: Planet): List<AttributePoint> {
-        return (
-                planet.pathList.flatMap { listOf(it.source, it.target) + it.exposure } +
-                        planet.targetList.flatMap { listOf(it.exposure, it.target) } +
-                        planet.pathSelectList.map { it.point } +
-                        listOfNotNull(planet.startPoint?.point)
-                ).distinct().map { point ->
-                AttributePoint(point, isPointHidden(point, planet))
-            }
+        return getPointList(planet).map { point ->
+            AttributePoint(point, isPointHidden(planet, point))
+        }
     }
 
     override fun createAnimatable(obj: AttributePoint, planet: Planet): PointAnimatable {
         return PointAnimatable(obj, planet, editProperty, createPath)
+    }
+
+    companion object {
+        fun getPointList(planet: Planet): List<Coordinate> {
+            return (planet.pathList.flatMap { listOf(it.source, it.target) + it.exposure } +
+                    planet.targetList.flatMap { listOf(it.exposure, it.target) } +
+                    planet.pathSelectList.map { it.point } +
+                    listOfNotNull(planet.startPoint?.point)
+                    ).distinct()
+        }
+
+        fun isPointHidden(planet: Planet, point: Coordinate): Boolean {
+            var hidden = point != planet.startPoint?.point
+            hidden = hidden && planet.pathList.asSequence().filter { it.connectsWith(point) }.all { it.hidden }
+            return hidden
+        }
     }
 }

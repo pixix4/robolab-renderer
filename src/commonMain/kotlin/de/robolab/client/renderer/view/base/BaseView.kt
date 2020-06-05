@@ -13,6 +13,7 @@ abstract class BaseView(
 
     val animatableManager = AnimatableManager()
 
+    @Suppress("UNUSED_PARAMETER")
     override var enabled: Boolean
         get() = document != null
         set(value) {

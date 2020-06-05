@@ -4,6 +4,7 @@ import de.robolab.client.app.controller.InfoBarController
 import de.robolab.client.app.controller.TraverserBarController
 import de.robolab.client.app.model.file.InfoBarFileEditor
 import de.robolab.client.app.model.file.InfoBarTraverser
+import de.robolab.client.app.model.file.PlanetStatisticsDetailBox
 import de.robolab.client.app.model.group.InfoBarGroupInfo
 import de.robolab.client.app.model.group.JsonDetailBox
 import de.robolab.client.jfx.adapter.toFx
@@ -84,6 +85,9 @@ class InfoBar(private val infoBarController: InfoBarController) : View() {
         when (content) {
             is JsonDetailBox -> {
                 detailBox.add(DetailBoxJson(content))
+            }
+            is PlanetStatisticsDetailBox -> {
+                detailBox.add(DetailBoxPlanetStatistics(content))
             }
         }
     }
