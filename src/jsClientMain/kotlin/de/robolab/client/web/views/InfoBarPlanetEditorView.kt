@@ -1,15 +1,18 @@
 package de.robolab.client.web.views
 
 import de.robolab.client.app.model.file.InfoBarFileEditor
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.boxView
 import org.w3c.dom.HTMLElement
 
-fun BoxView.initInfoBarFileEditorView(content: InfoBarFileEditor) {
+fun BoxView.initInfoBarFileEditorView(
+    content: InfoBarFileEditor,
+    infoBarActiveProperty: ObservableProperty<Boolean>,
+    infoBarWidthProperty: ObservableProperty<Double>
+) {
 
-    val editorContainer = boxView("text-editor-container") {
-
-    }
+    val editorContainer = boxView("text-editor-container")
 
     val editor = TextEditor(editorContainer.html)
 
@@ -20,6 +23,13 @@ fun BoxView.initInfoBarFileEditorView(content: InfoBarFileEditor) {
 
     editor.addOnChangeListener {
         content.contentProperty.value = editor.value
+    }
+
+    infoBarActiveProperty.onChange {
+        editor.refresh()
+    }
+    infoBarWidthProperty.onChange {
+        editor.refresh()
     }
 
     // multilineInputView(content.contentProperty).also {
@@ -34,4 +44,6 @@ external class TextEditor(container: HTMLElement) {
     var value: String
 
     fun addOnChangeListener(callback: () -> Unit)
+
+    fun refresh()
 }

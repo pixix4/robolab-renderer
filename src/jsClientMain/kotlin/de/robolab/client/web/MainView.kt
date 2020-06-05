@@ -44,8 +44,10 @@ fun main() {
             toolBar.navigationBarActiveProperty
         )
         +StatusBar(mainController.statusBarController, toolBar.navigationBarActiveProperty)
-        +MainCanvas(mainController.canvasController, toolBar.navigationBarActiveProperty, toolBar.infoBarActiveProperty)
-        +InfoBar(mainController.infoBarController, toolBar.infoBarActiveProperty)
+
+        val infoBarWidthProperty = property(0.0)
+        +MainCanvas(mainController.canvasController, toolBar.navigationBarActiveProperty, toolBar.infoBarActiveProperty, infoBarWidthProperty)
+        +InfoBar(mainController.infoBarController, toolBar.infoBarActiveProperty, infoBarWidthProperty)
 
         onDragOver { event ->
             event.stopPropagation()

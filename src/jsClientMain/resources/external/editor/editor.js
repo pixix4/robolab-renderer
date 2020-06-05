@@ -69,4 +69,8 @@ class TextEditor {
             callback();
         });
     }
+
+    refresh() {
+        this.editor.refresh()
+    }
 }

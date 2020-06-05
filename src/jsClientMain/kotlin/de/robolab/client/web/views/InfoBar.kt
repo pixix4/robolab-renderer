@@ -25,7 +25,8 @@ import kotlin.math.min
 
 class InfoBar(
     private val infoBarController: InfoBarController,
-    infoBarActiveProperty: ObservableProperty<Boolean>
+    private val infoBarActiveProperty: ObservableProperty<Boolean>,
+    private val infoBarWidthProperty: ObservableProperty<Double>
 ) : ViewCollection<View>() {
 
     private val headerView: BoxView
@@ -61,7 +62,7 @@ class InfoBar(
 
         when (content) {
             is InfoBarFileEditor -> {
-                contentView.initInfoBarFileEditorView(content)
+                contentView.initInfoBarFileEditorView(content, infoBarActiveProperty, infoBarWidthProperty)
             }
             is InfoBarTraverser -> {
                 if (content.traverserProperty.value == null) {

@@ -14,7 +14,8 @@ import kotlin.math.max
 class MainCanvas(
     canvasController: CanvasController,
     navigationBarActiveProperty: ObservableProperty<Boolean>,
-    infoBarActiveProperty: ObservableProperty<Boolean>
+    infoBarActiveProperty: ObservableProperty<Boolean>,
+    infoBarWidthProperty: ObservableProperty<Double>
 ) : ViewCollection<View>() {
 
     private val canvas = Canvas()
@@ -63,6 +64,7 @@ class MainCanvas(
                 } else {
                     width = max(width, 200.0)
                     document.body?.style?.setProperty("--info-bar-width", "${width}px")
+                    infoBarWidthProperty.value = width
                 }
             } else {
                 if (width >= 50.0) {
