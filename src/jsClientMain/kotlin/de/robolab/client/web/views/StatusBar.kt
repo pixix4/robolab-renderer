@@ -6,7 +6,10 @@ import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.textView
 
-class StatusBar(private val statusBarController: StatusBarController, sideBarActiveProperty: ObservableValue<Boolean>) : ViewCollection<View>() {
+class StatusBar(
+    private val statusBarController: StatusBarController,
+    navigationBarActiveProperty: ObservableValue<Boolean>
+) : ViewCollection<View>() {
 
     private fun updateStatusBar() {
         clear()
@@ -16,7 +19,7 @@ class StatusBar(private val statusBarController: StatusBarController, sideBarAct
     }
 
     init {
-        classList.bind("side-bar-active", sideBarActiveProperty)
+        classList.bind("navigation-bar-active", navigationBarActiveProperty)
 
         updateStatusBar()
         statusBarController.entryListProperty.onChange {

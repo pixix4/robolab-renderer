@@ -10,9 +10,10 @@ import javafx.application.Platform
 import javafx.scene.image.Image
 import javafx.scene.input.TransferMode
 import javafx.scene.layout.Priority
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import tornadofx.*
-import java.io.File
-import java.lang.Exception
 import java.util.prefs.Preferences
 import kotlin.system.exitProcess
 
@@ -37,37 +38,37 @@ class MainView : View() {
 
         val toolBar = ToolBar(mainController.toolBarController)
 
-        val sideBarContainer = stackpane {
+        val navigationBarContainer = stackpane {
             minWidth = 260.0
 
-            add(NavigationBar(mainController.sideBarController))
+            add(NavigationBar(mainController.navigationBarController, mainController.fileImportController))
 
-            visibleWhen(toolBar.sideBarActiveProperty.toFx())
+            visibleWhen(toolBar.navigationBarActiveProperty.toFx())
         }
 
-        var lastSideBarWidth = 260.0
-        val sideBarWidthProperty = property(object : DelegatePropertyAccessor<Double> {
+        var lastNavigationBarWidth = 260.0
+        val navigationBarWidthProperty = property(object : DelegatePropertyAccessor<Double> {
             override fun set(value: Double) {
-                sideBarContainer.minWidth = value
-                sideBarContainer.prefWidth = value
-                sideBarContainer.maxWidth = value
+                navigationBarContainer.minWidth = value
+                navigationBarContainer.prefWidth = value
+                navigationBarContainer.maxWidth = value
                 if (value > 0.0) {
-                    lastSideBarWidth = value
+                    lastNavigationBarWidth = value
                 }
             }
 
             override fun get(): Double {
-                return sideBarContainer.width
+                return navigationBarContainer.width
             }
         })
-        sideBarContainer.widthProperty().onChange {
-            sideBarWidthProperty.onChange.emit(Unit)
+        navigationBarContainer.widthProperty().onChange {
+            navigationBarWidthProperty.onChange.emit(Unit)
         }
-        toolBar.sideBarActiveProperty.onChange {
-            if (toolBar.sideBarActiveProperty.value) {
-                sideBarWidthProperty.value = lastSideBarWidth
+        toolBar.navigationBarActiveProperty.onChange {
+            if (toolBar.navigationBarActiveProperty.value) {
+                navigationBarWidthProperty.value = lastNavigationBarWidth
             } else {
-                sideBarWidthProperty.value = 0.0
+                navigationBarWidthProperty.value = 0.0
             }
         }
 
@@ -76,7 +77,7 @@ class MainView : View() {
             hgrow = Priority.ALWAYS
             vgrow = Priority.ALWAYS
 
-            val prefWidthBinding = window.widthProperty().subtract(sideBarContainer.widthProperty())
+            val prefWidthBinding = window.widthProperty().subtract(navigationBarContainer.widthProperty())
             prefWidthProperty().bind(prefWidthBinding)
             maxWidthProperty().bind(prefWidthBinding)
             minWidthProperty().bind(prefWidthBinding)
@@ -122,8 +123,8 @@ class MainView : View() {
             center {
                 val mainCanvas = MainCanvas(
                     mainController.canvasController,
-                    toolBar.sideBarActiveProperty,
-                    sideBarWidthProperty,
+                    toolBar.navigationBarActiveProperty,
+                    navigationBarWidthProperty,
                     toolBar.infoBarActiveProperty,
                     infoBarWidthProperty
                 )
@@ -144,8 +145,13 @@ class MainView : View() {
 
         }
 
-        setOnDragOver {  event ->
-            if (event.gestureSource != this && event.dragboard.hasFiles()) {
+        setOnDragOver { event ->
+            if (event.gestureSource != this &&
+                event.dragboard.hasFiles() &&
+                event.dragboard.files.any {
+                    mainController.fileImportController.isFileSupported(it.name)
+                }
+            ) {
                 event.acceptTransferModes(TransferMode.COPY);
             }
             event.consume();
@@ -156,8 +162,19 @@ class MainView : View() {
         setOnDragDropped { event ->
             var success = false
             if (event.dragboard.hasFiles()) {
-                for (file in event.dragboard.files) {
-                    importFile(file)
+                val fileList = event.dragboard.files.toList()
+                GlobalScope.launch(Dispatchers.Default) {
+                    for (file in fileList) {
+                        try {
+                            mainController.fileImportController.importFile(
+                                file.name,
+                                file.readText()
+                            )
+                        } catch (e: Exception) {
+                            logger.w { "Cannot import file '${file.absolutePath}'" }
+                            logger.w { e }
+                        }
+                    }
                 }
                 success = true
             }
@@ -167,7 +184,8 @@ class MainView : View() {
     }
 
     private fun getPreferences(nodeName: String? = null): Preferences {
-        return if (nodeName != null) Preferences.userRoot().node(nodeName) else Preferences.userNodeForPackage(FX.getApplication(scope)!!.javaClass)
+        return if (nodeName != null) Preferences.userRoot()
+            .node(nodeName) else Preferences.userNodeForPackage(FX.getApplication(scope)!!.javaClass)
     }
 
     override fun onUndock() {
@@ -209,7 +227,7 @@ class MainView : View() {
             primaryStage.x = x
         }
         if (useY) {
-            primaryStage.y =y
+            primaryStage.y = y
         }
 
         if (maximized) {
@@ -217,13 +235,5 @@ class MainView : View() {
         }
 
         primaryStage.requestFocus()
-    }
-
-    private fun importFile(file: File) {
-        try {
-            mainController.importLogFile(file.readText())
-        } catch (e: Exception) {
-            logger.w { "Cannot import log file '${file.absolutePath}'" }
-        }
     }
 }

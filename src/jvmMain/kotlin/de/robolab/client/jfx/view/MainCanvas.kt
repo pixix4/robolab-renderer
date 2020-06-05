@@ -9,8 +9,8 @@ import kotlin.math.max
 
 class MainCanvas(
     canvasController: CanvasController,
-    sideBarActiveProperty: ObservableProperty<Boolean>,
-    sideBarWidthProperty: ObservableProperty<Double>,
+    navigationBarActiveProperty: ObservableProperty<Boolean>,
+    navigationBarWidthProperty: ObservableProperty<Double>,
     infoBarActiveProperty: ObservableProperty<Boolean>,
     infoBarWidthProperty: ObservableProperty<Double>
 ) : View() {
@@ -50,16 +50,16 @@ class MainCanvas(
             setOnMouseDragged { event ->
                 if (event.button == javafx.scene.input.MouseButton.PRIMARY) {
                     var width = event.screenX - scene.window.x
-                    if (sideBarActiveProperty.value) {
+                    if (navigationBarActiveProperty.value) {
                         if (width < 50.0) {
-                            sideBarActiveProperty.value = false
+                            navigationBarActiveProperty.value = false
                         } else {
                             width = max(width, 200.0)
-                            sideBarWidthProperty.value = width
+                            navigationBarWidthProperty.value = width
                         }
                     } else {
                         if (width >= 50.0) {
-                            sideBarActiveProperty.value = true
+                            navigationBarActiveProperty.value = true
                         }
                     }
                 }

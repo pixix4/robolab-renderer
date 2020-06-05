@@ -1,12 +1,15 @@
 package de.robolab.client.jfx.view
 
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
+import de.robolab.client.app.controller.FileImportController
 import de.robolab.client.app.controller.NavigationBarController
 import de.robolab.client.app.model.INavigationBarPlottable
 import de.robolab.client.jfx.adapter.toFx
 import de.robolab.client.jfx.style.MainStyle
 import de.robolab.client.jfx.utils.buttonGroup
 import de.robolab.client.jfx.utils.icon
+import de.robolab.client.jfx.utils.iconNoAdd
+import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.not
@@ -16,9 +19,18 @@ import javafx.css.Styleable
 import javafx.scene.control.OverrunStyle
 import javafx.scene.layout.Priority
 import javafx.scene.text.FontWeight
+import javafx.stage.FileChooser
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import tornadofx.*
 
-class NavigationBar(navigationBarController: NavigationBarController) : View() {
+class NavigationBar(
+    navigationBarController: NavigationBarController,
+    fileImportController: FileImportController
+) : View() {
+
+    private val logger = Logger(this)
 
     override val root = vbox {
         addClass(MainStyle.navigationBar)
@@ -46,9 +58,38 @@ class NavigationBar(navigationBarController: NavigationBarController) : View() {
         }
 
         hbox {
-            textfield(navigationBarController.searchStringProperty.toFx()) {
-                hgrow = Priority.ALWAYS
-                promptText = "Search…"
+            buttonGroup {
+                textfield(navigationBarController.searchStringProperty.toFx()) {
+                    hgrow = Priority.ALWAYS
+                    promptText = "Search…"
+                }
+                button {
+                    graphic = iconNoAdd(MaterialIcon.ADD)
+
+                    setOnAction {
+                        val files = chooseFile(
+                            "Import file",
+                            fileImportController.supportedFiles.map { (label, types) ->
+                                FileChooser.ExtensionFilter(label, *types.toTypedArray())
+                            }.toTypedArray(),
+                            owner = primaryStage
+                        )
+
+                        GlobalScope.launch(Dispatchers.Default) {
+                            for (file in files) {
+                                try {
+                                    fileImportController.importFile(
+                                        file.name,
+                                        file.readText()
+                                    )
+                                } catch (e: Exception) {
+                                    logger.w { "Cannot import file '${file.absolutePath}'" }
+                                    logger.w { e }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             style {
@@ -62,9 +103,10 @@ class NavigationBar(navigationBarController: NavigationBarController) : View() {
                 addClass(MainStyle.navigationBarBackButton)
                 hgrow = Priority.ALWAYS
 
-                label(navigationBarController.selectedGroupProperty.nullableFlatMapBinding { it?.tabNameProperty }.mapBinding {
-                    it ?: ""
-                }.toFx()) {
+                label(navigationBarController.selectedGroupProperty.nullableFlatMapBinding { it?.tabNameProperty }
+                    .mapBinding {
+                        it ?: ""
+                    }.toFx()) {
                     style {
                         fontWeight = FontWeight.BOLD
                         padding = box(0.5.em, 1.em)
@@ -152,9 +194,15 @@ class NavigationBar(navigationBarController: NavigationBarController) : View() {
         }
 
         hbox {
-            bindClass(MainStyle.success, navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.SUCCESS })
-            bindClass(MainStyle.warn, navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.WARN })
-            bindClass(MainStyle.error, navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.ERROR })
+            bindClass(
+                MainStyle.success,
+                navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.SUCCESS })
+            bindClass(
+                MainStyle.warn,
+                navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.WARN })
+            bindClass(
+                MainStyle.error,
+                navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.ERROR })
 
             style {
                 prefHeight = 2.em

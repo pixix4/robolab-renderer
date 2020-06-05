@@ -1,9 +1,13 @@
 package de.robolab.client.web.views
 
+import de.robolab.client.app.controller.FileImportController
 import de.robolab.client.app.controller.NavigationBarController
 import de.robolab.client.app.model.INavigationBarEntry
 import de.robolab.client.app.model.INavigationBarPlottable
+import de.robolab.client.web.openFile
+import de.robolab.client.web.readText
 import de.robolab.client.web.views.utils.buttonGroup
+import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.not
@@ -13,16 +17,23 @@ import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
-class SideBar(private val navigationBarController: NavigationBarController, sideBarActiveProperty: ObservableProperty<Boolean>) :
+class NavigationBar(
+    private val navigationBarController: NavigationBarController,
+    private val fileImportController: FileImportController,
+    navigationBarActiveProperty: ObservableProperty<Boolean>
+) :
     ViewCollection<View>() {
 
-    private fun createEntry(entry: INavigationBarEntry) = SideBarEntry(entry, navigationBarController)
+    private fun createEntry(entry: INavigationBarEntry) = NavigationBarEntry(entry, navigationBarController)
 
     init {
-        classList.bind("active", sideBarActiveProperty)
+        classList.bind("active", navigationBarActiveProperty)
 
-        boxView("side-bar-header") {
+        boxView("navigation-bar-header") {
             buttonGroup {
                 for (tab in NavigationBarController.Tab.values()) {
                     button(tab.label) {
@@ -34,12 +45,11 @@ class SideBar(private val navigationBarController: NavigationBarController, side
                 }
             }
         }
-        boxView("side-bar-content") {
-            boxView("side-bar-search") {
+        boxView("navigation-bar-content") {
+            boxView("navigation-bar-search", "button-group") {
                 val searchView = inputView(InputType.SEARCH, navigationBarController.searchStringProperty) {
                     placeholder = "Search…"
                 }
-
                 iconView(MaterialIcon.CANCEL) {
                     onClick {
                         it.preventDefault()
@@ -48,8 +58,26 @@ class SideBar(private val navigationBarController: NavigationBarController, side
                         searchView.focus()
                     }
                 }
+
+                button {
+                    iconView(MaterialIcon.ADD)
+
+                    onClick {
+                        GlobalScope.launch(Dispatchers.Main) {
+                            val files =
+                                openFile(*fileImportController.supportedFileTypes.toTypedArray())
+
+                            for (file in files) {
+                                val content = file.readText()
+                                if (content != null) {
+                                    fileImportController.importFile(file.name, content)
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            boxView("side-bar-group-head") {
+            boxView("navigation-bar-group-head") {
                 textView(navigationBarController.selectedGroupProperty.nullableFlatMapBinding { it?.tabNameProperty }
                     .mapBinding {
                         it ?: ""
@@ -61,14 +89,14 @@ class SideBar(private val navigationBarController: NavigationBarController, side
                     navigationBarController.closeGroup()
                 }
             }
-            boxView("side-bar-list") {
-                listFactory(navigationBarController.filteredEntryListProperty, this@SideBar::createEntry)
+            boxView("navigation-bar-list") {
+                listFactory(navigationBarController.filteredEntryListProperty, this@NavigationBar::createEntry)
             }
-            boxView("side-bar-empty") {
+            boxView("navigation-bar-empty") {
                 textView("Nothing to show!")
             }
         }
-        boxView("side-bar-footer") {
+        boxView("navigation-bar-footer") {
             classList.bind(
                 "success",
                 navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.SUCCESS })
@@ -87,10 +115,10 @@ class SideBar(private val navigationBarController: NavigationBarController, side
             }
         }
 
-        // Close side bar on mobile
+        // Close navigation bar on mobile
         onClick {
-            if (it.target == html && sideBarActiveProperty.value) {
-                sideBarActiveProperty.value = false
+            if (it.target == html && navigationBarActiveProperty.value) {
+                navigationBarActiveProperty.value = false
                 it.preventDefault()
                 it.stopPropagation()
             }
@@ -98,7 +126,8 @@ class SideBar(private val navigationBarController: NavigationBarController, side
     }
 }
 
-class SideBarEntry(entry: INavigationBarEntry, navigationBarController: NavigationBarController) : ViewCollection<View>() {
+class NavigationBarEntry(entry: INavigationBarEntry, navigationBarController: NavigationBarController) :
+    ViewCollection<View>() {
 
     private val selectedProperty = navigationBarController.selectedElementListProperty.mapBinding { entry in it }
 

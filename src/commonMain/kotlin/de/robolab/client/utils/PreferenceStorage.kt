@@ -31,8 +31,8 @@ object PreferenceStorage : TypedStorage() {
     val useSystemThemeProperty = item("ui.useSystemTheme", true)
     var useSystemTheme by useSystemThemeProperty
 
-    val selectedSideBarTabProperty = item("ui.selectedSideBarTab", NavigationBarController.Tab.FILE)
-    var selectedSideBarTab by selectedSideBarTabProperty
+    val selectedNavigationBarTabProperty = item("ui.selectedNavigationBarTab", NavigationBarController.Tab.GROUP)
+    var selectedNavigationBarTab by selectedNavigationBarTabProperty
 
 
     val clientIdProperty =

@@ -1,6 +1,6 @@
 @use '../utils';
 
-.side-bar {
+.navigation-bar {
   @include utils.prevent-user-select();
 
   position: absolute;
@@ -28,9 +28,9 @@
 }
 
 @include utils.desktop {
-  .side-bar {
-    left: -(var(--side-bar-width));
-    width: var(--side-bar-width);
+  .navigation-bar {
+    left: -(var(--navigation-bar-width));
+    width: var(--navigation-bar-width);
 
     &.active {
       left: 0;
@@ -42,7 +42,7 @@
   }
 }
 
-.side-bar-header {
+.navigation-bar-header {
   line-height: 2.8rem;
   height: 3rem;
   width: 100%;
@@ -70,7 +70,7 @@
   }
 }
 
-.side-bar-content {
+.navigation-bar-content {
   position: absolute;
   top: 3rem;
   left: 0;
@@ -80,7 +80,7 @@
   overscroll-behavior: contain;
 }
 
-.side-bar-footer {
+.navigation-bar-footer {
   @include utils.prevent-user-select();
 
   height: 2rem;
@@ -119,7 +119,7 @@
   }
 }
 
-.side-bar-group-head {
+.navigation-bar-group-head {
   padding: 0.8rem 1rem;
   border-bottom: solid 1px var(--border-color);
   position: relative;
@@ -139,7 +139,7 @@
   }
 }
 
-.side-bar-entry {
+.navigation-bar-entry {
   padding: 0.8rem 1rem;
   border-bottom: solid 1px var(--border-color);
   position: relative;
@@ -186,7 +186,7 @@
   }
 }
 
-.side-bar-empty {
+.navigation-bar-empty {
   position: absolute;
   top: 3rem;
   left: 0;
@@ -202,11 +202,11 @@
   }
 }
 
-.side-bar-list:empty ~ .side-bar-empty {
+.navigation-bar-list:empty ~ .navigation-bar-empty {
   display: flex;
 }
 
-.side-bar-search {
+.navigation-bar-search {
   display: flex;
   padding: 0 0.5rem;
   align-items: center;
@@ -224,10 +224,10 @@
     }
   }
 
-  .icon-view {
+  .input-view ~ .icon-view {
     position: absolute;
     top: 0;
-    right: 0.5rem;
+    right: 3.5rem;
     line-height: 3rem;
     width: 2rem;
     color: var(--secondary-text-color);

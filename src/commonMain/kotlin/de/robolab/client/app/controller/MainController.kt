@@ -25,19 +25,15 @@ class MainController {
             if (name == null) "RobolabRenderer" else "RobolabRenderer - $name"
         }
 
+    val fileImportController = FileImportController(robolabMessageProvider)
+
     val canvasController = CanvasController(selectedEntryProperty)
-    val sideBarController = NavigationBarController(selectedEntryProperty, messageManager, connection, canvasController)
+    val navigationBarController = NavigationBarController(selectedEntryProperty, messageManager, connection, canvasController)
     val toolBarController = ToolBarController(selectedEntryProperty, canvasController)
     val statusBarController = StatusBarController(canvasController)
     val infoBarController = InfoBarController(selectedEntryProperty)
 
     init {
         ConsoleGreeter.greet()
-    }
-
-    fun importLogFile(log: String) {
-        GlobalScope.launch(Dispatchers.Default) {
-            robolabMessageProvider.importMqttLog(log)
-        }
     }
 }

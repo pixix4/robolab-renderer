@@ -1,11 +1,21 @@
 package de.robolab.client.web
 
+import de.robolab.client.app.controller.FileImportController
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.common.utils.Logger
 import de.westermann.kwebview.components.Canvas
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.Event
+import org.w3c.files.File
+import org.w3c.files.FileReader
 import kotlin.browser.document
 import kotlin.browser.window
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 // external fun decodeURIComponent(encodedURI: String): String
@@ -37,6 +47,49 @@ fun triggerDownloadPNG(filename: String, canvas: Canvas) {
     element.click()
 
     document.body?.removeChild(element)
+}
+
+suspend fun openFile(vararg accept: String): List<File> = suspendCoroutine { continuation ->
+    val fileInput = document.createElement("input") as HTMLInputElement
+    fileInput.type = "file"
+    if (accept.isNotEmpty()) {
+        fileInput.accept = accept.joinToString(",")
+    }
+
+    fileInput.onchange = { event ->
+        val target = event.target
+        if (target != null && target is HTMLInputElement) {
+            val files = target.files?.let { fileList ->
+                (0 until fileList.length).map { fileList.item(it)!! }
+            } ?: emptyList()
+
+            continuation.resume(files)
+        }
+    }
+    fileInput.onabort = {
+        continuation.resume(emptyList())
+    }
+
+    fileInput.style.display = "none"
+    document.body?.appendChild(fileInput)
+
+    fileInput.click()
+
+    document.body?.removeChild(fileInput)
+}
+
+suspend fun File.readText(): String? = suspendCoroutine { continuation ->
+    val reader = FileReader()
+
+    reader.onload = {
+        continuation.resume(reader.result as? String)
+    }
+
+    reader.onerror = {
+        continuation.resume(null)
+    }
+
+    reader.readAsText(this)
 }
 
 fun watchSystemTheme() {

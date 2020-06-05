@@ -194,7 +194,6 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
 
         backgroundPlanet.onChange {
             val planet = backgroundPlanet.value ?: Planet.EMPTY
-            println("Background planet changed to ${planet.name}")
             drawable.importBackgroundPlanet(planet, true)
             drawable.importServerPlanet(serverPlanet.importSplines(planet), true)
             drawable.importMqttPlanet(mqttPlanet.importSplines(planet))

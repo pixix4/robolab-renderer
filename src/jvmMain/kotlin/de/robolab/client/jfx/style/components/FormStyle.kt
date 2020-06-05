@@ -173,11 +173,30 @@ fun Stylesheet.initFormStyle() {
             }
             and(Stylesheet.focused) {
                 borderWidth = multi(box(1.px))
+            }
+        }
 
-                // This would fix the 1px border width change. But java fx does not support the `next` selector.
-                // next(Stylesheet.button) {
-                //     borderWidth = multi(box(1.px, 1.px, 1.px, 0.px))
-                // }
+        Stylesheet.textField {
+            borderRadius = multi(box(0.px))
+            backgroundRadius = multi(box(0.px))
+
+            borderWidth = multi(box(1.px, 0.px, 1.px, 1.px))
+
+            and(MainStyle.first) {
+                borderRadius = multi(box(MainStyle.BORDER_RADIUS, 0.px, 0.px, MainStyle.BORDER_RADIUS))
+                backgroundRadius = multi(box(MainStyle.BORDER_RADIUS, 0.px, 0.px, MainStyle.BORDER_RADIUS))
+            }
+            and(MainStyle.last) {
+                borderWidth = multi(box(1.px))
+                borderRadius = multi(box(0.px, MainStyle.BORDER_RADIUS, MainStyle.BORDER_RADIUS, 0.px))
+                backgroundRadius = multi(box(0.px, MainStyle.BORDER_RADIUS, MainStyle.BORDER_RADIUS, 0.px))
+                and(MainStyle.first) {
+                    borderRadius = multi(box(MainStyle.BORDER_RADIUS))
+                    backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
+                }
+            }
+            and(Stylesheet.focused) {
+                borderWidth = multi(box(1.px))
             }
         }
     }

@@ -1,17 +1,19 @@
 package de.robolab.client.web
 
+import de.robolab.client.app.controller.FileImportController
 import de.robolab.client.app.controller.MainController
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.web.views.*
-import de.robolab.common.utils.Logger
 import de.robolab.common.utils.toDashCase
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.init
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
 import org.w3c.files.File
-import org.w3c.files.FileReader
 import kotlin.browser.document
 
 fun main() {
@@ -37,9 +39,13 @@ fun main() {
 
         val toolBar = ToolBar(mainController.toolBarController)
         +toolBar
-        +SideBar(mainController.sideBarController, toolBar.sideBarActiveProperty)
-        +StatusBar(mainController.statusBarController, toolBar.sideBarActiveProperty)
-        +MainCanvas(mainController.canvasController, toolBar.sideBarActiveProperty, toolBar.infoBarActiveProperty)
+        +NavigationBar(
+            mainController.navigationBarController,
+            mainController.fileImportController,
+            toolBar.navigationBarActiveProperty
+        )
+        +StatusBar(mainController.statusBarController, toolBar.navigationBarActiveProperty)
+        +MainCanvas(mainController.canvasController, toolBar.navigationBarActiveProperty, toolBar.infoBarActiveProperty)
         +InfoBar(mainController.infoBarController, toolBar.infoBarActiveProperty)
 
         onDragOver { event ->
@@ -54,35 +60,21 @@ fun main() {
             event.preventDefault()
             val files = event.dataTransfer?.files?.let { fileList ->
                 (0 until fileList.length).map { fileList.item(it)!! }
-            } ?: return@onDrop
+            } ?: emptyList()
 
-            for (file in files) {
-                importFile(file, mainController)
+            GlobalScope.launch(Dispatchers.Default) {
+                for (file in files) {
+                    val content = file.readText()
+                    if (content != null) {
+                        mainController.fileImportController.importFile(file.name, content)
+                    }
+                }
             }
         }
     }
 }
 
-private fun importFile(file: File, mainController: MainController) {
-    val reader = FileReader()
-
-    reader.onload = {
-        val data = reader.result as? String
-
-        if (data == null) {
-            Logger("MainApp").w { "Cannot import dragged log file!" }
-        } else {
-            mainController.importLogFile(data)
-        }
-    }
-
-    reader.onerror = {
-        Logger("MainApp").w { "Cannot import dragged log file!" }
-    }
-
-    reader.readAsText(file)
-}
-
+@Suppress("UnsafeCastFromDynamic")
 fun createDebugView(): BoxView {
     val box = BoxView()
     box.classList += "debug-terminal"

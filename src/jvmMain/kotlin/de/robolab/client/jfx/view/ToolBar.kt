@@ -20,7 +20,7 @@ import tornadofx.*
 
 class ToolBar(private val toolBarController: ToolBarController) : View() {
 
-    val sideBarActiveProperty = property(true)
+    val navigationBarActiveProperty = property(true)
     val infoBarActiveProperty = property(true)
 
     private fun ToolBarEntry.Icon.convert() = when (this) {
@@ -71,9 +71,9 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
             hbox {
                 button {
                     graphic = iconNoAdd(MaterialIcon.MENU)
-                    tooltip("Toggle side bar")
+                    tooltip("Toggle navigation bar")
 
-                    bindSelectedProperty(sideBarActiveProperty)
+                    bindSelectedProperty(navigationBarActiveProperty)
                 }
 
                 paddingRight = 8

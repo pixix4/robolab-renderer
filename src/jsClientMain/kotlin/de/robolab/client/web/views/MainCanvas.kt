@@ -13,7 +13,7 @@ import kotlin.math.max
 
 class MainCanvas(
     canvasController: CanvasController,
-    sideBarActiveProperty: ObservableProperty<Boolean>,
+    navigationBarActiveProperty: ObservableProperty<Boolean>,
     infoBarActiveProperty: ObservableProperty<Boolean>
 ) : ViewCollection<View>() {
 
@@ -34,23 +34,23 @@ class MainCanvas(
     }
 
     init {
-        classList.bind("side-bar-active", sideBarActiveProperty)
+        classList.bind("navigation-bar-active", navigationBarActiveProperty)
         classList.bind("info-bar-active", infoBarActiveProperty)
 
         +canvas
 
-        +ResizeView("side-bar-resize") { position, _ ->
+        +ResizeView("navigation-bar-resize") { position, _ ->
             var width = position.x
-            if (sideBarActiveProperty.value) {
+            if (navigationBarActiveProperty.value) {
                 if (width < 50.0) {
-                    sideBarActiveProperty.value = false
+                    navigationBarActiveProperty.value = false
                 } else {
                     width = max(width, 200.0)
-                    document.body?.style?.setProperty("--side-bar-width", "${width}px")
+                    document.body?.style?.setProperty("--navigation-bar-width", "${width}px")
                 }
             } else {
                 if (width >= 50.0) {
-                    sideBarActiveProperty.value = true
+                    navigationBarActiveProperty.value = true
                 }
             }
         }

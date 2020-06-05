@@ -25,7 +25,7 @@ class NavigationBarController(
     private val filePlanetProvider = FilePlanetProvider()
     private val groupPlanetProperty = GroupPlanetProvider(messageManager, filePlanetProvider)
 
-    val tabProperty = PreferenceStorage.selectedSideBarTabProperty
+    val tabProperty = PreferenceStorage.selectedNavigationBarTabProperty
 
     val selectedGroupProperty = property<INavigationBarGroup?>(null)
 

@@ -27,7 +27,7 @@
 }
 
 @include utils.desktop {
-  .status-bar.side-bar-active {
-    left: var(--side-bar-width);
+  .status-bar.navigation-bar-active {
+    left: var(--navigation-bar-width);
   }
 }

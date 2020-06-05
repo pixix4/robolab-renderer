@@ -17,7 +17,7 @@ import kotlin.browser.window
 
 class ToolBar(private val toolBarController: ToolBarController) : ViewCollection<View>() {
 
-    val sideBarActiveProperty = property(true)
+    val navigationBarActiveProperty = property(true)
     val infoBarActiveProperty = property(window.innerWidth >= 1500)
 
     private fun ToolBarEntry.Icon.convert() = when (this) {
@@ -76,17 +76,17 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
     }
 
     init {
-        classList.bind("side-bar-active", sideBarActiveProperty)
+        classList.bind("navigation-bar-active", navigationBarActiveProperty)
 
         boxView("tool-bar-left") {
             button {
                 iconView(MaterialIcon.MENU)
-                title = "Toggle side bar"
+                title = "Toggle navigation bar"
 
-                classList.bind("active", sideBarActiveProperty)
+                classList.bind("active", navigationBarActiveProperty)
 
                 onClick {
-                    sideBarActiveProperty.value = !sideBarActiveProperty.value
+                    navigationBarActiveProperty.value = !navigationBarActiveProperty.value
                 }
             }
 

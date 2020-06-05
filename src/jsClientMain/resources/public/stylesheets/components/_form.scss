@@ -37,6 +37,7 @@ input::placeholder {
   background-color: var(--tertiary-background);
   border: solid 1px var(--border-color);
   line-height: 2rem;
+  height: 2.2rem;
   padding: 0 1rem;
   font-size: 1rem;
   margin: 0 0.2rem;
@@ -71,23 +72,23 @@ input::placeholder {
 .button-group {
   white-space: nowrap;
 
-  .button:not(:last-child) {
+  .button:not(:last-child), .input-view:not(:last-child) {
     margin-right: 0;
     border-bottom-right-radius: 0;
     border-top-right-radius: 0;
     border-right-style: none;
   }
 
-  .button:not(:first-child) {
+  .button:not(:first-child), .input-view:not(:first-child) {
     margin-left: 0;
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
   }
 
-  .button:active, .button:focus {
+  .button:active, .button:focus, .input-view:active, .input-view:focus {
     border-right-style: solid;
 
-    & + .button {
+    & + .button, & + .input-view  {
       border-left-style: none;
     }
   }
@@ -101,6 +102,7 @@ input::placeholder {
   color: var(--primary-text-color);
   padding: 0.5rem 1rem;
   transition: background-color 200ms, border-color 200ms;
+  height: 2.2rem;
 
   &:hover {
     background-color: var(--tertiary-hover-background);

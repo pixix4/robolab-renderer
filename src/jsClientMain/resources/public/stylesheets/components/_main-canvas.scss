@@ -25,7 +25,7 @@
   }
 }
 
-.side-bar-resize {
+.navigation-bar-resize {
   left: 0;
 }
 
@@ -35,8 +35,8 @@
 
 @include utils.desktop {
   .main-canvas {
-    &.side-bar-active {
-      left: var(--side-bar-width);
+    &.navigation-bar-active {
+      left: var(--navigation-bar-width);
     }
 
     &.info-bar-active {
