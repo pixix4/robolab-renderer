@@ -17,6 +17,11 @@
   padding: 0 0.5rem;
   display: flex;
   overscroll-behavior: contain;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   div {
     display: flex;

@@ -18,6 +18,9 @@ body, html {
   font-family: Roboto, sans-serif;
   overscroll-behavior: none;
 
+  scrollbar-width: thin;
+  scrollbar-color: var(--secondary-text-color) var(--tertiary-background);
+
   --navigation-bar-width: 20rem;
   --info-bar-width: 20rem;
   --detail-box-height: 30%;
@@ -29,6 +32,19 @@ body, html {
 * {
   box-sizing: border-box;
   font-family: Roboto, sans-serif;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+  background-color: var(--tertiary-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--secondary-text-color);
+}
+::-webkit-scrollbar-corner {
+  background-color: var(--tertiary-background);
 }
 
 .noscript {
