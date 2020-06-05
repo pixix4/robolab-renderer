@@ -226,7 +226,9 @@ val jsClientJar = tasks.named<Jar>("jsClientJar") {
     dependsOn("jsClientBrowserProductionWebpack")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    from(jsClientBrowserProductionWebpack)
+    val file = jsClientBrowserProductionWebpack.get().outputs.files.files.first { it.name == "robolab.js" }
+    val sourceMap = file.resolveSibling("robolab.js.map")
+    from(file, sourceMap)
 }
 
 tasks.create<Sync>("jsClientSync") {
