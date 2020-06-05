@@ -162,7 +162,7 @@ enum class MaterialIcon(private val ligature: String) : Icon {
     CHAT("chat"),
     CHAT_BUBBLE("chat_bubble"),
     CHAT_BUBBLE_OUTLINE("chat_bubble_outline"),
-    CHECK("checkUpdates"),
+    CHECK("check"),
     CHECK_BOX("check_box"),
     CHECK_BOX_OUTLINE_BLANK("check_box_outline_blank"),
     CHECK_CIRCLE("check_circle "),

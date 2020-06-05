@@ -70,6 +70,10 @@ interface IEditCallback {
         logger.warn { "Plotter action 'setCommentPosition($comment, $position, $groupHistory)' is not supported!" }
     }
 
+    fun setCommentAlignment(comment: Comment, alignment: Comment.Alignment, groupHistory: Boolean = false) {
+        logger.warn { "Plotter action 'setCommentAlignment($comment, $alignment, $groupHistory)' is not supported!" }
+    }
+
     fun deleteComment(comment: Comment, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'deleteComment($comment, $groupHistory)' is not supported!" }
     }

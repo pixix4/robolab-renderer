@@ -71,8 +71,21 @@
     background-color: var(--primary-hover-background);
   }
 
-  .icon-view {
+  .icon-view:not(:first-child) {
     padding-left: 0.5rem;
+  }
+}
+.context-check-menu-entry {
+  padding-left: 2rem;
+  position: relative;
+
+  .icon-view:first-child {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2rem;
+    text-align: center;
+    line-height: 2.5rem;
   }
 }
 

@@ -13,8 +13,9 @@ interface ContextMenuEntry {
 }
 
 data class ContextMenuAction(
-        override val label: String,
-        val action: () -> Unit
+    override val label: String,
+    val checked: Boolean?,
+    val action: () -> Unit
 ) : ContextMenuEntry
 
 data class ContextMenuList(
@@ -44,8 +45,8 @@ class MenuBuilder {
         entries += ContextMenuList(name, menuBuilder.entries)
     }
 
-    fun action(name: String, action: () -> Unit) {
-        entries += ContextMenuAction(name, action)
+    fun action(name: String, checked: Boolean? = null, action: () -> Unit) {
+        entries += ContextMenuAction(name, checked, action)
     }
 }
 
@@ -53,10 +54,10 @@ fun menuBilder(position: Point, name: String, init: MenuBuilder.() -> Unit): Con
     val menuBuilder = MenuBuilder()
     init(menuBuilder)
     return ContextMenu(
-            position,
-            ContextMenuList(
-                    name,
-                    menuBuilder.entries
-            )
+        position,
+        ContextMenuList(
+            name,
+            menuBuilder.entries
+        )
     )
 }

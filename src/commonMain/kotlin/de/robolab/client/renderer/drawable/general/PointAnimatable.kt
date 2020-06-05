@@ -1,10 +1,10 @@
 package de.robolab.client.renderer.drawable.general
 
+import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.drawable.base.Animatable
 import de.robolab.client.renderer.drawable.edit.CreatePathManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.drawable.utils.toPoint
-import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.extraPut
 import de.robolab.client.renderer.view.base.menu
@@ -23,11 +23,11 @@ class PointAnimatable(
 ) : Animatable<PointAnimatableManager.AttributePoint>(reference) {
 
     override val view = SquareView(
-            reference.coordinate.toPoint(),
-            PlottingConstraints.POINT_SIZE,
-            PlottingConstraints.LINE_WIDTH * 0.65,
-            calcColor(planet),
-            !reference.hidden
+        reference.coordinate.toPoint(),
+        PlottingConstraints.POINT_SIZE,
+        PlottingConstraints.LINE_WIDTH * 0.65,
+        calcColor(planet),
+        !reference.hidden
     )
 
     override fun onUpdate(obj: PointAnimatableManager.AttributePoint, planet: Planet) {
@@ -58,13 +58,13 @@ class PointAnimatable(
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             if (event.ctrlKey && focusedView != null) {
                 val targetCoordinate = Coordinate(
-                        view.center.left.roundToInt(),
-                        view.center.top.roundToInt()
+                    view.center.left.roundToInt(),
+                    view.center.top.roundToInt()
                 )
 
                 val exposureCoordinate = Coordinate(
-                        focusedView.center.left.roundToInt(),
-                        focusedView.center.top.roundToInt()
+                    focusedView.center.left.roundToInt(),
+                    focusedView.center.top.roundToInt()
                 )
 
                 callback.toggleTargetExposure(targetCoordinate, exposureCoordinate)
@@ -73,12 +73,12 @@ class PointAnimatable(
             }
         }
 
-        view.onPointerSecondaryAction {event ->
+        view.onPointerSecondaryAction { event ->
             val callback = editProperty.value ?: return@onPointerSecondaryAction
             event.stopPropagation()
-            
+
             val coordinate = this.reference.coordinate
-            
+
             val pathList = planet.pathList.filter { it.connectsWith(coordinate) }
             val pathExposureList = planet.pathList.filter { coordinate in it.exposure }
             val targetList = planet.targetList.filter { it.target == coordinate || it.exposure == coordinate }
@@ -92,7 +92,12 @@ class PointAnimatable(
                         callback.deleteStartPoint(false)
                     }
                 } else {
-                    val openDirections = (Direction.values().toList() - pathList.flatMap { listOf(it.source to it.sourceDirection, it.target to it.targetDirection) }.filter { it.first == coordinate }.map { it.second.opposite() })
+                    val openDirections = (Direction.values().toList() - pathList.flatMap {
+                        listOf(
+                            it.source to it.sourceDirection,
+                            it.target to it.targetDirection
+                        )
+                    }.filter { it.first == coordinate }.map { it.second.opposite() })
 
                     if (openDirections.isNotEmpty()) {
                         menu("Add start edge") {
@@ -107,7 +112,8 @@ class PointAnimatable(
 
                 menu("Toggle path select") {
                     for (direction in Direction.values()) {
-                        action(direction.name.toLowerCase().capitalize()) {
+                        val isChecked = pathSelectList.find { it.direction == direction } != null
+                        action(direction.name.toLowerCase().capitalize(), isChecked) {
                             callback.togglePathSelect(coordinate, direction)
                         }
                     }
@@ -178,7 +184,7 @@ class PointAnimatable(
                 }
             }
         }
-        
+
         for (direction in Direction.values()) {
             setupPointEnd(reference.coordinate, direction, editProperty, createPath)
         }
@@ -192,10 +198,10 @@ class PointAnimatable(
             createPath: CreatePathManager?
         ): SquareView {
             val squareView = SquareView(
-                    coordinate.toPoint() + direction.toVector() * PlottingConstraints.POINT_SIZE,
-                    PlottingConstraints.POINT_SIZE,
-                    PlottingConstraints.LINE_WIDTH * 0.65,
-                    ViewColor.TRANSPARENT
+                coordinate.toPoint() + direction.toVector() * PlottingConstraints.POINT_SIZE,
+                PlottingConstraints.POINT_SIZE,
+                PlottingConstraints.LINE_WIDTH * 0.65,
+                ViewColor.TRANSPARENT
             )
             squareView.animationTime = 0.0
             squareView.extraPut(coordinate)

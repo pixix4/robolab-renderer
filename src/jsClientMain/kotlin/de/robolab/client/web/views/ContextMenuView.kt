@@ -73,6 +73,13 @@ class ContextMenuView(
                 val entryBox = BoxView()
                 entryBox.classList += "context-menu-entry"
                 entryBox.apply {
+                    if (entry is ContextMenuAction && entry.checked != null) {
+                        classList += "context-check-menu-entry"
+
+                        if (entry.checked) {
+                            iconView(MaterialIcon.CHECK)
+                        }
+                    }
 
                     textView(entry.label)
                     if (entry is ContextMenuList) {

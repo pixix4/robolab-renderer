@@ -82,5 +82,10 @@ fun Stylesheet.initToolBarStyle() {
                 backgroundColor = multi(MainStyle.theme.ui.secondaryTextColor.toFx())
             }
         }
+
+        s(".check-menu-item") {
+            unsafe("-fx-mark-color", MainStyle.theme.ui.primaryTextColor.toFx())
+            unsafe("-fx-focused-mark-color", MainStyle.theme.ui.primaryTextColor.toFx())
+        }
     }
 }

@@ -34,7 +34,7 @@ class PointAnimatableManager(
     }
 
     override fun forceUpdate(oldPlanet: Planet, newPlanet: Planet): Boolean {
-        return oldPlanet.bluePoint != newPlanet.bluePoint || oldPlanet.pathList != newPlanet.pathList
+        return true
     }
 
     override fun getObjectList(planet: Planet): List<AttributePoint> {

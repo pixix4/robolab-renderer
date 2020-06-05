@@ -76,10 +76,18 @@ class CommentAnimatable(
 
         view.onPointerSecondaryAction { event ->
             val callback = editProperty.value ?: return@onPointerSecondaryAction
+            val comment = this@CommentAnimatable.reference
 
             view.menu(event, "Comment") {
+                menu("Alignment") {
+                    for (alignment in Comment.Alignment.values()) {
+                        action(alignment.name.toLowerCase().capitalize(), comment.alignment == alignment) {
+                            callback.setCommentAlignment(comment, alignment)
+                        }
+                    }
+                }
                 action("Delete") {
-                    callback.deleteComment(this@CommentAnimatable.reference)
+                    callback.deleteComment(comment)
                 }
             }
 

@@ -326,6 +326,26 @@ class PlanetFile(fileContent: String) : IEditCallback {
         }
     }
 
+    override fun setCommentAlignment(comment: Comment, alignment: Comment.Alignment, groupHistory: Boolean) {
+        val newLines = lines.toMutableList()
+
+        val index = newLines.indexOfFirst { it is FileLine.CommentLine && it.isAssociatedTo(comment) }
+        if (index < 0) {
+            return
+        }
+
+        newLines.removeAll {
+            it.isAssociatedTo(comment)
+        }
+        newLines.addAll(index, FileLine.CommentLine.createAll(comment.copy(alignment = alignment)))
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
     override fun deleteComment(comment: Comment, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 

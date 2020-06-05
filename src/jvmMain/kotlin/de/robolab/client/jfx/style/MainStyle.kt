@@ -5,6 +5,7 @@ import de.robolab.client.jfx.style.components.*
 import de.robolab.client.utils.PreferenceStorage
 import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
+import javafx.scene.shape.StrokeType
 import javafx.scene.text.Font
 import tornadofx.*
 

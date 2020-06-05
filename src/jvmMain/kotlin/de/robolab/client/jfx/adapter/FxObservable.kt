@@ -9,6 +9,7 @@ import javafx.beans.value.ObservableValue
 import javafx.beans.value.ObservableValueBase
 import javafx.collections.ObservableList
 import javafx.collections.ObservableListBase
+import javafx.scene.control.CheckMenuItem
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
 import tornadofx.onChange
@@ -85,19 +86,30 @@ fun ContextMenu.toFx(): javafx.scene.control.ContextMenu {
 }
 
 fun ContextMenuEntry.toFx(): MenuItem {
-    if (this is ContextMenuList) {
-        val menu = Menu(label)
+    when (this) {
+        is ContextMenuList -> {
+            val menu = Menu(label)
 
-        menu.items.addAll(entries.map { it.toFx() })
+            menu.items.addAll(entries.map { it.toFx() })
 
-        return menu
-    } else if (this is ContextMenuAction) {
-        return MenuItem(label).also {
-            it.setOnAction {
-                action()
+            return menu
+        }
+        is ContextMenuAction -> {
+            return if (checked == null) {
+                MenuItem(label).also {
+                    it.setOnAction {
+                        action()
+                    }
+                }
+            } else {
+                CheckMenuItem(label).also {
+                    it.isSelected = checked
+                    it.setOnAction {
+                        action()
+                    }
+                }
             }
         }
+        else -> throw IllegalArgumentException()
     }
-
-    throw IllegalArgumentException()
 }
