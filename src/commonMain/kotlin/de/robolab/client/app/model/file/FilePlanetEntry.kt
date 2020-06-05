@@ -15,6 +15,8 @@ import de.robolab.client.theme.LightTheme
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.menuBilder
 import de.robolab.common.parser.PlanetFile
+import de.robolab.common.planet.Coordinate
+import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
@@ -79,6 +81,14 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
                 enabledProperty = drawable.flipViewProperty.mapBinding { it != null }
             ) {
                 drawable.flip()
+            }
+        ),
+        listOf(
+            ToolBarEntry(
+                constObservable("Transform"),
+                toolTipProperty = constObservable("Apply planet transformations")
+            ) {
+                openPlanetTransformDialog(planetFile)
             }
         )
     )
@@ -225,4 +235,5 @@ expect fun exportPNGCanvas(dimension: Dimension): ICanvas
 expect fun saveExportSVG(name: String, content: String)
 expect fun saveExportPNG(name: String, canvas: ICanvas)
 expect fun openExportDialog(provider: FilePlanetEntry)
+expect fun openPlanetTransformDialog(planetFile: PlanetFile)
 expect fun openPaperConstraintsDialog()

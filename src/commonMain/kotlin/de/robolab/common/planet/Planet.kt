@@ -1,5 +1,8 @@
 package de.robolab.common.planet
 
+import kotlin.math.PI
+import kotlin.math.roundToInt
+
 data class Planet(
     val name: String,
     val startPoint: StartPoint?,
@@ -41,6 +44,42 @@ data class Planet(
         )
 
         return tmp
+    }
+
+    fun translate(delta: Coordinate) = Planet(
+        name,
+        startPoint?.translate(delta),
+        bluePoint?.translate(delta),
+        pathList.map { it.translate(delta) },
+        targetList.map { it.translate(delta) },
+        pathSelectList.map { it.translate(delta) },
+        commentList.map { it.translate(delta) }
+    )
+
+    fun rotate(direction: RotateDirection, origin: Coordinate = startPoint?.point ?: Coordinate(0, 0)) = Planet(
+        name,
+        startPoint?.rotate(direction, origin),
+        bluePoint?.rotate(direction, origin),
+        pathList.map { it.rotate(direction, origin) },
+        targetList.map { it.rotate(direction, origin) },
+        pathSelectList.map { it.rotate(direction, origin) },
+        commentList.map { it.rotate(direction, origin) }
+    )
+
+    fun scaleWeights(factor: Double = 1.0, offset: Int = 0): Planet {
+        return copy(
+            pathList = pathList.map { path ->
+                path.copy(
+                    weight = path.weight?.let { weight ->
+                        if (weight > 0) (weight * factor).roundToInt() + offset else weight
+                    }
+                )
+            }
+        )
+    }
+
+    enum class RotateDirection(val angle: Double) {
+        CLOCKWISE(3 * PI / 2), COUNTER_CLOCKWISE(PI / 2)
     }
 
     companion object {

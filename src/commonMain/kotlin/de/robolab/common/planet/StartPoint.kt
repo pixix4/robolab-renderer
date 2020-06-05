@@ -1,5 +1,6 @@
 package de.robolab.common.planet
 
+import de.robolab.client.renderer.drawable.utils.toPoint
 import de.robolab.common.utils.Point
 
 data class StartPoint(
@@ -20,4 +21,16 @@ data class StartPoint(
     )
 
     fun equalPoint(other: StartPoint) = point == other.point && orientation == other.orientation
+
+    fun translate(delta: Coordinate) = StartPoint(
+        point.translate(delta),
+        orientation,
+        controlPoints.map { it + delta.toPoint() }
+    )
+
+    fun rotate(direction: Planet.RotateDirection, origin: Coordinate) = StartPoint(
+        point.rotate(direction, origin),
+        orientation.rotate(direction),
+        controlPoints.map { it.rotate(direction.angle, origin.toPoint()) }
+    )
 }

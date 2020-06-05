@@ -1,16 +1,20 @@
 package de.robolab.client.renderer.drawable.edit
 
-import de.robolab.common.planet.Comment
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
-import de.robolab.common.planet.Path
+import de.robolab.common.planet.*
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
 
 private val logger = Logger("IEditCallback")
 
 interface IEditCallback {
-    fun createPath(startPoint: Coordinate, startDirection: Direction, endPoint: Coordinate, endDirection: Direction, controlPoints: List<Point>, groupHistory: Boolean = false) {
+    fun createPath(
+        startPoint: Coordinate,
+        startDirection: Direction,
+        endPoint: Coordinate,
+        endDirection: Direction,
+        controlPoints: List<Point>,
+        groupHistory: Boolean = false
+    ) {
         logger.warn { "Plotter action 'drawPath($startPoint, $startDirection, $endPoint, $endDirection, $controlPoints, $groupHistory)' is not supported!" }
     }
 
@@ -53,7 +57,7 @@ interface IEditCallback {
     fun setPathWeight(path: Path, weight: Int, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'setPathWeight($path, $weight, $groupHistory)' is not supported!" }
     }
-    
+
     fun createComment(value: List<String>, position: Point, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'createComment($value, $position, $groupHistory)' is not supported!" }
     }
@@ -68,6 +72,19 @@ interface IEditCallback {
 
     fun deleteComment(comment: Comment, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'deleteComment($comment, $groupHistory)' is not supported!" }
+    }
+
+
+    fun translate(delta: Coordinate, groupHistory: Boolean = false) {
+        logger.warn { "Plotter action 'translate($delta, $groupHistory)' is not supported!" }
+    }
+
+    fun rotate(direction: Planet.RotateDirection, origin: Coordinate, groupHistory: Boolean = false) {
+        logger.warn { "Plotter action 'rotate($direction, $origin, $groupHistory)' is not supported!" }
+    }
+
+    fun scaleWeights(factor: Double, offset: Int, groupHistory: Boolean = false) {
+        logger.warn { "Plotter action 'scaleWeights($factor, $offset, $groupHistory)' is not supported!" }
     }
 
 

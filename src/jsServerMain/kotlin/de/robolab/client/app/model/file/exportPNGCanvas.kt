@@ -2,6 +2,7 @@ package de.robolab.client.app.model.file
 
 
 import de.robolab.client.renderer.canvas.ICanvas
+import de.robolab.common.parser.PlanetFile
 import de.robolab.common.utils.Dimension
 
 actual fun exportPNGCanvas(dimension: Dimension): ICanvas {
@@ -21,5 +22,9 @@ actual fun openExportDialog(provider: FilePlanetEntry) {
 }
 
 actual fun openPaperConstraintsDialog() {
+    throw UnsupportedOperationException()
+}
+
+actual fun openPlanetTransformDialog(planetFile: PlanetFile) {
     throw UnsupportedOperationException()
 }

@@ -1,5 +1,6 @@
 package de.robolab.common.planet
 
+import de.robolab.client.renderer.drawable.utils.toPoint
 import de.robolab.common.utils.Point
 
 data class Path(
@@ -52,6 +53,30 @@ data class Path(
             controlPoints = controlPoints.reversed()
         )
     }
+
+    fun translate(delta: Coordinate) = Path(
+        source.translate(delta),
+        sourceDirection,
+        target.translate(delta),
+        targetDirection,
+        weight,
+        exposure.map { it.translate(delta) }.toSet(),
+        controlPoints.map { it + delta.toPoint() },
+        hidden,
+        showDirectionArrow
+    )
+
+    fun rotate(direction: Planet.RotateDirection, origin: Coordinate) = Path(
+        source.rotate(direction, origin),
+        sourceDirection.rotate(direction),
+        target.rotate(direction, origin),
+        targetDirection.rotate(direction),
+        weight,
+        exposure.map { it.rotate(direction, origin) }.toSet(),
+        controlPoints.map { it.rotate(direction.angle, origin.toPoint()) },
+        hidden,
+        showDirectionArrow
+    )
 
     override fun toString(): String = "Path(" +
             "${source.x},${source.y},${sourceDirection.letter()} " +

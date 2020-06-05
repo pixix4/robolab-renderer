@@ -3,8 +3,10 @@ package de.robolab.client.app.model.file
 import de.robolab.client.jfx.adapter.AwtCanvas
 import de.robolab.client.jfx.dialog.ExportDialog
 import de.robolab.client.jfx.dialog.PaperConstraintsDialog
+import de.robolab.client.jfx.dialog.PlanetTransformDialog
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.common.parser.PlanetFile
 import de.robolab.common.utils.Dimension
 import java.io.File
 
@@ -27,4 +29,8 @@ actual fun openExportDialog(provider: FilePlanetEntry) {
 
 actual fun openPaperConstraintsDialog() {
     PaperConstraintsDialog.open()
+}
+
+actual fun openPlanetTransformDialog(planetFile: PlanetFile) {
+    PlanetTransformDialog.open(planetFile)
 }

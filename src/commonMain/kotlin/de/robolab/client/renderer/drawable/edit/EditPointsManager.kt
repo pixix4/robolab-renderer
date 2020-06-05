@@ -4,6 +4,7 @@ import de.robolab.client.renderer.drawable.general.PointAnimatable
 import de.robolab.client.renderer.drawable.utils.toPoint
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.view.base.ViewColor
+import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.GroupView
 import de.robolab.client.renderer.view.component.SquareView
 import de.robolab.common.planet.Coordinate
@@ -53,6 +54,33 @@ class EditPointsManager(
                 callback.toggleTargetExposure(targetCoordinate, exposureCoordinate)
 
                 event.stopPropagation()
+            }
+        }
+
+        view.onPointerSecondaryAction {event ->
+            val callback = editCallbackProperty.value ?: return@onPointerSecondaryAction
+            event.stopPropagation()
+
+            val startPoint = planet.startPoint?.point
+
+            view.menu(event, "Point ${coordinate.x}, ${coordinate.y}") {
+                if (startPoint != null && startPoint != coordinate) {
+                    action("Translate start point") {
+                        callback.translate(
+                            Coordinate(
+                                coordinate.x - startPoint.x,
+                                coordinate.y - startPoint.y
+                            )
+                        )
+                    }
+                }
+
+                action("Rotate clockwise") {
+                    callback.rotate(Planet.RotateDirection.CLOCKWISE, coordinate)
+                }
+                action("Rotate counter clockwise") {
+                    callback.rotate(Planet.RotateDirection.COUNTER_CLOCKWISE, coordinate)
+                }
             }
         }
         

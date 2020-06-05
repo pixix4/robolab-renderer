@@ -69,10 +69,16 @@ data class Point(
 
     fun orthogonal() = Point(-y, x)
     
-    fun rotate(rotation: Double) = Point(
-            left * cos(rotation) - top * sin(rotation),
-            left * sin(rotation) + top * cos(rotation)
-    )
+    fun rotate(rotation: Double, origin: Point = ZERO): Point {
+        return if (origin == ZERO) {
+            Point(
+                left * cos(rotation) - top * sin(rotation),
+                left * sin(rotation) + top * cos(rotation)
+            )
+        } else {
+            (this - origin).rotate(rotation) + origin
+        }
+    }
 
     fun inverse() = Point(-x, -y)
 

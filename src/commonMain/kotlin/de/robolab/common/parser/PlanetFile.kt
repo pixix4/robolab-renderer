@@ -1,11 +1,13 @@
 package de.robolab.common.parser
 
 import de.robolab.client.renderer.drawable.edit.IEditCallback
+import de.robolab.client.renderer.drawable.utils.toPoint
 import de.robolab.client.renderer.utils.History
 import de.robolab.common.planet.*
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.property.mapBinding
+import kotlin.math.roundToInt
 
 class PlanetFile(fileContent: String) : IEditCallback {
 
@@ -344,5 +346,114 @@ class PlanetFile(fileContent: String) : IEditCallback {
 
     override fun redo() {
         history.redo()
+    }
+
+    override fun translate(delta: Coordinate, groupHistory: Boolean) {
+        val newLines = lines.toMutableList()
+
+        for (i in 0 until newLines.size) {
+            when (val line = newLines[i]) {
+                is FileLine.StartPointLine -> {
+                    val obj = line.data.translate(delta)
+                    newLines[i] = FileLine.StartPointLine.create(obj)
+                }
+                is FileLine.BluePointLine -> {
+                    val obj = line.data.translate(delta)
+                    newLines[i] = FileLine.BluePointLine.create(obj)
+                }
+                is FileLine.PathLine -> {
+                    val obj = line.data.translate(delta)
+                    newLines[i] = FileLine.PathLine.create(obj)
+                }
+                is FileLine.SplineLine -> {
+                    val obj = line.data.map { it + delta.toPoint() }
+                    newLines[i] = FileLine.SplineLine.create(obj)
+                }
+                is FileLine.TargetLine -> {
+                    val obj = line.data.translate(delta)
+                    newLines[i] = FileLine.TargetLine.create(obj)
+                }
+                is FileLine.PathSelectLine -> {
+                    val obj = line.data.translate(delta)
+                    newLines[i] = FileLine.PathSelectLine.create(obj)
+                }
+                is FileLine.CommentLine -> {
+                    val obj = line.data.translate(delta)
+                    newLines[i] = FileLine.CommentLine.create(obj)
+                }
+            }
+        }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
+    override fun rotate(direction: Planet.RotateDirection, origin: Coordinate, groupHistory: Boolean) {
+        val newLines = lines.toMutableList()
+
+        for (i in 0 until newLines.size) {
+            when (val line = newLines[i]) {
+                is FileLine.StartPointLine -> {
+                    val obj = line.data.rotate(direction, origin)
+                    newLines[i] = FileLine.StartPointLine.create(obj)
+                }
+                is FileLine.BluePointLine -> {
+                    val obj = line.data.rotate(direction, origin)
+                    newLines[i] = FileLine.BluePointLine.create(obj)
+                }
+                is FileLine.PathLine -> {
+                    val obj = line.data.rotate(direction, origin)
+                    newLines[i] = FileLine.PathLine.create(obj)
+                }
+                is FileLine.SplineLine -> {
+                    val obj = line.data.map { it.rotate(direction.angle, origin.toPoint()) }
+                    newLines[i] = FileLine.SplineLine.create(obj)
+                }
+                is FileLine.TargetLine -> {
+                    val obj = line.data.rotate(direction, origin)
+                    newLines[i] = FileLine.TargetLine.create(obj)
+                }
+                is FileLine.PathSelectLine -> {
+                    val obj = line.data.rotate(direction, origin)
+                    newLines[i] = FileLine.PathSelectLine.create(obj)
+                }
+                is FileLine.CommentLine -> {
+                    val obj = line.data.rotate(direction, origin)
+                    newLines[i] = FileLine.CommentLine.create(obj)
+                }
+            }
+        }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
+
+    override fun scaleWeights(factor: Double, offset: Int, groupHistory: Boolean) {
+        val newLines = lines.toMutableList()
+
+        for (i in 0 until newLines.size) {
+            when (val line = newLines[i]) {
+                is FileLine.PathLine -> {
+                    val obj = line.data.copy(
+                        weight = line.data.weight?.let { weight ->
+                            if (weight > 0) (weight * factor).roundToInt() + offset else weight
+                        }
+                    )
+                    newLines[i] = FileLine.PathLine.create(obj)
+                }
+            }
+        }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
     }
 }

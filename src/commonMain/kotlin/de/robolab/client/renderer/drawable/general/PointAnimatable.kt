@@ -83,7 +83,8 @@ class PointAnimatable(
             val pathExposureList = planet.pathList.filter { coordinate in it.exposure }
             val targetList = planet.targetList.filter { it.target == coordinate || it.exposure == coordinate }
             val pathSelectList = planet.pathSelectList.filter { it.point == coordinate }
-            val isStartPoint = planet.startPoint?.point == coordinate
+            val startPoint = planet.startPoint?.point
+            val isStartPoint = startPoint == coordinate
 
             view.menu(event, "Point ${coordinate.x}, ${coordinate.y}") {
                 if (isStartPoint) {
@@ -130,6 +131,26 @@ class PointAnimatable(
                         action("Mark as red") {
                             callback.setBluePoint(Coordinate(coordinate.x + 1, coordinate.y))
                         }
+                    }
+                }
+
+                menu("Transform") {
+                    if (startPoint != null && startPoint != coordinate) {
+                        action("Translate start point") {
+                            callback.translate(
+                                Coordinate(
+                                    coordinate.x - startPoint.x,
+                                    coordinate.y - startPoint.y
+                                )
+                            )
+                        }
+                    }
+
+                    action("Rotate clockwise") {
+                        callback.rotate(Planet.RotateDirection.CLOCKWISE, coordinate)
+                    }
+                    action("Rotate counter clockwise") {
+                        callback.rotate(Planet.RotateDirection.COUNTER_CLOCKWISE, coordinate)
                     }
                 }
 

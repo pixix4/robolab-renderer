@@ -6,8 +6,10 @@ import de.robolab.client.web.adapter.WebCanvas
 import de.robolab.client.web.dialog.Dialog
 import de.robolab.client.web.dialog.ExportDialog
 import de.robolab.client.web.dialog.PaperConstraintsDialog
+import de.robolab.client.web.dialog.PlanetTransformDialog
 import de.robolab.client.web.triggerDownload
 import de.robolab.client.web.triggerDownloadPNG
+import de.robolab.common.parser.PlanetFile
 import de.robolab.common.utils.Dimension
 import de.westermann.kwebview.components.Canvas
 
@@ -34,4 +36,8 @@ actual fun openExportDialog(provider: FilePlanetEntry) {
 
 actual fun openPaperConstraintsDialog() {
     Dialog.open(PaperConstraintsDialog())
+}
+
+actual fun openPlanetTransformDialog(planetFile: PlanetFile) {
+    Dialog.open(PlanetTransformDialog(planetFile))
 }

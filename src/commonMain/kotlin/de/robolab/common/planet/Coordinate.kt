@@ -1,5 +1,11 @@
 package de.robolab.common.planet
 
+import de.robolab.common.utils.Point
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sin
+
 data class Coordinate(val x: Int, val y: Int) {
 
     fun getColor(bluePoint: Coordinate?): Color {
@@ -11,6 +17,15 @@ data class Coordinate(val x: Int, val y: Int) {
             return Color.BLUE
         }
         return Color.RED
+    }
+
+    fun translate(delta: Coordinate) = Coordinate(x + delta.x, y + delta.y)
+
+    fun rotate(direction: Planet.RotateDirection, origin: Coordinate): Coordinate {
+        return Coordinate(
+            ((x - origin.x) * cos(direction.angle) - (y - origin.y) * sin(direction.angle)).roundToInt() + origin.x,
+            ((x - origin.x) * sin(direction.angle) + (y - origin.y) * cos(direction.angle)).roundToInt() + origin.y
+        )
     }
 
     enum class Color {
