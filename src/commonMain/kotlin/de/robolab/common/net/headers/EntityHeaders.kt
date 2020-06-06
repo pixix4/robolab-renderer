@@ -21,7 +21,7 @@ class ContentTypeHeader(value: String) : Header(name, value) {
     }
 
     companion object{
-        const val name: String = "Content-Type"
+        const val name: String = "content-type"
 
         private val mimeRegex: Regex = regex {
             capture {

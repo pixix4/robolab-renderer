@@ -4,6 +4,7 @@ import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.ContentTypeHeader
 import de.robolab.common.net.headers.TypedHeaders
+import de.robolab.common.net.headers.toLowerCaseKeys
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
@@ -32,15 +33,16 @@ interface IServerResponse {
 }
 
 val IServerResponse.contentType: ContentTypeHeader?
-    get() = null
+    get() = typedHeaders.contentTypeHeaders.firstOrNull()
 
-data class ServerResponse(
+class ServerResponse(
     override val status: HttpStatusCode,
     override val method: HttpMethod,
     override val url: String,
     override val body: String?,
-    override val headers: Map<String, List<String>>
+    headers: Map<String, List<String>>
 ) : IServerResponse {
+    override val headers: Map<String, List<String>> = headers.toLowerCaseKeys(true)
     override val jsonBody: JsonElement? by lazy { super.jsonBody }
-    override val typedHeaders: TypedHeaders = TypedHeaders.parse(headers)
+    override val typedHeaders: TypedHeaders = TypedHeaders.parseLowerCase(headers)
 }

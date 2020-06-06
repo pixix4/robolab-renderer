@@ -35,3 +35,7 @@ private val jsTruthyTest: (Any?) -> Boolean = js(
 
 fun Any?.jsFalsy() = !jsTruthyTest(this)
 fun Any?.jsTruthy() = jsTruthyTest(this)
+fun jsFalsy(obj:Any?) = !jsTruthyTest(obj)
+fun jsTruthy(obj:Any?) = jsTruthyTest(obj)
+fun jsFalsy(obj:dynamic) = !jsTruthyTest(obj as Any?)
+fun jsTruthy(obj:dynamic) = jsTruthyTest(obj as Any?)

@@ -8,7 +8,7 @@ import de.robolab.common.planet.ID
 
 object ListPlanets : IRESTRequest<ListPlanets.ListPlanetsResponse>{
     override val method: HttpMethod = HttpMethod.GET
-    override val path: String = "/planets"
+    override val path: String = "/api/planets"
     override val body: String? = null
     override val query: Map<String, String> = emptyMap()
     override val headers: Map<String, List<String>> = mapOf()
@@ -24,7 +24,7 @@ object ListPlanets : IRESTRequest<ListPlanets.ListPlanetsResponse>{
             if(serverResponse.status != HttpStatusCode.Ok){
                 planets = emptyList()
             }else{
-                when(val mimeType = serverResponse.typedHeaders.contentTypeHeaders.single().mimeType){
+                when(val mimeType = serverResponse.contentType?.mimeType){
                     MIMEType.JSON -> {
                         planets = jsonBody!!.jsonArray.map{
                             val infoJson = it.jsonObject
@@ -53,8 +53,8 @@ object ListPlanets : IRESTRequest<ListPlanets.ListPlanetsResponse>{
     }
 
     data class PlanetInfo(
-        val name:String,
-        val id:ID
+        val id:ID,
+        val name:String
     )
 }
 
