@@ -2,14 +2,20 @@ package de.robolab.client.jfx.style.components
 
 import de.robolab.client.jfx.adapter.toFx
 import de.robolab.client.jfx.style.MainStyle
+import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import tornadofx.Stylesheet
+import tornadofx.multi
 
 fun Stylesheet.initCodeAreaStyle() {
 
     MainStyle.codeArea {
         font = Font.font("RobotoMono")
+    }
+
+    s(".virtualized-scroll-pane") {
+        backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
     }
 
     MainStyle.editorKeyword {

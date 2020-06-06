@@ -91,6 +91,7 @@ kotlin {
 
                 implementation("de.jensd:fontawesomefx-commons:9.1.2")
                 implementation("de.jensd:fontawesomefx-materialicons:2.2.0-9.1.2")
+                implementation("org.fxmisc.flowless:flowless:0.6.1")
                 implementation("org.fxmisc.richtext:richtextfx:0.10.5")
                 implementation("org.fusesource.jansi:jansi:1.18")
                 implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4")

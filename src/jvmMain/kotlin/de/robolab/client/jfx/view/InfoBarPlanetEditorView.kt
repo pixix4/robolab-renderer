@@ -6,14 +6,13 @@ import de.robolab.common.parser.FileLine
 import de.westermann.kobserve.base.ObservableProperty
 import javafx.scene.Parent
 import javafx.scene.input.KeyCode
+import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.Priority
+import org.fxmisc.flowless.VirtualizedScrollPane
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.model.StyleSpans
 import org.fxmisc.richtext.model.StyleSpansBuilder
-import tornadofx.View
-import tornadofx.addClass
-import tornadofx.hgrow
-import tornadofx.vgrow
+import tornadofx.*
 import java.util.*
 import java.util.regex.Pattern
 
@@ -23,7 +22,20 @@ import java.util.regex.Pattern
 @Suppress("RedundantLambdaArrow")
 class InfoBarPlanetEditorView(private val content: InfoBarFileEditor) : View() {
     private val editor: CodeArea = CodeArea()
-    override val root: Parent = editor
+    private val scrollPane = VirtualizedScrollPane(editor)
+    override val root = AnchorPane().apply {
+        hgrow = Priority.ALWAYS
+        vgrow = Priority.ALWAYS
+
+        add(scrollPane)
+
+        scrollPane.anchorpaneConstraints {
+            bottomAnchor = 0.0
+            leftAnchor = 0.0
+            topAnchor = 0.0
+            rightAnchor = 0.0
+        }
+    }
 
     private val contentProperty = content.contentProperty
 
@@ -33,7 +45,6 @@ class InfoBarPlanetEditorView(private val content: InfoBarFileEditor) : View() {
         updateOnTextChange = false
         editor.replaceText(contentProperty.value)
         updateOnTextChange = true
-
     }
 
     init {

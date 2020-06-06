@@ -39,7 +39,6 @@ class NavigationBar(
             addClass(MainStyle.toolBar)
             hgrow = Priority.ALWAYS
 
-
             //spacer()
             buttonGroup {
                 hgrow = Priority.ALWAYS

@@ -5,6 +5,7 @@ import de.robolab.client.app.controller.ToolBarController
 import de.robolab.client.app.model.ToolBarEntry
 import de.robolab.client.jfx.adapter.toFx
 import de.robolab.client.jfx.dialog.SettingsDialog
+import de.robolab.client.jfx.style.MainStyle
 import de.robolab.client.jfx.utils.buttonGroup
 import de.robolab.client.jfx.utils.iconNoAdd
 import de.westermann.kobserve.base.ObservableProperty
@@ -13,8 +14,10 @@ import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import javafx.geometry.Side
 import javafx.scene.control.Button
+import javafx.scene.control.ScrollPane
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
+import javafx.scene.layout.Region
 import javafx.scene.text.FontWeight
 import tornadofx.*
 
@@ -49,6 +52,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                         }
 
                         enableWhen(button.enabledProperty.toFx())
+                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
                     }
                 }
 
@@ -66,110 +70,128 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
     }
 
 
-    override val root = toolbar {
+    override val root = scrollpane(fitToWidth = true) {
+        addClass(MainStyle.toolBarContainer)
+
+        vbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+        vmin = 0.0
+        vmax = 0.0
+        //hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+
         hbox {
+            addClass(Stylesheet.toolBar, MainStyle.toolBar)
             hbox {
-                button {
-                    graphic = iconNoAdd(MaterialIcon.MENU)
-                    tooltip("Toggle navigation bar")
+                hbox {
+                    button {
+                        graphic = iconNoAdd(MaterialIcon.MENU)
+                        tooltip("Toggle navigation bar")
 
-                    bindSelectedProperty(navigationBarActiveProperty)
+                        bindSelectedProperty(navigationBarActiveProperty)
+                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+                    }
+
+                    paddingRight = 8
                 }
 
-                paddingRight = 8
+                setupToolbar(toolBarController.leftActionListProperty)
             }
 
-            setupToolbar(toolBarController.leftActionListProperty)
-        }
-
-        spacer()
-        label(toolBarController.titleProperty.toFx()) {
-            style {
-                fontWeight = FontWeight.BOLD
+            spacer()
+            label(toolBarController.titleProperty.toFx()) {
+                setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+                style {
+                    fontWeight = FontWeight.BOLD
+                }
             }
-        }
-        spacer()
+            spacer()
 
-        hbox {
-            setupToolbar(toolBarController.rightActionListProperty)
+            hbox {
+                setupToolbar(toolBarController.rightActionListProperty)
 
-            buttonGroup {
-                button {
-                    graphic = iconNoAdd(MaterialIcon.REMOVE)
-                    tooltip("Zoom out")
-                    setOnAction {
-                        toolBarController.zoomOut()
-                    }
-                }
-                button(toolBarController.zoomProperty.toFx()) {
-                    tooltip("Reset zoom")
-                    setOnAction {
-                        toolBarController.resetZoom()
-                    }
-                }
-                button {
-                    graphic = iconNoAdd(MaterialIcon.ADD)
-                    tooltip("Zoom in")
-                    setOnAction {
-                        toolBarController.zoomIn()
-                    }
-                }
-
-                paddingRight = 8
-            }
-
-            buttonGroup {
-                button {
-                    graphic = iconNoAdd(MaterialIcon.VIEW_AGENDA)
-                    tooltip("Window layout")
-                    contextmenu {
-                        item("Split vertical") {
-                            setOnAction {
-                                toolBarController.splitVertical()
-                            }
+                buttonGroup {
+                    button {
+                        graphic = iconNoAdd(MaterialIcon.REMOVE)
+                        tooltip("Zoom out")
+                        setOnAction {
+                            toolBarController.zoomOut()
                         }
-                        item("Split horizontal") {
-                            setOnAction {
-                                toolBarController.splitHorizontal()
-                            }
+                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+                    }
+                    button(toolBarController.zoomProperty.toFx()) {
+                        tooltip("Reset zoom")
+                        setOnAction {
+                            toolBarController.resetZoom()
                         }
-                        item("Close window") {
-                            setOnAction {
-                                toolBarController.closeWindow()
-                            }
+                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+                    }
+                    button {
+                        graphic = iconNoAdd(MaterialIcon.ADD)
+                        tooltip("Zoom in")
+                        setOnAction {
+                            toolBarController.zoomIn()
                         }
-                        for (row in 1..3) {
-                            for (col in 1..3) {
-                                item("${row}x$col layout") {
-                                    setOnAction {
-                                        toolBarController.setGridLayout(row, col)
+                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+                    }
+
+                    paddingRight = 8
+                }
+
+                buttonGroup {
+                    button {
+                        graphic = iconNoAdd(MaterialIcon.VIEW_AGENDA)
+                        tooltip("Window layout")
+                        contextmenu {
+                            item("Split vertical") {
+                                setOnAction {
+                                    toolBarController.splitVertical()
+                                }
+                            }
+                            item("Split horizontal") {
+                                setOnAction {
+                                    toolBarController.splitHorizontal()
+                                }
+                            }
+                            item("Close window") {
+                                setOnAction {
+                                    toolBarController.closeWindow()
+                                }
+                            }
+                            for (row in 1..3) {
+                                for (col in 1..3) {
+                                    item("${row}x$col layout") {
+                                        setOnAction {
+                                            toolBarController.setGridLayout(row, col)
+                                        }
                                     }
                                 }
                             }
                         }
+                        setOnAction {
+                            contextMenu.show(this, Side.BOTTOM, 0.0, 0.0)
+                        }
+                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
                     }
-                    setOnAction {
-                        contextMenu.show(this, Side.BOTTOM, 0.0, 0.0)
+                    button {
+                        graphic = iconNoAdd(MaterialIcon.SETTINGS)
+                        tooltip("Open settings")
+
+                        setOnAction {
+                            SettingsDialog.open()
+                        }
+                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
                     }
+
+                    paddingRight = 8
                 }
-                button {
-                    graphic = iconNoAdd(MaterialIcon.SETTINGS)
-                    tooltip("Open settings")
 
-                    setOnAction {
-                        SettingsDialog.open()
+                buttonGroup {
+                    button {
+                        graphic = iconNoAdd(MaterialIcon.MENU)
+                        tooltip("Toggle info bar")
+
+                        bindSelectedProperty(infoBarActiveProperty)
+                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
                     }
-                }
-
-                paddingRight = 8
-            }
-
-            buttonGroup {
-                button {
-                    graphic = iconNoAdd(MaterialIcon.MENU)
-                    tooltip("Toggle info bar")
-
-                    bindSelectedProperty(infoBarActiveProperty)
                 }
             }
         }

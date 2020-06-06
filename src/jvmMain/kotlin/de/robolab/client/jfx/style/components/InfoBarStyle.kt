@@ -64,5 +64,10 @@ fun Stylesheet.initInfoBarStyle() {
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderWidth = multi(box(1.px, 0.px, 0.px, 0.px))
+        padding = box(0.px)
+    }
+
+    Stylesheet.scrollPane {
+        padding = box(0.px)
     }
 }

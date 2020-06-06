@@ -13,6 +13,7 @@ class MainStyle : Stylesheet() {
     companion object {
         val buttonGroup by cssclass()
         val toolBar by cssclass()
+        val toolBarContainer by cssclass()
         val iconView by cssclass()
         val listCellGraphic by cssclass()
 

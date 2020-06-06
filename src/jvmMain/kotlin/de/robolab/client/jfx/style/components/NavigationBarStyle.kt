@@ -21,6 +21,7 @@ fun Stylesheet.initNavigationBarStyle() {
 
         backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
         backgroundInsets = multi(box(0.px))
+        padding = box(0.px)
 
         focusColor = Color.TRANSPARENT
         faintFocusColor = Color.TRANSPARENT
@@ -97,11 +98,22 @@ fun Stylesheet.initNavigationBarStyle() {
 
     Stylesheet.scrollBar {
         backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+        padding = box(0.px)
+        borderWidth = multi(box(0.px))
+        borderInsets = multi(box(0.px))
+        backgroundInsets = multi(box(0.px))
+        borderStyle = multi(BorderStrokeStyle.NONE)
+
 
         Stylesheet.thumb {
-            backgroundColor = multi(MainStyle.theme.ui.secondaryTextColor.a(0.5).toFx())
-            borderRadius = multi(box(1.em))
-            backgroundRadius = multi(box(1.em))
+            backgroundColor = multi(MainStyle.theme.ui.secondaryTextColor.a(0.6).toFx())
+            borderRadius = multi(box(0.em))
+            backgroundRadius = multi(box(0.em))
+            padding = box(0.px)
+            borderWidth = multi(box(0.px))
+            borderInsets = multi(box(0.px))
+            backgroundInsets = multi(box(0.px))
+            borderStyle = multi(BorderStrokeStyle.NONE)
 
             and(Stylesheet.hover) {
                 backgroundColor = multi(MainStyle.theme.ui.secondaryTextColor.toFx())
@@ -131,14 +143,14 @@ fun Stylesheet.initNavigationBarStyle() {
         }
 
         and(Stylesheet.vertical) {
-            prefWidth = 0.6.em
+            prefWidth = 0.5.em
         }
         and(Stylesheet.horizontal) {
-            prefHeight = 0.6.em
+            prefHeight = 0.5.em
         }
     }
 
     Stylesheet.corner {
-        backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
+        backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
     }
 }
