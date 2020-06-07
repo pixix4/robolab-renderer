@@ -107,7 +107,7 @@ class TextView(
             width,
             height
         )
-        outerBox = innerBox.expand(0.8 * charHeight, 2 * charWidth)
+        outerBox = innerBox.expand(0.4 * charHeight, charWidth)
 
         return lines.mapIndexed { lineIndex, line ->
             val lineWidth = innerBox.width * (line.length / maxLineCharCount.toDouble())
@@ -130,6 +130,7 @@ class TextView(
 
     override fun onDraw(context: DrawContext) {
         val color = context.c(color)
+        val cursorColor = context.theme.plotter.editColor
 
         val transformation = Transformation(
             gridWidth = 1.0,
@@ -157,7 +158,7 @@ class TextView(
                     listOf(
                         Point(cursorPosition.left, box.top),
                         Point(cursorPosition.left, box.bottom)
-                    ), color, PlottingConstraints.LINE_WIDTH / 2
+                    ), cursorColor, PlottingConstraints.LINE_WIDTH / 2
                 )
             }
 
@@ -172,7 +173,7 @@ class TextView(
             canvas.strokeLine(
                 listOf(
                     outerBox.topLeft, outerBox.topRight
-                ), color, PlottingConstraints.LINE_WIDTH
+                ), cursorColor, PlottingConstraints.LINE_WIDTH
             )
         }
 
@@ -260,8 +261,8 @@ class TextView(
                         val currentLine = lines[cursor.line]
                         val nextLine = lines.getOrNull(cursor.line - 1) ?: return@onKeyPress
 
-                        // Magic number to fix rounding direction on 0.5 line offset to right char
-                        val left = currentLine.cursorPositionToBoxLeft(innerBox, cursor.char) + 0.02
+                        // Magic number to fix rounding direction on 0.5 line offset to left char
+                        val left = currentLine.cursorPositionToBoxLeft(innerBox, cursor.char) - 0.02
                         val char = nextLine.boxLeftToCursorPosition(innerBox, left)
                         cursor = Cursor(cursor.line - 1, char)
                     }
@@ -272,8 +273,8 @@ class TextView(
                         val currentLine = lines[cursor.line]
                         val nextLine = lines.getOrNull(cursor.line + 1) ?: return@onKeyPress
 
-                        // Magic number to fix rounding direction on 0.5 line offset to left char
-                        val left = currentLine.cursorPositionToBoxLeft(innerBox, cursor.char) - 0.02
+                        // Magic number to fix rounding direction on 0.5 line offset to right char
+                        val left = currentLine.cursorPositionToBoxLeft(innerBox, cursor.char) + 0.02
                         val char = nextLine.boxLeftToCursorPosition(innerBox, left)
                         cursor = Cursor(cursor.line + 1, char)
                     }
