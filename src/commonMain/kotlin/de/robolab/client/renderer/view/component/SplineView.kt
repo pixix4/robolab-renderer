@@ -90,8 +90,11 @@ class SplineView(
                 PointLengthHelper(it)
             }
 
-            for ((p1, p2) in pointHelpers.windowed(2, 1)) {
-                p2.length = p1.length + p2.point.distanceTo(p1.point)
+            var lastPoint = pointHelpers.first()
+            for (index in 1 until pointHelpers.size) {
+                val p = pointHelpers[index]
+                p.length = lastPoint.length + (p.point distanceTo lastPoint.point)
+                lastPoint = p
             }
 
             pointHelpers
@@ -231,7 +234,22 @@ class SplineView(
             val startPointEdge =
                 source + (controlPoints.first() - source).normalize() * PlottingConstraints.POINT_SIZE / 2
             val endPointEdge = target + (controlPoints.last() - target).normalize() * PlottingConstraints.POINT_SIZE / 2
-            return listOf(startPointEdge) + points.take(index + 1).requireNoNulls() + endPointEdge
+
+            val pointList = points.take(index + 1).requireNoNulls()
+
+            return if (startPointEdge == pointList.firstOrNull()) {
+                if (endPointEdge == pointList.lastOrNull()) {
+                    pointList
+                } else {
+                    pointList + endPointEdge
+                }
+            } else {
+                if (endPointEdge == pointList.lastOrNull()) {
+                    listOf(startPointEdge) + pointList
+                } else {
+                    listOf(startPointEdge) + pointList + endPointEdge
+                }
+            }
         }
     }
 }
