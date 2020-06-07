@@ -22,7 +22,7 @@ class MainController {
 
     val applicationTitleProperty =
         selectedEntryProperty.nullableFlatMapBinding { it?.tabNameProperty }.mapBinding { name ->
-            if (name == null) "RobolabRenderer" else "RobolabRenderer - $name"
+            if (name == null) APPLICATION_NAME else "$APPLICATION_NAME - $name"
         }
 
     val fileImportController = FileImportController(robolabMessageProvider)
@@ -35,5 +35,9 @@ class MainController {
 
     init {
         ConsoleGreeter.greet()
+    }
+
+    companion object {
+        const val APPLICATION_NAME = "RobolabRenderer"
     }
 }

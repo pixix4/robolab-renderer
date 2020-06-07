@@ -7,20 +7,46 @@ import de.robolab.client.jfx.style.SystemTheme.isSystemThemeSupported
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAfterTimeoutInterval
 import de.robolab.common.utils.ConfigFile
+import de.robolab.common.utils.ConsoleGreeter
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.event.now
+import javafx.stage.Stage
+import javafx.stage.StageStyle
 import tornadofx.App
+import tornadofx.NoPrimaryViewSpecified
+import tornadofx.UIComponent
 import java.nio.file.Paths
 import kotlin.concurrent.thread
+import kotlin.reflect.KClass
 
 
-class MainApp : App(MainView::class) {
+class MainApp : App(NoPrimaryViewSpecified::class) {
+
+    private val isFirstStart = PreferenceStorage.firstStart
+
+    override val primaryView: KClass<out UIComponent>
+        get() = if (isFirstStart) SetupView::class else MainView::class
+
+    override fun start(stage: Stage) {
+        if (isFirstStart) {
+            stage.initStyle(StageStyle.UTILITY)
+            stage.isResizable = false
+            stage.sizeToScene()
+        }  else {
+            stage.initStyle(StageStyle.DECORATED)
+        }
+
+        super.start(stage)
+
+        stage.toFront()
+    }
 
     companion object {
 
         @JvmStatic
         fun main(args: Array<String>) {
             Thread.setDefaultUncaughtExceptionHandler(ErrorHandler())
+            ConsoleGreeter.greet()
 
             System.setProperty("awt.useSystemAAFontSettings", "on")
             System.setProperty("jdk.gtk.version", "3")

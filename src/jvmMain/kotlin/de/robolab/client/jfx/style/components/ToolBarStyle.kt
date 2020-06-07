@@ -7,19 +7,7 @@ import javafx.scene.paint.Color
 import tornadofx.*
 
 fun Stylesheet.initToolBarStyle() {
-    MainStyle.toolBarContainer {
-//        Stylesheet.scrollBar {
-//            and(Stylesheet.horizontal) {
-//                prefHeight = 0.1.em
-//            }
-//
-//            and(Stylesheet.hover) {
-//                and(Stylesheet.horizontal) {
-//                    prefHeight = 0.5.em
-//                }
-//            }
-//        }
-    }
+
     MainStyle.toolBar {
         backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
         borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))

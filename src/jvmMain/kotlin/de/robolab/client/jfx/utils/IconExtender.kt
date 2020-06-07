@@ -15,13 +15,13 @@ import tornadofx.opcr
  * @author lars
  */
 
-fun iconNoAdd(icon: MaterialIcon, op: MaterialIconView.() -> Unit = {}) =
-    MaterialIconView(icon).also(op).also {
+fun iconNoAdd(icon: MaterialIcon, size: String = "1em", op: MaterialIconView.() -> Unit = {}) =
+    MaterialIconView(icon, size).also(op).also {
         it.addClass(MainStyle.iconView)
     }
 
-fun iconNoAdd(icon: ObservableValue<MaterialIcon>, op: MaterialIconView.() -> Unit = {}): MaterialIconView {
-    val view = MaterialIconView(icon.value).also(op)
+fun iconNoAdd(icon: ObservableValue<MaterialIcon>, size: String = "1em", op: MaterialIconView.() -> Unit = {}): MaterialIconView {
+    val view = MaterialIconView(icon.value, size).also(op)
     icon.onChange {
         view.setIcon(it)
     }
@@ -30,13 +30,13 @@ fun iconNoAdd(icon: ObservableValue<MaterialIcon>, op: MaterialIconView.() -> Un
     }
 }
 
-fun Parent.icon(icon: MaterialIcon, op: MaterialIconView.() -> Unit = {}) =
-    opcr(this, MaterialIconView(icon), op).also {
+fun Parent.icon(icon: MaterialIcon, size: String = "1em", op: MaterialIconView.() -> Unit = {}) =
+    opcr(this, MaterialIconView(icon, size), op).also {
         it.addClass(MainStyle.iconView)
     }
 
-fun Parent.icon(icon: ObservableValue<MaterialIcon>, op: MaterialIconView.() -> Unit = {}): MaterialIconView {
-    val view = opcr(this, MaterialIconView(icon.value), op)
+fun Parent.icon(icon: ObservableValue<MaterialIcon>, size: String = "1em", op: MaterialIconView.() -> Unit = {}): MaterialIconView {
+    val view = opcr(this, MaterialIconView(icon.value, size), op)
     icon.onChange {
         view.setIcon(it)
     }

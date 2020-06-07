@@ -6,7 +6,6 @@ import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
 import tornadofx.*
 
-@Suppress("RedundantLambdaArrow")
 fun Stylesheet.initInfoBarStyle() {
     MainStyle.infoBar {
         borderStyle = multi(BorderStrokeStyle.SOLID)
@@ -32,14 +31,14 @@ fun Stylesheet.initInfoBarStyle() {
         }
         Stylesheet.columnHeader {
             backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
-            properties["-fx-table-cell-border-color"] = Unit to { _ -> c }
+            unsafe("-fx-table-cell-border-color", c)
         }
         Stylesheet.columnHeaderBackground {
             backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
-            properties["-fx-table-cell-border-color"] = Unit to { _ -> c }
+            unsafe("-fx-table-cell-border-color", c)
         }
         Stylesheet.tableRowCell {
-            properties["-fx-table-cell-border-color"] = Unit to { _ -> c }
+            unsafe("-fx-table-cell-border-color", c)
 
             Stylesheet.text {
                 fill = MainStyle.theme.ui.primaryTextColor.toFx()

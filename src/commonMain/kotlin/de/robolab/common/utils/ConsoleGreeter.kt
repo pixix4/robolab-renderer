@@ -13,8 +13,12 @@ object ConsoleGreeter {
         by pixix4, Zincfox and leoniqorn
     """.trimIndent()
 
-    fun greet() {
+    private var isPrinted = false
+    fun greet(forcePrint: Boolean = false) {
+        if (isPrinted && !forcePrint) return
+
         greetApplication(appLogo, appCreators)
+        isPrinted = true
     }
 }
 

@@ -11,6 +11,10 @@ import kotlin.random.Random
 object PreferenceStorage : TypedStorage() {
 
 
+    val firstStartProperty = item("firstStart", true)
+    var firstStart by firstStartProperty
+
+
     val debugModeProperty = item("debugMode", false)
     var debugMode by debugModeProperty
 
