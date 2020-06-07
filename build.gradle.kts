@@ -3,7 +3,6 @@
 plugins {
     kotlin("multiplatform") version "1.3.72"
     kotlin("plugin.serialization") version "1.3.72"
-    id("com.github.node-gradle.node") version "2.2.3"
 }
 
 repositories {
@@ -124,6 +123,8 @@ kotlin {
                 implementation(npm("abort-controller", "3.0.0"))
                 implementation(npm("text-encoding"))
                 implementation(npm("hammerjs"))
+
+                implementation(npm("sass"))
             }
         }
         val jsClientTest by getting {
@@ -190,20 +191,21 @@ tasks.create<JavaExec>("buildSassTheme") {
     args()
 }
 
-tasks.create<com.moowork.gradle.node.npm.NpmTask>("jsClientInstallSass") {
-    setArgs(listOf("install", "sass"))
+tasks.create<Exec>("jsClientCompileSass") {
+    dependsOn("kotlinNpmInstall", "jsClientProcessResources")
 
-    outputs.cacheIf { true }
-    outputs.dir(file("${project.projectDir}/web/node_modules/sass"))
-        .withPropertyName("sassCompiler")
+    val nodeJs =
+        rootProject.extensions.getByName(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension.Companion.EXTENSION_NAME) as org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 
-}
+    val executableFile =
+        nodeJs.installationDir
+            .resolve(nodeJs.installationDir.list().first())
+            .resolve("bin")
+            .resolve(nodeJs.nodeCommand)
 
-tasks.create<com.moowork.gradle.node.task.NodeTask>("jsClientCompileSass") {
-    dependsOn("jsClientInstallSass", "jsClientProcessResources")
-
-    script = file("$projectDir/web/node_modules/sass/sass.js")
-    addArgs(
+    executable(executableFile)
+    args(
+        "$projectDir/web/node_modules/sass/sass.js",
         "$projectDir/src/jsClientMain/resources/public/stylesheets/style.scss",
         "$buildDir/processedResources/jsClient/main/public/stylesheets/style.css"
     )
@@ -218,6 +220,12 @@ tasks.create<com.moowork.gradle.node.task.NodeTask>("jsClientCompileSass") {
 }
 
 tasks.named("jsClientBrowserDistributeResources") {
+    dependsOn("jsClientCompileSass")
+}
+tasks.named("jsClientBrowserDevelopmentRun") {
+    dependsOn("jsClientCompileSass")
+}
+tasks.named("jsClientBrowserProductionRun") {
     dependsOn("jsClientCompileSass")
 }
 
@@ -237,11 +245,4 @@ tasks.create<Sync>("jsClientSync") {
 
     from(Callable { zipTree(jsClientJar.get().archiveFile) })
     into("${projectDir}/web/website")
-}
-
-node {
-    download = false
-    workDir = file("${project.projectDir}/build/node")
-    npmWorkDir = file("${project.projectDir}/web")
-    nodeModulesDir = file("${project.projectDir}/web")
 }
