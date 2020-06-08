@@ -12,12 +12,16 @@ fun Stylesheet.initCodeAreaStyle() {
 
     MainStyle.codeArea {
         font = Font.font("RobotoMono")
+
     }
 
     s(".virtualized-scroll-pane") {
         backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
     }
 
+    MainStyle.editorDefault {
+        fill = MainStyle.theme.ui.primaryTextColor.toFx()
+    }
     MainStyle.editorKeyword {
         fill = MainStyle.theme.editor.editorKeywordColor.toFx()
         fontWeight = FontWeight.BOLD

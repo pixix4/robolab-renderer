@@ -119,32 +119,32 @@ class InfoBarPlanetEditorView(private val content: InfoBarFileEditor) : View() {
                 val matcher = PATTERN.matcher(line)
                 var lastKwEnd = 0
                 while (matcher.find()) {
-                    val styleClass = (when {
+                    val styleClass = when {
                         matcher.group("KEYWORD") != null -> "editor-keyword"
                         matcher.group("DIRECTION") != null -> "editor-direction"
                         matcher.group("NUMBER") != null -> "editor-number"
                         matcher.group("STRING") != null -> "editor-string"
                         matcher.group("HASH") != null -> "editor-comment"
-                        matcher.group("COMMENT") != null -> "editor-error"
+                        matcher.group("COMMENT") != null -> "editor-comment"
                         matcher.group("TRAILING") != null -> "editor-error"
-                        else -> ""
-                    })
-                    spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd)
+                        else -> "editor-default"
+                    }
+                    spansBuilder.add(Collections.singleton("editor-default"), matcher.start() - lastKwEnd)
                     spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start())
                     lastKwEnd = matcher.end()
                 }
-                spansBuilder.add(Collections.emptyList(), line.length - lastKwEnd)
+                spansBuilder.add(Collections.singleton("editor-default"), line.length - lastKwEnd)
             } else {
                 if (line.trimStart().startsWith("#")) {
-                    spansBuilder.add(Collections.singleton("comment"), line.length)
+                    spansBuilder.add(Collections.singleton("editor-comment"), line.length)
                 } else {
-                    spansBuilder.add(Collections.singleton("error"), line.length)
+                    spansBuilder.add(Collections.singleton("editor-error"), line.length)
                 }
             }
 
             splits -= 1
             if (splits > 0) {
-                spansBuilder.add(Collections.emptyList(), 1)
+                spansBuilder.add(Collections.singleton("editor-default"), 1)
             }
         }
 

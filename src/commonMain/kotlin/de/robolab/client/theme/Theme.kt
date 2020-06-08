@@ -4,7 +4,9 @@ enum class Theme(val group: String, val isDarkMode: Boolean?, val theme: ITheme)
     LIGHT("Default", false, LightTheme),
     DARK("Default", true, DarkTheme),
     GRUVBOX_LIGHT("Gruvbox", false, GruvboxLightTheme),
-    GRUVBOX_DARK("Gruvbox", true, GruvboxDarkTheme);
+    GRUVBOX_DARK("Gruvbox", true, GruvboxDarkTheme),
+    NORD_LIGHT("Nord", false, NordLightTheme),
+    NORD_DARK("Nord", true, NordDarkTheme);
 
     val label = group + when (isDarkMode) {
         true -> " dark"

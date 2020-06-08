@@ -1,0 +1,41 @@
+/**********************************************************
+ *                                                        *
+ *           Auto generated file. DO NOT EDIT!            *
+ * See: 'src/commonMain/kotlin/de/robolab/renderer/theme' *
+ *        Generate with './gradlew buildSassTheme'        *
+ *                                                        *
+ **********************************************************/
+
+@import 'theme-utils';
+
+$_border-color: #535d70;
+$_error-color: #bf616a;
+$_error-text-color: #eceff4;
+$_primary-background: #2e3440;
+$_primary-hover-background: #2b313c;
+$_primary-text-color: #eceff4;
+$_secondary-background: #3b4252;
+$_secondary-hover-background: #363c4b;
+$_secondary-text-color: #949aa5;
+$_success-color: #a3be8c;
+$_success-text-color: #eceff4;
+$_tertiary-background: #434c5e;
+$_tertiary-hover-background: #404859;
+$_theme-color: #88c0d0;
+$_theme-hover-color: #8fbcbb;
+$_theme-primary-text: #eceff4;
+$_theme-secondary-text: #e5e9f0;
+$_warn-color: #ebcb8b;
+$_warn-text-color: #2e3440;
+
+$_editor-comment-color: #687183;
+$_editor-direction-color: #81a1c1;
+$_editor-error-color: #ebcb8b;
+$_editor-keyword-color: #88c0d0;
+$_editor-number-color: #b48ead;
+$_editor-selected-line-color: #3b4252;
+$_editor-string-color: #a3be8c;
+
+body[data-theme='nord_dark'] {
+    @include load-color-vars();
+}

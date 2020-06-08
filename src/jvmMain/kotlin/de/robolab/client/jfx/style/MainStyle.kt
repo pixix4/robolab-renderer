@@ -36,6 +36,7 @@ class MainStyle : Stylesheet() {
         val first by csspseudoclass()
         val last by csspseudoclass()
 
+        val editorDefault by cssclass()
         val editorKeyword by cssclass()
         val editorDirection by cssclass()
         val editorNumber by cssclass()

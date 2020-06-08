@@ -18,7 +18,6 @@ fun Stylesheet.initInfoBarStyle() {
         backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
     }
 
-
     Stylesheet.tableView {
         faintFocusColor = Color.TRANSPARENT
         focusColor = Color.TRANSPARENT

@@ -11,7 +11,7 @@ import kotlin.reflect.jvm.javaGetter
 object ThemeGenerator {
     @JvmStatic
     fun main(args: Array<String>) {
-        val targetDirectory = Paths.get("./src/jsMain/resources/public/stylesheets/theme/")
+        val targetDirectory = Paths.get("./src/jsClientMain/resources/public/stylesheets/theme/")
 
         generateThemeUtilsFile(targetDirectory)
 

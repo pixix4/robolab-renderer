@@ -12,7 +12,7 @@ $_border-color: #7c6f64;
 $_error-color: #cc241d;
 $_error-text-color: #ebdbb2;
 $_primary-background: #1d2021;
-$_primary-hover-background: #0f1011;
+$_primary-hover-background: #111314;
 $_primary-text-color: #ebdbb2;
 $_secondary-background: #32302f;
 $_secondary-hover-background: #282828;
@@ -37,5 +37,5 @@ $_editor-selected-line-color: #32302f;
 $_editor-string-color: #f38019;
 
 body[data-theme='gruvbox_dark'] {
-  @include load-color-vars();
+    @include load-color-vars();
 }
