@@ -145,6 +145,7 @@ kotlin {
                 implementation(npm("mongoose","5.9.18"))
                 implementation(npm("express", "4.17.1"))
                 implementation(npm("socket.io", "2.3.0"))
+                implementation(npm("text-encoding"))
             }
         }
         val jsServerTest by getting {
