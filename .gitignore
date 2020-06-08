@@ -11,6 +11,7 @@ magic_draw/*
 robolab.conf
 export/*
 web/website/
+webServer/
 node_modules/
 .lck
 planet/*.exam

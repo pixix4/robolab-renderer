@@ -250,3 +250,22 @@ tasks.create<Sync>("jsClientSync") {
     from(Callable { zipTree(jsClientJar.get().archiveFile) })
     into("${projectDir}/web/website")
 }
+
+tasks.create<Sync>("jsServerSync") {
+    dependsOn("compileKotlinJsServer", "jsServerPackageJson", "kotlinNpmInstall")
+
+    from("$buildDir/js")
+    into("${projectDir}/webServer")
+}
+
+tasks.create<Delete>("cleanJsClientSync") {
+    delete("${projectDir}/web/website")
+}
+
+tasks.create<Delete>("cleanJsServerSync") {
+    delete("${projectDir}/webServer")
+}
+
+tasks.named("clean") {
+    dependsOn("cleanJsClientSync", "cleanJsServerSync")
+}
