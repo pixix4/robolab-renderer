@@ -6,6 +6,7 @@ import de.robolab.client.jfx.style.SystemTheme.getSystemTheme
 import de.robolab.client.jfx.style.SystemTheme.isSystemThemeSupported
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAfterTimeoutInterval
+import de.robolab.common.utils.BuildInformation
 import de.robolab.common.utils.ConfigFile
 import de.robolab.common.utils.ConsoleGreeter
 import de.robolab.common.utils.Logger
@@ -32,7 +33,7 @@ class MainApp : App(NoPrimaryViewSpecified::class) {
             stage.initStyle(StageStyle.UTILITY)
             stage.isResizable = false
             stage.sizeToScene()
-        }  else {
+        } else {
             stage.initStyle(StageStyle.DECORATED)
         }
 
@@ -55,6 +56,22 @@ class MainApp : App(NoPrimaryViewSpecified::class) {
             System.setProperty("swing.aatext", "true")
             System.setProperty("swing.crossplatformlaf", "com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
             System.setProperty("swing.defaultlaf", "com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
+
+            println("buildTime: ${BuildInformation.buildTime}")
+            println("buildTools: ${BuildInformation.buildTools}")
+            println("buildSystem: ${BuildInformation.buildSystem}")
+            println("buildUser: ${BuildInformation.buildUser}")
+            println("vcsBranch: ${BuildInformation.vcsBranch}")
+            println("vcsCommit: ${BuildInformation.vcsCommit}")
+            println("vcsTag: ${BuildInformation.vcsTag}")
+            println("vcsLastTag: ${BuildInformation.vcsLastTag}")
+            println("vcsDirty: ${BuildInformation.vcsDirty}")
+            println("versionClient: ${BuildInformation.versionClient}")
+            println("versionServer: ${BuildInformation.versionServer}")
+
+            println(BuildInformation.versionClient < BuildInformation.versionServer)
+            println(BuildInformation.versionClient > BuildInformation.versionServer)
+            println(BuildInformation.versionClient == BuildInformation.versionServer)
 
             for (arg in args) {
                 try {

@@ -61,3 +61,10 @@ object ConfigFile {
         }
     }
 }
+
+actual fun getBuildInformation(): String? {
+    return ConfigFile::class.java.classLoader.getResource("build.ini")?.readText() ?: ""
+}
+actual suspend fun getAsyncBuildInformation(): String {
+    return ConfigFile::class.java.classLoader.getResource("build.ini")?.readText() ?: ""
+}

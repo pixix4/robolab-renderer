@@ -1,5 +1,8 @@
 package de.westermann.kobserve.event
 
+import kotlin.coroutines.suspendCoroutine
+import kotlin.coroutines.resume
+
 /**
  * This class represents a simple event handler who manages listeners for an event of type 'E'.
  */
@@ -211,6 +214,14 @@ fun <T> EventHandler<T>.once(listener: (T) -> Unit) {
     temp = addListener {
         listener(it)
         removeListener(temp)
+    }
+}
+
+suspend fun <T> EventHandler<T>.next(): T {
+    return suspendCoroutine { continuation ->
+        once {
+            continuation.resume(it)
+        }
     }
 }
 

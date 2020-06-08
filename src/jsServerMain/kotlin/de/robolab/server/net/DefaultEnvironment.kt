@@ -1,11 +1,12 @@
 package de.robolab.server.net
 
-import de.robolab.server.externaljs.express.ExpressApp
-import de.robolab.server.externaljs.express.createApp
+import de.robolab.common.net.HttpStatusCode
+import de.robolab.common.utils.BuildInformation
 import de.robolab.server.externaljs.createIO
-import de.robolab.server.externaljs.express.Router
-import de.robolab.server.externaljs.express.createRouter
+import de.robolab.server.externaljs.emptyDynamic
+import de.robolab.server.externaljs.express.*
 import de.robolab.server.externaljs.http.createServer
+import de.robolab.server.externaljs.toJSArray
 import de.robolab.server.routes.BeverageRouter
 import de.robolab.server.routes.InfoRouter
 import de.robolab.server.routes.PlanetRouter
@@ -28,6 +29,19 @@ object DefaultEnvironment {
         router.use("/planets", PlanetRouter.router)
         router.use("/info", InfoRouter.router)
         router.get("/", logoResponse)
+
+        router.get("/version") { _, res ->
+            res.status(HttpStatusCode.Ok)
+            res.format("json" to {
+                val obj = emptyDynamic()
+                obj["version"] = BuildInformation.versionServer
+                obj["versionString"] = BuildInformation.versionServer.toString()
+                res.send(JSON.stringify(obj))
+            },"text" to {
+                res.send(BuildInformation.versionServer.toString())
+            })
+        }
+
         return router
     }
 }

@@ -1,8 +1,12 @@
 @file:Suppress("UNUSED_VARIABLE", "SuspiciousCollectionReassignment")
 
+import java.text.SimpleDateFormat
+import java.util.*
+
 plugins {
     kotlin("multiplatform") version "1.3.72"
     kotlin("plugin.serialization") version "1.3.72"
+    id("net.nemerosa.versioning") version "2.13.2"
 }
 
 repositories {
@@ -142,7 +146,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
 
-                implementation(npm("mongoose","5.9.18"))
+                implementation(npm("mongoose", "5.9.18"))
                 implementation(npm("express", "4.17.1"))
                 implementation(npm("socket.io", "2.3.0"))
                 implementation(npm("text-encoding"))
@@ -155,6 +159,40 @@ kotlin {
             }
         }
     }
+}
+
+val createBuildInfo = tasks.create("createBuildInfo") {
+    val file = File("$buildDir/processedResources/build.ini")
+
+    doLast {
+        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss z")
+        format.timeZone = TimeZone.getTimeZone("UTC")
+        val buildTime = format.format(Date())
+
+        println(project.ext.properties.forEach { println(it) })
+
+        val version = File("$projectDir/version.ini").readText()
+        file.writeText(
+            """
+            [build]
+            time = $buildTime
+            tools = gradle-${project.gradle.gradleVersion}, java-${System.getProperty("java.version")}
+            system = ${System.getProperty("os.name")} '${System.getProperty("os.version")}' (${System.getProperty("os.arch")})
+            user = ${System.getProperty("user.name")}
+            
+            [vcs]
+            branch = ${versioning.info.branch}
+            commit = ${versioning.info.build}
+            tag = ${versioning.info.tag ?: ""}
+            lastTag = ${versioning.info.lastTag ?: ""}
+            dirty = ${versioning.info.dirty}
+
+
+        """.trimIndent() + version
+        )
+    }
+
+    outputs.file(file)
 }
 
 val mainClassName = "de.robolab.client.jfx.Launcher"
@@ -204,7 +242,7 @@ tasks.create<Exec>("jsClientCompileSass") {
         nodeJs.installationDir
             .resolve(nodeJs.installationDir.list().first())
 
-     val executableFile = nodeJsDir.listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
+    val executableFile = nodeJsDir.listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
         ?: nodeJsDir.resolve("bin").listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
         ?: nodeJsDir.resolve("bin").resolve(nodeJs.nodeCommand)
 
@@ -237,12 +275,13 @@ tasks.named("jsClientBrowserProductionRun") {
 val jsClientBrowserProductionWebpack = tasks.named("jsClientBrowserProductionWebpack")
 
 val jsClientJar = tasks.named<Jar>("jsClientJar") {
-    dependsOn("jsClientBrowserProductionWebpack")
+    dependsOn("jsClientBrowserProductionWebpack", createBuildInfo)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     val file = jsClientBrowserProductionWebpack.get().outputs.files.files.first { it.name == "robolab.js" }
     val sourceMap = file.resolveSibling("robolab.js.map")
     from(file, sourceMap)
+    from(createBuildInfo)
 }
 
 tasks.create<Sync>("jsClientSync") {
@@ -253,9 +292,10 @@ tasks.create<Sync>("jsClientSync") {
 }
 
 tasks.create<Sync>("jsServerSync") {
-    dependsOn("compileKotlinJsServer", "jsServerPackageJson", "kotlinNpmInstall")
+    dependsOn("compileKotlinJsServer", "jsServerPackageJson", "kotlinNpmInstall", createBuildInfo)
 
     from("$buildDir/js")
+    from(createBuildInfo)
     into("${projectDir}/webServer")
 }
 
@@ -269,4 +309,20 @@ tasks.create<Delete>("cleanJsServerSync") {
 
 tasks.named("clean") {
     dependsOn("cleanJsClientSync", "cleanJsServerSync")
+}
+
+tasks.named<ProcessResources>("jvmProcessResources") {
+    dependsOn(createBuildInfo)
+
+    from(createBuildInfo)
+}
+tasks.named<ProcessResources>("jsClientProcessResources") {
+    dependsOn(createBuildInfo)
+
+    from(createBuildInfo)
+}
+tasks.named<ProcessResources>("jsServerProcessResources") {
+    dependsOn(createBuildInfo)
+
+    from(createBuildInfo)
 }
