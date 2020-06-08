@@ -23,7 +23,7 @@ object PlanetRouter {
                 res.status(HttpStatusCode.Ok)
                 res.format("json" to {
                     res.send(strIDs.map {
-                        val obj = emptyJSObject()
+                        val obj = emptyDynamic()
                         obj["id"] = it.first
                         obj["name"] = it.second
                         return@map obj

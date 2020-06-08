@@ -2,6 +2,8 @@
 
 package de.robolab.server.externaljs
 
+import de.robolab.server.jsutils.isUndefined
+
 typealias NodeError = Error
 
 external interface JSArray<T> {
@@ -82,6 +84,11 @@ external interface JSArray<T> {
     fun unshift(element1: T, vararg elementN: T): Int
     fun values(): Iterator<T>
 }
+
+external interface JSObject<K, T> {
+    operator fun get(key: K): T
+}
+
 typealias DynJSArray = JSArray<dynamic>
 
 fun <T> JSArray<T>.toList(): List<T> {
@@ -111,8 +118,48 @@ inline fun emptyJSArray(): DynJSArray {
     return js("[]").unsafeCast<DynJSArray>()
 }
 
-inline fun emptyJSObject(): dynamic{
+inline fun emptyDynamic(): dynamic {
     return js("{}")
+}
+
+inline fun dynamicAlso(block: (dynamic) -> Unit): dynamic {
+    val dyn = emptyDynamic()
+    block(dyn)
+    return dyn
+}
+
+fun dynamicOf(vararg entries: Pair<String, *>): dynamic {
+    val dyn = emptyDynamic()
+    for ((key, value) in entries)
+        dyn[key] = value
+    return dyn
+}
+
+fun dynamicOf(entries: Iterable<Pair<String, *>>): dynamic {
+    val dyn = emptyDynamic()
+    for ((key, value) in entries)
+        dyn[key] = value
+    return dyn
+}
+
+fun dynamicOfDefined(vararg entries: Pair<String, *>): dynamic {
+    val dyn = emptyDynamic()
+    for ((key, value) in entries)
+        if (!value.isUndefined())
+            dyn[key] = value
+    return dyn
+}
+
+fun dynamicOfDefined(entries: Iterable<Pair<String, *>>): dynamic {
+    val dyn = emptyDynamic()
+    for ((key, value) in entries)
+        if (!value.isUndefined())
+            dyn[key] = value
+    return dyn
+}
+
+inline fun <K, T> emptyJSObject(): JSObject<K, T> {
+    return emptyDynamic().unsafeCast<JSObject<K, T>>()
 }
 
 private val jsIsArray: (Any?) -> Boolean = js("Array.isArray") as (Any?) -> Boolean
