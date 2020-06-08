@@ -9,6 +9,7 @@ import de.robolab.server.externaljs.http.createServer
 import de.robolab.server.routes.BeverageRouter
 import de.robolab.server.routes.InfoRouter
 import de.robolab.server.routes.PlanetRouter
+import de.robolab.server.routes.logoResponse
 
 object DefaultEnvironment {
     val app: ExpressApp = createApp()
@@ -26,6 +27,7 @@ object DefaultEnvironment {
         router.use("/mate", BeverageRouter.mateRouter)
         router.use("/planets", PlanetRouter.router)
         router.use("/info", InfoRouter.router)
+        router.get("/", logoResponse)
         return router
     }
 }

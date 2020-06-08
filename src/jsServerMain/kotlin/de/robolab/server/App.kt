@@ -3,6 +3,8 @@ package de.robolab.server
 import de.robolab.common.utils.ConsoleGreeter
 import de.robolab.common.utils.Logger
 import de.robolab.server.net.DefaultEnvironment
+import de.robolab.server.routes.logoResponse
+
 /*import de.robolab.server.externaljs.dynamicOf
 import de.robolab.server.externaljs.jsArrayOf
 import de.robolab.server.externaljs.mongoose.Schema
@@ -32,11 +34,7 @@ fun main() {
     val logger = Logger("MainApp")
 
     DefaultEnvironment.app.use("/api", DefaultEnvironment.createApiRouter())
-    DefaultEnvironment.app.get("/") { _, res ->
-        res.status(200).send(
-            "<pre>\n${ConsoleGreeter.appLogo}\n${ConsoleGreeter.appServerCreators}\n</pre>"
-        )
-    }
+    DefaultEnvironment.app.get("/", logoResponse)
     DefaultEnvironment.http.listen(8080) {
         logger.i("Listening on port 8080")
     }
