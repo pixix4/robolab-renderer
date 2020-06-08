@@ -8,9 +8,6 @@ import de.robolab.common.utils.ConsoleGreeter
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 class MainController {
 
@@ -34,7 +31,7 @@ class MainController {
     val infoBarController = InfoBarController(selectedEntryProperty)
 
     init {
-        ConsoleGreeter.greet()
+        ConsoleGreeter.greetClient()
     }
 
     companion object {

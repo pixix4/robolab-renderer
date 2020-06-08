@@ -1,5 +1,7 @@
 package de.robolab.server
 
+import de.robolab.common.utils.ConsoleGreeter
+import de.robolab.common.utils.Logger
 import de.robolab.server.net.DefaultEnvironment
 /*import de.robolab.server.externaljs.dynamicOf
 import de.robolab.server.externaljs.jsArrayOf
@@ -26,12 +28,16 @@ fun main() {
         testModel.create(jsArrayOf(dynamicOf("planet" to "Hello")))
     }*/
 
+    ConsoleGreeter.greetServer()
+    val logger = Logger("MainApp")
+
     DefaultEnvironment.app.use("/api", DefaultEnvironment.createApiRouter())
     DefaultEnvironment.app.get("/") { _, res ->
-        res.status(200).send("Hello world!")
+        res.status(200).send(
+            "<pre>\n${ConsoleGreeter.appLogo}\n${ConsoleGreeter.appServerCreators}\n</pre>"
+        )
     }
     DefaultEnvironment.http.listen(8080) {
-        console.log("listening on port 8080")
+        logger.i("Listening on port 8080")
     }
-    console.log("\n\n\tHello, Kotlin/JS!\n\n")
 }

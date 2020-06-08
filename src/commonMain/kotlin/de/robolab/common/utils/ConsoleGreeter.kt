@@ -1,7 +1,7 @@
 package de.robolab.common.utils
 
 object ConsoleGreeter {
-    private val appLogo = """
+    val appLogo = """
             ____        __          __      __    ____                 __                   
            / __ \____  / /_  ____  / /___ _/ /_  / __ \___  ____  ____/ /__  ________  _____
           / /_/ / __ \/ __ \/ __ \/ / __ `/ __ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ _ \/ ___/
@@ -9,15 +9,24 @@ object ConsoleGreeter {
         /_/ |_|\____/_.___/\____/_/\__,_/_.___/_/ |_|\___/_/ /_/\__,_/\___/_/   \___/_/
     """.trimIndent()
 
-    private val appCreators = """
+    val appClientCreators = """
         by pixix4, Zincfox and leoniqorn
+    """.trimIndent()
+    val appServerCreators = """
+        by Zincfox and pixix4
     """.trimIndent()
 
     private var isPrinted = false
-    fun greet(forcePrint: Boolean = false) {
+    fun greetClient(forcePrint: Boolean = false) {
         if (isPrinted && !forcePrint) return
 
-        greetApplication(appLogo, appCreators)
+        greetApplication(appLogo, appClientCreators)
+        isPrinted = true
+    }
+    fun greetServer(forcePrint: Boolean = false) {
+        if (isPrinted && !forcePrint) return
+
+        greetApplication(appLogo, appServerCreators)
         isPrinted = true
     }
 }

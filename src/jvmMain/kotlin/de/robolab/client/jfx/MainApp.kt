@@ -46,7 +46,7 @@ class MainApp : App(NoPrimaryViewSpecified::class) {
         @JvmStatic
         fun main(args: Array<String>) {
             Thread.setDefaultUncaughtExceptionHandler(ErrorHandler())
-            ConsoleGreeter.greet()
+            ConsoleGreeter.greetClient()
 
             System.setProperty("awt.useSystemAAFontSettings", "on")
             System.setProperty("jdk.gtk.version", "3")
