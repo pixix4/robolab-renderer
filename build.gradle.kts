@@ -6,7 +6,7 @@ import java.util.*
 plugins {
     kotlin("multiplatform") version "1.3.72"
     kotlin("plugin.serialization") version "1.3.72"
-    id("net.nemerosa.versioning") version "2.13.2"
+    id("com.gorylenko.gradle-git-properties") version "2.2.2"
 }
 
 repositories {
@@ -161,7 +161,17 @@ kotlin {
     }
 }
 
+gitProperties {
+    extProperty = "gitProps"
+    dateFormat = "yyyy-MM-dd HH:mm:ss z"
+    dateFormatTimeZone = "UTC"
+}
+tasks.named("generateGitProperties") {
+    outputs.upToDateWhen { false }
+}
+
 val createBuildInfo = tasks.create("createBuildInfo") {
+    dependsOn("generateGitProperties")
     val file = File("$buildDir/processedResources/build.ini")
 
     doLast {
@@ -169,23 +179,30 @@ val createBuildInfo = tasks.create("createBuildInfo") {
         format.timeZone = TimeZone.getTimeZone("UTC")
         val buildTime = format.format(Date())
 
-        println(project.ext.properties.forEach { println(it) })
+        val git = project.ext["gitProps"] as Map<String, String>
 
         val version = File("$projectDir/version.ini").readText()
         file.writeText(
             """
             [build]
             time = $buildTime
-            tools = gradle-${project.gradle.gradleVersion}, java-${System.getProperty("java.version")}
-            system = ${System.getProperty("os.name")} '${System.getProperty("os.version")}' (${System.getProperty("os.arch")})
+            javaVersion = ${System.getProperty("java.version")}
+            javaVendor = ${System.getProperty("java.vm.name")}
+            gradleVersion = gradle-${project.gradle.gradleVersion}
+            systemName = ${System.getProperty("os.name")}
+            systemVersion = ${System.getProperty("os.version")}
             user = ${System.getProperty("user.name")}
             
             [vcs]
-            branch = ${versioning.info.branch}
-            commit = ${versioning.info.build}
-            tag = ${versioning.info.tag ?: ""}
-            lastTag = ${versioning.info.lastTag ?: ""}
-            dirty = ${versioning.info.dirty}
+            branch = ${git["git.branch"]}
+            commitHash = ${git["git.commit.id.abbrev"]}
+            commitMessage = ${git["git.commit.message.short"]}
+            commitTime = ${git["git.commit.time"]}
+            tags = ${git["git.tags"] }
+            lastTag = ${git["git.closest.tag"] ?: ""}
+            lastTagDiff = ${git["git.closest.tag.commit.count"]}
+            dirty = ${git["git.dirty"]}
+            commitCount = ${git["git.total.commit.count"]}
 
 
         """.trimIndent() + version

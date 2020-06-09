@@ -1,5 +1,6 @@
 package de.robolab.common.utils
 
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.Dispatchers
@@ -11,61 +12,139 @@ object BuildInformation {
     private val dataProperty = property<Map<String, String>>(emptyMap())
 
     val buildTimeProperty = dataProperty.mapBinding { data ->
-        data["build.time"]  ?: ""
+        data["build.time"] ?: ""
     }
     val buildTime by buildTimeProperty
 
-    val buildToolsProperty = dataProperty.mapBinding { data ->
-        data["build.tools"]  ?: ""
+    val buildJavaVersionProperty = dataProperty.mapBinding { data ->
+        data["build.javaVersion"] ?: ""
     }
-    val buildTools by buildToolsProperty
+    val buildJavaVersion by buildJavaVersionProperty
 
-    val buildSystemProperty = dataProperty.mapBinding { data ->
-        data["build.system"]  ?: ""
+    val buildJavaVendorProperty = dataProperty.mapBinding { data ->
+        data["build.javaVendor"] ?: ""
     }
-    val buildSystem by buildSystemProperty
+    val buildJavaVendor by buildJavaVendorProperty
+
+    val buildGradleVersionProperty = dataProperty.mapBinding { data ->
+        data["build.gradleVersion"] ?: ""
+    }
+    val buildGradleVersion by buildGradleVersionProperty
+
+    val buildSystemNameProperty = dataProperty.mapBinding { data ->
+        data["build.systemName"] ?: ""
+    }
+    val buildSystemName by buildSystemNameProperty
+
+    val buildSystemVersionProperty = dataProperty.mapBinding { data ->
+        data["build.systemVersion"] ?: ""
+    }
+    val buildSystemVersion by buildSystemVersionProperty
 
     val buildUserProperty = dataProperty.mapBinding { data ->
-        data["build.user"]  ?: ""
+        data["build.user"] ?: ""
     }
     val buildUser by buildUserProperty
 
 
     val vcsBranchProperty = dataProperty.mapBinding { data ->
-        data["vcs.branch"]  ?: ""
+        data["vcs.branch"] ?: ""
     }
     val vcsBranch by vcsBranchProperty
 
-    val vcsCommitProperty = dataProperty.mapBinding { data ->
-        data["vcs.commit"]  ?: ""
+    val vcsCommitHashProperty = dataProperty.mapBinding { data ->
+        data["vcs.commitHash"] ?: ""
     }
-    val vcsCommit by vcsCommitProperty
+    val vcsCommitHash by vcsCommitHashProperty
 
-    val vcsTagProperty = dataProperty.mapBinding { data ->
-        data["vcs.tag"]  ?: ""
+    val vcsCommitMessageProperty = dataProperty.mapBinding { data ->
+        data["vcs.commitMessage"] ?: ""
     }
-    val vcsTag by vcsTagProperty
+    val vcsCommitMessage by vcsCommitMessageProperty
+
+    val vcsCommitTimeProperty = dataProperty.mapBinding { data ->
+        data["vcs.commitTime"] ?: ""
+    }
+    val vcsCommitTime by vcsCommitTimeProperty
+
+    val vcsTagsProperty = dataProperty.mapBinding { data ->
+        (data["vcs.tags"] ?: "").split(",").map { it.trim() }
+    }
+    val vcsTags by vcsTagsProperty
 
     val vcsLastTagProperty = dataProperty.mapBinding { data ->
-        data["vcs.lastTag"]  ?: ""
+        data["vcs.lastTag"] ?: ""
     }
     val vcsLastTag by vcsLastTagProperty
 
+    val vcsLastTagDiffProperty = dataProperty.mapBinding { data ->
+        data["vcs.lastTagDiff"]?.toIntOrNull() ?: 0
+    }
+    val vcsLastTagDiff by vcsLastTagDiffProperty
+
     val vcsDirtyProperty = dataProperty.mapBinding { data ->
-        data["vcs.dirty"]?.toBoolean()  ?: false
+        data["vcs.dirty"]?.toBoolean() ?: false
     }
     val vcsDirty by vcsDirtyProperty
+
+    val vcsCommitCountProperty = dataProperty.mapBinding { data ->
+        data["vcs.commitCount"]?.toBoolean() ?: false
+    }
+    val vcsCommitCount by vcsCommitCountProperty
 
 
     val versionClientProperty = dataProperty.mapBinding { data ->
         Version.parse(data["version.client"] ?: "")
     }
     val versionClient by versionClientProperty
+
     val versionServerProperty = dataProperty.mapBinding { data ->
         Version.parse(data["version.server"] ?: "")
     }
     val versionServer by versionServerProperty
 
+
+    fun generateDataMap(vararg runtime: Pair<String, ObservableValue<String>>): List<Pair<String, List<Pair<String, ObservableValue<Any>>>>> {
+        val versionList = "Version" to listOf(
+            "Client" to versionClientProperty,
+            "Server" to versionServerProperty
+        )
+        val buildList = "Build" to listOf(
+            "Time" to buildTimeProperty,
+            "JavaVersion" to buildJavaVersionProperty,
+            "JavaVendor" to buildJavaVendorProperty,
+            "GradleVersion" to buildGradleVersionProperty,
+            "SystemName" to buildSystemNameProperty,
+            "SystemVersion" to buildSystemVersionProperty,
+            "User" to buildUserProperty
+        )
+        val gitList = "Git" to listOf(
+            "Branch" to vcsBranchProperty,
+            "Commit" to vcsCommitHashProperty,
+            "CommitMessage" to vcsCommitMessageProperty,
+            "CommitTime" to vcsCommitTimeProperty,
+            "Tags" to vcsTagsProperty,
+            "LastTag" to vcsLastTagProperty,
+            "LastTagDiff" to vcsLastTagDiffProperty,
+            "Dirty" to vcsDirtyProperty,
+            "CommitCount" to vcsCommitCountProperty
+        )
+
+        if (runtime.isEmpty()) {
+            return listOf(
+                versionList,
+                buildList,
+                gitList
+            )
+        } else {
+            return listOf(
+                versionList,
+                "Runtime" to runtime.toList(),
+                buildList,
+                gitList
+            )
+        }
+    }
 
     init {
         val buildInformation = getBuildInformation()

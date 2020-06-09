@@ -1,14 +1,33 @@
 package de.robolab.client.jfx.dialog
 
+import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.robolab.client.jfx.adapter.toFx
+import de.robolab.client.jfx.utils.buttonGroup
+import de.robolab.client.jfx.utils.iconNoAdd
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.Logger
+import javafx.scene.control.Button
+import javafx.scene.layout.HBox
 import javafx.util.StringConverter
 import tornadofx.*
 
 
 class SettingsDialog : GenericDialog() {
+
+    override fun HBox.initHeader() {
+        buttonGroup {
+            button {
+                graphic = iconNoAdd(MaterialIcon.INFO_OUTLINE)
+
+                setOnAction {
+                    InfoDialog.open()
+                }
+
+            }
+            paddingRight = 8
+        }
+    }
 
     override val root = buildContent("Settings") {
         form {

@@ -3,15 +3,19 @@ package de.robolab.client.jfx.dialog
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.robolab.client.jfx.style.MainStyle
 import de.robolab.client.jfx.utils.iconNoAdd
+import javafx.scene.Node
 import javafx.scene.control.ScrollPane
+import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.text.FontWeight
+import javafx.stage.Modality
 import javafx.stage.StageStyle
 import javafx.util.StringConverter
 import tornadofx.*
 
 abstract class GenericDialog : View() {
 
+    open fun HBox.initHeader() {}
 
     protected fun buildContent(name: String, init: VBox.() -> Unit): VBox {
         val dialog = VBox()
@@ -31,8 +35,12 @@ abstract class GenericDialog : View() {
                 }
             }
             spacer()
+            initHeader()
             button {
                 graphic = iconNoAdd(MaterialIcon.CLOSE)
+                de.robolab.client.utils.runAsync {
+                    requestFocus()
+                }
 
                 setOnAction {
                     close()
@@ -73,7 +81,9 @@ abstract class GenericDialog : View() {
 
     companion object {
         inline fun <reified D : GenericDialog> open(vararg params: Pair<String, Any?>) {
-            find(D::class, FX.defaultScope, params.toMap()).openModal(StageStyle.UTILITY, resizable = false)
+            find(D::class, FX.defaultScope, params.toMap())
+                .openModal(StageStyle.UTILITY, modality = Modality.APPLICATION_MODAL, resizable = false)
+                ?.toFront()
         }
     }
 }
