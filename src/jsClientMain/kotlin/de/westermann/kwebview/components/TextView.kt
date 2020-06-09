@@ -2,6 +2,8 @@ package de.westermann.kwebview.components
 
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.mapMutableBinding
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.KWebViewDsl
 import de.westermann.kwebview.View
@@ -15,13 +17,13 @@ import org.w3c.dom.HTMLSpanElement
  * @author lars
  */
 class TextView(
-        value: String = ""
+    value: Any = ""
 ) : View(createHtmlView<HTMLSpanElement>()) {
 
     override val html = super.html as HTMLSpanElement
 
-    fun bind(property: ObservableValue<String>) {
-        textProperty.bind(property)
+    fun bind(property: ObservableValue<Any>) {
+        textProperty.bind(property.mapBinding { it.toString() })
     }
 
     fun unbind() {
@@ -35,17 +37,17 @@ class TextView(
             textProperty.invalidate()
         }
 
-    val textProperty: ObservableProperty<String> = property(this::text)
+    val textProperty = property(this::text)
 
     init {
-        text = value
+        text = value.toString()
     }
 }
 
 @KWebViewDsl
 fun ViewCollection<in TextView>.textView(text: String = "", init: TextView.() -> Unit = {}) =
-        TextView(text).also(this::append).also(init)
+    TextView(text).also(this::append).also(init)
 
 @KWebViewDsl
-fun ViewCollection<in TextView>.textView(text: ObservableValue<String>, init: TextView.() -> Unit = {}) =
-        TextView(text.value).also(this::append).also { it.bind(text) }.also(init)
+fun ViewCollection<in TextView>.textView(text: ObservableValue<Any>, init: TextView.() -> Unit = {}) =
+    TextView(text.value).also(this::append).also { it.bind(text) }.also(init)

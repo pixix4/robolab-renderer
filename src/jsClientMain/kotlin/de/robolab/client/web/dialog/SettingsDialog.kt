@@ -7,6 +7,15 @@ import de.westermann.kwebview.components.*
 
 class SettingsDialog : Dialog("Settings") {
 
+    override fun BoxView.initHeader() {
+        button {
+            iconView(MaterialIcon.INFO_OUTLINE)
+            onClick {
+                open(InfoDialog())
+            }
+        }
+    }
+
     override fun BoxView.buildContent() {
         dialogFormGroup("Appearance") {
             dialogFormEntry("Theme") {

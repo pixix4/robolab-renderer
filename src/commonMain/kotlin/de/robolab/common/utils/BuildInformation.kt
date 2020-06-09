@@ -103,8 +103,19 @@ object BuildInformation {
     }
     val versionServer by versionServerProperty
 
+    val dataMap: List<Pair<String, List<Pair<String, ObservableValue<Any>>>>>
+    init {
+        val buildInformation = getBuildInformation()
 
-    fun generateDataMap(vararg runtime: Pair<String, ObservableValue<String>>): List<Pair<String, List<Pair<String, ObservableValue<Any>>>>> {
+        if (buildInformation == null) {
+            GlobalScope.launch(Dispatchers.Main) {
+                dataProperty.value = IniConverter.fromString(getAsyncBuildInformation())
+            }
+        } else {
+            dataProperty.value = IniConverter.fromString(buildInformation)
+        }
+        val runtime = getRuntimeInformation()
+
         val versionList = "Version" to listOf(
             "Client" to versionClientProperty,
             "Server" to versionServerProperty
@@ -130,14 +141,14 @@ object BuildInformation {
             "CommitCount" to vcsCommitCountProperty
         )
 
-        if (runtime.isEmpty()) {
-            return listOf(
+        dataMap = if (runtime.isEmpty()) {
+            listOf(
                 versionList,
                 buildList,
                 gitList
             )
         } else {
-            return listOf(
+            listOf(
                 versionList,
                 "Runtime" to runtime.toList(),
                 buildList,
@@ -145,20 +156,9 @@ object BuildInformation {
             )
         }
     }
-
-    init {
-        val buildInformation = getBuildInformation()
-
-        if (buildInformation == null) {
-            GlobalScope.launch(Dispatchers.Main) {
-                dataProperty.value = IniConverter.fromString(getAsyncBuildInformation())
-            }
-        } else {
-            dataProperty.value = IniConverter.fromString(buildInformation)
-        }
-
-    }
 }
 
 expect fun getBuildInformation(): String?
 expect suspend fun getAsyncBuildInformation(): String
+
+expect fun getRuntimeInformation(): List<Pair<String, ObservableValue<Any>>>

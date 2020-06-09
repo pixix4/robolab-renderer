@@ -15,6 +15,7 @@ abstract class Dialog(title: String) {
     private val titleProperty = property(title)
 
     protected abstract fun BoxView.buildContent()
+    open fun BoxView.initHeader() {}
 
 
     protected fun BoxView.dialogFormGroup(name: String, block: BoxView.() -> Unit) {
@@ -46,10 +47,13 @@ abstract class Dialog(title: String) {
             boxView("dialog-header") {
                 textView(titleProperty)
 
-                button {
-                    iconView(MaterialIcon.CLOSE)
-                    onClick {
-                        onClose.emit(Unit)
+                boxView {
+                    initHeader()
+                    button {
+                        iconView(MaterialIcon.CLOSE)
+                        onClick {
+                            onClose.emit(Unit)
+                        }
                     }
                 }
             }

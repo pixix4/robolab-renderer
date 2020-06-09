@@ -1,6 +1,8 @@
 package de.robolab.common.utils
 
 import de.robolab.client.jfx.utils.SystemOs
+import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.property.constObservable
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -65,6 +67,16 @@ object ConfigFile {
 actual fun getBuildInformation(): String? {
     return ConfigFile::class.java.classLoader.getResource("build.ini")?.readText() ?: ""
 }
+
 actual suspend fun getAsyncBuildInformation(): String {
     return ConfigFile::class.java.classLoader.getResource("build.ini")?.readText() ?: ""
+}
+
+actual fun getRuntimeInformation(): List<Pair<String, ObservableValue<Any>>> {
+    return listOf(
+        "JavaVersion" to constObservable(System.getProperty("java.version")),
+        "JavaVendor" to constObservable(System.getProperty("java.vm.name")),
+        "SystemName" to constObservable(System.getProperty("os.name")),
+        "SystemVersion" to constObservable(System.getProperty("os.version"))
+    )
 }

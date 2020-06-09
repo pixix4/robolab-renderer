@@ -2,6 +2,7 @@ package de.robolab.common.utils
 
 import de.robolab.server.externaljs.fs.existsSync
 import de.robolab.server.externaljs.fs.readFileSync
+import de.westermann.kobserve.base.ObservableValue
 
 fun readFile(filename: String): String? {
     if (existsSync(filename)) {
@@ -15,5 +16,9 @@ actual fun getBuildInformation(): String? {
 }
 
 actual suspend fun getAsyncBuildInformation(): String {
-    TODO("Not yet implemented")
+    return getBuildInformation() ?: ""
+}
+
+actual fun getRuntimeInformation(): List<Pair<String, ObservableValue<Any>>> {
+    return emptyList()
 }
