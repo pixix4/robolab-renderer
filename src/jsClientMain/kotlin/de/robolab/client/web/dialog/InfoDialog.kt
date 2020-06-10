@@ -1,10 +1,9 @@
 package de.robolab.client.web.dialog
 
-import de.robolab.client.theme.ThemePropertySelectorMapper
-import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.BuildInformation
-import de.westermann.kobserve.not
-import de.westermann.kwebview.components.*
+import de.westermann.kobserve.property.mapBinding
+import de.westermann.kwebview.components.BoxView
+import de.westermann.kwebview.components.inputView
 
 class InfoDialog : Dialog("Build information") {
 
@@ -13,7 +12,9 @@ class InfoDialog : Dialog("Build information") {
             dialogFormGroup(topic) {
                 for ((key, value) in content) {
                     dialogFormEntry(key) {
-                        textView(value)
+                        inputView(value.mapBinding { it.toString() }) {
+                            readonly = true
+                        }
                     }
                 }
             }

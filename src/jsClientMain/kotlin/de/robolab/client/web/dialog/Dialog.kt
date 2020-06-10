@@ -1,12 +1,15 @@
 package de.robolab.client.web.dialog
 
+import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.property.DelegatePropertyAccessor
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
+import de.westermann.kwebview.clientPosition
 import de.westermann.kwebview.components.*
+import org.w3c.dom.get
 
 abstract class Dialog(title: String) {
 
@@ -42,7 +45,7 @@ abstract class Dialog(title: String) {
         val dialogContainer = BoxView()
         dialogContainer.classList += "dialog"
 
-        dialogContainer.boxView("dialog-window") {
+        dialogContainer.boxView("dialog-window") window@{
 
             boxView("dialog-header") {
                 textView(titleProperty)
@@ -51,10 +54,62 @@ abstract class Dialog(title: String) {
                     initHeader()
                     button {
                         iconView(MaterialIcon.CLOSE)
+
                         onClick {
                             onClose.emit(Unit)
                         }
                     }
+                    onMouseDown { it.stopPropagation() }
+                    onTouchStart { it.stopPropagation() }
+                }
+
+                var isDragged = false
+                var lastPoint = Point.ZERO
+                var offset = Point.ZERO
+                onMouseDown { event ->
+                    isDragged = true
+                    lastPoint = event.clientPosition
+                    event.stopPropagation()
+                    event.preventDefault()
+                }
+                onMouseMove { event ->
+                    if (isDragged) {
+                        val point = event.clientPosition
+
+                        offset += point - lastPoint
+                        this@window.style {
+                            left = "${offset.left}px"
+                            top = "${offset.top}px"
+                        }
+
+                        lastPoint = point
+                        event.stopPropagation()
+                        event.preventDefault()
+                    }
+                }
+                onMouseUp {
+                    isDragged = false
+                }
+                onMouseLeave {
+                    isDragged = false
+                }
+                onTouchStart { event ->
+                    lastPoint = event.touches[0]?.let { Point(it.clientX, it.clientY) } ?: Point.ZERO
+                    event.stopPropagation()
+                    event.preventDefault()
+                }
+                onTouchMove { event ->
+                    val point = event.touches[0]?.let { Point(it.clientX, it.clientY) } ?: Point.ZERO
+
+                    offset += point - lastPoint
+                    this@window.style {
+                        left = "${offset.left}px"
+                        top = "${offset.top}px"
+                    }
+
+                    lastPoint = point
+                    event.stopPropagation()
+                    event.preventDefault()
                 }
             }
 

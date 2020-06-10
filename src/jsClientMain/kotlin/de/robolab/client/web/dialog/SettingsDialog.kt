@@ -20,12 +20,12 @@ class SettingsDialog : Dialog("Settings") {
         dialogFormGroup("Appearance") {
             dialogFormEntry("Theme") {
                 selectView<String>(
-                        ThemePropertySelectorMapper.themeGroupList,
-                        ThemePropertySelectorMapper.selectedThemeGroupProperty
+                    ThemePropertySelectorMapper.themeGroupList,
+                    ThemePropertySelectorMapper.selectedThemeGroupProperty
                 )
                 selectView<String>(
-                        ThemePropertySelectorMapper.themeVariantList,
-                        ThemePropertySelectorMapper.selectedThemeVariantProperty
+                    ThemePropertySelectorMapper.themeVariantList,
+                    ThemePropertySelectorMapper.selectedThemeVariantProperty
                 ) {
                     disabledProperty.bind(!ThemePropertySelectorMapper.themeVariantEnabledProperty)
                 }

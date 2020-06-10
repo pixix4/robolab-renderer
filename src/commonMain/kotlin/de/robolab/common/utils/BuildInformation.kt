@@ -1,6 +1,7 @@
 package de.robolab.common.utils
 
 import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.Dispatchers
@@ -114,7 +115,15 @@ object BuildInformation {
         } else {
             dataProperty.value = IniConverter.fromString(buildInformation)
         }
-        val runtime = getRuntimeInformation()
+
+
+        val runtime = try {
+            getRuntimeInformation()
+        } catch (e: Exception) {
+            Logger("BuildInformation").w { "Cannot get runtime information!" }
+            Logger("BuildInformation").w { e }
+            emptyList<Pair<String, ObservableValue<Any>>>()
+        }
 
         val versionList = "Version" to listOf(
             "Client" to versionClientProperty,
@@ -122,23 +131,24 @@ object BuildInformation {
         )
         val buildList = "Build" to listOf(
             "Time" to buildTimeProperty,
-            "JavaVersion" to buildJavaVersionProperty,
-            "JavaVendor" to buildJavaVendorProperty,
-            "GradleVersion" to buildGradleVersionProperty,
-            "SystemName" to buildSystemNameProperty,
-            "SystemVersion" to buildSystemVersionProperty,
+            "Java version" to buildJavaVersionProperty,
+            "Java vendor" to buildJavaVendorProperty,
+            "Gradle version" to buildGradleVersionProperty,
+            "System name" to buildSystemNameProperty,
+            "System version" to buildSystemVersionProperty,
             "User" to buildUserProperty
         )
         val gitList = "Git" to listOf(
             "Branch" to vcsBranchProperty,
-            "Commit" to vcsCommitHashProperty,
-            "CommitMessage" to vcsCommitMessageProperty,
-            "CommitTime" to vcsCommitTimeProperty,
-            "Tags" to vcsTagsProperty,
-            "LastTag" to vcsLastTagProperty,
-            "LastTagDiff" to vcsLastTagDiffProperty,
-            "Dirty" to vcsDirtyProperty,
-            "CommitCount" to vcsCommitCountProperty
+            "Commit message" to vcsCommitMessageProperty,
+            "Commit hash" to vcsCommitHashProperty,
+            "Commit time" to vcsCommitTimeProperty,
+            "Commit tags" to vcsTagsProperty.mapBinding { if (it.isEmpty()) "" else it.joinToString(", ") },
+            "Latest tag" to vcsLastTagProperty.join(vcsLastTagDiffProperty) { tag, diff ->
+                tag + if (diff > 0) " +$diff" else ""
+            },
+            "Dirty build" to vcsDirtyProperty,
+            "Commit count" to vcsCommitCountProperty
         )
 
         dataMap = if (runtime.isEmpty()) {
