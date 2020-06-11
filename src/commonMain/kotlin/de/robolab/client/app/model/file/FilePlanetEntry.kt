@@ -15,8 +15,6 @@ import de.robolab.client.theme.LightTheme
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.menuBilder
 import de.robolab.common.parser.PlanetFile
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
@@ -99,7 +97,10 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
         action("Save") {
             GlobalScope.launch(Dispatchers.Main) {
                 val success = provider.saveEntry(this@FilePlanetEntry)
-                logger.info { "Save successful: $success" }
+
+                if (success) {
+                    planetFile.history.clear()
+                }
             }
         }
     }
@@ -150,7 +151,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
         if (fileName.isEmpty()) {
             fileName = "export"
         }
-        saveExportSVG(fileName, exportSVG())
+        saveExportSVG(fileName, writeToSVGString())
     }
 
     fun exportAsPNG(name: String = "") {
@@ -161,11 +162,11 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
         if (fileName.isEmpty()) {
             fileName = "export"
         }
-        saveExportPNG(fileName, exportPNG())
+        saveExportPNG(fileName, drawToPNGCanvas())
     }
 
-    private fun exportSVG(): String {
-        val dimension = exportGetSize()
+    private fun writeToSVGString(): String {
+        val dimension = getExportSize()
         val canvas = SvgCanvas(dimension)
 
         exportRender(canvas)
@@ -173,15 +174,15 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
         return canvas.buildFile()
     }
 
-    private fun exportPNG(): ICanvas {
-        val canvas = exportPNGCanvas(exportGetSize())
+    private fun drawToPNGCanvas(): ICanvas {
+        val canvas = exportPNGCanvas(getExportSize())
 
         exportRender(canvas)
 
         return canvas
     }
 
-    private fun exportGetSize(): Dimension {
+    private fun getExportSize(): Dimension {
         val rect = AbsPlanetDrawable.calcPlanetArea(planetFile.planet)?.expand(0.99) ?: Rectangle.ZERO
         return Dimension(rect.width * Transformation.PIXEL_PER_UNIT, rect.height * Transformation.PIXEL_PER_UNIT)
     }

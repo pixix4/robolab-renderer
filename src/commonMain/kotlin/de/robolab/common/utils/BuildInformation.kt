@@ -89,7 +89,7 @@ object BuildInformation {
     val vcsDirty by vcsDirtyProperty
 
     val vcsCommitCountProperty = dataProperty.mapBinding { data ->
-        data["vcs.commitCount"]?.toBoolean() ?: false
+        data["vcs.commitCount"]?.toIntOrNull() ?: 0
     }
     val vcsCommitCount by vcsCommitCountProperty
 
