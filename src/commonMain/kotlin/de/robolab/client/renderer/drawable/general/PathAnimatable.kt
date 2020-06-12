@@ -270,6 +270,13 @@ class PathAnimatable(
             )
         }
 
+        private fun isPointInDirectLine(start: Point, direction: Direction, target: Point): Boolean = when (direction) {
+            Direction.NORTH -> start.y <= target.y && start.x == target.x
+            Direction.EAST -> start.x <= target.x && start.y == target.y
+            Direction.SOUTH -> start.y >= target.y && start.x == target.x
+            Direction.WEST -> start.x >= target.x && start.y == target.y
+        }
+
         fun getControlPointsFromPath(
             startPoint: Point,
             startDirection: Direction,
@@ -286,7 +293,7 @@ class PathAnimatable(
 
                 return listOfNotNull(
                     startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
-                    if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(
+                    if (linePoints.isNotEmpty() && isPointInDirectLine(
                             startPoint,
                             startDirection,
                             linePoints.first()
@@ -309,14 +316,14 @@ class PathAnimatable(
 
             return listOfNotNull(
                 startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
-                if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(
+                if (linePoints.isNotEmpty() && isPointInDirectLine(
                         startPoint,
                         startDirection,
                         linePoints.first()
                     )
                 ) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
                 *linePoints.toTypedArray(),
-                if (linePoints.isNotEmpty() && PathGenerator.isPointInDirectLine(
+                if (linePoints.isNotEmpty() && isPointInDirectLine(
                         endPoint,
                         endDirection,
                         linePoints.last()

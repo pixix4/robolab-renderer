@@ -39,7 +39,7 @@ class CreatePathManager(
         private val drawMode: Boolean
     ) {
 
-        val startPoint = startCoordinate.toPoint() + startDirection.toVector() * PlottingConstraints.POINT_SIZE
+        val startPoint = startCoordinate.toPoint() + startDirection.toVector(PlottingConstraints.POINT_SIZE)
 
         private val splineView = SplineView(
                 startPoint,
@@ -88,7 +88,7 @@ class CreatePathManager(
                 }
 
                 if (hoveredCoordinate != null && hoveredDirection != null) {
-                    val endPoint = hoveredCoordinate.toPoint() + hoveredDirection.toVector() * PlottingConstraints.POINT_SIZE
+                    val endPoint = hoveredCoordinate.toPoint() + hoveredDirection.toVector(PlottingConstraints.POINT_SIZE)
 
                     val cp = if (drawMode) {
                         when (controlPoints.size) {
@@ -134,7 +134,7 @@ class CreatePathManager(
 
                 if (hoveredCoordinate != null && hoveredDirection != null && callback != null) {
                     if (drawMode) {
-                        val endPoint = hoveredCoordinate.toPoint() + hoveredDirection.toVector() * PlottingConstraints.POINT_SIZE
+                        val endPoint = hoveredCoordinate.toPoint() + hoveredDirection.toVector(PlottingConstraints.POINT_SIZE)
 
                         if (controlPoints.last() distanceTo endPoint < 0.25) {
                             controlPoints.removeAt(controlPoints.lastIndex)

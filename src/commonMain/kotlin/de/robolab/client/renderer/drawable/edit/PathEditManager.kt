@@ -195,7 +195,7 @@ class PathEditManager(
                 KeyCode.ARROW_LEFT -> {
                     cp[index] = updateControlPoint(
                             index,
-                            cp[index] + Direction.WEST.toVector() * PlottingConstraints.PRECISION
+                            cp[index] + Direction.WEST.toVector(PlottingConstraints.PRECISION)
                     )
 
                     if (cp != editableControlPoints) {
@@ -206,7 +206,7 @@ class PathEditManager(
                 KeyCode.ARROW_RIGHT -> {
                     cp[index] = updateControlPoint(
                             index,
-                            cp[index] + Direction.EAST.toVector() * PlottingConstraints.PRECISION
+                            cp[index] + Direction.EAST.toVector(PlottingConstraints.PRECISION)
                     )
 
                     if (cp != editableControlPoints) {
@@ -217,7 +217,7 @@ class PathEditManager(
                 KeyCode.ARROW_UP -> {
                     cp[index] = updateControlPoint(
                             index,
-                            cp[index] + Direction.NORTH.toVector() * PlottingConstraints.PRECISION
+                            cp[index] + Direction.NORTH.toVector(PlottingConstraints.PRECISION)
                     )
 
                     if (cp != editableControlPoints) {
@@ -228,7 +228,7 @@ class PathEditManager(
                 KeyCode.ARROW_DOWN -> {
                     cp[index] = updateControlPoint(
                             index,
-                            cp[index] + Direction.SOUTH.toVector() * PlottingConstraints.PRECISION
+                            cp[index] + Direction.SOUTH.toVector(PlottingConstraints.PRECISION)
                     )
 
                     if (cp != editableControlPoints) {

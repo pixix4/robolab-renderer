@@ -1,6 +1,8 @@
 package de.robolab.common.planet
 
 import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
+import kotlin.math.absoluteValue
 
 enum class Direction {
     NORTH,
@@ -13,20 +15,6 @@ enum class Direction {
         EAST -> WEST
         SOUTH -> NORTH
         WEST -> EAST
-    }
-
-    fun turnHigh() = when (this) {
-        NORTH -> EAST
-        EAST -> NORTH
-        SOUTH -> WEST
-        WEST -> SOUTH
-    }
-
-    fun turnLow() = when (this) {
-        NORTH -> WEST
-        EAST -> SOUTH
-        SOUTH -> EAST
-        WEST -> NORTH
     }
 
     fun turnClockwise() = when (this) {
@@ -43,16 +31,26 @@ enum class Direction {
         WEST -> SOUTH
     }
 
-    fun toVector() = when (this) {
-        NORTH -> Point(0.0, 1.0)
-        EAST -> Point(1.0, 0.0)
-        SOUTH -> Point(0.0, -1.0)
-        WEST -> Point(-1.0, 0.0)
+    fun toVector(size: Double = 1.0) = when (this) {
+        NORTH -> Point(0.0, size)
+        EAST -> Point(size, 0.0)
+        SOUTH -> Point(0.0, -size)
+        WEST -> Point(-size, 0.0)
     }
 
     fun rotate(direction: Planet.RotateDirection) = when(direction) {
         Planet.RotateDirection.CLOCKWISE -> turnClockwise()
         Planet.RotateDirection.COUNTER_CLOCKWISE -> turnCounterClockwise()
+    }
+
+    companion object {
+        fun fromVector(vector: Vector): Direction {
+            return if (vector.x.absoluteValue < vector.y.absoluteValue) {
+                if (vector.y >= 0) NORTH else SOUTH
+            } else {
+                if (vector.x >= 0) EAST else WEST
+            }
+        }
     }
 }
 

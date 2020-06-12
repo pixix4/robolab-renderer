@@ -198,7 +198,7 @@ class PointAnimatable(
             createPath: CreatePathManager?
         ): SquareView {
             val squareView = SquareView(
-                coordinate.toPoint() + direction.toVector() * PlottingConstraints.POINT_SIZE,
+                coordinate.toPoint() + direction.toVector(PlottingConstraints.POINT_SIZE),
                 PlottingConstraints.POINT_SIZE,
                 PlottingConstraints.LINE_WIDTH * 0.65,
                 ViewColor.TRANSPARENT
