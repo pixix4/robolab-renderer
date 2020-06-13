@@ -67,6 +67,7 @@ fun List<RobolabMessage>.toServerPlanet(): Planet {
     }
 
     return Planet(
+        PlanetVersion.CURRENT,
         name,
         startPoint,
         null,
@@ -128,6 +129,7 @@ fun List<RobolabMessage>.toMqttPlanet(): Planet {
     }
 
     return Planet(
+        PlanetVersion.CURRENT,
         name,
         startPoint,
         null,

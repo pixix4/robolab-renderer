@@ -37,7 +37,7 @@ interface FileLine<T> {
     }
 
     class BuildAccumulator(
-        var planet: Planet = Planet.EMPTY,
+        var planet: Planet = Planet.EMPTY.copy(version = PlanetVersion.FALLBACK),
         var previousBlockHead: FileLine<*>? = null
     )
 
@@ -392,6 +392,50 @@ interface FileLine<T> {
         }
     }
 
+    class VersionLine(override val line: String) : FileLine<PlanetVersion> {
+
+        override val data = REGEX.matchEntire(line.trim())
+            ?.groupValues
+            ?.getOrNull(2)
+            ?.toIntOrNull()
+            ?.let {
+                PlanetVersion.parse(it)
+            } ?: PlanetVersion.FALLBACK
+
+        override var blockMode: BlockMode = BlockMode.Unknown
+
+        override fun buildPlanet(builder: BuildAccumulator) {
+            blockMode = BlockMode.Head(builder.previousBlockHead)
+            builder.previousBlockHead = this
+            builder.planet = builder.planet.copy(
+                version = data
+            )
+        }
+
+        override fun isAssociatedTo(obj: Any): Boolean {
+            if (obj !is Int) return false
+
+            return obj == data
+        }
+
+        companion object : Parser {
+            override val name = "Version line parser"
+            val REGEX =
+                """^#\s*(VERSION|version)\s?(?::\s*(\d*))?\s*(?:#.*?)?${'$'}""".toRegex()
+
+            override fun testLine(line: String): Boolean {
+                return REGEX.containsMatchIn(line)
+            }
+
+            override fun createInstance(line: String): FileLine<*> {
+                return VersionLine(line)
+            }
+
+            fun serialize(version: PlanetVersion) = "# version: ${version.version}"
+            fun create(version: PlanetVersion) = createInstance(serialize(version))
+        }
+    }
+
     class SplineLine(override val line: String) : FileLine<List<Point>> {
 
         override val data = REGEX.matchEntire(line.trim())!!.let { match ->
@@ -674,6 +718,7 @@ private val parserList = listOf(
     FileLine.PathSelectLine,
     FileLine.TargetLine,
     FileLine.NameLine,
+    FileLine.VersionLine,
     FileLine.SplineLine,
     FileLine.HiddenLine,
     FileLine.CommentLine,
@@ -694,6 +739,19 @@ fun parseLine(line: String): FileLine<*> {
         return FileLine.UnknownLine(line)
     } catch (e: Exception) {
         return FileLine.ErrorLine(line, "Error in '$lastName': $e")
+    }
+}
+
+fun isLineValid(line:String): Boolean {
+    try {
+        for (parser in parserList) {
+            if (parser.testLine(line)) {
+                return true
+            }
+        }
+        return false
+    } catch (e: Exception) {
+        return false
     }
 }
 

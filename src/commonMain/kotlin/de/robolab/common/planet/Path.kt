@@ -2,6 +2,7 @@ package de.robolab.common.planet
 
 import de.robolab.client.renderer.drawable.utils.toPoint
 import de.robolab.common.utils.Point
+import kotlin.math.roundToInt
 
 data class Path(
     val source: Coordinate,
@@ -77,6 +78,14 @@ data class Path(
         hidden,
         showDirectionArrow
     )
+
+    fun scaleWeights(factor: Double = 1.0, offset: Int = 0): Path {
+        if (weight == null) return this
+
+        val scaled = if (weight > 0) (weight * factor).roundToInt() + offset else weight
+        val w = if (scaled < 0) -1 else scaled
+        return copy(weight = w)
+    }
 
     override fun toString(): String = "Path(" +
             "${source.x},${source.y},${sourceDirection.letter()} " +

@@ -17,6 +17,7 @@ class PlanetStatisticsDetailBox(planetFile: PlanetFile) : IDetailBox {
 
     val data = listOf(
         "General" to listOf(
+            "Version" to planetFile.planetProperty.mapBinding { planet -> planet.version.toString() },
             "Start point" to statisticsProperty.mapBinding { it.startPoint?.toFormattedString() ?: "" },
             "Path unveil count" to statisticsProperty.mapBinding { it.pathUnveilCount.toString() },
             "Paths select count" to statisticsProperty.mapBinding { it.pathSelectCount.toString() },

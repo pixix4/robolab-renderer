@@ -3,6 +3,7 @@ package de.robolab.client.jfx.view
 import de.robolab.client.app.model.file.InfoBarFileEditor
 import de.robolab.client.jfx.style.MainStyle
 import de.robolab.common.parser.FileLine
+import de.robolab.common.parser.isLineValid
 import de.westermann.kobserve.base.ObservableProperty
 import javafx.scene.Parent
 import javafx.scene.input.KeyCode
@@ -103,19 +104,7 @@ class InfoBarPlanetEditorView(private val content: InfoBarFileEditor) : View() {
         var splits = lines.size
         val spansBuilder = StyleSpansBuilder<Collection<String>>()
         for (line in lines) {
-            val valid =
-                FileLine.PathLine.REGEX.matches(line) ||
-                        FileLine.StartPointLine.REGEX.matches(line) ||
-                        FileLine.TargetLine.REGEX.matches(line) ||
-                        FileLine.BluePointLine.REGEX.matches(line) ||
-                        FileLine.PathSelectLine.REGEX.matches(line) ||
-                        FileLine.NameLine.REGEX.matches(line) ||
-                        FileLine.SplineLine.REGEX.matches(line) ||
-                        FileLine.CommentLine.REGEX.matches(line) ||
-                        FileLine.CommentSubLine.REGEX.matches(line) ||
-                        FileLine.HiddenLine.REGEX.matches(line)
-
-            if (valid) {
+            if (isLineValid(line)) {
                 val matcher = PATTERN.matcher(line)
                 var lastKwEnd = 0
                 while (matcher.find()) {
@@ -158,6 +147,7 @@ class InfoBarPlanetEditorView(private val content: InfoBarFileEditor) : View() {
             "center",
             "right",
             "name",
+            "version",
             "spline",
             "comment",
             "blue",

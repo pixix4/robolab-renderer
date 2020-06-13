@@ -1,9 +1,6 @@
 package de.robolab.client.traverser
 
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
-import de.robolab.common.planet.Planet
-import de.robolab.common.planet.StartPoint
+import de.robolab.common.planet.*
 import kotlin.random.Random
 
 fun Random.nextHexString(length: Int = 8): String = String(CharArray(length) { this.nextBits(4).toString(16).first() })
@@ -42,6 +39,7 @@ interface ITraverserTrail {
         name: String = "${original?.name ?: "TrailPlanet"}-${Random.nextHexString()}"
     ): Planet =
         Planet(
+            original?.version ?: PlanetVersion.CURRENT,
             name,
             original?.startPoint
                 ?: (path.firstOrNull()?.first)?.let { StartPoint(it, Direction.NORTH, emptyList()) },

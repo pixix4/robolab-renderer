@@ -25,6 +25,15 @@ abstract class AnimatableManager<T : Any, A : Animatable<T>> {
     fun importPlanet(planet: Planet) {
         val oldPlanet = this.planet
         this.planet = planet
+
+        if (oldPlanet.version != planet.version) {
+            objectList = emptyList()
+            animatableList.clear()
+            view.animateImmediately {
+                view.clear()
+            }
+        }
+
         val newReferenceList = getObjectList(planet)
         if (newReferenceList == objectList && !forceUpdate(oldPlanet, planet)) {
             // Nothing to do

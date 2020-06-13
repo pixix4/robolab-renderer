@@ -5,7 +5,7 @@ class TextEditor {
      * @param container: HTMLElement
      */
     constructor(container) {
-        let KEYWORD_PATTERN = /\b(name|spline|comment|blue|start|target|direction)\b/;
+        let KEYWORD_PATTERN = /\b(comment|left|center|right|name|version|spline|commen|blue|start|target|direction)\b/;
         let DIRECTION_PATTERN = /\b[NESWnesw]\b/;
         let NUMBER_PATTERN = /\b(-?[0-9]+)\b/;
         let STRING_PATTERN = /\b([a-zA-Z]*)\b/;

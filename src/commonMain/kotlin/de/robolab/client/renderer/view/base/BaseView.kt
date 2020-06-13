@@ -326,6 +326,17 @@ abstract class BaseView(
             internalAnimationTime = value
         }
 
+    fun resetAnimationTime() {
+        internalAnimationTime = null
+    }
+
+    fun animateImmediately(block: () -> Unit) {
+        val old = internalAnimationTime
+        internalAnimationTime = 0.0
+        block()
+        internalAnimationTime = old
+    }
+
     override var focusable = false
         set(value) {
             if (!value && isFocused) {

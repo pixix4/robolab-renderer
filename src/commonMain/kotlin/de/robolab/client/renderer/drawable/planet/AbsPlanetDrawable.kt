@@ -217,7 +217,7 @@ abstract class AbsPlanetDrawable : ITransformationReference {
                     update(e.x.toDouble(), e.y.toDouble())
                 }
 
-                val controlPoints = PathAnimatable.getControlPointsFromPath(p)
+                val controlPoints = PathAnimatable.getControlPointsFromPath(planet.version, p)
                 val points = PathAnimatable.multiEval(16, controlPoints, Point(p.source), Point(p.target)) {
                     BSpline.eval(it, controlPoints)
                 }

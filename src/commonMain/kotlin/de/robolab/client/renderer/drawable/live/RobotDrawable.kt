@@ -7,10 +7,7 @@ import de.robolab.client.renderer.drawable.utils.shift
 import de.robolab.client.renderer.transition.IInterpolatable
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.component.RobotView
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
-import de.robolab.common.planet.Path
-import de.robolab.common.planet.Planet
+import de.robolab.common.planet.*
 import de.robolab.common.utils.Point
 import kotlin.math.PI
 import kotlin.math.atan2
@@ -76,7 +73,7 @@ class RobotDrawable {
                     }
                 }
 
-                val points = PathAnimatable.getControlPointsFromPath(path)
+                val points = PathAnimatable.getControlPointsFromPath(planet?.version ?: PlanetVersion.CURRENT, path)
                 val length = path.length(points)
 
                 return max(0.5, min(10.0, length))
@@ -128,7 +125,7 @@ class RobotDrawable {
                     }
                 }
 
-                val points = PathAnimatable.getControlPointsFromPath(path)
+                val points = PathAnimatable.getControlPointsFromPath(planet?.version ?: PlanetVersion.CURRENT, path)
 
                 val position: Point
                 val d: Point

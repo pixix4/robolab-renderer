@@ -460,11 +460,7 @@ class PlanetFile(fileContent: String) : IEditCallback {
         for (i in 0 until newLines.size) {
             when (val line = newLines[i]) {
                 is FileLine.PathLine -> {
-                    val obj = line.data.copy(
-                        weight = line.data.weight?.let { weight ->
-                            if (weight > 0) (weight * factor).roundToInt() + offset else weight
-                        }
-                    )
+                    val obj = line.data.scaleWeights(factor, offset)
                     newLines[i] = FileLine.PathLine.create(obj)
                 }
             }

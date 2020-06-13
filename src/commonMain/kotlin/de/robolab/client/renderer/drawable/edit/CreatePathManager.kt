@@ -10,6 +10,7 @@ import de.robolab.client.renderer.view.component.SplineView
 import de.robolab.client.renderer.view.component.SquareView
 import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Direction
+import de.robolab.common.planet.PlanetVersion
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventListener
@@ -98,6 +99,7 @@ class CreatePathManager(
                         }
                     } else {
                         getControlPointsFromPath(
+                                PlanetVersion.CURRENT,
                                 startCoordinate.toPoint(),
                                 startDirection,
                                 hoveredCoordinate.toPoint(),

@@ -17,6 +17,15 @@ interface Curve {
             else -> eval(t - epsilon, points) to eval(t + epsilon, points)
         }
 
+        if (p2 == p1) {
+            val p3 = eval(t, points)
+
+            if (p3 == p1) {
+                return Point.ZERO
+            }
+            return (p2 - p3).normalize()
+        }
+
         return (p2 - p1).normalize()
     }
 }

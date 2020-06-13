@@ -10,10 +10,7 @@ import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.*
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
-import de.robolab.common.planet.Path
-import de.robolab.common.planet.Planet
+import de.robolab.common.planet.*
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
@@ -29,8 +26,8 @@ class PathAnimatable(
 
     override val view = SplineView(
         getSourcePointFromPath(reference),
-        getTargetPointFromPath(reference),
-        getControlPointsFromPath(reference),
+        getTargetPointFromPath(planet.version, reference),
+        getControlPointsFromPath(planet.version, reference),
         PlottingConstraints.LINE_WIDTH,
         getColor(planet, reference) ?: ViewColor.LINE_COLOR,
         reference.hidden
@@ -81,7 +78,7 @@ class PathAnimatable(
     }
 
     private val blockedView = LineView(
-        getOrthogonal(if (isOneWayPath) 1.0 else 0.5, true).toList(),
+        getOrthogonal(if (isOneWayPath && planet.version >= PlanetVersion.V2020_SPRING) 1.0 else 0.5, true).toList(),
         PlottingConstraints.LINE_WIDTH,
         ViewColor.POINT_RED
     ).also {
@@ -116,9 +113,9 @@ class PathAnimatable(
     override fun onUpdate(obj: Path, planet: Planet) {
         super.onUpdate(obj, planet)
 
-        view.setControlPoints(getControlPointsFromPath(reference), 0.0)
+        view.setControlPoints(getControlPointsFromPath(planet.version, reference), 0.0)
         view.setSource(getSourcePointFromPath(reference), 0.0)
-        view.setTarget(getTargetPointFromPath(reference), 0.0)
+        view.setTarget(getTargetPointFromPath(planet.version, reference), 0.0)
         view.setColor(getColor(planet, reference) ?: ViewColor.LINE_COLOR)
         view.setIsDashed(reference.hidden)
 
@@ -129,7 +126,12 @@ class PathAnimatable(
         weightView.setSource(getOrthogonal(0.5, true).first)
         weightView.text = reference.weight?.toString() ?: "0"
 
-        blockedView.setPoints(getOrthogonal(if (isOneWayPath) 1.0 else 0.5, true).toList())
+        blockedView.setPoints(
+            getOrthogonal(
+                if (isOneWayPath && planet.version >= PlanetVersion.V2020_SPRING) 1.0 else 0.5,
+                true
+            ).toList()
+        )
 
         val (first, second) = getArrowPosition()
         arrowView.setSource(first)
@@ -252,16 +254,20 @@ class PathAnimatable(
             return path.source.toPoint()
         }
 
-        fun getTargetPointFromPath(path: Path): Point {
+        fun getTargetPointFromPath(version: PlanetVersion, path: Path): Point {
             if (path.source == path.target && path.sourceDirection == path.targetDirection) {
-                return getControlPointsFromPath(path).last()
+                return getControlPointsFromPath(version, path).last()
             }
 
             return path.target.toPoint()
         }
 
-        fun getControlPointsFromPath(path: Path): List<Point> {
+        fun getControlPointsFromPath(
+            version: PlanetVersion,
+            path: Path
+        ): List<Point> {
             return getControlPointsFromPath(
+                version,
                 path.source.toPoint(),
                 path.sourceDirection,
                 path.target.toPoint(),
@@ -278,13 +284,14 @@ class PathAnimatable(
         }
 
         fun getControlPointsFromPath(
+            version: PlanetVersion,
             startPoint: Point,
             startDirection: Direction,
             endPoint: Point,
             endDirection: Direction,
             controlPoints: List<Point> = emptyList()
         ): List<Point> {
-            if (startPoint == endPoint && startDirection == endDirection) {
+            if (startPoint == endPoint && startDirection == endDirection && version >= PlanetVersion.V2020_SPRING) {
                 val linePoints = if (controlPoints.isNotEmpty()) {
                     controlPoints
                 } else {

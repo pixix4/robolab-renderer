@@ -1,9 +1,9 @@
 package de.robolab.common.planet
 
 import kotlin.math.PI
-import kotlin.math.roundToInt
 
 data class Planet(
+    val version: PlanetVersion,
     val name: String,
     val startPoint: StartPoint?,
     val bluePoint: Coordinate?,
@@ -14,39 +14,41 @@ data class Planet(
 ) {
 
     fun importSplines(reference: Planet): Planet {
-        var tmp = this
+        var startPoint = this.startPoint
+        var pathList = this.pathList
 
-        tmp = tmp.copy(
-            name = reference.name,
-            bluePoint = reference.bluePoint
-        )
-
-        if (reference.startPoint != null && reference.startPoint.point == tmp.startPoint?.point && reference.startPoint.orientation == tmp.startPoint?.orientation) {
-            tmp = tmp.copy(
-                startPoint = tmp.startPoint?.copy(controlPoints = reference.startPoint.controlPoints)
-            )
+        if (reference.startPoint != null && reference.startPoint.point == startPoint?.point && reference.startPoint.orientation == startPoint.orientation) {
+            startPoint = startPoint.copy(controlPoints = reference.startPoint.controlPoints)
         }
 
-        tmp = tmp.copy(
-            pathList = tmp.pathList.map { path ->
-                val backgroundPath = reference.pathList.find { it.equalPath(path) } ?: return@map path
+        pathList = pathList.map { path ->
+            val backgroundPath = reference.pathList.find { it.equalPath(path) } ?: return@map path
 
-                if (backgroundPath.source == path.source && backgroundPath.sourceDirection == path.sourceDirection) {
-                    path.copy(
-                        controlPoints = backgroundPath.controlPoints
-                    )
-                } else {
-                    path.copy(
-                        controlPoints = backgroundPath.controlPoints.reversed()
-                    )
-                }
+            if (backgroundPath.source == path.source && backgroundPath.sourceDirection == path.sourceDirection) {
+                path.copy(
+                    controlPoints = backgroundPath.controlPoints
+                )
+            } else {
+                path.copy(
+                    controlPoints = backgroundPath.controlPoints.reversed()
+                )
             }
-        )
+        }
 
-        return tmp
+        return Planet(
+            reference.version,
+            reference.name,
+            startPoint,
+            reference.bluePoint,
+            pathList,
+            targetList,
+            pathSelectList,
+            commentList
+        )
     }
 
     fun translate(delta: Coordinate) = Planet(
+        version,
         name,
         startPoint?.translate(delta),
         bluePoint?.translate(delta),
@@ -57,6 +59,7 @@ data class Planet(
     )
 
     fun rotate(direction: RotateDirection, origin: Coordinate = startPoint?.point ?: Coordinate(0, 0)) = Planet(
+        version,
         name,
         startPoint?.rotate(direction, origin),
         bluePoint?.rotate(direction, origin),
@@ -69,11 +72,7 @@ data class Planet(
     fun scaleWeights(factor: Double = 1.0, offset: Int = 0): Planet {
         return copy(
             pathList = pathList.map { path ->
-                path.copy(
-                    weight = path.weight?.let { weight ->
-                        if (weight > 0) (weight * factor).roundToInt() + offset else weight
-                    }
-                )
+                path.scaleWeights(factor, offset)
             }
         )
     }
@@ -84,6 +83,7 @@ data class Planet(
 
     companion object {
         val EMPTY = Planet(
+            PlanetVersion.CURRENT,
             "",
             null,
             null,
