@@ -551,7 +551,7 @@ fun KeyboardEvent.toCommon() = when (key.toLowerCase()) {
     // "f11" -> KeyCode.F11
     // "f12" -> KeyCode.F12
     else -> {
-        Logger("KeyMapper").info { "Unsupported keyCode: $this" }
+        Logger("KeyMapper").info { "Unsupported keyCode: $key" }
         null
     }
 }
