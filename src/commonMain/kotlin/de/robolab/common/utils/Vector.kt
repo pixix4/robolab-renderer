@@ -1,11 +1,9 @@
 package de.robolab.common.utils
 
 import de.robolab.client.renderer.transition.IInterpolatable
+import de.robolab.common.parser.toFixed
 import de.robolab.common.planet.Coordinate
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 data class Vector(
         val left: Double,
@@ -99,6 +97,13 @@ data class Vector(
             kotlin.math.min(top, other.top)
     )
 
+    fun rounded() = Vector(round(left), round(top))
+    fun roundedWithMultiplier(multiplier: Double = 1.0) = Vector(round(left * multiplier) / multiplier, round(top * multiplier) / multiplier)
+
+    override fun toString(): String {
+        return "Vector(${left.toFixed(2)}, ${top.toFixed(2)})"
+    }
+
     val width: Double
         get() = left
 
@@ -110,6 +115,8 @@ data class Vector(
 
     val y: Double
         get() = top
+
+
 
     companion object {
         val ZERO = Vector(0.0, 0.0)

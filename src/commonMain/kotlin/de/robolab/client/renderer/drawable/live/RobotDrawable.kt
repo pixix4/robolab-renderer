@@ -215,4 +215,4 @@ fun Direction.toAngle() = when (this) {
     Direction.WEST -> PI * 0.5
 }
 
-fun Point.toAngle() = atan2(y, x) - PI / 2
+fun Point.toAngle() = (atan2(y, x) + 3 * PI / 2) % (2 * PI)

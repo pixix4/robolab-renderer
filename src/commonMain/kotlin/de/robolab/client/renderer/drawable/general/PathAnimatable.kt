@@ -314,6 +314,7 @@ class PathAnimatable(
                 controlPoints
             } else {
                 PathGenerator.generateControlPoints(
+                    version,
                     startPoint,
                     startDirection,
                     endPoint,

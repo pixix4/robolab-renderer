@@ -1,5 +1,6 @@
 package de.robolab.common.utils
 
+import de.robolab.common.parser.toFixed
 import de.robolab.common.planet.Direction
 
 
@@ -9,14 +10,7 @@ data class Line(
 ) {
     constructor(origin: Point, direction: Direction) : this(origin, direction.toVector())
 
-    infix fun parallelTo(other: Line): Boolean {
-        val d1 = direction.normalize()
-        val d2 = other.direction.normalize()
-
-        return d1 == d2 || d1.inverse() == d2
-    }
-
-    fun intersection(other: Line): Point? {
+    fun intersection(other: Line): Intersection {
         val x1 = origin.x
         val y1 = origin.y
         val x2 = origin.x + direction.x
@@ -29,12 +23,20 @@ data class Line(
         val t1 = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4))
         val t2 = ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
 
+        if (t2 == 0.0) {
+            return if (t1 == 0.0) {
+                Intersection.Identity
+            } else {
+                Intersection.Parallel
+            }
+        }
+
         val t = t1 / t2
 
-        return Point(
+        return Intersection.Intersect(Point(
             x1 + t * (x2 - x1),
             y1 + t * (y2 - y1)
-        )
+        ))
     }
 
     fun orthogonal() = Line(origin, direction.orthogonal())
@@ -45,7 +47,38 @@ data class Line(
         return factor to (vector + origin)
     }
 
-    fun orthogonalIntersection(other: Line): Point? {
+    fun orthogonalIntersection(other: Line): Intersection {
         return orthogonal().intersection(other.orthogonal())
+    }
+
+    infix fun parallelTo(other: Line): Boolean {
+        return intersection(other) !is Intersection.Intersect
+    }
+
+    infix fun sameDirection(other: Line): Boolean {
+        return direction.normalize() == other.direction.normalize()
+    }
+
+    fun moveOriginBy(distance: Double) = copy(origin = origin + direction.normalize() * distance)
+
+    override fun toString(): String {
+        val oX = origin.x.toFixed(2)
+        val oY = origin.y.toFixed(2)
+        val dX = direction.x.toFixed(2)
+        val dY = direction.y.toFixed(2)
+
+        return "Line(($oX, $oY) + t * ($dX, $dY))"
+    }
+
+    sealed class Intersection {
+        object Parallel: Intersection()
+        object Identity: Intersection()
+        data class Intersect(override val point: Vector): Intersection()
+
+        open val point: Vector? = null
+
+        override fun toString(): String {
+            return this::class.simpleName ?: super.toString()
+        }
     }
 }

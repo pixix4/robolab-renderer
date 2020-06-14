@@ -1,18 +1,25 @@
 package de.robolab.client.renderer.drawable.utils
 
+import de.robolab.client.renderer.drawable.live.toAngle
+import de.robolab.common.parser.toFixed
 import de.robolab.common.planet.Direction
+import de.robolab.common.planet.PlanetVersion
 import de.robolab.common.utils.Line
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Vector
+import kotlin.math.*
 
 
 object PathGenerator {
 
-    private val generatorList = listOf<Generator>(
-        OuterLoopGenerator
+    private val generatorList = listOf(
+        OuterLoopGenerator,
+        InnerLoopGenerator,
+        StraightLineGenerator
     )
 
     fun generateControlPoints(
+        version: PlanetVersion,
         startPoint: Point,
         startDirection: Direction,
         endPoint: Point,
@@ -22,33 +29,210 @@ object PathGenerator {
         val target = Line(endPoint, endDirection)
 
         for (generator in generatorList) {
-            if (generator.testGenerator(source, target)) {
-                return generator.generate(source, target)
+            if (version >= generator.requiredVersion && generator.testGenerator(source, target)) {
+                return generator.generate(source, target)?.removeDuplicates() ?: continue
             }
         }
 
-        return DefaultGenerator.generate(source, target)
+        return DefaultGenerator.generate(source, target).removeDuplicates()
     }
 
     interface Generator {
 
+        val requiredVersion: PlanetVersion
+
         fun testGenerator(source: Line, target: Line): Boolean
 
-        fun generate(source: Line, target: Line): List<Point>
+        fun generate(source: Line, target: Line): List<Point>?
     }
 
-    object OuterLoopGenerator: Generator {
+    private fun interpolateRotation(
+        center: Point,
+        startPoint: Point,
+        endPoint: Point,
+        progress: Double,
+        isLarge: Boolean
+    ): Point {
+        val v = (startPoint - center)
+
+        val start = v.toAngle()
+        val end = (endPoint - center).toAngle()
+
+        var diff = (end - start)
+        if (diff < 0.0) {
+            diff += 2 * PI
+        }
+
+        if (isLarge && diff < PI || !isLarge && diff > PI) {
+            diff -= 2 * PI
+        }
+
+        val rotation = diff * progress
+
+        return center + v.rotate(rotation)
+    }
+
+    fun interpolateRotation(start: Line, radius: Double, extend: Double): Pair<Line, List<Point>> {
+        val center = start.rotate(PI / 2).moveOriginBy(radius).origin
+
+        val stepCount = (extend.absoluteValue / PI * 8.0).roundToInt()
+        val extendSign = extend.withSign(radius)
+        val rVec = start.origin - center
+
+        val list = mutableListOf<Vector>()
+        for (i in 1..stepCount) {
+            val vec = rVec.rotate(extendSign * i / stepCount.toDouble())
+            list += center + vec
+        }
+
+        return Pair(
+            Line(
+                center + rVec.rotate(extendSign),
+                start.direction.rotate(extendSign)
+            ),
+            list
+        )
+    }
+
+    object OuterLoopGenerator : Generator {
+
+        override val requiredVersion = PlanetVersion.V2020_FALL
+
         override fun testGenerator(source: Line, target: Line): Boolean {
-            return false
+            val cross = source.intersection(target).point ?: return false
+
+            val (f1, _) = source.projectOnto(cross)
+            val (f2, _) = target.projectOnto(cross)
+
+            if (f1 < 0 || f2 < 0) return false
+
+            return source.origin == target.origin
         }
 
-        override fun generate(source: Line, target: Line): List<Point> {
-            TODO("Not yet implemented")
-        }
+        override fun generate(source: Line, target: Line): List<Point>? {
+            val radius = 0.35
+            val l1 = source.moveOriginBy(radius)
+            val l2 = target.moveOriginBy(radius)
 
+            val cross = l1.orthogonalIntersection(l2).point ?: return null
+
+            val steps = 8
+            val circlePoints = (0..steps).map { i ->
+                interpolateRotation(cross, l1.origin, l2.origin, i.toDouble() / steps, true)
+            }.toTypedArray()
+
+            return listOf(
+                source.moveOriginBy(0.25).origin,
+                *circlePoints,
+                target.moveOriginBy(0.25).origin
+            )
+        }
     }
 
-    object DefaultGenerator: Generator {
+    object InnerLoopGenerator : Generator {
+
+        override val requiredVersion = PlanetVersion.V2020_FALL
+
+        override fun testGenerator(source: Line, target: Line): Boolean {
+            val cross = source.intersection(target).point ?: return false
+
+            val (f1, _) = source.projectOnto(cross)
+            val (f2, _) = target.projectOnto(cross)
+
+            return f1 > 0 && f2 > 0
+        }
+
+        override fun generate(source: Line, target: Line): List<Point>? {
+
+            val intersection = source.intersection(target).point ?: return null
+            val radius = min(
+                intersection distanceTo source.origin,
+                intersection distanceTo target.origin
+            ) - 0.25
+
+            val l1Offset = (intersection distanceTo source.origin) - radius
+            val l2Offset = (intersection distanceTo target.origin) - radius
+            val l1 = source.moveOriginBy(l1Offset)
+            val l2 = target.moveOriginBy(l2Offset)
+
+            val cross = l1.orthogonalIntersection(l2).point ?: return null
+
+            val steps = 8
+            val circlePoints = (0..steps).map { i ->
+                interpolateRotation(cross, l1.origin, l2.origin, i.toDouble() / steps, false)
+            }.toTypedArray()
+
+            return listOf(
+                source.moveOriginBy(0.25).origin,
+                source.moveOriginBy(l1Offset).origin,
+                *circlePoints,
+                target.moveOriginBy(l2Offset).origin,
+                target.moveOriginBy(0.25).origin
+            )
+        }
+    }
+
+    object StraightLineGenerator : Generator {
+
+        override val requiredVersion = PlanetVersion.V2020_FALL
+
+        override fun testGenerator(source: Line, target: Line): Boolean {
+            return source.origin != target.origin &&
+                    source.intersection(target) is Line.Intersection.Identity &&
+                    source.sameDirection(target)
+        }
+
+        override fun generate(source: Line, target: Line): List<Point>? {
+            val (h, _) = source.projectOnto(target.origin)
+
+            var front: Line
+            var back: Line
+            val reversed = h > 0.0
+            if (reversed) {
+                front = target
+                back = source
+            } else {
+                front = source
+                back = target
+            }
+
+            val list = mutableListOf<Vector>()
+
+            front = front.moveOriginBy(0.25)
+            list += front.origin
+
+            interpolateRotation(front, 0.25, PI).let { (line, points) ->
+                front = line
+                list += points
+            }
+
+            front = front.moveOriginBy(0.3)
+            list += front.origin
+
+            interpolateRotation(front, 0.25, PI / 2).let { (line, points) ->
+                front = line
+                list += points
+            }
+            interpolateRotation(front, -0.25, PI / 2).let { (line, points) ->
+                front = line
+                list += points
+            }
+
+            back = back.moveOriginBy(0.25)
+            list += back.origin
+
+            if (reversed) {
+                list.reverse()
+            }
+
+            return list
+        }
+    }
+
+    object DefaultGenerator : Generator {
+
+        override val requiredVersion = PlanetVersion.UNKNOWN
+
         override fun testGenerator(source: Line, target: Line): Boolean {
             return true
         }
@@ -174,13 +358,6 @@ object PathGenerator {
                 const val MAX_ITERATIONS = 10
             }
         }
-
-        fun isPointInDirectLine(start: Point, direction: Direction, target: Point): Boolean = when (direction) {
-            Direction.NORTH -> start.y <= target.y && start.x == target.x
-            Direction.EAST -> start.x <= target.x && start.y == target.y
-            Direction.SOUTH -> start.y >= target.y && start.x == target.x
-            Direction.WEST -> start.x >= target.x && start.y == target.y
-        }
     }
 }
 
@@ -210,3 +387,25 @@ fun Direction.turnLow() = when (this) {
 fun Vector.turnHigh() = Direction.fromVector(this).turnHigh().toVector()
 
 fun Vector.turnLow() = Direction.fromVector(this).turnLow().toVector()
+
+fun List<Vector>.removeDuplicates(): List<Vector> {
+    if (isEmpty()) return this
+
+    val iterator = iterator()
+    var last = iterator.next()
+
+    val list = mutableListOf(last)
+
+    for (element in iterator) {
+        if (element distanceTo last > 0.01) {
+            last = element
+            list += element
+        }
+    }
+
+    return list
+}
+
+fun Double.toDegree() = this / PI * 180
+fun Double.toRadiant() = this / 180.0 * PI
+fun Double.toRadiantFactor() = (this / PI).toFixed(2) + " PI"
