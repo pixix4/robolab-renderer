@@ -32,7 +32,9 @@ class DetailBoxPoint(
                     textView("Hidden")
                 }
                 cell {
-                    label(checkbox(data.isHidden))
+                    label(checkbox(data.isHidden) {
+                        readonly = true
+                    })
                 }
             }
 

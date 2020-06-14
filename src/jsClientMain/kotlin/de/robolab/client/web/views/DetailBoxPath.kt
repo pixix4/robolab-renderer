@@ -42,9 +42,7 @@ class DetailBoxPath(
                     textView("Weight")
                 }
                 cell {
-                    label(inputView(data.weightProperty.bindStringParsing()) {
-                        readonly = true
-                    })
+                    inputView(data.weightProperty.bindStringParsing())
                 }
             }
 
@@ -53,7 +51,7 @@ class DetailBoxPath(
                     textView("Hidden")
                 }
                 cell {
-                    checkbox(data.isHiddenProperty)
+                    label(checkbox(data.isHiddenProperty))
                 }
             }
 
