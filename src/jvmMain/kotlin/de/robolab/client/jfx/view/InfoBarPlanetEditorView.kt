@@ -2,10 +2,7 @@ package de.robolab.client.jfx.view
 
 import de.robolab.client.app.model.file.InfoBarFileEditor
 import de.robolab.client.jfx.style.MainStyle
-import de.robolab.common.parser.FileLine
 import de.robolab.common.parser.isLineValid
-import de.westermann.kobserve.base.ObservableProperty
-import javafx.scene.Parent
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.Priority
@@ -73,7 +70,7 @@ class InfoBarPlanetEditorView(private val content: InfoBarFileEditor) : View() {
             }
         editor.selectionProperty().addListener { _ ->
             if (updateOnTextChange) {
-                // TODO Cursor
+                content.selectLine(editor.currentParagraph)
             }
         }
 
@@ -91,6 +88,10 @@ class InfoBarPlanetEditorView(private val content: InfoBarFileEditor) : View() {
         updateStyle()
 
         editor.isFocusTraversable = true
+
+        content.onSetLine { line ->
+            editor.moveTo(line, 0)
+        }
     }
 
     private fun updateStyle() {

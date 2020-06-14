@@ -7,7 +7,6 @@ import de.robolab.common.planet.*
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.property.mapBinding
-import kotlin.math.roundToInt
 
 class PlanetFile(fileContent: String) : IEditCallback {
 
@@ -42,6 +41,16 @@ class PlanetFile(fileContent: String) : IEditCallback {
 
     fun resetContent(fileContent: String) {
         history.clear(parseFileContent(fileContent))
+    }
+
+    fun valueToLineNumber(value: IPlanetValue): Int? {
+        val index = lines.indexOfFirst { it.isAssociatedTo(value) }
+        if (index < 0) return null
+        return index
+    }
+
+    fun lineNumberToValue(lineNumber: Int): IPlanetValue? {
+        return lines.getOrNull(lineNumber)?.data as? IPlanetValue
     }
 
     override fun createPath(

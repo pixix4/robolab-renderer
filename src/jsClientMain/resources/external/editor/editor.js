@@ -70,6 +70,17 @@ class TextEditor {
         });
     }
 
+    addOnCursorListener(callback) {
+        this.editor.on("cursorActivity", () => {
+            let cursor = this.editor.getCursor();
+            callback(cursor.line, cursor.ch);
+        })
+    }
+
+    setCursor(line, ch) {
+        this.editor.setCursor({line: line, ch: ch});
+    }
+
     refresh() {
         this.editor.refresh()
     }

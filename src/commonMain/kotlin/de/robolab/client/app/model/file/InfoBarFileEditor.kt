@@ -1,6 +1,9 @@
 package de.robolab.client.app.model.file
 
 import de.robolab.client.app.model.IInfoBarContent
+import de.robolab.client.renderer.drawable.general.PointAnimatableManager
+import de.robolab.common.planet.IPlanetValue
+import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.DelegatePropertyAccessor
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
@@ -53,6 +56,55 @@ class InfoBarFileEditor(private val filePlanetEntry: FilePlanetEntry) : IInfoBar
 
     fun redo() {
         filePlanetEntry.planetFile.history.redo()
+    }
+
+    fun save() {
+        filePlanetEntry.save()
+    }
+
+    var ignoreSetLine = false
+    fun selectLine(line: Int) {
+        val obj = filePlanetEntry.planetFile.lineNumberToValue(line) ?: return
+        ignoreSetLine = true
+        filePlanetEntry.drawable.focus(obj)
+        ignoreSetLine = false
+    }
+
+    val onSetLine = EventHandler<Int>()
+
+    private fun findObjForPoint(point: PointAnimatableManager.AttributePoint): IPlanetValue {
+        val planet = filePlanetEntry.planetFile.planet
+
+        planet.targetList.find { it.target == point.coordinate }?.let {
+            return it
+        }
+        planet.targetList.find { it.exposure == point.coordinate }?.let {
+            return it
+        }
+        planet.pathSelectList.find { it.point == point.coordinate }?.let {
+            return it
+        }
+        planet.pathList.find { point.coordinate in it.exposure }?.let {
+            return it
+        }
+
+        return point
+    }
+
+    init {
+        filePlanetEntry.drawable.focusedElementsProperty.onChange {
+            val first = filePlanetEntry.drawable.focusedElementsProperty.value.firstOrNull()
+            if (!ignoreSetLine && first != null) {
+                val obj = if (first is PointAnimatableManager.AttributePoint) {
+                    findObjForPoint(first)
+                } else first
+
+                val index = filePlanetEntry.planetFile.valueToLineNumber(obj)
+                if (index != null) {
+                    onSetLine.emit(index)
+                }
+            }
+        }
     }
 
     sealed class Change {

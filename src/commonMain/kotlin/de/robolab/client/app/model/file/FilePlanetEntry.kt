@@ -94,12 +94,16 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override fun buildContextMenu(position: Point) = menuBilder(position, "Planet ${planetFile.planet.name}") {
         action("Save") {
-            GlobalScope.launch(Dispatchers.Main) {
-                val success = provider.saveEntry(this@FilePlanetEntry)
+            save()
+        }
+    }
 
-                if (success) {
-                    planetFile.history.clear()
-                }
+    fun save() {
+        GlobalScope.launch(Dispatchers.Main) {
+            val success = provider.saveEntry(this@FilePlanetEntry)
+
+            if (success) {
+                planetFile.history.clear()
             }
         }
     }

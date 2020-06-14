@@ -158,10 +158,10 @@ class PathAnimatable(
         view += ConditionalView("Path blocked", isBlockedProperty, blockedView)
         view += ConditionalView("Path arrow", isArrowVisibleProperty, arrowView)
 
-        view.focusable = editProperty.value != null
+        view.focusable = true || editProperty.value != null
         weightView.focusable = editProperty.value != null
         editProperty.onChange {
-            view.focusable = editProperty.value != null
+            view.focusable = true || editProperty.value != null
             weightView.focusable = editProperty.value != null
         }
 

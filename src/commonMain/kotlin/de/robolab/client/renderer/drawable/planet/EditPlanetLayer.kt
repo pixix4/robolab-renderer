@@ -49,11 +49,12 @@ class EditPlanetLayer(
 
     override fun focus(value: IPlanetValue) {
         when (value) {
-            is TargetPoint -> targetManager.focus(value)
-            is Coordinate -> senderManager.focus(value)
             is Path -> pathManager.focus(value)
-            is PathSelect -> pathSelectManager.focus(value)
             is Comment -> commentManager.focus(value)
+            is TargetPoint -> pointManager.focus(PointAnimatableManager.AttributePoint(value.target, false))
+            is Coordinate -> pointManager.focus(PointAnimatableManager.AttributePoint(value, false))
+            is PathSelect -> pointManager.focus(PointAnimatableManager.AttributePoint(value.point, false))
+            is StartPoint -> pointManager.focus(PointAnimatableManager.AttributePoint(value.point, false))
         }
     }
 }

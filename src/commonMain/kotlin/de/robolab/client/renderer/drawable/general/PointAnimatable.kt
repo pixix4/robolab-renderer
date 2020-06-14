@@ -48,9 +48,9 @@ class PointAnimatable(
 
 
     init {
-        view.focusable = editProperty.value != null
+        view.focusable =  true ||editProperty.value != null
         editProperty.onChange {
-            view.focusable = editProperty.value != null
+            view.focusable = true || editProperty.value != null
         }
 
         view.onPointerDown { event ->
