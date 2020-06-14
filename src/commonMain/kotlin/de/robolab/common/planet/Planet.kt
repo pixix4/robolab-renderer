@@ -11,7 +11,7 @@ data class Planet(
     val targetList: List<TargetPoint>,
     val pathSelectList: List<PathSelect>,
     val commentList: List<Comment>
-) {
+): IPlanetValue {
 
     fun importSplines(reference: Planet): Planet {
         var startPoint = this.startPoint

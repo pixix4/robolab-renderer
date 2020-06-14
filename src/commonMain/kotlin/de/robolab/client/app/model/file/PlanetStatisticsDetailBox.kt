@@ -3,7 +3,9 @@ package de.robolab.client.app.model.file
 import de.robolab.client.app.model.IDetailBox
 import de.robolab.client.utils.PathClassifier
 import de.robolab.client.utils.PlanetStatistic
+import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.parser.PlanetFile
+import de.robolab.common.parser.toFixed
 import de.robolab.common.planet.StartPoint
 import de.westermann.kobserve.property.mapBinding
 
@@ -34,7 +36,14 @@ class PlanetStatisticsDetailBox(planetFile: PlanetFile) : IDetailBox {
             "Path count" to statisticsProperty.mapBinding { it.pathCount.toString() },
             "Free path count" to statisticsProperty.mapBinding { it.pathFreeCount.toString() },
             "Blocked path count" to statisticsProperty.mapBinding { it.pathBlockedCount.toString() },
-            "Hidden path count" to statisticsProperty.mapBinding { it.pathHiddenCount.toString() }
+            "Hidden path count" to statisticsProperty.mapBinding { it.pathHiddenCount.toString() },
+            "Length" to planetFile.planetProperty.mapBinding { planet ->
+                val lengthGrid = planet.pathList.sumByDouble {
+                    PathDetailBox.getPathLengthInGridUnits(planet.version, it)
+                }
+                val lengthMeter = lengthGrid * PreferenceStorage.paperGridWidth
+                "${lengthMeter.toFixed(2)}m (${lengthGrid.toFixed(2)} grid units)"
+            }
         ),
         "Path classifiers" to listOf(
             *PathClassifier.values().map { classifier ->

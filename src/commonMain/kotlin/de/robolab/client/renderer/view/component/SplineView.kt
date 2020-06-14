@@ -211,9 +211,12 @@ class SplineView(
             controlPoints: List<Point>,
             source: Point,
             target: Point,
-            curve: Curve
+            curve: Curve,
+            improveCount: Boolean = true
         ): List<Point> {
-            val realCount = max(16, power2(log2(count - 1) + 1))
+            val realCount = if (improveCount) {
+                max(16, power2(log2(count - 1) + 1))
+            } else count
 
             val points = arrayOfNulls<Point>(realCount + 1)
 

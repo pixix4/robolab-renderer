@@ -14,7 +14,7 @@ data class Path(
     val controlPoints: List<Point>,
     val hidden: Boolean,
     val showDirectionArrow: Boolean
-) {
+): IPlanetValue {
 
     val blocked: Boolean
         get() = weight != null && weight < 0

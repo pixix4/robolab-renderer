@@ -7,7 +7,7 @@ data class StartPoint(
     val point: Coordinate,
     val orientation: Direction,
     val controlPoints: List<Point>
-) {
+): IPlanetValue {
     val path = Path(
         point,
         orientation.opposite(),

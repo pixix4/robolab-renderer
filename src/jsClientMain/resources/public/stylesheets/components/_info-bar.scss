@@ -79,6 +79,10 @@
   overscroll-behavior: contain;
 
   border-top: solid 1px var(--border-color);
+
+  table {
+    width: 100%;
+  }
 }
 
 .detail-box-resize {

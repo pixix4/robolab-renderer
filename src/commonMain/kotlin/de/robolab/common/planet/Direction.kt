@@ -4,7 +4,7 @@ import de.robolab.common.utils.Point
 import de.robolab.common.utils.Vector
 import kotlin.math.absoluteValue
 
-enum class Direction {
+enum class Direction: IPlanetValue {
     NORTH,
     EAST,
     SOUTH,

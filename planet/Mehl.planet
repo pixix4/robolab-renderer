@@ -1,5 +1,6 @@
 start 3,4,W
 # name: Mehl
+# version: 2
 blue 2,4
 2,6,W 1,6,E 2 2,4
 3,7,N 2,8,E 4

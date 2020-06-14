@@ -255,7 +255,7 @@ class PathAnimatable(
         }
 
         fun getTargetPointFromPath(version: PlanetVersion, path: Path): Point {
-            if (path.source == path.target && path.sourceDirection == path.targetDirection) {
+            if (path.isOneWayPath && version >= PlanetVersion.V2020_SPRING) {
                 return getControlPointsFromPath(version, path).last()
             }
 
@@ -376,6 +376,28 @@ class PathAnimatable(
             val endPointEdge =
                 endPoint + (controlPoints.last() - endPoint).normalize() * PlottingConstraints.POINT_SIZE / 2
             return listOf(startPointEdge) + points.take(index + 1).requireNoNulls() + endPointEdge
+        }
+
+        fun evalLength(planetVersion: PlanetVersion, path: Path): Double {
+            val controlPoints = getControlPointsFromPath(planetVersion, path)
+            val lengthEstimate = path.length(controlPoints)
+            val evalCount = (lengthEstimate * 10).roundToInt()
+
+            val source = getSourcePointFromPath(path)
+            val target = getTargetPointFromPath(planetVersion, path)
+
+            val eval = listOf(source) + SplineView.evalSpline(
+                evalCount,
+                controlPoints,
+                source,
+                target,
+                BSpline
+            ) + target
+
+            val factor = if (path.isOneWayPath && planetVersion < PlanetVersion.V2020_SPRING) 0.5 else 1.0
+
+            return eval.windowed(2, 1)
+                .sumByDouble { (p0, p1) -> p0.distanceTo(p1) } * factor
         }
     }
 }

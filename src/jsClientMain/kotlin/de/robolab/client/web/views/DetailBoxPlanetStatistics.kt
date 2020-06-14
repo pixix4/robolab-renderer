@@ -14,7 +14,7 @@ class DetailBoxPlanetStatistics(
         table("info-bar-group-view-header") {
             for ((label, block) in data.data) {
                 row {
-                    head {
+                    head(2) {
                         textView(label)
                     }
                 }

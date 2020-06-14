@@ -20,6 +20,14 @@ abstract class AnimatableManager<T : Any, A : Animatable<T>> {
         return false
     }
 
+    fun focus(element: T) {
+        for (animatable in animatableList) {
+            if (objectEquals(animatable.reference, element)) {
+                animatable.focus()
+            }
+        }
+    }
+
     private var planet = Planet.EMPTY
     protected var objectList: List<T> = emptyList()
     fun importPlanet(planet: Planet) {

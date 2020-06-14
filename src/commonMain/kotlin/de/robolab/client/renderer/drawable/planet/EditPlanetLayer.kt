@@ -5,7 +5,7 @@ import de.robolab.client.renderer.drawable.edit.CreatePathManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.drawable.general.*
 import de.robolab.client.renderer.view.component.GroupTransformView
-import de.robolab.common.planet.Planet
+import de.robolab.common.planet.*
 import de.westermann.kobserve.base.ObservableValue
 
 class EditPlanetLayer(
@@ -23,13 +23,13 @@ class EditPlanetLayer(
 
     override val view = GroupTransformView(
         "Edit planet layer",
-            contextTransformation,
-            targetManager.view,
-            senderManager.view,
-            pathManager.view,
-            pathSelectManager.view,
-            pointManager.view,
-            commentManager.view
+        contextTransformation,
+        targetManager.view,
+        senderManager.view,
+        pathManager.view,
+        pathSelectManager.view,
+        pointManager.view,
+        commentManager.view
     )
 
 
@@ -45,5 +45,15 @@ class EditPlanetLayer(
         pathSelectManager.importPlanet(planet)
         pointManager.importPlanet(planet)
         commentManager.importPlanet(planet)
+    }
+
+    override fun focus(value: IPlanetValue) {
+        when (value) {
+            is TargetPoint -> targetManager.focus(value)
+            is Coordinate -> senderManager.focus(value)
+            is Path -> pathManager.focus(value)
+            is PathSelect -> pathSelectManager.focus(value)
+            is Comment -> commentManager.focus(value)
+        }
     }
 }

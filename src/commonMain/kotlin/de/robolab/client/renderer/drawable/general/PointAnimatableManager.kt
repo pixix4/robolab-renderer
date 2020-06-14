@@ -4,6 +4,7 @@ import de.robolab.client.renderer.drawable.base.AnimatableManager
 import de.robolab.client.renderer.drawable.edit.CreatePathManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.common.planet.Coordinate
+import de.robolab.common.planet.IPlanetValue
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.constObservable
@@ -16,7 +17,7 @@ class PointAnimatableManager(
     class AttributePoint(
         val coordinate: Coordinate,
         val hidden: Boolean
-    ) {
+    ) : IPlanetValue {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
@@ -30,6 +31,10 @@ class PointAnimatableManager(
 
         override fun hashCode(): Int {
             return coordinate.hashCode()
+        }
+
+        override fun toString(): String {
+            return "AttributePoint(coordinate=$coordinate, hidden=$hidden)"
         }
     }
 

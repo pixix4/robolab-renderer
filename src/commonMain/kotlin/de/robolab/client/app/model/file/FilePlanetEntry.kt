@@ -6,6 +6,7 @@ import de.robolab.client.app.model.INavigationBarPlottable
 import de.robolab.client.app.model.ToolBarEntry
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.SvgCanvas
+import de.robolab.client.renderer.drawable.general.PointAnimatableManager
 import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.client.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
@@ -15,8 +16,8 @@ import de.robolab.client.theme.LightTheme
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.menuBilder
 import de.robolab.common.parser.PlanetFile
+import de.robolab.common.planet.Path
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.base.ObservableValue
@@ -29,8 +30,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class FilePlanetEntry(val filename: String, private val provider: FilePlanetProvider) : INavigationBarPlottable {
-
-    private val logger = Logger(this)
 
     internal val planetFile = PlanetFile("")
 
@@ -127,7 +126,14 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
     override val infoBarList = listOf(InfoBarFileEditor(this), InfoBarTraverser(this))
     override val selectedInfoBarIndexProperty = property<Int?>(0)
 
-    override val detailBoxProperty: ObservableValue<IDetailBox> = constObservable(PlanetStatisticsDetailBox(planetFile))
+    private val statisticsDetailBox = PlanetStatisticsDetailBox(planetFile)
+    override val detailBoxProperty: ObservableValue<IDetailBox> = drawable.focusedElementsProperty.mapBinding {list ->
+        when (val first = list.firstOrNull()) {
+            is PointAnimatableManager.AttributePoint -> PointDetailBox(first, planetFile)
+            is Path -> PathDetailBox(first, planetFile)
+            else -> statisticsDetailBox
+        }
+    }
 
     val content: String
         get() = planetFile.content

@@ -1,6 +1,6 @@
 package de.robolab.common.planet
 
-enum class PlanetVersion(val version: Int) {
+enum class PlanetVersion(val version: Int): IPlanetValue {
     /**
      * Planet file support is unknown
      */

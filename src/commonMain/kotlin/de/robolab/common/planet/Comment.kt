@@ -7,7 +7,7 @@ data class Comment(
     val point: Point,
     val alignment: Alignment,
     val lines: List<String>
-) {
+): IPlanetValue {
 
     enum class Alignment {
         LEFT, CENTER, RIGHT

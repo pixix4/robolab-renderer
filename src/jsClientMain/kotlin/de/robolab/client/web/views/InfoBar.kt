@@ -2,9 +2,7 @@ package de.robolab.client.web.views
 
 import de.robolab.client.app.controller.InfoBarController
 import de.robolab.client.app.controller.TraverserBarController
-import de.robolab.client.app.model.file.InfoBarFileEditor
-import de.robolab.client.app.model.file.InfoBarTraverser
-import de.robolab.client.app.model.file.PlanetStatisticsDetailBox
+import de.robolab.client.app.model.file.*
 import de.robolab.client.app.model.group.InfoBarGroupInfo
 import de.robolab.client.app.model.group.JsonDetailBox
 import de.robolab.client.web.views.utils.buttonGroup
@@ -84,6 +82,12 @@ class InfoBar(
         when (data) {
             is JsonDetailBox -> {
                 detailsView.add(DetailBoxJson(data))
+            }
+            is PointDetailBox -> {
+                detailsView.add(DetailBoxPoint(data))
+            }
+            is PathDetailBox -> {
+                detailsView.add(DetailBoxPath(data))
             }
             is PlanetStatisticsDetailBox -> {
                 detailsView.add(DetailBoxPlanetStatistics(data))

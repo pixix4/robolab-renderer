@@ -3,7 +3,7 @@ package de.robolab.common.planet
 data class PathSelect(
     val point: Coordinate,
     val direction: Direction
-) {
+): IPlanetValue {
 
     fun translate(delta: Coordinate) = PathSelect(
         point.translate(delta),

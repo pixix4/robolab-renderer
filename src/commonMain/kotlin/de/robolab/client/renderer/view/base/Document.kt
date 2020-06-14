@@ -9,6 +9,8 @@ import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
+import de.westermann.kobserve.list.observableListOf
+import de.westermann.kobserve.property.property
 import kotlin.math.max
 
 class Document() : BaseView() {
@@ -78,7 +80,7 @@ class Document() : BaseView() {
     }
 
 
-    val focusedStack = mutableListOf<IView>()
+    val focusedStack = observableListOf<IView>()
 
     fun isViewFocused(view: IView) = view in focusedStack
     private fun updateFocus(view: IView?) {

@@ -6,7 +6,7 @@ import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
-data class Coordinate(val x: Int, val y: Int) {
+data class Coordinate(val x: Int, val y: Int): IPlanetValue {
 
     fun getColor(bluePoint: Coordinate?): Color {
         if (bluePoint == null) {

@@ -1,16 +1,18 @@
 package de.robolab.client.renderer.drawable.planet
 
+import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.renderer.drawable.utils.BSpline
 import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.client.renderer.utils.ITransformationReference
-import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.client.renderer.view.base.Document
 import de.robolab.client.renderer.view.base.ViewColor
+import de.robolab.client.renderer.view.base.extraGet
 import de.robolab.client.renderer.view.component.*
+import de.robolab.common.planet.IPlanetValue
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
@@ -61,12 +63,12 @@ abstract class AbsPlanetDrawable : ITransformationReference {
     private val backgroundView = RectangleView(null, ViewColor.PRIMARY_BACKGROUND_COLOR)
     private val gridLinesView = GridLineView()
     private val nameView = TextView(
-            Point(0, 0),
-            40.0,
-            "",
-            ViewColor.GRID_TEXT_COLOR,
-            ICanvas.FontAlignment.RIGHT,
-            ICanvas.FontWeight.BOLD
+        Point(0, 0),
+        40.0,
+        "",
+        ViewColor.GRID_TEXT_COLOR,
+        ICanvas.FontAlignment.RIGHT,
+        ICanvas.FontWeight.BOLD
     )
     private val gridNumbersView = GridNumberView()
     private val compassView = CompassView()
@@ -89,18 +91,29 @@ abstract class AbsPlanetDrawable : ITransformationReference {
 
 
     val view = Document(
-            ConditionalView("Planet background", drawBackgroundProperty, backgroundView),
-            backgroundViews,
-            ConditionalView("Grid lines", drawGridLinesProperty, gridLinesView),
-            underlayerViews,
-            planetLayerViews,
-            overlayerViews,
-            ConditionalView("Grid numbers", drawGridNumbersProperty, gridNumbersView),
-            ConditionalView("Compass", drawCompassProperty, compassView),
-            ConditionalView("Planet name", drawNameProperty, nameView)
+        ConditionalView("Planet background", drawBackgroundProperty, backgroundView),
+        backgroundViews,
+        ConditionalView("Grid lines", drawGridLinesProperty, gridLinesView),
+        underlayerViews,
+        planetLayerViews,
+        overlayerViews,
+        ConditionalView("Grid numbers", drawGridNumbersProperty, gridNumbersView),
+        ConditionalView("Compass", drawCompassProperty, compassView),
+        ConditionalView("Planet name", drawNameProperty, nameView)
     )
 
     private var transformationState = Transformation.State.DEFAULT
+
+
+    var focusedElementsProperty = view.focusedStack.mapBinding { list ->
+        list.mapNotNull { it.extraGet<IPlanetValue>() }
+    }
+
+    fun focus(value: IPlanetValue) {
+        for (layer in planetLayers) {
+            layer.focus(value)
+        }
+    }
 
 
     private var centerOfPlanets = Point.ZERO
@@ -130,6 +143,8 @@ abstract class AbsPlanetDrawable : ITransformationReference {
 
         plotter?.updatePointer()
         isFirstImport = false
+
+        focusedElementsProperty.invalidate()
     }
 
     init {
