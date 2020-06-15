@@ -146,7 +146,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
 
-                implementation(npm("mongoose", "5.9.18"))
+                implementation(npm("ioredis", "4.17.3"))
                 implementation(npm("express", "4.17.1"))
                 implementation(npm("socket.io", "2.3.0"))
                 implementation(npm("text-encoding"))
