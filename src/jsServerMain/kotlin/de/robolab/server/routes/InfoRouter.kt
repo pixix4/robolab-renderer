@@ -23,6 +23,7 @@ object InfoRouter {
                     "largePlanetName" to Config.Info.examPlanetLargeName
                 }
             }
+            res.setHeader("content-type","application/json")
             res.status(200).send(result.toString())
         }
     }

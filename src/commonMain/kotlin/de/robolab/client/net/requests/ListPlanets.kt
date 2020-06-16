@@ -5,6 +5,7 @@ import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.planet.ID
+import de.robolab.common.planet.PlanetInfo
 
 object ListPlanets : IRESTRequest<ListPlanets.ListPlanetsResponse>{
     override val method: HttpMethod = HttpMethod.GET
@@ -52,10 +53,6 @@ object ListPlanets : IRESTRequest<ListPlanets.ListPlanetsResponse>{
         val ids: List<ID> = planets.map(PlanetInfo::id)
     }
 
-    data class PlanetInfo(
-        val id:ID,
-        val name:String
-    )
 }
 
 suspend fun IRobolabServer.listPlanets():ListPlanets.ListPlanetsResponse = request(ListPlanets)

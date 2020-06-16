@@ -1,3 +1,5 @@
+@file:Suppress("UnsafeCastFromDynamic")
+
 package de.robolab.server.routes
 
 import de.robolab.common.net.HttpStatusCode
@@ -5,6 +7,9 @@ import de.robolab.server.config.Config
 import de.robolab.server.data.FilePlanetStore
 import de.robolab.server.jsutils.promise
 import de.robolab.common.planet.ID
+import de.robolab.common.planet.PlanetInfo
+import de.robolab.server.data.RedisPlanetMetaStore
+import de.robolab.server.data.listPlanets
 import de.robolab.server.externaljs.*
 import de.robolab.server.externaljs.express.*
 import de.robolab.server.jsutils.jsTruthy
@@ -13,13 +18,28 @@ import de.robolab.server.model.ServerPlanet as SPlanet
 object PlanetRouter {
     val router: Router = createRouter()
 
-    private val planetStore: FilePlanetStore = FilePlanetStore(Config.Planets.directory)
+    private val planetStore: FilePlanetStore = FilePlanetStore(
+        Config.Planets.directory,
+        RedisPlanetMetaStore(Config.Planets.database)
+    )
 
     init {
-        router.getPromise("/") { _, res ->
+        router.getPromise("/") { req, res ->
             promise {
-                val ids: List<Pair<ID,String>> = planetStore.listPlanets()
-                val strIDs: List<Pair<String,String>> = ids.map { it.first.id to it.second }
+                val ignoreCase = jsTruthy(req.query["ignoreCase"])
+                val ids: List<PlanetInfo> = when {
+                    jsTruthy(req.query["name"]) -> planetStore.listPlanets(req.query["name"].toString(), ignoreCase)
+                    jsTruthy(req.query["nameContains"]) ||
+                            jsTruthy(req.query["nameStartsWith"]) ||
+                            jsTruthy(req.query["nameEndsWith"]) -> planetStore.listPlanets(
+                        req.query["nameStartsWith"] as String?,
+                        req.query["nameContains"] as String?,
+                        req.query["nameEndsWith"] as String?,
+                        ignoreCase
+                    )
+                    else -> planetStore.listPlanets()
+                }
+                val strIDs: List<Pair<String, String>> = ids.map { it.id.id to it.name }
                 res.status(HttpStatusCode.Ok)
                 res.format("json" to {
                     res.send(strIDs.map {
@@ -28,7 +48,7 @@ object PlanetRouter {
                         obj["name"] = it.second
                         return@map obj
                     }.toJSArray())
-                },"text" to {
+                }, "text" to {
                     res.send(strIDs.joinToString("\n") { "${it.first}:${it.second}" })
                 })
             }

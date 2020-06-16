@@ -3,7 +3,11 @@
 package de.robolab.server.externaljs.ioredis
 
 import de.robolab.server.externaljs.JSArray
+import de.robolab.server.externaljs.emptyJSArray
 import de.robolab.server.externaljs.events.EventEmitter
+import de.robolab.server.externaljs.toJSArray
+import de.robolab.server.jsutils.promise
+import kotlinx.coroutines.await
 import kotlin.js.Promise
 
 val ioredis = js("require(\"ioredis\")")
@@ -63,7 +67,7 @@ external interface IRedisCommandReceiver {
     //eval
     //evalsha
 
-    fun exec(): RedisArrayResponse
+    fun exec(): Promise<JSArray<Any?>?>
     fun exists(key: String, vararg keys: String): RedisIntResponse
     fun expire(key: String, seconds: Int): RedisIntResponse
     fun expireat(key: String, timestamp: Int): RedisIntResponse
@@ -180,7 +184,7 @@ external interface IRedisCommandReceiver {
 
     // memory
 
-    fun mget(key: String, vararg keys: String): RedisArrayResponse
+    fun mget(key: String, vararg keys: String): RedisTypedArrayResponse<String?>
 
     //migrate
     //module
@@ -410,6 +414,131 @@ external interface IRedisCommandReceiver {
     fun zunionstore(destination: String, vararg options: String): RedisIntResponse
 }
 
+fun IRedisCommandReceiver.mget(vararg keys: String): RedisTypedArrayResponse<String> {
+    return when {
+        keys.isEmpty() -> Promise.Companion.resolve(emptyJSArray())
+        keys.size == 1 -> mget(keys.single())
+        else -> {
+            //Unexpected compile error (probably related to spread over constructed array)
+            //mget(keys[0], *keys.slice(IntRange(1, keys.lastIndex)).toTypedArray())
+            promise {
+                val proms = keys.map { get(it) }
+                return@promise proms.map { it.await() }.toJSArray()
+            }
+        }
+    }
+}
+
+fun IRedisCommandReceiver.mget(keys: List<String>): RedisTypedArrayResponse<String> {
+    return when {
+        keys.isEmpty() -> Promise.Companion.resolve(emptyJSArray())
+        keys.size == 1 -> mget(keys.single())
+        else -> {
+            //Unexpected compile error (probably related to spread over constructed array)
+            //mget(keys[0], *keys.slice(IntRange(1, keys.lastIndex)).toTypedArray())
+            promise {
+                val proms = keys.map { get(it) }
+                return@promise proms.map { it.await() }.toJSArray()
+            }
+        }
+    }
+}
+
+
+fun IRedisCommandReceiver.mset(vararg args: Pair<String, String>): RedisStrResponse {
+    return when {
+        args.isEmpty() -> Promise.Companion.resolve("OK")
+        args.size == 1 -> mset(args.single().first, args.single().second)
+        else -> {
+            //Unexpected compile error (probably related to spread over constructed array)
+            //mset(
+            //args[0].first,
+            //args[0].second,
+            //*args.sliceArray(IntRange(1, args.lastIndex)).flatMap { listOf(it.first, it.second) }.toTypedArray()
+            //)
+            promise {
+                val proms = args.map { set(it.first, it.second) }
+                proms.forEach { it.await() }
+                return@promise "OK"
+            }
+        }
+    }
+}
+
+fun IRedisCommandReceiver.mset(args: List<Pair<String, String>>): RedisStrResponse {
+    return when {
+        args.isEmpty() -> Promise.Companion.resolve("OK")
+        args.size == 1 -> mset(args.single().first, args.single().second)
+        else -> {
+            //Unexpected compile error (probably related to spread over constructed array)
+            //mset(
+            //args[0].first,
+            //args[0].second,
+            //*args.slice(IntRange(1, args.lastIndex)).flatMap { listOf(it.first, it.second) }.toTypedArray()
+            //)
+            promise {
+                val proms = args.map { set(it.first, it.second) }
+                proms.forEach { it.await() }
+                return@promise "OK"
+            }
+        }
+    }
+}
+
+fun IRedisCommandReceiver.mset(args: Map<String, String>): RedisStrResponse {
+    return when {
+        args.isEmpty() -> Promise.Companion.resolve("OK")
+        args.size == 1 -> mset(args.entries.single().key, args.entries.single().value)
+        else -> mset(args.toList())
+    }
+}
+
+fun IRedisCommandReceiver.msetnx(vararg args: Pair<String, String>): RedisIntResponse {
+    return when {
+        args.isEmpty() -> Promise.Companion.resolve(0)
+        args.size == 1 -> msetnx(args.single().first, args.single().second)
+        else -> {
+            //Unexpected compile error (probably related to spread over constructed array)
+            //msetnx(
+            //args[0].first,
+            //args[0].second,
+            //*args.sliceArray(IntRange(1, args.lastIndex)).flatMap { listOf(it.first, it.second) }.toTypedArray()
+            //)
+            promise {
+                val proms = args.map { setnx(it.first, it.second) }
+                return@promise proms.sumBy { it.await() }
+            }
+        }
+    }
+}
+
+fun IRedisCommandReceiver.msetnx(args: List<Pair<String, String>>): RedisIntResponse {
+    return when {
+        args.isEmpty() -> Promise.Companion.resolve(0)
+        args.size == 1 -> msetnx(args.single().first, args.single().second)
+        else -> {//Unexpected compile error (probably related to spread over constructed array)
+            //msetnx(
+            //args[0].first,
+            //args[0].second,
+            //*args.slice(IntRange(1, args.lastIndex)).flatMap { listOf(it.first, it.second) }.toTypedArray()
+            //)
+            promise {
+                val proms = args.map { setnx(it.first, it.second) }
+                return@promise proms.sumBy { it.await() }
+            }
+        }
+    }
+}
+
+fun IRedisCommandReceiver.msetnx(args: Map<String, String>): RedisIntResponse {
+    return when {
+        args.isEmpty() -> Promise.Companion.resolve(0)
+        args.size == 1 -> msetnx(args.entries.single().key, args.entries.single().value)
+        else -> msetnx(args.toList())
+    }
+}
+
+
 fun createRedis(): Redis = redisCreator()
 fun createRedis(port: Int): Redis = redisCreator(port)
 fun createRedis(url: String): Redis = redisCreator(url)
@@ -423,4 +552,55 @@ abstract external class Redis : IRedisCommandReceiver {
     fun duplicate(): Redis
     fun monitor(): Promise<EventEmitter>
     fun getBuiltinCommands(): JSArray<String>
+}
+
+suspend fun IRedisCommandReceiver.transaction(
+    vararg watches: String,
+    watchedBlock: suspend IRedisCommandReceiver.() -> Unit,
+    block: IRedisCommandReceiver.() -> Unit
+): JSArray<Any?> {
+    var result: JSArray<Any?>?
+    do {
+        //Unexpected compile error (probably related to spread over constructed array)
+        //if (watches.isNotEmpty())
+        //    watch(watches[0], *watches.sliceArray(IntRange(1, watches.lastIndex)))
+        for(watch in watches)
+            this.watch(watch)
+        var success = false
+        try {
+            watchedBlock()
+            success = true
+        } finally {// not catch + rethrow because of stacktrace-hell
+            if (!success)
+                unwatch()
+        }
+        success = false
+        multi()
+        try {
+            block()
+            success = true
+        } finally {// not catch + rethrow because of stacktrace-hell
+            if (!success)
+                discard()
+        }
+        result = exec().await()
+    } while (result == null)
+    return result
+}
+
+suspend fun IRedisCommandReceiver.transaction(block: IRedisCommandReceiver.() -> Unit): JSArray<Any?> {
+    var result: JSArray<Any?>?
+    do {
+        multi()
+        var success = false
+        try {
+            block()
+            success = true
+        } finally { // not catch + rethrow because of stacktrace-hell
+            if (!success)
+                discard()
+        }
+        result = exec().await()
+    } while (result == null)
+    return result
 }

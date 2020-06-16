@@ -16,6 +16,7 @@ object BeverageRouter {
             if (targetURL.jsTruthy())
                 res.redirect(402, targetURL!!)
             else {
+                res.setHeader("content-type","text/plain")
                 res.status(402).send(Config.Beverage.payPalMateText)
             }
         }

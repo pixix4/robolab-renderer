@@ -5,7 +5,12 @@ import de.robolab.server.externaljs.Buffer
 
 const val IDEncoding: String = "ascii"
 
-fun ID.decode(): String = Buffer.from(id, "base64").toString(
+fun ID.decode(): String = Buffer.from(
+    id
+        .replace('-', '+')
+        .replace('_', '/')
+        .replace("%3d", "="), "base64"
+).toString(
     IDEncoding
 )
 
@@ -14,4 +19,7 @@ fun String.toID(): ID = ID(
         this,
         IDEncoding
     ).toString("base64")
+        .replace('+', '-')
+        .replace('/', '_')
+        .replace("=", "%3d")
 )
