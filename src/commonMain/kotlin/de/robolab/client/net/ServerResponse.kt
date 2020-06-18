@@ -44,19 +44,3 @@ class ServerResponse(
     override val jsonBody: JsonElement? by lazy { super.jsonBody }
     override val typedHeaders: TypedHeaders = TypedHeaders.parseLowerCase(headers)
 }
-
-val JsonElement.longObject: Long
-    get() = when (this) {
-        is JsonArray -> (this.getPrimitive(0).int.toLong() and 0xffffffff) or
-                ((this.getPrimitive(1).int.toLong() and 0xffffffff).shl(32))
-        is JsonObject -> (this.getPrimitive("low_").int.toLong() and 0xffffffff) or
-                ((this.getPrimitive("high_").int.toLong() and 0xffffffff).shl(32))
-        is JsonPrimitive -> when {
-            longOrNull != null -> long
-            contentOrNull != null -> content.toLong()
-            intOrNull != null -> int.toLong()
-            else -> throw IllegalArgumentException("Cannot parse JsonElement to long: $this")
-        }
-        else -> throw IllegalArgumentException("Cannot parse JsonElement to long: $this")
-
-    }

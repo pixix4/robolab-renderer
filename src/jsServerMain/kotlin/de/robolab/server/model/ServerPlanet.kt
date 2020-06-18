@@ -33,23 +33,23 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
                 planetFile.content.split("""\r?\n""".toRegex())
         }
     val id: String = info.id
-    val _lastModifiedAt: ObservableProperty<DateTime> = info.lastModifiedAt.observe()
-    val lastModifiedAt: ObservableValue<DateTime> = _lastModifiedAt
+    val _lastModified: ObservableProperty<DateTime> = info.lastModified.observe()
+    val lastModified: ObservableValue<DateTime> = _lastModified
 
-    val info: ObservableValue<ServerPlanetInfo> = property(name, lastModifiedAt) {
-        ServerPlanetInfo(id, name.value, lastModifiedAt.value)
+    val info: ObservableValue<ServerPlanetInfo> = property(name, lastModified) {
+        ServerPlanetInfo(id, name.value, lastModified.value)
     }
 
     init {
         this.planetFile.planetProperty.onChange.addListener {
-            _lastModifiedAt.set(DateTime.now())
+            _lastModified.set(DateTime.now())
         }
         var previousModifiedInfo = this.info.get()
         this.info.onChange.addListener {
             val newValue = this.info.value
-            if (previousModifiedInfo.withMTime(newValue.lastModifiedAt) != newValue) {
+            if (previousModifiedInfo.withMTime(newValue.lastModified) != newValue) {
                 previousModifiedInfo = newValue
-                _lastModifiedAt.set(DateTime.now())
+                _lastModified.set(DateTime.now())
             }
         }
         this.name.onChange.addListener {

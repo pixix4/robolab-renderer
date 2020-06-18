@@ -39,16 +39,16 @@ class RedisPlanetMetaStore(connectionString: String) : IPlanetMetaStore {
     override suspend fun setInfo(info: ServerPlanetInfo, onlyIfExist: Boolean) {
         if (onlyIfExist) {
             redis.setxx("planet:name@${info.id}", info.name).await()
-            redis.setxx("planet:mtime@${info.id}", info.lastModifiedAt.unixMillisLong.toString())
+            redis.setxx("planet:mtime@${info.id}", info.lastModified.unixMillisLong.toString())
         } else{
             redis.set("planet:name@${info.id}", info.name).await()
-            redis.set("planet:mtime@${info.id}", info.lastModifiedAt.unixMillisLong.toString())
+            redis.set("planet:mtime@${info.id}", info.lastModified.unixMillisLong.toString())
         }
     }
 
     override suspend fun addInfo(info: ServerPlanetInfo) {
         redis.setnx("planet:name@${info.id}", info.name).await()
-        redis.setnx("planet:mtime@${info.id}", info.lastModifiedAt.unixMillisLong.toString())
+        redis.setnx("planet:mtime@${info.id}", info.lastModified.unixMillisLong.toString())
     }
 
     override suspend fun removeInfoByID(id: String): ServerPlanetInfo? {
@@ -71,7 +71,7 @@ class RedisPlanetMetaStore(connectionString: String) : IPlanetMetaStore {
             redis.mset(infos.flatMap {
                 listOf(
                     "planet:name@${it.id}" to it.name,
-                    "planet:mtime@${it.id}" to it.lastModifiedAt.unixMillisLong.toString()
+                    "planet:mtime@${it.id}" to it.lastModified.unixMillisLong.toString()
                 )
             }).await()
     }
@@ -80,7 +80,7 @@ class RedisPlanetMetaStore(connectionString: String) : IPlanetMetaStore {
         redis.msetnx(infos.flatMap {
             listOf(
                 "planet:name@${it.id}" to it.name,
-                "planet:mtime@${it.id}" to it.lastModifiedAt.unixMillisLong.toString()
+                "planet:mtime@${it.id}" to it.lastModified.unixMillisLong.toString()
             )
         }).await()
     }

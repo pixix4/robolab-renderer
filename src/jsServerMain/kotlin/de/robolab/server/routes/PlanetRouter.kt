@@ -4,22 +4,23 @@ package de.robolab.server.routes
 
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
+import de.robolab.common.net.headers.LastModifiedHeader
 import de.robolab.common.planet.ClientPlanetInfo
 import de.robolab.server.config.Config
 import de.robolab.server.data.FilePlanetStore
 import de.robolab.server.jsutils.promise
-import de.robolab.common.planet.ID
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.server.data.RedisPlanetMetaStore
+import de.robolab.server.data.json
 import de.robolab.server.data.listPlanets
 import de.robolab.server.externaljs.*
 import de.robolab.server.externaljs.express.*
 import de.robolab.server.jsutils.jsTruthy
+import de.robolab.server.jsutils.setHeader
+import de.robolab.server.model.asClientPlanetInfo
 import de.robolab.server.model.decodeID
-import de.robolab.server.model.toID
 import de.robolab.server.model.toIDString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.builtins.list
 import de.robolab.server.model.ServerPlanet as SPlanet
 
 object PlanetRouter {
@@ -46,26 +47,12 @@ object PlanetRouter {
                     )
                     else -> planetStore.listPlanets()
                 }
-                val encodedInfo: List<ClientPlanetInfo> = infos.map {
-                    ClientPlanetInfo(
-                        it.id.toID(),
-                        it.name,
-                        it.lastModifiedAt
-                    )
-                }
+                val encodedInfo: List<ClientPlanetInfo> = infos.map(ServerPlanetInfo::asClientPlanetInfo)
                 res.status(HttpStatusCode.Ok)
                 res.format("json" to {
-                    res.send(encodedInfo.map {
-                        val obj = emptyDynamic()
-                        obj["id"] = it.id.id
-                        obj["name"] = it.name
-                        obj["lastModified"] = it.lastModifiedAt.unixMillisLong
-                        return@map obj
-                    }.toJSArray())
+                    res.send(json.stringify(ClientPlanetInfo.serializer().list, encodedInfo))
                 }, "text" to {
-                    res.send(encodedInfo.joinToString("\n") {
-                        "${it.id.id}@${it.lastModifiedAt.unixMillisLong}:${it.name}"
-                    })
+                    res.send(encodedInfo.joinToString("\n", transform = ClientPlanetInfo::toPlaintextString))
                 })
             }
         }
@@ -76,6 +63,7 @@ object PlanetRouter {
                 if (planet == null)
                     res.status(HttpStatusCode.NotFound).send("Planet with id '${id.toIDString()}' could not be found")
                 else {
+                    res.setHeader(LastModifiedHeader(planet.lastModified.get()))
                     res.status(HttpStatusCode.Ok).format("json" to {
                         res.send(planet.lines.value.toJSArray())
                     }, "text" to {
@@ -143,14 +131,10 @@ object PlanetRouter {
                     }
                     planet.lockLines()
                     try {
-                        println("Name pre replace \"${planet.planetFile.planet.name}\"")
-                        println("PreContent \"\"\"${planet.planetFile.content}\"\"\"")
                         planet.planetFile.replaceContent(planetContent)
                     } finally {
                         planet.unlockLines()
                     }
-                    println("Name post replace \"${planet.planetFile.planet.name}\"")
-                    println("PostContent \"\"\"${planet.planetFile.content}\"\"\"")
                     planetStore.update(planet)
                     res.sendStatus(HttpStatusCode.NoContent)
                 }

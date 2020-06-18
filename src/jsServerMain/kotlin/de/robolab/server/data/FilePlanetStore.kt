@@ -62,7 +62,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
 
     override suspend fun remove(planet: SPlanet): Boolean {
         val oldInfo: ServerPlanetInfo = getInfo(planet.id) ?: return false
-        if (oldInfo == planet.info) {
+        if (oldInfo == planet.info.value) {
             removeBlind(oldInfo.id)
             return true
         }
@@ -113,7 +113,14 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
             throw RequestError(HttpStatusCode.UnprocessableEntity, "Invalid id: \"${id.toIDString()}\"")
         val path: String = getPath(id)
         val metadata: ServerPlanetInfo? = metaStore.retrieveInfo(id) {
-            val localPlanetFile: PlanetFile? = readPlanetFile(id)
+            val localPlanetFile: PlanetFile?
+            try {
+                localPlanetFile = readPlanetFile(id)
+            } catch (ex: dynamic) {
+                if (ex.code != "ENOENT")
+                    throw ex.unsafeCast<Throwable>()
+                return@retrieveInfo null
+            }
             if (localPlanetFile != null) {
                 planetFile = localPlanetFile
                 return@retrieveInfo ServerPlanetInfo(

@@ -1,6 +1,8 @@
 package de.robolab.server.model
 
+import de.robolab.common.planet.ClientPlanetInfo
 import de.robolab.common.planet.ID
+import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.server.externaljs.Buffer
 
 const val IDEncoding: String = "ascii"
@@ -27,3 +29,6 @@ fun String.toID(): ID = ID(
 
 fun String.toIDString(): String = this.toID().id
 fun String.decodeID(): String = ID(this).decode()
+
+fun ClientPlanetInfo.asServerPlanetInfo(): ServerPlanetInfo = ServerPlanetInfo(id.decode(), name, lastModified)
+fun ServerPlanetInfo.asClientPlanetInfo(): ClientPlanetInfo = ClientPlanetInfo(id.toID(), name, lastModified)
