@@ -63,6 +63,9 @@ external interface JSArray<T> {
         initialValue: F
     ): F
 
+    operator fun get(index: Int): T
+    operator fun set(index: Int, value: T): Unit
+
     fun reverse(): JSArray<T>
     fun shift(): T?
     fun slice(): JSArray<T>

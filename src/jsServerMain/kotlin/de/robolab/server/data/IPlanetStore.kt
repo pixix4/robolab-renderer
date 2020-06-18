@@ -1,18 +1,20 @@
 package de.robolab.server.data
 
-import de.robolab.common.planet.ID
-import de.robolab.common.planet.PlanetInfo
+import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.server.model.ServerPlanet as SPlanet
 
 interface IPlanetStore {
-    suspend fun add(planet: SPlanet): ID?
+    suspend fun add(planet: SPlanet.Template): SPlanet
     suspend fun remove(planet: SPlanet): Boolean
-    suspend fun remove(id: ID): SPlanet?
+    suspend fun remove(id: String): SPlanet?
+    suspend fun removeBlind(id: String)
 
-    suspend fun get(id: ID): SPlanet?
-    suspend fun get(name: String): List<SPlanet>
+    suspend fun update(planet: SPlanet)
 
-    suspend fun listPlanets(): List<PlanetInfo>
+    suspend fun get(id: String): SPlanet?
+    suspend fun getInfo(id: String): ServerPlanetInfo?
+
+    suspend fun listPlanets(): List<ServerPlanetInfo>
 }
 
 suspend fun IPlanetStore.listPlanets(name: String, ignoreCase: Boolean) =

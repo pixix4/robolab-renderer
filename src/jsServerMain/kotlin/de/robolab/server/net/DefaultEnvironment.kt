@@ -2,6 +2,8 @@ package de.robolab.server.net
 
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.utils.BuildInformation
+import de.robolab.server.externaljs.body_parser.json
+import de.robolab.server.externaljs.body_parser.text
 import de.robolab.server.externaljs.createIO
 import de.robolab.server.externaljs.emptyDynamic
 import de.robolab.server.externaljs.express.*
@@ -19,10 +21,12 @@ object DefaultEnvironment {
 
     fun createApiRouter() : Router {
         val router = createRouter()
-        router.use("/"){_,res,next->
-            res.setHeader("Access-Control-Allow-Origin","*")
+        router.use("/") { _, res, next ->
+            res.setHeader("Access-Control-Allow-Origin", "*")
             next(null)
         }
+        router.use(json())
+        router.use(text())
         router.use("/tea", BeverageRouter.teaRouter)
         router.use("/coffee", BeverageRouter.coffeeRouter)
         router.use("/mate", BeverageRouter.mateRouter)

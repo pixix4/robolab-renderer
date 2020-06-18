@@ -1,10 +1,15 @@
 package de.robolab.server.externaljs.express
 
 import de.robolab.common.net.HttpStatusCode
+import de.robolab.common.net.MIMEType
+import de.robolab.common.net.headers.ContentTypeHeader
+import de.robolab.server.RequestError
 import de.robolab.server.externaljs.Buffer
 import de.robolab.server.externaljs.JSArray
 import de.robolab.server.jsutils.JSDynErrorCallback
 import de.robolab.server.externaljs.NodeError
+import kotlinx.serialization.json.JsonElementSerializer
+import kotlin.contracts.Returns
 import kotlin.js.Promise
 
 val Express = js("require(\"express\")")
@@ -56,9 +61,30 @@ external interface Request : de.robolab.server.externaljs.http.IncomingServerMes
 
 private val isMimeTypeProto = Express.request["is"]
 
-fun Request.isMimeType(type: String): Any {
+fun Request.isMimeType(type: String): Any? {
     return isMimeTypeProto(this, type) as Any
 }
+
+fun Request.isMimeType(type: MIMEType): Any? {
+    return isMimeType(type.primaryName).let {
+        when (it) {
+            false -> false
+            type.primaryName -> type
+            null -> null
+            undefined -> undefined
+            else -> MIMEType.parse(it as String)
+        }
+    }
+}
+
+val Request.mimeType: MIMEType?
+    get() = contentTypeHeader?.mimeType
+
+val Request.contentTypeHeader: ContentTypeHeader?
+    get() {
+        val headerValue: String? = this.headers[ContentTypeHeader.name] as? String
+        return if (headerValue == null) null else ContentTypeHeader(headerValue)
+    }
 
 external interface Response : de.robolab.server.externaljs.http.ServerResponse {
     val app: ExpressApp
@@ -270,14 +296,52 @@ abstract external class Router {
     fun use(path: String, function: Router)
 }
 
+private fun handlePromiseError(err: Throwable, res: Response) {
+    val (errorCode: HttpStatusCode, errorMessage: String?, errorMime: MIMEType?) = when (err) {
+        is RequestError -> Triple(err.code, err.message, err.mimeType)
+        else -> Triple(HttpStatusCode.InternalServerError, null, null)
+    }
+    if (!res.headersSent) {
+        if (errorMime != null) {
+            res.setHeader(ContentTypeHeader.name, errorMime)
+        }
+        if (errorMessage != null) {
+            res.status(errorCode)
+            res.send(errorMessage)
+        } else {
+            res.sendStatus(errorCode)
+        }
+    } else if (!res.writableEnded) {
+        res.status(errorCode)
+        if (errorMessage != null)
+            res.send("\n\n\n" + errorMessage)
+        else
+            res.end()
+    }
+}
+
 private fun TerminalPromiseCreator.toMiddleware(): Middleware {
     return { req, res, next ->
-        val prom: Promise<*> = this(req, res)
-        prom.catch {
-            if (it is NodeError) next(it) else {
-                res.sendStatus(HttpStatusCode.InternalServerError); throw it
-            }
+        var prom: Promise<*>? = null
+        var err: RequestError? = null
+        try {
+            prom = this(req, res)
+        } catch (ex: RequestError) {
+            err = ex
         }
+        if (err == null)
+            prom!!.catch {
+                when (it) {
+                    is RequestError -> handlePromiseError(it, res)
+                    is NodeError -> next(it)
+                    else -> {
+                        handlePromiseError(it, res)
+                        throw it
+                    }
+                }
+            }
+        else
+            handlePromiseError(err, res)
     }
 }
 

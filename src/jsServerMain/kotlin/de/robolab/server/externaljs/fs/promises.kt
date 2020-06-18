@@ -72,6 +72,7 @@ fun readFile(path: FileHandle, encoding: String): Promise<String> = promises.rea
 fun rename(oldPath: String, newPath: String): Promise<Unit> = promises.rename(oldPath, newPath)
 fun rmdir(path: String): Promise<Unit> = promises.rmdir(path)
 fun stat(path: String): Promise<Stats> = promises.stat(path)
+fun unlink(path: String): Promise<Unit> = promises.unlink(path)
 fun utimes(path: String, atime: Date, mtime: Date): Promise<Unit> = promises.utimes(path, atime, mtime)
 fun utimes(path: String, atime: Int, mtime: Int): Promise<Unit> = promises.utimes(path, atime, mtime)
 

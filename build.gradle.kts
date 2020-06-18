@@ -150,6 +150,7 @@ kotlin {
                 implementation(npm("express", "4.17.1"))
                 implementation(npm("socket.io", "2.3.0"))
                 implementation(npm("text-encoding"))
+                implementation(npm("body-parser","1.19.0"))
             }
         }
         val jsServerTest by getting {

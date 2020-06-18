@@ -4,8 +4,8 @@ import de.robolab.client.net.*
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
+import de.robolab.common.planet.ClientPlanetInfo
 import de.robolab.common.planet.ID
-import de.robolab.common.planet.PlanetInfo
 
 object ListPlanets : IRESTRequest<ListPlanets.ListPlanetsResponse>{
     override val method: HttpMethod = HttpMethod.GET
@@ -19,7 +19,7 @@ object ListPlanets : IRESTRequest<ListPlanets.ListPlanetsResponse>{
 
     class ListPlanetsResponse(serverResponse: IServerResponse) : RESTResponse(serverResponse) {
 
-        val planets: List<PlanetInfo>
+        val planets: List<ClientPlanetInfo>
 
         init{
             if(serverResponse.status != HttpStatusCode.Ok){
@@ -29,7 +29,7 @@ object ListPlanets : IRESTRequest<ListPlanets.ListPlanetsResponse>{
                     MIMEType.JSON -> {
                         planets = jsonBody!!.jsonArray.map{
                             val infoJson = it.jsonObject
-                            return@map PlanetInfo(
+                            return@map ClientPlanetInfo(
                                 name = infoJson.getPrimitive("name").content,
                                 id = ID(infoJson.getPrimitive("id").content)
                             )
@@ -38,7 +38,7 @@ object ListPlanets : IRESTRequest<ListPlanets.ListPlanetsResponse>{
                     MIMEType.PlainText -> {
                         planets = body!!.split('\n').map {
                             val (idString:String, name:String) = it.split(':',limit=2)
-                            return@map PlanetInfo(
+                            return@map ClientPlanetInfo(
                                 name = name,
                                 id = ID(idString)
                             )
@@ -49,8 +49,8 @@ object ListPlanets : IRESTRequest<ListPlanets.ListPlanetsResponse>{
             }
         }
 
-        val names: List<String> = planets.map(PlanetInfo::name)
-        val ids: List<ID> = planets.map(PlanetInfo::id)
+        val names: List<String> = planets.map(ClientPlanetInfo::name)
+        val ids: List<ID> = planets.map(ClientPlanetInfo::id)
     }
 
 }

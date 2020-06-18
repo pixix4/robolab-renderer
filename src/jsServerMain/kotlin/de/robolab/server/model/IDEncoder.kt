@@ -21,5 +21,9 @@ fun String.toID(): ID = ID(
     ).toString("base64")
         .replace('+', '-')
         .replace('/', '_')
+        .replace("""=+$""".toRegex(), "") //removes all trailing '=', which should be all
         .replace("=", "%3d")
 )
+
+fun String.toIDString(): String = this.toID().id
+fun String.decodeID(): String = ID(this).decode()

@@ -256,9 +256,9 @@ external interface IRedisCommandReceiver {
     fun set(key: String, value: String): RedisStrResponse
     fun set(key: String, value: Int): RedisStrResponse
     fun set(key: String, value: Float): RedisStrResponse
-    fun set(key: String, value: String, keepttlLiteral: String): RedisStrResponse
-    fun set(key: String, value: Int, keepttlLiteral: String): RedisStrResponse
-    fun set(key: String, value: Float, keepttlLiteral: String): RedisStrResponse
+    fun set(key: String, value: String, vararg options: String): RedisStrResponse
+    fun set(key: String, value: Int, vararg options: String): RedisStrResponse
+    fun set(key: String, value: Float, vararg options: String): RedisStrResponse
     fun setbit(key: String, offset: Int, value: Int): RedisIntResponse
     fun setex(key: String, seconds: Int, value: String): RedisStrResponse
     fun setex(key: String, seconds: Int, value: Int): RedisStrResponse
@@ -538,6 +538,10 @@ fun IRedisCommandReceiver.msetnx(args: Map<String, String>): RedisIntResponse {
     }
 }
 
+
+fun IRedisCommandReceiver.setxx(key: String, value: String): RedisStrResponse = set(key, value, "XX")
+fun IRedisCommandReceiver.setxx(key: String, value: Int): RedisStrResponse = set(key, value, "XX")
+fun IRedisCommandReceiver.setxx(key: String, value: Float): RedisStrResponse = set(key, value, "XX")
 
 fun createRedis(): Redis = redisCreator()
 fun createRedis(port: Int): Redis = redisCreator(port)

@@ -94,6 +94,9 @@ external fun rmdir(path: String, options: dynamic, callback: JSDynErrorCallback)
 external fun rmdirSync(path: String): Unit
 external fun rmdirSync(path: String, options: dynamic): Unit
 
+external fun unlink(path:String, callback: JSDynErrorCallback): Unit
+external fun unlinkSync(path:String)
+
 external fun write(fd: Int, string: String, callback: (dynamic, Int, String) -> Unit): Unit
 external fun write(fd: Int, string: String, position: Int, callback: (dynamic, Int, String) -> Unit): Unit
 external fun write(
