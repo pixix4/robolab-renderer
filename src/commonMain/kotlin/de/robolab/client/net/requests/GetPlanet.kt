@@ -25,13 +25,13 @@ class GetPlanet(val id:ID) : IRESTRequest<GetPlanet.GetPlanetResponse>{
 
         val planet: Planet?
 
-        init{
-            planet = if(serverResponse.status != HttpStatusCode.Ok){
+        init {
+            planet = if (serverResponse.status != HttpStatusCode.Ok) {
                 null
-            }else{
-                when(val mimeType = serverResponse.typedHeaders.contentTypeHeaders.single().mimeType){
+            } else {
+                when (val mimeType = serverResponse.typedHeaders.contentTypeHeaders.single().mimeType) {
                     MIMEType.JSON -> {
-                        PlanetFile(jsonBody!!.jsonArray.joinToString("\n")).planet
+                        PlanetFile(jsonBody!!.jsonArray.joinToString("\n") { it.primitive.content }).planet
                     }
                     MIMEType.PlainText -> {
                         PlanetFile(body!!).planet

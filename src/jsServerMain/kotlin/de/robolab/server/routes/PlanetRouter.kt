@@ -4,6 +4,7 @@ package de.robolab.server.routes
 
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
+import de.robolab.common.planet.ClientPlanetInfo
 import de.robolab.server.config.Config
 import de.robolab.server.data.FilePlanetStore
 import de.robolab.server.jsutils.promise
@@ -15,6 +16,7 @@ import de.robolab.server.externaljs.*
 import de.robolab.server.externaljs.express.*
 import de.robolab.server.jsutils.jsTruthy
 import de.robolab.server.model.decodeID
+import de.robolab.server.model.toID
 import de.robolab.server.model.toIDString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
@@ -44,17 +46,26 @@ object PlanetRouter {
                     )
                     else -> planetStore.listPlanets()
                 }
-                val encodedInfo: List<Pair<String, String>> = infos.map { it.id.toIDString() to it.name }
+                val encodedInfo: List<ClientPlanetInfo> = infos.map {
+                    ClientPlanetInfo(
+                        it.id.toID(),
+                        it.name,
+                        it.lastModifiedAt
+                    )
+                }
                 res.status(HttpStatusCode.Ok)
                 res.format("json" to {
                     res.send(encodedInfo.map {
                         val obj = emptyDynamic()
-                        obj["id"] = it.first
-                        obj["name"] = it.second
+                        obj["id"] = it.id.id
+                        obj["name"] = it.name
+                        obj["lastModified"] = it.lastModifiedAt.unixMillisLong
                         return@map obj
                     }.toJSArray())
                 }, "text" to {
-                    res.send(encodedInfo.joinToString("\n") { "${it.first}:${it.second}" })
+                    res.send(encodedInfo.joinToString("\n") {
+                        "${it.id.id}@${it.lastModifiedAt.unixMillisLong}:${it.name}"
+                    })
                 })
             }
         }
@@ -66,9 +77,9 @@ object PlanetRouter {
                     res.status(HttpStatusCode.NotFound).send("Planet with id '${id.toIDString()}' could not be found")
                 else {
                     res.status(HttpStatusCode.Ok).format("json" to {
-                        res.send(planet.lines.toJSArray())
+                        res.send(planet.lines.value.toJSArray())
                     }, "text" to {
-                        res.send(planet.lines.joinToString("\n"))
+                        res.send(planet.lines.value.joinToString("\n"))
                     })
                 }
             }
@@ -98,9 +109,9 @@ object PlanetRouter {
                 if (planet == null)
                     res.status(HttpStatusCode.NotFound).send("Planet with id '$id' could not be found")
                 else {
-                    val planetLines: List<String>
+                    val planetContent: String
                     when (req.mimeType) {
-                        null -> planetLines = emptyList()
+                        null -> planetContent = ""
                         MIMEType.JSON -> {
                             val body: dynamic = req.body
 
@@ -108,10 +119,10 @@ object PlanetRouter {
                             val dynJson: dynamic = if (body is String) JSON.parse(body) else body
                             @Suppress("USELESS_CAST")
                             if (dynJson is String) {
-                                planetLines = dynJson.split("""\r?\n""".toRegex()) as List<String>
+                                planetContent = dynJson
                             } else if (isJSArray(dynJson as? Any))
                                 @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-                                planetLines = (dynJson as JSArray<String>).toList()
+                                planetContent = (dynJson as JSArray<String>).join("\n")
                             else {
                                 res.sendStatus(HttpStatusCode.UnprocessableEntity)
                                 return@promise
@@ -123,7 +134,7 @@ object PlanetRouter {
                                 res.sendStatus(HttpStatusCode.BadRequest)
                                 return@promise
                             }
-                            planetLines = body.split("""\r?\n""".toRegex())
+                            planetContent = body
                         }
                         else -> {
                             res.sendStatus(HttpStatusCode.UnsupportedMediaType)
@@ -132,12 +143,15 @@ object PlanetRouter {
                     }
                     planet.lockLines()
                     try {
-                        planet.lines.clear()
-                        planet.lines.addAll(planetLines)
+                        println("Name pre replace \"${planet.planetFile.planet.name}\"")
+                        println("PreContent \"\"\"${planet.planetFile.content}\"\"\"")
+                        planet.planetFile.replaceContent(planetContent)
                     } finally {
                         planet.unlockLines()
                     }
-                    planetStore.update(planet.reparsed())
+                    println("Name post replace \"${planet.planetFile.planet.name}\"")
+                    println("PostContent \"\"\"${planet.planetFile.content}\"\"\"")
+                    planetStore.update(planet)
                     res.sendStatus(HttpStatusCode.NoContent)
                 }
             }

@@ -1,5 +1,6 @@
 package de.robolab.client.net.requests
 
+import com.soywiz.klock.DateTime
 import de.robolab.client.net.*
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
@@ -14,6 +15,8 @@ object ListPlanets : IRESTRequest<ListPlanets.ListPlanetsResponse>{
     override val query: Map<String, String> = emptyMap()
     override val headers: Map<String, List<String>> = mapOf()
     override val forceAuth: Boolean = true
+
+    private val textResponseRegex: Regex = """^((?:[a-zA-Z0-9_\-]|%3d)+)@([0-9]+):([^\n\r]+)$""".toRegex(RegexOption.MULTILINE)
 
     override fun parseResponse(serverResponse: ServerResponse) = ListPlanetsResponse(serverResponse)
 
@@ -31,16 +34,19 @@ object ListPlanets : IRESTRequest<ListPlanets.ListPlanetsResponse>{
                             val infoJson = it.jsonObject
                             return@map ClientPlanetInfo(
                                 name = infoJson.getPrimitive("name").content,
-                                id = ID(infoJson.getPrimitive("id").content)
+                                id = ID(infoJson.getPrimitive("id").content),
+                                lastModifiedAt = DateTime.Companion.fromUnix(infoJson["lastModified"]!!.longObject)
                             )
                         }
                     }
                     MIMEType.PlainText -> {
                         planets = body!!.split('\n').map {
-                            val (idString:String, name:String) = it.split(':',limit=2)
+                            val match = textResponseRegex.matchEntire(it) ?: throw IllegalArgumentException("Cannot parse response \"$it\"")
+                            val (idString:String, modifiedAt:String, name:String) = match.destructured
                             return@map ClientPlanetInfo(
                                 name = name,
-                                id = ID(idString)
+                                id = ID(idString),
+                                lastModifiedAt = DateTime.Companion.fromUnix(modifiedAt.toLong())
                             )
                         }
                     }

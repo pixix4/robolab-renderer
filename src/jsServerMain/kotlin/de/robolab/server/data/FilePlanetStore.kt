@@ -1,5 +1,6 @@
 package de.robolab.server.data
 
+import com.soywiz.klock.js.toDateTime
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.ServerPlanetInfo
@@ -55,7 +56,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
             handle.close()
         }
         val resultPlanet = planet.withID(name)
-        metaStore.setInfo(resultPlanet.info)
+        metaStore.setInfo(resultPlanet.info.value)
         return resultPlanet
     }
 
@@ -97,31 +98,35 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         if (stat.isFile()) {
             val handle: FileHandle = open(path, "w").await()
             try {
-                handle.writeFile(planet.lines.joinToString(EOL)).await()
+                handle.writeFile(planet.planetFile.content).await()
             } finally {
                 handle.close()
             }
         }
 
-        metaStore.setInfo(planet.info, onlyIfExist = true)
+        metaStore.setInfo(planet.info.value, onlyIfExist = true)
     }
 
     override suspend fun get(id: String): SPlanet? {
         var planetFile: PlanetFile? = null
         if (id.contains('\u0000'))
             throw RequestError(HttpStatusCode.UnprocessableEntity, "Invalid id: \"${id.toIDString()}\"")
+        val path: String = getPath(id)
         val metadata: ServerPlanetInfo? = metaStore.retrieveInfo(id) {
             val localPlanetFile: PlanetFile? = readPlanetFile(id)
             if (localPlanetFile != null) {
                 planetFile = localPlanetFile
-                return@retrieveInfo ServerPlanetInfo(id, planetFile!!.planet.name)
+                return@retrieveInfo ServerPlanetInfo(
+                    id,
+                    planetFile!!.planet.name,
+                    stat(path).await().mtime.toDateTime()
+                )
             }
             return@retrieveInfo null
         }
         if (planetFile == null) {
             val content: String
             try {
-                val path: String = getPath(id)
                 content = readFile(path).await()
             } catch (ex: dynamic) {
                 if (ex.code != "ENOENT")
@@ -134,7 +139,8 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
             metadata.name
         else
             planetFile!!.planet.name
-        return SPlanet(name, id, lines = planetFile!!.content.split("""\r?\n""".toRegex()))
+        val info = metadata ?: ServerPlanetInfo(id, name, stat(path).await().mtime.toDateTime())
+        return SPlanet(info, lines = planetFile!!.content.split("""\r?\n""".toRegex()))
     }
 
     override suspend fun getInfo(id: String): ServerPlanetInfo? {
@@ -142,7 +148,11 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
     }
 
     private suspend fun lookupInfo(id: String): ServerPlanetInfo? {
-        return ServerPlanetInfo(id, readPlanetFile(id)?.planet?.name ?: randomName())
+        return ServerPlanetInfo(
+            id,
+            readPlanetFile(id)?.planet?.name ?: randomName(),
+            stat(getPath(id)).await().mtime.toDateTime()
+        )
     }
 
     private suspend fun readPlanetFile(id: String): PlanetFile? {

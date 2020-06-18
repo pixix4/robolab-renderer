@@ -32,7 +32,7 @@ interface IPlanetMetaStore {
             }
         val infoUpdate: List<ServerPlanetInfo> =
             info.filter { it.first != null && it.second != null }.map { it.second!! }
-        addInfo(infoUpdate)
+        setInfo(infoUpdate)
         return info.map(Pair<String?, ServerPlanetInfo?>::second)
     }
 

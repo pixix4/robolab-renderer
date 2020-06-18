@@ -1,36 +1,64 @@
 package de.robolab.server.model
 
+import com.soywiz.klock.DateTime
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.planet.randomName
+import de.westermann.kobserve.base.ObservableList
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.property.flatMapBinding
+import de.westermann.kobserve.property.observe
+import de.westermann.kobserve.property.property
 
-class ServerPlanet(name: String = randomName(), id: String, lines: List<String> = listOf("#name: $name")) {
+class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: ${info.name}")) {
 
-    constructor(info: ServerPlanetInfo, lines: List<String> = listOf("#name: ${info.name}")) : this(
-        info.name,
-        info.id,
-        lines
-    )
 
     companion object {
         fun random(): ServerPlanet = Template.random().let { it.withID(it.name) }
     }
 
-    val info: ServerPlanetInfo = ServerPlanetInfo(id, name)
-    val lines: MutableList<String> = lines.toMutableList()
-    val name: String = info.name
-    val id: String = info.id
+    val planetFile: PlanetFile = PlanetFile(lines.joinToString("\n"))
 
-    fun asTemplate(): Template = Template(name, lines)
+    private val _fallbackName: ObservableProperty<String> = info.name.observe()
 
-    fun reparsed(): ServerPlanet {
-        val file = PlanetFile(lines.joinToString("\n"))
-        return ServerPlanet(
-            file.planet.name.let { if (it.isEmpty()) name else it },
-            id,
-            lines
-        )
+    val name: ObservableValue<String> = property(planetFile.planetProperty, _fallbackName) {
+        if (planetFile.planet.name.isEmpty()) _fallbackName.value else planetFile.planet.name
     }
+    val lines: ObservableValue<List<String>> =
+        property(planetFile.planetProperty) {
+            if (planetFile.content.isEmpty())
+                emptyList()
+            else
+                planetFile.content.split("""\r?\n""".toRegex())
+        }
+    val id: String = info.id
+    val _lastModifiedAt: ObservableProperty<DateTime> = info.lastModifiedAt.observe()
+    val lastModifiedAt: ObservableValue<DateTime> = _lastModifiedAt
+
+    val info: ObservableValue<ServerPlanetInfo> = property(name, lastModifiedAt) {
+        ServerPlanetInfo(id, name.value, lastModifiedAt.value)
+    }
+
+    init {
+        this.planetFile.planetProperty.onChange.addListener {
+            _lastModifiedAt.set(DateTime.now())
+        }
+        var previousModifiedInfo = this.info.get()
+        this.info.onChange.addListener {
+            val newValue = this.info.value
+            if (previousModifiedInfo.withMTime(newValue.lastModifiedAt) != newValue) {
+                previousModifiedInfo = newValue
+                _lastModifiedAt.set(DateTime.now())
+            }
+        }
+        this.name.onChange.addListener {
+            if (this.name.value != this._fallbackName.value)
+                this._fallbackName.set(this.name.value)
+        }
+    }
+
+    fun asTemplate(): Template = Template(info.get().name, planetFile.content.split("""\r?\n""".toRegex()))
 
     suspend fun lockLines(): Unit {}
     suspend fun lockLines(timeout: Int) {}
@@ -39,7 +67,7 @@ class ServerPlanet(name: String = randomName(), id: String, lines: List<String> 
     class Template(val name: String, lines: List<String> = listOf("#name: $name")) {
         val lines: MutableList<String> = lines.toMutableList()
 
-        fun withID(id: String): ServerPlanet = ServerPlanet(name = name, id = id, lines = lines)
+        fun withID(id: String): ServerPlanet = ServerPlanet(ServerPlanetInfo(id, name, DateTime.now()), lines = lines)
 
         fun reparsed(): Template = fromLines(lines, name)
 
