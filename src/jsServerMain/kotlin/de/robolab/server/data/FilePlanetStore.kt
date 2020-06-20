@@ -56,13 +56,13 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
             handle.close()
         }
         val resultPlanet = planet.withID(name)
-        metaStore.setInfo(resultPlanet.info.value)
+        metaStore.setInfo(resultPlanet.info)
         return resultPlanet
     }
 
     override suspend fun remove(planet: SPlanet): Boolean {
         val oldInfo: ServerPlanetInfo = getInfo(planet.id) ?: return false
-        if (oldInfo == planet.info.value) {
+        if (oldInfo == planet.info) {
             removeBlind(oldInfo.id)
             return true
         }
@@ -104,7 +104,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
             }
         }
 
-        metaStore.setInfo(planet.info.value, onlyIfExist = true)
+        metaStore.setInfo(planet.info, onlyIfExist = true)
     }
 
     override suspend fun get(id: String): SPlanet? {
@@ -155,11 +155,20 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
     }
 
     private suspend fun lookupInfo(id: String): ServerPlanetInfo? {
-        return ServerPlanetInfo(
-            id,
-            readPlanetFile(id)?.planet?.name ?: randomName(),
-            stat(getPath(id)).await().mtime.toDateTime()
-        )
+        if (id.contains('\u0000'))
+            throw RequestError(HttpStatusCode.UnprocessableEntity, "Invalid id: \"${id.toIDString()}\"")
+        return try {
+            ServerPlanetInfo(
+                id,
+                readPlanetFile(id)?.planet?.name ?: randomName(),
+                stat(getPath(id)).await().mtime.toDateTime()
+            )
+        } catch (ex: dynamic) {
+            if (ex.code != "ENOENT")
+                throw ex.unsafeCast<Throwable>()
+            else
+                null
+        }
     }
 
     private suspend fun readPlanetFile(id: String): PlanetFile? {

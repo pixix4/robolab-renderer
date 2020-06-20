@@ -198,7 +198,7 @@ external interface IRedisCommandReceiver {
     fun msetnx(key: String, value: Int): RedisIntResponse
     fun msetnx(key: String, value: Float): RedisIntResponse
     fun msetnx(key: String, value: String, vararg args: String): RedisIntResponse
-    fun multi(): RedisStrResponse
+    //fun multi(): RedisStrResponse // TODO: Multi apparently has special pipeline-behaviour in ioredis
     fun `object`(subcommand: String, vararg arguments: String): Promise<Any?>
     fun persist(key: String): RedisIntResponse
     fun pexpire(key: String, milliseconds: Int): RedisIntResponse
@@ -558,12 +558,12 @@ abstract external class Redis : IRedisCommandReceiver {
     fun getBuiltinCommands(): JSArray<String>
 }
 
-suspend fun IRedisCommandReceiver.transaction(
+suspend inline fun IRedisCommandReceiver.transaction(
     vararg watches: String,
     watchedBlock: suspend IRedisCommandReceiver.() -> Unit,
     block: IRedisCommandReceiver.() -> Unit
 ): JSArray<Any?> {
-    var result: JSArray<Any?>?
+    /*var result: JSArray<Any?>?
     do {
         //Unexpected compile error (probably related to spread over constructed array)
         //if (watches.isNotEmpty())
@@ -589,22 +589,33 @@ suspend fun IRedisCommandReceiver.transaction(
         }
         result = exec().await()
     } while (result == null)
-    return result
+    return result*/
+    throw NotImplementedError("Multi has custom pipelining behaviour in ioredis, will require further investigation")
 }
 
-suspend fun IRedisCommandReceiver.transaction(block: IRedisCommandReceiver.() -> Unit): JSArray<Any?> {
-    var result: JSArray<Any?>?
+suspend inline fun IRedisCommandReceiver.transaction(block: IRedisCommandReceiver.() -> Unit): JSArray<Any?> {
+    /*var result: JSArray<Any?>?
     do {
+        println("Starting multi")
         multi()
+        println("Started multi")
         var success = false
         try {
+            println("Attempting block")
             block()
+            println("Block success")
             success = true
         } finally { // not catch + rethrow because of stacktrace-hell
-            if (!success)
+            if (!success){
+                println("Discarding")
                 discard()
+            }
         }
+        println("Starting Exec")
         result = exec().await()
+        println("Finished Exec: $result")
     } while (result == null)
-    return result
+    println("Finished transaction")
+    return result*/
+    throw NotImplementedError("Multi has custom pipelining behaviour in ioredis, will require further investigation") //TODO: Write DSL for pipelining
 }

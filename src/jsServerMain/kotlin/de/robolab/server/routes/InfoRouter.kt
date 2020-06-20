@@ -1,7 +1,7 @@
 package de.robolab.server.routes
 
 import de.robolab.server.config.Config
-import de.robolab.server.externaljs.express.Router
+import de.robolab.server.externaljs.express.DefaultRouter
 import de.robolab.server.externaljs.express.createRouter
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -10,7 +10,7 @@ import kotlin.js.json
 
 @Suppress("ConstantConditionIf")
 object InfoRouter {
-    val router: Router = createRouter()
+    val router: DefaultRouter = createRouter()
 
     init {
         router.get("/exam") { _, res ->

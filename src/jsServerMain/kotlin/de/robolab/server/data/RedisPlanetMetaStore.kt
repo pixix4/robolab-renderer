@@ -52,12 +52,17 @@ class RedisPlanetMetaStore(connectionString: String) : IPlanetMetaStore {
     }
 
     override suspend fun removeInfoByID(id: String): ServerPlanetInfo? {
-        val (storedName: String?, storedMtime: String?) = redis.transaction {
+
+        /*val (storedName: String?, storedMtime: String?) = redis.transaction {
             get("planet:name@$id")
             get("planet:mtime@$id")
             del("planet:name@$id")
             del("planet:mtime@$id")
-        }.toList().subList(0, 2).map { it as String? }
+        }.toList().subList(0, 2).map { it as String? }*/
+        val storedName = redis.get("planet:name@$id").await()
+        val storedMtime = redis.get("planet:mtime@$id").await()
+        redis.del("planet:name@$id")
+        redis.del("planet:mtime@$id")
         return if (storedName == null || storedName == undefined || storedMtime == null || storedMtime == undefined)
             null
         else

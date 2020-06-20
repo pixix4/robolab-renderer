@@ -1,5 +1,7 @@
 package de.robolab.client.net
 
+import de.robolab.client.net.requests.IRESTRequest
+import de.robolab.client.net.requests.IRESTResponse
 import de.robolab.common.net.HttpMethod
 import kotlin.jvm.JvmName
 
@@ -140,6 +142,22 @@ class RequestBuilder {
             headers,
             callback
         )
+    }
+
+    fun <R> buildRequest(
+        forceAuth: Boolean = true,
+        parser: (ServerResponse) -> R
+    ): IRESTRequest<R> where R : IRESTResponse {
+        return object : IRESTRequest<R> {
+            override val method: HttpMethod = this@RequestBuilder.method
+            override val path: String = this@RequestBuilder.path
+            override val body: String? = this@RequestBuilder.body
+            override val query: Map<String, String> = this@RequestBuilder.query
+            override val headers: Map<String, List<String>> = this@RequestBuilder.headers
+            override val forceAuth: Boolean = forceAuth
+
+            override fun parseResponse(serverResponse: ServerResponse): R = parser(serverResponse)
+        }
     }
 
     companion object {

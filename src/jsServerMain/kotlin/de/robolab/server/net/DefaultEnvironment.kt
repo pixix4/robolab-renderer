@@ -19,7 +19,7 @@ object DefaultEnvironment {
     val http: dynamic = createServer(app)
     val io: dynamic = createIO(http)
 
-    fun createApiRouter() : Router {
+    fun createApiRouter() : DefaultRouter {
         val router = createRouter()
         router.use("/") { _, res, next ->
             res.setHeader("Access-Control-Allow-Origin", "*")

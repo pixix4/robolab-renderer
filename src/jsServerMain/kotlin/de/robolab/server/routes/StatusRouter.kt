@@ -1,9 +1,9 @@
 package de.robolab.server.routes
 
 import de.robolab.common.utils.ConsoleGreeter
-import de.robolab.server.externaljs.express.TerminalMiddleware
+import de.robolab.server.externaljs.express.DefaultTerminalMiddleware
 
-val logoResponse: TerminalMiddleware = { req, res ->
+val logoResponse: DefaultTerminalMiddleware = { req, res ->
     val accept = req.headers["accept"] as? String
 
     val message = "${ConsoleGreeter.appLogo}\n${ConsoleGreeter.appServerCreators}"

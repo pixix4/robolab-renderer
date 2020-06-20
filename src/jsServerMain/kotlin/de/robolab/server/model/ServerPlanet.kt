@@ -22,43 +22,50 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
 
     private val _fallbackName: ObservableProperty<String> = info.name.observe()
 
-    val name: ObservableValue<String> = property(planetFile.planetProperty, _fallbackName) {
+    val nameProp: ObservableValue<String> = property(planetFile.planetProperty, _fallbackName) {
         if (planetFile.planet.name.isEmpty()) _fallbackName.value else planetFile.planet.name
     }
-    val lines: ObservableValue<List<String>> =
+    val name: String by nameProp
+
+    val linesProp: ObservableValue<List<String>> =
         property(planetFile.planetProperty) {
             if (planetFile.content.isEmpty())
                 emptyList()
             else
                 planetFile.content.split("""\r?\n""".toRegex())
         }
-    val id: String = info.id
-    val _lastModified: ObservableProperty<DateTime> = info.lastModified.observe()
-    val lastModified: ObservableValue<DateTime> = _lastModified
+    val lines: List<String> by linesProp
 
-    val info: ObservableValue<ServerPlanetInfo> = property(name, lastModified) {
-        ServerPlanetInfo(id, name.value, lastModified.value)
+    val id: String = info.id
+
+    val _lastModified: ObservableProperty<DateTime> = info.lastModified.observe()
+    val lastModifiedProp: ObservableValue<DateTime> = _lastModified
+    val lastModified: DateTime by lastModifiedProp
+
+    val infoProp: ObservableValue<ServerPlanetInfo> = property(nameProp, lastModifiedProp) {
+        ServerPlanetInfo(id, name, lastModified)
     }
+    val info by infoProp
 
     init {
         this.planetFile.planetProperty.onChange.addListener {
             _lastModified.set(DateTime.now())
         }
-        var previousModifiedInfo = this.info.get()
-        this.info.onChange.addListener {
-            val newValue = this.info.value
+        var previousModifiedInfo = this.info
+        this.infoProp.onChange.addListener {
+            val newValue = this.info
             if (previousModifiedInfo.withMTime(newValue.lastModified) != newValue) {
                 previousModifiedInfo = newValue
                 _lastModified.set(DateTime.now())
             }
         }
-        this.name.onChange.addListener {
-            if (this.name.value != this._fallbackName.value)
-                this._fallbackName.set(this.name.value)
+        this.nameProp.onChange.addListener {
+            if (this.name != this._fallbackName.value)
+                this._fallbackName.set(this.name)
         }
     }
 
-    fun asTemplate(): Template = Template(info.get().name, planetFile.content.split("""\r?\n""".toRegex()))
+    fun asTemplate(): Template = Template(name, planetFile.content.split("""\r?\n""".toRegex()))
 
     suspend fun lockLines(): Unit {}
     suspend fun lockLines(timeout: Int) {}

@@ -1,6 +1,7 @@
 package de.robolab.server.data
 
 import de.robolab.common.planet.ServerPlanetInfo
+import kotlin.contracts.Returns
 import de.robolab.server.model.ServerPlanet as SPlanet
 
 interface IPlanetStore {
@@ -15,6 +16,10 @@ interface IPlanetStore {
     suspend fun getInfo(id: String): ServerPlanetInfo?
 
     suspend fun listPlanets(): List<ServerPlanetInfo>
+}
+
+suspend fun IPlanetStore.get(info: ServerPlanetInfo?): SPlanet? {
+    return get((info ?: return null).id)
 }
 
 suspend fun IPlanetStore.listPlanets(name: String, ignoreCase: Boolean) =

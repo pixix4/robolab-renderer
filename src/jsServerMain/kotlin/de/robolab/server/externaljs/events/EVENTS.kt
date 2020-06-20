@@ -7,8 +7,8 @@ import org.w3c.dom.events.Event
 import kotlin.js.Promise
 
 external interface EventEmitter {
-    val newListener: Event
-    val removeListener: Event
+    //val newListener: Event
+    //val removeListener: Event
     fun <T> addListener(eventName: String, callback: T)
     fun emit(eventName: String, vararg args: dynamic): Boolean
     fun eventNames(): Array<Any>
