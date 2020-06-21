@@ -66,4 +66,15 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
             return url.hashCode()
         }
     }
+
+    companion object : IFilePlanetLoaderFactory {
+
+        override val protocol = "local"
+
+        override val usage: String = "$protocol://"
+
+        override fun create(uri: String): IFilePlanetLoader<*>? {
+            return LocalWebPlanetLoader()
+        }
+    }
 }

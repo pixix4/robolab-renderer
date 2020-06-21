@@ -26,3 +26,12 @@ interface IFilePlanetIdentifier {
 
     val lastModified: DateTime
 }
+
+interface IFilePlanetLoaderFactory {
+
+    val usage: String
+
+    val protocol: String
+
+    fun create(uri: String): IFilePlanetLoader<*>?
+}

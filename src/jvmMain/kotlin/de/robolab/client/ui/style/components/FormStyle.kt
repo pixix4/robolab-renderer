@@ -250,4 +250,58 @@ fun Stylesheet.initFormStyle() {
             }
         }
     }
+
+    Stylesheet.tabHeaderBackground {
+        backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
+    }
+    Stylesheet.tab {
+        backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
+        borderStyle = multi(BorderStrokeStyle.SOLID)
+        borderWidth = multi(box(0.px, 0.px, 4.px, 0.px))
+        borderColor = multi(box(MainStyle.theme.ui.secondaryBackground.toFx()))
+        padding = box(0.2.em, 1.em, 0.em, 1.em)
+        focusColor = Color.TRANSPARENT
+        faintFocusColor = Color.TRANSPARENT
+
+        and(Stylesheet.hover, Stylesheet.focused) {
+            backgroundColor = multi(MainStyle.theme.ui.secondaryHoverBackground.toFx())
+            borderColor = multi(box(MainStyle.theme.ui.secondaryHoverBackground.toFx()))
+        }
+
+        and(Stylesheet.selected) {
+            backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
+            borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
+
+            and(Stylesheet.hover, Stylesheet.focused) {
+                backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())
+            }
+        }
+    }
+    Stylesheet.tabDownButton {
+        backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
+        textFill = MainStyle.theme.ui.primaryTextColor.toFx()
+        borderRadius = multi(box(MainStyle.BORDER_RADIUS))
+        backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
+
+        prefWidth = 2.em
+        prefHeight = 2.em
+
+        borderStyle = multi(BorderStrokeStyle.SOLID)
+        borderWidth = multi(box(1.px))
+        backgroundInsets = multi(box(0.px))
+        padding = box (2.px)
+
+        and(Stylesheet.focused, Stylesheet.hover) {
+            backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
+            textFill = MainStyle.theme.ui.primaryTextColor.toFx()
+        }
+        and(Stylesheet.focused) {
+            borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
+        }
+
+        Stylesheet.arrow {
+            backgroundColor = multi(MainStyle.theme.ui.secondaryTextColor.toFx())
+        }
+    }
 }

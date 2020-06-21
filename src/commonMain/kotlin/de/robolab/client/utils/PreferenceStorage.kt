@@ -56,6 +56,8 @@ object PreferenceStorage : TypedStorage() {
         item("communication.logUri", "https://mothership.inf.tu-dresden.de/logs/mqtt/latest/?count=100")
     var logUri by logUriProperty
 
+    val fileServerProperty = item("communication.fileServer", PlatformDefaultPreferences.fileServer)
+    var fileServer by fileServerProperty
 
     val paperBackgroundEnabledProperty = item("paper.enabled", false)
     val paperBackgroundEnabled by paperBackgroundEnabledProperty
@@ -84,4 +86,5 @@ object PreferenceStorage : TypedStorage() {
 
 expect object PlatformDefaultPreferences {
     val serverUriProperty: String
+    val fileServer: List<String>
 }

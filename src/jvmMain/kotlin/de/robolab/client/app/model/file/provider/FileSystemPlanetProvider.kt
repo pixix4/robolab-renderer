@@ -80,35 +80,48 @@ class FileSystemPlanetLoader(
     }
 
     init {
-        thread {
-            val watchService = FileSystems.getDefault().newWatchService()
-            val folder = baseDirectory.toPath()
+        if (baseDirectory.exists()) {
+            thread {
+                val watchService = FileSystems.getDefault().newWatchService()
+                val folder = baseDirectory.toPath()
 
-            folder.register(
-                watchService,
-                ENTRY_CREATE,
-                StandardWatchEventKinds.ENTRY_DELETE,
-                StandardWatchEventKinds.ENTRY_MODIFY
-            )
+                folder.register(
+                    watchService,
+                    ENTRY_CREATE,
+                    StandardWatchEventKinds.ENTRY_DELETE,
+                    StandardWatchEventKinds.ENTRY_MODIFY
+                )
 
-            var key: WatchKey = watchService.take()
-            while (true) {
-                for (event in key.pollEvents()) {
-                    val name = event.context()
-                    if (name is Path) {
-                        try {
-                            onRemoteChange.emit()
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+                var key: WatchKey = watchService.take()
+                while (true) {
+                    for (event in key.pollEvents()) {
+                        val name = event.context()
+                        if (name is Path) {
+                            try {
+                                onRemoteChange.emit()
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
                         }
                     }
+                    key.reset()
+                    key = watchService.take()
                 }
-                key.reset()
-                key = watchService.take()
             }
         }
     }
 
+    companion object : IFilePlanetLoaderFactory {
+
+        override val protocol = "directory"
+
+        override val usage: String = "$protocol:///path/to/the/planet/directory"
+
+        override fun create(uri: String): IFilePlanetLoader<*>? {
+            val path = uri.substringAfter("$protocol://")
+            return FileSystemPlanetLoader(File(path))
+        }
+    }
 }
 
 val File.lastModified: DateTime

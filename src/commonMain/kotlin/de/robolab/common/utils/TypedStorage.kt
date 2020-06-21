@@ -3,6 +3,10 @@ package de.robolab.common.utils
 import de.westermann.kobserve.Binding
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
+import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 
 open class TypedStorage {
 
@@ -119,6 +123,18 @@ open class TypedStorage {
 
         override fun deserialize(value: String): T? {
             return valueList.find { it.name == value }
+        }
+    }
+
+    private val json = Json(JsonConfiguration.Stable)
+    internal fun item(key: String, default: List<String>): Item<List<String>> = StringListItem(key, default)
+    private inner class StringListItem(key: String, default: List<String>) : Item<List<String>>(key, default) {
+        override fun serialize(value: List<String>): String? {
+            return json.stringify(String.serializer().list, value)
+        }
+
+        override fun deserialize(value: String): List<String>? {
+            return json.parse(String.serializer().list, value)
         }
     }
 }

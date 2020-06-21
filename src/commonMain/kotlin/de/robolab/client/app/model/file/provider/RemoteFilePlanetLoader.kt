@@ -3,6 +3,7 @@ package de.robolab.client.app.model.file.provider
 import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.net.IRobolabServer
+import de.robolab.client.net.RESTRobolabServer
 import de.robolab.client.net.http
 import de.robolab.client.net.requests.getPlanet
 import de.robolab.client.net.requests.listPlanets
@@ -54,6 +55,30 @@ class RemoteFilePlanetLoader(
                     it.lastModifiedDate
                 )
             }
+        }
+    }
+
+    object HttpFactory: IFilePlanetLoaderFactory {
+
+        override val protocol = "http"
+
+        override val usage: String = "$protocol://example.org"
+
+        override fun create(uri: String): IFilePlanetLoader<*>? {
+            val host = uri.substringAfter("$protocol://")
+            return RemoteFilePlanetLoader(RESTRobolabServer(host, 0, false))
+        }
+    }
+
+    object HttpsFactory: IFilePlanetLoaderFactory {
+
+        override val protocol = "https"
+
+        override val usage: String = "$protocol://example.org"
+
+        override fun create(uri: String): IFilePlanetLoader<*>? {
+            val host = uri.substringAfter("$protocol://")
+            return RemoteFilePlanetLoader(RESTRobolabServer(host, 0, true))
         }
     }
 

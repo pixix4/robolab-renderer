@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.robolab.client.ui.style.MainStyle
 import de.robolab.client.ui.utils.iconNoAdd
 import javafx.scene.control.ScrollPane
+import javafx.scene.control.TabPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.text.FontWeight
@@ -14,11 +15,62 @@ import tornadofx.*
 
 abstract class GenericDialog : View() {
 
-    open fun HBox.initHeader() {}
+    private val tabList = mutableListOf<Pair<String, VBox.() -> Unit>>()
+    protected fun tab(name: String = "", init: VBox.() -> Unit) {
+        tabList += name to init
+    }
+
+    private fun VBox.initSingleTab() {
+        val (_, init) = tabList.single()
+
+        scrollpane(fitToWidth = true, fitToHeight = false) {
+            hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+            vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+
+            vbox {
+                style {
+                    padding = box(1.em, 1.em, 0.em, 1.em)
+                }
+
+                init()
+            }
+        }
+    }
+
+    private fun VBox.initMultiTab() {
+        tabpane {
+            tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
+
+            for ((name, init) in tabList) {
+                tab(name) {
+                    scrollpane(fitToWidth = true, fitToHeight = false) {
+                        hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+                        vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+
+                        vbox {
+                            style {
+                                padding = box(1.em, 1.em, 0.em, 1.em)
+                            }
+
+                            init()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     protected fun buildContent(name: String, init: VBox.() -> Unit): VBox {
+        tab(init = init)
+        return buildContent(name)
+    }
+
+
+    protected fun buildContent(name: String): VBox {
         val dialog = VBox()
         dialog.addClass(MainStyle.dialog)
+        dialog.maxWidth = 640.0
 
         dialog.hbox {
             addClass(MainStyle.toolBar)
@@ -34,7 +86,6 @@ abstract class GenericDialog : View() {
                 }
             }
             spacer()
-            initHeader()
             button {
                 graphic = iconNoAdd(MaterialIcon.CLOSE)
                 de.robolab.client.utils.runAsync {
@@ -62,16 +113,15 @@ abstract class GenericDialog : View() {
             }
         }
 
-        dialog.scrollpane(fitToWidth = true, fitToHeight = false) {
-            hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
-            vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
-
-            vbox {
-                style {
-                    padding = box(1.em, 1.em, 0.em, 1.em)
-                }
-
-                init()
+        when {
+            tabList.size <= 0 -> {
+                // Nothing to do
+            }
+            tabList.size == 1 -> {
+                dialog.initSingleTab()
+            }
+            else -> {
+                dialog.initMultiTab()
             }
         }
 

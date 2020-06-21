@@ -1,7 +1,9 @@
 package de.robolab.client.ui.dialog
 
+import de.robolab.client.app.model.file.MultiFilePlanetProvider
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.utils.PreferenceStorage
+import de.westermann.kobserve.event.now
 import de.westermann.kobserve.not
 import de.westermann.kwebview.components.*
 
@@ -65,9 +67,34 @@ class SettingsDialog : Dialog("Settings") {
             dialogFormEntry("Client id") {
                 inputView(PreferenceStorage.clientIdProperty)
             }
-
             dialogFormEntry("Log uri") {
                 inputView(PreferenceStorage.logUriProperty)
+            }
+        }
+
+        dialogFormGroup("Files") {
+            title = MultiFilePlanetProvider.loaderFactoryList.joinToString("\n") { it.usage }
+            boxView {
+                PreferenceStorage.fileServerProperty.onChange.now {
+                    clear()
+                    val textFields = mutableListOf<InputView>()
+                    for (connection in PreferenceStorage.fileServer) {
+                        dialogFormEntry("") {
+                            textFields += inputView(connection)
+                        }
+                    }
+                    dialogFormEntry("") {
+                        textFields += inputView("")
+                    }
+                    dialogFormEntry("") {
+                        button("Apply file server connections") {
+                            onClick {
+                                PreferenceStorage.fileServer =
+                                    textFields.map { it.value.trim() }.filter { it.isNotEmpty() }
+                            }
+                        }
+                    }
+                }
             }
         }
 
