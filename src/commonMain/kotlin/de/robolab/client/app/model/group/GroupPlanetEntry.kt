@@ -2,8 +2,8 @@ package de.robolab.client.app.model.group
 
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
-import de.robolab.client.app.model.*
-import de.robolab.client.app.model.file.FilePlanetProvider
+import de.robolab.client.app.model.base.*
+import de.robolab.client.app.model.file.MultiFilePlanetProvider
 import de.robolab.client.app.model.file.findByName
 import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.communication.toMqttPlanet
@@ -21,11 +21,12 @@ import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
 
-class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanetProvider) : INavigationBarGroup {
+class GroupPlanetEntry(val groupName: String, val filePlanetProvider: MultiFilePlanetProvider) :
+    INavigationBarGroup {
 
     val attempts = observableListOf<AttemptPlanetEntry>()
 
-    override val entryList: ObservableList<INavigationBarEntry> = attempts
+    override val entryList: ObservableValue<ObservableList<INavigationBarEntry>> = constObservable(attempts)
 
     override val titleProperty = constObservable(groupName)
 
@@ -35,7 +36,7 @@ class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanet
         "Attempts: ${it.size}"
     }
 
-    override val unsavedChangesProperty = constObservable(false)
+    override val statusIconProperty = constObservable(emptyList<MaterialIcon>())
 
     override val parent: INavigationBarGroup? = null
 
@@ -77,7 +78,8 @@ class GroupPlanetEntry(val groupName: String, val filePlanetProvider: FilePlanet
     }
 }
 
-class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEntry) : INavigationBarPlottable {
+class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEntry) :
+    INavigationBarPlottable {
 
     val messages = observableListOf<RobolabMessage>()
 
@@ -124,10 +126,18 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
 
     override val toolBarRight: List<List<ToolBarEntry>> = listOf(
         listOf(
-            ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.UNDO), enabledProperty = canUndoProperty) {
+            ToolBarEntry(
+                iconProperty = constObservable(
+                    MaterialIcon.UNDO
+                ), enabledProperty = canUndoProperty
+            ) {
                 undo()
             },
-            ToolBarEntry(iconProperty = constObservable(ToolBarEntry.Icon.REDO), enabledProperty = canRedoProperty) {
+            ToolBarEntry(
+                iconProperty = constObservable(
+                    MaterialIcon.REDO
+                ), enabledProperty = canRedoProperty
+            ) {
                 redo()
             }
         )
@@ -145,9 +155,9 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     override val infoBarList: List<IInfoBarContent> = listOf(InfoBarGroupInfo(this))
     override val selectedInfoBarIndexProperty = property<Int?>(0)
 
-    override val unsavedChangesProperty = constObservable(false)
+    override val statusIconProperty = constObservable(emptyList<MaterialIcon>())
 
-    override val enabledProperty = constObservable(false)
+    override val enabledProperty = constObservable(true)
 
     val drawable = LivePlanetDrawable()
     override val document = drawable.view
@@ -157,7 +167,7 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     private val backgroundPlanet = planetNameProperty.nullableFlatMapBinding {
         val entry = parent.filePlanetProvider.findByName(it)
         GlobalScope.launch(Dispatchers.Main) {
-            entry?.loadFile()
+            entry?.filePlanet?.load()
         }
         entry?.planetFile?.planetProperty
     }

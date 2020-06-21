@@ -4,19 +4,21 @@ import de.robolab.common.net.HttpMethod
 
 class RESTRobolabServer(
     override val hostURL: String,
-    override val hostPort:Int,
-    override val protocol:String
+    override val hostPort: Int,
+    override val protocol: String
 ) : IRobolabServer {
 
-    constructor(hostURL: String, hostPort: Int, secure:Boolean=false):
-            this(hostURL,hostPort, if(secure) "https" else "http")
+    constructor(hostURL: String, hostPort: Int? = null, secure: Boolean = false) :
+            this(hostURL, hostPort ?: if (secure) 443 else 80, if (secure) "https" else "http")
 
     private var _credentials: ICredentialProvider? = null
     override var credentials: ICredentialProvider?
-        get() {return _credentials}
-        set(value){
+        get() {
+            return _credentials
+        }
+        set(value) {
             _credentials = value
-            if(value==null)
+            if (value == null)
                 resetAuthSession()
         }
 
@@ -24,12 +26,14 @@ class RESTRobolabServer(
 
     }
 
-    override suspend fun request(method: HttpMethod,
-                                 path:String,
-                                 body:String?,
-                                 query: Map<String,String>,
-                                 headers: Map<String, List<String>>,
-                                 forceAuth:Boolean): ServerResponse{
+    override suspend fun request(
+        method: HttpMethod,
+        path: String,
+        body: String?,
+        query: Map<String, String>,
+        headers: Map<String, List<String>>,
+        forceAuth: Boolean
+    ): ServerResponse {
         //TODO handleAuth, resend request if possible
         return sendHttpRequest(
             method,

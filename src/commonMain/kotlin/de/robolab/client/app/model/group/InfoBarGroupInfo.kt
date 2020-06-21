@@ -2,7 +2,7 @@ package de.robolab.client.app.model.group
 
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.format
-import de.robolab.client.app.model.IInfoBarContent
+import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.communication.RobolabMessage
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.property.constObservable
@@ -10,7 +10,8 @@ import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
 import kotlin.math.roundToInt
 
-class InfoBarGroupInfo(private val attemptPlanetEntry: AttemptPlanetEntry) : IInfoBarContent {
+class InfoBarGroupInfo(private val attemptPlanetEntry: AttemptPlanetEntry) :
+    IInfoBarContent {
 
     override val nameProperty = constObservable("Overview")
 

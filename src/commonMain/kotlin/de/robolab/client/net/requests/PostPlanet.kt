@@ -9,7 +9,7 @@ import de.robolab.common.parser.PlanetFile
 
 class PostPlanet(content: String? = null) : IRESTRequest<PostPlanet.PostPlanetResponse> {
 
-    constructor(planet: PlanetFile) : this(planet.content)
+    constructor(planet: PlanetFile) : this(planet.contentString)
 
     override val method: HttpMethod = HttpMethod.POST
     override val path: String = "/api/planets"

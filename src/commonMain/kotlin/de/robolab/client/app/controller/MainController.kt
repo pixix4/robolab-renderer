@@ -1,6 +1,6 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.INavigationBarPlottable
+import de.robolab.client.app.model.base.INavigationBarPlottable
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessageProvider
 import de.robolab.client.communication.mqtt.RobolabMqttConnection

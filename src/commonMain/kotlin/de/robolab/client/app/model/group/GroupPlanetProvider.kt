@@ -1,8 +1,8 @@
 package de.robolab.client.app.model.group
 
-import de.robolab.client.app.model.IProvider
-import de.robolab.client.app.model.INavigationBarEntry
-import de.robolab.client.app.model.file.FilePlanetProvider
+import de.robolab.client.app.model.base.IPlanetProvider
+import de.robolab.client.app.model.base.INavigationBarEntry
+import de.robolab.client.app.model.file.MultiFilePlanetProvider
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessage
 import de.westermann.kobserve.base.ObservableList
@@ -12,16 +12,18 @@ import de.westermann.kobserve.property.property
 
 class GroupPlanetProvider(
     messageManager: MessageManager,
-    private val filePlanetProvider: FilePlanetProvider
-) : IProvider {
+    private val filePlanetProvider: MultiFilePlanetProvider
+) : IPlanetProvider {
 
     val groupList = observableListOf<GroupPlanetEntry>()
 
 
     override val searchStringProperty = property("")
 
-    override val entryList: ObservableList<INavigationBarEntry> = groupList
+    val sortedGroupList: ObservableList<INavigationBarEntry> = groupList
             .sortByObservable { it.groupName }
+
+    override val entryList = property(sortedGroupList)
 
     private fun onMessage(message: RobolabMessage) {
         val group = groupList.find { it.groupName == message.metadata.groupId }

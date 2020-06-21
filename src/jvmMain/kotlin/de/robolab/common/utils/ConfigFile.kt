@@ -1,6 +1,6 @@
 package de.robolab.common.utils
 
-import de.robolab.client.jfx.utils.SystemOs
+import de.robolab.client.ui.utils.SystemOs
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.constObservable
 import java.nio.file.Files

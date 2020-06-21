@@ -64,6 +64,8 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.7")
                 implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
 
+                implementation("dev.gitlive:kotlin-diff-utils:4.1.4")
+
                 api("io.ktor:ktor-client-core:$ktorVersion")
             }
         }
@@ -213,7 +215,7 @@ val createBuildInfo = tasks.create("createBuildInfo") {
     outputs.file(file)
 }
 
-val mainClassName = "de.robolab.client.jfx.Launcher"
+val mainClassName = "de.robolab.client.ui.Launcher"
 
 val jvmJar = tasks.named<Jar>("jvmJar") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

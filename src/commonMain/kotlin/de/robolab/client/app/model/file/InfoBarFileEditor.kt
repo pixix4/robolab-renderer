@@ -1,14 +1,17 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.model.IInfoBarContent
+import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
 import de.robolab.common.planet.IPlanetValue
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.DelegatePropertyAccessor
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
-class InfoBarFileEditor(private val filePlanetEntry: FilePlanetEntry) : IInfoBarContent {
+class InfoBarFileEditor(private val filePlanetEntry: FilePlanetEntry) :
+    IInfoBarContent {
 
     override val nameProperty = constObservable("Editor")
 
@@ -37,9 +40,9 @@ class InfoBarFileEditor(private val filePlanetEntry: FilePlanetEntry) : IInfoBar
             lastChange = change
 
             if (group) {
-                filePlanetEntry.planetFile.replaceContent(value)
+                filePlanetEntry.planetFile.replaceContent(value.split('\n'))
             } else {
-                filePlanetEntry.planetFile.content = value
+                filePlanetEntry.planetFile.content = value.split('\n')
             }
         }
 
@@ -59,7 +62,9 @@ class InfoBarFileEditor(private val filePlanetEntry: FilePlanetEntry) : IInfoBar
     }
 
     fun save() {
-        filePlanetEntry.save()
+        GlobalScope.launch {
+            filePlanetEntry.filePlanet.save()
+        }
     }
 
     var ignoreSetLine = false

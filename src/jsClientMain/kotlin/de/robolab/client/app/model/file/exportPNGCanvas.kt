@@ -2,13 +2,13 @@ package de.robolab.client.app.model.file
 
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.utils.PreferenceStorage
-import de.robolab.client.web.adapter.WebCanvas
-import de.robolab.client.web.dialog.Dialog
-import de.robolab.client.web.dialog.ExportDialog
-import de.robolab.client.web.dialog.PaperConstraintsDialog
-import de.robolab.client.web.dialog.PlanetTransformDialog
-import de.robolab.client.web.triggerDownload
-import de.robolab.client.web.triggerDownloadPNG
+import de.robolab.client.ui.adapter.WebCanvas
+import de.robolab.client.ui.dialog.Dialog
+import de.robolab.client.ui.dialog.ExportDialog
+import de.robolab.client.ui.dialog.PaperConstraintsDialog
+import de.robolab.client.ui.dialog.PlanetTransformDialog
+import de.robolab.client.ui.triggerDownload
+import de.robolab.client.ui.triggerDownloadPNG
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.utils.Dimension
 import de.westermann.kwebview.components.Canvas

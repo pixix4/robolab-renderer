@@ -7,7 +7,6 @@ import kotlin.browser.document
  * List of material design icons.
  */
 enum class MaterialIcon(private val ligature: String) : Icon {
-    ROTATION_3D("3d_rotation"),
     AC_UNIT("ac_unit"),
     ACCESS_ALARM("access_alarm "),
     ACCESS_ALARMS("access_alarms"),
@@ -170,7 +169,7 @@ enum class MaterialIcon(private val ligature: String) : Icon {
     CHEVRON_RIGHT("chevron_right"),
     CHILD_CARE("child_care"),
     CHILD_FRIENDLY("child_friendly"),
-    CHROME_RR_MODE("chrome_rr_mode"),
+    CHROME_READER_MODE("chrome_rr_mode"),
     CLASS("class"),
     CLEAR("clear"),
     CLEAR_ALL("clear_all"),
@@ -295,7 +294,7 @@ enum class MaterialIcon(private val ligature: String) : Icon {
     FAVORITE_BORDER("favorite_border"),
     FEATURED_PLAY_LIST("featured_play_list"),
     FEATURED_VIDEO("featured_video"),
-    FACK("fack"),
+    FEEDBACK("feedback"),
     FIBER_DVR("fiber_dvr"),
     FIBER_MANUAL_RECORD("fiber_manual_record"),
     FIBER_NEW("fiber_new"),
@@ -682,7 +681,7 @@ enum class MaterialIcon(private val ligature: String) : Icon {
     RECEIPT("receipt"),
     RECENT_ACTORS("recent_actors"),
     RECORD_VOICE_OVER("record_voice_over"),
-    RM("rm"),
+    REDEEM("redeem"),
     REDO("redo"),
     REFRESH("refresh"),
     REMOVE("remove"),
@@ -712,6 +711,7 @@ enum class MaterialIcon(private val ligature: String) : Icon {
     ROTATE_90_DEGREES_CCW("rotate_90_degrees_ccw"),
     ROTATE_LEFT("rotate_left"),
     ROTATE_RIGHT("rotate_right "),
+    ROTATION_3D("3d_rotation"),
     ROUNDED_CORNER("rounded_corner"),
     ROUTER("router"),
     ROWING("rowing"),

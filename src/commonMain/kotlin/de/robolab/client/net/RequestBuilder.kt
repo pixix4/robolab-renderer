@@ -69,7 +69,7 @@ class RequestBuilder {
         }
 
         if (path.isNotBlank()) {
-            this.path = path.trim()
+            this.path = path.trim().replace("//+".toRegex(), "/")
         }
 
         if (query.isNotBlank()) {
@@ -80,6 +80,17 @@ class RequestBuilder {
                 }
             }
         }
+    }
+
+    fun import(server: IRobolabServer) {
+        protocol = server.protocol
+        port = server.hostPort
+        url(server.hostURL)
+    }
+
+    fun appendPath(append: String) {
+        path += '/' + append.trim()
+        path = path.replace("//+".toRegex(), "/")
     }
 
     fun body(body: String?) {

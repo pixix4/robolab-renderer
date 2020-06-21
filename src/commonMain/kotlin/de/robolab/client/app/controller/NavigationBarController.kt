@@ -1,29 +1,31 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.INavigationBarEntry
-import de.robolab.client.app.model.INavigationBarGroup
-import de.robolab.client.app.model.INavigationBarPlottable
-import de.robolab.client.app.model.file.FilePlanetProvider
+import de.robolab.client.app.model.base.INavigationBarEntry
+import de.robolab.client.app.model.base.INavigationBarGroup
+import de.robolab.client.app.model.base.INavigationBarPlottable
+import de.robolab.client.app.model.file.MultiFilePlanetProvider
 import de.robolab.client.app.model.group.GroupPlanetProvider
+import de.robolab.client.app.model.room.RoomPlanetProvider
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
 import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.list.filterObservable
-import de.westermann.kobserve.list.observableListOf
+import de.westermann.kobserve.property.flattenBinding
 import de.westermann.kobserve.property.flattenMutableBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
 class NavigationBarController(
-    val selectedEntryProperty: ObservableProperty<INavigationBarPlottable?>,
+    private val selectedEntryProperty: ObservableProperty<INavigationBarPlottable?>,
     messageManager: MessageManager,
     private val connection: RobolabMqttConnection,
     private val canvasController: CanvasController
 ) {
 
-    private val filePlanetProvider = FilePlanetProvider()
+    private val filePlanetProvider = MultiFilePlanetProvider()
     private val groupPlanetProperty = GroupPlanetProvider(messageManager, filePlanetProvider)
+    private val roomPlanetProvider = RoomPlanetProvider()
 
     val tabProperty = PreferenceStorage.selectedNavigationBarTabProperty
 
@@ -50,7 +52,7 @@ class NavigationBarController(
 
         when (tabProperty.value) {
             Tab.GROUP -> groupPlanetProperty.searchStringProperty
-            Tab.PLANET -> property("")
+            Tab.ROOM -> roomPlanetProvider.searchStringProperty
             Tab.FILE -> filePlanetProvider.searchStringProperty
         }
     }.flattenMutableBinding()
@@ -64,10 +66,10 @@ class NavigationBarController(
 
         when (tabProperty.value) {
             Tab.GROUP -> groupPlanetProperty.entryList
-            Tab.PLANET -> observableListOf()
+            Tab.ROOM -> roomPlanetProvider.entryList
             Tab.FILE -> filePlanetProvider.entryList
         }
-    }
+    }.flattenBinding()
 
     val filteredEntryListProperty = entryListProperty.mapBinding {
         it.filterObservable(searchStringProperty) { element, filter ->
@@ -130,7 +132,7 @@ class NavigationBarController(
 
     enum class Tab(val label: String) {
         GROUP("Groups"),
-        PLANET("Planets"),
+        ROOM("Rooms"),
         FILE("Files")
     }
 }

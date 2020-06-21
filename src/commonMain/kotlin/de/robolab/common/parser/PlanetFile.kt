@@ -8,10 +8,12 @@ import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.property.mapBinding
 
-class PlanetFile(fileContent: String) : IEditCallback {
+class PlanetFile(lines: List<String>) : IEditCallback {
+
+    constructor(content: String): this(content.split('\n'))
 
     private val logger = Logger(this)
-    val history = History(parseFileContent(fileContent))
+    val history = History(parseFileContent(lines))
     private var lines by history
 
     val planetProperty = history.mapBinding { lines ->
@@ -27,20 +29,34 @@ class PlanetFile(fileContent: String) : IEditCallback {
     }
     val planet by planetProperty
 
-    private fun parseFileContent(fileContent: String) = fileContent.split('\n').map { parseLine(it) }
+    private fun parseFileContent(lines: List<String>) = lines.map { parseLine(it) }
 
-    var content: String
+    var contentString: String
         get() = lines.joinToString("\n") { it.line }
+        set(value) {
+            lines = parseFileContent(value.split('\n'))
+        }
+
+    var content: List<String>
+        get() = lines.map { it.line }
         set(value) {
             lines = parseFileContent(value)
         }
 
-    fun replaceContent(fileContent: String) {
-        history.replace(parseFileContent(fileContent))
+    fun replaceContent(lines: List<String>) {
+        history.replace(parseFileContent(lines))
     }
 
-    fun resetContent(fileContent: String) {
-        history.clear(parseFileContent(fileContent))
+    fun resetContent(lines: List<String>) {
+        history.clear(parseFileContent(lines))
+    }
+
+    fun replaceContent(content: String) {
+        history.replace(parseFileContent(content.split('\n')))
+    }
+
+    fun resetContent(content: String) {
+        history.clear(parseFileContent(content.split('\n')))
     }
 
     fun valueToLineNumber(value: IPlanetValue): Int? {

@@ -1,6 +1,6 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.INavigationBarPlottable
+import de.robolab.client.app.model.base.INavigationBarPlottable
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.plotter.PlotterManager
 import de.robolab.client.renderer.utils.Pointer

@@ -1,7 +1,7 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.IInfoBarContent
-import de.robolab.client.app.model.INavigationBarPlottable
+import de.robolab.client.app.model.base.IInfoBarContent
+import de.robolab.client.app.model.base.INavigationBarPlottable
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding

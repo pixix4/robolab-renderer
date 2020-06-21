@@ -51,6 +51,12 @@ body, html {
   text-align: center;
 }
 
+.icon-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .debug-terminal {
   position: fixed;
   z-index: 100;

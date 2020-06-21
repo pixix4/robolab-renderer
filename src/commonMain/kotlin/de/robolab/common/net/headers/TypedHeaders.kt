@@ -7,8 +7,12 @@ data class TypedHeaders(
     companion object {
         fun parseLowerCase(headers: Map<String, List<String>>): TypedHeaders {
             return TypedHeaders(
-                contentTypeHeaders = headers[ContentTypeHeader.name]?.map(::ContentTypeHeader).orEmpty(),
-                lastModifiedHeader = headers[LastModifiedHeader.name]?.map(::LastModifiedHeader)?.single()
+                contentTypeHeaders = headers.filterKeys {
+                    it.equals(ContentTypeHeader.name, true)
+                }.values.flatten().map(::ContentTypeHeader),
+                lastModifiedHeader = headers.filterKeys {
+                    it.equals(LastModifiedHeader.name, true)
+                }.values.flatten().map(::LastModifiedHeader).singleOrNull()
             )
         }
 

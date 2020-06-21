@@ -98,7 +98,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         if (stat.isFile()) {
             val handle: FileHandle = open(path, "w").await()
             try {
-                handle.writeFile(planet.planetFile.content).await()
+                handle.writeFile(planet.planetFile.contentString).await()
             } finally {
                 handle.close()
             }
@@ -147,7 +147,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         else
             planetFile!!.planet.name
         val info = metadata ?: ServerPlanetInfo(id, name, stat(path).await().mtime.toDateTime())
-        return SPlanet(info, lines = planetFile!!.content.split("""\r?\n""".toRegex()))
+        return SPlanet(info, lines = planetFile!!.contentString.split("""\r?\n""".toRegex()))
     }
 
     override suspend fun getInfo(id: String): ServerPlanetInfo? {

@@ -4,10 +4,8 @@ import com.soywiz.klock.DateTime
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.planet.randomName
-import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.observe
 import de.westermann.kobserve.property.property
 
@@ -32,13 +30,13 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
             if (planetFile.content.isEmpty())
                 emptyList()
             else
-                planetFile.content.split("""\r?\n""".toRegex())
+                planetFile.content
         }
     val lines: List<String> by linesProp
 
     val id: String = info.id
 
-    val _lastModified: ObservableProperty<DateTime> = info.lastModified.observe()
+    val _lastModified: ObservableProperty<DateTime> = info.lastModifiedDate.observe()
     val lastModifiedProp: ObservableValue<DateTime> = _lastModified
     val lastModified: DateTime by lastModifiedProp
 
@@ -54,7 +52,7 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
         var previousModifiedInfo = this.info
         this.infoProp.onChange.addListener {
             val newValue = this.info
-            if (previousModifiedInfo.withMTime(newValue.lastModified) != newValue) {
+            if (previousModifiedInfo.withMTime(newValue.lastModifiedDate) != newValue) {
                 previousModifiedInfo = newValue
                 _lastModified.set(DateTime.now())
             }
@@ -65,7 +63,7 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
         }
     }
 
-    fun asTemplate(): Template = Template(name, planetFile.content.split("""\r?\n""".toRegex()))
+    fun asTemplate(): Template = Template(name, planetFile.content)
 
     suspend fun lockLines(): Unit {}
     suspend fun lockLines(timeout: Int) {}
@@ -83,7 +81,8 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
                 val file = PlanetFile(lines)
                 return Template(
                     file.planet.name.let { if (it.isEmpty()) fallbackName else it },
-                    file.content.split("""\r?\n""".toRegex()))
+                    file.content
+                )
             }
 
             fun fromLines(lines: List<String>, fallbackName: String = randomName()): Template =

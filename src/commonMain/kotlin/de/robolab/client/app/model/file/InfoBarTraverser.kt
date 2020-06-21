@@ -1,13 +1,14 @@
 package de.robolab.client.app.model.file
 
 import de.robolab.client.app.controller.TraverserBarController
-import de.robolab.client.app.model.IInfoBarContent
+import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.traverser.DefaultTraverser
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
 
-class InfoBarTraverser(private val filePlanetEntry: FilePlanetEntry) : IInfoBarContent {
+class InfoBarTraverser(private val filePlanetEntry: FilePlanetEntry) :
+    IInfoBarContent {
 
     private val logger = Logger(this)
 

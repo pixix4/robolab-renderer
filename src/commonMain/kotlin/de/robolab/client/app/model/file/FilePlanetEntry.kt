@@ -1,9 +1,7 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.model.IDetailBox
-import de.robolab.client.app.model.INavigationBarGroup
-import de.robolab.client.app.model.INavigationBarPlottable
-import de.robolab.client.app.model.ToolBarEntry
+import de.robolab.client.app.model.base.*
+import de.robolab.client.app.model.file.provider.FilePlanet
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.SvgCanvas
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
@@ -29,11 +27,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class FilePlanetEntry(val filename: String, private val provider: FilePlanetProvider) : INavigationBarPlottable {
+class FilePlanetEntry(
+    val filePlanet: FilePlanet<*>
+) : INavigationBarPlottable {
 
-    internal val planetFile = PlanetFile("")
+    val planetFile = filePlanet.planetFile
 
-    override val enabledProperty = property(false)
+    override val enabledProperty = filePlanet.isLoadedProperty
 
     val drawable = EditPlanetDrawable(planetFile)
 
@@ -41,10 +41,16 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override val toolBarLeft: List<List<ToolBarEntry>> = listOf(
         listOf(
-            ToolBarEntry(constObservable("View"), selectedProperty = !drawable.editableProperty) {
+            ToolBarEntry(
+                constObservable("View"),
+                selectedProperty = !drawable.editableProperty
+            ) {
                 drawable.editableProperty.value = false
             },
-            ToolBarEntry(constObservable("Edit"), selectedProperty = drawable.editableProperty) {
+            ToolBarEntry(
+                constObservable("Edit"),
+                selectedProperty = drawable.editableProperty
+            ) {
                 drawable.editableProperty.value = true
             }
         ),
@@ -66,13 +72,13 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
                     !PreferenceStorage.paperBackgroundEnabledProperty.value
             },
             ToolBarEntry(
-                iconProperty = constObservable(ToolBarEntry.Icon.PREFERENCES),
+                iconProperty = constObservable(MaterialIcon.BUILD),
                 toolTipProperty = constObservable("Configure paper constraints")
             ) {
                 openPaperConstraintsDialog()
             },
             ToolBarEntry(
-                iconProperty = constObservable(ToolBarEntry.Icon.FLIP),
+                iconProperty = constObservable(MaterialIcon.COMPARE),
                 toolTipProperty = constObservable("Flip view horizontal"),
                 selectedProperty = drawable.flipViewProperty.mapBinding { it == true },
                 enabledProperty = drawable.flipViewProperty.mapBinding { it != null }
@@ -94,16 +100,8 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override fun buildContextMenu(position: Point) = menuBilder(position, "Planet ${planetFile.planet.name}") {
         action("Save") {
-            save()
-        }
-    }
-
-    fun save() {
-        GlobalScope.launch(Dispatchers.Main) {
-            val success = provider.saveEntry(this@FilePlanetEntry)
-
-            if (success) {
-                planetFile.history.clear()
+            GlobalScope.launch(Dispatchers.Main) {
+                save()
             }
         }
     }
@@ -111,14 +109,14 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
     override val toolBarRight: List<List<ToolBarEntry>> = listOf(
         listOf(
             ToolBarEntry(
-                iconProperty = constObservable(ToolBarEntry.Icon.UNDO),
+                iconProperty = constObservable(MaterialIcon.UNDO),
                 toolTipProperty = constObservable("Undo last action"),
                 enabledProperty = planetFile.history.canUndoProperty
             ) {
                 planetFile.history.undo()
             },
             ToolBarEntry(
-                iconProperty = constObservable(ToolBarEntry.Icon.REDO),
+                iconProperty = constObservable(MaterialIcon.REDO),
                 toolTipProperty = constObservable("Redo last action"),
                 enabledProperty = planetFile.history.canRedoProperty
             ) {
@@ -131,7 +129,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
     override val selectedInfoBarIndexProperty = property<Int?>(0)
 
     private val statisticsDetailBox = PlanetStatisticsDetailBox(planetFile)
-    override val detailBoxProperty: ObservableValue<IDetailBox> = drawable.focusedElementsProperty.mapBinding {list ->
+    override val detailBoxProperty: ObservableValue<IDetailBox> = drawable.focusedElementsProperty.mapBinding { list ->
         when (val first = list.firstOrNull()) {
             is PointAnimatableManager.AttributePoint -> PointDetailBox(first, planetFile)
             is Path -> PathDetailBox(first, planetFile)
@@ -140,17 +138,15 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
     }
 
     val content: String
-        get() = planetFile.content
+        get() = planetFile.contentString
 
 
-    suspend fun loadFile() {
-        if (!enabledProperty.value) {
-            val content = provider.loadEntry(this)
-            if (content != null) {
-                planetFile.resetContent(content)
-                enabledProperty.value = true
-            }
-        }
+    suspend fun save() {
+        filePlanet.save()
+    }
+
+    suspend fun load() {
+        filePlanet.load()
     }
 
     fun exportAsSVG(name: String = "") {
@@ -215,7 +211,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
             val name = planetFile.planet.name
             if (name.isBlank()) "[Unnamed]" else name
         } else {
-            filename
+            filePlanet.localIdentifier?.name ?: filePlanet.remoteIdentifier?.name ?: "[Unnamed]"
         }
     }
 
@@ -227,7 +223,13 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
     override val parent: INavigationBarGroup? = null
 
-    override val unsavedChangesProperty = planetFile.history.canUndoProperty
+    override val statusIconProperty = filePlanet.hasLocalChangesProperty.mapBinding { hasLocalChanges ->
+        if (hasLocalChanges) {
+            listOf(MaterialIcon.SAVE)
+        } else {
+            emptyList()
+        }
+    }
 
     init {
         planetFile.history.onChange {
@@ -236,7 +238,7 @@ class FilePlanetEntry(val filename: String, private val provider: FilePlanetProv
 
         document.onAttach {
             GlobalScope.launch(Dispatchers.Main) {
-                loadFile()
+                load()
             }
         }
     }

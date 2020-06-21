@@ -6,6 +6,7 @@ import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.planet.ClientPlanetInfo
 import de.robolab.common.planet.ID
+import de.robolab.common.utils.filterValuesNotNull
 import kotlinx.serialization.builtins.list
 
 open class ListPlanets(
@@ -28,7 +29,7 @@ open class ListPlanets(
         "ignoreCase" to (if (nameEndsWith ?: nameEndsWith ?: nameContains ?: nameEndsWith != null) {
             if (ignoreCase) "1" else "0"
         } else null)
-    ).filterValues { it != null }.mapValues { it.value!! }
+    ).filterValuesNotNull()
     override val headers: Map<String, List<String>> = mapOf()
     override val forceAuth: Boolean = true
 
@@ -42,16 +43,15 @@ open class ListPlanets(
             planets = if (serverResponse.status != HttpStatusCode.Ok)
                 emptyList()
             else when (val mimeType = serverResponse.contentType?.mimeType) {
-                MIMEType.JSON -> parse(ClientPlanetInfo.serializer().list)!!
-                MIMEType.PlainText -> body!!.split('\n').map(ClientPlanetInfo.Companion::fromPlaintextString)
+                MIMEType.JSON -> parse(ClientPlanetInfo.serializer().list)
+                MIMEType.PlainText -> body?.split('\n')?.map(ClientPlanetInfo.Companion::fromPlaintextString)
                 else -> throw IllegalArgumentException("Cannot parse MIME-Type '$mimeType'")
-            }
+            } ?: emptyList()
         }
 
         val names: List<String> = planets.map(ClientPlanetInfo::name)
         val ids: List<ID> = planets.map(ClientPlanetInfo::id)
     }
-
 }
 
 suspend fun IRobolabServer.listPlanets(): ListPlanets.ListPlanetsResponse = request(ListPlanets.Simple)

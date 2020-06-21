@@ -30,5 +30,7 @@ fun String.toID(): ID = ID(
 fun String.toIDString(): String = this.toID().id
 fun String.decodeID(): String = ID(this).decode()
 
-fun ClientPlanetInfo.asServerPlanetInfo(): ServerPlanetInfo = ServerPlanetInfo(id.decode(), name, lastModified)
-fun ServerPlanetInfo.asClientPlanetInfo(): ClientPlanetInfo = ClientPlanetInfo(id.toID(), name, lastModified)
+fun ClientPlanetInfo.asServerPlanetInfo(): ServerPlanetInfo = ServerPlanetInfo(id.decode(), name,
+    this.lastModifiedDate
+)
+fun ServerPlanetInfo.asClientPlanetInfo(): ClientPlanetInfo = ClientPlanetInfo(id.toID(), name, lastModifiedDate)

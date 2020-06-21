@@ -3,14 +3,15 @@ package de.robolab.common.planet
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.format
+import com.soywiz.klock.parseUtc
 import de.robolab.common.net.externalserializers.DateSerializer
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 interface IPlanetInfo<IDType> {
     val id: IDType
     val name: String
-    val lastModified: DateTime
+    val lastModifiedDate: DateTime
 
     fun withMTime(time: DateTime): IPlanetInfo<IDType>
 }
@@ -20,14 +21,20 @@ data class ClientPlanetInfo(
     @Serializable(with = IDSerializer::class)
     override val id: ID,
     override val name: String,
-    @Serializable(with = DateSerializer::class)
-    override val lastModified: DateTime
+    val lastModified: String
 ) : IPlanetInfo<ID> {
+
+    constructor(id: ID, name: String, lastModified: DateTime) :
+            this(id, name, DateFormat.FORMAT1.format(lastModified))
+
     override fun withMTime(time: DateTime): ClientPlanetInfo {
-        return copy(lastModified = time)
+        return copy(lastModified = DateFormat.FORMAT1.format(time))
     }
 
-    fun toPlaintextString(): String = "${id.id}@${DateSerializer.format.format(lastModified)}:$name"
+    @Transient
+    override val lastModifiedDate: DateTime = DateFormat.FORMAT1.parseUtc(lastModified)
+
+    fun toPlaintextString(): String = "${id.id}@${DateSerializer.format.format(this.lastModifiedDate)}:$name"
 
     companion object {
         private val textResponseRegex: Regex =
@@ -40,7 +47,7 @@ data class ClientPlanetInfo(
             return ClientPlanetInfo(
                 name = name,
                 id = ID(idString),
-                lastModified = DateTime.fromString(modifiedAt).utc
+                lastModified = modifiedAt
             )
         }
     }
@@ -50,10 +57,16 @@ data class ClientPlanetInfo(
 data class ServerPlanetInfo(
     override val id: String,
     override val name: String,
-    @Serializable(with = DateSerializer::class)
-    override val lastModified: DateTime
+    val lastModified: String
 ) : IPlanetInfo<String> {
+
+    constructor(id: String, name: String, lastModified: DateTime) :
+            this(id, name, DateFormat.FORMAT1.format(lastModified))
+
+    @Transient
+    override val lastModifiedDate: DateTime = DateFormat.FORMAT1.parseUtc(lastModified)
+
     override fun withMTime(time: DateTime): ServerPlanetInfo {
-        return copy(lastModified = time)
+        return copy(lastModified = DateFormat.FORMAT1.format(time))
     }
 }

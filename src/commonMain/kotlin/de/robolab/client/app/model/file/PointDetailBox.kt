@@ -1,19 +1,12 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.model.IDetailBox
-import de.robolab.client.renderer.drawable.general.PathAnimatable
+import de.robolab.client.app.model.base.IDetailBox
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
-import de.robolab.client.utils.PathClassifier
-import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.parser.PlanetFile
-import de.robolab.common.parser.toFixed
-import de.robolab.common.planet.Path
-import de.robolab.common.planet.PlanetVersion
 import de.robolab.common.planet.letter
-import de.westermann.kobserve.property.observeConst
-import de.westermann.kobserve.property.property
 
-class PointDetailBox(point: PointAnimatableManager.AttributePoint, planetFile: PlanetFile) : IDetailBox {
+class PointDetailBox(point: PointAnimatableManager.AttributePoint, planetFile: PlanetFile) :
+    IDetailBox {
 
     val coordinate = point.coordinate
 

@@ -1,10 +1,11 @@
 package de.robolab.client.app.model.group
 
 import com.soywiz.klock.format
-import de.robolab.client.app.model.IDetailBox
+import de.robolab.client.app.model.base.IDetailBox
 import de.robolab.client.communication.RobolabMessage
 
-class JsonDetailBox(private val robolabMessage: RobolabMessage) : IDetailBox {
+class JsonDetailBox(private val robolabMessage: RobolabMessage) :
+    IDetailBox {
 
     val header: String
         get() = robolabMessage::class.simpleName ?: "Information"

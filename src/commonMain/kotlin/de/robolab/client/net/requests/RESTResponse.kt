@@ -10,6 +10,8 @@ import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.ClientPlanetInfo
 import de.robolab.common.planet.Planet
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.serializer
 
 interface IRESTResponse : IServerResponse
 
@@ -30,7 +32,7 @@ open class ClientPlanetInfoRestResponse(serverResponse: IServerResponse) : RESTR
         info = if (status != HttpStatusCode.Ok && status != HttpStatusCode.Created) {
             null
         } else when (val mimeType = contentType?.mimeType) {
-            MIMEType.PlainText -> ClientPlanetInfo.fromPlaintextString(body!!)
+            MIMEType.PlainText -> ClientPlanetInfo.fromPlaintextString(body ?: "")
             MIMEType.JSON -> parse(ClientPlanetInfo.serializer())
             else -> throw IllegalArgumentException("Cannot parse MIME-Type '$mimeType'")
         }
@@ -39,25 +41,28 @@ open class ClientPlanetInfoRestResponse(serverResponse: IServerResponse) : RESTR
 @Suppress("LeakingThis")
 open class PlanetResponse(serverResponse: IServerResponse) : RESTResponse(serverResponse) {
 
-    val planet: Planet?
-
-    val lastModified: DateTime?
+    val lines: List<String>
+    val lastModified: DateTime
 
     init {
         if (serverResponse.status != HttpStatusCode.Ok) {
-            planet = null
-            lastModified = null
+            lines = emptyList()
+            lastModified = DateTime.Companion.fromUnix(0)
         } else {
-            planet = when (val mimeType = serverResponse.typedHeaders.contentTypeHeaders.single().mimeType) {
-                MIMEType.JSON -> {//TODO: ReImplement as Parsing
-                    PlanetFile(jsonBody!!.jsonArray.joinToString("\n") { it.primitive.content }).planet
+            lines = when (val mimeType = serverResponse.typedHeaders.contentTypeHeaders.single().mimeType) {
+                MIMEType.JSON -> {
+                    parse(String.serializer().list) ?: emptyList()
                 }
                 MIMEType.PlainText -> {
-                    PlanetFile(body!!).planet
+                    body?.split('\n') ?: emptyList()
                 }
                 else -> throw IllegalArgumentException("Cannot parse MIME-Type '$mimeType'")
             }
-            lastModified = serverResponse.typedHeaders.lastModifiedHeader!!.dateTime
+            lastModified = serverResponse.typedHeaders.lastModifiedHeader?.dateTime ?: DateTime.Companion.fromUnix(0)
         }
+    }
+
+    val planet: Planet by lazy {
+        PlanetFile(lines).planet
     }
 }

@@ -10,7 +10,7 @@ import de.robolab.common.planet.ID
 
 class PutPlanet(id: ID, content: String? = null) : IRESTRequest<PutPlanet.PutPlanetResponse> {
 
-    constructor(id: ID, planet: PlanetFile) : this(id, planet.content)
+    constructor(id: ID, planet: PlanetFile) : this(id, planet.contentString)
 
     override val method: HttpMethod = HttpMethod.PUT
     override val path: String = "/api/planets/${id.id}"

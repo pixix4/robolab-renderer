@@ -1,6 +1,6 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.model.IDetailBox
+import de.robolab.client.app.model.base.IDetailBox
 import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.utils.PathClassifier
 import de.robolab.client.utils.PreferenceStorage
@@ -11,7 +11,8 @@ import de.robolab.common.planet.PlanetVersion
 import de.robolab.common.planet.letter
 import de.westermann.kobserve.property.property
 
-class PathDetailBox(path: Path, planetFile: PlanetFile) : IDetailBox {
+class PathDetailBox(path: Path, planetFile: PlanetFile) :
+    IDetailBox {
 
     val source = "${path.source.x}, ${path.source.y}, ${path.sourceDirection.letter()}"
     val target = "${path.target.x}, ${path.target.y}, ${path.targetDirection.letter()}"
