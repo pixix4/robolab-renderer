@@ -62,8 +62,8 @@ class Canvas : View(createHtmlView<HTMLCanvasElement>()) {
         context.drawImage(tempContext.canvas, 0.0, 0.0)
 
         // Apply transformations
-        context.scale(dpi, dpi)
-        context.translate(0.5, 0.5)
+        context.setTransform(dpi, 0.0, 0.0, dpi, 0.5, 0.5);
+        context.imageSmoothingEnabled = false
 
         // Update media query listener
         lastQuery?.removeListener(this::eventListener)
