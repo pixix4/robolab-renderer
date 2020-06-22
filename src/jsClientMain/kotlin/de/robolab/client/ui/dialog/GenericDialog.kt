@@ -147,9 +147,17 @@ abstract class Dialog(title: String) {
             }
         }
 
+        var enableClose = true
+        dialogContainer.onMouseDown { event ->
+            enableClose = event.target == dialogContainer.html
+        }
         dialogContainer.onClick { event ->
             event.stopPropagation()
-            onClose.emit(Unit)
+            if (enableClose) {
+                onClose.emit(Unit)
+            } else {
+                enableClose = true
+            }
         }
 
         return dialogContainer
