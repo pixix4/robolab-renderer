@@ -7,6 +7,7 @@ import de.robolab.client.net.RESTRobolabServer
 import de.robolab.client.net.http
 import de.robolab.client.net.requests.getPlanet
 import de.robolab.client.net.requests.listPlanets
+import de.robolab.client.net.requests.putPlanet
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.planet.ID
 import de.westermann.kobserve.event.EventHandler
@@ -35,12 +36,7 @@ class RemoteFilePlanetLoader(
 
     override suspend fun saveContent(identifier: PlanetJsonInfo, lines: List<String>): PlanetJsonInfo? {
         return withContext(Dispatchers.Default) {
-            val result = http {
-                import(server)
-                appendPath("/api/planets/${identifier.id}")
-                put()
-                body(lines.joinToString("\n"))
-            }.exec()
+            val result = server.putPlanet(identifier.id, lines.joinToString("\n"))
 
             if (result.status != HttpStatusCode.Ok) null else identifier
         }

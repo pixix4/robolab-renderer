@@ -4,7 +4,9 @@ import de.robolab.client.traverser.nextHexString
 import kotlinx.serialization.*
 import kotlin.random.Random
 
-class ID(val id: String) : IPlanetValue
+class ID(val id: String) : IPlanetValue {
+    override fun toString(): String = id
+}
 
 fun randomName(): String = "Planet-${Random.nextHexString(3)}-${Random.nextHexString(5)}"
 

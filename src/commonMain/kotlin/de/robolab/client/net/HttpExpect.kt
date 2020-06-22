@@ -8,7 +8,9 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.readText
 import io.ktor.client.statement.request
 import io.ktor.client.utils.EmptyContent
+import io.ktor.http.ContentType
 import io.ktor.http.URLProtocol
+import io.ktor.http.content.TextContent
 import io.ktor.util.toMap
 import io.ktor.utils.io.charsets.Charsets
 import kotlinx.coroutines.MainScope
@@ -17,6 +19,16 @@ import io.ktor.http.HttpMethod as KtorHttpMethod
 import io.ktor.http.HttpStatusCode as KtorHttpStatusCode
 
 expect val client: HttpClient
+
+//some headers are blacklisted by the engine and require custom applicators
+private val specialHeaderApplicators: Map<String, (HttpRequestBuilder, List<String>) -> Unit> =
+    mapOf(
+        "content-type" to { builder, values ->
+            val value = values.singleOrNull() ?: return@to
+            val body = builder.body
+            builder.body = TextContent(body.toString(), ContentType.parse(value))
+        }
+    )
 
 suspend fun sendHttpRequest(
     method: HttpMethod,
@@ -57,7 +69,14 @@ private fun buildApplicators(
     headers: Map<String, List<String>>
 ): (HttpRequestBuilder.() -> Unit) = {
     query.forEach { this.url.parameters.appendMissing(it.key, listOf(it.value)) }
-    headers.forEach { this.headers.appendMissing(it.key, it.value) }
+    val (specialHeaders, normalHeaders) = headers.asIterable()
+        .partition { specialHeaderApplicators.containsKey(it.key) }
+    specialHeaders.forEach {
+        specialHeaderApplicators[it.key]!!(this, it.value)
+    }
+    normalHeaders.forEach {
+        this.headers.appendMissing(it.key, it.value)
+    }
 }
 
 fun HttpMethod.toKtorMethod(): KtorHttpMethod = when (this) {
