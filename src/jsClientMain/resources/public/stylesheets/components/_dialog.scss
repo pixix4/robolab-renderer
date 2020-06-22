@@ -109,3 +109,53 @@
     border: solid 1px var(--border-color);
   }
 }
+
+.tab-view {
+  position: relative;
+  .tab-view-header {
+    @include utils.prevent-user-select();
+
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2rem;
+    line-height: 2rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    display: flex;
+    overscroll-behavior: contain;
+    align-items: center;
+    align-content: center;
+
+    .text-view {
+      position: relative;
+      display: block;
+      padding: 0 1rem;
+      &:hover {
+        background-color: var(--secondary-hover-background);
+      }
+
+      &.active {
+        background-color: var(--primary-background);
+        &:hover {
+          background-color: var(--primary-hover-background);
+        }
+
+        &::after {
+          content: '';
+          display: block;
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 0.15rem;
+          background-color: var(--theme-color);
+        }
+      }
+    }
+  }
+  .tab-view-content {
+    padding-top: 0.5rem;
+  }
+}

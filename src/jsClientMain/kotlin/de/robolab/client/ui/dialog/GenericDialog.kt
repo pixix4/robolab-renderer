@@ -9,6 +9,7 @@ import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.clientPosition
 import de.westermann.kwebview.components.*
+import de.westermann.kwebview.extra.tabView
 import org.w3c.dom.get
 
 abstract class Dialog(title: String) {
@@ -16,10 +17,6 @@ abstract class Dialog(title: String) {
     val onClose = EventHandler<Unit>()
 
     private val titleProperty = property(title)
-
-    protected abstract fun BoxView.buildContent()
-    open fun BoxView.initHeader() {}
-
 
     protected fun BoxView.dialogFormGroup(name: String, block: BoxView.() -> Unit) {
         boxView("dialog-form-group") {
@@ -41,6 +38,25 @@ abstract class Dialog(title: String) {
         }
     }
 
+    private val tabList = mutableListOf<Pair<String, BoxView.() -> Unit>>()
+    protected fun tab(name: String = "", init: BoxView.() -> Unit) {
+        tabList += name to init
+    }
+
+    private fun BoxView.initSingleTab() {
+        val (_, init) = tabList.single()
+
+        init()
+    }
+
+    private fun BoxView.initMultiTab() {
+        tabView {
+            for ((name, init) in tabList) {
+                tab(name, init)
+            }
+        }
+    }
+
     private fun build(): View {
         val dialogContainer = BoxView()
         dialogContainer.classList += "dialog"
@@ -51,7 +67,6 @@ abstract class Dialog(title: String) {
                 textView(titleProperty)
 
                 boxView {
-                    initHeader()
                     button {
                         iconView(MaterialIcon.CLOSE)
 
@@ -114,7 +129,17 @@ abstract class Dialog(title: String) {
             }
 
             boxView("dialog-body") {
-                buildContent()
+                when {
+                    tabList.size <= 0 -> {
+                        // Nothing to do
+                    }
+                    tabList.size == 0 -> {
+                        initSingleTab()
+                    }
+                    else -> {
+                        initMultiTab()
+                    }
+                }
             }
 
             onClick { event ->

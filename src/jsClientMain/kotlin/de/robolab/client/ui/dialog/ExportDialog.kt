@@ -13,29 +13,31 @@ class ExportDialog(private val provider: FilePlanetEntry) : Dialog("Export") {
 
     private val fileNameProperty = property(provider.planetFile.planet.name.trim())
 
-    override fun BoxView.buildContent() {
-        dialogFormEntry("File name") {
-            inputView(fileNameProperty)
-        }
-
-        dialogFormEntry("Export scale") {
-            inputView(InputType.NUMBER, PreferenceStorage.exportScaleProperty.bindStringParsing()) {
-                min = 0.1
-                max = 100.0
-                step = 0.1
+    init {
+        tab {
+            dialogFormEntry("File name") {
+                inputView(fileNameProperty)
             }
-        }
 
-        dialogFormEntry("Export as") {
-            buttonGroup {
-                button("SVG") {
-                    onClick {
-                        provider.exportAsSVG(fileNameProperty.value)
-                    }
+            dialogFormEntry("Export scale") {
+                inputView(InputType.NUMBER, PreferenceStorage.exportScaleProperty.bindStringParsing()) {
+                    min = 0.1
+                    max = 100.0
+                    step = 0.1
                 }
-                button("PNG") {
-                    onClick {
-                        provider.exportAsPNG(fileNameProperty.value)
+            }
+
+            dialogFormEntry("Export as") {
+                buttonGroup {
+                    button("SVG") {
+                        onClick {
+                            provider.exportAsSVG(fileNameProperty.value)
+                        }
+                    }
+                    button("PNG") {
+                        onClick {
+                            provider.exportAsPNG(fileNameProperty.value)
+                        }
                     }
                 }
             }

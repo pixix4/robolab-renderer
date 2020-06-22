@@ -82,7 +82,7 @@ class RemoteFilePlanetLoader(
         override val usage: String = "$protocol://[username:password@]example.org"
 
         override fun create(uri: String): IFilePlanetLoader<*>? {
-            val (host, auth) = parse(uri).also { println(it) }
+            val (host, auth) = parse(uri)
             val restRobolabServer = RESTRobolabServer(host, 0, true)
             if (auth != null) {
                 restRobolabServer.credentials = auth

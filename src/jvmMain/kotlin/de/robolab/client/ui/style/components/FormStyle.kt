@@ -32,6 +32,8 @@ fun Stylesheet.initFormStyle() {
             borderRadius = multi(box(MainStyle.BORDER_RADIUS))
             backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
             padding = box(0.3.em, 0.7.em)
+            borderWidth = multi(box(0.px))
+            borderStyle = multi(BorderStrokeStyle.NONE)
         }
 
         and(Stylesheet.focused) {
@@ -64,6 +66,8 @@ fun Stylesheet.initFormStyle() {
 
             borderRadius = multi(box(0.px))
             backgroundRadius = multi(box(0.px))
+            borderWidth = multi(box(0.px))
+            borderStyle = multi(BorderStrokeStyle.NONE)
 
             and(Stylesheet.selected) {
                 backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
