@@ -2,9 +2,9 @@ package de.robolab.client.app.model.file.provider
 
 import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.base.MaterialIcon
+import de.robolab.client.net.ICredentialProvider
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.RESTRobolabServer
-import de.robolab.client.net.http
 import de.robolab.client.net.requests.getPlanet
 import de.robolab.client.net.requests.listPlanets
 import de.robolab.client.net.requests.putPlanet
@@ -30,7 +30,7 @@ class RemoteFilePlanetLoader(
         return withContext(Dispatchers.Default) {
             val result = server.getPlanet(identifier.id)
             if (result.status != HttpStatusCode.Ok) null else
-            PlanetJsonInfo(identifier.id, identifier.name, result.lastModified) to result.lines
+                PlanetJsonInfo(identifier.id, identifier.name, result.lastModified) to result.lines
         }
     }
 
@@ -54,27 +54,53 @@ class RemoteFilePlanetLoader(
         }
     }
 
-    object HttpFactory: IFilePlanetLoaderFactory {
+    private data class Auth(
+        override val username: String,
+        override val password: String
+    ) : ICredentialProvider
+
+    object HttpFactory : IFilePlanetLoaderFactory {
 
         override val protocol = "http"
 
-        override val usage: String = "$protocol://example.org"
+        override val usage: String = "$protocol://[username:password@]example.org"
 
         override fun create(uri: String): IFilePlanetLoader<*>? {
-            val host = uri.substringAfter("$protocol://")
-            return RemoteFilePlanetLoader(RESTRobolabServer(host, 0, false))
+            val (host, auth) = HttpsFactory.parse(uri)
+            val restRobolabServer = RESTRobolabServer(host, 0, false)
+            if (auth != null) {
+                restRobolabServer.credentials = auth
+            }
+            return RemoteFilePlanetLoader(restRobolabServer)
         }
     }
 
-    object HttpsFactory: IFilePlanetLoaderFactory {
+    object HttpsFactory : IFilePlanetLoaderFactory {
 
         override val protocol = "https"
 
-        override val usage: String = "$protocol://example.org"
+        override val usage: String = "$protocol://[username:password@]example.org"
 
         override fun create(uri: String): IFilePlanetLoader<*>? {
-            val host = uri.substringAfter("$protocol://")
-            return RemoteFilePlanetLoader(RESTRobolabServer(host, 0, true))
+            val (host, auth) = parse(uri).also { println(it) }
+            val restRobolabServer = RESTRobolabServer(host, 0, true)
+            if (auth != null) {
+                restRobolabServer.credentials = auth
+            }
+            return RemoteFilePlanetLoader(restRobolabServer)
+        }
+
+        fun parse(uri: String): Pair<String, ICredentialProvider?> {
+            val uriContent = uri.substringAfter("://")
+            return if ("@" in uriContent) {
+                val (auth, host) = uriContent.split('@', limit = 2)
+                val authSplit = auth.split(':', limit = 2)
+                val username = authSplit.getOrNull(0) ?: ""
+                val password = authSplit.getOrNull(1) ?: ""
+                host to Auth(username, password)
+            } else {
+                uriContent to null
+            }
         }
     }
 
