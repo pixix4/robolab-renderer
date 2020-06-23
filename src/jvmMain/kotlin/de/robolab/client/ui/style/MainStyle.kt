@@ -92,9 +92,10 @@ class MainStyle : Stylesheet() {
         }
 
         dialog {
-            borderStyle = multi(BorderStrokeStyle.SOLID)
-            borderWidth = multi(box(1.px))
-            borderColor = multi(box(theme.ui.borderColor.toFx()))
+            // Border should be provided by the os
+            //borderStyle = multi(BorderStrokeStyle.SOLID)
+            //borderWidth = multi(box(1.px))
+            //borderColor = multi(box(theme.ui.borderColor.toFx()))
 
             maxHeight = 32.em
         }

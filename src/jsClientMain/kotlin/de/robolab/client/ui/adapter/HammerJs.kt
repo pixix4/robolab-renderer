@@ -3,6 +3,7 @@ package de.robolab.client.ui.adapter
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.Event
 
+@JsModule("hammerjs")
 external class Hammer(element: HTMLElement, options: dynamic) {
     fun on(name: String, callback: (HammerEvent) -> Unit)
     fun get(name: String): HammerOptions

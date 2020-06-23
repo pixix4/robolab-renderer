@@ -43,6 +43,7 @@ fun Hammer.enableTap() {
 fun Hammer.enableRotate() {
     get("rotate").set(object {
         val enable = true
+        val threshold = 5
     })
 }
 

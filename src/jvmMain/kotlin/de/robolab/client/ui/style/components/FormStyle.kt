@@ -267,6 +267,10 @@ fun Stylesheet.initFormStyle() {
         focusColor = Color.TRANSPARENT
         faintFocusColor = Color.TRANSPARENT
 
+        Stylesheet.tabLabel {
+            textFill = MainStyle.theme.ui.primaryTextColor.toFx()
+        }
+
         and(Stylesheet.hover, Stylesheet.focused) {
             backgroundColor = multi(MainStyle.theme.ui.secondaryHoverBackground.toFx())
             borderColor = multi(box(MainStyle.theme.ui.secondaryHoverBackground.toFx()))

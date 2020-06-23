@@ -169,7 +169,7 @@ gitProperties {
     dateFormat = "yyyy-MM-dd HH:mm:ss z"
     dateFormatTimeZone = "UTC"
 }
-tasks.named("generateGitProperties") {
+val generateGitProperties = tasks.named<com.gorylenko.GenerateGitPropertiesTask>("generateGitProperties") {
     outputs.upToDateWhen { false }
 }
 
