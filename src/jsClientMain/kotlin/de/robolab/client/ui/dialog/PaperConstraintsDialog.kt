@@ -1,12 +1,11 @@
 package de.robolab.client.ui.dialog
 
 import de.robolab.client.utils.PreferenceStorage
-import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.InputType
 import de.westermann.kwebview.components.inputView
 import de.westermann.kwebview.components.selectView
 
-class PaperConstraintsDialog : Dialog("Paper constraints") {
+class PaperConstraintsDialog private constructor() : Dialog("Paper constraints") {
 
     init {
         tab {
@@ -41,6 +40,12 @@ class PaperConstraintsDialog : Dialog("Paper constraints") {
                     step = 1.0
                 }
             }
+        }
+    }
+
+    companion object {
+        fun open() {
+            open(PaperConstraintsDialog())
         }
     }
 }

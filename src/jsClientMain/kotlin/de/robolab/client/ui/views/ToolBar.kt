@@ -153,7 +153,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                     title = "Open settings"
 
                     onClick {
-                        Dialog.open(SettingsDialog())
+                        SettingsDialog.open()
                     }
                 }
             }

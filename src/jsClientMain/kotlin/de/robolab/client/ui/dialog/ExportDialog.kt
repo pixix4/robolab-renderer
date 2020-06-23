@@ -9,7 +9,7 @@ import de.westermann.kwebview.components.InputType
 import de.westermann.kwebview.components.button
 import de.westermann.kwebview.components.inputView
 
-class ExportDialog(private val provider: FilePlanetEntry) : Dialog("Export") {
+class ExportDialog private constructor(private val provider: FilePlanetEntry) : Dialog("Export") {
 
     private val fileNameProperty = property(provider.planetFile.planet.name.trim())
 
@@ -41,6 +41,12 @@ class ExportDialog(private val provider: FilePlanetEntry) : Dialog("Export") {
                     }
                 }
             }
+        }
+    }
+
+    companion object {
+        fun open(provider: FilePlanetEntry) {
+            open(ExportDialog(provider))
         }
     }
 }

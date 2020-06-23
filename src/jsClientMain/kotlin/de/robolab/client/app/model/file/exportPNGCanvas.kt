@@ -31,13 +31,13 @@ actual fun saveExportPNG(name: String, canvas: ICanvas) {
 }
 
 actual fun openExportDialog(provider: FilePlanetEntry) {
-    Dialog.open(ExportDialog(provider))
+    ExportDialog.open(provider)
 }
 
 actual fun openPaperConstraintsDialog() {
-    Dialog.open(PaperConstraintsDialog())
+    PaperConstraintsDialog.open()
 }
 
 actual fun openPlanetTransformDialog(planetFile: PlanetFile) {
-    Dialog.open(PlanetTransformDialog(planetFile))
+    PlanetTransformDialog.open(planetFile)
 }

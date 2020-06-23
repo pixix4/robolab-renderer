@@ -9,7 +9,7 @@ import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.components.*
 
-class SettingsDialog : Dialog("Settings") {
+class SettingsDialog private constructor(): Dialog("Settings") {
 
     init {
         tab("General") {
@@ -125,6 +125,12 @@ class SettingsDialog : Dialog("Settings") {
                     }
                 }
             }
+        }
+    }
+
+    companion object {
+        fun open() {
+            open(SettingsDialog())
         }
     }
 }

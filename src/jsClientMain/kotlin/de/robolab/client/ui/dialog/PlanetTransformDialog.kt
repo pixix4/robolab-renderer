@@ -9,7 +9,7 @@ import de.westermann.kwebview.components.InputType
 import de.westermann.kwebview.components.button
 import de.westermann.kwebview.components.inputView
 
-class PlanetTransformDialog(private val planetFile: PlanetFile) : Dialog("Export") {
+class PlanetTransformDialog private constructor(private val planetFile: PlanetFile) : Dialog("Export") {
 
     private val planetTranslateX = property(0)
     private val planetTranslateY = property(0)
@@ -104,6 +104,12 @@ class PlanetTransformDialog(private val planetFile: PlanetFile) : Dialog("Export
                     }
                 }
             }
+        }
+    }
+
+    companion object {
+        fun open(planetFile: PlanetFile) {
+            open(PlanetTransformDialog(planetFile))
         }
     }
 }
