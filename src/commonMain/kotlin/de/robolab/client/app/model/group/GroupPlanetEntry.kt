@@ -163,7 +163,11 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
     override val document = drawable.view
 
 
-    private val planetNameProperty = property("")
+    val completePlanetNameProperty = messages.mapBinding {
+        val message = messages.find { it is RobolabMessage.PlanetMessage } as? RobolabMessage.PlanetMessage
+        message?.planetName ?: ""
+    }
+    val planetNameProperty = property("")
     private val backgroundPlanet = planetNameProperty.nullableFlatMapBinding {
         val entry = parent.filePlanetProvider.findByName(it)
         GlobalScope.launch(Dispatchers.Main) {

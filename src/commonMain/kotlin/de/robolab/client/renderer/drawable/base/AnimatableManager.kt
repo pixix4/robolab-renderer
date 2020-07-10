@@ -3,7 +3,7 @@ package de.robolab.client.renderer.drawable.base
 import de.robolab.client.renderer.view.component.GroupView
 import de.robolab.common.planet.Planet
 
-abstract class AnimatableManager<T : Any, A : Animatable<T>> {
+abstract class AnimatableManager<T, A : Animatable<T>> {
 
     private val animatableList = mutableListOf<A>()
 
