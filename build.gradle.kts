@@ -30,6 +30,7 @@ kotlin {
     }
     js("jsClient") {
         browser {
+            @Suppress("EXPERIMENTAL_API_USAGE")
             dceTask {
                 keep(
                     "ktor-ktor-io.\$\$importsForInline\$\$.ktor-ktor-io.io.ktor.utils.io"
@@ -182,7 +183,7 @@ val createBuildInfo = tasks.create("createBuildInfo") {
         format.timeZone = TimeZone.getTimeZone("UTC")
         val buildTime = format.format(Date())
 
-        val git = project.ext["gitProps"] as Map<String, String>
+        @Suppress("UNCHECKED_CAST") val git = project.ext["gitProps"] as Map<String, String>
 
         val version = File("$projectDir/version.ini").readText()
         file.writeText(

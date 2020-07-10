@@ -1,13 +1,18 @@
 package de.robolab.client.ui.dialog
 
+import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.robolab.client.app.model.file.MultiFilePlanetProvider
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.ui.adapter.toFx
+import de.robolab.client.ui.utils.buttonGroup
+import de.robolab.client.ui.utils.iconNoAdd
+import de.robolab.client.ui.utils.setIcon
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.BuildInformation
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.event.now
 import javafx.scene.control.TextField
+import javafx.scene.layout.Priority
 import javafx.util.StringConverter
 import tornadofx.*
 
@@ -73,25 +78,61 @@ class SettingsDialog : GenericDialog() {
                         textfield(PreferenceStorage.logUriProperty.toFx())
                     }
                 }
-                fieldset("Files") {
+                fieldset("File sources") {
                     tooltip(MultiFilePlanetProvider.loaderFactoryList.joinToString("\n") { it.usage })
-                    vbox {
-                        PreferenceStorage.fileServerProperty.onChange.now {
-                            clear()
-                            val textFields = mutableListOf<TextField>()
-                            for (connection in PreferenceStorage.fileServer) {
-                                field(forceLabelIndent = true) {
-                                    textFields += textfield(connection)
+
+                    val fieldList = mutableListOf<Field>()
+
+                    PreferenceStorage.fileServerProperty.onChange.now {
+                        for (field in fieldList) {
+                            field.removeFromParent()
+                        }
+                        fieldList.clear()
+
+                        val textFields = mutableListOf<TextField>()
+
+                        fun save() {
+                            PreferenceStorage.fileServer =
+                                textFields.map { it.text.trim() }.filter { it.isNotEmpty() }
+                        }
+
+                        for (connection in PreferenceStorage.fileServer) {
+                            fieldList += field(forceLabelIndent = true) {
+                                buttonGroup {
+                                    hgrow = Priority.ALWAYS
+                                    val t = textfield(connection) {
+                                        hgrow = Priority.ALWAYS
+                                    }
+                                    textFields += t
+                                    button {
+                                        setIcon(MaterialIcon.DONE)
+                                        tooltip("Save source")
+                                        setOnAction {
+                                            save()
+                                        }
+                                    }
+                                    button {
+                                        setIcon(MaterialIcon.DELETE)
+                                        tooltip("Delete source")
+                                        setOnAction {
+                                            t.text = ""
+                                            save()
+                                        }
+                                    }
                                 }
                             }
-                            field(forceLabelIndent = true) {
-                                textFields += textfield("")
-                            }
-                            field(forceLabelIndent = true) {
-                                button("Apply file server connections") {
+                        }
+                        fieldList += field(forceLabelIndent = true) {
+                            buttonGroup {
+                                hgrow = Priority.ALWAYS
+                                textFields += textfield("") {
+                                    hgrow = Priority.ALWAYS
+                                }
+                                button {
+                                    setIcon(MaterialIcon.DONE)
+                                    tooltip("Create source")
                                     setOnAction {
-                                        PreferenceStorage.fileServer =
-                                            textFields.map { it.text.trim() }.filter { it.isNotEmpty() }
+                                        save()
                                     }
                                 }
                             }

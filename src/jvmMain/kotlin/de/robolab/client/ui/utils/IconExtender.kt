@@ -5,6 +5,7 @@ import de.jensd.fx.glyphs.materialicons.MaterialIconView
 import de.robolab.client.ui.style.MainStyle
 import javafx.beans.value.ObservableValue
 import javafx.scene.Parent
+import javafx.scene.control.Labeled
 import javafx.scene.paint.Color
 import tornadofx.addClass
 import tornadofx.css
@@ -19,6 +20,12 @@ fun iconNoAdd(icon: MaterialIcon, size: String = "1em", op: MaterialIconView.() 
     MaterialIconView(icon, size).also(op).also {
         it.addClass(MainStyle.iconView)
     }
+
+fun Labeled.setIcon(icon: MaterialIcon, size: String = "1em") {
+    graphic = MaterialIconView(icon, size).also {
+        it.addClass(MainStyle.iconView)
+    }
+}
 
 fun iconNoAdd(icon: ObservableValue<MaterialIcon>, size: String = "1em", op: MaterialIconView.() -> Unit = {}): MaterialIconView {
     val view = MaterialIconView(icon.value, size).also(op)

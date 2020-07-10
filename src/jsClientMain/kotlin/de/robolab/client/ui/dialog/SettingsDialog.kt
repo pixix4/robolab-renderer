@@ -74,19 +74,39 @@ class SettingsDialog private constructor(): Dialog("Settings") {
                     PreferenceStorage.fileServerProperty.onChange.now {
                         clear()
                         val textFields = mutableListOf<InputView>()
+
+                        fun save() {
+                            PreferenceStorage.fileServer =
+                                textFields.map { it.value.trim() }.filter { it.isNotEmpty() }
+                        }
+
                         for (connection in PreferenceStorage.fileServer) {
                             dialogFormEntry("") {
-                                textFields += inputView(connection)
+                                classList += "button-group"
+                                val t = inputView(connection)
+                                textFields += t
+                                button {
+                                    iconView(MaterialIcon.DONE)
+                                    onClick {
+                                        save()
+                                    }
+                                }
+                                button {
+                                    iconView(MaterialIcon.DELETE)
+                                    onClick {
+                                        t.value = ""
+                                        save()
+                                    }
+                                }
                             }
                         }
                         dialogFormEntry("") {
+                            classList += "button-group"
                             textFields += inputView("")
-                        }
-                        dialogFormEntry("") {
-                            button("Apply file server connections") {
+                            button {
+                                iconView(MaterialIcon.DONE)
                                 onClick {
-                                    PreferenceStorage.fileServer =
-                                        textFields.map { it.value.trim() }.filter { it.isNotEmpty() }
+                                    save()
                                 }
                             }
                         }
