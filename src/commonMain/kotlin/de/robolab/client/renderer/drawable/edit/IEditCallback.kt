@@ -91,6 +91,10 @@ interface IEditCallback {
         logger.warn { "Plotter action 'scaleWeights($factor, $offset, $groupHistory)' is not supported!" }
     }
 
+    fun setName(name: String, groupHistory: Boolean = false) {
+        logger.warn { "Plotter action 'setName($name, $groupHistory)' is not supported!" }
+    }
+
 
     fun undo() {
         logger.warn { "Plotter action 'undo()' is not supported!" }

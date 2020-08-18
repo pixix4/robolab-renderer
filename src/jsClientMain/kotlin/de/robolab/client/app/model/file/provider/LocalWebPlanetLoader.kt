@@ -34,7 +34,16 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
     }
 
     override suspend fun saveContent(identifier: FileIdentifier, lines: List<String>): FileIdentifier? {
+        println("Currently not supported!")
         return null
+    }
+
+    override suspend fun createWithContent(lines: List<String>) {
+        println("Currently not supported!")
+    }
+
+    override suspend fun deleteIdentifier(identifier: FileIdentifier) {
+        println("Currently not supported!")
     }
 
     override suspend fun loadIdentifierList(): List<FileIdentifier> {
