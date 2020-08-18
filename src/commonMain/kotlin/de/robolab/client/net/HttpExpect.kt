@@ -41,7 +41,7 @@ suspend fun sendHttpRequest(
     headers: Map<String, List<String>>
 ): ServerResponse {
     val builtApplicators = buildApplicators(query, headers)
-    val response: HttpResponse = when (method) {
+    @Suppress("REDUNDANT_ELSE_IN_WHEN") val response: HttpResponse = when (method) {
         HttpMethod.GET -> client.get(scheme, host, port, path, body ?: EmptyContent, builtApplicators)
         HttpMethod.PUT -> client.put(scheme, host, port, path, body ?: EmptyContent, builtApplicators)
         HttpMethod.POST -> client.post(scheme, host, port, path, body ?: EmptyContent, builtApplicators)
@@ -79,6 +79,7 @@ private fun buildApplicators(
     }
 }
 
+@Suppress("REDUNDANT_ELSE_IN_WHEN")
 fun HttpMethod.toKtorMethod(): KtorHttpMethod = when (this) {
     HttpMethod.GET -> KtorHttpMethod.Get
     HttpMethod.DELETE -> KtorHttpMethod.Delete

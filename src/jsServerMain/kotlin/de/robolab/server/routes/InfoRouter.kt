@@ -3,10 +3,9 @@ package de.robolab.server.routes
 import de.robolab.server.config.Config
 import de.robolab.server.externaljs.express.DefaultRouter
 import de.robolab.server.externaljs.express.createRouter
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonObjectBuilder
-import kotlin.js.json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 @Suppress("ConstantConditionIf")
 object InfoRouter {
@@ -14,16 +13,16 @@ object InfoRouter {
 
     init {
         router.get("/exam") { _, res ->
-            val result: JsonObject = kotlinx.serialization.json.json {
-                "isExam" to Config.Info.examEnabled
+            val result: JsonObject = buildJsonObject {
+                put("isExam", Config.Info.examEnabled)
                 if (Config.Info.examEnabled) {
-                    "smallPlanetID" to Config.Info.examPlanetSmallID
-                    "smallPlanetName" to Config.Info.examPlanetSmallName
-                    "largePlanetID" to Config.Info.examPlanetLargeID
-                    "largePlanetName" to Config.Info.examPlanetLargeName
+                    put("smallPlanetID", Config.Info.examPlanetSmallID)
+                    put("smallPlanetName", Config.Info.examPlanetSmallName)
+                    put("largePlanetID", Config.Info.examPlanetLargeID)
+                    put("largePlanetName", Config.Info.examPlanetLargeName)
                 }
             }
-            res.setHeader("content-type","application/json")
+            res.setHeader("content-type", "application/json")
             res.status(200).send(result.toString())
         }
     }

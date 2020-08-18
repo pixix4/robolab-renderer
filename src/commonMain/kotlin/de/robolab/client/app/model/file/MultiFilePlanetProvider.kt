@@ -36,7 +36,7 @@ fun MultiFilePlanetProvider.findByName(name: String): FilePlanetEntry? {
     for (provider in entryList.value) {
         val found = provider.sortedEntries.filter {
             it.titleProperty.value.contains(name, true)
-        }.minBy { it.titleProperty.value.length }
+        }.minByOrNull { it.titleProperty.value.length }
 
         if (found != null) {
             return found

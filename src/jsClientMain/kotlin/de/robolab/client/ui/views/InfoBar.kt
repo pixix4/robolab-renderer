@@ -17,7 +17,7 @@ import de.westermann.kwebview.clientPosition
 import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.boxView
 import de.westermann.kwebview.components.button
-import kotlin.browser.document
+import kotlinx.browser.document
 import kotlin.math.max
 import kotlin.math.min
 

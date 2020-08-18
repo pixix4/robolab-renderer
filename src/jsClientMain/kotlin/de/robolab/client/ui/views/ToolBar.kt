@@ -13,7 +13,7 @@ import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
-import kotlin.browser.window
+import kotlinx.browser.window
 
 class ToolBar(private val toolBarController: ToolBarController) : ViewCollection<View>() {
 

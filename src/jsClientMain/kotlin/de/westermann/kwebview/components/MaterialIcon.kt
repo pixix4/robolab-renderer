@@ -1,7 +1,7 @@
 package de.westermann.kwebview.components
 
 import org.w3c.dom.Element
-import kotlin.browser.document
+import kotlinx.browser.document
 
 /**
  * List of material design icons.

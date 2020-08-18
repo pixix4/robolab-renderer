@@ -125,4 +125,4 @@ class FileSystemPlanetLoader(
 }
 
 val File.lastModified: DateTime
-    get() = DateTime.fromUnix(lastModified())
+    get() = DateTime(lastModified().toDouble())

@@ -12,8 +12,8 @@ import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
-import kotlin.browser.document
-import kotlin.browser.window
+import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlin.math.min
 
 class ContextMenuView(

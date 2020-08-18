@@ -11,8 +11,8 @@ import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.MediaQueryList
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
-import kotlin.browser.document
-import kotlin.browser.window
+import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlin.math.ceil
 
 /**

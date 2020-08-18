@@ -9,7 +9,7 @@ import de.westermann.kobserve.property.property
 import org.w3c.dom.DOMRect
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.*
-import kotlin.browser.document
+import kotlinx.browser.document
 
 inline fun <reified V : HTMLElement> createHtmlView(tag: String? = null): V {
     var tagName: String

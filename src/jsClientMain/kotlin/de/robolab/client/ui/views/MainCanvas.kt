@@ -7,8 +7,8 @@ import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.Canvas
-import kotlin.browser.document
-import kotlin.browser.window
+import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlin.math.max
 
 class MainCanvas(

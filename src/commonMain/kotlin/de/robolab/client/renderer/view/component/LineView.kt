@@ -125,7 +125,7 @@ class LineView(
             normLinePoint
         }
 
-        return mappedPoints.minBy { it distanceTo point } ?: point
+        return mappedPoints.minByOrNull { it distanceTo point } ?: point
     }
 
     override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {

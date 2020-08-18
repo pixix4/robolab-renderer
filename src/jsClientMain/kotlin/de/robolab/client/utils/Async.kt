@@ -1,6 +1,6 @@
 package de.robolab.client.utils
 
-import kotlin.browser.window
+import kotlinx.browser.window
 
 actual class TimeoutReference(private val handler: Int, private val type: Type) {
     actual fun cancel() {

@@ -2,7 +2,7 @@ package de.robolab.common.utils
 
 import org.w3c.dom.get
 import org.w3c.dom.set
-import kotlin.browser.window
+import kotlinx.browser.window
 
 actual class KeyValueStorage {
     actual operator fun get(key: String): String? {

@@ -10,7 +10,7 @@ import de.westermann.kwebview.components.Canvas
 import org.w3c.dom.*
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
-import kotlin.browser.window
+import kotlinx.browser.window
 import kotlin.math.PI
 
 class WebCanvas(val canvas: Canvas) : ICanvas {

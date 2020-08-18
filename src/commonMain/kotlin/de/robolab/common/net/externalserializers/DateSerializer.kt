@@ -4,13 +4,17 @@ import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.parseUtc
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 
-@Serializer(forClass = DateTime::class)
 object DateSerializer : KSerializer<DateTime> {
     val format = DateFormat.FORMAT1
 
-    override val descriptor: SerialDescriptor = PrimitiveDescriptor("DateTimeSerializer", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DateTimeSerializer", PrimitiveKind.STRING)
     override fun serialize(encoder: Encoder, value: DateTime) {
         encoder.encodeString(format.format(value.utc))
     }

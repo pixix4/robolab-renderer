@@ -3,7 +3,7 @@ package de.westermann.kwebview
 import de.robolab.client.utils.runAfterTimeout
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
-import kotlin.browser.window
+import kotlinx.browser.window
 
 @Suppress("ClassName")
 object i18n {

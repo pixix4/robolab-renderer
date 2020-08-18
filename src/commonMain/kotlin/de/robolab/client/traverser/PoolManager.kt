@@ -7,9 +7,15 @@ import de.westermann.kobserve.list.observableListOf
 
 interface PoolManager<T> : ObservableList<T> {
     fun add(element: T)
-    fun add(elements: Collection<T>) = elements.forEach(this::add)
-    fun add(vararg elements: T) = elements.forEach(this::add)
-    fun add(elements: Sequence<T>) = elements.forEach(this::add)
+    fun add(elements: Collection<T>) = elements.forEach {
+        add(it)
+    }
+    fun add(vararg elements: T) = elements.forEach {
+        add(it)
+    }
+    fun add(elements: Sequence<T>)= elements.forEach {
+        add(it)
+    }
 
     fun tryRemove(): T?
 
@@ -55,8 +61,8 @@ interface PoolManager<T> : ObservableList<T> {
 
     class FIFO<T>(vararg elements: T) : PoolManagerBase<T>(*elements) {
 
-        override fun tryRemove(): T? = synchronized(pool) {
-            if (pool.isEmpty())
+        override fun tryRemove(): T?  {
+            return if (pool.isEmpty())
                 null
             else
                 pool.removeAt(0)
@@ -66,8 +72,8 @@ interface PoolManager<T> : ObservableList<T> {
 
     class LIFO<T>(vararg elements: T) : PoolManagerBase<T>(*elements) {
 
-        override fun tryRemove(): T? = synchronized(pool) {
-            if (pool.isEmpty())
+        override fun tryRemove(): T?  {
+            return if (pool.isEmpty())
                 null
             else
                 pool.removeAt(pool.lastIndex)

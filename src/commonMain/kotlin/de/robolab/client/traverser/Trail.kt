@@ -3,7 +3,8 @@ package de.robolab.client.traverser
 import de.robolab.common.planet.*
 import kotlin.random.Random
 
-fun Random.nextHexString(length: Int = 8): String = String(CharArray(length) { this.nextBits(4).toString(16).first() })
+fun Random.nextHexString(length: Int = 8): String =
+    CharArray(length) { this.nextBits(4).toString(16).first() }.concatToString()
 
 fun ITraverserState<*>.createExploredPlanet(
     original: Planet? = null,

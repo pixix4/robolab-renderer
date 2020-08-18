@@ -15,6 +15,7 @@ import de.robolab.server.model.toIDString
 import de.robolab.server.data.json
 import de.robolab.server.externaljs.express.status
 import de.robolab.server.model.ServerPlanet
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.list
 
 var ServerResponse.httpStatusCode: HttpStatusCode?
@@ -26,13 +27,13 @@ var ServerResponse.httpStatusCode: HttpStatusCode?
 fun ServerResponse.setHeader(header: IHeader) = setHeader(header.name, header.value)
 
 fun Response<*>.sendClientInfo(info: ClientPlanetInfo) = format("json" to {
-    send(json.stringify(ClientPlanetInfo.serializer(), info))
+    send(json.encodeToString(ClientPlanetInfo.serializer(), info))
 }, "text" to {
     send(info.toPlaintextString())
 })
 
 fun Response<*>.sendClientInfos(infos: List<ClientPlanetInfo>) = format("json" to {
-    send(json.stringify(ClientPlanetInfo.serializer().list, infos))
+    send(json.encodeToString(ListSerializer(ClientPlanetInfo.serializer()), infos))
 }, "text" to {
     send(infos.joinToString("\n", transform = ClientPlanetInfo::toPlaintextString))
 })

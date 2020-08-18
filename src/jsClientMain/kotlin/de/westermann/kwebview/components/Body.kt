@@ -5,8 +5,8 @@ import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.i18n
 import org.w3c.dom.HTMLBodyElement
-import kotlin.browser.document
-import kotlin.browser.window
+import kotlinx.browser.document
+import kotlinx.browser.window
 
 object Body : ViewCollection<View>(document.body
         ?: throw NullPointerException("Access to body before body was loaded")) {

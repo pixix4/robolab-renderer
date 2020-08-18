@@ -131,7 +131,7 @@ class TraverserEntryView(private val entry: ITraverserStateEntry) : ViewCollecti
         }
 
         bulletList {
-            listFactory(entry.visibleDetails.mapBinding { it.toMutableList().asObservable() as ObservableList<String> }, factory = { str: String ->
+            listFactory(entry.visibleDetails.mapBinding { it.toMutableList().asObservable() }, factory = { str: String ->
                 ListItem(str)
             })
         }
