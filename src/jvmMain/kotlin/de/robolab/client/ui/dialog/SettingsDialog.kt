@@ -5,7 +5,6 @@ import de.robolab.client.app.model.file.MultiFilePlanetProvider
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.utils.buttonGroup
-import de.robolab.client.ui.utils.iconNoAdd
 import de.robolab.client.ui.utils.setIcon
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.BuildInformation
@@ -129,7 +128,7 @@ class SettingsDialog : GenericDialog() {
                                     hgrow = Priority.ALWAYS
                                 }
                                 button {
-                                    setIcon(MaterialIcon.DONE)
+                                    setIcon(MaterialIcon.ADD)
                                     tooltip("Create source")
                                     setOnAction {
                                         save()

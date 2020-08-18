@@ -1,11 +1,11 @@
 package de.robolab.client.ui.dialog
 
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
+import de.robolab.client.app.controller.MainController
 import de.robolab.client.ui.style.MainStyle
 import de.robolab.client.ui.utils.iconNoAdd
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.TabPane
-import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.text.FontWeight
 import javafx.stage.Modality
@@ -66,12 +66,12 @@ abstract class GenericDialog : View() {
         return buildContent(name)
     }
 
-
     protected fun buildContent(name: String): VBox {
         val dialog = VBox()
         dialog.addClass(MainStyle.dialog)
         dialog.maxWidth = 640.0
 
+        title = "${MainController.APPLICATION_NAME} - $name"
         dialog.hbox {
             addClass(MainStyle.toolBar)
 

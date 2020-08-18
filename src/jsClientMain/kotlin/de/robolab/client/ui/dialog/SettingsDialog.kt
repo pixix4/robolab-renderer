@@ -104,7 +104,7 @@ class SettingsDialog private constructor(): Dialog("Settings") {
                             classList += "button-group"
                             textFields += inputView("")
                             button {
-                                iconView(MaterialIcon.DONE)
+                                iconView(MaterialIcon.ADD)
                                 onClick {
                                     save()
                                 }
