@@ -135,21 +135,26 @@ class CreatePathManager(
 
 
                 if (hoveredCoordinate != null && hoveredDirection != null && callback != null) {
-                    if (drawMode) {
-                        val endPoint = hoveredCoordinate.toPoint() + hoveredDirection.toVector(PlottingConstraints.POINT_SIZE)
+                    if (drawMode && controlPoints.isEmpty()) {
+                        callback.togglePathSelect(startCoordinate, startDirection)
+                    } else {
+                        if (drawMode) {
+                            val endPoint =
+                                hoveredCoordinate.toPoint() + hoveredDirection.toVector(PlottingConstraints.POINT_SIZE)
 
-                        if (controlPoints.last() distanceTo endPoint < 0.25) {
-                            controlPoints.removeAt(controlPoints.lastIndex)
+                            if (controlPoints.last() distanceTo endPoint < 0.25) {
+                                controlPoints.removeAt(controlPoints.lastIndex)
+                            }
                         }
-                    }
 
-                    callback.createPath(
+                        callback.createPath(
                             startCoordinate,
                             startDirection,
                             hoveredCoordinate,
                             hoveredDirection,
                             if (drawMode) controlPoints else emptyList()
-                    )
+                        )
+                    }
                 }
 
                 delete()
