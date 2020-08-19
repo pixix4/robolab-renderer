@@ -7,6 +7,10 @@ import de.robolab.common.planet.Planet
 
 class SenderAnimatableManager : AnimatableManager<Coordinate, SenderAnimatable>() {
 
+    override fun forceUpdate(oldPlanet: Planet, newPlanet: Planet): Boolean {
+        return true
+    }
+
     override fun getObjectList(planet: Planet): List<Coordinate> {
         return Utils.getSenderGrouping(planet).keys.flatten().distinct()
     }
