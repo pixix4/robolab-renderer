@@ -133,7 +133,7 @@ abstract class Dialog(title: String) {
                     tabList.size <= 0 -> {
                         // Nothing to do
                     }
-                    tabList.size == 0 -> {
+                    tabList.size == 1 -> {
                         initSingleTab()
                     }
                     else -> {

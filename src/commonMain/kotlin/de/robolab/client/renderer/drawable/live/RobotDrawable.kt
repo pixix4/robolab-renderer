@@ -1,6 +1,7 @@
 package de.robolab.client.renderer.drawable.live
 
 import de.robolab.client.renderer.PlottingConstraints
+import de.robolab.client.renderer.drawable.base.Animatable
 import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.renderer.drawable.utils.BSpline
 import de.robolab.client.renderer.drawable.utils.shift
@@ -14,9 +15,11 @@ import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min
 
-class RobotDrawable {
+class RobotDrawable(
+    reference: Robot? = null
+) : Animatable<RobotDrawable.Robot?>(reference) {
 
-    val view = RobotView(
+    override val view = RobotView(
         DrawRobot(Point.ZERO, 0.0, null),
         null,
         ViewColor.TRANSPARENT
@@ -184,6 +187,12 @@ class RobotDrawable {
             if (robot.beforePoint) robot.direction.opposite().toAngle() else robot.direction.toAngle(),
             robot
         )
+    }
+
+    override fun onUpdate(obj: Robot?, planet: Planet) {
+        super.onUpdate(obj, planet)
+
+        importRobot(planet, obj)
     }
 
     fun importRobot(planet: Planet?, robot: Robot?) {

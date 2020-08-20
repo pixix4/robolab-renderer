@@ -308,7 +308,7 @@ object PathGenerator {
                 val secondDirection = turnLow(direction)
                 val secondSide = point.move(secondDirection)
 
-                val next = listOf(forward, firstSide, secondSide).minBy { it.squareDistance(other) }
+                val next = listOf(forward, firstSide, secondSide).minByOrNull { it.squareDistance(other) }
 
                 when (next) {
                     forward -> {

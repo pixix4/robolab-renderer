@@ -2,6 +2,11 @@ package de.robolab.common.planet
 
 import de.robolab.client.traverser.nextHexString
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlin.random.Random
 
 class ID(val id: String) : IPlanetValue {
@@ -11,7 +16,7 @@ class ID(val id: String) : IPlanetValue {
 fun randomName(): String = "Planet-${Random.nextHexString(3)}-${Random.nextHexString(5)}"
 
 object IDSerializer : KSerializer<ID> {
-    override val descriptor: SerialDescriptor = SerialDescriptor("IDSerializer", kind = PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("IDSerializer", kind = PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): ID = ID(decoder.decodeString())
 

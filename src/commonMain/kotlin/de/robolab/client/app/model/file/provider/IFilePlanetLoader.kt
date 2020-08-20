@@ -12,6 +12,10 @@ interface IFilePlanetLoader<T: IFilePlanetIdentifier> {
 
     suspend fun saveContent(identifier: T, lines: List<String>): T?
 
+    suspend fun createWithContent(lines: List<String>)
+
+    suspend fun deleteIdentifier(identifier: T)
+
     suspend fun loadIdentifierList(): List<T>
 
     val name: String

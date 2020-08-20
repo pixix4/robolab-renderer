@@ -33,6 +33,16 @@ class FilePlanet<T : IFilePlanetIdentifier>(
         remoteIdentifier = identifier
     }
 
+    suspend fun copy() {
+        val content = PlanetFile(planetFile.content)
+        content.setName(content.planet.name + " - Copy")
+        loader.createWithContent(content.content)
+    }
+
+    suspend fun delete() {
+        loader.deleteIdentifier(localIdentifier ?: return)
+    }
+
     suspend fun load() {
         val remote = remoteIdentifier ?: return
         val (identifier, content) = loader.loadContent(remote) ?: return

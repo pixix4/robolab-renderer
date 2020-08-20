@@ -92,9 +92,9 @@ class TextView(
         val charWidth = fontSize / CHAR_WIDTH
         val charHeight = fontSize / CHAR_HEIGHT
 
-        val maxLineCharCount = lines.maxBy { it.length }?.length ?: 0
+        val maxLineCharCount = lines.maxByOrNull { it.length }?.length ?: 0
 
-        val width = charWidth * (lines.maxBy { it.length }?.length ?: 0)
+        val width = charWidth * (lines.maxByOrNull { it.length }?.length ?: 0)
         val height = charHeight * lines.size
 
         innerBox = Rectangle(

@@ -7,9 +7,9 @@ import de.robolab.client.net.web
 import de.westermann.kobserve.event.EventHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
-import kotlin.browser.window
+import kotlinx.browser.window
 import kotlin.coroutines.CoroutineContext
 
 class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifier>, CoroutineScope {
@@ -34,13 +34,22 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
     }
 
     override suspend fun saveContent(identifier: FileIdentifier, lines: List<String>): FileIdentifier? {
+        println("Currently not supported!")
         return null
+    }
+
+    override suspend fun createWithContent(lines: List<String>) {
+        println("Currently not supported!")
+    }
+
+    override suspend fun deleteIdentifier(identifier: FileIdentifier) {
+        println("Currently not supported!")
     }
 
     override suspend fun loadIdentifierList(): List<FileIdentifier> {
         val names = http {
             web("/planets")
-        }.exec().parse(String.serializer().list) ?: emptyList()
+        }.exec().parse(ListSerializer(String.serializer())) ?: emptyList()
 
         return names.map { name ->
             FileIdentifier("/planet/$name", name)

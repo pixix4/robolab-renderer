@@ -7,7 +7,7 @@ import de.robolab.common.net.MIMEType
 import de.robolab.common.planet.ClientPlanetInfo
 import de.robolab.common.planet.ID
 import de.robolab.common.utils.filterValuesNotNull
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 
 open class ListPlanets(
     nameExact: String? = null,
@@ -43,7 +43,7 @@ open class ListPlanets(
             planets = if (serverResponse.status != HttpStatusCode.Ok)
                 emptyList()
             else when (val mimeType = serverResponse.contentType?.mimeType) {
-                MIMEType.JSON -> parse(ClientPlanetInfo.serializer().list)
+                MIMEType.JSON -> parse(ListSerializer(ClientPlanetInfo.serializer()))
                 MIMEType.PlainText -> body?.split('\n')?.map(ClientPlanetInfo.Companion::fromPlaintextString)
                 else -> throw IllegalArgumentException("Cannot parse MIME-Type '$mimeType'")
             } ?: emptyList()

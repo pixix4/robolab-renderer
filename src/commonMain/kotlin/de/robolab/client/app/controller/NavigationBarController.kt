@@ -17,7 +17,7 @@ import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
 class NavigationBarController(
-    private val selectedEntryProperty: ObservableProperty<INavigationBarPlottable?>,
+    selectedEntryProperty: ObservableProperty<INavigationBarPlottable?>,
     messageManager: MessageManager,
     private val connection: RobolabMqttConnection,
     private val canvasController: CanvasController
@@ -25,7 +25,7 @@ class NavigationBarController(
 
     private val filePlanetProvider = MultiFilePlanetProvider()
     private val groupPlanetProperty = GroupPlanetProvider(messageManager, filePlanetProvider)
-    private val roomPlanetProvider = RoomPlanetProvider()
+    private val roomPlanetProvider = RoomPlanetProvider(groupPlanetProperty.groupList, filePlanetProvider)
 
     val tabProperty = PreferenceStorage.selectedNavigationBarTabProperty
 

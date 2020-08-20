@@ -1,26 +1,40 @@
 @file:Suppress("UNUSED_VARIABLE", "SuspiciousCollectionReassignment")
 
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmCompilation
 import java.text.SimpleDateFormat
 import java.util.*
 
 plugins {
-    kotlin("multiplatform") version "1.3.72"
-    kotlin("plugin.serialization") version "1.3.72"
+    kotlin("multiplatform") version "1.4.0"
+    kotlin("plugin.serialization") version "1.4.0"
     id("com.gorylenko.gradle-git-properties") version "2.2.2"
 }
 
 repositories {
     mavenCentral()
     jcenter()
-    maven("https://oss.sonatype.org/content/repositories/snapshots")
+    maven {
+        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+    }
+    maven {
+        url = uri("https://dl.bintray.com/kotlin/ktor")
+    }
+    maven {
+        url = uri("https://dl.bintray.com/kotlin/kotlinx")
+    }
+    maven {
+        url  = uri("https://kotlin.bintray.com/kotlinx")
+    }
 }
 
-val serializationVersion = "0.20.0"
-val klockVersion = "1.10.0"
-val ktorVersion = "1.3.2"
+val serializationVersion = "1.0.0-RC"
+val klockVersion = "1.12.0"
+val coroutineVersion = "1.3.9"
+val ktorVersion = "1.3.2-1.4.0-rc"
 kotlin {
     jvm {
-        val main by compilations.getting {
+        compilations.all {
             kotlinOptions {
                 jvmTarget = "11"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
@@ -30,13 +44,15 @@ kotlin {
     }
     js("jsClient") {
         browser {
+            binaries.executable()
+            @Suppress("EXPERIMENTAL_API_USAGE")
             dceTask {
                 keep(
                     "ktor-ktor-io.\$\$importsForInline\$\$.ktor-ktor-io.io.ktor.utils.io"
                 )
             }
         }
-        val main by compilations.getting {
+        compilations.all {
             kotlinOptions {
                 moduleKind = "commonjs"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
@@ -45,8 +61,10 @@ kotlin {
         }
     }
     js("jsServer") {
-        nodejs()
-        val main by compilations.getting {
+        nodejs {
+            binaries.executable()
+        }
+        compilations.all {
             kotlinOptions {
                 moduleKind = "commonjs"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
@@ -58,10 +76,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(kotlin("stdlib-common"))
-
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.7")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
                 implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
 
                 implementation("dev.gitlive:kotlin-diff-utils:4.1.4")
@@ -78,7 +94,7 @@ kotlin {
 
         val jvmMain by getting {
             dependencies {
-                implementation(kotlin("stdlib-jdk8"))
+                implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.0")
 
                 implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
 
@@ -101,9 +117,9 @@ kotlin {
                 implementation("org.fusesource.jansi:jansi:1.18")
                 implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4")
 
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.3.7")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutineVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$coroutineVersion")
 
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-apache:$ktorVersion")
@@ -118,19 +134,17 @@ kotlin {
 
         val jsClientMain by getting {
             dependencies {
-                implementation(kotlin("stdlib-js"))
-
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-js:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
 
 
                 implementation(npm("mqtt", "4.1.0"))
                 implementation(npm("abort-controller", "3.0.0"))
-                implementation(npm("text-encoding"))
-                implementation(npm("hammerjs"))
+                implementation(npm("text-encoding", "0.7.0"))
+                implementation(npm("hammerjs", "2.0.8"))
 
-                implementation(npm("sass"))
+                implementation(npm("sass","1.26.10"))
             }
         }
         val jsClientTest by getting {
@@ -142,16 +156,14 @@ kotlin {
 
         val jsServerMain by getting {
             dependencies {
-                implementation(kotlin("stdlib-js"))
-
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-js:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
 
                 implementation(npm("ioredis", "4.17.3"))
                 implementation(npm("express", "4.17.1"))
                 implementation(npm("socket.io", "2.3.0"))
-                implementation(npm("text-encoding"))
+                implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("body-parser","1.19.0"))
                 implementation(npm("jsonwebtoken","8.5.1"))
                 implementation(npm("dotenv", "8.2.0"))
@@ -184,7 +196,7 @@ val createBuildInfo = tasks.create("createBuildInfo") {
         format.timeZone = TimeZone.getTimeZone("UTC")
         val buildTime = format.format(Date())
 
-        val git = project.ext["gitProps"] as Map<String, String>
+        @Suppress("UNCHECKED_CAST") val git = project.ext["gitProps"] as Map<String, String>
 
         val version = File("$projectDir/version.ini").readText()
         file.writeText(

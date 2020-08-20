@@ -104,6 +104,16 @@ class FilePlanetEntry(
                 save()
             }
         }
+        action("Copy") {
+            GlobalScope.launch(Dispatchers.Main) {
+                copy()
+            }
+        }
+        action("Delete") {
+            GlobalScope.launch(Dispatchers.Main) {
+                delete()
+            }
+        }
     }
 
     override val toolBarRight: List<List<ToolBarEntry>> = listOf(
@@ -143,6 +153,14 @@ class FilePlanetEntry(
 
     suspend fun save() {
         filePlanet.save()
+    }
+
+    suspend fun copy() {
+        filePlanet.copy()
+    }
+
+    suspend fun delete() {
+        filePlanet.delete()
     }
 
     suspend fun load() {

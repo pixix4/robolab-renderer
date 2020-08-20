@@ -5,9 +5,7 @@ import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.net.ICredentialProvider
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.RESTRobolabServer
-import de.robolab.client.net.requests.getPlanet
-import de.robolab.client.net.requests.listPlanets
-import de.robolab.client.net.requests.putPlanet
+import de.robolab.client.net.requests.*
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.planet.ID
 import de.westermann.kobserve.event.EventHandler
@@ -39,6 +37,18 @@ class RemoteFilePlanetLoader(
             val result = server.putPlanet(identifier.id, lines.joinToString("\n"))
 
             if (result.status != HttpStatusCode.Ok) null else identifier
+        }
+    }
+
+    override suspend fun createWithContent(lines: List<String>) {
+        return withContext(Dispatchers.Default) {
+            server.postPlanet(lines.joinToString("\n"))
+        }
+    }
+
+    override suspend fun deleteIdentifier(identifier: PlanetJsonInfo) {
+        return withContext(Dispatchers.Default) {
+            server.deletePlanet(identifier.id)
         }
     }
 

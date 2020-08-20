@@ -8,7 +8,7 @@ import de.robolab.common.net.headers.toLowerCaseKeys
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.*
 
-private val json: Json = Json(JsonConfiguration.Stable)
+private val json: Json = Json { }
 
 interface IServerResponse {
     val status: HttpStatusCode
@@ -19,14 +19,14 @@ interface IServerResponse {
     val jsonBody: JsonElement?
         get() {
             val body: String? = this.body
-            return if (body == null) null else json.parseJson(body)
+            return if (body == null) null else json.parseToJsonElement(body)
         }
     val typedHeaders: TypedHeaders
         get() = TypedHeaders.parse(headers)
 
     fun<T: Any> parse(deserializer: DeserializationStrategy<T>): T? {
         val body: String? = this.body
-        return if (body == null) null else json.parse(deserializer, body)
+        return if (body == null) null else json.decodeFromString(deserializer, body)
     }
 }
 

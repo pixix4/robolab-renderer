@@ -219,10 +219,10 @@ class PlotterManager(
     private fun smoothLane(lane: List<Window>) {
         if (lane.size <= 1) return
 
-        val left = (lane.minBy { it.layout.left } ?: return).layout.left
-        val leftMax = (lane.maxBy { it.layout.left } ?: return).layout.left
-        val top = (lane.minBy { it.layout.top } ?: return).layout.top
-        val topMax = (lane.maxBy { it.layout.top } ?: return).layout.top
+        val left = (lane.minByOrNull { it.layout.left } ?: return).layout.left
+        val leftMax = (lane.maxByOrNull { it.layout.left } ?: return).layout.left
+        val top = (lane.minByOrNull { it.layout.top } ?: return).layout.top
+        val topMax = (lane.maxByOrNull { it.layout.top } ?: return).layout.top
 
         if (left == leftMax) {
             val width = lane.first().layout.width

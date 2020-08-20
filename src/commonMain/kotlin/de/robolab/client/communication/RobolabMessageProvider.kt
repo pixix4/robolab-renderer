@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 /**
  * @author leon
@@ -43,7 +42,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
         }
     }
 
-    private val jsonSerializer = Json(JsonConfiguration.Stable)
+    private val jsonSerializer = Json { }
 
     private fun parseMqttMessage(message: MqttMessage): RobolabMessage? {
         val groupId = message.topic.substringAfterLast('/').substringAfterLast('-')
@@ -58,7 +57,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
 
 
         val jsonMessage = try {
-            jsonSerializer.parse(JsonMessage.serializer(), message.message)
+            jsonSerializer.decodeFromString(JsonMessage.serializer(), message.message)
         } catch (e: Exception) {
             logger.warn { "Group $groupId: " + e.message }
             onRobolabMessage(
@@ -112,7 +111,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
         val content = rawContentStr.replace("\\\"", "\"").replace("\\\\", "\\")
 
         return MqttMessage(
-            date.utc.unixMillisLong,
+            date.utc.unixMillis.toLong(),
             topic,
             content.replace("\\n", "\n")
         )

@@ -8,7 +8,7 @@ import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.createHtmlView
 import org.w3c.dom.HTMLSpanElement
-import kotlin.dom.clear
+import kotlinx.dom.clear
 
 /**
  * Represents all kinds of icon views.

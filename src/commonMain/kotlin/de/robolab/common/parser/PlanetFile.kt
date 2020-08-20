@@ -497,4 +497,21 @@ class PlanetFile(lines: List<String>) : IEditCallback {
             lines = newLines
         }
     }
+
+    override fun setName(name: String, groupHistory: Boolean) {
+        val index = lines.indexOfFirst { it is FileLine.NameLine }
+
+        val newLines = lines.toMutableList()
+        if (index < 0) {
+            newLines.add(FileLine.NameLine.create(name))
+        } else {
+            newLines[index] = FileLine.NameLine.create(name)
+        }
+
+        if (groupHistory) {
+            history.replace(newLines)
+        } else {
+            lines = newLines
+        }
+    }
 }

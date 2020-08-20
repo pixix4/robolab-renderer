@@ -4,7 +4,7 @@ import de.robolab.client.net.http
 import de.robolab.client.net.web
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.constObservable
-import kotlin.browser.window
+import kotlinx.browser.window
 
 actual fun getBuildInformation(): String? {
     return null

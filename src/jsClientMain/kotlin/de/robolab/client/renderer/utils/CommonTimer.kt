@@ -1,7 +1,7 @@
 package de.robolab.client.renderer.utils
 
 import de.westermann.kobserve.event.EventHandler
-import kotlin.browser.window
+import kotlinx.browser.window
 
 actual class CommonTimer actual constructor(fps: Double) : ITimer {
 

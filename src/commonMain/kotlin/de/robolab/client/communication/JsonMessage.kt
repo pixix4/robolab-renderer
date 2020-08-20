@@ -4,6 +4,11 @@ import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Direction
 import de.robolab.common.planet.Path
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 @Serializable
 data class JsonMessage(
@@ -317,11 +322,10 @@ enum class PathStatus {
     BLOCKED
 }
 
-@Serializer(forClass = Direction::class)
 object DirectionSerializer : KSerializer<Direction> {
 
     override val descriptor: SerialDescriptor =
-        PrimitiveDescriptor("WithCustomDefault", PrimitiveKind.INT)
+        PrimitiveSerialDescriptor("WithCustomDefault", PrimitiveKind.INT)
 
     override fun serialize(encoder: Encoder, value: Direction) {
         val int = when (value) {

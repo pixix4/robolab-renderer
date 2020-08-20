@@ -11,8 +11,8 @@ import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.MediaQueryList
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
-import kotlin.browser.document
-import kotlin.browser.window
+import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlin.math.ceil
 
 /**
@@ -62,7 +62,7 @@ class Canvas : View(createHtmlView<HTMLCanvasElement>()) {
         context.drawImage(tempContext.canvas, 0.0, 0.0)
 
         // Apply transformations
-        context.setTransform(dpi, 0.0, 0.0, dpi, 0.5, 0.5);
+        context.setTransform(dpi, 0.0, 0.0, dpi, 0.5, 0.5)
         context.imageSmoothingEnabled = false
 
         // Update media query listener

@@ -10,7 +10,7 @@ import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.ClientPlanetInfo
 import de.robolab.common.planet.Planet
 import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 
 interface IRESTResponse : IServerResponse
@@ -51,7 +51,7 @@ open class PlanetResponse(serverResponse: IServerResponse) : RESTResponse(server
         } else {
             lines = when (val mimeType = serverResponse.typedHeaders.contentTypeHeaders.single().mimeType) {
                 MIMEType.JSON -> {
-                    parse(String.serializer().list) ?: emptyList()
+                    parse(ListSerializer(String.serializer())) ?: emptyList()
                 }
                 MIMEType.PlainText -> {
                     body?.split('\n') ?: emptyList()

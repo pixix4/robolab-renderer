@@ -28,28 +28,28 @@ object ThemeGenerator {
 
         val content = buildString {
             appendDisclaimer()
-            appendln("@import 'theme-utils';")
-            appendln()
+            appendLine("@import 'theme-utils';")
+            appendLine()
 
             for ((key, value) in getReflectiveProperties(theme.theme.ui)) {
                 val line = "\$_$key: $value;"
-                appendln(line)
+                appendLine(line)
             }
-            appendln()
+            appendLine()
             for ((key, value) in getReflectiveProperties(theme.theme.editor)) {
                 val line = "\$_$key: $value;"
-                appendln(line)
+                appendLine(line)
             }
 
-            appendln()
+            appendLine()
 
-            appendln(if (isDefault) {
+            appendLine(if (isDefault) {
                 "body {"
             } else {
                 "body[data-theme='${theme.name.toDashCase()}'] {"
             })
-            appendln("    @include load-color-vars();")
-            appendln("}")
+            appendLine("    @include load-color-vars();")
+            appendLine("}")
 
         }
 
@@ -64,7 +64,7 @@ object ThemeGenerator {
         val content = buildString {
             appendDisclaimer()
             for (theme in Theme.values().sortedBy { it.name }) {
-                appendln("@use '_${theme.name.toDashCase()}';")
+                appendLine("@use '_${theme.name.toDashCase()}';")
             }
         }
 
@@ -79,22 +79,22 @@ object ThemeGenerator {
 
         val content = buildString {
             appendDisclaimer()
-            appendln("@mixin load-color-vars {")
-            appendln()
+            appendLine("@mixin load-color-vars {")
+            appendLine()
 
             for ((key, _) in getReflectiveProperties(Theme.DEFAULT.theme.ui)) {
                 val line = "    --$key: #{\$_$key};"
-                appendln(line)
+                appendLine(line)
             }
-            appendln()
+            appendLine()
             for ((key, _) in getReflectiveProperties(Theme.DEFAULT.theme.editor)) {
                 val line = "    --$key: #{\$_$key};"
-                appendln(line)
+                appendLine(line)
             }
 
-            appendln()
+            appendLine()
 
-            appendln("}")
+            appendLine("}")
 
         }
 
@@ -112,13 +112,13 @@ object ThemeGenerator {
     }
 
     private fun StringBuilder.appendDisclaimer() {
-        appendln("/**********************************************************")
-        appendln(" *                                                        *")
-        appendln(" *           Auto generated file. DO NOT EDIT!            *")
-        appendln(" * See: 'src/commonMain/kotlin/de/robolab/renderer/theme' *")
-        appendln(" *        Generate with './gradlew buildSassTheme'        *")
-        appendln(" *                                                        *")
-        appendln(" **********************************************************/")
-        appendln()
+        appendLine("/**********************************************************")
+        appendLine(" *                                                        *")
+        appendLine(" *           Auto generated file. DO NOT EDIT!            *")
+        appendLine(" * See: 'src/commonMain/kotlin/de/robolab/renderer/theme' *")
+        appendLine(" *        Generate with './gradlew buildSassTheme'        *")
+        appendLine(" *                                                        *")
+        appendLine(" **********************************************************/")
+        appendLine()
     }
 }

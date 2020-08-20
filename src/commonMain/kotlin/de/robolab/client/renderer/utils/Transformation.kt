@@ -98,7 +98,7 @@ class Transformation(
 
     private fun scaleDirected(direction: Int, center: Point, duration: Double = 0.0) {
         val currentZoomLevel = scale
-        var nearestZoomLevel = SCALE_STEPS.minBy { abs(it - currentZoomLevel) } ?: 1.0
+        var nearestZoomLevel = SCALE_STEPS.minByOrNull { abs(it - currentZoomLevel) } ?: 1.0
         var index = SCALE_STEPS.indexOf(nearestZoomLevel)
 
         if (direction * currentZoomLevel > direction * nearestZoomLevel) {
