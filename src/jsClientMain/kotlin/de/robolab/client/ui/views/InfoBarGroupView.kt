@@ -56,6 +56,12 @@ class InfoBarGroupView(
             }
         }
 
+        button("Send message") {
+            onClick {
+                content.openSendDialog()
+            }
+        }
+
         table("info-bar-group-view-content") {
             thead {
                 row {

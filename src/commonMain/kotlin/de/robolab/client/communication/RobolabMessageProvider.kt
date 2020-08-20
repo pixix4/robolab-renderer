@@ -30,6 +30,10 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
 
     private var logLoaded = false
 
+    fun sendMessage(topic: String, message: String): Boolean {
+        return mqttConnection.sendMessage(topic, message)
+    }
+
     init {
         mqttConnection.onMessage += this::onMessage
 

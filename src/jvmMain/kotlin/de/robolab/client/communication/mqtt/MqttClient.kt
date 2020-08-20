@@ -28,7 +28,9 @@ actual class MqttClient actual constructor(serverUri: String, clientId: String) 
     }
 
     actual fun disconnect() {
-        client.disconnect()
+        if (client.isConnected) {
+            client.disconnect()
+        }
     }
 
     actual fun subscribe(topic: String) {

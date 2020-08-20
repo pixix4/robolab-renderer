@@ -157,3 +157,24 @@ class IntStringConverter(private val default: Int) : StringConverter<Int>() {
         return string?.toIntOrNull() ?: default
     }
 }
+
+class NullableIntStringConverter : StringConverter<Int?>() {
+    override fun toString(obj: Int?): String {
+        return obj?.toString() ?: ""
+    }
+
+    override fun fromString(string: String?): Int? {
+        return string?.toIntOrNull()
+    }
+}
+
+class NullableStringConverter : StringConverter<String?>() {
+    override fun toString(obj: String?): String {
+        return obj ?: ""
+    }
+
+    override fun fromString(string: String?): String? {
+        return if (string?.isEmpty() == true) null else string
+    }
+}
+

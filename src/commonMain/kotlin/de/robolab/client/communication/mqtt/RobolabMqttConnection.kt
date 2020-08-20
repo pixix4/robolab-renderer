@@ -17,12 +17,17 @@ class RobolabMqttConnection {
     val connectionStateProperty = property<ConnectionState>(Disconnected())
     val connectionState by connectionStateProperty
 
+    fun sendMessage(topic: String, message: String): Boolean {
+        return connectionState.sendMessage(topic, message)
+    }
+
     interface ConnectionState {
 
         val name: String
         val actionLabel: String
 
         fun onAction()
+        fun sendMessage(topic: String, message: String): Boolean
     }
 
     inner class Disconnected : ConnectionState {
@@ -31,6 +36,10 @@ class RobolabMqttConnection {
 
         override fun onAction() {
             connectionStateProperty.value = Connecting()
+        }
+
+        override fun sendMessage(topic: String, message: String): Boolean {
+            return false
         }
     }
 
@@ -42,6 +51,10 @@ class RobolabMqttConnection {
             mqttClient.setCallback(null)
             mqttClient.disconnect()
             connectionStateProperty.value = Disconnected()
+        }
+
+        override fun sendMessage(topic: String, message: String): Boolean {
+            return false
         }
 
         private val mqttClient = MqttClient(PreferenceStorage.serverUri, PreferenceStorage.clientId)
@@ -60,7 +73,7 @@ class RobolabMqttConnection {
 
                 override fun onMessage(topic: String, message: String) {
                     val time = DateTime.nowLocal().local.unixMillisLong
-                    onMessage.emit(MqttMessage(time, topic, message.replace("\\n","\n")))
+                    onMessage.emit(MqttMessage(time, topic, message.replace("\\n", "\n")))
                 }
             })
             logger.info { "Connecting to ${PreferenceStorage.serverUri}" }
@@ -88,6 +101,15 @@ class RobolabMqttConnection {
             connectionStateProperty.value = Disconnected()
         }
 
+        override fun sendMessage(topic: String, message: String): Boolean {
+            return try {
+                mqttClient.publish(topic, message)
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+
         init {
             mqttClient.subscribe("#")
         }
@@ -104,6 +126,10 @@ class RobolabMqttConnection {
         override fun onAction() {
             timeoutReference.cancel()
             connectionStateProperty.value = Connecting()
+        }
+
+        override fun sendMessage(topic: String, message: String): Boolean {
+            return false
         }
     }
 }

@@ -159,3 +159,11 @@
     padding-top: 0.5rem;
   }
 }
+.dialog-hide-entry {
+  .dialog-form-entry {
+    display: none;
+    &.active {
+      display: block;
+    }
+  }
+}

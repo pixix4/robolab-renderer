@@ -19,7 +19,7 @@ class PointAnimatable(
     reference: PointAnimatableManager.AttributePoint,
     private var planet: Planet,
     private val editProperty: ObservableValue<IEditCallback?>,
-    private val createPath: CreatePathManager?
+    createPath: CreatePathManager?
 ) : Animatable<PointAnimatableManager.AttributePoint>(reference) {
 
     override val view = SquareView(

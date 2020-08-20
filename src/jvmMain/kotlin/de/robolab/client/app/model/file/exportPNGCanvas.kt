@@ -5,6 +5,7 @@ import de.robolab.client.ui.dialog.ExportDialog
 import de.robolab.client.ui.dialog.PaperConstraintsDialog
 import de.robolab.client.ui.dialog.PlanetTransformDialog
 import de.robolab.client.renderer.canvas.ICanvas
+import de.robolab.client.ui.dialog.SendMessageDialog
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.utils.Dimension
@@ -33,4 +34,8 @@ actual fun openPaperConstraintsDialog() {
 
 actual fun openPlanetTransformDialog(planetFile: PlanetFile) {
     PlanetTransformDialog.open(planetFile)
+}
+
+actual fun openSendMessageDialog(topic: String, sendMessage: (String, String) -> Boolean) {
+    SendMessageDialog.open(topic, sendMessage)
 }

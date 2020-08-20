@@ -28,3 +28,7 @@ actual fun openPaperConstraintsDialog() {
 actual fun openPlanetTransformDialog(planetFile: PlanetFile) {
     throw UnsupportedOperationException()
 }
+
+actual fun openSendMessageDialog(topic: String, sendMessage: (String, String) -> Boolean) {
+    throw UnsupportedOperationException()
+}

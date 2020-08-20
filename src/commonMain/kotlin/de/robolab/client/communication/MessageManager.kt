@@ -1,6 +1,5 @@
 package de.robolab.client.communication
 
-import de.robolab.client.utils.runAfterTimeout
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.list.observableListOf
 
@@ -27,5 +26,14 @@ class MessageManager(private val messageProvider: RobolabMessageProvider) {
     private fun onRobolabMessageList(message: List<RobolabMessage>) {
         messageList += message
         onMessageList.emit(message)
+    }
+
+    fun sendMessage(topic: String, message: String): Boolean {
+        return try {
+            messageProvider.sendMessage(topic, message)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }

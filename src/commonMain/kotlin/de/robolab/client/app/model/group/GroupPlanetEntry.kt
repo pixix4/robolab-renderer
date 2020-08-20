@@ -5,10 +5,7 @@ import com.soywiz.klock.DateTimeTz
 import de.robolab.client.app.model.base.*
 import de.robolab.client.app.model.file.MultiFilePlanetProvider
 import de.robolab.client.app.model.file.findByName
-import de.robolab.client.communication.RobolabMessage
-import de.robolab.client.communication.toMqttPlanet
-import de.robolab.client.communication.toRobot
-import de.robolab.client.communication.toServerPlanet
+import de.robolab.client.communication.*
 import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableList
@@ -21,7 +18,11 @@ import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
 
-class GroupPlanetEntry(val groupName: String, val filePlanetProvider: MultiFilePlanetProvider) :
+class GroupPlanetEntry(
+    val groupName: String,
+    val filePlanetProvider: MultiFilePlanetProvider,
+    private val messageManager: MessageManager
+) :
     INavigationBarGroup {
 
     val attempts = observableListOf<AttemptPlanetEntry>()
@@ -48,7 +49,7 @@ class GroupPlanetEntry(val groupName: String, val filePlanetProvider: MultiFileP
         }
 
         val attempt = if (message is RobolabMessage.ReadyMessage || attempts.isEmpty()) {
-            AttemptPlanetEntry(message.metadata.time, this).also { attempts.add(it) }
+            AttemptPlanetEntry(message.metadata.time, this, messageManager).also { attempts.add(it) }
         } else {
             attempts.last()
         }
@@ -78,8 +79,10 @@ class GroupPlanetEntry(val groupName: String, val filePlanetProvider: MultiFileP
     }
 }
 
-class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEntry) :
-    INavigationBarPlottable {
+class AttemptPlanetEntry(
+    val startTime: Long, override val parent: GroupPlanetEntry,
+    private val messageManager: MessageManager
+) : INavigationBarPlottable {
 
     val messages = observableListOf<RobolabMessage>()
 
@@ -152,7 +155,7 @@ class AttemptPlanetEntry(val startTime: Long, override val parent: GroupPlanetEn
         }
     }
 
-    override val infoBarList: List<IInfoBarContent> = listOf(InfoBarGroupInfo(this))
+    override val infoBarList: List<IInfoBarContent> = listOf(InfoBarGroupInfo(this, messageManager))
     override val selectedInfoBarIndexProperty = property<Int?>(0)
 
     override val statusIconProperty = constObservable(emptyList<MaterialIcon>())

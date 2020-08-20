@@ -27,6 +27,11 @@ class InfoBarGroupView(private val contentInfo: InfoBarGroupInfo) : View() {
                 field("Attempt duration") {
                     label(contentInfo.attemptDurationStringProperty.toFx())
                 }
+                button("Send message") {
+                    setOnAction {
+                        contentInfo.openSendDialog()
+                    }
+                }
             }
         }
 

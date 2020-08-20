@@ -3,10 +3,7 @@ package de.robolab.client.app.model.file
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.ui.adapter.WebCanvas
-import de.robolab.client.ui.dialog.Dialog
-import de.robolab.client.ui.dialog.ExportDialog
-import de.robolab.client.ui.dialog.PaperConstraintsDialog
-import de.robolab.client.ui.dialog.PlanetTransformDialog
+import de.robolab.client.ui.dialog.*
 import de.robolab.client.ui.triggerDownload
 import de.robolab.client.ui.triggerDownloadPNG
 import de.robolab.common.parser.PlanetFile
@@ -40,4 +37,8 @@ actual fun openPaperConstraintsDialog() {
 
 actual fun openPlanetTransformDialog(planetFile: PlanetFile) {
     PlanetTransformDialog.open(planetFile)
+}
+
+actual fun openSendMessageDialog(topic: String, sendMessage: (String, String) -> Boolean) {
+    SendMessageDialog.open(topic, sendMessage)
 }

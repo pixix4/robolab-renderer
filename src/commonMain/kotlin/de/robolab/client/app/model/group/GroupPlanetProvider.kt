@@ -11,7 +11,7 @@ import de.westermann.kobserve.list.sortByObservable
 import de.westermann.kobserve.property.property
 
 class GroupPlanetProvider(
-    messageManager: MessageManager,
+    private val messageManager: MessageManager,
     private val filePlanetProvider: MultiFilePlanetProvider
 ) : IPlanetProvider {
 
@@ -27,7 +27,7 @@ class GroupPlanetProvider(
 
     private fun onMessage(message: RobolabMessage) {
         val group = groupList.find { it.groupName == message.metadata.groupId }
-                ?: GroupPlanetEntry(message.metadata.groupId, filePlanetProvider).also { groupList.add(it) }
+                ?: GroupPlanetEntry(message.metadata.groupId, filePlanetProvider, messageManager).also { groupList.add(it) }
         group.onMessage(message)
     }
 
@@ -36,7 +36,7 @@ class GroupPlanetProvider(
 
         for ((groupId, messages) in groupedMessages) {
             val group = groupList.find { it.groupName == groupId }
-                    ?: GroupPlanetEntry(groupId, filePlanetProvider).also { groupList.add(it) }
+                    ?: GroupPlanetEntry(groupId, filePlanetProvider, messageManager).also { groupList.add(it) }
             group.onMessage(messages)
         }
     }

@@ -11,7 +11,7 @@ import org.w3c.dom.HTMLSelectElement
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
 
-class SelectView<T : Any>(
+class SelectView<T>(
         dataSet: List<T>,
         private val initValue: T,
         val transform: (T) -> String = { it.toString() }
@@ -112,4 +112,8 @@ inline fun <reified T : Enum<T>> ViewCollection<in SelectView<T>>.selectView(pro
 
 @KWebViewDsl
 inline fun <reified T : Enum<T>> ViewCollection<in SelectView<T>>.selectView(property: ObservableProperty<T>, noinline transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
+        SelectView(enumValues<T>().toList(), property.value, transform).apply { bind(property) }.also(this::append).also(init)
+
+@KWebViewDsl
+inline fun <reified T : Enum<T>> ViewCollection<in SelectView<T?>>.selectViewNullable(property: ObservableProperty<T?>, noinline transform: (T?) -> String = { it?.toString() ?: "" }, init: SelectView<T?>.() -> Unit = {}) =
         SelectView(enumValues<T>().toList(), property.value, transform).apply { bind(property) }.also(this::append).also(init)

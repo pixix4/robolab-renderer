@@ -28,8 +28,8 @@ abstract class Dialog(title: String) {
         }
     }
 
-    protected fun BoxView.dialogFormEntry(name: String, block: BoxView.() -> Unit) {
-        boxView("dialog-form-entry") {
+    protected fun BoxView.dialogFormEntry(name: String, block: BoxView.() -> Unit): BoxView {
+        return boxView("dialog-form-entry") {
             textView(name)
 
             boxView("dialog-form-flex") {
@@ -207,6 +207,28 @@ fun ObservableProperty<Int>.bindStringParsing() = property(object : DelegateProp
 
     override fun get(): String {
         return this@bindStringParsing.value.toString()
+    }
+
+}, this)
+
+fun ObservableProperty<Int?>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
+    override fun set(value: String) {
+        this@bindStringParsing.value = value.toIntOrNull()
+    }
+
+    override fun get(): String {
+        return this@bindStringParsing.value?.toString() ?: ""
+    }
+
+}, this)
+
+fun ObservableProperty<String?>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
+    override fun set(value: String) {
+        this@bindStringParsing.value = if (value.isEmpty()) null else value
+    }
+
+    override fun get(): String {
+        return this@bindStringParsing.value ?: ""
     }
 
 }, this)
