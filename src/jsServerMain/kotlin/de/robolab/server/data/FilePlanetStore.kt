@@ -6,6 +6,7 @@ import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.planet.randomName
 import de.robolab.server.RequestError
+import de.robolab.server.externaljs.NodeErrors
 import de.robolab.server.externaljs.fs.*
 import de.robolab.server.externaljs.os.EOL
 import de.robolab.server.externaljs.path.safeJoinPath
@@ -74,8 +75,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         try {
             unlink(getPath(id)).await()
         } catch (ex: dynamic) {
-            if (ex.code != "ENOENT")
-                throw ex.unsafeCast<Throwable>()
+            NodeErrors.NoEntry.assertInstance(ex)
         }
     }
 
@@ -86,8 +86,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         try {
             unlink(getPath(id)).await()
         } catch (ex: dynamic) {
-            if (ex.code != "ENOENT")
-                throw ex.unsafeCast<Throwable>()
+            NodeErrors.NoEntry.assertInstance(ex)
         }
         return oldPlanet
     }
@@ -117,8 +116,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
             try {
                 localPlanetFile = readPlanetFile(id)
             } catch (ex: dynamic) {
-                if (ex.code != "ENOENT")
-                    throw ex.unsafeCast<Throwable>()
+                NodeErrors.NoEntry.assertInstance(ex)
                 return@retrieveInfo null
             }
             if (localPlanetFile != null) {
@@ -136,8 +134,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
             try {
                 content = readFile(path).await()
             } catch (ex: dynamic) {
-                if (ex.code != "ENOENT")
-                    throw ex.unsafeCast<Throwable>()
+                NodeErrors.NoEntry.assertInstance(ex)
                 return null
             }
             planetFile = PlanetFile(content)
@@ -164,7 +161,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
                 stat(getPath(id)).await().mtime.toDateTime()
             )
         } catch (ex: dynamic) {
-            if (ex.code != "ENOENT")
+            if (!NodeErrors.NoEntry.isInstance(ex))
                 throw ex.unsafeCast<Throwable>()
             else
                 null

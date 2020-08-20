@@ -6,6 +6,14 @@ import de.robolab.server.jsutils.isUndefined
 
 typealias NodeError = Error
 
+enum class NodeErrors(val code: String) {
+    NoEntry("ENOENT");
+
+    fun isInstance(error: dynamic) = error.code == this.code
+    fun assertInstance(error: dynamic): Nothing? =
+        if (isInstance(error)) null else throw (error.unsafeCast<Throwable>())
+}
+
 external interface JSArray<T> {
     val length: Int
 
@@ -183,6 +191,11 @@ fun jsArrayOf(vararg elements: dynamic): DynJSArray {
     return arr
 }
 
+val env: dynamic = {
+    val env = js("process.env")
+    de.robolab.server.externaljs.dotenv.config(env)
+    env
+}
 
 external class Buffer {
     companion object {

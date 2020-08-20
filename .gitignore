@@ -17,3 +17,5 @@ node_modules/
 planet/*.exam
 planet/*.exam.*
 npm-debug.log
+auth/*
+!auth/roles.default.txt

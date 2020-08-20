@@ -1,0 +1,60 @@
+# Permissions granted without login
++ReadPublicPlanets
++ReadPublicInfo
+
+# Permissions for groups
+|/group-(\d+)/|
++ReadMessages(/explorer\/$1/)
++WriteMessages(/explorer\/$1/)
++ReadMessages(/planet\/.+\/$1/)
++WriteMessages(/planet\/.+\/$1/)
++ReadMessages(/comtest\/$1/)
++WriteMessages(/comtest\/$1/)
+
+# Permissions for tutors without special authorization
+|publicTutor|
++ReadMessages(/.*/)
++WriteMessages(/.*/)
++ReadExamInfo
++ReadExamPlanets
+
+# Permissions for tutors with special authorization
+|privateTutor|
++|publicTutor|
++ReadPrivatePlanets
++WritePrivatePlanets
++WritePublicPlanets
+
+# Permissions for admins
+|admin|
++|privateTutor|
++WriteExamInfo
++ReadPrivatePlanets
+
+# Uncomment to enable credential-based login.
+# Cannot be active at the same time as MQTT
+# Credential-file should be a newline-separated list of $username:$password
+# Example:
+##    tutor:tutor
+##    admin:admin
+#@Credentials(credentials.txt)
+#tutor: |privateTutor|
+#admin: |admin|
+
+# Comment to disable mqtt-based login.
+# Cannot be active at the same time as Credentials
+@MQTT
+/group-(\d+)/: +|group-$1|
+tutor: +|publicTutor|
+
+## Uncomment to enable login via github
+#@GitHub($githubID, $githubSecret)
+#?inProject(pixix4/robolab-renderer): +|admin|
+
+## Uncomment to enable login via se-gitlab
+#@GitLab(https:#se-gitlab.inf.tu-dresden.de,$gitlabID,$gitlabSecret)
+#?inGroup(robolab): +|publicTutor|
+#?roleInGroup(robolab,Developer): +|privateTutor|
+#?roleInGroup(robolab,Owner): +|admin|
+#?roleInGroup(robolab,Maintainer): +|admin|
+

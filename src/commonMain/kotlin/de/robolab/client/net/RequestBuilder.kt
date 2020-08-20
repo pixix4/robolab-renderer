@@ -128,6 +128,10 @@ class RequestBuilder {
         header(mapped)
     }
 
+    fun auth(authSupplier: RESTAuthSupplier){
+        authSupplier.headers.forEach { header(it.name to it.value) }
+    }
+
     suspend fun exec(): ServerResponse {
         return sendHttpRequest(
             method,

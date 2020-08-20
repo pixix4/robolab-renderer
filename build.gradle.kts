@@ -153,6 +153,8 @@ kotlin {
                 implementation(npm("socket.io", "2.3.0"))
                 implementation(npm("text-encoding"))
                 implementation(npm("body-parser","1.19.0"))
+                implementation(npm("jsonwebtoken","8.5.1"))
+                implementation(npm("dotenv", "8.2.0"))
             }
         }
         val jsServerTest by getting {

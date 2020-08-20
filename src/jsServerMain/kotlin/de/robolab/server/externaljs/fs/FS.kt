@@ -84,7 +84,7 @@ external fun readdirSync(path: String): Array<String>
 external fun readdirSync(path: String, options: dynamic): Array<dynamic>
 
 external fun readFile(path: String, options: dynamic, callback: JSBiDynErrorCallback<dynamic>): Unit
-external fun readFileSync(path: String, options: dynamic): dynamic
+external fun readFileSync(path: String, options: dynamic = definedExternally): dynamic
 
 external fun rename(oldPath: String, newPath: String, callback: JSDynErrorCallback): Unit
 external fun renameSync(oldPath: String, newPath: String): Unit
