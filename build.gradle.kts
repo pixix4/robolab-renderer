@@ -268,6 +268,10 @@ tasks.create<Exec>("jsClientCompileSass") {
     val nodeJs =
         rootProject.extensions.getByName(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension.Companion.EXTENSION_NAME) as org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 
+    if (nodeJs.installationDir.list() == null) {
+        return@create
+    }
+
     val nodeJsDir =
         nodeJs.installationDir
             .resolve(nodeJs.installationDir.list().first())
