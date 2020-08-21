@@ -14,6 +14,7 @@ import de.robolab.client.theme.LightTheme
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.menuBilder
 import de.robolab.common.parser.PlanetFile
+import de.robolab.common.planet.TagQuery
 import de.robolab.common.planet.Path
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
@@ -165,6 +166,16 @@ class FilePlanetEntry(
 
     suspend fun load() {
         filePlanet.load()
+    }
+
+    override fun matchesSearch(request: SearchRequest): Boolean {
+        val tagQueries: List<TagQuery> = request.tagQueries
+        return request.literalQueries.all{
+            titleProperty.value.contains(it, true) || planetFile.planet.tagMap.containsKey(it)
+        } && tagQueries.all {
+            val tagEntry: List<String> = planetFile.planet.tagMap[it.tagName] ?: return@all it.matchMissing
+            return@all it.matches(tagEntry)
+        }
     }
 
     fun exportAsSVG(name: String = "") {

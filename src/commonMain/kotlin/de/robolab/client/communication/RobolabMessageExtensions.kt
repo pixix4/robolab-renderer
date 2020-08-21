@@ -74,7 +74,8 @@ fun List<RobolabMessage>.toServerPlanet(): Planet {
         pathList,
         targetList,
         pathSelectList,
-        emptyList()
+        emptyList(),
+        emptyMap()
     )
 }
 
@@ -136,7 +137,8 @@ fun List<RobolabMessage>.toMqttPlanet(): Planet {
         pathList,
         targetList,
         pathSelectList,
-        emptyList()
+        emptyList(),
+        emptyMap()
     )
 }
 

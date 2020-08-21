@@ -2,6 +2,7 @@ package de.robolab.common.parser
 
 import de.robolab.common.planet.*
 import de.robolab.common.utils.Point
+import de.robolab.common.utils.withEntry
 import kotlin.math.absoluteValue
 import kotlin.math.pow
 import kotlin.math.round
@@ -564,6 +565,49 @@ interface FileLine<T> {
         }
     }
 
+    class TagLine(override val line: String): FileLine<Tag> {
+        override val data = REGEX.matchEntire(line.trim())!!.let{ match->
+            val key: String = match.groupValues[1]
+            val value: String? = match.groupValues.getOrNull(2)
+            return@let Tag(key, value?.split(',')?.map(String::trim))
+        }
+
+        override var blockMode: BlockMode = BlockMode.Unknown
+
+        override fun buildPlanet(builder: BuildAccumulator) {
+            blockMode = BlockMode.Head(builder.previousBlockHead)
+            builder.previousBlockHead = this
+            builder.planet = builder.planet.copy(tagMap = builder.planet.tagMap.withEntry(data.key to data.values.orEmpty()){
+                k, a:List<String>,b:List<String> -> a+b
+            })
+        }
+
+        companion object : Parser {
+            override val name = "Tag line parser"
+            val REGEX =
+                """^#\s*\$(\w[\w-]*?)\s?(?::\s?(\w[\w-]*?(?:\s*?,\s*?\w[\w-]*?)*?))?\s*?(?:#.*?)?${'$'}""".toRegex()
+
+            override fun testLine(line: String): Boolean {
+                return REGEX.containsMatchIn(line)
+            }
+
+            override fun createInstance(line: String): FileLine<*> {
+                return TagLine(line)
+            }
+
+            fun serialize(tag:Tag): String {
+                val values = if (tag.values == null) {
+                    ""
+                } else {
+                    ": ${tag.values.joinToString()}"
+                }
+                return "# $${tag.key}$values"
+            }
+
+            fun create(tag: Tag) = createInstance(serialize(tag))
+        }
+    }
+
     class CommentLine(override val line: String) : FileLine<Comment> {
 
         override val data = REGEX.matchEntire(line.trim())!!.let { match ->
@@ -721,6 +765,7 @@ private val parserList = listOf(
     FileLine.VersionLine,
     FileLine.SplineLine,
     FileLine.HiddenLine,
+    FileLine.TagLine,
     FileLine.CommentLine,
     FileLine.CommentSubLine,
     FileLine.BlankLine

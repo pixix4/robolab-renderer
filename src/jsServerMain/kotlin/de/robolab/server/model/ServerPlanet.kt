@@ -36,7 +36,7 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
 
     val id: String = info.id
 
-    val _lastModified: ObservableProperty<DateTime> = info.lastModifiedDate.observe()
+    val _lastModified: ObservableProperty<DateTime> = info.lastModified.observe()
     val lastModifiedProp: ObservableValue<DateTime> = _lastModified
     val lastModified: DateTime by lastModifiedProp
 
@@ -52,7 +52,7 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
         var previousModifiedInfo = this.info
         this.infoProp.onChange.addListener {
             val newValue = this.info
-            if (previousModifiedInfo.withMTime(newValue.lastModifiedDate) != newValue) {
+            if (previousModifiedInfo.withMTime(newValue.lastModified) != newValue) {
                 previousModifiedInfo = newValue
                 _lastModified.set(DateTime.now())
             }

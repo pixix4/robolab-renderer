@@ -1,20 +1,19 @@
 package de.robolab.client.app.model.file.provider
 
-import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.net.ICredentialProvider
 import de.robolab.client.net.IRobolabServer
+import de.robolab.client.net.requests.PlanetJsonInfo
 import de.robolab.client.net.RESTRobolabServer
 import de.robolab.client.net.requests.*
 import de.robolab.common.net.HttpStatusCode
-import de.robolab.common.planet.ID
 import de.westermann.kobserve.event.EventHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class RemoteFilePlanetLoader(
     private val server: IRobolabServer
-) : IFilePlanetLoader<RemoteFilePlanetLoader.PlanetJsonInfo> {
+) : IFilePlanetLoader<PlanetJsonInfo> {
 
     override val onRemoteChange = EventHandler<Unit>()
 
@@ -54,13 +53,7 @@ class RemoteFilePlanetLoader(
 
     override suspend fun loadIdentifierList(): List<PlanetJsonInfo> {
         return withContext(Dispatchers.Default) {
-            server.listPlanets().planets.map {
-                PlanetJsonInfo(
-                    it.id,
-                    it.name,
-                    it.lastModifiedDate
-                )
-            }
+            server.listPlanets().planets
         }
     }
 
@@ -114,23 +107,4 @@ class RemoteFilePlanetLoader(
         }
     }
 
-    class PlanetJsonInfo(
-        val id: ID,
-        override val name: String,
-        override val lastModified: DateTime
-    ) : IFilePlanetIdentifier {
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other !is PlanetJsonInfo) return false
-
-            if (id != other.id) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return id.hashCode()
-        }
-    }
 }

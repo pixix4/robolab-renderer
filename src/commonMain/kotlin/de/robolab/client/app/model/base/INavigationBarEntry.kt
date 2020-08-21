@@ -19,4 +19,6 @@ interface INavigationBarEntry {
     }
 
     val parent: INavigationBarGroup?
+
+    fun matchesSearch(request:SearchRequest): Boolean = request.literalQueries.all{titleProperty.value.contains(it, true)}
 }

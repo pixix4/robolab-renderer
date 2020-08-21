@@ -10,7 +10,8 @@ data class Planet(
     val pathList: List<Path>,
     val targetList: List<TargetPoint>,
     val pathSelectList: List<PathSelect>,
-    val commentList: List<Comment>
+    val commentList: List<Comment>,
+    val tagMap: Map<String, List<String>>
 ): IPlanetValue {
 
     fun importSplines(reference: Planet): Planet {
@@ -43,7 +44,8 @@ data class Planet(
             pathList,
             targetList,
             pathSelectList,
-            commentList
+            commentList,
+            tagMap
         )
     }
 
@@ -55,7 +57,8 @@ data class Planet(
         pathList.map { it.translate(delta) },
         targetList.map { it.translate(delta) },
         pathSelectList.map { it.translate(delta) },
-        commentList.map { it.translate(delta) }
+        commentList.map { it.translate(delta) },
+        tagMap
     )
 
     fun rotate(direction: RotateDirection, origin: Coordinate = startPoint?.point ?: Coordinate(0, 0)) = Planet(
@@ -66,7 +69,8 @@ data class Planet(
         pathList.map { it.rotate(direction, origin) },
         targetList.map { it.rotate(direction, origin) },
         pathSelectList.map { it.rotate(direction, origin) },
-        commentList.map { it.rotate(direction, origin) }
+        commentList.map { it.rotate(direction, origin) },
+        tagMap
     )
 
     fun scaleWeights(factor: Double = 1.0, offset: Int = 0): Planet {
@@ -90,7 +94,8 @@ data class Planet(
             emptyList(),
             emptyList(),
             emptyList(),
-            emptyList()
+            emptyList(),
+            emptyMap()
         )
     }
 }

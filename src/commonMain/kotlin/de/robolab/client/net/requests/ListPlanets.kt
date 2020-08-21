@@ -4,7 +4,6 @@ import de.robolab.client.net.*
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
-import de.robolab.common.planet.ClientPlanetInfo
 import de.robolab.common.planet.ID
 import de.robolab.common.utils.filterValuesNotNull
 import kotlinx.serialization.builtins.ListSerializer
@@ -37,20 +36,20 @@ open class ListPlanets(
 
     class ListPlanetsResponse(serverResponse: IServerResponse) : RESTResponse(serverResponse) {
 
-        val planets: List<ClientPlanetInfo>
+        val planets: List<PlanetJsonInfo>
 
         init {
             planets = if (serverResponse.status != HttpStatusCode.Ok)
                 emptyList()
             else when (val mimeType = serverResponse.contentType?.mimeType) {
-                MIMEType.JSON -> parse(ListSerializer(ClientPlanetInfo.serializer()))
-                MIMEType.PlainText -> body?.split('\n')?.map(ClientPlanetInfo.Companion::fromPlaintextString)
+                MIMEType.JSON -> parse(ListSerializer(PlanetJsonInfo.serializer()))
+                MIMEType.PlainText -> body?.split('\n')?.map(PlanetJsonInfo.Companion::fromPlaintextString)
                 else -> throw IllegalArgumentException("Cannot parse MIME-Type '$mimeType'")
             } ?: emptyList()
         }
 
-        val names: List<String> = planets.map(ClientPlanetInfo::name)
-        val ids: List<ID> = planets.map(ClientPlanetInfo::id)
+        val names: List<String> = planets.map(PlanetJsonInfo::name)
+        val ids: List<ID> = planets.map(PlanetJsonInfo::id)
     }
 }
 

@@ -3,6 +3,7 @@ package de.robolab.client.app.controller
 import de.robolab.client.app.model.base.INavigationBarEntry
 import de.robolab.client.app.model.base.INavigationBarGroup
 import de.robolab.client.app.model.base.INavigationBarPlottable
+import de.robolab.client.app.model.base.SearchRequest
 import de.robolab.client.app.model.file.MultiFilePlanetProvider
 import de.robolab.client.app.model.group.GroupPlanetProvider
 import de.robolab.client.app.model.room.RoomPlanetProvider
@@ -57,6 +58,8 @@ class NavigationBarController(
         }
     }.flattenMutableBinding()
 
+    val searchRequestProperty = searchStringProperty.mapBinding { SearchRequest.parse(it) }
+
     val entryListProperty = property(tabProperty, selectedGroupProperty) {
         val g = selectedGroupProperty.value
 
@@ -72,8 +75,8 @@ class NavigationBarController(
     }.flattenBinding()
 
     val filteredEntryListProperty = entryListProperty.mapBinding {
-        it.filterObservable(searchStringProperty) { element, filter ->
-            element.titleProperty.value.contains(filter, true)
+        it.filterObservable(searchRequestProperty) { element, filter ->
+            element.matchesSearch(filter)
         }
     }
 

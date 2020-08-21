@@ -7,7 +7,6 @@ import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.parser.PlanetFile
-import de.robolab.common.planet.ClientPlanetInfo
 import de.robolab.common.planet.Planet
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.builtins.ListSerializer
@@ -26,14 +25,14 @@ abstract class RESTResponse(protected val parentResponse: IServerResponse) : IRE
 }
 
 open class ClientPlanetInfoRestResponse(serverResponse: IServerResponse) : RESTResponse(serverResponse) {
-    val info: ClientPlanetInfo?
+    val info: PlanetJsonInfo?
 
     init {
         info = if (status != HttpStatusCode.Ok && status != HttpStatusCode.Created) {
             null
         } else when (val mimeType = contentType?.mimeType) {
-            MIMEType.PlainText -> ClientPlanetInfo.fromPlaintextString(body ?: "")
-            MIMEType.JSON -> parse(ClientPlanetInfo.serializer())
+            MIMEType.PlainText -> PlanetJsonInfo.fromPlaintextString(body ?: "")
+            MIMEType.JSON -> parse(PlanetJsonInfo.serializer())
             else -> throw IllegalArgumentException("Cannot parse MIME-Type '$mimeType'")
         }
     }

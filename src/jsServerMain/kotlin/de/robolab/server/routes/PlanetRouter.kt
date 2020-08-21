@@ -4,8 +4,6 @@ package de.robolab.server.routes
 
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
-import de.robolab.common.net.headers.LastModifiedHeader
-import de.robolab.common.planet.ClientPlanetInfo
 import de.robolab.server.config.Config
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.utils.map
@@ -14,10 +12,8 @@ import de.robolab.server.data.*
 import de.robolab.server.externaljs.*
 import de.robolab.server.externaljs.express.*
 import de.robolab.server.jsutils.*
-import de.robolab.server.model.asClientPlanetInfo
 import de.robolab.server.model.decodeID
 import de.robolab.server.model.toIDString
-import kotlinx.serialization.builtins.list
 import de.robolab.server.model.ServerPlanet as SPlanet
 
 object PlanetRouter {
