@@ -28,6 +28,7 @@ data class JsonMessage(
         null,
         null,
         null,
+        null,
         null
     )
 ) {
@@ -287,6 +288,19 @@ enum class Type {
             message.requireFrom(From.DEBUG)
             return RobolabMessage.DebugMessage(metadata, message.payload::message.parsed(), null)
         }
+    },
+
+    @SerialName("syntax")
+    SYNTAX {
+        override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
+            metadata.requireTopic(Topic.COMTEST, this)
+            message.requireFrom(From.DEBUG)
+            return RobolabMessage.SyntaxMessage(
+                metadata,
+                message.payload::message.parsed(),
+                message.payload.errors ?: emptyList(),
+            )
+        }
     };
 
     abstract fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage
@@ -310,7 +324,8 @@ data class Payload(
     val pathStatus: PathStatus? = null,
     val pathWeight: Int? = null,
     val message: String? = null,
-    val debug: String? = null
+    val debug: String? = null,
+    val errors: List<String>? = null
 )
 
 @Serializable

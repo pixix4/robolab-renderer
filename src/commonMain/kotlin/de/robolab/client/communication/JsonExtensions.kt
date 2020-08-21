@@ -23,7 +23,8 @@ class WrongTopicException(val topic: String, @Suppress("UNUSED_PARAMETER") messa
 enum class Topic(val topicName: String) {
     EXPLORER("explorer"),
     PLANET("planet"),
-    CONTROLLER("controller")
+    CONTROLLER("controller"),
+    COMTEST("comtest")
 }
 
 fun RobolabMessage.Metadata.requireTopic(requiredTopic: Topic, type: Type) {
@@ -32,6 +33,9 @@ fun RobolabMessage.Metadata.requireTopic(requiredTopic: Topic, type: Type) {
             throw IgnoreMessageException()
         }
     } else {
+        if (from == From.CLIENT && topic.startsWith(Topic.COMTEST.topicName)) {
+            return
+        }
         if (topic.startsWith(Topic.CONTROLLER.topicName)) {
             throw IgnoreMessageException()
         }

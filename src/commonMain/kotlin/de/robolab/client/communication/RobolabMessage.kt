@@ -33,7 +33,7 @@ sealed class RobolabMessage(
         metadata: Metadata,
         path: Path
     ) : PathMessage(metadata, path) {
-        override val summary by lazy { "Path: ${pathToString(path)}" }
+        override val summary by lazy { "${metadata.comTestString}Path: ${pathToString(path)}" }
         override val details by lazy { pathToDetails(path) }
     }
 
@@ -42,7 +42,7 @@ sealed class RobolabMessage(
         val point: Coordinate,
         val direction: Direction
     ) : RobolabMessage(metadata) {
-        override val summary by lazy { "Path selected: direction=${direction.export()} (at point ${point.x},${point.y})" }
+        override val summary by lazy { "${metadata.comTestString}Path selected: direction=${direction.export()} (at point ${point.x},${point.y})" }
         override val details by lazy {
             listOf(
                     "Point" to "${point.x},${point.y}",
@@ -55,7 +55,7 @@ sealed class RobolabMessage(
         metadata: Metadata,
         val direction: Direction
     ) : RobolabMessage(metadata) {
-        override val summary by lazy { "Select path: direction=$direction" }
+        override val summary by lazy { "${metadata.comTestString}Select path: direction=$direction" }
         override val details by lazy {
             listOf(
                     "Direction" to direction.name
@@ -67,7 +67,7 @@ sealed class RobolabMessage(
         metadata: Metadata,
         path: Path
     ) : PathMessage(metadata, path) {
-        override val summary by lazy { "Path unveiled: ${pathToString(path)}" }
+        override val summary by lazy { "${metadata.comTestString}Path unveiled: ${pathToString(path)}" }
         override val details by lazy {
             pathToDetails(path)
         }
@@ -79,7 +79,7 @@ sealed class RobolabMessage(
         val startPoint: Coordinate,
         val startOrientation: Direction
     ) : RobolabMessage(metadata) {
-        override val summary by lazy { "Planet: name=$planetName, start=(${startPoint.x},${startPoint.y},${startOrientation.export()})" }
+        override val summary by lazy { "${metadata.comTestString}Planet: name=$planetName, start=(${startPoint.x},${startPoint.y},${startOrientation.export()})" }
         override val details by lazy {
             listOf(
                     "Planet" to planetName,
@@ -92,7 +92,7 @@ sealed class RobolabMessage(
         metadata: Metadata,
         val planetName: String
     ) : RobolabMessage(metadata) {
-        override val summary by lazy { "Planet: $planetName" }
+        override val summary by lazy { "${metadata.comTestString}Planet: $planetName" }
         override val details by lazy {
             listOf(
                     "Planet" to planetName
@@ -104,7 +104,7 @@ sealed class RobolabMessage(
         metadata: Metadata,
         val target: Coordinate
     ) : RobolabMessage(metadata) {
-        override val summary by lazy { "Target: ${target.x},${target.y}" }
+        override val summary by lazy { "${metadata.comTestString}Target: ${target.x},${target.y}" }
         override val details by lazy {
             listOf(
                     "Target" to "${target.x}, ${target.y}"
@@ -116,7 +116,7 @@ sealed class RobolabMessage(
         metadata: Metadata,
         val message: String
     ) : RobolabMessage(metadata) {
-        override val summary by lazy { "🧭 $message" }
+        override val summary by lazy { "${metadata.comTestString}🧭 $message" }
         override val details by lazy {
             listOf(
                     "Message" to message
@@ -128,7 +128,7 @@ sealed class RobolabMessage(
         metadata: Metadata,
         val message: String
     ) : RobolabMessage(metadata) {
-        override val summary by lazy { "🏁 $message" }
+        override val summary by lazy { "${metadata.comTestString}🏁 $message" }
         override val details by lazy {
             listOf(
                     "Message" to message
@@ -140,7 +140,7 @@ sealed class RobolabMessage(
         metadata: Metadata,
         val message: String
     ) : RobolabMessage(metadata) {
-        override val summary by lazy { "✅ $message" }
+        override val summary by lazy { "${metadata.comTestString}✅ $message" }
         override val details by lazy {
             listOf(
                     "Message" to message
@@ -152,7 +152,7 @@ sealed class RobolabMessage(
         metadata: Metadata,
         val planetName: String
     ) : RobolabMessage(metadata) {
-        override val summary by lazy { "Testplanet: $planetName" }
+        override val summary by lazy { "${metadata.comTestString}Testplanet: $planetName" }
         override val details by lazy {
             listOf(
                     "Test planet" to planetName
@@ -163,7 +163,7 @@ sealed class RobolabMessage(
     class ReadyMessage(
             metadata: Metadata
     ) : RobolabMessage(metadata) {
-        override val summary by lazy { "Ready!" }
+        override val summary by lazy { "${metadata.comTestString}Ready!" }
         override val details by lazy {
             emptyList<Pair<String, String>>()
         }
@@ -174,11 +174,27 @@ sealed class RobolabMessage(
         val message: String,
         val firstBluePoint: Coordinate?
     ) : RobolabMessage(metadata) {
-        override val summary by lazy { "Debug: $message" }
+        override val summary by lazy { "${metadata.comTestString}Debug: $message" }
         override val details by lazy {
             listOf(
                     "Message" to message
             )
+        }
+    }
+
+    class SyntaxMessage(
+        metadata: Metadata,
+        val message: String,
+        val errors: List<String>
+    ) : RobolabMessage(metadata) {
+        val char = if (errors.isEmpty()) "✓" else "✗"
+        override val summary by lazy { "$char Syntax: $message" }
+        override val details by lazy {
+            listOf(
+                "Message" to message,
+            ) + errors.map {
+                "Error" to it
+            }
         }
     }
 
@@ -252,6 +268,9 @@ sealed class RobolabMessage(
             return result
         }
     }
+
+    val Metadata.comTestString:String
+            get() = if (topic.startsWith(Topic.COMTEST.topicName)) "COMTEST: " else ""
 }
 
 fun Direction.export() = when (this) {
