@@ -7,6 +7,7 @@ import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.utils.buttonGroup
 import de.robolab.client.ui.utils.setIcon
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.client.utils.UpdateChannel
 import de.robolab.common.utils.BuildInformation
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.event.now
@@ -53,6 +54,22 @@ class SettingsDialog : GenericDialog() {
                             PreferenceStorage.animationTimeProperty.toFx(),
                             DoubleStringConverter(PreferenceStorage.animationTimeProperty.default)
                         )
+                    }
+                }
+
+                fieldset("Update") {
+                    field("Channel") {
+                        combobox(
+                            PreferenceStorage.autoUpdateChannelProperty.toFx(),
+                            UpdateChannel.values().toList()
+                        )
+                    }
+                    field(forceLabelIndent = true) {
+                        button("Check for updates") {
+                            setOnAction {
+                                UpdateDialog.open()
+                            }
+                        }
                     }
                 }
             }

@@ -1,10 +1,12 @@
 package de.robolab.client.ui
 
 import com.sun.javafx.application.LauncherImpl
+import de.robolab.client.ui.dialog.UpdateDialog
 import de.robolab.client.ui.style.StylesheetLoader
 import de.robolab.client.ui.style.SystemTheme.getSystemTheme
 import de.robolab.client.ui.style.SystemTheme.isSystemThemeSupported
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.client.utils.UpdateChannel
 import de.robolab.client.utils.runAfterTimeoutInterval
 import de.robolab.common.utils.ConfigFile
 import de.robolab.common.utils.ConsoleGreeter
@@ -12,6 +14,9 @@ import de.robolab.common.utils.Logger
 import de.westermann.kobserve.event.now
 import javafx.stage.Stage
 import javafx.stage.StageStyle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import tornadofx.App
 import tornadofx.NoPrimaryViewSpecified
 import tornadofx.UIComponent
@@ -77,6 +82,17 @@ class MainApp : App(NoPrimaryViewSpecified::class) {
                     // Frequently check system theme (5sec should not have a performance impact)
                     if (PreferenceStorage.useSystemTheme) {
                         PreferenceStorage.selectedTheme = getSystemTheme()
+                    }
+                }
+            }
+
+            runAfterTimeoutInterval(60000) {
+                if (PreferenceStorage.autoUpdateChannel != UpdateChannel.NEVER) {
+                    GlobalScope.launch(Dispatchers.IO) {
+                        try {
+                            UpdateDialog.checkUpdate()
+                        } catch (e: Exception) {
+                        }
                     }
                 }
             }

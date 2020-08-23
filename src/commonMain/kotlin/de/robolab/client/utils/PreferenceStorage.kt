@@ -77,11 +77,18 @@ object PreferenceStorage : TypedStorage() {
     val paperPrecisionProperty = item("paper.precision", 3)
     val paperPrecision by paperPrecisionProperty
 
+    val autoUpdateChannelProperty = item("update.channel", UpdateChannel.STABLE)
+    val autoUpdateChannel by autoUpdateChannelProperty
+
     init {
         logLevelProperty.onChange.now {
             Logger.level = logLevel
         }
     }
+}
+
+enum class UpdateChannel {
+    STABLE, NIGHTLY, NEVER
 }
 
 expect object PlatformDefaultPreferences {

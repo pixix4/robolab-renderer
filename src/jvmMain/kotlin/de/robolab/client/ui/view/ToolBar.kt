@@ -5,6 +5,7 @@ import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.base.ToolBarEntry
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.dialog.SettingsDialog
+import de.robolab.client.ui.dialog.UpdateDialog
 import de.robolab.client.ui.style.MainStyle
 import de.robolab.client.ui.utils.buttonGroup
 import de.robolab.client.ui.utils.iconNoAdd
@@ -172,6 +173,24 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                             SettingsDialog.open()
                         }
                         setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+                    }
+
+                    paddingRight = 8
+                }
+
+                buttonGroup {
+                    visibleWhen(UpdateDialog.autoUpdateAvailable.toFx())
+                    managedWhen(UpdateDialog.autoUpdateAvailable.toFx())
+
+                    button {
+                        graphic = iconNoAdd(MaterialIcon.UPDATE)
+                        tooltip("New update available")
+
+                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+
+                        setOnAction {
+                            UpdateDialog.open()
+                        }
                     }
 
                     paddingRight = 8

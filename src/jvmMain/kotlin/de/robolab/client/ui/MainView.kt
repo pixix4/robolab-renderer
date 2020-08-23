@@ -2,7 +2,9 @@ package de.robolab.client.ui
 
 import de.robolab.client.app.controller.MainController
 import de.robolab.client.ui.adapter.toFx
+import de.robolab.client.ui.dialog.UpdateDialog
 import de.robolab.client.ui.view.*
+import de.robolab.client.utils.runAfterTimeout
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.property.DelegatePropertyAccessor
 import de.westermann.kobserve.property.property
@@ -180,6 +182,10 @@ class MainView : View() {
             }
             event.isDropCompleted = success
             event.consume()
+        }
+
+        runAfterTimeout(1000) {
+            UpdateDialog.openIfUpdateAvailable()
         }
     }
 

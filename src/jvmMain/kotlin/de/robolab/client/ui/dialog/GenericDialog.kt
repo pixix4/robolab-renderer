@@ -128,6 +128,18 @@ abstract class GenericDialog : View() {
         return dialog
     }
 
+    override fun onBeforeShow() {
+        super.onBeforeShow()
+
+        val stage = currentStage ?: return
+
+        val centerXPosition = primaryStage.x + primaryStage.width / 2.0
+        val centerYPosition = primaryStage.y + primaryStage.height / 2.0
+
+        stage.x = centerXPosition - stage.width / 2.0
+        stage.y = centerYPosition - stage.height / 2.0
+    }
+
     companion object {
         inline fun <reified D : GenericDialog> open(vararg params: Pair<String, Any?>) {
             find(D::class, FX.defaultScope, params.toMap())

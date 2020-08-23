@@ -8,9 +8,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-object BuildInformation {
+open class BuildInformationFile(fileContent: String = "") {
 
-    private val dataProperty = property<Map<String, String>>(emptyMap())
+    protected val dataProperty = property<Map<String, String>>(emptyMap())
 
     val buildTimeProperty = dataProperty.mapBinding { data ->
         data["build.time"] ?: ""
@@ -104,6 +104,13 @@ object BuildInformation {
     }
     val versionServer by versionServerProperty
 
+    init {
+        dataProperty.value = IniConverter.fromString(fileContent)
+    }
+}
+
+object BuildInformation: BuildInformationFile() {
+
     val dataMap: List<Pair<String, List<Pair<String, ObservableValue<Any>>>>>
     init {
         val buildInformation = getBuildInformation()
@@ -122,7 +129,7 @@ object BuildInformation {
         } catch (e: Exception) {
             Logger("BuildInformation").w { "Cannot get runtime information!" }
             Logger("BuildInformation").w { e }
-            emptyList<Pair<String, ObservableValue<Any>>>()
+            emptyList()
         }
 
         val versionList = "Version" to listOf(

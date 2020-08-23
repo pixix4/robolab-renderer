@@ -1,10 +1,10 @@
-var express = require('express');
-var path = require('path');
-var fs = require('fs');
+let express = require('express');
+let path = require('path');
+let fs = require('fs');
 
-var app = express();
+let app = express();
 
-var planetPath = path.join(__dirname, '../planet');
+let planetPath = path.join(__dirname, '../planet');
 app.get('/planets', function (req, res) {
     fs.readdir(planetPath, function (err, files) {
         res.json(files)

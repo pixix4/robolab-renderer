@@ -29,7 +29,7 @@ repositories {
 val serializationVersion = "1.0.0-RC"
 val klockVersion = "1.12.0"
 val coroutineVersion = "1.3.9"
-val ktorVersion = "1.3.2-1.4.0-rc"
+val ktorVersion = "1.4.0"
 kotlin {
     jvm {
         compilations.all {
@@ -120,7 +120,8 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$coroutineVersion")
 
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
-                implementation("io.ktor:ktor-client-apache:$ktorVersion")
+                implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+                implementation("com.squareup.okhttp3:okhttp:4.8.1")
             }
         }
         val jvmTest by getting {
@@ -323,6 +324,20 @@ tasks.create<Sync>("jsClientSync") {
 
     from(Callable { zipTree(jsClientJar.get().archiveFile) })
     into("${projectDir}/web/website")
+}
+
+tasks.create<Sync>("jvmClientSync") {
+    dependsOn("jvmJar")
+
+    from(jvmJar)
+    from(Callable { zipTree(jvmJar.get().archiveFile) }) {
+        include("build.ini")
+    }
+
+    into("${projectDir}/web/website/jvm")
+    rename {
+        if (it == "robolab-jvm.jar") "robolab-renderer.jar" else it
+    }
 }
 
 tasks.create<Sync>("jsServerSync") {
