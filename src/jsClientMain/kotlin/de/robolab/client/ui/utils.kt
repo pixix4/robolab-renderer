@@ -28,6 +28,19 @@ fun triggerDownload(filename: String, content: String) {
     document.body?.removeChild(element)
 }
 
+fun triggerDownloadUrl(filename: String, url: String) {
+    val element = document.createElement("a") as HTMLElement
+    element.setAttribute("href", url)
+    element.setAttribute("download", filename)
+
+    element.style.display = "none"
+    document.body?.appendChild(element)
+
+    element.click()
+
+    document.body?.removeChild(element)
+}
+
 fun triggerDownloadPNG(filename: String, canvas: Canvas) {
     var img = canvas.html.toDataURL("image/png")
     img = img.replace("^data:image/[^;]*".toRegex(), "data:application/octet-stream")

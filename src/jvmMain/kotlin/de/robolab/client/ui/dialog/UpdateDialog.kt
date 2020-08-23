@@ -103,7 +103,7 @@ class UpdateDialog : GenericDialog() {
             }
         }
 
-        private const val remoteUrl = "http://localhost:3000/jvm/"
+        private const val remoteUrl = "https://robolab.pixix4.com/jvm/"
         private const val remoteVersionFile = remoteUrl + "build.ini"
         private const val remoteJarFile = remoteUrl + "robolab-renderer.jar"
 
@@ -118,7 +118,7 @@ class UpdateDialog : GenericDialog() {
         val autoUpdateAvailable = statusProperty
             .join(PreferenceStorage.autoUpdateChannelProperty) { status, channel ->
                 (status == Status.NEW_VERSION && channel != UpdateChannel.NEVER) ||
-                        (status == Status.NEW_SNAPSHOT && channel == UpdateChannel.STABLE)
+                        (status == Status.NEW_SNAPSHOT && channel == UpdateChannel.NIGHTLY)
             }
 
         enum class Status {
