@@ -66,7 +66,7 @@ abstract class AbsPlanetDrawable : ITransformationReference {
         Point.ZERO,
         40.0,
         "",
-        ViewColor.GRID_TEXT_COLOR,
+        ViewColor.LINE_COLOR.interpolate(ViewColor.GRID_TEXT_COLOR, 0.5),
         ICanvas.FontAlignment.RIGHT,
         ICanvas.FontWeight.BOLD
     )

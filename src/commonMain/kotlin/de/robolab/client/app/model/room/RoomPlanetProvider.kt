@@ -10,12 +10,12 @@ import de.robolab.client.renderer.drawable.planet.MultiRobotPlanetDrawable
 import de.westermann.kobserve.base.ObservableMutableList
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.map.observableMapOf
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -34,44 +34,38 @@ class RoomPlanetProvider(
 
     private var nameToRoomMap = emptyMap<String, RoomPlanetEntry>()
     private var groupToRoomMap = emptyMap<GroupPlanetEntry, RoomPlanetEntry>()
-    private var attemptToListenerMap = emptyMap<GroupPlanetEntry, EventListener<*>>()
 
     @Suppress("SuspiciousCollectionReassignment")
     fun registerGroup(group: GroupPlanetEntry) {
-        group.attempts.onChange.now {
-            attemptToListenerMap[group]?.detach()
+        val messages = group.latestAttempt.nullableFlatMapBinding { it?.messages }
 
-            val currentAttempt = group.attempts.lastOrNull() ?: return@now
+        messages.onChange.now {
+            val currentAttempt = group.latestAttempt.value ?: return@now
 
-            val listener = currentAttempt.messages.onChange.reference {
-                val planetName = currentAttempt.completePlanetNameProperty.value
-                val lastRoom = groupToRoomMap[group]
+            val planetName = currentAttempt.completePlanetNameProperty.value
+            val lastRoom = groupToRoomMap[group]
 
-                if (planetName.isNotEmpty()) {
-                    val nextRoom = nameToRoomMap[planetName]
-                        ?: RoomPlanetEntry(planetName, filePlanetProvider).also {
-                            nameToRoomMap += planetName to it
-                            roomEntryList += it
-                        }
-                    if (lastRoom == nextRoom) {
-                        nextRoom.updateGroup(group, currentAttempt)
-                    } else {
-                        lastRoom?.removeGroup(group)
-                        nextRoom.addGroup(group, currentAttempt)
-                        groupToRoomMap += group to nextRoom
+            if (planetName.isNotEmpty()) {
+                val nextRoom = nameToRoomMap[planetName]
+                    ?: RoomPlanetEntry(planetName, filePlanetProvider).also {
+                        nameToRoomMap += planetName to it
+                        roomEntryList += it
                     }
+                if (lastRoom == nextRoom) {
+                    nextRoom.updateGroup(group, currentAttempt)
                 } else {
                     lastRoom?.removeGroup(group)
-                    groupToRoomMap -= group
+                    nextRoom.addGroup(group, currentAttempt)
+                    groupToRoomMap += group to nextRoom
                 }
-
-                if (lastRoom?.currentGroupAttempts?.isEmpty() == true) {
-                    roomEntryList -= lastRoom
-                }
+            } else {
+                lastRoom?.removeGroup(group)
+                groupToRoomMap -= group
             }
 
-            attemptToListenerMap += group to listener
-            listener.emit(Unit)
+            // if (lastRoom?.currentGroupAttempts?.isEmpty() == true) {
+            //     roomEntryList -= lastRoom
+            // }
         }
     }
 
@@ -98,7 +92,13 @@ class RoomPlanetEntry(planetName: String, filePlanetProvider: MultiFilePlanetPro
 
     override val enabledProperty = constObservable(true)
     override val titleProperty = constObservable(planetName)
-    override val subtitleProperty = currentGroupAttempts.mapBinding { "Groups: ${it.size}" }
+    override val subtitleProperty = currentGroupAttempts.mapBinding {
+        if (it.size == 1) {
+            "1 active group"
+        } else {
+            "${it.size} active groups"
+        }
+    }
     override val tabNameProperty = titleProperty
     override val hasContextMenu = false
     override val statusIconProperty = constObservable(emptyList<MaterialIcon>())
