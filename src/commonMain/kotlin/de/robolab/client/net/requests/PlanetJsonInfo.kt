@@ -11,9 +11,10 @@ import de.robolab.common.planet.IDSerializer
 import de.robolab.common.planet.IPlanetInfo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
-data class PlanetJsonInfo(
+class PlanetJsonInfo(
     @Serializable(with = IDSerializer::class)
     override val id: ID,
     override val name: String,
@@ -25,9 +26,21 @@ data class PlanetJsonInfo(
     constructor(id: ID, name: String, lastModified: DateTime) :
             this(id, name, DateFormat.FORMAT1.format(lastModified))
 
-    override val lastModified: DateTime by lazy {
-        DateFormat.FORMAT1.parseUtc(lastModifiedString)
-    }
+    @Transient
+    private var _dateTime : DateTime? = null
+
+    override val lastModified: DateTime
+        get() {
+            val dateTime0 = _dateTime
+
+            if (dateTime0 == null) {
+                val dateTime1 = DateFormat.FORMAT1.parseUtc(lastModifiedString)
+                _dateTime = dateTime1
+                return dateTime1
+            }
+
+            return dateTime0
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -43,7 +56,11 @@ data class PlanetJsonInfo(
     }
 
     override fun withMTime(time: DateTime): PlanetJsonInfo {
-        return copy(lastModifiedString = DateFormat.FORMAT1.format(time))
+        return PlanetJsonInfo(
+            id = id,
+            name = name,
+            lastModifiedString = DateFormat.FORMAT1.format(time)
+        )
     }
 
     fun toPlaintextString(): String = "${id.id}@${DateSerializer.format.format(this.lastModified)}:$name"
