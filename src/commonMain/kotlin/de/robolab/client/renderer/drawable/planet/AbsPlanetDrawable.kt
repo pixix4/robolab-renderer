@@ -63,7 +63,7 @@ abstract class AbsPlanetDrawable : ITransformationReference {
     private val backgroundView = RectangleView(null, ViewColor.PRIMARY_BACKGROUND_COLOR)
     private val gridLinesView = GridLineView()
     private val nameView = TextView(
-        Point(0, 0),
+        Point.ZERO,
         40.0,
         "",
         ViewColor.GRID_TEXT_COLOR,
@@ -133,8 +133,11 @@ abstract class AbsPlanetDrawable : ITransformationReference {
         val planetList = planetLayers.map { it.planet }
 
         val area = calcPlanetArea(planetList)
-        backgroundView.setRectangle(area?.expand(1.0))
+        val paperArea = area?.expand(1.0)
+        backgroundView.setRectangle(paperArea)
         nameView.text = planetList.asReversed().firstOrNull { it.name.isNotEmpty() }?.name ?: ""
+        val edge = paperArea?.bottomRight ?: Point.ZERO
+        nameView.setSource(edge - Point(0.3, 0.4))
 
         if (autoCentering) {
             centerOfPlanets = area?.center ?: Point.ZERO
