@@ -5,6 +5,7 @@ import de.robolab.client.utils.ContextMenuAction
 import de.robolab.client.utils.ContextMenuEntry
 import de.robolab.client.utils.ContextMenuList
 import de.westermann.kobserve.base.ObservableProperty
+import javafx.application.Platform
 import javafx.beans.value.ObservableValue
 import javafx.beans.value.ObservableValueBase
 import javafx.collections.ObservableList
@@ -21,7 +22,9 @@ class FxObservableValue<T>(private val property: de.westermann.kobserve.base.Obs
 
     init {
         property.onChange {
-            fireValueChangedEvent()
+            Platform.runLater {
+                fireValueChangedEvent()
+            }
         }
     }
 }

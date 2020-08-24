@@ -1,10 +1,12 @@
 package de.robolab.client.app.model.group
 
+import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.base.IPlanetProvider
 import de.robolab.client.app.model.base.INavigationBarEntry
 import de.robolab.client.app.model.file.MultiFilePlanetProvider
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessage
+import de.robolab.client.utils.runAfterTimeoutInterval
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sortByObservable
@@ -25,9 +27,11 @@ class GroupPlanetProvider(
 
     override val entryList = property(sortedGroupList)
 
+    private val currentTimeProperty = property(DateTime.nowLocal())
+
     private fun onMessage(message: RobolabMessage) {
         val group = groupList.find { it.groupName == message.metadata.groupId }
-                ?: GroupPlanetEntry(message.metadata.groupId, filePlanetProvider, messageManager).also { groupList.add(it) }
+                ?: GroupPlanetEntry(message.metadata.groupId, filePlanetProvider, messageManager, currentTimeProperty).also { groupList.add(it) }
         group.onMessage(message)
     }
 
@@ -36,7 +40,7 @@ class GroupPlanetProvider(
 
         for ((groupId, messages) in groupedMessages) {
             val group = groupList.find { it.groupName == groupId }
-                    ?: GroupPlanetEntry(groupId, filePlanetProvider, messageManager).also { groupList.add(it) }
+                    ?: GroupPlanetEntry(groupId, filePlanetProvider, messageManager, currentTimeProperty).also { groupList.add(it) }
             group.onMessage(messages)
         }
     }
@@ -44,5 +48,9 @@ class GroupPlanetProvider(
     init {
         messageManager.onMessage += this::onMessage
         messageManager.onMessageList += this::onMessage
+
+        runAfterTimeoutInterval(10000) {
+            currentTimeProperty.value = DateTime.nowLocal()
+        }
     }
 }
