@@ -26,8 +26,11 @@ class RemoteFilePlanetLoader(
     override suspend fun loadContent(identifier: PlanetJsonInfo): Pair<PlanetJsonInfo, List<String>>? {
         return withContext(Dispatchers.Default) {
             val result = server.getPlanet(identifier.id)
-            if (result.status != HttpStatusCode.Ok) null else
+            if (result.status != HttpStatusCode.Ok) {
+                null
+            } else {
                 PlanetJsonInfo(identifier.id, identifier.name, result.lastModified) to result.lines
+            }
         }
     }
 

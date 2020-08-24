@@ -106,7 +106,7 @@ suspend fun HttpResponse.toRobolabResponse(): ServerResponse =
         status = this.status.toRobolabStatusCode(),
         method = this.request.method.toRobolabMethod(),
         url = this.request.url.encodedPath,
-        body = this.readText(fallbackCharset),
+        body = try { this.readText(fallbackCharset) } catch (e: Exception) { null },
         headers = this.headers.toMap()
     )
 
