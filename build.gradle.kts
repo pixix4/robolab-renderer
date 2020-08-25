@@ -120,7 +120,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$coroutineVersion")
 
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
-                implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+                implementation("io.ktor:ktor-client-apache:$ktorVersion")
                 implementation("com.squareup.okhttp3:okhttp:4.8.1")
             }
         }
