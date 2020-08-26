@@ -5,10 +5,11 @@ import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.ContentTypeHeader
 import de.robolab.common.net.headers.TypedHeaders
 import de.robolab.common.net.headers.toLowerCaseKeys
+import de.robolab.common.utils.RobolabJson
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.*
 
-private val json: Json = Json { }
+private val json: Json = RobolabJson
 
 interface IServerResponse {
     val status: HttpStatusCode

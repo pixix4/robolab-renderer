@@ -7,6 +7,7 @@ import de.robolab.client.communication.mqtt.RobolabMqttConnection
 import de.robolab.client.net.http
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.Logger
+import de.robolab.common.utils.RobolabJson
 import de.westermann.kobserve.event.EventHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -46,7 +47,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
         }
     }
 
-    private val jsonSerializer = Json { }
+    private val jsonSerializer = RobolabJson
 
     private fun parseMqttMessage(message: MqttMessage): RobolabMessage? {
         val groupId = message.topic.substringAfterLast('/').substringAfterLast('-')

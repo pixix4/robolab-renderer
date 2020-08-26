@@ -2,6 +2,7 @@ package de.robolab.client.app.controller
 
 import de.robolab.client.communication.*
 import de.robolab.common.planet.Direction
+import de.robolab.common.utils.RobolabJson
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlinx.serialization.json.Json
@@ -109,9 +110,7 @@ class SendMessageController(topic: String, private val sendMessage: (String, Str
         it == Type.CustomMessage
     }
 
-    private val json = Json {
-        encodeDefaults = false
-    }
+    private val json = RobolabJson
 
     fun send(): Boolean {
         val message = when (typeProperty.value) {

@@ -17,3 +17,4 @@ node_modules/
 planet/*.exam
 planet/*.exam.*
 npm-debug.log
+.npmignore // It makes the project dirty
