@@ -125,15 +125,14 @@ open class TypedStorage {
         }
     }
 
-    private val json = RobolabJson
     internal fun item(key: String, default: List<String>): Item<List<String>> = StringListItem(key, default)
     private inner class StringListItem(key: String, default: List<String>) : Item<List<String>>(key, default) {
         override fun serialize(value: List<String>): String? {
-            return json.encodeToString(ListSerializer(String.serializer()), value)
+            return RobolabJson.encodeToString(ListSerializer(String.serializer()), value)
         }
 
         override fun deserialize(value: String): List<String>? {
-            return json.decodeFromString(ListSerializer(String.serializer()), value)
+            return RobolabJson.decodeFromString(ListSerializer(String.serializer()), value)
         }
     }
 }

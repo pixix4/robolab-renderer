@@ -47,8 +47,6 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
         }
     }
 
-    private val jsonSerializer = RobolabJson
-
     private fun parseMqttMessage(message: MqttMessage): RobolabMessage? {
         val groupId = message.topic.substringAfterLast('/').substringAfterLast('-')
 
@@ -62,7 +60,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
 
 
         val jsonMessage = try {
-            jsonSerializer.decodeFromString(JsonMessage.serializer(), message.message)
+            RobolabJson.decodeFromString(JsonMessage.serializer(), message.message)
         } catch (e: Exception) {
             logger.warn { "Group $groupId: " + e.message }
             onRobolabMessage(

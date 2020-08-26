@@ -110,8 +110,6 @@ class SendMessageController(topic: String, private val sendMessage: (String, Str
         it == Type.CustomMessage
     }
 
-    private val json = RobolabJson
-
     fun send(): Boolean {
         val message = when (typeProperty.value) {
             Type.PathSelectMessage -> JsonMessage(
@@ -205,7 +203,7 @@ class SendMessageController(topic: String, private val sendMessage: (String, Str
 
         return sendMessage(
             topicProperty.value,
-            json.encodeToString(JsonMessage.serializer(), message)
+            RobolabJson.encodeToString(JsonMessage.serializer(), message)
         )
     }
 }

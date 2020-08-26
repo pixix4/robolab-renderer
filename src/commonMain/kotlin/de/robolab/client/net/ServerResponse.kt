@@ -9,8 +9,6 @@ import de.robolab.common.utils.RobolabJson
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.*
 
-private val json: Json = RobolabJson
-
 interface IServerResponse {
     val status: HttpStatusCode
     val method: HttpMethod
@@ -20,14 +18,14 @@ interface IServerResponse {
     val jsonBody: JsonElement?
         get() {
             val body: String? = this.body
-            return if (body == null) null else json.parseToJsonElement(body)
+            return if (body == null) null else RobolabJson.parseToJsonElement(body)
         }
     val typedHeaders: TypedHeaders
         get() = TypedHeaders.parse(headers)
 
     fun<T: Any> parse(deserializer: DeserializationStrategy<T>): T? {
         val body: String? = this.body
-        return if (body == null) null else json.decodeFromString(deserializer, body)
+        return if (body == null) null else RobolabJson.decodeFromString(deserializer, body)
     }
 }
 
