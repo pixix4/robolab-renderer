@@ -223,12 +223,15 @@ val createBuildInfo = tasks.create("createBuildInfo") {
         )
     }
 
+    inputs.file(file("$projectDir/version.ini"))
     outputs.file(file)
 }
 
 val mainClassName = "de.robolab.client.ui.Launcher"
 
 val jvmJar = tasks.named<Jar>("jvmJar") {
+    dependsOn(project(":updater").tasks.named("jar"))
+
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
@@ -242,6 +245,8 @@ val jvmJar = tasks.named<Jar>("jvmJar") {
     }) {
         exclude("META-INF/*.SF", "META-INF/*.RSA", "META-INF/*SF")
     }
+
+    from(project(":updater").tasks.named("jar"))
 }
 
 tasks.create<JavaExec>("jvmRun") {

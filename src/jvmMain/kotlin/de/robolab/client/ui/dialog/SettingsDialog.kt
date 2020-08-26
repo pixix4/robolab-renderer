@@ -57,17 +57,19 @@ class SettingsDialog : GenericDialog() {
                     }
                 }
 
-                fieldset("Update") {
-                    field("Channel") {
-                        combobox(
-                            PreferenceStorage.autoUpdateChannelProperty.toFx(),
-                            UpdateChannel.values().toList()
-                        )
-                    }
-                    field(forceLabelIndent = true) {
-                        button("Check for updates") {
-                            setOnAction {
-                                UpdateDialog.open()
+                if (UpdateDialog.isUpdateAllowed) {
+                    fieldset("Update") {
+                        field("Channel") {
+                            combobox(
+                                PreferenceStorage.autoUpdateChannelProperty.toFx(),
+                                UpdateChannel.values().toList()
+                            )
+                        }
+                        field(forceLabelIndent = true) {
+                            button("Check for updates") {
+                                setOnAction {
+                                    UpdateDialog.open()
+                                }
                             }
                         }
                     }
