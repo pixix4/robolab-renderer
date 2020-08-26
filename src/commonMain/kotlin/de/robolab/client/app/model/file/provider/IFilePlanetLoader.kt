@@ -2,6 +2,8 @@ package de.robolab.client.app.model.file.provider
 
 import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.base.MaterialIcon
+import de.robolab.client.app.model.base.SearchRequest
+import de.robolab.common.planet.Planet
 import de.westermann.kobserve.event.EventHandler
 
 interface IFilePlanetLoader<T: IFilePlanetIdentifier> {
@@ -29,6 +31,8 @@ interface IFilePlanetIdentifier {
     val name: String
 
     val lastModified: DateTime
+
+    fun matchesSearch(request: SearchRequest, planet: Planet): Boolean = request.matches(planet)
 }
 
 interface IFilePlanetLoaderFactory {

@@ -4,11 +4,13 @@ import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.format
 import com.soywiz.klock.parseUtc
+import de.robolab.client.app.model.base.SearchRequest
 import de.robolab.client.app.model.file.provider.IFilePlanetIdentifier
 import de.robolab.common.net.externalserializers.DateSerializer
 import de.robolab.common.planet.ID
 import de.robolab.common.planet.IDSerializer
 import de.robolab.common.planet.IPlanetInfo
+import de.robolab.common.planet.Planet
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -63,4 +65,6 @@ class PlanetJsonInfo(
             lastModifiedString = DateFormat.FORMAT1.format(time)
         )
     }
+
+    override fun matchesSearch(request: SearchRequest, planet: Planet): Boolean = request.matches(this)
 }

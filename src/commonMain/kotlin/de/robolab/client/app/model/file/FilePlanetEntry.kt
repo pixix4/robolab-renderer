@@ -168,8 +168,6 @@ class FilePlanetEntry(
         filePlanet.load()
     }
 
-    override fun matchesSearch(request: SearchRequest): Boolean = request.matches(planetFile.planet)
-
     fun exportAsSVG(name: String = "") {
         var fileName = name
         if (fileName.isEmpty()) {
@@ -191,6 +189,8 @@ class FilePlanetEntry(
         }
         saveExportPNG(fileName, drawToPNGCanvas())
     }
+
+    override fun matchesSearch(request: SearchRequest): Boolean = filePlanet.matchesSearch(request)
 
     private fun writeToSVGString(): String {
         val dimension = getExportSize()

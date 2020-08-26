@@ -1,5 +1,6 @@
 package de.robolab.client.app.model.file.provider
 
+import de.robolab.client.app.model.base.SearchRequest
 import de.robolab.common.parser.PlanetFile
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
@@ -68,4 +69,6 @@ class FilePlanet<T : IFilePlanetIdentifier>(
         localIdentifier = newIdentifier
         remoteIdentifier = newIdentifier
     }
+
+    fun matchesSearch(request: SearchRequest): Boolean = (localIdentifier ?: remoteIdentifier)?.matchesSearch(request, planetFile.planet) ?: request.matches(planetFile.planet)
 }

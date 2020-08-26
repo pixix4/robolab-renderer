@@ -29,7 +29,7 @@ class RemoteFilePlanetLoader(
             if (result.status != HttpStatusCode.Ok) {
                 null
             } else {
-                PlanetJsonInfo(identifier.id, identifier.name, result.lastModified) to result.lines
+                PlanetJsonInfo(identifier.id, identifier.name, result.lastModified, identifier.tags) to result.lines
             }
         }
     }
