@@ -271,22 +271,25 @@ tasks.create<JavaExec>("buildSassTheme") {
 tasks.create<Exec>("jsClientCompileSass") {
     dependsOn("kotlinNpmInstall", "jsClientProcessResources")
 
-    val nodeJs =
-        rootProject.extensions.getByName(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension.Companion.EXTENSION_NAME) as org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
+    doFirst {
+        val nodeJs =
+            rootProject.extensions.getByName(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension.Companion.EXTENSION_NAME) as org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 
-    if (nodeJs.installationDir.list() == null) {
-        return@create
+        if (nodeJs.installationDir.list() == null) {
+            return@doFirst
+        }
+
+        val nodeJsDir =
+            nodeJs.installationDir
+                .resolve(nodeJs.installationDir.list().first())
+
+        val executableFile = nodeJsDir.listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
+            ?: nodeJsDir.resolve("bin").listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
+            ?: nodeJsDir.resolve("bin").resolve(nodeJs.nodeCommand)
+
+        executable(executableFile)
     }
 
-    val nodeJsDir =
-        nodeJs.installationDir
-            .resolve(nodeJs.installationDir.list().first())
-
-    val executableFile = nodeJsDir.listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
-        ?: nodeJsDir.resolve("bin").listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
-        ?: nodeJsDir.resolve("bin").resolve(nodeJs.nodeCommand)
-
-    executable(executableFile)
     args(
         "$buildDir/js/node_modules/sass/sass.js",
         "$projectDir/src/jsClientMain/resources/public/stylesheets/style.scss",

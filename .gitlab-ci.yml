@@ -1,0 +1,65 @@
+image: gradle:jdk14
+
+stages:
+  - build
+  - deploy
+
+build-jvm:
+  stage: build
+  script: gradle jvmJar
+  artifacts:
+    paths:
+      - build/libs/robolab-jvm.jar
+      - build/processedResources/build.ini
+  tags:
+    - docker
+
+build-js-client:
+  stage: build
+  script: gradle jsClientSync
+  artifacts:
+    paths:
+      - web/website
+  tags:
+    - docker
+
+build-js-server:
+  stage: build
+  script: gradle jsServerSync
+  artifacts:
+    paths:
+      - webServer
+  tags:
+    - docker
+
+deploy-client:
+  stage: deploy
+  script:
+    - chmod 0600 $SSH_KEY
+    - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/libs/robolab-jvm.jar ubuntu@robolab.pixix4.com:jvmClient/
+    - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/processedResources/build.ini ubuntu@robolab.pixix4.com:jvmClient/
+    - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c web/website/ ubuntu@robolab.pixix4.com:jsClient/website/
+  only:
+    - master
+  needs:
+    - build-jvm
+    - build-js-client
+  dependencies:
+    - build-jvm
+    - build-js-client
+  tags:
+    - shell
+
+deploy-server:
+  stage: deploy
+  script:
+    - chmod 0600 $SSH_KEY
+    - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c webServer/ ubuntu@robolab.pixix4.com:jsServer/
+  only:
+    - master
+  needs:
+    - build-js-server
+  dependencies:
+    - build-js-server
+  tags:
+    - shell
