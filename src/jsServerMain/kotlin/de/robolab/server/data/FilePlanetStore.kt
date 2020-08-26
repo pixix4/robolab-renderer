@@ -123,11 +123,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
             }
             if (localPlanetFile != null) {
                 planetFile = localPlanetFile
-                return@retrieveInfo ServerPlanetInfo(
-                    id,
-                    planetFile!!.planet.name,
-                    stat(path).await().mtime.toDateTime()
-                )
+                return@retrieveInfo ServerPlanetInfo.fromPlanet(id,planetFile!!.planet,stat(path).await().mtime.toDateTime())
             }
             return@retrieveInfo null
         }
@@ -146,7 +142,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
             metadata.name
         else
             planetFile!!.planet.name
-        val info = metadata ?: ServerPlanetInfo(id, name, stat(path).await().mtime.toDateTime())
+        val info = metadata ?: ServerPlanetInfo.fromPlanet(id, planetFile!!.planet, stat(path).await().mtime.toDateTime(), nameOverride = name)
         return SPlanet(info, lines = planetFile!!.contentString.split("""\r?\n""".toRegex()))
     }
 
@@ -158,11 +154,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         if (id.contains('\u0000'))
             throw RequestError(HttpStatusCode.UnprocessableEntity, "Invalid id: \"${id.toIDString()}\"")
         return try {
-            ServerPlanetInfo(
-                id,
-                readPlanetFile(id)?.planet?.name ?: randomName(),
-                stat(getPath(id)).await().mtime.toDateTime()
-            )
+            ServerPlanetInfo.fromPlanet(id,readPlanetFile(id)?.planet, stat(getPath(id)).await().mtime.toDateTime())
         } catch (ex: dynamic) {
             if (ex.code != "ENOENT")
                 throw ex.unsafeCast<Throwable>()

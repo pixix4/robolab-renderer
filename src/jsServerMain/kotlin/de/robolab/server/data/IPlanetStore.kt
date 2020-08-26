@@ -1,5 +1,6 @@
 package de.robolab.server.data
 
+import de.robolab.client.app.model.base.SearchRequest
 import de.robolab.common.planet.ServerPlanetInfo
 import kotlin.contracts.Returns
 import de.robolab.server.model.ServerPlanet as SPlanet
@@ -35,3 +36,5 @@ suspend fun IPlanetStore.listPlanets(
             (nameContains == null || it.name.contains(nameContains, ignoreCase)) &&
             (nameEndsWith == null || it.name.endsWith(nameEndsWith, ignoreCase))
 }
+
+suspend fun IPlanetStore.listPlanets(query: SearchRequest, ignoreCase: Boolean) = listPlanets().filter{query.matches(it,ignoreCase)}

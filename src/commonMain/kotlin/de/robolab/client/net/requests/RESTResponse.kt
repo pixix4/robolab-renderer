@@ -31,7 +31,6 @@ open class ClientPlanetInfoRestResponse(serverResponse: IServerResponse) : RESTR
         info = if (status != HttpStatusCode.Ok && status != HttpStatusCode.Created) {
             null
         } else when (val mimeType = contentType?.mimeType) {
-            MIMEType.PlainText -> PlanetJsonInfo.fromPlaintextString(body ?: "")
             MIMEType.JSON -> parse(PlanetJsonInfo.serializer())
             else -> throw IllegalArgumentException("Cannot parse MIME-Type '$mimeType'")
         }

@@ -59,7 +59,7 @@ external interface IRedisCommandReceiver {
     fun dbsize(): RedisIntResponse
     fun decr(key: String): RedisIntResponse
     fun decrby(key: String, decrement: Int): RedisIntResponse
-    fun del(key: String, vararg keys: String)
+    fun del(key: String, vararg keys: String): RedisIntResponse
     fun discard()
     fun dump(key: String)
     fun echo(message: String)
@@ -256,9 +256,9 @@ external interface IRedisCommandReceiver {
     fun set(key: String, value: String): RedisStrResponse
     fun set(key: String, value: Int): RedisStrResponse
     fun set(key: String, value: Float): RedisStrResponse
-    fun set(key: String, value: String, vararg options: String): RedisStrResponse
-    fun set(key: String, value: Int, vararg options: String): RedisStrResponse
-    fun set(key: String, value: Float, vararg options: String): RedisStrResponse
+    fun set(key: String, value: String, vararg options: String): RedisBulkStrResponse
+    fun set(key: String, value: Int, vararg options: String): RedisBulkStrResponse
+    fun set(key: String, value: Float, vararg options: String): RedisBulkStrResponse
     fun setbit(key: String, offset: Int, value: Int): RedisIntResponse
     fun setex(key: String, seconds: Int, value: String): RedisStrResponse
     fun setex(key: String, seconds: Int, value: Int): RedisStrResponse
@@ -539,9 +539,9 @@ fun IRedisCommandReceiver.msetnx(args: Map<String, String>): RedisIntResponse {
 }
 
 
-fun IRedisCommandReceiver.setxx(key: String, value: String): RedisStrResponse = set(key, value, "XX")
-fun IRedisCommandReceiver.setxx(key: String, value: Int): RedisStrResponse = set(key, value, "XX")
-fun IRedisCommandReceiver.setxx(key: String, value: Float): RedisStrResponse = set(key, value, "XX")
+fun IRedisCommandReceiver.setxx(key: String, value: String): RedisBulkStrResponse = set(key, value, "XX")
+fun IRedisCommandReceiver.setxx(key: String, value: Int): RedisBulkStrResponse = set(key, value, "XX")
+fun IRedisCommandReceiver.setxx(key: String, value: Float): RedisBulkStrResponse = set(key, value, "XX")
 
 fun createRedis(): Redis = redisCreator()
 fun createRedis(port: Int): Redis = redisCreator(port)

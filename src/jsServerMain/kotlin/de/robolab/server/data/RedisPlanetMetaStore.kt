@@ -4,50 +4,107 @@ import com.soywiz.klock.DateTime
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.server.externaljs.ioredis.*
 import de.robolab.server.externaljs.toList
+import de.robolab.server.jsutils.jsTruthy
 import kotlinx.coroutines.await
 
 class RedisPlanetMetaStore(connectionString: String) : IPlanetMetaStore {
 
+    companion object {
+        private fun planetNameKey(id: String) = "planet:name@$id"
+        private fun planetMTimeKey(id: String) = "planet:mtime@$id"
+        private fun planetTagsKey(id: String) = "planet:tags@$id"
+        private fun planetTagKey(id: String, tag: String) = "planet:tag:$tag@$id"
+    }
+
     private val redis: Redis = createRedis(connectionString)
 
+    private suspend fun setTag(id: String, tagName: String, tagValues: List<String>) {
+        redis.del(planetTagKey(id, tagName)).await()
+        if (tagValues.isNotEmpty())
+            redis.lpush(planetTagKey(id, tagName), tagValues[0], *tagValues.drop(1).toTypedArray())
+        redis.sadd(planetTagsKey(id), tagName).await()
+    }
+
+    private suspend fun removeTag(id: String, tagName: String) {
+        redis.srem(planetTagsKey(id), tagName).await()
+        redis.del(planetTagKey(id, tagName)).await()
+    }
+
+    private suspend fun removeTags(id: String) {
+        val oldTags: List<String> = redis.smembers(planetTagsKey(id)).await().toList().filterNotNull()
+        redis.del(planetTagsKey(id), *oldTags.map { planetTagKey(id, it) }.toTypedArray()).await()
+    }
+
+    private suspend fun setTag(id: String, tagName: String, tagValues: List<String>?) =
+        if (tagValues == null) removeTag(id, tagName) else
+            setTag(id, tagName, tagValues)
+
+
+    private suspend fun setTags(id: String, tags: Map<String, List<String>>) {
+        removeTags(id)
+        tags.forEach { (tagName, values) -> setTag(id, tagName, values) }
+    }
+
+    private suspend fun setTags(data: Map<String, Map<String, List<String>>>) =
+        data.forEach { (id, tags) -> setTags(id, tags) }
+
+
+    private suspend fun getTags(id:String): Map<String,List<String>>{
+        return redis.smembers(planetTagsKey(id)).await().toList().filterNotNull().associateWith { tag ->
+            redis.lrange(planetTagKey(id, tag), 0, -1).await().toList().mapNotNull {
+                it as? String
+            }
+        }
+    }
+
+    private suspend fun getTags(ids:List<String>): Map<String,Map<String,List<String>>> = ids.associateWith { getTags(it) }
+
     override suspend fun retrieveInfo(id: String): ServerPlanetInfo? =
-        redis.mget("planet:name@$id", "planet:mtime@$id").await().let {
-            val (name, mtime) = it.toList()
+        redis.mget(planetNameKey(id), planetMTimeKey(id)).await().let { data ->
+            val (name, mtime) = data.toList()
+            val tags = getTags(id)
             if (name != null && mtime != null) ServerPlanetInfo(
                 id,
                 name,
-                DateTime.Companion.fromUnix(mtime.toLong())
+                DateTime.Companion.fromUnix(mtime.toLong()),
+                tags
             ) else null
         }
 
-    override suspend fun retrieveInfo(ids: List<String>): List<ServerPlanetInfo?> =
-        redis.mget(ids.flatMap {
+    override suspend fun retrieveInfo(ids: List<String>): List<ServerPlanetInfo?> {
+
+        val tags: Map<String, Map<String, List<String>>> = getTags(ids)
+        return redis.mget(ids.flatMap {
             listOf(
-                "planet:name@$it",
-                "planet:mtime@$it"
+                planetNameKey(it),
+                planetMTimeKey(it)
             )
-        }).await().toList().chunked(2)
-            .zip(ids) { (name, mtime), id ->
-                if (name != null && mtime != null) ServerPlanetInfo(
-                    id,
-                    name,
-                    DateTime.fromUnix(mtime.toLong())
-                ) else null
-            }
+        }).await().toList().chunked(2).zip(ids) { (name, mtime), id ->
+            if (name != null && mtime != null) ServerPlanetInfo(
+                id,
+                name,
+                DateTime.fromUnix(mtime.toLong()),
+                tags = tags[id].orEmpty()
+            ) else null
+        }.toList()
+    }
 
     override suspend fun setInfo(info: ServerPlanetInfo, onlyIfExist: Boolean) {
         if (onlyIfExist) {
-            redis.setxx("planet:name@${info.id}", info.name).await()
-            redis.setxx("planet:mtime@${info.id}", info.lastModified.unixMillisLong.toString())
-        } else{
-            redis.set("planet:name@${info.id}", info.name).await()
-            redis.set("planet:mtime@${info.id}", info.lastModified.unixMillisLong.toString())
+            redis.setxx(planetNameKey(info.id), info.name).await()
+            if (redis.setxx(planetMTimeKey(info.id), info.lastModified.unixMillisLong.toString()).await().jsTruthy())
+                setTags(info.id, info.tags)
+        } else {
+            redis.set(planetNameKey(info.id), info.name).await()
+            redis.set(planetMTimeKey(info.id), info.lastModified.unixMillisLong.toString()).await()
+            setTags(info.id, info.tags)
         }
     }
 
     override suspend fun addInfo(info: ServerPlanetInfo) {
-        redis.setnx("planet:name@${info.id}", info.name).await()
-        redis.setnx("planet:mtime@${info.id}", info.lastModified.unixMillisLong.toString())
+        redis.setnx(planetNameKey(info.id), info.name).await()
+        if (redis.setnx(planetMTimeKey(info.id), info.lastModified.unixMillisLong.toString()).await() > 0)
+            setTags(info.id, info.tags)
     }
 
     override suspend fun removeInfoByID(id: String): ServerPlanetInfo? {
@@ -58,10 +115,11 @@ class RedisPlanetMetaStore(connectionString: String) : IPlanetMetaStore {
             del("planet:name@$id")
             del("planet:mtime@$id")
         }.toList().subList(0, 2).map { it as String? }*/
-        val storedName = redis.get("planet:name@$id").await()
-        val storedMtime = redis.get("planet:mtime@$id").await()
-        redis.del("planet:name@$id")
-        redis.del("planet:mtime@$id")
+        val storedName = redis.get(planetNameKey(id)).await()
+        val storedMtime = redis.get(planetMTimeKey(id)).await()
+        redis.del(planetNameKey(id))
+        redis.del(planetMTimeKey(id))
+        removeTags(id)
         return if (storedName == null || storedName == undefined || storedMtime == null || storedMtime == undefined)
             null
         else
@@ -71,20 +129,25 @@ class RedisPlanetMetaStore(connectionString: String) : IPlanetMetaStore {
     override suspend fun setInfo(infos: List<ServerPlanetInfo>, onlyIfExist: Boolean) {
         if (onlyIfExist)
             super.setInfo(infos)
-        else
+        else {
+            infos.forEach { info ->
+                setTags(info.id, info.tags)
+            }
             redis.mset(infos.flatMap {
                 listOf(
-                    "planet:name@${it.id}" to it.name,
-                    "planet:mtime@${it.id}" to it.lastModified.unixMillisLong.toString()
+                    planetNameKey(it.id) to it.name,
+                    planetMTimeKey(it.id) to it.lastModified.unixMillisLong.toString()
                 )
             }).await()
+        }
     }
 
     override suspend fun addInfo(infos: List<ServerPlanetInfo>) {
+        infos.forEach { setTags(it.id, it.tags) }
         redis.msetnx(infos.flatMap {
             listOf(
-                "planet:name@${it.id}" to it.name,
-                "planet:mtime@${it.id}" to it.lastModified.unixMillisLong.toString()
+                planetNameKey(it.id) to it.name,
+                planetMTimeKey(it.id) to it.lastModified.unixMillisLong.toString()
             )
         }).await()
     }

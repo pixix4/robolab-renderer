@@ -2,6 +2,7 @@
 
 package de.robolab.server.routes
 
+import de.robolab.client.app.model.base.SearchRequest
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.server.config.Config
@@ -29,6 +30,10 @@ object PlanetRouter {
         router.getSuspend("/") { req, res ->
             val ignoreCase = jsTruthy(req.query["ignoreCase"])
             val infos: List<ServerPlanetInfo> = when {
+                jsTruthy(req.query["query"]) -> planetStore.listPlanets(
+                    SearchRequest.parse(req.query["query"].toString()),
+                    ignoreCase
+                )
                 jsTruthy(req.query["name"]) -> planetStore.listPlanets(req.query["name"].toString(), ignoreCase)
                 jsTruthy(req.query["nameContains"]) ||
                         jsTruthy(req.query["nameStartsWith"]) ||

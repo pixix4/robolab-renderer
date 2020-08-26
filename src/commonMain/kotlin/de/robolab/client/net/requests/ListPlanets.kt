@@ -43,7 +43,6 @@ open class ListPlanets(
                 emptyList()
             else when (val mimeType = serverResponse.contentType?.mimeType) {
                 MIMEType.JSON -> parse(ListSerializer(PlanetJsonInfo.serializer()))
-                MIMEType.PlainText -> body?.split('\n')?.map(PlanetJsonInfo.Companion::fromPlaintextString)
                 else -> throw IllegalArgumentException("Cannot parse MIME-Type '$mimeType'")
             } ?: emptyList()
         }

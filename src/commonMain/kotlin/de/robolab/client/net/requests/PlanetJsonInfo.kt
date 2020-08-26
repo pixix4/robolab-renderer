@@ -19,15 +19,16 @@ class PlanetJsonInfo(
     override val id: ID,
     override val name: String,
     @SerialName("lastModified")
-    val lastModifiedString: String
+    val lastModifiedString: String,
+    override val tags: Map<String, List<String>> = emptyMap()
 
 ) : IFilePlanetIdentifier, IPlanetInfo<ID> {
 
-    constructor(id: ID, name: String, lastModified: DateTime) :
-            this(id, name, DateFormat.FORMAT1.format(lastModified))
+    constructor(id: ID, name: String, lastModified: DateTime, tags: Map<String, List<String>> = emptyMap()) :
+            this(id, name, DateFormat.FORMAT1.format(lastModified), tags)
 
     @Transient
-    private var _dateTime : DateTime? = null
+    private var _dateTime: DateTime? = null
 
     override val lastModified: DateTime
         get() {
@@ -61,23 +62,5 @@ class PlanetJsonInfo(
             name = name,
             lastModifiedString = DateFormat.FORMAT1.format(time)
         )
-    }
-
-    fun toPlaintextString(): String = "${id.id}@${DateSerializer.format.format(this.lastModified)}:$name"
-
-    companion object {
-        private val textResponseRegex: Regex =
-            """^((?:[a-zA-Z0-9_\-]|%3d)+)@([^@]+)@([^\n\r]+)$""".toRegex(RegexOption.MULTILINE)
-
-        fun fromPlaintextString(text: String): PlanetJsonInfo {
-            val match = textResponseRegex.matchEntire(text)
-                ?: throw IllegalArgumentException("Cannot parse PlanetJsonInfo \"$text\"")
-            val (idString: String, modifiedAt: String, name: String) = match.destructured
-            return PlanetJsonInfo(
-                name = name,
-                id = ID(idString),
-                lastModifiedString = modifiedAt
-            )
-        }
     }
 }

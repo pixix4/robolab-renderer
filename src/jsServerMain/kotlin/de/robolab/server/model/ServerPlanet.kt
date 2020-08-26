@@ -39,9 +39,13 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
     val _lastModified: ObservableProperty<DateTime> = info.lastModified.observe()
     val lastModifiedProp: ObservableValue<DateTime> = _lastModified
     val lastModified: DateTime by lastModifiedProp
+    val _tagMapProp: ObservableProperty<Map<String,List<String>>> = info.tags.observe()
+    val tagMapProp: ObservableValue<Map<String,List<String>>> = _tagMapProp
+    val tagMap: Map<String, List<String>> by tagMapProp
 
-    val infoProp: ObservableValue<ServerPlanetInfo> = property(nameProp, lastModifiedProp) {
-        ServerPlanetInfo(id, name, lastModified)
+
+    val infoProp: ObservableValue<ServerPlanetInfo> = property(nameProp, lastModifiedProp, tagMapProp) {
+        ServerPlanetInfo(id, name, lastModified, tagMap)
     }
     val info by infoProp
 
@@ -63,16 +67,16 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
         }
     }
 
-    fun asTemplate(): Template = Template(name, planetFile.content)
+    fun asTemplate(): Template = Template(name, planetFile.content, planetFile.planet.tagMap)
 
     suspend fun lockLines(): Unit {}
     suspend fun lockLines(timeout: Int) {}
     fun unlockLines(): Unit {}
 
-    class Template(val name: String, lines: List<String> = listOf("#name: $name")) {
+    class Template(val name: String, lines: List<String> = listOf("#name: $name"), val tags: Map<String,List<String>> = emptyMap()) {
         val lines: MutableList<String> = lines.toMutableList()
 
-        fun withID(id: String): ServerPlanet = ServerPlanet(ServerPlanetInfo(id, name, DateTime.now()), lines = lines)
+        fun withID(id: String): ServerPlanet = ServerPlanet(ServerPlanetInfo(id, name, DateTime.now(), tags), lines = lines)
 
         fun reparsed(): Template = fromLines(lines, name)
 
@@ -81,7 +85,8 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
                 val file = PlanetFile(lines)
                 return Template(
                     file.planet.name.let { if (it.isEmpty()) fallbackName else it },
-                    file.content
+                    file.content,
+                    file.planet.tagMap
                 )
             }
 

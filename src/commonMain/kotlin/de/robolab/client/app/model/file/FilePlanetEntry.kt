@@ -168,15 +168,7 @@ class FilePlanetEntry(
         filePlanet.load()
     }
 
-    override fun matchesSearch(request: SearchRequest): Boolean {
-        val tagQueries: List<TagQuery> = request.tagQueries
-        return request.literalQueries.all{
-            titleProperty.value.contains(it, true) || planetFile.planet.tagMap.containsKey(it)
-        } && tagQueries.all {
-            val tagEntry: List<String> = planetFile.planet.tagMap[it.tagName] ?: return@all it.matchMissing
-            return@all it.matches(tagEntry)
-        }
-    }
+    override fun matchesSearch(request: SearchRequest): Boolean = request.matches(planetFile.planet)
 
     fun exportAsSVG(name: String = "") {
         var fileName = name

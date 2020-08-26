@@ -1,8 +1,28 @@
 package de.robolab.client.app.model.base
 
+import de.robolab.common.planet.IPlanetInfo
+import de.robolab.common.planet.Planet
 import de.robolab.common.planet.TagQuery
 
 data class SearchRequest(val rawText: String, val tagQueries: List<TagQuery>, val literalQueries: List<String>) {
+
+    fun matches(planetInfo: IPlanetInfo<*>, ignoreCase: Boolean = true): Boolean{
+        return literalQueries.all{
+            planetInfo.name.contains(it, ignoreCase) || planetInfo.tags.containsKey(it)
+        } && tagQueries.all {
+            val tagEntry: List<String> = planetInfo.tags[it.tagName] ?: return@all it.matchMissing
+            return@all it.matches(tagEntry)
+        }
+    }
+
+    fun matches(planet: Planet, ignoreCase: Boolean = true): Boolean{
+        return literalQueries.all{
+            planet.name.contains(it, ignoreCase) || planet.tagMap.containsKey(it)
+        } && tagQueries.all {
+            val tagEntry: List<String> = planet.tagMap[it.tagName] ?: return@all it.matchMissing
+            return@all it.matches(tagEntry)
+        }
+    }
 
     companion object {
 
@@ -31,3 +51,7 @@ data class SearchRequest(val rawText: String, val tagQueries: List<TagQuery>, va
         }
     }
 }
+
+
+infix fun IPlanetInfo<*>.matches(request: SearchRequest):Boolean = request.matches(this)
+infix fun Planet.matches(request: SearchRequest):Boolean = request.matches(this)

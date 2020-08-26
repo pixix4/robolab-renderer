@@ -26,3 +26,19 @@ fun <K, V> Map<K, V>.withEntry(entry: Pair<K, V>, merger:(key: K, oldValue: V, n
 fun <K, V> Map<K, List<V>>.withEntry(entry: Pair<K, V>) = this.withEntry(entry.first to listOf(entry.second)){ _:K, oldValue:List<V>, newValue:List<V> ->
     oldValue + newValue
 }
+
+inline fun <T, R, S, V> Iterable<T>.zip(other1: Iterable<R>, other2: Iterable<S>, transform: (a: T, b: R, c: S) -> V): List<V> {
+    val first = iterator()
+    val second = other1.iterator()
+    val third = other2.iterator()
+
+    val firstLength = if (this is Collection<*>) this.size else 10
+    val secondLength = if (other1 is Collection<*>) other1.size else 10
+    val thirdLength = if (other2 is Collection<*>) other2.size else 10
+
+    val list = ArrayList<V>(minOf(firstLength, secondLength, thirdLength))
+    while (first.hasNext() && second.hasNext() && third.hasNext()) {
+        list.add(transform(first.next(), second.next(), third.next()))
+    }
+    return list
+}
