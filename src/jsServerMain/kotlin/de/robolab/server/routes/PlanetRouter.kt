@@ -62,6 +62,8 @@ object PlanetRouter {
         }
     }
 
+    suspend fun clearMeta(): Pair<Boolean,String> = planetStore.clearMeta()
+
     class PlanetIDRouter(planetStore: IPlanetStore) {
         val baseRouter: DefaultRouter = createRouter()
         val planetRouter: Router<PlanetRequestData, DefaultResponseData> =

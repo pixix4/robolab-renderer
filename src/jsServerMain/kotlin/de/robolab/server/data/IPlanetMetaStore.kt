@@ -44,6 +44,8 @@ interface IPlanetMetaStore {
     suspend fun addInfo(infos: List<ServerPlanetInfo>) = infos.forEach { addInfo(it) }
     suspend fun removeInfoByID(id: String): ServerPlanetInfo?
     suspend fun removeInfoByID(ids: List<String>): List<ServerPlanetInfo?> = ids.map { removeInfoByID(it) }
+
+    suspend fun clear(): Pair<Boolean,String>
 }
 
 suspend fun IPlanetMetaStore.setInfo(vararg info: ServerPlanetInfo, onlyIfExist: Boolean = false) =

@@ -9,7 +9,7 @@ import kotlinx.coroutines.await
 
 class RedisPlanetMetaStore(connectionString: String) : IPlanetMetaStore {
 
-    companion object {
+    private companion object {
         private fun planetNameKey(id: String) = "planet:name@$id"
         private fun planetMTimeKey(id: String) = "planet:mtime@$id"
         private fun planetTagsKey(id: String) = "planet:tags@$id"
@@ -152,6 +152,10 @@ class RedisPlanetMetaStore(connectionString: String) : IPlanetMetaStore {
         }).await()
     }
 
+    override suspend fun clear(): Pair<Boolean, String>{
+        val text = redis.flushdb().await()
+        return ("ok".equals(text,true) to text)
+    }
 
     protected fun finalize() {
         redis.disconnect()

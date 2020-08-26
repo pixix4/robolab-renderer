@@ -71,10 +71,10 @@ external interface IRedisCommandReceiver {
     fun exists(key: String, vararg keys: String): RedisIntResponse
     fun expire(key: String, seconds: Int): RedisIntResponse
     fun expireat(key: String, timestamp: Int): RedisIntResponse
-    fun flushall()
-    fun flushall(async: String)
-    fun flushdb()
-    fun flushdb(async: String)
+    fun flushall():RedisStrResponse
+    fun flushall(async: String):RedisStrResponse
+    fun flushdb():RedisStrResponse
+    fun flushdb(async: String):RedisStrResponse
     fun geoadd(key: String, longitude: Float, latitude: Float, member: String): RedisIntResponse
     fun geohash(key: String, member: String, vararg members: String): RedisTypedArrayResponse<String>
     fun geopos(

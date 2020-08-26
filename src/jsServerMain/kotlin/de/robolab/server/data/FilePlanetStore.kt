@@ -177,4 +177,6 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         ).filterNotNull()
     }
 
+    override suspend fun clearMeta(): Pair<Boolean, String> = metaStore.clear()
+
 }

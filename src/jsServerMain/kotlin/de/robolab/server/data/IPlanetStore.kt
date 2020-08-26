@@ -17,6 +17,8 @@ interface IPlanetStore {
     suspend fun getInfo(id: String): ServerPlanetInfo?
 
     suspend fun listPlanets(): List<ServerPlanetInfo>
+
+    suspend fun clearMeta(): Pair<Boolean, String>
 }
 
 suspend fun IPlanetStore.get(info: ServerPlanetInfo?): SPlanet? {
