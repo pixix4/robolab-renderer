@@ -14,6 +14,15 @@ build-jvm:
   tags:
     - docker
 
+build-jvm-headless:
+  stage: build
+  script: gradle jvmHeadlessJar
+  artifacts:
+    paths:
+      - build/libs/robolab-jvmheadless.jar
+  tags:
+    - docker
+
 build-js-client:
   stage: build
   script: gradle jsClientSync
