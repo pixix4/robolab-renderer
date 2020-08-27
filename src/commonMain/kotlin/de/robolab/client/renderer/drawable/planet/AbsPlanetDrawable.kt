@@ -244,6 +244,21 @@ abstract class AbsPlanetDrawable : ITransformationReference {
                 }
             }
 
+            if (planet.startPoint != null) {
+                update(planet.startPoint.point.x.toDouble(), planet.startPoint.point.y.toDouble())
+
+                if (planet.startPoint.controlPoints.isNotEmpty()) {
+                    val p = planet.startPoint.path
+                    val controlPoints = PathAnimatable.getControlPointsFromPath(planet.version, p)
+                    val points = PathAnimatable.multiEval(16, controlPoints, Point(p.source), Point(p.target)) {
+                        BSpline.eval(it, controlPoints)
+                    }
+                    for (c in points) {
+                        update(c.left, c.top)
+                    }
+                }
+            }
+
             if (!found) {
                 return null
             }

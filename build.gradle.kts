@@ -31,7 +31,16 @@ val klockVersion = "1.12.0"
 val coroutineVersion = "1.3.9"
 val ktorVersion = "1.4.0"
 kotlin {
-    jvm {
+    jvm("jvm") {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "11"
+                freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
+                freeCompilerArgs += "-Xinline-classes"
+            }
+        }
+    }
+    jvm("jvmHeadless") {
         compilations.all {
             kotlinOptions {
                 jvmTarget = "11"
@@ -125,6 +134,27 @@ kotlin {
             }
         }
         val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(kotlin("test-junit"))
+            }
+        }
+
+        val jvmHeadlessMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.0")
+                implementation("com.github.ajalt:clikt:2.8.0")
+
+                implementation("org.fusesource.jansi:jansi:1.18")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutineVersion")
+
+                implementation("io.ktor:ktor-client-core:$ktorVersion")
+                implementation("io.ktor:ktor-client-apache:$ktorVersion")
+            }
+        }
+        val jvmHeadlessTest by getting {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-junit"))
@@ -258,6 +288,31 @@ tasks.create<JavaExec>("jvmRun") {
     args()
 }
 
+val jvmHeadlessJar = tasks.named<Jar>("jvmHeadlessJar") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes("Main-Class" to mainClassName)
+    }
+
+    from(Callable {
+        configurations["jvmHeadlessRuntimeClasspath"].map {
+            if (it.isDirectory) it else zipTree(it)
+        }
+    }) {
+        exclude("META-INF/*.SF", "META-INF/*.RSA", "META-INF/*SF")
+    }
+}
+
+tasks.create<JavaExec>("jvmHeadlessRun") {
+    dependsOn("jvmHeadlessJar")
+
+    group = "application"
+    main = mainClassName
+    classpath(jvmHeadlessJar)
+    args()
+}
+
 tasks.create<JavaExec>("buildSassTheme") {
     dependsOn("jvmJar")
 
@@ -369,6 +424,11 @@ tasks.named("clean") {
 }
 
 tasks.named<ProcessResources>("jvmProcessResources") {
+    dependsOn(createBuildInfo)
+
+    from(createBuildInfo)
+}
+tasks.named<ProcessResources>("jvmHeadlessProcessResources") {
     dependsOn(createBuildInfo)
 
     from(createBuildInfo)
