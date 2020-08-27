@@ -57,7 +57,7 @@ deploy-client:
     - build-js-client
   dependencies:
     - build-jvm
-      - build-jvm-headless
+    - build-jvm-headless
     - build-js-client
   tags:
     - shell
