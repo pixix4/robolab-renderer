@@ -5,7 +5,6 @@ import de.robolab.common.planet.Direction
 import de.robolab.common.utils.RobolabJson
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
-import kotlinx.serialization.json.Json
 
 class SendMessageController(topic: String, private val sendMessage: (String, String) -> Boolean) {
 
@@ -147,7 +146,7 @@ class SendMessageController(topic: String, private val sendMessage: (String, Str
                     planetName = planetNameProperty.value,
                     startX = startXProperty.value,
                     startY = startYProperty.value,
-                    startDirection = startDirectionProperty.value
+                    startOrientation = startOrientationProperty.value
                 )
             )
             Type.PathUnveilMessage -> JsonMessage(
