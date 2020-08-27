@@ -6,7 +6,7 @@ stages:
 
 build-jvm:
   stage: build
-  script: gradle jvmJar
+  script: gradle -Dorg.gradle.daemon=false jvmJar
   artifacts:
     paths:
       - build/libs/robolab-jvm.jar
@@ -16,7 +16,7 @@ build-jvm:
 
 build-jvm-headless:
   stage: build
-  script: gradle jvmHeadlessJar
+  script: gradle -Dorg.gradle.daemon=false jvmHeadlessJar
   artifacts:
     paths:
       - build/libs/robolab-jvmheadless.jar
@@ -25,7 +25,7 @@ build-jvm-headless:
 
 build-js-client:
   stage: build
-  script: gradle jsClientSync
+  script: gradle -Dorg.gradle.daemon=false jsClientSync
   artifacts:
     paths:
       - web/website
@@ -34,7 +34,7 @@ build-js-client:
 
 build-js-server:
   stage: build
-  script: gradle jsServerSync
+  script: gradle -Dorg.gradle.daemon=false jsServerSync
   artifacts:
     paths:
       - webServer
@@ -48,13 +48,16 @@ deploy-client:
     - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/libs/robolab-jvm.jar ubuntu@robolab.pixix4.com:jvmClient/
     - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/processedResources/build.ini ubuntu@robolab.pixix4.com:jvmClient/
     - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c web/website/ ubuntu@robolab.pixix4.com:jsClient/website/
+    - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/libs/robolab-headlessjvm.jar ubuntu@robolab.pixix4.com:jvmClient/
   only:
     - master
   needs:
     - build-jvm
+    - build-jvm-headless
     - build-js-client
   dependencies:
     - build-jvm
+      - build-jvm-headless
     - build-js-client
   tags:
     - shell
