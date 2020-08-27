@@ -16,6 +16,8 @@ class SetupView : View() {
 
     private var openMainView = false
 
+    private val planetFolder = de.westermann.kobserve.property.property("")
+
     override val root = vbox {
         title = "${MainController.APPLICATION_NAME} - Setup"
         setStageIcon(Image("icon.png"))
@@ -57,6 +59,21 @@ class SetupView : View() {
                         }
                     }
 
+                    fieldset("Planet repo") {
+                        field("Repo") {
+                            textfield(planetFolder.toFx())
+                            button("Select") {
+                                setOnAction {
+                                    val f = chooseDirectory("Select planet repo")
+
+                                    if (f != null) {
+                                        planetFolder.value = f.absolutePath
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     fieldset("Appearance") {
                         field("Theme") {
                             combobox(
@@ -87,6 +104,16 @@ class SetupView : View() {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    init {
+        planetFolder.onChange {
+            PreferenceStorage.fileServer = if (planetFolder.value.isEmpty()) {
+                emptyList()
+            } else {
+                listOf("directory://" + planetFolder.value)
             }
         }
     }

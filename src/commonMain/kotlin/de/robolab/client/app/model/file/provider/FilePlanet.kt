@@ -27,7 +27,7 @@ class FilePlanet<T : IFilePlanetIdentifier>(
 
     suspend fun save() {
         val local = localIdentifier ?: return
-        val identifier = loader.saveContent(local, planetFile.content) ?: return
+        val identifier = loader.savePlanet(local, planetFile.content) ?: return
 
         planetFile.history.clear()
         localIdentifier = identifier
@@ -37,16 +37,16 @@ class FilePlanet<T : IFilePlanetIdentifier>(
     suspend fun copy() {
         val content = PlanetFile(planetFile.content)
         content.setName(content.planet.name + " - Copy")
-        loader.createWithContent(content.content)
+        loader.createPlanet(content.content)
     }
 
     suspend fun delete() {
-        loader.deleteIdentifier(localIdentifier ?: return)
+        loader.deletePlanet(localIdentifier ?: return)
     }
 
     suspend fun load() {
         val remote = remoteIdentifier ?: return
-        val (identifier, content) = loader.loadContent(remote) ?: return
+        val (identifier, content) = loader.loadPlanet(remote) ?: return
 
         planetFile.resetContent(content)
         localIdentifier = identifier
@@ -63,7 +63,7 @@ class FilePlanet<T : IFilePlanetIdentifier>(
             return
         }
 
-        val (newIdentifier, content) = loader.loadContent(identifier) ?: return
+        val (newIdentifier, content) = loader.loadPlanet(identifier) ?: return
 
         planetFile.resetContent(content)
         localIdentifier = newIdentifier

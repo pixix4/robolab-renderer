@@ -25,8 +25,7 @@ class GroupPlanetEntry(
     val filePlanetProvider: MultiFilePlanetProvider,
     private val messageManager: MessageManager,
     private val currentTimeProperty: ObservableValue<DateTimeTz>
-) :
-    INavigationBarGroup {
+) : INavigationBarGroup {
 
     val attempts = observableListOf<AttemptPlanetEntry>()
 

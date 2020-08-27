@@ -8,6 +8,7 @@ import de.robolab.client.net.RESTRobolabServer
 import de.robolab.client.net.requests.*
 import de.robolab.common.net.HttpStatusCode
 import de.westermann.kobserve.event.EventHandler
+import de.westermann.kobserve.property.constObservable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -17,13 +18,15 @@ class RemoteFilePlanetLoader(
 
     override val onRemoteChange = EventHandler<Unit>()
 
-    override val name = "Remote"
+    override val nameProperty = constObservable("Remote")
 
-    override val desc = server.hostURL
+    override val descProperty = constObservable(server.hostURL)
 
-    override val icon = MaterialIcon.CLOUD_QUEUE
+    override val iconProperty = constObservable(MaterialIcon.CLOUD_QUEUE)
 
-    override suspend fun loadContent(identifier: PlanetJsonInfo): Pair<PlanetJsonInfo, List<String>>? {
+    override val availableProperty = constObservable(true)
+
+    override suspend fun loadPlanet(identifier: PlanetJsonInfo): Pair<PlanetJsonInfo, List<String>>? {
         return withContext(Dispatchers.Default) {
             val result = server.getPlanet(identifier.id)
             if (result.status != HttpStatusCode.Ok) {
@@ -34,7 +37,7 @@ class RemoteFilePlanetLoader(
         }
     }
 
-    override suspend fun saveContent(identifier: PlanetJsonInfo, lines: List<String>): PlanetJsonInfo? {
+    override suspend fun savePlanet(identifier: PlanetJsonInfo, lines: List<String>): PlanetJsonInfo? {
         return withContext(Dispatchers.Default) {
             val result = server.putPlanet(identifier.id, lines.joinToString("\n"))
 
@@ -42,19 +45,19 @@ class RemoteFilePlanetLoader(
         }
     }
 
-    override suspend fun createWithContent(lines: List<String>) {
+    override suspend fun createPlanet(lines: List<String>) {
         return withContext(Dispatchers.Default) {
             server.postPlanet(lines.joinToString("\n"))
         }
     }
 
-    override suspend fun deleteIdentifier(identifier: PlanetJsonInfo) {
+    override suspend fun deletePlanet(identifier: PlanetJsonInfo) {
         return withContext(Dispatchers.Default) {
             server.deletePlanet(identifier.id)
         }
     }
 
-    override suspend fun loadIdentifierList(): List<PlanetJsonInfo> {
+    override suspend fun listPlanets(identifier: PlanetJsonInfo?): List<PlanetJsonInfo> {
         return withContext(Dispatchers.Default) {
             server.listPlanets().planets
         }

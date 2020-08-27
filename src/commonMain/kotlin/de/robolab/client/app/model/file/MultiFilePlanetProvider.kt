@@ -38,7 +38,7 @@ fun MultiFilePlanetProvider.findByName(name: String): FilePlanetEntry? {
             it.titleProperty.value.contains(name, true)
         }.minByOrNull { it.titleProperty.value.length }
 
-        if (found != null) {
+        if (found != null && found is FilePlanetEntry) {
             return found
         }
     }

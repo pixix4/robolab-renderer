@@ -6,7 +6,6 @@ import com.soywiz.klock.format
 import com.soywiz.klock.parseUtc
 import de.robolab.client.app.model.base.SearchRequest
 import de.robolab.client.app.model.file.provider.IFilePlanetIdentifier
-import de.robolab.common.net.externalserializers.DateSerializer
 import de.robolab.common.planet.ID
 import de.robolab.common.planet.IDSerializer
 import de.robolab.common.planet.IPlanetInfo
@@ -44,6 +43,8 @@ class PlanetJsonInfo(
 
             return dateTime0
         }
+
+    override val isDirectory = false
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

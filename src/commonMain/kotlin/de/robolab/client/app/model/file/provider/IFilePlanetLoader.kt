@@ -4,29 +4,34 @@ import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.base.SearchRequest
 import de.robolab.common.planet.Planet
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
 
 interface IFilePlanetLoader<T: IFilePlanetIdentifier> {
 
     val onRemoteChange: EventHandler<Unit>
 
-    suspend fun loadContent(identifier: T): Pair<T, List<String>>?
+    suspend fun loadPlanet(identifier: T): Pair<T, List<String>>?
 
-    suspend fun saveContent(identifier: T, lines: List<String>): T?
+    suspend fun savePlanet(identifier: T, lines: List<String>): T?
 
-    suspend fun createWithContent(lines: List<String>)
+    suspend fun createPlanet(lines: List<String>)
 
-    suspend fun deleteIdentifier(identifier: T)
+    suspend fun deletePlanet(identifier: T)
 
-    suspend fun loadIdentifierList(): List<T>
+    suspend fun listPlanets(identifier: T? = null): List<T>
 
-    val name: String
-    val desc: String
+    val nameProperty: ObservableValue<String>
+    val descProperty: ObservableValue<String>
 
-    val icon: MaterialIcon
+    val iconProperty: ObservableValue<MaterialIcon>
+
+    val availableProperty: ObservableValue<Boolean>
 }
 
 interface IFilePlanetIdentifier {
+
+    val isDirectory: Boolean
 
     val name: String
 

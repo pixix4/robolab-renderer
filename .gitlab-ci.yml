@@ -48,7 +48,7 @@ deploy-client:
     - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/libs/robolab-jvm.jar ubuntu@robolab.pixix4.com:jvmClient/
     - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/processedResources/build.ini ubuntu@robolab.pixix4.com:jvmClient/
     - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c web/website/ ubuntu@robolab.pixix4.com:jsClient/website/
-    - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/libs/robolab-headlessjvm.jar ubuntu@robolab.pixix4.com:jvmClient/
+    - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/libs/robolab-jvmheadless.jar ubuntu@robolab.pixix4.com:jvmClient/
   only:
     - master
   needs:
@@ -61,6 +61,7 @@ deploy-client:
     - build-js-client
   tags:
     - shell
+    - mothership
 
 deploy-server:
   stage: deploy

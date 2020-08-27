@@ -5,6 +5,7 @@ import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.common.parser.PlanetFile
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
+import de.westermann.kobserve.property.constObservable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.io.File
@@ -23,11 +24,13 @@ class FileSystemPlanetLoader(
 
     override val onRemoteChange = EventHandler<Unit>()
 
-    override val name = "Directory"
+    override val nameProperty = constObservable("Directory")
 
-    override val desc = baseDirectory.absolutePath
+    override val descProperty = constObservable(baseDirectory.absolutePath)
 
-    override val icon = MaterialIcon.FOLDER_OPEN
+    override val iconProperty = constObservable(MaterialIcon.FOLDER_OPEN)
+
+    override val availableProperty = constObservable(true)
 
     private fun getNameOfLines(lines: List<String>): String {
         return PlanetFile(lines).planet.name.replace(' ', '_')
@@ -43,7 +46,7 @@ class FileSystemPlanetLoader(
         return file
     }
 
-    override suspend fun loadContent(identifier: FileIdentifier): Pair<FileIdentifier, List<String>>? {
+    override suspend fun loadPlanet(identifier: FileIdentifier): Pair<FileIdentifier, List<String>>? {
         return try {
             val lines = identifier.file.readLines()
 
@@ -53,7 +56,7 @@ class FileSystemPlanetLoader(
         }
     }
 
-    override suspend fun saveContent(identifier: FileIdentifier, lines: List<String>): FileIdentifier? {
+    override suspend fun savePlanet(identifier: FileIdentifier, lines: List<String>): FileIdentifier? {
         val name = getNameOfLines(lines)
         return try {
             identifier.file.writeText(lines.joinToString("\n"))
@@ -67,7 +70,7 @@ class FileSystemPlanetLoader(
         }
     }
 
-    override suspend fun createWithContent(lines: List<String>) {
+    override suspend fun createPlanet(lines: List<String>) {
         val name = getNameOfLines(lines)
         try {
             val file = findUnusedFile(name)
@@ -77,7 +80,7 @@ class FileSystemPlanetLoader(
         }
     }
 
-    override suspend fun deleteIdentifier(identifier: FileIdentifier) {
+    override suspend fun deletePlanet(identifier: FileIdentifier) {
         try {
             identifier.file.delete()
         } catch (e: Exception) {
@@ -85,9 +88,14 @@ class FileSystemPlanetLoader(
         }
     }
 
-    override suspend fun loadIdentifierList(): List<FileIdentifier> {
+    override suspend fun listPlanets(identifier: FileIdentifier?): List<FileIdentifier> {
         return try {
-            baseDirectory.listFiles()?.map { FileIdentifier(it) } ?: emptyList()
+            val file = identifier?.file ?: baseDirectory
+            file.listFiles()
+                ?.filter {
+                    (it.isDirectory && !it.name.startsWith(".")) ||it.extension.endsWith("planet", true)
+                }
+                ?.map { FileIdentifier(it) } ?: emptyList()
         } catch (e: Exception) {
             emptyList()
         }
@@ -97,6 +105,9 @@ class FileSystemPlanetLoader(
         val file: File,
         override val lastModified: DateTime = file.lastModified
     ) : IFilePlanetIdentifier {
+
+        override val isDirectory: Boolean
+            get() = file.isDirectory
 
         override val name: String
             get() = file.name
