@@ -61,7 +61,6 @@ deploy-client:
     - build-js-client
   tags:
     - shell
-    - mothership
 
 deploy-server:
   stage: deploy
