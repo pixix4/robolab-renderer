@@ -100,7 +100,7 @@ class InfoBarTraverserView(private val traverserProperty: de.westermann.kobserve
                 }
             }
 
-            addEventFilter(KeyEvent.KEY_RELEASED) { event ->
+            addEventFilter(KeyEvent.KEY_PRESSED) { event ->
                 val selectedItem = this.selectedItem
                 if (selectedItem != null) {
                     when (event.code) {
@@ -112,6 +112,7 @@ class InfoBarTraverserView(private val traverserProperty: de.westermann.kobserve
 
                                 if (index != null) {
                                     this.selectionModel.select(index)
+                                    this.selectedItem?.select()
                                 }
                             }
                         }
@@ -123,9 +124,21 @@ class InfoBarTraverserView(private val traverserProperty: de.westermann.kobserve
 
                                 if (index != null) {
                                     this.selectionModel.select(index)
+                                    this.selectedItem?.select()
                                 }
                             }
                         }
+                        else -> return@addEventFilter
+                    }
+                }
+                event.consume()
+                this.requestFocus()
+            }
+
+            addEventFilter(KeyEvent.KEY_RELEASED) { event ->
+                val selectedItem = this.selectedItem
+                if (selectedItem != null) {
+                    when (event.code) {
                         KeyCode.ENTER -> selectedItem.select()
                         KeyCode.SPACE -> selectedItem.select()
                         else -> {

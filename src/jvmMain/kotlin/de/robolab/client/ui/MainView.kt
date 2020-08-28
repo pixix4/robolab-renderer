@@ -154,9 +154,9 @@ class MainView : View() {
                     mainController.fileImportController.isFileSupported(it.name)
                 }
             ) {
-                event.acceptTransferModes(TransferMode.COPY);
+                event.acceptTransferModes(TransferMode.COPY)
             }
-            event.consume();
+            event.consume()
         }
 
         // Drop from native wayland applications can throw a NPE
