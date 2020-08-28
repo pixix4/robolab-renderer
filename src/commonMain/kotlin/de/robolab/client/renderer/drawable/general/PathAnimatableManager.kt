@@ -4,11 +4,9 @@ import de.robolab.client.renderer.drawable.base.AnimatableManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.common.planet.Path
 import de.robolab.common.planet.Planet
-import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.property.constObservable
 
 class PathAnimatableManager(
-        private val editProperty: ObservableValue<IEditCallback?> = constObservable(null)
+        private val editCallback: IEditCallback? = null
 ) : AnimatableManager<Path, PathAnimatable>() {
 
     override fun getObjectList(planet: Planet): List<Path> {
@@ -20,7 +18,7 @@ class PathAnimatableManager(
     }
 
     override fun createAnimatable(obj: Path, planet: Planet): PathAnimatable {
-        return PathAnimatable(obj, planet, editProperty)
+        return PathAnimatable(obj, planet, editCallback)
     }
 
     override fun objectEquals(oldValue: Path, newValue: Path): Boolean {

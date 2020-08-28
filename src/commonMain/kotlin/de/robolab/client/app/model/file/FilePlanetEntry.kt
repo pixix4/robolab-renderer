@@ -7,6 +7,7 @@ import de.robolab.client.renderer.canvas.SvgCanvas
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
 import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.client.renderer.drawable.planet.EditPlanetDrawable
+import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.client.renderer.utils.Transformation
@@ -14,14 +15,15 @@ import de.robolab.client.theme.LightTheme
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.menuBilder
 import de.robolab.common.parser.PlanetFile
-import de.robolab.common.planet.TagQuery
 import de.robolab.common.planet.Path
+import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.not
+import de.westermann.kobserve.event.mapEvent
 import de.westermann.kobserve.property.constObservable
+import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.Dispatchers
@@ -36,24 +38,46 @@ class FilePlanetEntry(
 
     override val enabledProperty = filePlanet.isLoadedProperty
 
-    val drawable = EditPlanetDrawable(planetFile)
+    private val transformationStateProperty = property(Transformation.State.DEFAULT)
+    val viewDrawable = SimplePlanetDrawable(transformationStateProperty)
+    val editDrawable = EditPlanetDrawable(planetFile, transformationStateProperty)
+    val traverserDrawable = LivePlanetDrawable(transformationStateProperty)
 
-    override val document = drawable.view
+    enum class Mode {
+        VIEW, EDIT, TRAVERSE
+    }
+
+    val modeProperty = property(Mode.VIEW)
+    var mode by modeProperty
+
+    override val documentProperty = modeProperty.mapBinding {
+        when(mode) {
+            Mode.VIEW -> viewDrawable.view
+            Mode.EDIT -> editDrawable.view
+            Mode.TRAVERSE -> traverserDrawable.view
+        }
+    }
 
     override val toolBarLeft: List<List<ToolBarEntry>> = listOf(
         listOf(
             ToolBarEntry(
                 constObservable("View"),
-                selectedProperty = !drawable.editableProperty
+                selectedProperty = modeProperty.mapBinding { it == Mode.VIEW }
             ) {
-                drawable.editableProperty.value = false
+                mode = Mode.VIEW
             },
             ToolBarEntry(
                 constObservable("Edit"),
-                selectedProperty = drawable.editableProperty
+                selectedProperty = modeProperty.mapBinding { it == Mode.EDIT }
             ) {
-                drawable.editableProperty.value = true
-            }
+                mode = Mode.EDIT
+            },
+            ToolBarEntry(
+                constObservable("Traverse"),
+                selectedProperty = modeProperty.mapBinding { it == Mode.TRAVERSE }
+            ) {
+                mode = Mode.TRAVERSE
+            },
         ),
         listOf(
             ToolBarEntry(
@@ -78,14 +102,6 @@ class FilePlanetEntry(
             ) {
                 openPaperConstraintsDialog()
             },
-            ToolBarEntry(
-                iconProperty = constObservable(MaterialIcon.COMPARE),
-                toolTipProperty = constObservable("Flip view horizontal"),
-                selectedProperty = drawable.flipViewProperty.mapBinding { it == true },
-                enabledProperty = drawable.flipViewProperty.mapBinding { it != null }
-            ) {
-                drawable.flip()
-            }
         ),
         listOf(
             ToolBarEntry(
@@ -136,11 +152,21 @@ class FilePlanetEntry(
         )
     )
 
-    override val infoBarList = listOf(InfoBarFileEditor(this), InfoBarTraverser(this))
-    override val selectedInfoBarIndexProperty = property<Int?>(0)
+    val infoBarEdit = InfoBarFileEditor(this)
+    val infoBarTraverser = InfoBarTraverser(this)
+
+    override val infoBarProperty = modeProperty.mapBinding {
+        when(mode) {
+            Mode.VIEW -> infoBarEdit
+            Mode.EDIT -> infoBarEdit
+            Mode.TRAVERSE -> infoBarTraverser
+        }
+    }
 
     private val statisticsDetailBox = PlanetStatisticsDetailBox(planetFile)
-    override val detailBoxProperty: ObservableValue<IDetailBox> = drawable.focusedElementsProperty.mapBinding { list ->
+    override val detailBoxProperty: ObservableValue<IDetailBox> = documentProperty.flatMapBinding {
+        it.drawable.focusedElementsProperty
+    }.mapBinding { list ->
         when (val first = list.firstOrNull()) {
             is PointAnimatableManager.AttributePoint -> PointDetailBox(first, planetFile)
             is Path -> PathDetailBox(first, planetFile)
@@ -150,7 +176,6 @@ class FilePlanetEntry(
 
     val content: String
         get() = planetFile.contentString
-
 
     suspend fun save() {
         filePlanet.save()
@@ -254,10 +279,19 @@ class FilePlanetEntry(
 
     init {
         planetFile.history.onChange {
-            drawable.importPlanet(planetFile.planet)
+            viewDrawable.importPlanet(planetFile.planet)
+            editDrawable.importPlanet(planetFile.planet)
+            traverserDrawable.importBackgroundPlanet(planetFile.planet)
         }
 
-        document.onAttach {
+        infoBarTraverser.traverserRenderStateProperty.onChange {
+            val state = infoBarTraverser.traverserRenderStateProperty.value
+
+            traverserDrawable.importRobot(state?.robotDrawable)
+            traverserDrawable.importServerPlanet(state?.planet ?: Planet.EMPTY)
+        }
+
+        documentProperty.mapEvent { it.onAttach }.addListener {
             GlobalScope.launch(Dispatchers.Main) {
                 load()
             }

@@ -8,8 +8,8 @@ import de.robolab.client.app.model.group.GroupPlanetEntry
 import de.robolab.client.communication.toRobot
 import de.robolab.client.renderer.drawable.planet.MultiRobotPlanetDrawable
 import de.westermann.kobserve.base.ObservableMutableList
-import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.event.mapEvent
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.map.observableMapOf
@@ -82,13 +82,12 @@ class RoomPlanetEntry(planetName: String, filePlanetProvider: MultiFilePlanetPro
 
     override val toolBarLeft = emptyList<List<ToolBarEntry>>()
     override val toolBarRight = emptyList<List<ToolBarEntry>>()
-    override val infoBarList = emptyList<IInfoBarContent>()
 
+    override val infoBarProperty: ObservableValue<IInfoBarContent> = constObservable(object : IInfoBarContent {})
     override val detailBoxProperty: ObservableValue<IDetailBox> = property(object : IDetailBox {})
-    override val selectedInfoBarIndexProperty: ObservableProperty<Int?> = property()
 
     val drawable = MultiRobotPlanetDrawable()
-    override val document = drawable.view
+    override val documentProperty = constObservable(drawable.view)
 
     override val enabledProperty = constObservable(true)
     override val titleProperty = constObservable(planetName)
@@ -141,12 +140,12 @@ class RoomPlanetEntry(planetName: String, filePlanetProvider: MultiFilePlanetPro
             update()
         }
 
-        document.onAttach {
+        documentProperty.mapEvent { it.onAttach }.addListener {
             isOpen = true
             update()
         }
 
-        document.onDetach {
+        documentProperty.mapEvent { it.onDetach }.addListener {
             isOpen = false
         }
     }

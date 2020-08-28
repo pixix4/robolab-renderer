@@ -5,31 +5,26 @@ import de.robolab.client.renderer.drawable.edit.EditPaperBackground
 import de.robolab.client.renderer.drawable.edit.EditPointsManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.events.KeyCode
+import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.ConditionalView
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.planet.Planet
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.not
-import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
 class EditPlanetDrawable(
-    private val editCallback: IEditCallback
-) : AbsPlanetDrawable() {
-
-    val editableProperty = property(false)
-    val editable by editableProperty
-
-    private val editCallbackProperty = editableProperty.mapBinding {
-        if (it) editCallback else null
-    }
+    private val editCallback: IEditCallback,
+    transformationStateProperty: ObservableProperty<Transformation.State> = property(Transformation.State.DEFAULT)
+) : AbsPlanetDrawable(transformationStateProperty) {
 
     private val paperBackground = EditPaperBackground()
 
-    private val createPath = CreatePathManager(editCallbackProperty)
-    private val editPoints = EditPointsManager(editCallbackProperty, createPath)
+    private val createPath = CreatePathManager(editCallback)
+    private val editPoints = EditPointsManager(editCallback, createPath)
 
-    private val planetLayer = EditPlanetLayer(editCallbackProperty, createPath)
+    private val planetLayer = EditPlanetLayer(editCallback, createPath)
 
     fun importPlanet(planet: Planet) {
         planetLayer.importPlanet(planet)
@@ -64,27 +59,19 @@ class EditPlanetDrawable(
         overlayerViews.add(createPath.view)
 
         view.onKeyPress { event ->
-            if (!editable) return@onKeyPress
-
             when (event.keyCode) {
                 KeyCode.UNDO -> {
-                    if (editable) {
                         editCallback.undo()
-                    }
                 }
                 KeyCode.REDO -> {
-                    if (editable) {
                         editCallback.redo()
-                    }
                 }
                 KeyCode.Z -> if (event.ctrlKey) {
-                    if (editable) {
                         if (event.shiftKey) {
                             editCallback.redo()
                         } else {
                             editCallback.undo()
                         }
-                    }
                 }
                 else -> {
                 }
@@ -92,11 +79,9 @@ class EditPlanetDrawable(
         }
 
         view.onPointerSecondaryAction { event ->
-            val callback = editCallbackProperty.value ?: return@onPointerSecondaryAction
-
             view.menu(event, "Planet") {
                 action("Create comment") {
-                    callback.createComment(listOf("Comment"), event.planetPoint)
+                    editCallback.createComment(listOf("Comment"), event.planetPoint)
                 }
             }
 

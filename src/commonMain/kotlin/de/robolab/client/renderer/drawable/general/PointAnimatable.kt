@@ -12,13 +12,12 @@ import de.robolab.client.renderer.view.component.SquareView
 import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Direction
 import de.robolab.common.planet.Planet
-import de.westermann.kobserve.base.ObservableValue
 import kotlin.math.roundToInt
 
 class PointAnimatable(
     reference: PointAnimatableManager.AttributePoint,
     private var planet: Planet,
-    private val editProperty: ObservableValue<IEditCallback?>,
+    private val editCallback: IEditCallback?,
     createPath: CreatePathManager?
 ) : Animatable<PointAnimatableManager.AttributePoint>(reference) {
 
@@ -48,13 +47,10 @@ class PointAnimatable(
 
 
     init {
-        view.focusable =  true ||editProperty.value != null
-        editProperty.onChange {
-            view.focusable = true || editProperty.value != null
-        }
+        view.focusable =  true
 
         view.onPointerDown { event ->
-            val callback = editProperty.value ?: return@onPointerDown
+            val callback = editCallback ?: return@onPointerDown
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             if (event.ctrlKey && focusedView != null) {
                 val targetCoordinate = Coordinate(
@@ -74,7 +70,7 @@ class PointAnimatable(
         }
 
         view.onPointerSecondaryAction { event ->
-            val callback = editProperty.value ?: return@onPointerSecondaryAction
+            val callback = editCallback ?: return@onPointerSecondaryAction
             event.stopPropagation()
 
             val coordinate = this.reference.coordinate
@@ -156,7 +152,7 @@ class PointAnimatable(
                         callback.rotate(Planet.RotateDirection.CLOCKWISE, coordinate)
                     }
                     action("Rotate counter clockwise") {
-                        callback.rotate(Planet.RotateDirection.COUNTER_CLOCKWISE, coordinate)
+                        editCallback.rotate(Planet.RotateDirection.COUNTER_CLOCKWISE, coordinate)
                     }
                 }
 
@@ -186,7 +182,7 @@ class PointAnimatable(
         }
 
         for (direction in Direction.values()) {
-            setupPointEnd(reference.coordinate, direction, editProperty, createPath)
+            setupPointEnd(reference.coordinate, direction, editCallback, createPath)
         }
     }
 
@@ -194,7 +190,7 @@ class PointAnimatable(
         fun setupPointEnd(
             coordinate: Coordinate,
             direction: Direction,
-            editProperty: ObservableValue<IEditCallback?>,
+            editCallback: IEditCallback?,
             createPath: CreatePathManager?
         ): SquareView {
             val squareView = SquareView(
@@ -208,7 +204,7 @@ class PointAnimatable(
             squareView.extraPut(direction)
 
             squareView.onPointerDown { event ->
-                val callback = editProperty.value ?: return@onPointerDown
+                val callback = editCallback ?: return@onPointerDown
 
                 if (event.altKey) {
                     callback.togglePathSelect(coordinate, direction)

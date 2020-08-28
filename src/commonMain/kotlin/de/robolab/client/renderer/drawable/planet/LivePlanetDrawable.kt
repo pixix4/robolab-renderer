@@ -1,9 +1,14 @@
 package de.robolab.client.renderer.drawable.planet
 
 import de.robolab.client.renderer.drawable.live.RobotDrawable
+import de.robolab.client.renderer.utils.Transformation
 import de.robolab.common.planet.Planet
+import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.property.property
 
-class LivePlanetDrawable : AbsPlanetDrawable() {
+class LivePlanetDrawable(
+    transformationState: ObservableProperty<Transformation.State> = property(Transformation.State.DEFAULT)
+) : AbsPlanetDrawable(transformationState) {
 
     private val backgroundLayer = PlanetLayer("Background layer") {
         it.withAlpha(0.2)

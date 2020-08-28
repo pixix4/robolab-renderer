@@ -1,6 +1,5 @@
 package de.robolab.client.app.model.base
 
-import de.robolab.client.app.model.base.INavigationBarGroup
 import de.robolab.client.utils.ContextMenu
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableValue

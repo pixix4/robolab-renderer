@@ -6,11 +6,9 @@ import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.IPlanetValue
 import de.robolab.common.planet.Planet
-import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.property.constObservable
 
 class PointAnimatableManager(
-    private val editProperty: ObservableValue<IEditCallback?> = constObservable(null),
+    private val editCallback: IEditCallback? = null,
     private val createPath: CreatePathManager? = null
 ) : AnimatableManager<PointAnimatableManager.AttributePoint, PointAnimatable>() {
 
@@ -49,7 +47,7 @@ class PointAnimatableManager(
     }
 
     override fun createAnimatable(obj: AttributePoint, planet: Planet): PointAnimatable {
-        return PointAnimatable(obj, planet, editProperty, createPath)
+        return PointAnimatable(obj, planet, editCallback, createPath)
     }
 
     companion object {

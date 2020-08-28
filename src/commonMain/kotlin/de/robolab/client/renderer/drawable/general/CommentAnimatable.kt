@@ -1,21 +1,20 @@
 package de.robolab.client.renderer.drawable.general
 
+import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.drawable.base.Animatable
 import de.robolab.client.renderer.drawable.edit.IEditCallback
-import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.TextView
 import de.robolab.common.planet.Comment
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Point
-import de.westermann.kobserve.base.ObservableValue
 import kotlin.math.round
 
 class CommentAnimatable(
     reference: Comment,
-    private val editProperty: ObservableValue<IEditCallback?>
+    private val editCallback: IEditCallback?
 ) : Animatable<Comment>(reference) {
 
     private val Comment.fontAlignment
@@ -33,7 +32,7 @@ class CommentAnimatable(
             reference.fontAlignment,
             ICanvas.FontWeight.NORMAL
     ) {
-        val callback = editProperty.value ?: return@TextView false
+        val callback = editCallback ?: return@TextView false
 
         callback.setCommentValue(this.reference, it.split('\n'))
 
@@ -50,10 +49,7 @@ class CommentAnimatable(
     }
 
     init {
-        view.focusable = editProperty.value != null
-        editProperty.onChange {
-            view.focusable = editProperty.value != null
-        }
+        view.focusable = editCallback != null
         view.animationTime = 0.0
 
         var groupHistory = false
@@ -61,7 +57,7 @@ class CommentAnimatable(
             groupHistory = false
         }
         view.onPointerDrag { event ->
-            val callback = editProperty.value ?: return@onPointerDrag
+            val callback = editCallback ?: return@onPointerDrag
 
             val position = Point(
                     round(event.planetPoint.left * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR,
@@ -75,7 +71,7 @@ class CommentAnimatable(
         }
 
         view.onPointerSecondaryAction { event ->
-            val callback = editProperty.value ?: return@onPointerSecondaryAction
+            val callback = editCallback ?: return@onPointerSecondaryAction
             val comment = this@CommentAnimatable.reference
 
             view.menu(event, "Comment") {

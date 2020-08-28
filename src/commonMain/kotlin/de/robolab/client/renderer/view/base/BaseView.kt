@@ -377,6 +377,7 @@ abstract class BaseView(
 
     override val onCanvasResize = EventHandler<Dimension>()
     override val onUserTransformation = EventHandler<Unit>()
+    override val onViewChange = EventHandler<Unit>()
 
     private val extra = mutableMapOf<String, Any>()
 

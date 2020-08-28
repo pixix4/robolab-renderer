@@ -155,6 +155,7 @@ interface IView : MutableList<IView>, IAnimatable {
 
     val onCanvasResize: EventHandler<Dimension>
     val onUserTransformation: EventHandler<Unit>
+    val onViewChange: EventHandler<Unit>
 
     fun extraPut(key: String, value: Any)
     fun extraGet(key: String): Any?

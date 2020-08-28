@@ -17,6 +17,7 @@ import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
@@ -26,7 +27,11 @@ import kotlin.math.min
 import kotlin.math.round
 
 @Suppress("LeakingThis")
-abstract class AbsPlanetDrawable : ITransformationReference {
+abstract class AbsPlanetDrawable(
+    private val transformationStateProperty: ObservableProperty<Transformation.State> = property(Transformation.State.DEFAULT)
+) : ITransformationReference {
+
+    private var transformationState by transformationStateProperty
 
     val drawCompassProperty = property(true)
     var drawCompass by drawCompassProperty
@@ -91,6 +96,7 @@ abstract class AbsPlanetDrawable : ITransformationReference {
 
 
     val view = Document(
+        this,
         ConditionalView("Planet background", drawBackgroundProperty, backgroundView),
         backgroundViews,
         ConditionalView("Grid lines", drawGridLinesProperty, gridLinesView),
@@ -99,11 +105,8 @@ abstract class AbsPlanetDrawable : ITransformationReference {
         overlayerViews,
         ConditionalView("Grid numbers", drawGridNumbersProperty, gridNumbersView),
         ConditionalView("Compass", drawCompassProperty, compassView),
-        ConditionalView("Planet name", drawNameProperty, nameView)
+        ConditionalView("Planet name", drawNameProperty, nameView),
     )
-
-    private var transformationState = Transformation.State.DEFAULT
-
 
     var focusedElementsProperty = view.focusedStack.mapBinding { list ->
         list.mapNotNull { it.extraGet<IPlanetValue>() }
@@ -175,7 +178,6 @@ abstract class AbsPlanetDrawable : ITransformationReference {
         view.onUserTransformation {
             autoCentering = false
         }
-
 
         compassView.onPointerDown { event ->
             event.stopPropagation()

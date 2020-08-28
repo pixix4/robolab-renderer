@@ -1,8 +1,8 @@
 package de.robolab.client.renderer.drawable.edit
 
+import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.renderer.events.KeyCode
-import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.view.base.IView
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
@@ -15,7 +15,8 @@ import kotlin.math.max
 import kotlin.math.round
 
 class PathEditManager(
-        private val animatable: PathAnimatable
+        private val animatable: PathAnimatable,
+        private val editCallback: IEditCallback
 ) {
 
     private val controlPoints
@@ -135,7 +136,6 @@ class PathEditManager(
                 view.focus()
             }
 
-            val callback = animatable.editProperty.value ?: return@onPointerDrag
             val index = controlPointView.indexOf(view)
 
             val cp = editableControlPoints.toMutableList()
@@ -143,7 +143,7 @@ class PathEditManager(
             cp[index] = updateControlPoint(index, event.planetPoint)
 
             if (cp != editableControlPoints) {
-                callback.updatePathControlPoints(
+                editCallback.updatePathControlPoints(
                         animatable.reference,
                         cp,
                         groupChanges
@@ -157,7 +157,6 @@ class PathEditManager(
         }
 
         view.onPointerSecondaryAction { event ->
-            val callback = animatable.editProperty.value ?: return@onPointerSecondaryAction
             event.stopPropagation()
 
             val index = controlPointView.indexOf(view)
@@ -169,7 +168,7 @@ class PathEditManager(
                     cp.removeAt(index)
 
                     focusViewInDirection(view, -1)
-                    callback.updatePathControlPoints(
+                    editCallback.updatePathControlPoints(
                             animatable.reference,
                             cp
                     )
@@ -177,7 +176,6 @@ class PathEditManager(
             }
         }
         view.onKeyPress {event ->
-            val callback = animatable.editProperty.value ?: return@onKeyPress
             val index = controlPointView.indexOf(view)
             val cp = editableControlPoints.toMutableList()
             
@@ -186,7 +184,7 @@ class PathEditManager(
                     cp.removeAt(index)
 
                     focusViewInDirection(view, -1)
-                    callback.updatePathControlPoints(
+                    editCallback.updatePathControlPoints(
                             animatable.reference,
                             cp
                     )
@@ -199,7 +197,7 @@ class PathEditManager(
                     )
 
                     if (cp != editableControlPoints) {
-                        callback.updatePathControlPoints(animatable.reference, cp, groupChanges)
+                        editCallback.updatePathControlPoints(animatable.reference, cp, groupChanges)
                         groupChanges = true
                     }
                 }
@@ -210,7 +208,7 @@ class PathEditManager(
                     )
 
                     if (cp != editableControlPoints) {
-                        callback.updatePathControlPoints(animatable.reference, cp, groupChanges)
+                        editCallback.updatePathControlPoints(animatable.reference, cp, groupChanges)
                         groupChanges = true
                     }
                 }
@@ -221,7 +219,7 @@ class PathEditManager(
                     )
 
                     if (cp != editableControlPoints) {
-                        callback.updatePathControlPoints(animatable.reference, cp, groupChanges)
+                        editCallback.updatePathControlPoints(animatable.reference, cp, groupChanges)
                         groupChanges = true
                     }
                 }
@@ -232,7 +230,7 @@ class PathEditManager(
                     )
 
                     if (cp != editableControlPoints) {
-                        callback.updatePathControlPoints(animatable.reference, cp, groupChanges)
+                        editCallback.updatePathControlPoints(animatable.reference, cp, groupChanges)
                         groupChanges = true
                     }
                 }
@@ -304,14 +302,13 @@ class PathEditManager(
         }
 
         view.onPointerDown { event ->
-            val callback = animatable.editProperty.value ?: return@onPointerDown
             val index = lineView.indexOf(view)
             val cp = editableControlPoints.toMutableList()
 
             val position = view.getNearestPointOnLine(event.planetPoint)
             cp.add(index, position)
 
-            callback.updatePathControlPoints(
+            editCallback.updatePathControlPoints(
                     animatable.reference,
                     cp
             )
@@ -320,7 +317,6 @@ class PathEditManager(
             event.stopPropagation()
         }
         view.onKeyPress {event ->
-            val callback = animatable.editProperty.value ?: return@onKeyPress
             val index = lineView.indexOf(view)
             val cp = editableControlPoints.toMutableList()
 
@@ -329,7 +325,7 @@ class PathEditManager(
                     val position = view.source.interpolate(view.target, 0.5)
                     cp.add(index, position)
 
-                    callback.updatePathControlPoints(
+                    editCallback.updatePathControlPoints(
                             animatable.reference,
                             cp
                     )

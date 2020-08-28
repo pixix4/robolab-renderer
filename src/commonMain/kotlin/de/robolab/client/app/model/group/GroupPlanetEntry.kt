@@ -10,6 +10,7 @@ import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.event.mapEvent
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sortByDescendingObservable
 import de.westermann.kobserve.property.*
@@ -243,15 +244,14 @@ class AttemptPlanetEntry(
         }
     }
 
-    override val infoBarList: List<IInfoBarContent> = listOf(InfoBarGroupInfo(this, messageManager))
-    override val selectedInfoBarIndexProperty = property<Int?>(0)
+    override val infoBarProperty = constObservable(InfoBarGroupInfo(this, messageManager))
 
     override val statusIconProperty = constObservable(emptyList<MaterialIcon>())
 
     override val enabledProperty = constObservable(true)
 
     val drawable = LivePlanetDrawable()
-    override val document = drawable.view
+    override val documentProperty = constObservable(drawable.view)
 
 
     val completePlanetNameProperty = messages.mapBinding {
@@ -304,12 +304,12 @@ class AttemptPlanetEntry(
             drawable.importMqttPlanet(mqttPlanet.importSplines(planet))
         }
 
-        document.onAttach {
+        documentProperty.mapEvent { it.onAttach }.addListener {
             isOpen = true
             update()
         }
 
-        document.onDetach {
+        documentProperty.mapEvent { it.onDetach }.addListener {
             isOpen = false
         }
     }

@@ -5,18 +5,15 @@ import de.robolab.client.app.controller.TraverserBarController
 import de.robolab.client.app.model.file.*
 import de.robolab.client.app.model.group.InfoBarGroupInfo
 import de.robolab.client.app.model.group.JsonDetailBox
-import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.clientPosition
 import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.boxView
-import de.westermann.kwebview.components.button
 import kotlinx.browser.document
 import kotlin.math.max
 import kotlin.math.min
@@ -27,31 +24,8 @@ class InfoBar(
     private val infoBarWidthProperty: ObservableProperty<Double>
 ) : ViewCollection<View>() {
 
-    private val headerView: BoxView
     private val contentView: BoxView
     private val detailsView: BoxView
-
-    private fun updateHeader() {
-        headerView.clear()
-
-        val list = infoBarController.contentListProperty.value
-
-        if (list.size <= 1) {
-            return
-        }
-
-        headerView.buttonGroup {
-            for (btn in list) {
-                button(btn.nameProperty) {
-                    classList.bind("active", infoBarController.selectedContentProperty.mapBinding { it == btn })
-
-                    onClick {
-                        infoBarController.selectContent(btn)
-                    }
-                }
-            }
-        }
-    }
 
     private fun updateContent() {
         contentView.clear()
@@ -97,12 +71,6 @@ class InfoBar(
 
     init {
         classList.bind("active", infoBarActiveProperty)
-
-        headerView = boxView("info-bar-header") {}
-        infoBarController.contentListProperty.onChange {
-            updateHeader()
-        }
-        updateHeader()
 
         contentView = boxView("info-bar-content") {}
         infoBarController.selectedContentProperty.onChange {

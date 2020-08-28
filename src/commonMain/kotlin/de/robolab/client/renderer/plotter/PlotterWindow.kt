@@ -8,7 +8,10 @@ import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.client.renderer.view.base.Document
 import de.robolab.client.renderer.view.base.IView
 import de.robolab.client.theme.ITheme
-import de.robolab.common.utils.*
+import de.robolab.common.utils.Dimension
+import de.robolab.common.utils.Logger
+import de.robolab.common.utils.Point
+import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.property.property
 
 class PlotterWindow(
@@ -25,7 +28,7 @@ class PlotterWindow(
         get() = context.theme
         set(value) {
             context.theme = value
-            rootDocument?.requestRedraw()
+            document?.requestRedraw()
         }
 
     val transformation = Transformation()
@@ -33,17 +36,14 @@ class PlotterWindow(
 
     private val interaction = TransformationInteraction(this)
 
-    var rootDocument: Document? = null
-        set(value) {
-            field?.onDetach(this)
-            field = value
-            field?.onAttach(this)
-        }
+    private var lastAttachedDocument: Document? = null
+    val documentProperty = property<Document>()
+    var document by documentProperty
 
     fun onUpdate(msOffset: Double): Boolean {
         var changes = false
 
-        changes = rootDocument?.onUpdate(msOffset) == true || changes
+        changes = document?.onUpdate(msOffset) == true || changes
         changes = transformation.update(msOffset) || changes
 
         return changes
@@ -58,12 +58,12 @@ class PlotterWindow(
             ),
             context.theme.plotter.secondaryBackgroundColor
         )
-        rootDocument?.onDraw(context)
+        document?.onDraw(context)
     }
 
     fun onDebugDraw() {
         context.renderedViewCount = 0
-        rootDocument?.onDebugDraw(context)
+        document?.onDebugDraw(context)
 
         //context.canvas.fillText("Active: $isActive", Point(16.0, 16.0), Color.RED)
         //context.canvas.fillText("FPS: ${fps.toInt()}", Point(16.0, 32.0), Color.RED)
@@ -95,7 +95,7 @@ class PlotterWindow(
         val canvasPosition = transformation.canvasToPlanet(mousePosition)
         if (updateHover) {
             val epsilon = 1.0 / transformation.scaledGridWidth * 10.0
-            rootDocument?.updateHoveredView(canvasPosition, mousePosition, epsilon)
+            document?.updateHoveredView(canvasPosition, mousePosition, epsilon)
         }
 
         pointerProperty.value = Pointer(canvasPosition, mousePosition)
@@ -103,7 +103,12 @@ class PlotterWindow(
     }
 
     init {
-        this.rootDocument = rootDocument
+        documentProperty.onChange {
+            lastAttachedDocument?.onDetach(this)
+            lastAttachedDocument = document
+            lastAttachedDocument?.onAttach(this)
+        }
+        document = rootDocument
 
         canvas.setListener(interaction)
         transformation.onViewChange {
@@ -113,7 +118,7 @@ class PlotterWindow(
 
     fun debug() {
         val logger = Logger("DefaultPlotter")
-        val document = rootDocument ?: return
+        val document = document ?: return
 
         val result = mutableListOf("")
         fun log(view: IView, depth: Int) {

@@ -1,8 +1,8 @@
 package de.robolab.client.renderer.drawable.edit
 
+import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.drawable.general.PathAnimatable.Companion.getControlPointsFromPath
 import de.robolab.client.renderer.drawable.utils.toPoint
-import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.extraGet
 import de.robolab.client.renderer.view.component.GroupView
@@ -12,11 +12,10 @@ import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Direction
 import de.robolab.common.planet.PlanetVersion
 import de.robolab.common.utils.Point
-import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventListener
 
 class CreatePathManager(
-        private val editCallbackProperty: ObservableValue<IEditCallback?>
+        private val editCallback: IEditCallback
 ) {
 
     val view = GroupView("Create path manager")
@@ -129,14 +128,13 @@ class CreatePathManager(
             listeners += document.onPointerUp.reference { event ->
                 val hoveredView = document.hoveredStack.lastOrNull() as? SquareView
 
-                val callback = editCallbackProperty.value
                 val hoveredCoordinate = hoveredView?.extraGet<Coordinate>()
                 val hoveredDirection = hoveredView?.extraGet<Direction>()
 
 
-                if (hoveredCoordinate != null && hoveredDirection != null && callback != null) {
+                if (hoveredCoordinate != null && hoveredDirection != null) {
                     if (drawMode && controlPoints.isEmpty()) {
-                        callback.togglePathSelect(startCoordinate, startDirection)
+                        editCallback.togglePathSelect(startCoordinate, startDirection)
                     } else {
                         if (drawMode) {
                             val endPoint =
@@ -147,7 +145,7 @@ class CreatePathManager(
                             }
                         }
 
-                        callback.createPath(
+                        editCallback.createPath(
                             startCoordinate,
                             startDirection,
                             hoveredCoordinate,

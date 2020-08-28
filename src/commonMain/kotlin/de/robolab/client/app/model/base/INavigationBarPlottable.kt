@@ -1,7 +1,6 @@
 package de.robolab.client.app.model.base
 
 import de.robolab.client.renderer.view.base.Document
-import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 
 interface INavigationBarPlottable : INavigationBarEntry {
@@ -9,12 +8,10 @@ interface INavigationBarPlottable : INavigationBarEntry {
     val toolBarLeft: List<List<ToolBarEntry>>
     val toolBarRight: List<List<ToolBarEntry>>
 
-    val infoBarList: List<IInfoBarContent>
+    val infoBarProperty: ObservableValue<IInfoBarContent>
     val detailBoxProperty: ObservableValue<IDetailBox>
 
-    val selectedInfoBarIndexProperty: ObservableProperty<Int?>
-
-    val document: Document
+    val documentProperty: ObservableValue<Document>
 
     val enabledProperty: ObservableValue<Boolean>
 }

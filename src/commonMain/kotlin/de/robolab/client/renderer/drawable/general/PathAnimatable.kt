@@ -12,7 +12,6 @@ import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.*
 import de.robolab.common.planet.*
 import de.robolab.common.utils.Point
-import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -21,7 +20,7 @@ import kotlin.math.roundToInt
 class PathAnimatable(
     reference: Path,
     planet: Planet,
-    val editProperty: ObservableValue<IEditCallback?>
+    val editCallback: IEditCallback?
 ) : Animatable<Path>(reference) {
 
     override val view = SplineView(
@@ -66,7 +65,7 @@ class PathAnimatable(
         ICanvas.FontAlignment.CENTER,
         ICanvas.FontWeight.NORMAL
     ) { newValue ->
-        val callback = editProperty.value ?: return@TextView false
+        val callback = editCallback ?: return@TextView false
 
         val number = if (newValue.isEmpty()) 1 else newValue.toIntOrNull() ?: return@TextView false
 
@@ -147,7 +146,7 @@ class PathAnimatable(
             val currentManager = pathEditManager
 
             return if (currentManager == null) {
-                val manager = PathEditManager(this)
+                val manager = PathEditManager(this, editCallback ?: throw IllegalStateException("PathEditManager cannot be created if not IEditCallback is present"))
                 pathEditManager = manager
                 manager
             } else currentManager
@@ -158,23 +157,21 @@ class PathAnimatable(
         view += ConditionalView("Path blocked", isBlockedProperty, blockedView)
         view += ConditionalView("Path arrow", isArrowVisibleProperty, arrowView)
 
-        view.focusable = true || editProperty.value != null
-        weightView.focusable = editProperty.value != null
-        editProperty.onChange {
-            view.focusable = true || editProperty.value != null
-            weightView.focusable = editProperty.value != null
-        }
+        view.focusable = true || editCallback != null
+        weightView.focusable = editCallback != null
 
-        view.onFocus {
-            view += getOrCreateEditManager.view
-        }
+        if (editCallback != null ) {
+            view.onFocus {
+                view += getOrCreateEditManager.view
+            }
 
-        view.onBlur {
-            view -= getOrCreateEditManager.view
+            view.onBlur {
+                view -= getOrCreateEditManager.view
+            }
         }
 
         view.onPointerDown { event ->
-            val callback = editProperty.value ?: return@onPointerDown
+            val callback = editCallback ?: return@onPointerDown
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             if (event.ctrlKey && focusedView != null) {
                 val exposureCoordinate = Coordinate(
@@ -189,7 +186,7 @@ class PathAnimatable(
         }
 
         view.onPointerSecondaryAction { event ->
-            val callback = editProperty.value ?: return@onPointerSecondaryAction
+            val callback = editCallback ?: return@onPointerSecondaryAction
             event.stopPropagation()
 
             val path = this.reference
@@ -229,7 +226,7 @@ class PathAnimatable(
         }
 
         view.onKeyPress { event ->
-            val callback = editProperty.value ?: return@onKeyPress
+            val callback = editCallback ?: return@onKeyPress
 
             when (event.keyCode) {
                 KeyCode.DELETE, KeyCode.BACKSPACE -> {

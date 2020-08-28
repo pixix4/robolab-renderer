@@ -1,7 +1,8 @@
 package de.westermann.kobserve.event
 
-import kotlin.coroutines.suspendCoroutine
+import de.westermann.kobserve.base.ObservableValue
 import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * This class represents a simple event handler who manages listeners for an event of type 'E'.
@@ -232,4 +233,20 @@ fun <T> EventHandler<T>.now(value: T, listener: (T) -> Unit) {
 
 fun EventHandler<Unit>.now(listener: (Unit) -> Unit) {
     now(Unit, listener)
+}
+
+fun <T, E> ObservableValue<T>.mapEvent(transform: (T) -> EventHandler<E>): EventHandler<E> {
+    val handler = EventHandler<E>()
+
+    var reference: EventListener<E>? = null
+
+    fun update() {
+        reference?.detach()
+        reference = transform(value).reference {
+            handler.emit(it)
+        }
+    }
+    update()
+
+    return handler
 }

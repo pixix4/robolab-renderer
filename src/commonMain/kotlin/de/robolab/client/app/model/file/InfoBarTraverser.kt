@@ -4,7 +4,7 @@ import de.robolab.client.app.controller.TraverserBarController
 import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.traverser.DefaultTraverser
 import de.robolab.common.utils.Logger
-import de.westermann.kobserve.property.constObservable
+import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
 
 class InfoBarTraverser(private val filePlanetEntry: FilePlanetEntry) :
@@ -12,9 +12,10 @@ class InfoBarTraverser(private val filePlanetEntry: FilePlanetEntry) :
 
     private val logger = Logger(this)
 
-    override val nameProperty = constObservable("Traverser")
-
     val traverserProperty = property<TraverserBarController?>(null)
+
+    val traverserRenderStateProperty  = traverserProperty
+        .nullableFlatMapBinding { it?.renderState }
 
     fun traverse() {
         val planet = filePlanetEntry.planetFile.planet

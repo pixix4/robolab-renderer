@@ -15,6 +15,9 @@ import de.westermann.kobserve.property.flatMapMutableBinding
 import de.westermann.kobserve.property.mapBinding
 import javafx.beans.value.ObservableValue
 import javafx.collections.ObservableList
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import tornadofx.*
@@ -83,14 +86,57 @@ class InfoBarTraverserView(private val traverserProperty: de.westermann.kobserve
                         }
                     }
 
-                    label(provider.visibleDetails.mapBinding { details -> details.joinToString("\n") { "- $it" } }.toFx()) {
+                    label(provider.visibleDetails.mapBinding { details -> details.joinToString("\n") { "- $it" } }
+                        .toFx()) {
                         visibleWhen(provider.selected.toFx())
                     }
                 }
             }
 
-            onUserSelect(1) {
-                it.select()
+            addEventFilter(MouseEvent.MOUSE_CLICKED) { event ->
+                val selectedItem = this.selectedItem
+                if (selectedItem != null && event.target.isInsideRow()) {
+                    selectedItem.select()
+                }
+            }
+
+            addEventFilter(KeyEvent.KEY_RELEASED) { event ->
+                val selectedItem = this.selectedItem
+                if (selectedItem != null) {
+                    when (event.code) {
+                        KeyCode.LEFT -> {
+                            if (selectedItem.isPreviousEnabled.value) {
+                                val index = this.selectionModel.selectedIndices?.firstOrNull()
+
+                                selectedItem.clickPreviousOption()
+
+                                if (index != null) {
+                                    this.selectionModel.select(index)
+                                }
+                            }
+                        }
+                        KeyCode.RIGHT -> {
+                            if (selectedItem.isNextEnabled.value) {
+                                val index = this.selectionModel.selectedIndices?.firstOrNull()
+
+                                selectedItem.clickNextOption()
+
+                                if (index != null) {
+                                    this.selectionModel.select(index)
+                                }
+                            }
+                        }
+                        KeyCode.ENTER -> selectedItem.select()
+                        KeyCode.SPACE -> selectedItem.select()
+                        else -> {
+                            if (!selectedItem.selected.value) {
+                                selectedItem.select()
+                            }
+                        }
+                    }
+                }
+                event.consume()
+                this.requestFocus()
             }
         }
 

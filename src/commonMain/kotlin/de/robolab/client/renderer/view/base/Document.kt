@@ -1,5 +1,6 @@
 package de.robolab.client.renderer.view.base
 
+import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.renderer.events.KeyEvent
 import de.robolab.client.renderer.events.PointerEvent
@@ -10,12 +11,11 @@ import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.property.property
 import kotlin.math.max
 
-class Document() : BaseView() {
+class Document(val drawable: AbsPlanetDrawable) : BaseView() {
 
-    constructor(vararg viewList: IView) : this() {
+    constructor(drawable: AbsPlanetDrawable, vararg viewList: IView) : this(drawable) {
         for (view in viewList) {
             add(view)
         }
@@ -37,6 +37,7 @@ class Document() : BaseView() {
         this.plotter = plotter
 
         onAttach.emit(plotter)
+        emitOnViewChange()
     }
 
     fun onDetach(plotter: PlotterWindow) {
@@ -252,6 +253,18 @@ class Document() : BaseView() {
     fun emitOnUserTransformation() {
         fun emitOnView(view: IView) {
             view.onUserTransformation.emit()
+
+            for (v in view) {
+                emitOnView(v)
+            }
+        }
+
+        emitOnView(this)
+    }
+
+    fun emitOnViewChange() {
+        fun emitOnView(view: IView) {
+            view.onViewChange.emit()
 
             for (v in view) {
                 emitOnView(v)

@@ -1,8 +1,8 @@
 package de.robolab.client.renderer.drawable.edit
 
+import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.drawable.general.PointAnimatable
 import de.robolab.client.renderer.drawable.utils.toPoint
-import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.GroupView
@@ -10,13 +10,12 @@ import de.robolab.client.renderer.view.component.SquareView
 import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Direction
 import de.robolab.common.planet.Planet
-import de.westermann.kobserve.base.ObservableValue
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
 class EditPointsManager(
-    private val editCallbackProperty: ObservableValue<IEditCallback?>,
+    private val editCallback: IEditCallback,
     private val createPath: CreatePathManager
 ) {
 
@@ -38,7 +37,6 @@ class EditPointsManager(
         view.focusable = true
 
         view.onPointerDown { event ->
-            val callback = editCallbackProperty.value ?: return@onPointerDown
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             if (event.ctrlKey && focusedView != null) {
                 val targetCoordinate = Coordinate(
@@ -51,14 +49,13 @@ class EditPointsManager(
                         focusedView.center.top.roundToInt()
                 )
 
-                callback.toggleTargetExposure(targetCoordinate, exposureCoordinate)
+                editCallback.toggleTargetExposure(targetCoordinate, exposureCoordinate)
 
                 event.stopPropagation()
             }
         }
 
         view.onPointerSecondaryAction {event ->
-            val callback = editCallbackProperty.value ?: return@onPointerSecondaryAction
             event.stopPropagation()
 
             val startPoint = planet.startPoint?.point
@@ -66,7 +63,7 @@ class EditPointsManager(
             view.menu(event, "Point ${coordinate.x}, ${coordinate.y}") {
                 if (startPoint != null && startPoint != coordinate) {
                     action("Translate start point") {
-                        callback.translate(
+                        editCallback.translate(
                             Coordinate(
                                 coordinate.x - startPoint.x,
                                 coordinate.y - startPoint.y
@@ -76,24 +73,20 @@ class EditPointsManager(
                 }
 
                 action("Rotate clockwise") {
-                    callback.rotate(Planet.RotateDirection.CLOCKWISE, coordinate)
+                    editCallback.rotate(Planet.RotateDirection.CLOCKWISE, coordinate)
                 }
                 action("Rotate counter clockwise") {
-                    callback.rotate(Planet.RotateDirection.COUNTER_CLOCKWISE, coordinate)
+                    editCallback.rotate(Planet.RotateDirection.COUNTER_CLOCKWISE, coordinate)
                 }
             }
         }
         
         for (direction in Direction.values()) {
-            view += PointAnimatable.setupPointEnd(coordinate, direction, editCallbackProperty, createPath)
+            view += PointAnimatable.setupPointEnd(coordinate, direction, editCallback, createPath)
         }
     }
 
     private fun updateViews() {
-        if (editCallbackProperty.value == null) {
-            return
-        }
-
         val area = view.document?.plotter?.context?.area ?: return
 
         val coordinatesToRemove = map.keys.toMutableSet()
@@ -134,20 +127,12 @@ class EditPointsManager(
     }
 
     init {
-        editCallbackProperty.onChange {
-            if (editCallbackProperty.value == null) {
-                view.clear()
-                map.clear()
-            } else {
-                updateViews()
-            }
-        }
-
-        view.onUserTransformation {
-            updateViews()
-        }
         view.onCanvasResize {
             updateViews()
         }
+        view.onViewChange {
+            updateViews()
+        }
+        view.animationTime = 0.0
     }
 }

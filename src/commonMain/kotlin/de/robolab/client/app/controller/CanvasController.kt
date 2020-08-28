@@ -41,12 +41,15 @@ class CanvasController(
 
     private var plotterMap = mapOf<PlotterManager.Window, INavigationBarPlottable>()
     fun open(plottable: INavigationBarPlottable) {
-        val window = plotter.windowList.find { it.plotter.rootDocument == plottable.document }
+        val window = plotter.windowList.find { it.plotter.document == plottable.documentProperty.value }
 
         if (window != null) {
             plotter.setActive(window)
         } else {
-            plotter.activeWindow.plotter.rootDocument = plottable.document
+            if (plotter.activeWindow.plotter.documentProperty.isBound) {
+                plotter.activeWindow.plotter.documentProperty.unbind()
+            }
+            plotter.activeWindow.plotter.documentProperty.bind(plottable.documentProperty)
             plotterMap = plotterMap + (plotter.activeWindow to plottable)
             selectedEntryProperty.value = plottable
         }

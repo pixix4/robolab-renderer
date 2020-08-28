@@ -6,20 +6,19 @@ import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.drawable.general.*
 import de.robolab.client.renderer.view.component.GroupTransformView
 import de.robolab.common.planet.*
-import de.westermann.kobserve.base.ObservableValue
 
 class EditPlanetLayer(
-    editProperty: ObservableValue<IEditCallback?>,
+    editCallback: IEditCallback,
     createPath: CreatePathManager,
     contextTransformation: (DrawContext) -> DrawContext = { it }
 ) : IPlanetLayer {
 
     private val targetManager = TargetAnimatableManager()
     private val senderManager = SenderAnimatableManager()
-    private val pathManager = PathAnimatableManager(editProperty)
+    private val pathManager = PathAnimatableManager(editCallback)
     private val pathSelectManager = PathSelectAnimatableManager()
-    private val pointManager = PointAnimatableManager(editProperty, createPath)
-    private val commentManager = CommentAnimatableManager(editProperty)
+    private val pointManager = PointAnimatableManager(editCallback, createPath)
+    private val commentManager = CommentAnimatableManager(editCallback)
 
     override val view = GroupTransformView(
         "Edit planet layer",

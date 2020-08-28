@@ -5,16 +5,12 @@ import de.robolab.client.renderer.drawable.general.PointAnimatableManager
 import de.robolab.common.planet.IPlanetValue
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.DelegatePropertyAccessor
-import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class InfoBarFileEditor(private val filePlanetEntry: FilePlanetEntry) :
     IInfoBarContent {
-
-    override val nameProperty = constObservable("Editor")
-
 
     private var lastChange: Change = Change.LineCountModified(-1, 0)
 
@@ -71,7 +67,7 @@ class InfoBarFileEditor(private val filePlanetEntry: FilePlanetEntry) :
     fun selectLine(line: Int) {
         val obj = filePlanetEntry.planetFile.lineNumberToValue(line) ?: return
         ignoreSetLine = true
-        filePlanetEntry.drawable.focus(obj)
+        filePlanetEntry.editDrawable.focus(obj)
         ignoreSetLine = false
     }
 
@@ -97,8 +93,8 @@ class InfoBarFileEditor(private val filePlanetEntry: FilePlanetEntry) :
     }
 
     init {
-        filePlanetEntry.drawable.focusedElementsProperty.onChange {
-            val first = filePlanetEntry.drawable.focusedElementsProperty.value.firstOrNull()
+        filePlanetEntry.editDrawable.focusedElementsProperty.onChange {
+            val first = filePlanetEntry.editDrawable.focusedElementsProperty.value.firstOrNull()
             if (!ignoreSetLine && first != null) {
                 val obj = if (first is PointAnimatableManager.AttributePoint) {
                     findObjForPoint(first)

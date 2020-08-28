@@ -4,11 +4,9 @@ import de.robolab.client.renderer.drawable.base.AnimatableManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.common.planet.Comment
 import de.robolab.common.planet.Planet
-import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.property.constObservable
 
 class CommentAnimatableManager(
-        private val editProperty: ObservableValue<IEditCallback?> = constObservable(null)
+        private val editCallback: IEditCallback? = null
 ) : AnimatableManager<Comment, CommentAnimatable>() {
 
     override fun objectEquals(oldValue: Comment, newValue: Comment): Boolean {
@@ -26,6 +24,6 @@ class CommentAnimatableManager(
     }
 
     override fun createAnimatable(obj: Comment, planet: Planet): CommentAnimatable {
-        return CommentAnimatable(obj, editProperty)
+        return CommentAnimatable(obj, editCallback)
     }
 }

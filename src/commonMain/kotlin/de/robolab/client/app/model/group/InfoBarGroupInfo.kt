@@ -7,7 +7,6 @@ import de.robolab.client.app.model.file.openSendMessageDialog
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessage
 import de.westermann.kobserve.base.ObservableList
-import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
 import kotlin.math.roundToInt
@@ -15,8 +14,6 @@ import kotlin.math.roundToInt
 class InfoBarGroupInfo(
     private val attemptPlanetEntry: AttemptPlanetEntry, private val messageManager: MessageManager
 ) : IInfoBarContent {
-
-    override val nameProperty = constObservable("Overview")
 
     val messages: ObservableList<RobolabMessage> = attemptPlanetEntry.messages
 

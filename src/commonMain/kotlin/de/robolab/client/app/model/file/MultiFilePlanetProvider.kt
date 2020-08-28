@@ -9,16 +9,17 @@ import de.westermann.kobserve.list.asObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
-class MultiFilePlanetProvider() : IPlanetProvider {
+class MultiFilePlanetProvider : IPlanetProvider {
 
     override val searchStringProperty = property("")
-    override val entryList = PreferenceStorage.fileServerProperty.mapBinding { list ->
-        list.mapNotNull { uri ->
-            val protocol = uri.substringBefore("://")
-            val factory = loaderFactoryList.find { it.protocol.equals(protocol, true) }
-            factory?.create(uri)
-        }.map { FilePlanetProvider(it) }.toMutableList().asObservable()
-    }
+    override val entryList = PreferenceStorage
+        .fileServerProperty.mapBinding { list ->
+            list.mapNotNull { uri ->
+                val protocol = uri.substringBefore("://")
+                val factory = loaderFactoryList.find { it.protocol.equals(protocol, true) }
+                factory?.create(uri)
+            }.map { FilePlanetProvider(it) }.toMutableList().asObservable()
+        }
 
     companion object {
         val loaderFactoryList = getFilePlanetLoaderFactoryList() + listOf(
