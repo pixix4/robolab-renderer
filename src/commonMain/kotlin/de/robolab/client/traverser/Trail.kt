@@ -40,21 +40,27 @@ interface ITraverserTrail {
         original: Planet? = null,
         name: String = "${original?.name ?: "TrailPlanet"}-${Random.nextHexString()}"
     ): TraverserRenderState =
-        TraverserRenderState(Planet(
-            original?.version ?: PlanetVersion.CURRENT,
-            name,
-            original?.startPoint
-                ?: (path.firstOrNull()?.first)?.let { StartPoint(it, Direction.NORTH, emptyList()) },
-            original?.bluePoint,
-            (original?.pathList?.intersect(mothershipState.sentPaths)
-                ?: mothershipState.sentPaths).toList(),
-            (original?.targetList?.intersect(mothershipState.sentTargets)
-                ?: mothershipState.sentTargets).toList(),
-            (original?.pathSelectList?.intersect(mothershipState.sentPathSelects)
-                ?: mothershipState.sentPathSelects).toList(),
-            emptyList(),
-            emptyMap()
-        ),mothershipState.toDrawableRobot())
+        TraverserRenderState(
+            Planet(
+                original?.version ?: PlanetVersion.CURRENT,
+                name,
+                original?.startPoint
+                    ?: (path.firstOrNull()?.first)?.let { StartPoint(it, Direction.NORTH, emptyList()) },
+                original?.bluePoint,
+                (original?.pathList?.intersect(mothershipState.sentPaths)
+                    ?: mothershipState.sentPaths).toList(),
+                (original?.targetList?.intersect(mothershipState.sentTargets)
+                    ?: mothershipState.sentTargets).toList(),
+                (original?.pathSelectList?.intersect(mothershipState.sentPathSelects)
+                    ?: mothershipState.sentPathSelects).toList(),
+                emptyList(),
+                emptyMap()
+            ), mothershipState.toDrawableRobot(), path.mapNotNull {
+                it.first to (it.second ?: return@mapNotNull null)
+            },
+            mothershipState,
+            navigatorState
+        )
 }
 
 data class TraverserTrail(
