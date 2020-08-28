@@ -1,5 +1,6 @@
 package de.robolab.client.traverser
 
+import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.common.planet.*
 
 interface IMothershipState {
@@ -17,6 +18,9 @@ interface IMothershipState {
     val beforePoint: Boolean
     val withAfterPoint: IMothershipState
 }
+
+fun IMothershipState.toDrawableRobot(groupNumber: Int?=null): RobotDrawable.Robot = RobotDrawable.Robot(currentLocation, forcedDirection?: selectedDirection?:
+drivenPath.targetDirection,beforePoint,groupNumber)
 
 data class MothershipState(
     override val sentTargets: Set<TargetPoint>,

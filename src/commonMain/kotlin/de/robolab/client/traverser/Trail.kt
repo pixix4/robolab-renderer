@@ -1,15 +1,16 @@
 package de.robolab.client.traverser
 
+import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.common.planet.*
 import kotlin.random.Random
 
 fun Random.nextHexString(length: Int = 8): String =
     CharArray(length) { this.nextBits(4).toString(16).first() }.concatToString()
 
-fun ITraverserState<*>.createExploredPlanet(
+fun ITraverserState<*>.createRenderState(
     original: Planet? = null,
     name: String = "${original?.name ?: "TrailPlanet"}-${Random.nextHexString()}"
-): Planet = getTrail().createExploredPlanet(original, name)
+): TraverserRenderState = getTrail().createRenderState(original, name)
 
 interface ITraverserTrail {
     val summary: String
@@ -35,11 +36,11 @@ interface ITraverserTrail {
     val resultInfo: Any?
     val mothershipState: IMothershipState
     val navigatorState: INavigatorState
-    fun createExploredPlanet(
+    fun createRenderState(
         original: Planet? = null,
         name: String = "${original?.name ?: "TrailPlanet"}-${Random.nextHexString()}"
-    ): Planet =
-        Planet(
+    ): TraverserRenderState =
+        TraverserRenderState(Planet(
             original?.version ?: PlanetVersion.CURRENT,
             name,
             original?.startPoint
@@ -53,7 +54,7 @@ interface ITraverserTrail {
                 ?: mothershipState.sentPathSelects).toList(),
             emptyList(),
             emptyMap()
-        )
+        ),mothershipState.toDrawableRobot())
 }
 
 data class TraverserTrail(

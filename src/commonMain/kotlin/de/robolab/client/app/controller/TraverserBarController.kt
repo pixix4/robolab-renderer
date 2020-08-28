@@ -3,6 +3,7 @@ package de.robolab.client.app.controller
 import de.robolab.client.app.model.traverser.CharacteristicItem
 import de.robolab.client.app.model.traverser.ITraverserStateEntry
 import de.robolab.client.app.model.traverser.TraverserStateEntry
+import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.client.traverser.*
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableList
@@ -18,8 +19,8 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
 
     val sliceViewer: ObservableTreeSliceViewer<out ITraverserState<*>> = traverser.observableTreeSliceViewer()
 
-    private val _currentExploredPlanet: ObservableProperty<Planet> = property(traverser.planet.planet.asUnexplored())
-    val currentExploredPlanet: ObservableValue<Planet> = _currentExploredPlanet
+    private val _renderState: ObservableProperty<TraverserRenderState?> = property()
+    val renderState: ObservableValue<TraverserRenderState?> = _renderState
 
     val isNextEnabled: ObservableValue<Boolean> = sliceViewer.hasNextProperty
     val isPreviousEnabled: ObservableValue<Boolean> = sliceViewer.hasPreviousProperty
@@ -82,8 +83,8 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
             else
                 entry.selected.set(!entry.selected.value)
         }
-        _currentExploredPlanet.set((_entryList.lastOrNull { it.selected.value }
-                ?: _entryList.last()).currentOption.value.createExploredPlanet(traverser.planet.planet))
+        _renderState.set((_entryList.lastOrNull { it.selected.value }
+                ?: _entryList.last()).currentOption.value.createRenderState(traverser.planet.planet))
     }
 
     init {
@@ -92,8 +93,8 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
             _characteristicList.addAll(CharacteristicItem.generateCharacteristic(sliceViewer.currentNode))
             _entryList.clear()
             _entryList.addAll(sliceViewer.map { TraverserStateEntry(this, it) })
-            _currentExploredPlanet.set((_entryList.lastOrNull { it.selected.value }
-                    ?: _entryList.last()).currentOption.value.createExploredPlanet(traverser.planet.planet))
+            _renderState.set((_entryList.lastOrNull { it.selected.value }
+                    ?: _entryList.last()).currentOption.value.createRenderState(traverser.planet.planet))
         }
         autoExpandProperty.onChange += {
             if (autoExpandProperty.value)
