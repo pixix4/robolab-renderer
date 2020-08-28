@@ -2,9 +2,7 @@ package de.robolab.client.ui.views
 
 import de.robolab.client.app.controller.ToolBarController
 import de.robolab.client.app.model.base.ToolBarEntry
-import de.robolab.client.ui.dialog.Dialog
 import de.robolab.client.ui.dialog.SettingsDialog
-import de.robolab.client.ui.triggerDownload
 import de.robolab.client.ui.triggerDownloadUrl
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.common.utils.Point
@@ -166,7 +164,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                     title = "Download Java Version"
 
                     onClick {
-                        triggerDownloadUrl("robolab-renderer.jar", "jvm/robolab-renderer.jar")
+                        triggerDownloadUrl("robolab-renderer.jar", "jvm/robolab-jvm.jar")
                     }
                 }
             }
