@@ -96,7 +96,7 @@ class UpdateDialog : GenericDialog() {
 
         private const val remoteUrl = "https://robolab.pixix4.com/jvm/"
         private const val remoteVersionFile = remoteUrl + "build.ini"
-        private const val remoteJarFile = remoteUrl + "robolab-renderer.jar"
+        private const val remoteJarFile = remoteUrl + "robolab-jvm.jar"
 
         private val localVersionProperty = BuildInformation.versionClientProperty
         private val remoteVersionProperty = de.westermann.kobserve.property.property<Version>()

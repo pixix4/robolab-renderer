@@ -1,8 +1,6 @@
 package de.robolab.client.app.model.group
 
 import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.DateTimeRange
 import com.soywiz.klock.DateTimeTz
 import de.robolab.client.app.model.base.*
 import de.robolab.client.app.model.file.MultiFilePlanetProvider
@@ -13,6 +11,7 @@ import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
+import de.westermann.kobserve.list.sortByDescendingObservable
 import de.westermann.kobserve.property.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -24,16 +23,15 @@ class GroupPlanetEntry(
     val groupName: String,
     val filePlanetProvider: MultiFilePlanetProvider,
     private val messageManager: MessageManager,
-    private val currentTimeProperty: ObservableValue<DateTimeTz>
+    currentTimeProperty: ObservableValue<DateTimeTz>
 ) : INavigationBarGroup {
 
     val attempts = observableListOf<AttemptPlanetEntry>()
 
-    val latestAttempt = attempts.mapBinding { it.lastOrNull() }
-    val latestPlanetName = latestAttempt.nullableFlatMapBinding { it?.planetNameProperty }
-    val latestMessageTime = latestAttempt.nullableFlatMapBinding { it?.latestMessageTime }
-    val latestMessageCount = latestAttempt.nullableFlatMapBinding { it?.messages }.mapBinding { it?.size }
-    val latestMessageTimeDiff = currentTimeProperty.join(latestMessageTime) { now, latest ->
+    val latestAttempt = attempts.mapBinding { it.drop(1).lastOrNull() }
+    private val latestPlanetName = latestAttempt.nullableFlatMapBinding { it?.planetNameProperty }
+    private val latestMessageTime = latestAttempt.nullableFlatMapBinding { it?.latestMessageTime }
+    private val latestMessageTimeDiff = currentTimeProperty.join(latestMessageTime) { now, latest ->
         if (latest != null) {
             val diff = now - latest
             diff.millisecondsLong.toHumanTime()
@@ -54,14 +52,14 @@ class GroupPlanetEntry(
             return "${hours}h ago"
         }
 
-        val days = hours / 24;
+        val days = hours / 24
         if (days == 1L) {
             return "1 day ago"
         } else if (days < 30) {
             return "$days days ago"
         }
 
-        val month = days / 30;
+        val month = days / 30
         if (month == 1L) {
             return "1 month ago"
         } else if (month < 12) {
@@ -71,7 +69,9 @@ class GroupPlanetEntry(
         return "More than 1 year ago"
     }
 
-    override val entryList: ObservableValue<ObservableList<INavigationBarEntry>> = constObservable(attempts)
+    override val entryList: ObservableValue<ObservableList<INavigationBarEntry>> = constObservable(
+        attempts.sortByDescendingObservable { it.startTime }
+    )
 
     override val titleProperty = latestPlanetName.mapBinding { name ->
         buildString {
@@ -116,13 +116,24 @@ class GroupPlanetEntry(
         }
 
         val attempt = if (message is RobolabMessage.ReadyMessage || attempts.isEmpty()) {
+            if (attempts.isEmpty()) {
+                AttemptPlanetEntry(message.metadata.time + 1, this, messageManager, true).also { attempts.add(it) }
+            } else {
+                val live = attempts.first()
+                live.messages.clear()
+                live.startTime = message.metadata.time + 1
+            }
             AttemptPlanetEntry(message.metadata.time, this, messageManager).also { attempts.add(it) }
         } else {
             attempts.last()
         }
+        val live = attempts.first()
+
+        live.messages.add(message)
         attempt.messages.add(message)
 
         if (updateAttempt) {
+            live.update()
             attempt.update()
         }
 
@@ -147,9 +158,10 @@ class GroupPlanetEntry(
 }
 
 class AttemptPlanetEntry(
-    val startTime: Long,
+    var startTime: Long,
     override val parent: GroupPlanetEntry,
-    messageManager: MessageManager
+    messageManager: MessageManager,
+    live: Boolean = false
 ) : INavigationBarPlottable {
 
     val messages = observableListOf<RobolabMessage>()
@@ -159,7 +171,11 @@ class AttemptPlanetEntry(
     }
 
     override val titleProperty = constObservable(
-        dateFormat.format(DateTimeTz.Companion.fromUnixLocal(startTime))
+        if (live) {
+            "Live"
+        } else {
+            dateFormat.format(DateTimeTz.Companion.fromUnixLocal(startTime))
+        }
     )
 
     override val tabNameProperty = property(titleProperty, parent.tabNameProperty) {
@@ -271,7 +287,7 @@ class AttemptPlanetEntry(
         drawable.importRobot(m.toRobot(parent.groupName.toIntOrNull()))
     }
 
-    var isOpen = false
+    private var isOpen = false
 
     init {
         selectedIndexProperty.onChange { update() }
