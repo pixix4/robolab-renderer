@@ -19,7 +19,7 @@ import de.robolab.server.model.ServerPlanet as SPlanet
 
 object PlanetRouter {
     val router: DefaultRouter = createRouter()
-    private val planetStore: IPlanetStore = FilePlanetStore(
+    val planetStore: IPlanetStore = FilePlanetStore(
         Config.Planets.directory,
         RedisPlanetMetaStore(Config.Planets.database)
     )
