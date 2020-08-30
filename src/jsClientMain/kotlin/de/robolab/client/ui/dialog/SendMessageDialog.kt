@@ -4,10 +4,10 @@ import de.robolab.client.app.controller.SendMessageController
 import de.westermann.kobserve.event.emit
 import de.westermann.kwebview.components.*
 
-class SendMessageDialog private constructor(topic: String, sendMessage: (String, String) -> Boolean) :
+class SendMessageDialog private constructor(
+    private val controller: SendMessageController
+) :
     Dialog("Send message") {
-
-    private val controller = SendMessageController(topic, sendMessage)
 
     init {
         tab {
@@ -77,8 +77,8 @@ class SendMessageDialog private constructor(topic: String, sendMessage: (String,
     }
 
     companion object {
-        fun open(topic: String, sendMessage: (String, String) -> Boolean) {
-            open(SendMessageDialog(topic, sendMessage))
+        fun open(controller: SendMessageController) {
+            open(SendMessageDialog(controller))
         }
     }
 }

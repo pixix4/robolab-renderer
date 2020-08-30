@@ -47,6 +47,22 @@ class SettingsDialog private constructor(): Dialog("Settings") {
                     }
                 }
             }
+
+            dialogFormGroup("Exam mode") {
+                dialogFormEntry("Active") {
+                    label(checkbox(PreferenceStorage.examActiveProperty))
+                }
+                dialogFormEntry("Small Planet") {
+                    inputView(PreferenceStorage.examSmallProperty) {
+                        disabledProperty.bind(!PreferenceStorage.examActiveProperty)
+                    }
+                }
+                dialogFormEntry("Large Planet") {
+                    inputView(PreferenceStorage.examLargeProperty) {
+                        disabledProperty.bind(!PreferenceStorage.examActiveProperty)
+                    }
+                }
+            }
         }
 
         tab("Connection") {

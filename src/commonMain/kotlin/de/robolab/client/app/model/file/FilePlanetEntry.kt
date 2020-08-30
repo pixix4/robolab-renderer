@@ -1,5 +1,6 @@
 package de.robolab.client.app.model.file
 
+import de.robolab.client.app.controller.SendMessageController
 import de.robolab.client.app.model.base.*
 import de.robolab.client.app.model.file.provider.FilePlanet
 import de.robolab.client.renderer.canvas.ICanvas
@@ -305,4 +306,4 @@ expect fun saveExportPNG(name: String, canvas: ICanvas)
 expect fun openExportDialog(provider: FilePlanetEntry)
 expect fun openPlanetTransformDialog(planetFile: PlanetFile)
 expect fun openPaperConstraintsDialog()
-expect fun openSendMessageDialog(topic: String, sendMessage: (String, String) -> Boolean)
+expect fun openSendMessageDialog(controller: SendMessageController)

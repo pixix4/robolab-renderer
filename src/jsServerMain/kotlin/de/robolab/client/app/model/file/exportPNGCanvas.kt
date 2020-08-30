@@ -1,6 +1,7 @@
 package de.robolab.client.app.model.file
 
 
+import de.robolab.client.app.controller.SendMessageController
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.utils.Dimension
@@ -29,6 +30,6 @@ actual fun openPlanetTransformDialog(planetFile: PlanetFile) {
     throw UnsupportedOperationException()
 }
 
-actual fun openSendMessageDialog(topic: String, sendMessage: (String, String) -> Boolean) {
+actual fun openSendMessageDialog(controller: SendMessageController) {
     throw UnsupportedOperationException()
 }

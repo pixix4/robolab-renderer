@@ -80,6 +80,16 @@ object PreferenceStorage : TypedStorage() {
     val autoUpdateChannelProperty = item("update.channel", UpdateChannel.STABLE)
     val autoUpdateChannel by autoUpdateChannelProperty
 
+
+    val examActiveProperty = item("exam.active", false)
+    var examActive by examActiveProperty
+
+    val examSmallProperty = item("exam.small", "")
+    var examSmall by examSmallProperty
+
+    val examLargeProperty = item("exam.large", "")
+    var examLarge by examLargeProperty
+
     init {
         logLevelProperty.onChange.now {
             Logger.level = logLevel

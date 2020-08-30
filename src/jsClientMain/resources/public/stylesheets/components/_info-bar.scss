@@ -313,3 +313,11 @@
     background-color: var(--tertiary-background);
   }
 }
+
+.exam-mode-buttons {
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}

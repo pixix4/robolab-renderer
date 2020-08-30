@@ -2,10 +2,12 @@ package de.robolab.client.app.model.group
 
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.format
+import de.robolab.client.app.controller.SendMessageController
 import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.app.model.file.openSendMessageDialog
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessage
+import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
@@ -28,7 +30,36 @@ class InfoBarGroupInfo(
     }
 
     fun openSendDialog() {
-        openSendMessageDialog("explorer/" + attemptPlanetEntry.parent.groupName, messageManager::sendMessage)
+        openSendMessageDialog(SendMessageController(
+            "explorer/" + attemptPlanetEntry.parent.groupName,
+            messageManager::sendMessage
+        ))
+    }
+
+    fun openSendDialogSmallExamPlanet() {
+        val controller = SendMessageController(
+            "controller/" + attemptPlanetEntry.parent.groupName,
+            messageManager::sendMessage
+        )
+
+        controller.type = SendMessageController.Type.SetPlanetMessage
+        controller.from = SendMessageController.From.CLIENT
+        controller.planetName = PreferenceStorage.examSmall
+
+        openSendMessageDialog(controller)
+    }
+
+    fun openSendDialogLargeExamPlanet() {
+        val controller = SendMessageController(
+            "controller/" + attemptPlanetEntry.parent.groupName,
+            messageManager::sendMessage
+        )
+
+        controller.type = SendMessageController.Type.SetPlanetMessage
+        controller.from = SendMessageController.From.CLIENT
+        controller.planetName = PreferenceStorage.examLarge
+
+        openSendMessageDialog(controller)
     }
 
     val messageCountStringProperty = messages.join(attemptPlanetEntry.selectedIndexProperty) { messages, index ->

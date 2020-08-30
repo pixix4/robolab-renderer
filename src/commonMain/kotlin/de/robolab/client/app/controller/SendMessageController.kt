@@ -9,14 +9,19 @@ import de.westermann.kobserve.property.property
 class SendMessageController(topic: String, private val sendMessage: (String, String) -> Boolean) {
 
     val topicProperty = property(topic)
+    var topic by topicProperty
     val fromProperty = property(From.SERVER)
+    var from by fromProperty
     val typeProperty = property(Type.PathMessage)
+    var type by typeProperty
 
     enum class Type(val displayName: String) {
         PathSelectMessage("Path select"),
         PathMessage("Path"),
         ReadyMessage("Ready"),
         PlanetMessage("Planet"),
+        SetPlanetMessage("Set planet (exam)"),
+        TestPlanetMessage("Test planet"),
         PathUnveilMessage("Path unveil"),
         TargetMessage("Target"),
         TargetReachedMessage("Target reached"),
@@ -40,71 +45,85 @@ class SendMessageController(topic: String, private val sendMessage: (String, Str
     }
 
     val planetNameProperty = property<String>()
+    var planetName by planetNameProperty
     val planetNameVisibleProperty = typeProperty.mapBinding {
-        it == Type.PlanetMessage
+        it == Type.PlanetMessage || it == Type.SetPlanetMessage || it == Type.TestPlanetMessage
     }
 
     val startXProperty = property<Int>()
+    var startX by startXProperty
     val startXVisibleProperty = typeProperty.mapBinding {
         it == Type.PathSelectMessage || it == Type.PathMessage || it == Type.PlanetMessage || it == Type.PathUnveilMessage
     }
 
     val startYProperty = property<Int>()
+    var startY by startYProperty
     val startYVisibleProperty = typeProperty.mapBinding {
         it == Type.PathSelectMessage || it == Type.PathMessage || it == Type.PlanetMessage || it == Type.PathUnveilMessage
     }
 
     val startDirectionProperty = property<Direction>()
+    var startDirection by startDirectionProperty
     val startDirectionVisibleProperty = typeProperty.mapBinding {
         it == Type.PathSelectMessage || it == Type.PathMessage || it == Type.PathUnveilMessage
     }
 
     val startOrientationProperty = property<Direction>()
+    var startOrientation by startOrientationProperty
     val startOrientationVisibleProperty = typeProperty.mapBinding {
         it == Type.PlanetMessage
     }
 
     val endXProperty = property<Int>()
+    var endX by endXProperty
     val endXVisibleProperty = typeProperty.mapBinding {
         it == Type.PathMessage || it == Type.PathUnveilMessage
     }
 
     val endYProperty = property<Int>()
+    var endY by endYProperty
     val endYVisibleProperty = typeProperty.mapBinding {
         it == Type.PathMessage || it == Type.PathUnveilMessage
     }
 
     val endDirectionProperty = property<Direction>()
+    var endDirection by endDirectionProperty
     val endDirectionVisibleProperty = typeProperty.mapBinding {
         it == Type.PathMessage || it == Type.PathUnveilMessage
     }
 
     val targetXProperty = property<Int>()
+    var targetX by targetXProperty
     val targetXVisibleProperty = typeProperty.mapBinding {
         it == Type.TargetMessage
     }
 
     val targetYProperty = property<Int>()
+    var targetY by targetYProperty
     val targetYVisibleProperty = typeProperty.mapBinding {
         it == Type.TargetMessage
     }
 
     val pathStatusProperty = property<PathStatus>()
+    var pathStatus by pathStatusProperty
     val pathStatusVisibleProperty = typeProperty.mapBinding {
         it == Type.PathMessage || it == Type.PathUnveilMessage
     }
 
     val pathWeightProperty = property<Int>()
+    var pathWeight by pathWeightProperty
     val pathWeightVisibleProperty = typeProperty.mapBinding {
         it == Type.PathMessage || it == Type.PathUnveilMessage
     }
 
     val messageProperty = property<String>()
+    var message by messageProperty
     val messageVisibleProperty = typeProperty.mapBinding {
         it == Type.TargetReachedMessage || it == Type.ExplorationCompletedMessage || it == Type.DoneMessage
     }
 
     val customProperty = property<String>()
+    var custom by customProperty
     val customVisibleProperty = typeProperty.mapBinding {
         it == Type.CustomMessage
     }
@@ -138,6 +157,20 @@ class SendMessageController(topic: String, private val sendMessage: (String, Str
                 fromProperty.value.convert(),
                 de.robolab.client.communication.Type.READY,
                 Payload()
+            )
+            Type.SetPlanetMessage -> JsonMessage(
+                fromProperty.value.convert(),
+                de.robolab.client.communication.Type.SET_PLANET,
+                Payload(
+                    planetName = planetNameProperty.value
+                )
+            )
+            Type.TestPlanetMessage -> JsonMessage(
+                fromProperty.value.convert(),
+                de.robolab.client.communication.Type.TEST_PLANET,
+                Payload(
+                    planetName = planetNameProperty.value
+                )
             )
             Type.PlanetMessage -> JsonMessage(
                 fromProperty.value.convert(),

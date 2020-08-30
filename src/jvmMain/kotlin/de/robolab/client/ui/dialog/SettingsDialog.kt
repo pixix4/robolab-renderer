@@ -57,6 +57,22 @@ class SettingsDialog : GenericDialog() {
                     }
                 }
 
+                fieldset("Exam mode") {
+                    field("Active") {
+                        checkbox("", PreferenceStorage.examActiveProperty.toFx())
+                    }
+                    field("Small Planet") {
+                        textfield(PreferenceStorage.examSmallProperty.toFx()) {
+                            enableWhen(PreferenceStorage.examActiveProperty.toFx())
+                        }
+                    }
+                    field("Large Planet") {
+                        textfield(PreferenceStorage.examLargeProperty.toFx()) {
+                            enableWhen(PreferenceStorage.examActiveProperty.toFx())
+                        }
+                    }
+                }
+
                 if (UpdateDialog.isUpdateAllowed) {
                     fieldset("Update") {
                         field("Channel") {

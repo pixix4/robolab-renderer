@@ -4,6 +4,8 @@ import com.soywiz.klock.format
 import de.robolab.client.app.model.group.InfoBarGroupInfo
 import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.ui.adapter.toFx
+import de.robolab.client.ui.utils.buttonGroup
+import de.robolab.client.utils.PreferenceStorage
 import javafx.scene.layout.Priority
 import tornadofx.*
 
@@ -27,9 +29,30 @@ class InfoBarGroupView(private val contentInfo: InfoBarGroupInfo) : View() {
                 field("Attempt duration") {
                     label(contentInfo.attemptDurationStringProperty.toFx())
                 }
-                button("Send message") {
+            }
+
+            fieldset("Send messages") {
+                button("Open dialog") {
                     setOnAction {
                         contentInfo.openSendDialog()
+                    }
+                }
+            }
+
+            fieldset("Exam") {
+                visibleWhen(PreferenceStorage.examActiveProperty.toFx())
+                managedWhen(PreferenceStorage.examActiveProperty.toFx())
+
+                buttonGroup {
+                    button("Small Planet") {
+                        setOnAction {
+                            contentInfo.openSendDialogSmallExamPlanet()
+                        }
+                    }
+                    button("Large Planet") {
+                        setOnAction {
+                            contentInfo.openSendDialogLargeExamPlanet()
+                        }
                     }
                 }
             }

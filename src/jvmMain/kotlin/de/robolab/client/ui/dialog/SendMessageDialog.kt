@@ -8,10 +8,7 @@ import tornadofx.*
 
 class SendMessageDialog : GenericDialog() {
 
-    private val topic: String by param()
-    private val sendMessage: (String, String) -> Boolean by param()
-
-    private val controller = SendMessageController(topic, sendMessage)
+    private val controller: SendMessageController by param()
 
     override val root = buildContent("Send message") {
         form {
@@ -111,10 +108,9 @@ class SendMessageDialog : GenericDialog() {
     }
 
     companion object {
-        fun open(topic: String, sendMessage: (String, String) -> Boolean) {
+        fun open(controller: SendMessageController) {
             open<SendMessageDialog>(
-                "topic" to topic,
-                "sendMessage" to sendMessage
+                "controller" to controller,
             )
         }
     }

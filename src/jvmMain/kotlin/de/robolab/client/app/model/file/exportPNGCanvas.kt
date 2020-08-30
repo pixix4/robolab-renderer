@@ -1,5 +1,6 @@
 package de.robolab.client.app.model.file
 
+import de.robolab.client.app.controller.SendMessageController
 import de.robolab.client.ui.adapter.AwtCanvas
 import de.robolab.client.ui.dialog.ExportDialog
 import de.robolab.client.ui.dialog.PaperConstraintsDialog
@@ -36,6 +37,6 @@ actual fun openPlanetTransformDialog(planetFile: PlanetFile) {
     PlanetTransformDialog.open(planetFile)
 }
 
-actual fun openSendMessageDialog(topic: String, sendMessage: (String, String) -> Boolean) {
-    SendMessageDialog.open(topic, sendMessage)
+actual fun openSendMessageDialog(controller: SendMessageController) {
+    SendMessageDialog.open(controller)
 }

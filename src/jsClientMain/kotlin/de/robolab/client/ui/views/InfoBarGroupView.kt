@@ -6,6 +6,8 @@ import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.utils.runAsync
 import de.robolab.client.ui.adapter.toCommon
+import de.robolab.client.ui.views.utils.buttonGroup
+import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
@@ -56,9 +58,30 @@ class InfoBarGroupView(
             }
         }
 
-        button("Send message") {
-            onClick {
-                content.openSendDialog()
+        buttonGroup {
+            button("Send message") {
+                onClick {
+                    content.openSendDialog()
+                }
+            }
+        }
+
+        boxView("exam-mode-buttons") {
+            textView("Exam")
+            classList.bind("active", PreferenceStorage.examActiveProperty)
+
+            buttonGroup {
+                button("Small Planet") {
+                    onClick {
+                        content.openSendDialogSmallExamPlanet()
+                    }
+                }
+
+                button("Large Planet") {
+                    onClick {
+                        content.openSendDialogLargeExamPlanet()
+                    }
+                }
             }
         }
 
