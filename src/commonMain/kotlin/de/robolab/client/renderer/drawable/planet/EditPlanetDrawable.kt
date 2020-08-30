@@ -1,9 +1,6 @@
 package de.robolab.client.renderer.drawable.planet
 
-import de.robolab.client.renderer.drawable.edit.CreatePathManager
-import de.robolab.client.renderer.drawable.edit.EditPaperBackground
-import de.robolab.client.renderer.drawable.edit.EditPointsManager
-import de.robolab.client.renderer.drawable.edit.IEditCallback
+import de.robolab.client.renderer.drawable.edit.*
 import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.renderer.view.base.menu
@@ -22,7 +19,8 @@ class EditPlanetDrawable(
     private val paperBackground = EditPaperBackground()
 
     private val createPath = CreatePathManager(editCallback)
-    private val editPoints = EditPointsManager(editCallback, createPath)
+    private val editPoints = EditPointsManager(editCallback)
+    private val editPointEnds = EditPointEndsManager(editCallback, createPath)
 
     private val planetLayer = EditPlanetLayer(editCallback, createPath)
 
@@ -31,6 +29,7 @@ class EditPlanetDrawable(
 
         paperBackground.importPlanet(planet)
         editPoints.importPlanet(planet)
+        editPointEnds.importPlanet(planet)
 
         importPlanets()
     }
@@ -56,6 +55,7 @@ class EditPlanetDrawable(
 
         underlayerViews.add(editPoints.view)
 
+        overlayerViews.add(editPointEnds.view)
         overlayerViews.add(createPath.view)
 
         view.onKeyPress { event ->

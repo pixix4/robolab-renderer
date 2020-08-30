@@ -45,7 +45,6 @@ class PointAnimatable(
         }
     }
 
-
     init {
         view.focusable =  true
 
@@ -179,41 +178,6 @@ class PointAnimatable(
                     }
                 }
             }
-        }
-
-        for (direction in Direction.values()) {
-            setupPointEnd(reference.coordinate, direction, editCallback, createPath)
-        }
-    }
-
-    companion object {
-        fun setupPointEnd(
-            coordinate: Coordinate,
-            direction: Direction,
-            editCallback: IEditCallback?,
-            createPath: CreatePathManager?
-        ): SquareView {
-            val squareView = SquareView(
-                coordinate.toPoint() + direction.toVector(PlottingConstraints.POINT_SIZE),
-                PlottingConstraints.POINT_SIZE,
-                PlottingConstraints.LINE_WIDTH * 0.65,
-                ViewColor.TRANSPARENT
-            )
-            squareView.animationTime = 0.0
-            squareView.extraPut(coordinate)
-            squareView.extraPut(direction)
-
-            squareView.onPointerDown { event ->
-                val callback = editCallback ?: return@onPointerDown
-
-                if (event.altKey) {
-                    callback.togglePathSelect(coordinate, direction)
-                } else createPath?.startPath(coordinate, direction, event.ctrlKey)
-
-                event.stopPropagation()
-            }
-
-            return squareView
         }
     }
 }

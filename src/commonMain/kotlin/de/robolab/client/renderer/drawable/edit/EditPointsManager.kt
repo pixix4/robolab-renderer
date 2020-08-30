@@ -16,7 +16,6 @@ import kotlin.math.roundToInt
 
 class EditPointsManager(
     private val editCallback: IEditCallback,
-    private val createPath: CreatePathManager
 ) {
 
     val view = GroupView("Edit points manager")
@@ -79,10 +78,6 @@ class EditPointsManager(
                     editCallback.rotate(Planet.RotateDirection.COUNTER_CLOCKWISE, coordinate)
                 }
             }
-        }
-        
-        for (direction in Direction.values()) {
-            view += PointAnimatable.setupPointEnd(coordinate, direction, editCallback, createPath)
         }
     }
 
