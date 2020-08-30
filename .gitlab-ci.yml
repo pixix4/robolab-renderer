@@ -4,9 +4,14 @@ stages:
   - build
   - deploy
 
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .gradle/
+
 build-jvm:
   stage: build
-  script: gradle -Dorg.gradle.daemon=false jvmJar
+  script: gradle --no-daemon -g .gradle jvmJar
   artifacts:
     paths:
       - build/libs/robolab-jvm.jar
@@ -16,7 +21,7 @@ build-jvm:
 
 build-jvm-headless:
   stage: build
-  script: gradle -Dorg.gradle.daemon=false jvmHeadlessJar
+  script: gradle --no-daemon -g .gradle jvmHeadlessJar
   artifacts:
     paths:
       - build/libs/robolab-jvmheadless.jar
@@ -25,7 +30,7 @@ build-jvm-headless:
 
 build-js-client:
   stage: build
-  script: gradle -Dorg.gradle.daemon=false jsClientSync
+  script: gradle --no-daemon -g .gradle jsClientSync
   artifacts:
     paths:
       - web/website
@@ -34,7 +39,7 @@ build-js-client:
 
 build-js-server:
   stage: build
-  script: gradle -Dorg.gradle.daemon=false jsServerSync
+  script: gradle --no-daemon -g .gradle jsServerSync
   artifacts:
     paths:
       - webServer
