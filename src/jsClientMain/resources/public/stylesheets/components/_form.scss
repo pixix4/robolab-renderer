@@ -72,23 +72,23 @@ input::placeholder {
 .button-group {
   white-space: nowrap;
 
-  .button:not(:last-child), .input-view:not(:last-child) {
+  .button:not(:last-child), .input-view:not(:last-child), .select-view:not(:last-child) {
     margin-right: 0;
     border-bottom-right-radius: 0;
     border-top-right-radius: 0;
     border-right-style: none;
   }
 
-  .button:not(:first-child), .input-view:not(:first-child) {
+  .button:not(:first-child), .input-view:not(:first-child), .select-view:not(:first-child) {
     margin-left: 0;
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
   }
 
-  .button:active, .button:focus, .input-view:active, .input-view:focus {
+  .button:active, .button:focus, .input-view:active, .input-view:focus, .select-view:active, .select-view:focus {
     border-right-style: solid;
 
-    & + .button, & + .input-view  {
+    & + .button, & + .input-view, & + .select-view  {
       border-left-style: none;
     }
   }

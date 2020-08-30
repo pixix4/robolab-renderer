@@ -1,6 +1,7 @@
 package de.robolab.client.ui.dialog
 
 import de.robolab.client.app.controller.SendMessageController
+import de.robolab.client.ui.views.utils.buttonGroup
 import de.westermann.kobserve.event.emit
 import de.westermann.kwebview.components.*
 
@@ -12,13 +13,48 @@ class SendMessageDialog private constructor(
     init {
         tab {
             dialogFormEntry("Topic") {
-                inputView(controller.topicProperty)
+                boxView {
+                    style {
+                        width = "100%"
+                    }
+                    buttonGroup {
+                        button("Explorer") {
+                            onClick {
+                                controller.topicExplorer()
+                            }
+                        }
+                        button("Planet") {
+                            onClick {
+                                controller.topicPlanet()
+                            }
+                        }
+                        button("Controller") {
+                            onClick {
+                                controller.topicController()
+                            }
+                        }
+                    }
+                    boxView("dialog-form-flex") {
+                        inputView(controller.topicProperty)
+                    }
+                }
             }
             dialogFormEntry("From") {
                 selectView(controller.fromProperty)
             }
             dialogFormEntry("Type") {
-                selectView(controller.typeProperty)
+                buttonGroup {
+                    classList += "dialog-form-flex"
+                    style {
+                        width = "100%"
+                    }
+                    selectView(controller.typeProperty)
+                    button("Topic") {
+                        onClick {
+                            controller.topicByType()
+                        }
+                    }
+                }
             }
 
             boxView("dialog-hide-entry") {

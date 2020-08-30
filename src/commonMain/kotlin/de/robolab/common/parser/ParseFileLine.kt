@@ -578,7 +578,7 @@ interface FileLine<T> {
             blockMode = BlockMode.Head(builder.previousBlockHead)
             builder.previousBlockHead = this
             builder.planet = builder.planet.copy(tagMap = builder.planet.tagMap.withEntry(data.key to data.values.orEmpty()){
-                k, a:List<String>,b:List<String> -> a+b
+                _, a:List<String>,b:List<String> -> a+b
             })
         }
 

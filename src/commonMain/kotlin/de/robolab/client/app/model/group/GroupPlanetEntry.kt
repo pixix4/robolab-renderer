@@ -7,6 +7,7 @@ import de.robolab.client.app.model.file.MultiFilePlanetProvider
 import de.robolab.client.app.model.file.findByName
 import de.robolab.client.communication.*
 import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
+import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableValue
@@ -302,6 +303,8 @@ class AttemptPlanetEntry(
             drawable.importBackgroundPlanet(planet, true)
             drawable.importServerPlanet(serverPlanet.importSplines(planet), true)
             drawable.importMqttPlanet(mqttPlanet.importSplines(planet))
+            drawable.autoCentering = true
+            drawable.centerPlanet(TransformationInteraction.ANIMATION_TIME)
         }
 
         documentProperty.mapEvent { it.onAttach }.addListener {

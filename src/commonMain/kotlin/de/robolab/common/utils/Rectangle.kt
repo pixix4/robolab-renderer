@@ -28,6 +28,8 @@ data class Rectangle(
         return point.left > left && point.top > top && point.left < right && point.top < bottom
     }
 
+    operator fun contains(other: Rectangle) = (this union other) == this
+
     fun expand(size: Double) = expand(size, size)
     fun shrink(size: Double) = shrink(size, size)
 
@@ -42,6 +44,11 @@ data class Rectangle(
 
     infix fun union(other: Rectangle): Rectangle {
         return fromEdges(toEdgeList() + other.toEdgeList())
+    }
+
+    fun union(other: Rectangle, ignoreThreshold: Double): Rectangle {
+        val union = union(other)
+        return if (expand(ignoreThreshold).contains(union)) union else this
     }
 
     override fun interpolate(toValue: Rectangle, progress: Double) = Rectangle(

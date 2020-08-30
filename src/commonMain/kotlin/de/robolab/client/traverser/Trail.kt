@@ -1,8 +1,7 @@
 package de.robolab.client.traverser
 
-import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.common.planet.*
-import de.robolab.common.utils.pathIntersect
+import de.robolab.common.utils.intersect
 import kotlin.random.Random
 
 fun Random.nextHexString(length: Int = 8): String =
@@ -48,7 +47,7 @@ interface ITraverserTrail {
                 original?.startPoint
                     ?: (path.firstOrNull()?.first)?.let { StartPoint(it, Direction.NORTH, emptyList()) },
                 original?.bluePoint,
-                (original?.pathList?.pathIntersect(mothershipState.sentPaths)
+                (original?.pathList?.intersect(mothershipState.sentPaths, Path::equalPath)
                     ?: mothershipState.sentPaths).toList(),
                 (original?.targetList?.intersect(mothershipState.sentTargets)
                     ?: mothershipState.sentTargets).toList(),

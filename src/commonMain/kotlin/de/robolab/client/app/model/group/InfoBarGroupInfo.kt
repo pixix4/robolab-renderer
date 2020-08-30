@@ -31,35 +31,33 @@ class InfoBarGroupInfo(
 
     fun openSendDialog() {
         openSendMessageDialog(SendMessageController(
-            "explorer/" + attemptPlanetEntry.parent.groupName,
+            attemptPlanetEntry.parent.groupName,
+            attemptPlanetEntry.planetNameProperty.value,
             messageManager::sendMessage
         ))
     }
 
-    fun openSendDialogSmallExamPlanet() {
+    private fun openSendDialogExamPlanet(planetName: String) {
         val controller = SendMessageController(
-            "controller/" + attemptPlanetEntry.parent.groupName,
+            attemptPlanetEntry.parent.groupName,
+            attemptPlanetEntry.planetNameProperty.value,
             messageManager::sendMessage
         )
 
+        controller.topicController()
         controller.type = SendMessageController.Type.SetPlanetMessage
         controller.from = SendMessageController.From.CLIENT
-        controller.planetName = PreferenceStorage.examSmall
+        controller.planetName = planetName
 
         openSendMessageDialog(controller)
     }
 
+    fun openSendDialogSmallExamPlanet() {
+        openSendDialogExamPlanet(PreferenceStorage.examSmall)
+    }
+
     fun openSendDialogLargeExamPlanet() {
-        val controller = SendMessageController(
-            "controller/" + attemptPlanetEntry.parent.groupName,
-            messageManager::sendMessage
-        )
-
-        controller.type = SendMessageController.Type.SetPlanetMessage
-        controller.from = SendMessageController.From.CLIENT
-        controller.planetName = PreferenceStorage.examLarge
-
-        openSendMessageDialog(controller)
+        openSendDialogExamPlanet(PreferenceStorage.examLarge)
     }
 
     val messageCountStringProperty = messages.join(attemptPlanetEntry.selectedIndexProperty) { messages, index ->

@@ -28,7 +28,7 @@ import kotlin.math.round
 
 @Suppress("LeakingThis")
 abstract class AbsPlanetDrawable(
-    private val transformationStateProperty: ObservableProperty<Transformation.State> = property(Transformation.State.DEFAULT)
+    transformationStateProperty: ObservableProperty<Transformation.State> = property(Transformation.State.DEFAULT)
 ) : ITransformationReference {
 
     private var transformationState by transformationStateProperty
@@ -142,8 +142,8 @@ abstract class AbsPlanetDrawable(
         val edge = paperArea?.bottomRight ?: Point.ZERO
         nameView.setSource(edge - Point(0.3, 0.4))
 
+        centerOfPlanets = area?.center ?: Point.ZERO
         if (autoCentering) {
-            centerOfPlanets = area?.center ?: Point.ZERO
             centerPlanet(if (isFirstImport) 0.0 else TransformationInteraction.ANIMATION_TIME)
         }
 
@@ -199,18 +199,18 @@ abstract class AbsPlanetDrawable(
         }
     }
 
-    companion object {
-
-        fun calcPlanetArea(planetList: List<Planet>): Rectangle? {
-            val areaList = planetList.mapNotNull { calcPlanetArea(it) }
-            return if (areaList.isEmpty()) {
-                null
-            } else {
-                areaList.reduce { acc, rectangle ->
-                    acc.union(rectangle)
-                }
+    open fun calcPlanetArea(planetList: List<Planet>): Rectangle? {
+        val areaList = planetList.mapNotNull { calcPlanetArea(it) }
+        return if (areaList.isEmpty()) {
+            null
+        } else {
+            areaList.reduce { acc, rectangle ->
+                acc.union(rectangle)
             }
         }
+    }
+
+    companion object {
 
         fun calcPlanetArea(planet: Planet): Rectangle? {
             var minX = Double.MAX_VALUE

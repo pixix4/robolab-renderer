@@ -3,7 +3,6 @@ package de.robolab.client.ui.style
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.style.components.*
 import de.robolab.client.utils.PreferenceStorage
-import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import tornadofx.*

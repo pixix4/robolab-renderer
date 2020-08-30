@@ -1,6 +1,5 @@
 package de.robolab.common.utils
 
-import de.robolab.common.planet.Path
 import kotlin.jvm.JvmName
 
 
@@ -44,9 +43,8 @@ inline fun <T, R, S, V> Iterable<T>.zip(other1: Iterable<R>, other2: Iterable<S>
     return list
 }
 
-fun Iterable<Path>.pathIntersect(other:Iterable<Path>):Iterable<Path>{
-    val otherCopy = other.toList()
-    return filter{selfPath->
-        otherCopy.any(selfPath::equalPath)
+inline fun <T> Iterable<T>.intersect(other: Iterable<T>, predicate: (T, T) -> Boolean): Iterable<T> {
+    return filter { selfPath ->
+        other.any { predicate(selfPath, it) }
     }
 }

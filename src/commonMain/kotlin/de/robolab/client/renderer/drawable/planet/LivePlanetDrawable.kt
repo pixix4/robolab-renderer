@@ -2,7 +2,9 @@ package de.robolab.client.renderer.drawable.planet
 
 import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.client.renderer.utils.Transformation
+import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.common.planet.Planet
+import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.property
 
@@ -43,6 +45,22 @@ class LivePlanetDrawable(
 
     fun importRobot(robot: RobotDrawable.Robot?) {
         robotDrawable.importRobot(backgroundLayer.planet, robot)
+    }
+
+    override fun calcPlanetArea(planetList: List<Planet>): Rectangle? {
+        val planets = listOf(
+            backgroundLayer.planet,
+            serverLayer.planet,
+            mqttLayer.planet
+        )
+        val areaList = planets.mapNotNull { Companion.calcPlanetArea(it) }
+        return if (areaList.isEmpty()) {
+            null
+        } else {
+            areaList.reduce { acc, rectangle ->
+                acc.union(rectangle, 5.0)
+            }
+        }
     }
 
     init {

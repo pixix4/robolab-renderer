@@ -203,6 +203,30 @@ fun Stylesheet.initFormStyle() {
                 borderWidth = multi(box(1.px))
             }
         }
+
+        Stylesheet.comboBox {
+            borderRadius = multi(box(0.px))
+            backgroundRadius = multi(box(0.px))
+
+            borderWidth = multi(box(1.px, 0.px, 1.px, 1.px))
+
+            and(MainStyle.first) {
+                borderRadius = multi(box(MainStyle.BORDER_RADIUS, 0.px, 0.px, MainStyle.BORDER_RADIUS))
+                backgroundRadius = multi(box(MainStyle.BORDER_RADIUS, 0.px, 0.px, MainStyle.BORDER_RADIUS))
+            }
+            and(MainStyle.last) {
+                borderWidth = multi(box(1.px))
+                borderRadius = multi(box(0.px, MainStyle.BORDER_RADIUS, MainStyle.BORDER_RADIUS, 0.px))
+                backgroundRadius = multi(box(0.px, MainStyle.BORDER_RADIUS, MainStyle.BORDER_RADIUS, 0.px))
+                and(MainStyle.first) {
+                    borderRadius = multi(box(MainStyle.BORDER_RADIUS))
+                    backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
+                }
+            }
+            and(Stylesheet.focused) {
+                borderWidth = multi(box(1.px))
+            }
+        }
     }
 
     Stylesheet.checkBox {

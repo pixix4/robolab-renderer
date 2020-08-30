@@ -45,7 +45,7 @@
 
 .info-bar-content {
   position: absolute;
-  top: 3rem;
+  top: 0;
   left: 0;
   width: 100%;
   bottom: var(--detail-box-height);
@@ -93,39 +93,6 @@
   margin-bottom: -0.8rem;
   cursor: row-resize;
   opacity: 0.5;
-}
-
-.info-bar-header {
-  height: 3rem;
-  width: 100%;
-  border-bottom: solid 1px var(--border-color);
-  position: absolute;
-
-  .button-group {
-    display: flex;
-    margin: 0 0.5rem;
-    align-items: center;
-    align-content: center;
-    height: 3rem;
-
-    .button {
-      flex-grow: 1;
-      flex-shrink: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding: 0;
-      height: 2.1rem;
-      vertical-align: middle;
-    }
-  }
-
-  &:empty {
-    display: none;
-
-    & ~ .info-bar-content {
-      top: 0;
-    }
-  }
 }
 
 .traverser-bar-header {
@@ -221,6 +188,9 @@
 }
 
 .info-bar-group-view-header {
+  padding: 0.5rem;
+}
+.info-bar-group-view > .box-view {
   padding: 0.5rem;
 }
 

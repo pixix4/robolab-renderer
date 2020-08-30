@@ -6,14 +6,81 @@ import de.robolab.common.utils.RobolabJson
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
-class SendMessageController(topic: String, private val sendMessage: (String, String) -> Boolean) {
+class SendMessageController(
+    private val groupNumber: String,
+    private val planet: String,
+    private val sendMessage: (String, String) -> Boolean
+) {
 
-    val topicProperty = property(topic)
+    val topicProperty = property("")
     var topic by topicProperty
     val fromProperty = property(From.SERVER)
     var from by fromProperty
     val typeProperty = property(Type.PathMessage)
     var type by typeProperty
+
+    fun topicExplorer() {
+        topic = "explorer/$groupNumber"
+    }
+
+    fun topicPlanet() {
+        topic = "planet/$planet/$groupNumber"
+    }
+
+    fun topicController() {
+        topic = "controller/$groupNumber"
+    }
+
+    fun topicByType() {
+        when (type) {
+            Type.PathSelectMessage -> {
+                topicPlanet()
+                from = From.CLIENT
+            }
+            Type.PathMessage -> {
+                topicPlanet()
+                from = From.CLIENT
+            }
+            Type.ReadyMessage -> {
+                topicExplorer()
+                from = From.CLIENT
+            }
+            Type.PlanetMessage -> {
+                topicExplorer()
+                from = From.SERVER
+            }
+            Type.SetPlanetMessage -> {
+                topicController()
+                from = From.CLIENT
+            }
+            Type.TestPlanetMessage -> {
+                topicPlanet()
+                from = From.CLIENT
+            }
+            Type.PathUnveilMessage -> {
+                topicPlanet()
+                from = From.CLIENT
+            }
+            Type.TargetMessage -> {
+                topicPlanet()
+                from = From.CLIENT
+            }
+            Type.TargetReachedMessage -> {
+                topicExplorer()
+                from = From.CLIENT
+            }
+            Type.ExplorationCompletedMessage -> {
+                topicExplorer()
+                from = From.CLIENT
+            }
+            Type.DoneMessage -> {
+                topicExplorer()
+                from = From.SERVER
+            }
+            Type.CustomMessage -> {
+            }
+        }
+    }
 
     enum class Type(val displayName: String) {
         PathSelectMessage("Path select"),
@@ -131,104 +198,104 @@ class SendMessageController(topic: String, private val sendMessage: (String, Str
     fun send(): Boolean {
         val message = when (typeProperty.value) {
             Type.PathSelectMessage -> JsonMessage(
-                fromProperty.value.convert(),
+                from.convert(),
                 de.robolab.client.communication.Type.PATH_SELECT,
                 Payload(
-                    startX = startXProperty.value,
-                    startY = startYProperty.value,
-                    startDirection = startDirectionProperty.value
+                    startX = startX,
+                    startY = startY,
+                    startDirection = startDirection
                 )
             )
             Type.PathMessage -> JsonMessage(
-                fromProperty.value.convert(),
+                from.convert(),
                 de.robolab.client.communication.Type.PATH,
                 Payload(
-                    startX = startXProperty.value,
-                    startY = startYProperty.value,
-                    startDirection = startDirectionProperty.value,
-                    endX = startXProperty.value,
-                    endY = startYProperty.value,
-                    endDirection = startDirectionProperty.value,
-                    pathStatus = pathStatusProperty.value,
-                    pathWeight = pathWeightProperty.value
+                    startX = startX,
+                    startY = startY,
+                    startDirection = startDirection,
+                    endX = endX,
+                    endY = endY,
+                    endDirection = endDirection,
+                    pathStatus = pathStatus,
+                    pathWeight = pathWeight
                 )
             )
             Type.ReadyMessage -> JsonMessage(
-                fromProperty.value.convert(),
+                from.convert(),
                 de.robolab.client.communication.Type.READY,
                 Payload()
             )
             Type.SetPlanetMessage -> JsonMessage(
-                fromProperty.value.convert(),
+                from.convert(),
                 de.robolab.client.communication.Type.SET_PLANET,
                 Payload(
-                    planetName = planetNameProperty.value
+                    planetName = planetName
                 )
             )
             Type.TestPlanetMessage -> JsonMessage(
-                fromProperty.value.convert(),
+                from.convert(),
                 de.robolab.client.communication.Type.TEST_PLANET,
                 Payload(
-                    planetName = planetNameProperty.value
+                    planetName = planetName
                 )
             )
             Type.PlanetMessage -> JsonMessage(
-                fromProperty.value.convert(),
+                from.convert(),
                 de.robolab.client.communication.Type.PLANET,
                 Payload(
-                    planetName = planetNameProperty.value,
-                    startX = startXProperty.value,
-                    startY = startYProperty.value,
-                    startOrientation = startOrientationProperty.value
+                    planetName = planetName,
+                    startX = startX,
+                    startY = startY,
+                    startOrientation = startOrientation
                 )
             )
             Type.PathUnveilMessage -> JsonMessage(
-                fromProperty.value.convert(),
+                from.convert(),
                 de.robolab.client.communication.Type.PATH_UNVEILED,
                 Payload(
-                    startX = startXProperty.value,
-                    startY = startYProperty.value,
-                    startDirection = startDirectionProperty.value,
-                    endX = startXProperty.value,
-                    endY = startYProperty.value,
-                    endDirection = startDirectionProperty.value,
-                    pathStatus = pathStatusProperty.value,
-                    pathWeight = pathWeightProperty.value
+                    startX = startX,
+                    startY = startY,
+                    startDirection = startDirection,
+                    endX = endX,
+                    endY = endY,
+                    endDirection = endDirection,
+                    pathStatus = pathStatus,
+                    pathWeight = pathWeight
                 )
             )
             Type.TargetMessage -> JsonMessage(
-                fromProperty.value.convert(),
+                from.convert(),
                 de.robolab.client.communication.Type.TARGET,
                 Payload(
-                    targetX = targetXProperty.value,
-                    targetY = targetYProperty.value
+                    targetX = targetX,
+                    targetY = targetY
                 )
             )
             Type.TargetReachedMessage -> JsonMessage(
-                fromProperty.value.convert(),
+                from.convert(),
                 de.robolab.client.communication.Type.TARGET_REACHED,
                 Payload(
-                    message = messageProperty.value
+                    message = message
                 )
             )
             Type.ExplorationCompletedMessage -> JsonMessage(
-                fromProperty.value.convert(),
+                from.convert(),
                 de.robolab.client.communication.Type.EXPLORATION_COMPLETED,
                 Payload(
-                    message = messageProperty.value
+                    message = message
                 )
             )
             Type.DoneMessage -> JsonMessage(
-                fromProperty.value.convert(),
+                from.convert(),
                 de.robolab.client.communication.Type.DONE,
                 Payload(
-                    message = messageProperty.value
+                    message = message
                 )
             )
             Type.CustomMessage -> {
                 return sendMessage(
-                    topicProperty.value,
-                    customProperty.value ?: ""
+                    topic,
+                    custom ?: ""
                 )
             }
         }
