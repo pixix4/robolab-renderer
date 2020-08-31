@@ -24,8 +24,8 @@ class TargetAnimatable(
     override fun onUpdate(obj: TargetPoint, planet: Planet) {
         super.onUpdate(obj, planet)
 
-        val color =
-            SenderGrouping.getSenderGrouping(planet)[SenderGrouping.getTargetExposure(obj, planet)]?.color
+        val key = planet.targetList.filter { obj.target == it.target }.map { it.exposure }.toSet()
+        val color = planet.senderGrouping[key]?.let { SenderGrouping(it) }?.color
                 ?: Color.TRANSPARENT
 
         view.setColor(ViewColor.c(color))

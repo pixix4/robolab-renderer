@@ -252,7 +252,7 @@ class PathAnimatable(
         if (path.exposure.isEmpty()) {
             return null
         }
-        return SenderGrouping.getSenderGrouping(planet).getValue(path.exposure)
+        return SenderGrouping(planet.senderGrouping.getValue(path.exposure))
     }
 
     companion object {

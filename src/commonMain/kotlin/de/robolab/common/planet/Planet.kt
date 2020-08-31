@@ -11,7 +11,8 @@ data class Planet(
     val targetList: List<TargetPoint>,
     val pathSelectList: List<PathSelect>,
     val commentList: List<Comment>,
-    val tagMap: Map<String, List<String>>
+    val tagMap: Map<String, List<String>>,
+    val senderGrouping: Map<Set<Coordinate>, Char>,
 ): IPlanetValue {
 
     fun importSplines(reference: Planet): Planet {
@@ -36,6 +37,12 @@ data class Planet(
             }
         }
 
+        val grouping = reference.senderGrouping.toMutableMap()
+
+        grouping += senderGrouping.filter { (key, value) ->
+            key !in grouping && value !in grouping.values
+        }
+
         return Planet(
             reference.version,
             reference.name,
@@ -45,8 +52,9 @@ data class Planet(
             targetList,
             pathSelectList,
             commentList,
-            tagMap
-        )
+            tagMap,
+            grouping
+        ).generateMissingSenderGroupings()
     }
 
     fun translate(delta: Coordinate) = Planet(
@@ -58,7 +66,10 @@ data class Planet(
         targetList.map { it.translate(delta) },
         pathSelectList.map { it.translate(delta) },
         commentList.map { it.translate(delta) },
-        tagMap
+        tagMap,
+        senderGrouping.map { (key, value) ->
+            key.map { it.translate(delta) }.toSet() to value
+        }.toMap(),
     )
 
     fun rotate(direction: RotateDirection, origin: Coordinate = startPoint?.point ?: Coordinate(0, 0)) = Planet(
@@ -70,8 +81,32 @@ data class Planet(
         targetList.map { it.rotate(direction, origin) },
         pathSelectList.map { it.rotate(direction, origin) },
         commentList.map { it.rotate(direction, origin) },
-        tagMap
+        tagMap,
+        senderGrouping.map { (key, value) ->
+            key.map { it.rotate(direction, origin) }.toSet() to value
+        }.toMap(),
     )
+
+    fun generateMissingSenderGroupings(): Planet {
+        val list= (targetList.map { targetList.filter { i -> it.target == i.target }.map { it.exposure }.toSet() } + pathList.map { it.exposure })
+            .filterNot { it.isEmpty() }
+            .distinct() - senderGrouping.keys
+
+        val groupings = senderGrouping.toMutableMap()
+
+        var lastChar = 'A'
+        for (set in list) {
+            while (lastChar in groupings.values) {
+                lastChar += 1
+            }
+            groupings += set to lastChar
+            lastChar += 1
+        }
+
+        return copy(
+            senderGrouping = groupings
+        )
+    }
 
     fun scaleWeights(factor: Double = 1.0, offset: Int = 0): Planet {
         return copy(
@@ -95,7 +130,8 @@ data class Planet(
             emptyList(),
             emptyList(),
             emptyList(),
-            emptyMap()
+            emptyMap(),
+            emptyMap(),
         )
     }
 }

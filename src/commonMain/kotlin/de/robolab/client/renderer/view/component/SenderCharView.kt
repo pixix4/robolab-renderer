@@ -45,7 +45,7 @@ class SenderCharView(
                 draw(
                     context,
                     center,
-                    new.viewColor.interpolate(old.viewColor, progress),
+                    old.viewColor.interpolate(new.viewColor, progress),
                     if (progress < 0.5) old.char else new.char
                 )
             } else {

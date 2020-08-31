@@ -514,6 +514,51 @@ interface FileLine<T> {
         }
     }
 
+    class GroupingLine(override val line: String) : FileLine<Pair<Char, Set<Coordinate>>> {
+
+        override val data = REGEX.matchEntire(line.trim())!!.let { match ->
+            match.groupValues[2].first() to match.groupValues[3].split('|').mapNotNull { p ->
+                val h = p.split(',').map { it.trim().toInt() }
+                if (h.size < 2) null else Coordinate(h[0], h[1])
+            }.toSet()
+        }
+
+        override var blockMode: BlockMode = BlockMode.Unknown
+
+        override fun buildPlanet(builder: BuildAccumulator) {
+            blockMode = BlockMode.Head(builder.previousBlockHead)
+            builder.previousBlockHead = this
+            builder.planet = builder.planet.copy(
+                senderGrouping = builder.planet.senderGrouping + (data.second to data.first)
+            )
+        }
+
+        companion object : Parser {
+            override val name = "Grouping line parser"
+            val REGEX =
+                """^#\s*(grouping|GROUPING)\s?(?::\s?([A-Z])\s?)(?::\s?((?:-?\d+,\s*?(?:-?\d+))(?:\s*?\|\s*?(?:-?\d+\s*?,\s*?(?:-?\d+)))*)?)[ \t]*\s*(?:#.*?)?${'$'}""".toRegex()
+
+            override fun testLine(line: String): Boolean {
+                return REGEX.containsMatchIn(line)
+            }
+
+            override fun createInstance(line: String): FileLine<*> {
+                return GroupingLine(line)
+            }
+
+            fun serialize(set: Set<Coordinate>, char: Char) = buildString {
+                append("# grouping: ")
+                append(char)
+                append(": ")
+                append(set.joinToString(" | ") {(x, y) ->
+                    "$x,$y"
+                })
+            }
+
+            fun create(set: Set<Coordinate>, char: Char) = createInstance(serialize(set, char))
+        }
+    }
+
     class HiddenLine(override val line: String) : FileLine<Unit> {
 
         override val data = Unit
@@ -766,6 +811,7 @@ private val parserList = listOf(
     FileLine.SplineLine,
     FileLine.HiddenLine,
     FileLine.TagLine,
+    FileLine.GroupingLine,
     FileLine.CommentLine,
     FileLine.CommentSubLine,
     FileLine.BlankLine

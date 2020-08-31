@@ -54,6 +54,7 @@ interface ITraverserTrail {
                 (original?.pathSelectList?.intersect(mothershipState.sentPathSelects)
                     ?: mothershipState.sentPathSelects).toList(),
                 emptyList(),
+                emptyMap(),
                 emptyMap()
             ), mothershipState.toDrawableRobot(), path.mapNotNull {
                 it.first to (it.second ?: return@mapNotNull null)

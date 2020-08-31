@@ -11,11 +11,14 @@ class TargetAnimatableManager : AnimatableManager<TargetPoint, TargetAnimatable>
         return planet.targetList.distinctBy { it.target }
     }
 
+    override fun forceUpdate(oldPlanet: Planet, newPlanet: Planet): Boolean {
+        return oldPlanet.senderGrouping != newPlanet.senderGrouping
+    }
+
     override fun createAnimatable(obj: TargetPoint, planet: Planet): TargetAnimatable {
-        val senderGrouping = SenderGrouping.getSenderGrouping(planet)
+        val key = planet.targetList.filter { obj.target == it.target }.map { it.exposure }.toSet()
+        val grouping = planet.senderGrouping[key] ?: throw IllegalStateException()
 
-        val grouping = senderGrouping[SenderGrouping.getTargetExposure(obj, planet)] ?: throw IllegalStateException()
-
-        return TargetAnimatable(obj, grouping)
+        return TargetAnimatable(obj, SenderGrouping(grouping))
     }
 }

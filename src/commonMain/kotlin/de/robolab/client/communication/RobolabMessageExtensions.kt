@@ -75,8 +75,9 @@ fun List<RobolabMessage>.toServerPlanet(): Planet {
         targetList,
         pathSelectList,
         emptyList(),
+        emptyMap(),
         emptyMap()
-    )
+    ).generateMissingSenderGroupings()
 }
 
 fun List<RobolabMessage>.toMqttPlanet(): Planet {
@@ -138,8 +139,9 @@ fun List<RobolabMessage>.toMqttPlanet(): Planet {
         targetList,
         pathSelectList,
         emptyList(),
+        emptyMap(),
         emptyMap()
-    )
+    ).generateMissingSenderGroupings()
 }
 
 fun List<RobolabMessage>.toRobot(groupNumber: Int?): RobotDrawable.Robot? {

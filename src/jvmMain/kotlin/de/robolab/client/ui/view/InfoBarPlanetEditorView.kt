@@ -150,6 +150,7 @@ class InfoBarPlanetEditorView(private val content: InfoBarFileEditor) : View() {
             "name",
             "version",
             "spline",
+            "grouping",
             "comment",
             "blue",
             "start",

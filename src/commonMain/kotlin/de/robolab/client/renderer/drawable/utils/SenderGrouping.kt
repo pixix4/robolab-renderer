@@ -3,33 +3,16 @@ package de.robolab.client.renderer.drawable.utils
 import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Planet
-import de.robolab.common.planet.TargetPoint
 import de.robolab.common.utils.Color
 import de.robolab.common.utils.Point
 
 data class SenderGrouping(
-    val index: Int
+    val char: Char
 ) {
 
-    val color = getColorByIndex(index)
-
-    val char = (index + 65).toChar()
+    val color = getColorByIndex(char.toInt() - 65)
 
     companion object {
-        fun getSenderGrouping(planet: Planet): Map<Set<Coordinate>, SenderGrouping> {
-            return (planet.targetList.map { getTargetExposure(it, planet) } + planet.pathList.map { it.exposure })
-                .asSequence()
-                .filterNot { it.isEmpty() }
-                .distinct()
-                .withIndex()
-                .associate { (index, set) -> set to SenderGrouping(index) }
-        }
-
-        fun getTargetExposure(target: TargetPoint, planet: Planet): Set<Coordinate> {
-            return planet.targetList.filter { it.target == target.target }.map { it.exposure }.toSet()
-        }
-
         private fun getColorByIndex(index: Int): Color {
             if (index < 0) {
                 return Color.TRANSPARENT

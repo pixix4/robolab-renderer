@@ -17,6 +17,10 @@ class PathAnimatableManager(
         return planet.pathList + planet.startPoint.path
     }
 
+    override fun forceUpdate(oldPlanet: Planet, newPlanet: Planet): Boolean {
+        return oldPlanet.senderGrouping != newPlanet.senderGrouping
+    }
+
     override fun createAnimatable(obj: Path, planet: Planet): PathAnimatable {
         return PathAnimatable(obj, planet, editCallback)
     }

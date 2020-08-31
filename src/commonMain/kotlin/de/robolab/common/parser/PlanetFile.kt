@@ -25,7 +25,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
                 logger.error { "Error while buildPlanet, ${line::class.simpleName}: '${line.line}'" }
             }
         }
-        buildAccumulator.planet
+        buildAccumulator.planet.generateMissingSenderGroupings()
     }
     val planet by planetProperty
 

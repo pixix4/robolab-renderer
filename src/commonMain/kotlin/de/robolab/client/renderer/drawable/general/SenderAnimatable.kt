@@ -17,8 +17,6 @@ class SenderAnimatable(
     override fun onUpdate(obj: Coordinate, planet: Planet) {
         super.onUpdate(obj, planet)
         
-        val senderGrouping = SenderGrouping.getSenderGrouping(planet)
-
-        view.setColors(senderGrouping.filterKeys { obj in it }.values.toList())
+        view.setColors(planet.senderGrouping.filterKeys { obj in it }.values.toList().map { SenderGrouping(it) })
     }
 }
