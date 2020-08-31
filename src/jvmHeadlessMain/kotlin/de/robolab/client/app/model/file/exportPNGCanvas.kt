@@ -25,10 +25,6 @@ actual fun openExportDialog(provider: FilePlanetEntry) {
     throw UnsupportedOperationException()
 }
 
-actual fun openPaperConstraintsDialog() {
-    throw UnsupportedOperationException()
-}
-
 actual fun openPlanetTransformDialog(planetFile: PlanetFile) {
     throw UnsupportedOperationException()
 }
