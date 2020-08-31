@@ -32,10 +32,6 @@ actual fun openExportDialog(provider: FilePlanetEntry) {
     ExportDialog.open(provider)
 }
 
-actual fun openPaperConstraintsDialog() {
-    PaperConstraintsDialog.open()
-}
-
 actual fun openPlanetTransformDialog(planetFile: PlanetFile) {
     PlanetTransformDialog.open(planetFile)
 }

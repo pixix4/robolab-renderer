@@ -2,6 +2,7 @@ package de.robolab.client.ui.dialog
 
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
 import de.robolab.client.app.model.file.MultiFilePlanetProvider
+import de.robolab.client.renderer.drawable.edit.PaperBackgroundDrawable
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.utils.buttonGroup
@@ -182,6 +183,43 @@ class SettingsDialog : GenericDialog() {
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+        tab("Paper constraints") {
+            form {
+                fieldset {
+                    field("Paper orientation") {
+                        combobox(
+                            PreferenceStorage.paperOrientationProperty.toFx(),
+                            PaperBackgroundDrawable.Orientation.values().toList()
+                        )
+                    }
+                    field("Grid width") {
+                        textfield(
+                            PreferenceStorage.paperGridWidthProperty.toFx(),
+                            DoubleStringConverter(PreferenceStorage.paperGridWidthProperty.default)
+                        )
+                    }
+                    field("Paper strip width") {
+                        textfield(
+                            PreferenceStorage.paperStripWidthProperty.toFx(),
+                            DoubleStringConverter(PreferenceStorage.paperStripWidthProperty.default)
+                        )
+                    }
+                    field("Minimal padding") {
+                        textfield(
+                            PreferenceStorage.paperMinimalPaddingProperty.toFx(), DoubleStringConverter(
+                                PreferenceStorage.paperMinimalPaddingProperty.default
+                            )
+                        )
+                    }
+                    field("Precision") {
+                        textfield(
+                            PreferenceStorage.paperPrecisionProperty.toFx(),
+                            IntStringConverter(PreferenceStorage.paperPrecisionProperty.default)
+                        )
                     }
                 }
             }

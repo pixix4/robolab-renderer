@@ -2,7 +2,7 @@ package de.robolab.client.utils
 
 import de.robolab.client.app.controller.NavigationBarController
 import de.robolab.client.app.model.file.LoadRemoteExamStateEvent
-import de.robolab.client.renderer.drawable.edit.EditPaperBackground
+import de.robolab.client.renderer.drawable.edit.PaperBackgroundDrawable
 import de.robolab.client.theme.Theme
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.TypedStorage
@@ -61,8 +61,6 @@ object PreferenceStorage : TypedStorage() {
     val fileServerProperty = item("communication.fileServer", PlatformDefaultPreferences.fileServer)
     var fileServer by fileServerProperty
 
-    val paperBackgroundEnabledProperty = item("paper.enabled", false)
-    val paperBackgroundEnabled by paperBackgroundEnabledProperty
 
     val paperGridWidthProperty = item("paper.gridWidth", 0.5)
     val paperGridWidth by paperGridWidthProperty
@@ -70,7 +68,7 @@ object PreferenceStorage : TypedStorage() {
     val paperStripWidthProperty = item("paper.stripWidth", 0.841)
     val paperStripWidth by paperStripWidthProperty
 
-    val paperOrientationProperty = item("paper.orientation", EditPaperBackground.Orientation.VERTICAL)
+    val paperOrientationProperty = item("paper.orientation", PaperBackgroundDrawable.Orientation.VERTICAL)
     val paperOrientation by paperOrientationProperty
 
     val paperMinimalPaddingProperty = item("paper.minimalPadding", 0.25)
@@ -78,6 +76,7 @@ object PreferenceStorage : TypedStorage() {
 
     val paperPrecisionProperty = item("paper.precision", 3)
     val paperPrecision by paperPrecisionProperty
+
 
     val autoUpdateChannelProperty = item("update.channel", UpdateChannel.STABLE)
     val autoUpdateChannel by autoUpdateChannelProperty

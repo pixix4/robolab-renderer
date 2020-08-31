@@ -16,7 +16,7 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
-class EditPaperBackground {
+class PaperBackgroundDrawable {
 
     private val gridWidth by PreferenceStorage.paperGridWidthProperty
     private val paperWidth by PreferenceStorage.paperStripWidthProperty
@@ -32,6 +32,10 @@ class EditPaperBackground {
         null,
         ViewColor.PRIMARY_BACKGROUND_COLOR
     ).also {
+        it.animationTime = 0.0
+    }
+
+    val handlerView = GroupView("Paper handlers").also {
         it.animationTime = 0.0
     }
 
@@ -58,8 +62,11 @@ class EditPaperBackground {
 
     private val edgeList = mutableListOf<Pair<RectangleView, Edge>>()
     private fun setupHandler(view: RectangleView, edge: Edge) {
-        backgroundView += view
+        handlerView += view
         edgeList += view to edge
+
+        view.hoverable = true
+        view.focusable = true
 
         var lastPosition = Point.ZERO
         view.onPointerDown { event ->
@@ -331,7 +338,6 @@ class EditPaperBackground {
     }
 
     init {
-        PreferenceStorage.paperBackgroundEnabledProperty.onChange { update() }
         PreferenceStorage.paperGridWidthProperty.onChange { update() }
         PreferenceStorage.paperStripWidthProperty.onChange { update() }
         PreferenceStorage.paperMinimalPaddingProperty.onChange { update() }

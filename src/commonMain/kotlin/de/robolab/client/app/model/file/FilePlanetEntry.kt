@@ -6,14 +6,10 @@ import de.robolab.client.app.model.file.provider.FilePlanet
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.SvgCanvas
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
-import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
-import de.robolab.client.renderer.drawable.planet.EditPlanetDrawable
-import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
-import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
+import de.robolab.client.renderer.drawable.planet.*
 import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.theme.LightTheme
-import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.menuBilder
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.Path
@@ -41,11 +37,12 @@ class FilePlanetEntry(
 
     private val transformationStateProperty = property(Transformation.State.DEFAULT)
     val viewDrawable = SimplePlanetDrawable(transformationStateProperty)
+    val paperDrawable = PaperPlanetDrawable(transformationStateProperty)
     val editDrawable = EditPlanetDrawable(planetFile, transformationStateProperty)
     val traverserDrawable = LivePlanetDrawable(transformationStateProperty)
 
     enum class Mode {
-        VIEW, EDIT, TRAVERSE
+        VIEW, PAPER, EDIT, TRAVERSE
     }
 
     val modeProperty = property(Mode.VIEW)
@@ -54,6 +51,7 @@ class FilePlanetEntry(
     override val documentProperty = modeProperty.mapBinding {
         when(mode) {
             Mode.VIEW -> viewDrawable.view
+            Mode.PAPER -> paperDrawable.view
             Mode.EDIT -> editDrawable.view
             Mode.TRAVERSE -> traverserDrawable.view
         }
@@ -66,6 +64,12 @@ class FilePlanetEntry(
                 selectedProperty = modeProperty.mapBinding { it == Mode.VIEW }
             ) {
                 mode = Mode.VIEW
+            },
+            ToolBarEntry(
+                constObservable("Paper"),
+                selectedProperty = modeProperty.mapBinding { it == Mode.PAPER }
+            ) {
+                mode = Mode.PAPER
             },
             ToolBarEntry(
                 constObservable("Edit"),
@@ -87,22 +91,6 @@ class FilePlanetEntry(
             ) {
                 openExportDialog(this)
             }
-        ),
-        listOf(
-            ToolBarEntry(
-                constObservable("Paper"),
-                toolTipProperty = constObservable("Toggle paper constraints background"),
-                selectedProperty = PreferenceStorage.paperBackgroundEnabledProperty
-            ) {
-                PreferenceStorage.paperBackgroundEnabledProperty.value =
-                    !PreferenceStorage.paperBackgroundEnabledProperty.value
-            },
-            ToolBarEntry(
-                iconProperty = constObservable(MaterialIcon.BUILD),
-                toolTipProperty = constObservable("Configure paper constraints")
-            ) {
-                openPaperConstraintsDialog()
-            },
         ),
         listOf(
             ToolBarEntry(
@@ -159,6 +147,7 @@ class FilePlanetEntry(
     override val infoBarProperty = modeProperty.mapBinding {
         when(mode) {
             Mode.VIEW -> infoBarEdit
+            Mode.PAPER -> infoBarEdit
             Mode.EDIT -> infoBarEdit
             Mode.TRAVERSE -> infoBarTraverser
         }
@@ -281,6 +270,7 @@ class FilePlanetEntry(
     init {
         planetFile.history.onChange {
             viewDrawable.importPlanet(planetFile.planet)
+            paperDrawable.importPlanet(planetFile.planet)
             editDrawable.importPlanet(planetFile.planet)
             traverserDrawable.importBackgroundPlanet(planetFile.planet)
         }
@@ -305,5 +295,4 @@ expect fun saveExportSVG(name: String, content: String)
 expect fun saveExportPNG(name: String, canvas: ICanvas)
 expect fun openExportDialog(provider: FilePlanetEntry)
 expect fun openPlanetTransformDialog(planetFile: PlanetFile)
-expect fun openPaperConstraintsDialog()
 expect fun openSendMessageDialog(controller: SendMessageController)

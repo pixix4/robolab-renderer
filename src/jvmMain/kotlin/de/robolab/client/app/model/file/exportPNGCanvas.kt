@@ -3,7 +3,6 @@ package de.robolab.client.app.model.file
 import de.robolab.client.app.controller.SendMessageController
 import de.robolab.client.ui.adapter.AwtCanvas
 import de.robolab.client.ui.dialog.ExportDialog
-import de.robolab.client.ui.dialog.PaperConstraintsDialog
 import de.robolab.client.ui.dialog.PlanetTransformDialog
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.ui.dialog.SendMessageDialog
@@ -27,10 +26,6 @@ actual fun saveExportPNG(name: String, canvas: ICanvas) {
 
 actual fun openExportDialog(provider: FilePlanetEntry) {
     ExportDialog.open(provider)
-}
-
-actual fun openPaperConstraintsDialog() {
-    PaperConstraintsDialog.open()
 }
 
 actual fun openPlanetTransformDialog(planetFile: PlanetFile) {
