@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class RemoteFilePlanetLoader(
-    private val server: IRobolabServer
+    val server: IRobolabServer
 ) : IFilePlanetLoader<PlanetJsonInfo> {
 
     override val onRemoteChange = EventHandler<Unit>()
@@ -98,6 +98,18 @@ class RemoteFilePlanetLoader(
         }
     }
 
+    override suspend fun searchPlanets(search: String): List<PlanetJsonInfo> {
+        return withContext(Dispatchers.Default) {
+            try {
+                available = true
+                server.listPlanets(nameContains = search).planets
+            } catch (e: Exception) {
+                available = false
+                emptyList()
+            }
+        }
+    }
+
     private data class Auth(
         override val username: String,
         override val password: String
@@ -147,5 +159,4 @@ class RemoteFilePlanetLoader(
             }
         }
     }
-
 }

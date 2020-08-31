@@ -32,8 +32,8 @@ class FileSystemPlanetLoader(
 
     override val availableProperty = constObservable(true)
 
-    private fun getNameOfLines(lines: List<String>): String {
-        return PlanetFile(lines).planet.name.replace(' ', '_')
+    private fun getFileNameOfLines(lines: List<String>): String {
+        return (PlanetFile.getName(lines) ?: "").replace(' ', '_')
     }
 
     private fun findUnusedFile(name: String, vararg exclude: File): File {
@@ -57,7 +57,7 @@ class FileSystemPlanetLoader(
     }
 
     override suspend fun savePlanet(identifier: FileIdentifier, lines: List<String>): FileIdentifier? {
-        val name = getNameOfLines(lines)
+        val name = getFileNameOfLines(lines)
         return try {
             identifier.file.writeText(lines.joinToString("\n"))
 
@@ -71,7 +71,7 @@ class FileSystemPlanetLoader(
     }
 
     override suspend fun createPlanet(lines: List<String>) {
-        val name = getNameOfLines(lines)
+        val name = getFileNameOfLines(lines)
         try {
             val file = findUnusedFile(name)
             file.writeText(lines.joinToString("\n"))
@@ -88,14 +88,54 @@ class FileSystemPlanetLoader(
         }
     }
 
+    private fun listPlanetFiles(base: File, recursive: Boolean): List<File> {
+        val filteredPlanets = base.listFiles()?.filter {
+            (it.isDirectory && !it.name.startsWith(".")) || it.extension.endsWith("planet", true)
+        } ?: emptyList()
+
+        return if (recursive) {
+            filteredPlanets.flatMap {
+                if (it.isDirectory) {
+                    listPlanetFiles(it, true)
+                } else {
+                    listOf(it)
+                }
+            }
+        } else {
+            filteredPlanets
+        }
+    }
+
     override suspend fun listPlanets(identifier: FileIdentifier?): List<FileIdentifier> {
         return try {
-            val file = identifier?.file ?: baseDirectory
-            file.listFiles()
-                ?.filter {
-                    (it.isDirectory && !it.name.startsWith(".")) ||it.extension.endsWith("planet", true)
+            listPlanetFiles(identifier?.file ?: baseDirectory, false)
+                .map { FileIdentifier(it) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun getPlanetNameOfFile(file: File): String? {
+        return try {
+            PlanetFile.getName(file.readText())
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    override suspend fun searchPlanets(search: String): List<FileIdentifier> {
+        return try {
+            listPlanetFiles(baseDirectory, true)
+                .map { (getPlanetNameOfFile(it) ?: "") to it }
+                .filter { (name, _) ->
+                    name.contains(search, true)
                 }
-                ?.map { FileIdentifier(it) } ?: emptyList()
+                .sortedBy { (name, _) ->
+                    name.length
+                }
+                .map { (_, file) ->
+                    FileIdentifier(file)
+                }
         } catch (e: Exception) {
             emptyList()
         }

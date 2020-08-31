@@ -33,7 +33,7 @@ object GetExamInfo : IRESTRequest<GetExamInfo.ExamInfoResponse> {
                 largeInfo = null
             } else {
                 val json = serverResponse.jsonBody!!
-                isExam = json.jsonPrimitive.boolean
+                isExam = json.jsonObject.getValue("isExam").jsonPrimitive.boolean
                 if (isExam) {
                     smallInfo = PlanetJsonInfo.serializer().decode(json.jsonObject.getValue("smallPlanet"))
                     largeInfo = PlanetJsonInfo.serializer().decode(json.jsonObject.getValue("largePlanet"))
@@ -42,6 +42,10 @@ object GetExamInfo : IRESTRequest<GetExamInfo.ExamInfoResponse> {
                     largeInfo = null
                 }
             }
+        }
+
+        override fun toString(): String {
+            return "ExamInfoResponse(isExam=$isExam, smallInfo=$smallInfo, largeInfo=$largeInfo)"
         }
     }
 }

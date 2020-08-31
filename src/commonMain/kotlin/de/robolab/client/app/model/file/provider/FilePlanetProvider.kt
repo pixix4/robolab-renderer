@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class FilePlanetProvider<T : IFilePlanetIdentifier>(
-    private val loader: IFilePlanetLoader<T>,
+    val loader: IFilePlanetLoader<T>,
     override val parent: FilePlanetProvider<T>? = null,
     private val identifier: T? = null
 ) : INavigationBarGroup {
@@ -112,6 +112,14 @@ class FilePlanetProvider<T : IFilePlanetIdentifier>(
         }
 
         oldIdentifierList = newIdentifierList
+    }
+
+    suspend fun searchPlanets(search: String): List<FilePlanet<*>> {
+        return loader.searchPlanets(search).filter {
+            !it.isDirectory
+        }.map {
+            FilePlanet(it, loader)
+        }
     }
 
     init {

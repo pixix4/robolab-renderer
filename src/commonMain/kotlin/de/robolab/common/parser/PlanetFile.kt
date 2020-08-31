@@ -514,4 +514,22 @@ class PlanetFile(lines: List<String>) : IEditCallback {
             lines = newLines
         }
     }
+
+    companion object {
+        fun getName(text: String): String? {
+            val lines = text.split('\n')
+            return getName(lines)
+        }
+        fun getName(lines: List<String>): String? {
+            for (line in lines) {
+                val l = parseLine(line)
+
+                if (l is FileLine.NameLine) {
+                    return l.data
+                }
+            }
+
+            return null
+        }
+    }
 }

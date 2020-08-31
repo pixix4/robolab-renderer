@@ -9,7 +9,6 @@ import de.robolab.common.planet.Planet
 
 class PointAnimatableManager(
     private val editCallback: IEditCallback? = null,
-    private val createPath: CreatePathManager? = null
 ) : AnimatableManager<PointAnimatableManager.AttributePoint, PointAnimatable>() {
 
     class AttributePoint(
@@ -47,7 +46,7 @@ class PointAnimatableManager(
     }
 
     override fun createAnimatable(obj: AttributePoint, planet: Planet): PointAnimatable {
-        return PointAnimatable(obj, planet, editCallback, createPath)
+        return PointAnimatable(obj, planet, editCallback)
     }
 
     companion object {

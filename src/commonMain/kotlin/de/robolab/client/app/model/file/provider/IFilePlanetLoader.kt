@@ -21,6 +21,8 @@ interface IFilePlanetLoader<T: IFilePlanetIdentifier> {
 
     suspend fun listPlanets(identifier: T? = null): List<T>
 
+    suspend fun searchPlanets(search: String): List<T>
+
     val nameProperty: ObservableValue<String>
     val descProperty: ObservableValue<String>
 

@@ -4,7 +4,7 @@ import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
 import de.robolab.client.app.model.base.*
 import de.robolab.client.app.model.file.MultiFilePlanetProvider
-import de.robolab.client.app.model.file.findByName
+import de.robolab.client.app.model.file.searchPlanet
 import de.robolab.client.communication.*
 import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
 import de.robolab.client.renderer.utils.TransformationInteraction
@@ -260,13 +260,7 @@ class AttemptPlanetEntry(
         message?.planetName ?: ""
     }
     val planetNameProperty = property("")
-    private val backgroundPlanet = planetNameProperty.nullableFlatMapBinding {
-        val entry = parent.filePlanetProvider.findByName(it)
-        GlobalScope.launch(Dispatchers.Main) {
-            entry?.filePlanet?.load()
-        }
-        entry?.planetFile?.planetProperty
-    }
+    private val backgroundPlanet = property<Planet>()
 
     private var serverPlanet = Planet.EMPTY
     private var mqttPlanet = Planet.EMPTY
@@ -295,6 +289,22 @@ class AttemptPlanetEntry(
         messages.onChange {
             if (messages.lastIndex - 1 <= selectedIndexProperty.value) {
                 selectedIndexProperty.value = messages.lastIndex
+            }
+        }
+
+        planetNameProperty.onChange {
+            GlobalScope.launch(Dispatchers.Main) {
+                val entry = parent.filePlanetProvider.searchPlanet(planetNameProperty.value)
+
+                if (backgroundPlanet.isBound) {
+                    backgroundPlanet.unbind()
+                }
+                if (entry != null) {
+                    backgroundPlanet.bind(entry.planetFile.planetProperty)
+                    entry.load()
+                } else {
+                    backgroundPlanet.value = null
+                }
             }
         }
 

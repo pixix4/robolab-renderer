@@ -22,7 +22,7 @@ class EditPlanetDrawable(
     private val editPoints = EditPointsManager(editCallback)
     private val editPointEnds = EditPointEndsManager(editCallback, createPath)
 
-    private val planetLayer = EditPlanetLayer(editCallback, createPath)
+    private val planetLayer = EditPlanetLayer(editCallback)
 
     fun importPlanet(planet: Planet) {
         planetLayer.importPlanet(planet)

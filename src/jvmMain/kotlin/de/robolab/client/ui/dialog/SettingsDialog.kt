@@ -10,7 +10,9 @@ import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.UpdateChannel
 import de.robolab.common.utils.BuildInformation
 import de.robolab.common.utils.Logger
+import de.westermann.kobserve.and
 import de.westermann.kobserve.event.now
+import de.westermann.kobserve.not
 import javafx.scene.control.TextField
 import javafx.scene.layout.Priority
 import javafx.util.StringConverter
@@ -58,17 +60,26 @@ class SettingsDialog : GenericDialog() {
                 }
 
                 fieldset("Exam mode") {
-                    field("Active") {
-                        checkbox("", PreferenceStorage.examActiveProperty.toFx())
+                    field("Use remote state") {
+                        checkbox("", PreferenceStorage.useRemoteExamStateProperty.toFx())
                     }
+                    field("Active") {
+                        checkbox("", PreferenceStorage.examActiveProperty.toFx()) {
+                            enableWhen((!PreferenceStorage.useRemoteExamStateProperty).toFx())
+                        }
+                    }
+
+                    val enabled = (!PreferenceStorage.useRemoteExamStateProperty)
+                        .and(PreferenceStorage.examActiveProperty)
+                        .toFx()
                     field("Small Planet") {
                         textfield(PreferenceStorage.examSmallProperty.toFx()) {
-                            enableWhen(PreferenceStorage.examActiveProperty.toFx())
+                            enableWhen(enabled)
                         }
                     }
                     field("Large Planet") {
                         textfield(PreferenceStorage.examLargeProperty.toFx()) {
-                            enableWhen(PreferenceStorage.examActiveProperty.toFx())
+                            enableWhen(enabled)
                         }
                     }
                 }

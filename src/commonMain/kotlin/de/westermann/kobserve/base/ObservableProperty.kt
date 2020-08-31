@@ -83,7 +83,7 @@ interface ObservableProperty<T> : ObservableValue<T> {
      */
     fun unbind() {
         if (!isBound) {
-            throw IllegalStateException("Property is already bound!")
+            throw IllegalStateException("Property is not bound!")
         }
 
         binding.unbind()

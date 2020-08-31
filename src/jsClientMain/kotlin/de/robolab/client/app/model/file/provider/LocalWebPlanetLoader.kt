@@ -58,6 +58,16 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
         }
     }
 
+    override suspend fun searchPlanets(search: String): List<FileIdentifier> {
+        val identifier = listPlanets(null)
+
+        return identifier.filter {
+            it.name.contains(search, true)
+        }.sortedBy {
+            it.name.length
+        }
+    }
+
     class FileIdentifier(
         val url: String,
         override val name: String,

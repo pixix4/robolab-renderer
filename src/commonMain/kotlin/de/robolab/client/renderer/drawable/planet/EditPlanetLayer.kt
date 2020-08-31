@@ -9,7 +9,6 @@ import de.robolab.common.planet.*
 
 class EditPlanetLayer(
     editCallback: IEditCallback,
-    createPath: CreatePathManager,
     contextTransformation: (DrawContext) -> DrawContext = { it }
 ) : IPlanetLayer {
 
@@ -17,7 +16,7 @@ class EditPlanetLayer(
     private val senderManager = SenderAnimatableManager()
     private val pathManager = PathAnimatableManager(editCallback)
     private val pathSelectManager = PathSelectAnimatableManager()
-    private val pointManager = PointAnimatableManager(editCallback, createPath)
+    private val pointManager = PointAnimatableManager(editCallback)
     private val commentManager = CommentAnimatableManager(editCallback)
 
     override val view = GroupTransformView(

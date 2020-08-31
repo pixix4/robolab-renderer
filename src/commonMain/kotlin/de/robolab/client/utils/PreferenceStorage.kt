@@ -1,10 +1,12 @@
 package de.robolab.client.utils
 
 import de.robolab.client.app.controller.NavigationBarController
+import de.robolab.client.app.model.file.LoadRemoteExamStateEvent
 import de.robolab.client.renderer.drawable.edit.EditPaperBackground
 import de.robolab.client.theme.Theme
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.TypedStorage
+import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.event.now
 import kotlin.random.Random
 
@@ -81,6 +83,9 @@ object PreferenceStorage : TypedStorage() {
     val autoUpdateChannel by autoUpdateChannelProperty
 
 
+    val useRemoteExamStateProperty = item("exam.remote", false)
+    var useRemoteExamState by useRemoteExamStateProperty
+
     val examActiveProperty = item("exam.active", false)
     var examActive by examActiveProperty
 
@@ -93,6 +98,12 @@ object PreferenceStorage : TypedStorage() {
     init {
         logLevelProperty.onChange.now {
             Logger.level = logLevel
+        }
+
+        useRemoteExamStateProperty.onChange {
+            if (useRemoteExamState) {
+                emit(LoadRemoteExamStateEvent)
+            }
         }
     }
 }

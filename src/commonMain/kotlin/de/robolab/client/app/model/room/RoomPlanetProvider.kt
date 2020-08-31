@@ -2,7 +2,7 @@ package de.robolab.client.app.model.room
 
 import de.robolab.client.app.model.base.*
 import de.robolab.client.app.model.file.MultiFilePlanetProvider
-import de.robolab.client.app.model.file.findByName
+import de.robolab.client.app.model.file.searchPlanet
 import de.robolab.client.app.model.group.AttemptPlanetEntry
 import de.robolab.client.app.model.group.GroupPlanetEntry
 import de.robolab.client.communication.toRobot
@@ -128,11 +128,14 @@ class RoomPlanetEntry(planetName: String, filePlanetProvider: MultiFilePlanetPro
     }
 
     init {
-        val entry = filePlanetProvider.findByName(planetName)
-        if (entry != null) {
-            GlobalScope.launch(Dispatchers.Main) {
-                entry.filePlanet.load()
-                drawable.importPlanet(entry.planetFile.planet)
+        GlobalScope.launch(Dispatchers.Main) {
+            val entry = filePlanetProvider.searchPlanet(planetName)
+
+            if (entry != null) {
+                entry.planetFile.planetProperty.onChange.now {
+                    drawable.importPlanet(entry.planetFile.planet)
+                }
+                entry.load()
             }
         }
 
