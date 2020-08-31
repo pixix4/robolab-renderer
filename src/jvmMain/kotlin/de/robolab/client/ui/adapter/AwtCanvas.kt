@@ -146,16 +146,16 @@ class AwtCanvas(
             ICanvas.FontAlignment.LEFT -> {
             }
             ICanvas.FontAlignment.CENTER -> {
-                val width = metrics.stringWidth(text)
-                x -= width / 2
+                val width = metrics.stringWidth(text) + 1.0
+                x -= (width / 2.0).toFloat()
             }
             ICanvas.FontAlignment.RIGHT -> {
-                val width = metrics.stringWidth(text)
+                val width = metrics.stringWidth(text) + 1.0f
                 x -= width
             }
         }
 
-        y += metrics.height / 3
+        y += (metrics.height.toFloat() / 3.8).toFloat()
 
         context.drawString(text, x, y)
     }
