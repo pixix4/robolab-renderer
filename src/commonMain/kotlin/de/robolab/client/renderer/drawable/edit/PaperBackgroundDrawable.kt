@@ -98,31 +98,6 @@ class PaperBackgroundDrawable {
         }
     }
 
-    private val topLeftHandler = RectangleView(
-        null,
-        ViewColor.PRIMARY_BACKGROUND_COLOR.interpolate(ViewColor.LINE_COLOR, 0.1)
-    ).also { view ->
-        setupHandler(view, Edge.TOP_LEFT)
-    }
-    private val bottomLeftHandler = RectangleView(
-        null,
-        ViewColor.PRIMARY_BACKGROUND_COLOR.interpolate(ViewColor.LINE_COLOR, 0.1)
-    ).also { view ->
-        setupHandler(view, Edge.BOTTOM_LEFT)
-    }
-    private val topRightHandler = RectangleView(
-        null,
-        ViewColor.PRIMARY_BACKGROUND_COLOR.interpolate(ViewColor.LINE_COLOR, 0.1)
-    ).also { view ->
-        setupHandler(view, Edge.TOP_RIGHT)
-    }
-    private val bottomRightHandler = RectangleView(
-        null,
-        ViewColor.PRIMARY_BACKGROUND_COLOR.interpolate(ViewColor.LINE_COLOR, 0.1)
-    ).also { view ->
-        setupHandler(view, Edge.BOTTOM_RIGHT)
-    }
-
     val measuringView = GroupView("Measuring view").also {
         it.animationTime = 0.0
     }
@@ -271,22 +246,45 @@ class PaperBackgroundDrawable {
             Point(planetArea.left - MEASURING_LINE_PLANET_DISTANCE, paperArea.top)
         )
 
+        val verticalAccumulator: (Double) -> Double = when (selectedEdge?.isTop) {
+            true -> {
+                var last = paperArea.height * gridWidth
+                {
+                    val l = last
+                    last -= it
+                    l
+                }
+            }
+            false -> {
+                var last = 0.0
+                {
+                    last += it
+                    last
+                }
+            }
+            null -> {
+                { it }
+            }
+        }
 
         val bottomPlanetPoint = floor(planetArea.bottom).toInt()
         val topPlanetPoint = ceil(planetArea.top).toInt()
         measuringView += MeasuringLineView(
             Point(paperArea.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, paperArea.bottom),
-            Point(paperArea.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, bottomPlanetPoint)
+            Point(paperArea.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, bottomPlanetPoint),
+            verticalAccumulator
         )
         for (y in (topPlanetPoint until bottomPlanetPoint).reversed()) {
             measuringView += MeasuringLineView(
                 Point(paperArea.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, y + 1),
-                Point(paperArea.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, y)
+                Point(paperArea.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, y),
+                verticalAccumulator
             )
         }
         measuringView += MeasuringLineView(
             Point(paperArea.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, topPlanetPoint),
-            Point(paperArea.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, paperArea.top)
+            Point(paperArea.right + FIRST_MEASURING_LINE_PAPER_DISTANCE, paperArea.top),
+            verticalAccumulator
         )
 
         // Draw paper - planet horizontal padding markers
@@ -309,21 +307,45 @@ class PaperBackgroundDrawable {
             Point(paperArea.left, planetArea.bottom + MEASURING_LINE_PLANET_DISTANCE)
         )
 
+        val horizontalAccumulator: (Double) -> Double = when (selectedEdge?.isLeft) {
+            false -> {
+                var last = 0.0
+                {
+                    last += it
+                    last
+                }
+            }
+            true -> {
+                var last = paperArea.width * gridWidth
+                {
+                    val l = last
+                    last -= it
+                    l
+                }
+            }
+            null -> {
+                { it }
+            }
+        }
+
         val rightPlanetPoint = floor(planetArea.right).toInt()
         val leftPlanetPoint = ceil(planetArea.left).toInt()
         measuringView += MeasuringLineView(
             Point(paperArea.right, paperArea.top - FIRST_MEASURING_LINE_PAPER_DISTANCE),
-            Point(rightPlanetPoint, paperArea.top - FIRST_MEASURING_LINE_PAPER_DISTANCE)
+            Point(rightPlanetPoint, paperArea.top - FIRST_MEASURING_LINE_PAPER_DISTANCE),
+            horizontalAccumulator
         )
         for (x in (leftPlanetPoint until rightPlanetPoint).reversed()) {
             measuringView += MeasuringLineView(
                 Point(x + 1, paperArea.top - FIRST_MEASURING_LINE_PAPER_DISTANCE),
-                Point(x, paperArea.top - FIRST_MEASURING_LINE_PAPER_DISTANCE)
+                Point(x, paperArea.top - FIRST_MEASURING_LINE_PAPER_DISTANCE),
+                horizontalAccumulator
             )
         }
         measuringView += MeasuringLineView(
             Point(leftPlanetPoint, paperArea.top - FIRST_MEASURING_LINE_PAPER_DISTANCE),
-            Point(paperArea.left, paperArea.top - FIRST_MEASURING_LINE_PAPER_DISTANCE)
+            Point(paperArea.left, paperArea.top - FIRST_MEASURING_LINE_PAPER_DISTANCE),
+            horizontalAccumulator
         )
     }
 
@@ -346,6 +368,32 @@ class PaperBackgroundDrawable {
             planetSize = null
             planetOffset = null
             update()
+        }
+
+
+        RectangleView(
+            null,
+            ViewColor.PRIMARY_BACKGROUND_COLOR.interpolate(ViewColor.LINE_COLOR, 0.1)
+        ).also { view ->
+            setupHandler(view, Edge.TOP_LEFT)
+        }
+        RectangleView(
+            null,
+            ViewColor.PRIMARY_BACKGROUND_COLOR.interpolate(ViewColor.LINE_COLOR, 0.1)
+        ).also { view ->
+            setupHandler(view, Edge.BOTTOM_LEFT)
+        }
+        RectangleView(
+            null,
+            ViewColor.PRIMARY_BACKGROUND_COLOR.interpolate(ViewColor.LINE_COLOR, 0.1)
+        ).also { view ->
+            setupHandler(view, Edge.TOP_RIGHT)
+        }
+        RectangleView(
+            null,
+            ViewColor.PRIMARY_BACKGROUND_COLOR.interpolate(ViewColor.LINE_COLOR, 0.1)
+        ).also { view ->
+            setupHandler(view, Edge.BOTTOM_RIGHT)
         }
     }
 

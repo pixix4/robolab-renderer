@@ -14,7 +14,8 @@ import de.westermann.kobserve.property.join
 
 class MeasuringLineView(
     source: Point,
-    target: Point
+    target: Point,
+    private val accumulator: (Double) -> Double = { it }
 ) : BaseView() {
 
     private val precision by PreferenceStorage.paperPrecisionProperty
@@ -34,7 +35,8 @@ class MeasuringLineView(
 
     private val distanceStringProperty = sourceTransition.join(targetTransition) { s, t ->
         val distance = (s distanceTo t) * gridWidth
-        distance.toFixed(precision) + "m"
+        val accDistance = accumulator(distance)
+        accDistance.toFixed(precision) + "m"
     }
 
     private val labelPositionProperty = sourceTransition.join(targetTransition) { s, t ->
