@@ -58,6 +58,9 @@ class SettingsDialog : GenericDialog() {
                             DoubleStringConverter(PreferenceStorage.animationTimeProperty.default)
                         )
                     }
+                    field("Render sender grouping chars") {
+                        checkbox("", PreferenceStorage.renderSenderGroupingProperty.toFx())
+                    }
                 }
 
                 fieldset("Exam mode") {

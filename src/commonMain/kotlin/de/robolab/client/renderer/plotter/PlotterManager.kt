@@ -348,6 +348,9 @@ class PlotterManager(
 
             requestRedraw = true
         }
+        PreferenceStorage.renderSenderGroupingProperty.onChange {
+            requestRedraw = true
+        }
 
         canvas.setListener(object : ICanvasListener {
             override fun onPointerDown(event: PointerEvent) {

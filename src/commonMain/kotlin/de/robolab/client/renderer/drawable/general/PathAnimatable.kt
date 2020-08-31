@@ -28,7 +28,7 @@ class PathAnimatable(
         getTargetPointFromPath(planet.version, reference),
         getControlPointsFromPath(planet.version, reference),
         PlottingConstraints.LINE_WIDTH,
-        getColor(planet, reference) ?: ViewColor.LINE_COLOR,
+        getSenderGrouping(planet, reference)?.viewColor ?: ViewColor.LINE_COLOR,
         reference.hidden
     )
 
@@ -76,6 +76,11 @@ class PathAnimatable(
         it.animationTime = 0.0
     }
 
+    private val senderGroupView = SenderCharView(
+        getOrthogonal(0.5, true).second,
+        getSenderGrouping(planet, reference)
+    )
+
     private val blockedView = LineView(
         getOrthogonal(if (isOneWayPath && planet.version >= PlanetVersion.V2020_SPRING) 1.0 else 0.5, true).toList(),
         PlottingConstraints.LINE_WIDTH,
@@ -112,10 +117,11 @@ class PathAnimatable(
     override fun onUpdate(obj: Path, planet: Planet) {
         super.onUpdate(obj, planet)
 
+        val grouping = getSenderGrouping(planet, reference)
         view.setControlPoints(getControlPointsFromPath(planet.version, reference), 0.0)
         view.setSource(getSourcePointFromPath(reference), 0.0)
         view.setTarget(getTargetPointFromPath(planet.version, reference), 0.0)
-        view.setColor(getColor(planet, reference) ?: ViewColor.LINE_COLOR)
+        view.setColor(grouping?.viewColor ?: ViewColor.LINE_COLOR)
         view.setIsDashed(reference.hidden)
 
         isWeightVisibleProperty.value = reference.weight?.let { it > 0.0 } ?: false
@@ -124,6 +130,8 @@ class PathAnimatable(
 
         weightView.setSource(getOrthogonal(0.5, true).first)
         weightView.text = reference.weight?.toString() ?: "0"
+        senderGroupView.setCenter(getOrthogonal(0.5, true).second)
+        senderGroupView.setGrouping(grouping)
 
         blockedView.setPoints(
             getOrthogonal(
@@ -154,6 +162,7 @@ class PathAnimatable(
 
     init {
         view += ConditionalView("Path weight", isWeightVisibleProperty, weightView)
+        view += senderGroupView
         view += ConditionalView("Path blocked", isBlockedProperty, blockedView)
         view += ConditionalView("Path arrow", isArrowVisibleProperty, arrowView)
 
@@ -239,11 +248,11 @@ class PathAnimatable(
         }
     }
 
-    private fun getColor(planet: Planet, path: Path): ViewColor? {
+    private fun getSenderGrouping(planet: Planet, path: Path): SenderGrouping? {
         if (path.exposure.isEmpty()) {
             return null
         }
-        return ViewColor.c(Utils.getColorByIndex(Utils.getSenderGrouping(planet).getValue(path.exposure)))
+        return SenderGrouping.getSenderGrouping(planet).getValue(path.exposure)
     }
 
     companion object {
@@ -398,3 +407,6 @@ class PathAnimatable(
         }
     }
 }
+
+val SenderGrouping.viewColor
+    get() = ViewColor.c(color)

@@ -1,17 +1,19 @@
 package de.robolab.client.renderer.view.component
 
-import de.robolab.client.renderer.canvas.DrawContext
-import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.PlottingConstraints
+import de.robolab.client.renderer.canvas.DrawContext
+import de.robolab.client.renderer.drawable.utils.SenderGrouping
+import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
+import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.Point
 import kotlin.math.PI
 import kotlin.math.max
 
 class SenderView(
     center: Point,
-    private val initColors: List<ViewColor>
+    private val initColors: List<SenderGrouping>
 ) : BaseView() {
 
     private val centerTransition = transition(center)
@@ -20,12 +22,12 @@ class SenderView(
         centerTransition.animate(center, duration, offset)
     }
 
-    private var oldColors: List<ViewColor> = emptyList()
-    private var newColors: List<ViewColor> = emptyList()
+    private var oldColors: List<SenderGrouping> = emptyList()
+    private var newColors: List<SenderGrouping> = emptyList()
 
     private val progressTransition = transition(0.0)
     val progress by progressTransition
-    fun setColors(colors: List<ViewColor>, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setColors(colors: List<SenderGrouping>, duration: Double = animationTime, offset: Double = 0.0) {
         oldColors = newColors
         newColors = colors
 
@@ -33,11 +35,44 @@ class SenderView(
         progressTransition.animate(1.0, duration, offset)
     }
 
-    private fun satellite(context: DrawContext, position: Point, start: Double, extend: Double = 90.0, color: ViewColor) {
+    private fun satellite(
+        context: DrawContext,
+        position: Point,
+        start: Double,
+        extend: Double = 90.0,
+        color: ViewColor,
+        char: Char?
+    ) {
         val c = context.c(color)
-        context.strokeArc(position, PlottingConstraints.TARGET_RADIUS * 0.4, start, extend, c, PlottingConstraints.LINE_WIDTH)
-        context.strokeArc(position, PlottingConstraints.TARGET_RADIUS * 0.7, start, extend, c, PlottingConstraints.LINE_WIDTH)
-        context.strokeArc(position, PlottingConstraints.TARGET_RADIUS * 1.0, start, extend, c, PlottingConstraints.LINE_WIDTH)
+        context.strokeArc(
+            position,
+            PlottingConstraints.TARGET_RADIUS * 0.4,
+            start,
+            extend,
+            c,
+            PlottingConstraints.LINE_WIDTH
+        )
+        context.strokeArc(
+            position,
+            PlottingConstraints.TARGET_RADIUS * 0.7,
+            start,
+            extend,
+            c,
+            PlottingConstraints.LINE_WIDTH
+        )
+        context.strokeArc(
+            position,
+            PlottingConstraints.TARGET_RADIUS * 1.0,
+            start,
+            extend,
+            c,
+            PlottingConstraints.LINE_WIDTH
+        )
+
+        if (char != null) {
+            val center = position + Point(PlottingConstraints.TARGET_RADIUS * 1.4, 0.0).rotate(start + extend / 2)
+            SenderCharView.draw(context, center, color, char)
+        }
     }
 
     override fun onDraw(context: DrawContext) {
@@ -52,21 +87,32 @@ class SenderView(
                 else -> Point(0.0, 0.0)
             }
 
-            val newColor = newColors.getOrNull(index)
-            val oldColor = oldColors.getOrNull(index)
+            val newGroup = newColors.getOrNull(index)
+            val oldGroup = oldColors.getOrNull(index)
+
 
             val steps = (length - (index % 4)) / 4 + 1
             val step = index / 4
             val extend = (PI / 2 - step * PI / (steps * 2.0))
 
-            if (newColor != null) {
-                if (oldColor != null) {
-                    satellite(context, center + p, index * PI / 2, extend, oldColor.interpolate(newColor, progress))
+            if (newGroup != null) {
+                val newColor = newGroup.color.let { ViewColor.c(it) }
+                if (oldGroup != null) {
+                    val oldColor = oldGroup.color.let { ViewColor.c(it) }
+                    satellite(
+                        context,
+                        center + p,
+                        index * PI / 2,
+                        extend,
+                        oldColor.interpolate(newColor, progress),
+                        if (progress < 0.5) oldGroup.char else newGroup.char
+                    )
                 } else {
-                    satellite(context, center + p, index * PI / 2, extend * progress, newColor)
+                    satellite(context, center + p, index * PI / 2, extend * progress, newColor, newGroup.char)
                 }
-            } else if (oldColor != null) {
-                satellite(context, center + p, index * PI / 2, extend * (1.0 - progress), oldColor)
+            } else if (oldGroup != null) {
+                val oldColor = oldGroup.color.let { ViewColor.c(it) }
+                satellite(context, center + p, index * PI / 2, extend * (1.0 - progress), oldColor, oldGroup.char)
             }
         }
 

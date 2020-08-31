@@ -8,33 +8,44 @@ import de.robolab.common.planet.TargetPoint
 import de.robolab.common.utils.Color
 import de.robolab.common.utils.Point
 
-object Utils {
-    fun getSenderGrouping(planet: Planet): Map<Set<Coordinate>, Int> {
-        return (planet.targetList.map { getTargetExposure(it, planet) } + planet.pathList.map { it.exposure })
-                .filterNot { it.isEmpty() }
+data class SenderGrouping(
+    val index: Int
+) {
+
+    val color = getColorByIndex(index)
+
+    val char = (index + 65).toChar()
+
+    companion object {
+        fun getSenderGrouping(planet: Planet): Map<Set<Coordinate>, SenderGrouping> {
+            return (planet.targetList.map { getTargetExposure(it, planet) } + planet.pathList.map { it.exposure })
                 .asSequence()
+                .filterNot { it.isEmpty() }
                 .distinct()
                 .withIndex()
-                .associate { (index, set) -> set to index }
-    }
-
-    fun getTargetExposure(target: TargetPoint, planet: Planet): Set<Coordinate> {
-        return planet.targetList.filter { it.target == target.target }.map { it.exposure }.toSet()
-    }
-
-    fun getColorByIndex(index: Int): Color {
-        if (index < colorList.size) {
-            return colorList[index]
+                .associate { (index, set) -> set to SenderGrouping(index) }
         }
-        val rot = index - colorList.size
-        val hue = 40.0 + rot * 137 % 360
-        val saturation = 0.65 - (((rot / 4)) * 0.05) % 0.20
-        val brightness = 0.9 - (((rot / 4)) * 0.05) % 0.20
 
-        return Color.hsb(hue, saturation, brightness)
-    }
+        fun getTargetExposure(target: TargetPoint, planet: Planet): Set<Coordinate> {
+            return planet.targetList.filter { it.target == target.target }.map { it.exposure }.toSet()
+        }
 
-    private val colorList = listOf(
+        private fun getColorByIndex(index: Int): Color {
+            if (index < 0) {
+                return Color.TRANSPARENT
+            }
+            if (index < colorList.size) {
+                return colorList[index]
+            }
+            val rot = index - colorList.size
+            val hue = 40.0 + rot * 137 % 360
+            val saturation = 0.65 - (((rot / 4)) * 0.05) % 0.20
+            val brightness = 0.9 - (((rot / 4)) * 0.05) % 0.20
+
+            return Color.hsb(hue, saturation, brightness)
+        }
+
+        private val colorList = listOf(
             Color(241, 196, 15),
             Color(46, 204, 113),
             Color(231, 76, 60),
@@ -49,7 +60,8 @@ object Utils {
             Color(22, 160, 133),
             Color(211, 84, 0),
             Color(41, 128, 185)
-    )
+        )
+    }
 }
 
 

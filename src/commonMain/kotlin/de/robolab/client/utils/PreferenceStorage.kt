@@ -30,6 +30,9 @@ object PreferenceStorage : TypedStorage() {
     val animationTimeProperty = item("plotting.animationTime", 1000.0)
     var animationTime by animationTimeProperty
 
+    val renderSenderGroupingProperty = item("plotting.senderGrouping", false)
+    var renderSenderGrouping by renderSenderGroupingProperty
+
 
     val selectedThemeProperty = item("ui.theme", Theme.DEFAULT)
     var selectedTheme by selectedThemeProperty

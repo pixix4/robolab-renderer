@@ -1,7 +1,7 @@
 package de.robolab.client.utils
 
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
-import de.robolab.client.renderer.drawable.utils.Utils
+import de.robolab.client.renderer.drawable.utils.SenderGrouping
 import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Planet
 
@@ -24,7 +24,7 @@ class PlanetStatistic(
     val pathUnveilCount = planet.pathList.count { it.exposure.isNotEmpty() }
     val pathSelectCount = planet.pathSelectList.size
     val targetCount = planet.targetList.groupBy { it.target }.size
-    val senderCount = Utils.getSenderGrouping(planet).keys.flatten().distinct().size
+    val senderCount = SenderGrouping.getSenderGrouping(planet).keys.flatten().distinct().size
 
     val pathClassifier = planet.pathList
         .groupBy {

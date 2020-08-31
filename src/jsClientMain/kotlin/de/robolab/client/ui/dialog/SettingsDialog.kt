@@ -47,6 +47,9 @@ class SettingsDialog private constructor(): Dialog("Settings") {
                         step = 1.0
                     }
                 }
+                dialogFormEntry("Render sender grouping chars") {
+                    label(checkbox(PreferenceStorage.renderSenderGroupingProperty))
+                }
             }
 
             dialogFormGroup("Exam mode") {
