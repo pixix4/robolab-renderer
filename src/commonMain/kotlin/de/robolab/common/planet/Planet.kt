@@ -37,17 +37,34 @@ data class Planet(
             }
         }
 
-        val grouping = reference.senderGrouping.toMutableMap()
+        return Planet(
+            reference.version,
+            reference.name,
+            startPoint,
+            reference.bluePoint,
+            pathList,
+            targetList,
+            pathSelectList,
+            commentList,
+            tagMap,
+            senderGrouping
+        )
+    }
+
+    fun importSenderGroups(reference: Planet, visitedPoints: List<Coordinate>): Planet {
+        val grouping = reference.senderGrouping.filterKeys { set ->
+            set.all { it in visitedPoints }
+        }.toMutableMap()
 
         grouping += senderGrouping.filter { (key, value) ->
             key !in grouping && value !in grouping.values
         }
 
         return Planet(
-            reference.version,
-            reference.name,
+            version,
+            name,
             startPoint,
-            reference.bluePoint,
+            bluePoint,
             pathList,
             targetList,
             pathSelectList,
@@ -87,15 +104,21 @@ data class Planet(
         }.toMap(),
     )
 
-    fun generateMissingSenderGroupings(): Planet {
-        val list= (targetList.map { targetList.filter { i -> it.target == i.target }.map { it.exposure }.toSet() } + pathList.map { it.exposure })
+    private fun getDrawableSenderGrouping(): List<Set<Coordinate>> {
+        return (targetList.map {
+            targetList.filter { i -> it.target == i.target }.map { it.exposure }.toSet()
+        } + pathList.map { it.exposure })
             .filterNot { it.isEmpty() }
-            .distinct() - senderGrouping.keys
+            .distinct()
+    }
+
+    fun generateMissingSenderGroupings(): Planet {
+        val missing = getDrawableSenderGrouping() - senderGrouping.keys
 
         val groupings = senderGrouping.toMutableMap()
 
         var lastChar = 'A'
-        for (set in list) {
+        for (set in missing) {
             while (lastChar in groupings.values) {
                 lastChar += 1
             }
@@ -114,6 +137,14 @@ data class Planet(
                 path.scaleWeights(factor, offset)
             }
         )
+    }
+
+    fun getPointList(): List<Coordinate> {
+        return (pathList.flatMap { listOf(it.source, it.target) + it.exposure } +
+                targetList.flatMap { listOf(it.exposure, it.target) } +
+                pathSelectList.map { it.point } +
+                listOfNotNull(startPoint?.point)
+                ).distinct()
     }
 
     enum class RotateDirection(val angle: Double) {

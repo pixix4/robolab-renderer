@@ -12,7 +12,7 @@ class PlanetStatistic(
     val pathFreeCount = pathCount - pathBlockedCount
     val pathHiddenCount = planet.pathList.count { it.hidden }
 
-    private val points = PointAnimatableManager.getPointList(planet)
+    private val points = planet.getPointList()
 
     val pointCount = points.size
     val pointRedCount = points.count { !PointAnimatableManager.isPointHidden(planet, it) && it.getColor(planet.bluePoint) == Coordinate.Color.RED }

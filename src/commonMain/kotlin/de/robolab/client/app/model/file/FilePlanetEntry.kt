@@ -288,7 +288,9 @@ class FilePlanetEntry(
             val state = infoBarTraverser.traverserRenderStateProperty.value
 
             traverserDrawable.importRobot(state?.robotDrawable)
-            traverserDrawable.importServerPlanet(state?.planet ?: Planet.EMPTY)
+            traverserDrawable.importServerPlanet(state?.planet?.importSenderGroups(
+                planetFile.planet, state.trail.locations
+            )?.generateMissingSenderGroupings() ?: Planet.EMPTY)
         }
 
         documentProperty.mapEvent { it.onAttach }.addListener {

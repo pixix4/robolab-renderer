@@ -76,8 +76,6 @@ expect fun getFilePlanetLoaderFactoryList(): List<IFilePlanetLoaderFactory>
 suspend fun MultiFilePlanetProvider.searchPlanet(name: String): FilePlanet<*>? {
     if (name.isEmpty()) return null
 
-    println("Search: '$name'")
-
     for (provider in entryList.value) {
         val list = provider.searchPlanets(name)
         return list.firstOrNull() ?: continue

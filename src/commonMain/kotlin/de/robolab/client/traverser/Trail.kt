@@ -60,7 +60,8 @@ interface ITraverserTrail {
                 it.first to (it.second ?: return@mapNotNull null)
             },
             mothershipState,
-            navigatorState
+            navigatorState,
+            this
         )
 }
 

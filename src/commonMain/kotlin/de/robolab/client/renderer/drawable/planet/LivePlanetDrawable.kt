@@ -37,7 +37,9 @@ class LivePlanetDrawable(
     }
 
     fun importServerPlanet(planet: Planet, isPartialUpdate: Boolean = false) {
-        serverLayer.importPlanet(planet.importSplines(backgroundLayer.planet))
+        serverLayer.importPlanet(
+            planet.importSplines(backgroundLayer.planet)
+        )
         if (!isPartialUpdate) {
             importPlanets()
         }

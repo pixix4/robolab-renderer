@@ -268,7 +268,8 @@ class AttemptPlanetEntry(
         val selectedIndex = selectedIndexProperty.value
         val m = if (selectedIndex >= messages.lastIndex) messages else messages.subList(0, selectedIndex + 1)
 
-        serverPlanet = m.toServerPlanet()
+        val (sp, visitedPoints) = m.toServerPlanet()
+        serverPlanet = sp
         if (planetNameProperty.value != serverPlanet.name) {
             planetNameProperty.value = serverPlanet.name
         }
@@ -277,7 +278,10 @@ class AttemptPlanetEntry(
         if (!isOpen) return
 
         val planet = backgroundPlanet.value ?: Planet.EMPTY
-        drawable.importServerPlanet(serverPlanet.importSplines(planet), true)
+        drawable.importServerPlanet(
+            serverPlanet.importSplines(planet).importSenderGroups(planet, visitedPoints),
+            true
+        )
         drawable.importMqttPlanet(mqttPlanet.importSplines(planet))
         drawable.importRobot(m.toRobot(parent.groupName.toIntOrNull()))
     }

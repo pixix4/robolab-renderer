@@ -4,12 +4,13 @@ import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.common.planet.*
 
 
-fun List<RobolabMessage>.toServerPlanet(): Planet {
+fun List<RobolabMessage>.toServerPlanet(): Pair<Planet, List<Coordinate>> {
     var name = ""
     var startPoint: StartPoint? = null
     val pathList = mutableListOf<Path>()
     val targetList = mutableListOf<TargetPoint>()
     val pathSelectList = mutableListOf<PathSelect>()
+    val visitedPointList = mutableListOf<Coordinate>()
 
     var currentPoint = Coordinate(0, 0)
     var currentDirection = Direction.NORTH
@@ -48,6 +49,7 @@ fun List<RobolabMessage>.toServerPlanet(): Planet {
                 pathList.removeAll { it.equalPath(path) }
 
                 pathList += path
+                visitedPointList += currentPoint
             }
             is RobolabMessage.PathSelectMessageFromServer -> {
                 pathSelectList += PathSelect(currentPoint, message.direction)
@@ -58,6 +60,7 @@ fun List<RobolabMessage>.toServerPlanet(): Planet {
                 startPoint = StartPoint(message.startPoint, message.startOrientation, emptyList())
                 currentPoint = message.startPoint
                 currentDirection = message.startOrientation
+                visitedPointList += currentPoint
             }
             is RobolabMessage.TargetMessage -> {
                 targetList.clear()
@@ -77,7 +80,7 @@ fun List<RobolabMessage>.toServerPlanet(): Planet {
         emptyList(),
         emptyMap(),
         emptyMap()
-    ).generateMissingSenderGroupings()
+    ).generateMissingSenderGroupings() to visitedPointList
 }
 
 fun List<RobolabMessage>.toMqttPlanet(): Planet {

@@ -102,7 +102,7 @@ class RemoteFilePlanetLoader(
         return withContext(Dispatchers.Default) {
             try {
                 available = true
-                server.listPlanets(nameExact = search).planets
+                server.listPlanets(nameStartsWith = search, nameEndsWith = search).planets
             } catch (e: Exception) {
                 available = false
                 emptyList()

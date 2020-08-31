@@ -10,5 +10,6 @@ data class TraverserRenderState(
     val robotDrawable: RobotDrawable.Robot,
     val paths: List<Pair<Coordinate, Direction>>,
     val mothershipState: IMothershipState,
-    val navigatorState: INavigatorState
+    val navigatorState: INavigatorState,
+    val trail: ITraverserTrail
 )

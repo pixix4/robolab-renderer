@@ -1,7 +1,6 @@
 package de.robolab.client.renderer.drawable.general
 
 import de.robolab.client.renderer.drawable.base.AnimatableManager
-import de.robolab.client.renderer.drawable.edit.CreatePathManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.IPlanetValue
@@ -40,7 +39,7 @@ class PointAnimatableManager(
     }
 
     override fun getObjectList(planet: Planet): List<AttributePoint> {
-        return getPointList(planet).map { point ->
+        return planet.getPointList().map { point ->
             AttributePoint(point, isPointHidden(planet, point))
         }
     }
@@ -50,14 +49,6 @@ class PointAnimatableManager(
     }
 
     companion object {
-        fun getPointList(planet: Planet): List<Coordinate> {
-            return (planet.pathList.flatMap { listOf(it.source, it.target) + it.exposure } +
-                    planet.targetList.flatMap { listOf(it.exposure, it.target) } +
-                    planet.pathSelectList.map { it.point } +
-                    listOfNotNull(planet.startPoint?.point)
-                    ).distinct()
-        }
-
         fun isPointHidden(planet: Planet, point: Coordinate): Boolean {
             var hidden = point != planet.startPoint?.point
             hidden = hidden && planet.pathList.asSequence().filter { it.connectsWith(point) }.all { it.hidden }
