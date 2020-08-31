@@ -65,7 +65,7 @@ object PreferenceStorage : TypedStorage() {
     val paperGridWidthProperty = item("paper.gridWidth", 0.5)
     val paperGridWidth by paperGridWidthProperty
 
-    val paperStripWidthProperty = item("paper.stripWidth", 0.841)
+    val paperStripWidthProperty = item("paper.stripWidth", 0.914)
     val paperStripWidth by paperStripWidthProperty
 
     val paperOrientationProperty = item("paper.orientation", PaperBackgroundDrawable.Orientation.VERTICAL)
