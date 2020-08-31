@@ -3,6 +3,7 @@ package de.robolab.client.renderer.view.component
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.canvas.ICanvas
+import de.robolab.client.renderer.canvas.MirrorPointCanvas
 import de.robolab.client.renderer.canvas.TransformationCanvas
 import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.events.KeyCode
@@ -137,8 +138,13 @@ class TextView(
             pixelPerUnitDimension = Dimension.ONE
         )
         transformation.rotateTo(-context.transformation.rotation, innerBox.center)
+        val flip = context.transformation.flipView
 
-        val canvas = TransformationCanvas(context, transformation)
+        val tCanvas = TransformationCanvas(context, transformation)
+
+        val canvas = if (flip) {
+            MirrorPointCanvas(tCanvas, outerBox.center.x)
+        } else tCanvas
 
         val lineBoxes = calcLineBoxes()
         if (focusable && (isHovered || isFocused)) {

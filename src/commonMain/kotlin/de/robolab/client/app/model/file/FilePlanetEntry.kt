@@ -98,6 +98,15 @@ class FilePlanetEntry(
                 toolTipProperty = constObservable("Apply planet transformations")
             ) {
                 openPlanetTransformDialog(planetFile)
+            },
+            ToolBarEntry(
+                constObservable("Flip"),
+                toolTipProperty = constObservable("Flip the planet")
+            ) {
+                viewDrawable.flip()
+                paperDrawable.flip()
+                editDrawable.flip()
+                traverserDrawable.flip()
             }
         )
     )

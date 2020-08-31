@@ -34,6 +34,7 @@ class Transformation(
     override val scale by scaleProperty
 
     val flipViewProperty = property(false)
+    var flipView by flipViewProperty
 
     private val internalPixelPerUnitDimension = pixelPerUnitDimension
 
