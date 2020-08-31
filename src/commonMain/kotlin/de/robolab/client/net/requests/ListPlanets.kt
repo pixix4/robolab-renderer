@@ -21,7 +21,7 @@ open class ListPlanets(
     override val path: String = "/api/planets"
     override val body: String? = null
     override val query: Map<String, String> = mapOf(
-        "nameExact" to nameExact,
+        "name" to nameExact,
         "nameStartsWith" to nameStartsWith,
         "nameContains" to nameContains,
         "nameEndsWith" to nameEndsWith,
