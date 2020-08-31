@@ -16,8 +16,8 @@ class PlanetStatistic(
     private val points = PointAnimatableManager.getPointList(planet)
 
     val pointCount = points.size
-    val pointRedCount = points.count { it.getColor(planet.bluePoint) == Coordinate.Color.RED }
-    val pointBlueCount = points.count { it.getColor(planet.bluePoint) == Coordinate.Color.BLUE }
+    val pointRedCount = points.count { !PointAnimatableManager.isPointHidden(planet, it) && it.getColor(planet.bluePoint) == Coordinate.Color.RED }
+    val pointBlueCount = points.count { !PointAnimatableManager.isPointHidden(planet, it) && it.getColor(planet.bluePoint) == Coordinate.Color.BLUE }
     val pointHiddenCount = points.count { PointAnimatableManager.isPointHidden(planet, it) }
 
     val startPoint = planet.startPoint
