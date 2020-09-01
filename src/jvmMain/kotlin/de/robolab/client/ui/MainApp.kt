@@ -48,11 +48,7 @@ class MainApp : App(NoPrimaryViewSpecified::class) {
 
     companion object {
 
-        @JvmStatic
-        fun main(args: Array<String>) {
-            Thread.setDefaultUncaughtExceptionHandler(ErrorHandler())
-            ConsoleGreeter.greetClient()
-
+        fun setupSystemProperties() {
             System.setProperty("awt.useSystemAAFontSettings", "on")
             System.setProperty("jdk.gtk.version", "3")
             System.setProperty("prism.lcdtext", "false")
@@ -60,15 +56,9 @@ class MainApp : App(NoPrimaryViewSpecified::class) {
             System.setProperty("swing.aatext", "true")
             System.setProperty("swing.crossplatformlaf", "com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
             System.setProperty("swing.defaultlaf", "com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
+        }
 
-            for (arg in args) {
-                try {
-                    val path = Paths.get(arg)
-                    ConfigFile.localPath = path
-                } catch (e: Exception) {
-                }
-            }
-
+        fun setupTheme() {
             PreferenceStorage.useSystemThemeProperty.onChange {
                 if (PreferenceStorage.useSystemTheme) {
                     PreferenceStorage.selectedTheme = getSystemTheme()
@@ -86,6 +76,33 @@ class MainApp : App(NoPrimaryViewSpecified::class) {
                 }
             }
 
+            // Initial loading of stylesheets
+            StylesheetLoader.load()
+
+            // Enable style reloading
+            // Must be executed after initial theme is set.
+            // Otherwise a Toolkit not initialized exception may be thrown.
+            PreferenceStorage.selectedThemeProperty.onChange {
+                StylesheetLoader.load()
+            }
+
+        }
+
+        @JvmStatic
+        fun main(args: Array<String>) {
+            Thread.setDefaultUncaughtExceptionHandler(ErrorHandler())
+            ConsoleGreeter.greetClient()
+
+            setupSystemProperties()
+
+            for (arg in args) {
+                try {
+                    val path = Paths.get(arg)
+                    ConfigFile.localPath = path
+                } catch (e: Exception) {
+                }
+            }
+
             runAfterTimeoutInterval(60000) {
                 if (PreferenceStorage.autoUpdateChannel != UpdateChannel.NEVER) {
                     GlobalScope.launch(Dispatchers.IO) {
@@ -97,15 +114,7 @@ class MainApp : App(NoPrimaryViewSpecified::class) {
                 }
             }
 
-            // Initial loading of stylesheets
-            StylesheetLoader.load()
-
-            // Enable style reloading
-            // Must be executed after initial theme is set.
-            // Otherwise a Toolkit not initialized exception may be thrown.
-            PreferenceStorage.selectedThemeProperty.onChange {
-                StylesheetLoader.load()
-            }
+            setupTheme()
 
             setupMemoryDebugThread()
 

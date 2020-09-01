@@ -43,6 +43,12 @@ class UpdateDialog : GenericDialog() {
                     field("Remote version") {
                         textfield(remoteVersionProperty.mapBinding { it?.toString() ?: "Loading…" }.toFx()) {
                             isEditable = false
+
+                            setOnMouseClicked {event ->
+                                if (event.isControlDown && event.isAltDown && event.isShiftDown) {
+                                    startUpdate()
+                                }
+                            }
                         }
                     }
                     field(forceLabelIndent = true) {
@@ -96,7 +102,7 @@ class UpdateDialog : GenericDialog() {
 
         private const val remoteUrl = "https://robolab.pixix4.com/jvm/"
         private const val remoteVersionFile = remoteUrl + "build.ini"
-        private const val remoteJarFile = remoteUrl + "robolab-jvm.jar"
+        private const val remoteJarFile = remoteUrl + "robolab-renderer.jar"
 
         private val localVersionProperty = BuildInformation.versionClientProperty
         private val remoteVersionProperty = de.westermann.kobserve.property.property<Version>()
@@ -168,15 +174,10 @@ class UpdateDialog : GenericDialog() {
             val currentFile = File(System.getProperty("java.class.path"))
             val updaterFile = File.createTempFile("updater", ".jar")
 
-            extractUpdater(updaterFile)
+            currentFile.copyTo(updaterFile, true)
+            Thread.sleep(100L)
 
             startUpdater(updaterFile, currentFile)
-        }
-
-        private fun extractUpdater(target: File) {
-            val stream = this::class.java.classLoader.getResourceAsStream("updater.jar") ?: return
-            stream.transferTo(target.outputStream())
-            Thread.sleep(100L)
         }
 
         private fun startUpdater(updater: File, currentFile: File) {
@@ -191,6 +192,7 @@ class UpdateDialog : GenericDialog() {
                 *vmArguments,
                 "-jar",
                 updater.absolutePath,
+                "update",
                 "--url",
                 remoteJarFile,
                 "--file",

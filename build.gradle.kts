@@ -40,15 +40,6 @@ kotlin {
             }
         }
     }
-    jvm("jvmHeadless") {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "11"
-                freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
-                freeCompilerArgs += "-Xinline-classes"
-            }
-        }
-    }
     js("jsClient") {
         browser {
             binaries.executable()
@@ -104,6 +95,7 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.0")
 
                 implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
+                implementation("com.github.ajalt:clikt:2.8.0")
 
                 implementation("org.openjfx:javafx-controls:14:win")
                 implementation("org.openjfx:javafx-graphics:14:win")
@@ -134,27 +126,6 @@ kotlin {
             }
         }
         val jvmTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(kotlin("test-junit"))
-            }
-        }
-
-        val jvmHeadlessMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.0")
-                implementation("com.github.ajalt:clikt:2.8.0")
-
-                implementation("org.fusesource.jansi:jansi:1.18")
-
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:$serializationVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutineVersion")
-
-                implementation("io.ktor:ktor-client-core:$ktorVersion")
-                implementation("io.ktor:ktor-client-apache:$ktorVersion")
-            }
-        }
-        val jvmHeadlessTest by getting {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-junit"))
@@ -257,11 +228,9 @@ val createBuildInfo = tasks.create("createBuildInfo") {
     outputs.file(file)
 }
 
-val mainClassName = "de.robolab.client.ui.Launcher"
+val mainClassName = "de.robolab.client.Launcher"
 
 val jvmJar = tasks.named<Jar>("jvmJar") {
-    dependsOn(project(":updater").tasks.named("jar"))
-
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
@@ -275,8 +244,6 @@ val jvmJar = tasks.named<Jar>("jvmJar") {
     }) {
         exclude("META-INF/*.SF", "META-INF/*.RSA", "META-INF/*SF")
     }
-
-    from(project(":updater").tasks.named("jar"))
 }
 
 tasks.create<JavaExec>("jvmRun") {
@@ -285,31 +252,6 @@ tasks.create<JavaExec>("jvmRun") {
     group = "application"
     main = mainClassName
     classpath(jvmJar)
-    args()
-}
-
-val jvmHeadlessJar = tasks.named<Jar>("jvmHeadlessJar") {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes("Main-Class" to mainClassName)
-    }
-
-    from(Callable {
-        configurations["jvmHeadlessRuntimeClasspath"].map {
-            if (it.isDirectory) it else zipTree(it)
-        }
-    }) {
-        exclude("META-INF/*.SF", "META-INF/*.RSA", "META-INF/*SF")
-    }
-}
-
-tasks.create<JavaExec>("jvmHeadlessRun") {
-    dependsOn("jvmHeadlessJar")
-
-    group = "application"
-    main = mainClassName
-    classpath(jvmHeadlessJar)
     args()
 }
 
@@ -424,11 +366,6 @@ tasks.named("clean") {
 }
 
 tasks.named<ProcessResources>("jvmProcessResources") {
-    dependsOn(createBuildInfo)
-
-    from(createBuildInfo)
-}
-tasks.named<ProcessResources>("jvmHeadlessProcessResources") {
     dependsOn(createBuildInfo)
 
     from(createBuildInfo)

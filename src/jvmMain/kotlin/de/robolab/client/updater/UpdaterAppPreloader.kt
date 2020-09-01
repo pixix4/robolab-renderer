@@ -1,9 +1,9 @@
-package de.robolab.updater
+package de.robolab.client.updater
 
 import javafx.application.Preloader
 import javafx.stage.Stage
 
-class MainAppPreloader: Preloader() {
+class UpdaterAppPreloader: Preloader() {
     override fun start(primaryStage: Stage?) {
         com.sun.glass.ui.Application.GetApplication().setName("Robolab Renderer - Updater");
     }

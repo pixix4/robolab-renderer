@@ -1,4 +1,4 @@
-package de.robolab.updater
+package de.robolab.client.updater
 
 import javafx.application.Platform
 import tornadofx.*
@@ -9,7 +9,7 @@ import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 
-class MainView : View() {
+class UpdaterView : View() {
 
     override val root = hbox {
         titleProperty.value = "Robolab Renderer - Updater"

@@ -19,15 +19,6 @@ build-jvm:
   tags:
     - docker
 
-build-jvm-headless:
-  stage: build
-  script: gradle --no-daemon -g .gradle jvmHeadlessJar
-  artifacts:
-    paths:
-      - build/libs/robolab-jvmheadless.jar
-  tags:
-    - docker
-
 build-js-client:
   stage: build
   script: gradle --no-daemon -g .gradle jsClientSync
@@ -53,17 +44,15 @@ deploy-client:
     - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/libs/robolab-jvm.jar ubuntu@robolab.pixix4.com:jvmClient/
     - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/processedResources/build.ini ubuntu@robolab.pixix4.com:jvmClient/
     - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c web/website/ ubuntu@robolab.pixix4.com:jsClient/website/
-    - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/libs/robolab-jvmheadless.jar ubuntu@robolab.pixix4.com:jvmClient/
     - ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY ubuntu@robolab.pixix4.com cp jvmClient/robolab-jvm.jar jvmClient/robolab-renderer.jar
+    - ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY ubuntu@robolab.pixix4.com cp jvmClient/robolab-jvm.jar jvmClient/robolab-jvmheadless.jar
   only:
     - master
   needs:
     - build-jvm
-    - build-jvm-headless
     - build-js-client
   dependencies:
     - build-jvm
-    - build-jvm-headless
     - build-js-client
   tags:
     - shell

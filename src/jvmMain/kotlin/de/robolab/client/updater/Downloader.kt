@@ -1,4 +1,4 @@
-package de.robolab.updater
+package de.robolab.client.updater
 
 import okhttp3.*
 import okio.*
