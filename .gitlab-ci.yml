@@ -49,11 +49,10 @@ deploy-client:
   only:
     - master
   needs:
-    - build-jvm
-    - build-js-client
-  dependencies:
-    - build-jvm
-    - build-js-client
+    - job: build-jvm
+      artifacts: true
+    - job: build-js-client
+      artifacts: true
   tags:
     - shell
 
@@ -65,8 +64,7 @@ deploy-server:
   only:
     - master
   needs:
-    - build-js-server
-  dependencies:
-    - build-js-server
+    - job: build-js-server
+      artifacts: true
   tags:
     - shell
