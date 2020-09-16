@@ -6,8 +6,9 @@
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 
   grid-template-rows: 3rem 2.2rem auto 2rem;
   grid-template-columns: auto;
@@ -72,6 +73,10 @@
   .tab-bar {
     grid-area: tab;
   }
+
+  .status-bar {
+    grid-area: status;
+  }
 }
 
 @include utils.mobile {
@@ -94,14 +99,6 @@
 
 @include utils.desktop {
   .app {
-    display: grid;
-
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
     grid-template-rows: 3rem 2.2rem auto 2rem;
     grid-template-columns: var(--navigation-bar-width) auto var(--info-bar-width);
     grid-template-areas:

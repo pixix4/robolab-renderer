@@ -3,8 +3,6 @@
 .status-bar {
   @include utils.prevent-user-select();
 
-  grid-area: status;
-
   line-height: 1.9rem;
   border-top: solid 1px var(--border-color);
   z-index: 1;
