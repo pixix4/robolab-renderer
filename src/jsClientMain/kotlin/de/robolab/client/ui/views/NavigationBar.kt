@@ -43,37 +43,6 @@ class NavigationBar(
             }
         }
         boxView("navigation-bar-content") {
-            boxView("navigation-bar-search", "button-group", "button-form-group") {
-                val searchView = inputView(InputType.SEARCH, navigationBarController.searchStringProperty) {
-                    placeholder = "Search…"
-                }
-                iconView(MaterialIcon.CANCEL) {
-                    onClick {
-                        it.preventDefault()
-                        it.stopPropagation()
-                        navigationBarController.searchStringProperty.value = ""
-                        searchView.focus()
-                    }
-                }
-
-                button {
-                    iconView(MaterialIcon.PUBLISH)
-
-                    onClick {
-                        GlobalScope.launch(Dispatchers.Main) {
-                            val files =
-                                openFile(*fileImportController.supportedFileTypes.toTypedArray())
-
-                            for (file in files) {
-                                val content = file.readText()
-                                if (content != null) {
-                                    fileImportController.importFile(file.name, file.lineSequence())
-                                }
-                            }
-                        }
-                    }
-                }
-            }
             boxView("navigation-bar-group-head") {
                 val labelText = navigationBarController.backButtonLabelProperty
                     .mapBinding { it ?: "" }
@@ -96,6 +65,38 @@ class NavigationBar(
             }
             boxView("navigation-bar-empty") {
                 textView("Nothing to show!")
+            }
+        }
+
+        boxView("navigation-bar-search", "button-group", "button-form-group") {
+            val searchView = inputView(InputType.SEARCH, navigationBarController.searchStringProperty) {
+                placeholder = "Search…"
+            }
+            iconView(MaterialIcon.CANCEL) {
+                onClick {
+                    it.preventDefault()
+                    it.stopPropagation()
+                    navigationBarController.searchStringProperty.value = ""
+                    searchView.focus()
+                }
+            }
+
+            button {
+                iconView(MaterialIcon.PUBLISH)
+
+                onClick {
+                    GlobalScope.launch(Dispatchers.Main) {
+                        val files =
+                            openFile(*fileImportController.supportedFileTypes.toTypedArray())
+
+                        for (file in files) {
+                            val content = file.readText()
+                            if (content != null) {
+                                fileImportController.importFile(file.name, file.lineSequence())
+                            }
+                        }
+                    }
+                }
             }
         }
 

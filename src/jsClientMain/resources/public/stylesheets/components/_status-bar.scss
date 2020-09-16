@@ -10,6 +10,7 @@
   z-index: 1;
   overflow-x: auto;
   white-space: nowrap;
+  display: flex;
 
   .text-view {
     height: 1.5rem;
@@ -22,17 +23,17 @@
   .connection-indicator {
     @include utils.prevent-user-select();
 
-    height: 2rem;
-    line-height: 1.9rem;
+    height: 100%;
     border-right: solid 1px var(--border-color);
-    position: absolute;
-    bottom: 0;
-    left: 0;
     width: var(--navigation-bar-width);
+    min-width: 14rem;
     z-index: 1;
-    overflow-x: auto;
+    overflow: hidden;
     white-space: nowrap;
     padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     &.success {
       background-color: var(--success-color);
@@ -49,17 +50,7 @@
       color: var(--error-text-color);
     }
 
-    .text-view {
-      height: 2rem;
-      line-height: 2rem;
-    }
-
-    .text-view:nth-child(1) {
-      float: left;
-    }
-
     .text-view:nth-child(2) {
-      float: right;
       text-decoration: underline;
     }
   }

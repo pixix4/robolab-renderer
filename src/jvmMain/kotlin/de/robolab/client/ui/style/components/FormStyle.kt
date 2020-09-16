@@ -288,12 +288,18 @@ fun Stylesheet.initFormStyle() {
 
     Stylesheet.tabHeaderBackground {
         backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
+        borderStyle = multi(BorderStrokeStyle.SOLID)
+        borderWidth = multi(box(0.px, 0.px, 1.px, 0.px))
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
+    }
+    Stylesheet.tabHeaderArea {
+        padding = box(0.px)
     }
     Stylesheet.tab {
         backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
         borderStyle = multi(BorderStrokeStyle.SOLID)
-        borderWidth = multi(box(0.px, 0.px, 4.px, 0.px))
-        borderColor = multi(box(MainStyle.theme.ui.secondaryBackground.toFx()))
+        borderWidth = multi(box(0.px, 1.px, 0.px, 0.px))
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         padding = box(0.2.em, 1.em, 0.em, 1.em)
         focusColor = Color.TRANSPARENT
         faintFocusColor = Color.TRANSPARENT
@@ -304,12 +310,13 @@ fun Stylesheet.initFormStyle() {
 
         and(Stylesheet.hover, Stylesheet.focused) {
             backgroundColor = multi(MainStyle.theme.ui.secondaryHoverBackground.toFx())
-            borderColor = multi(box(MainStyle.theme.ui.secondaryHoverBackground.toFx()))
         }
 
         and(Stylesheet.selected) {
             backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
-            borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
+            Stylesheet.tabLabel {
+                textFill = MainStyle.theme.ui.themeColor.toFx()
+            }
 
             and(Stylesheet.hover, Stylesheet.focused) {
                 backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())

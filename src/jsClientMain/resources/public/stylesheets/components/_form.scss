@@ -98,6 +98,7 @@ input::placeholder {
   .button {
     background-color: var(--secondary-background);
     border-color: var(--border-color);
+    height: 2rem;
 
     &:hover {
       background-color: var(--secondary-hover-background);
@@ -114,7 +115,7 @@ input::placeholder {
   color: var(--primary-text-color);
   padding: 0.5rem 1rem;
   transition: background-color 200ms, border-color 200ms;
-  height: 2.2rem;
+  height: 2rem;
 
   &:hover {
     background-color: var(--primary-hover-background);

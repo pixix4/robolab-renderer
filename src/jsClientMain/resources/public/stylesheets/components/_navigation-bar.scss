@@ -40,7 +40,7 @@
   top: 2.2rem;
   left: 0;
   width: 100%;
-  bottom: calc(2rem - 1px);
+  bottom: 3rem;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -140,8 +140,11 @@
   align-items: center;
   align-content: center;
   height: 3rem;
-  border-bottom: solid 1px var(--border-color);
-  position: relative;
+  border-top: solid 1px var(--border-color);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
 
   .input-view {
     flex-grow: 1;

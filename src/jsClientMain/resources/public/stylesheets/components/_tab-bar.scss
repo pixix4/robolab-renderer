@@ -30,12 +30,12 @@
   width: 2rem;
   height: 100%;
   text-align: center;
-  opacity: 0.3;
+  opacity: 0.3 !important;
   padding-right: 0.6rem;
   color: var(--primary-text-color);
 
   &:hover {
-    opacity: 1.0;
+    opacity: 1.0 !important;
   }
 }
 

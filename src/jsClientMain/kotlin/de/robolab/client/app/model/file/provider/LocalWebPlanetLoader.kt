@@ -6,9 +6,12 @@ import de.robolab.client.net.http
 import de.robolab.client.net.web
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
+import de.westermann.kobserve.property.property
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlin.coroutines.CoroutineContext
@@ -27,7 +30,7 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
 
     override val availableProperty = constObservable(true)
 
-    override val planetCountProperty = constObservable(0)
+    override val planetCountProperty = property(0)
 
     override suspend fun loadPlanet(identifier: FileIdentifier): Pair<FileIdentifier, List<String>>? {
         val lines = http {
@@ -55,6 +58,7 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
             web("/planets")
         }.exec().parse(ListSerializer(String.serializer())) ?: emptyList()
 
+        planetCountProperty.value = names.size
         return names.map { name ->
             FileIdentifier("/planet/$name", name)
         }
@@ -103,6 +107,12 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
 
         override fun create(uri: String): IFilePlanetLoader<*>? {
             return LocalWebPlanetLoader()
+        }
+    }
+
+    init {
+        GlobalScope.launch {
+            listPlanets()
         }
     }
 }
