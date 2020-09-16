@@ -2,13 +2,13 @@ package de.robolab.client.ui
 
 import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kwebview.components.Canvas
+import kotlinx.browser.document
+import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.Event
 import org.w3c.files.File
 import org.w3c.files.FileReader
-import kotlinx.browser.document
-import kotlinx.browser.window
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -98,6 +98,11 @@ suspend fun File.readText(): String? = suspendCoroutine { continuation ->
     }
 
     reader.readAsText(this)
+}
+
+suspend fun File.lineSequence(): Sequence<String> {
+    val text = readText() ?: ""
+    return text.splitToSequence('\n')
 }
 
 fun watchSystemTheme() {

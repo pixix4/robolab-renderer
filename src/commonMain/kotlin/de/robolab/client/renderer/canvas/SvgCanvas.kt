@@ -13,7 +13,11 @@ import kotlin.math.sin
 class SvgCanvas(
     override val dimension: Dimension
 ) : ICanvas {
-    override fun setListener(listener: ICanvasListener) {
+
+    override fun addListener(listener: ICanvasListener) {
+    }
+
+    override fun removeListener(listener: ICanvasListener) {
     }
 
     private val stringBuilder = mutableListOf<String>()

@@ -5,10 +5,23 @@ import de.robolab.common.planet.Planet
 
 class RobotDrawableManager : AnimatableManager<RobotDrawable.Robot?, RobotDrawable>() {
 
+    private var robotsChanged = false
     var robotList = emptyList<RobotDrawable.Robot>()
+        set(value) {
+            robotsChanged = true
+            field = value
+        }
 
     override fun getObjectList(planet: Planet): List<RobotDrawable.Robot> {
         return robotList
+    }
+
+    override fun forceUpdate(oldPlanet: Planet, newPlanet: Planet): Boolean {
+        if (robotsChanged) {
+            robotsChanged = false
+            return true
+        }
+        return false
     }
 
     override fun objectEquals(oldValue: RobotDrawable.Robot?, newValue: RobotDrawable.Robot?): Boolean {

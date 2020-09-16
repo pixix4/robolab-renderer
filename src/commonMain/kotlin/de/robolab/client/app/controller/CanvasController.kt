@@ -1,58 +1,33 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.base.INavigationBarPlottable
 import de.robolab.client.renderer.canvas.ICanvas
-import de.robolab.client.renderer.plotter.PlotterManager
+import de.robolab.client.renderer.canvas.VirtualCanvas
+import de.robolab.client.renderer.utils.CommonTimer
 import de.robolab.client.renderer.utils.Pointer
 import de.robolab.client.renderer.utils.TransformationInteraction
-import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.parser.toFixed
 import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Path
 import de.robolab.common.utils.Point
-import de.westermann.kobserve.base.ObservableProperty
-import de.westermann.kobserve.property.flatMapBinding
+import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.event.now
 import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
 import kotlin.math.PI
 import kotlin.math.roundToInt
 
 class CanvasController(
-    private val selectedEntryProperty: ObservableProperty<INavigationBarPlottable?>
+    private val activeTabProperty: ObservableValue<TabController.Tab?>
 ) {
 
-    lateinit var plotter: PlotterManager
-    fun setupCanvas(canvas: ICanvas) {
-        if (this::plotter.isInitialized) {
-            throw IllegalStateException("Plotter is already initialized!")
-        }
-
-        plotter = PlotterManager(canvas, PreferenceStorage.animationTime)
-        PreferenceStorage.animationTimeProperty.onChange {
-            plotter.animationTime = PreferenceStorage.animationTime
-        }
-
-        plotter.activeWindowProperty.onChange {
-            selectedEntryProperty.value = plotterMap[plotter.activeWindow]
-        }
-        pointerProperty.bind(plotter.activePlotterProperty.flatMapBinding { it.pointerProperty })
-        zoomProperty.bind(plotter.activePlotterProperty.flatMapBinding { it.transformation.scaleProperty })
+    private val plotterWindowProperty = activeTabProperty.nullableFlatMapBinding {
+        it?.plotterManager?.activePlotterProperty
     }
 
-    private var plotterMap = mapOf<PlotterManager.Window, INavigationBarPlottable>()
-    fun open(plottable: INavigationBarPlottable) {
-        val window = plotter.windowList.find { it.plotter.document == plottable.documentProperty.value }
-
-        if (window != null) {
-            plotter.setActive(window)
-        } else {
-            if (plotter.activeWindow.plotter.documentProperty.isBound) {
-                plotter.activeWindow.plotter.documentProperty.unbind()
-            }
-            plotter.activeWindow.plotter.documentProperty.bind(plottable.documentProperty)
-            plotterMap = plotterMap + (plotter.activeWindow to plottable)
-            selectedEntryProperty.value = plottable
-        }
+    private val virtualCanvas = VirtualCanvas()
+    fun setupCanvas(canvas: ICanvas) {
+        virtualCanvas.canvas = canvas
     }
 
     val pointerProperty = property<Pointer?>(null)
@@ -61,8 +36,9 @@ class CanvasController(
 
         val list = mutableListOf<String>()
         list.add("Pointer: ${format(pointer.roundedPosition)}")
-        if (plotter.activePlotter.transformation.rotation != 0.0) {
-            list.add("Rotation: ${((plotter.activePlotter.transformation.rotation / PI * 180) % 360).roundToInt()}%")
+        val rotation = plotterWindowProperty.value?.transformation?.rotation
+        if (rotation != null && rotation != 0.0) {
+            list.add("Rotation: ${((rotation / PI * 180) % 360).roundToInt()}%")
         }
         list.filter { it.isNotBlank() }
     }
@@ -74,21 +50,52 @@ class CanvasController(
         else -> obj.toString()
     }
 
-    val zoomProperty = property(1.0)
+    val zoomProperty = property<Double>()
 
-    fun zoomIn() = plotter.activePlotter.transformation.scaleIn(
-        plotter.activePlotter.dimension / 2,
-        TransformationInteraction.ANIMATION_TIME
-    )
+    fun zoomIn() {
+        val plotter = plotterWindowProperty.value ?: return
+        plotter.transformation.scaleIn(
+            plotter.dimension / 2,
+            TransformationInteraction.ANIMATION_TIME
+        )
+    }
 
-    fun zoomOut() = plotter.activePlotter.transformation.scaleOut(
-        plotter.activePlotter.dimension / 2,
-        TransformationInteraction.ANIMATION_TIME
-    )
+    fun zoomOut() {
+        val plotter = plotterWindowProperty.value ?: return
+        plotter.transformation.scaleOut(
+            plotter.dimension / 2,
+            TransformationInteraction.ANIMATION_TIME
+        )
+    }
 
-    fun resetZoom() = plotter.activePlotter.transformation.resetScale(
-        plotter.activePlotter.dimension / 2,
-        TransformationInteraction.ANIMATION_TIME
-    )
+    fun resetZoom() {
+        val plotter = plotterWindowProperty.value ?: return
+        plotter.transformation.resetScale(
+            plotter.dimension / 2,
+            TransformationInteraction.ANIMATION_TIME
+        )
+    }
 
+    private fun render(msOffset: Double) {
+        activeTabProperty.value?.plotterManager?.render(msOffset)
+    }
+
+    val timer = CommonTimer(60.0)
+
+    init {
+        timer.onRender(this::render)
+        timer.start()
+
+        var oldTab = activeTabProperty.value
+        activeTabProperty.onChange.now {
+            oldTab?.canvas?.canvas = null
+            oldTab?.onDetach()
+            oldTab = activeTabProperty.value
+            oldTab?.onAttach()
+            oldTab?.canvas?.canvas = virtualCanvas
+        }
+
+        pointerProperty.bind(plotterWindowProperty.nullableFlatMapBinding { it?.pointerProperty })
+        zoomProperty.bind(plotterWindowProperty.nullableFlatMapBinding { it?.transformation?.scaleProperty })
+    }
 }

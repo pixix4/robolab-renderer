@@ -1,5 +1,6 @@
 package de.robolab.client.renderer.plotter
 
+import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.utils.Pointer
@@ -12,11 +13,14 @@ import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
+import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
+import kotlin.math.PI
+import kotlin.math.tan
 
 class PlotterWindow(
     private val canvas: ICanvas,
-    rootDocument: Document? = null,
+    planetDocument: IPlanetDocument?,
     theme: ITheme,
     var animationTime: Double
 ) {
@@ -37,8 +41,11 @@ class PlotterWindow(
     private val interaction = TransformationInteraction(this)
 
     private var lastAttachedDocument: Document? = null
-    val documentProperty = property<Document>()
-    var document by documentProperty
+    val planetDocumentProperty = property<IPlanetDocument>()
+    var planetDocument by planetDocumentProperty
+
+    val documentProperty = planetDocumentProperty.nullableFlatMapBinding { it?.documentProperty }
+    val document by documentProperty
 
     fun onUpdate(msOffset: Double): Boolean {
         var changes = false
@@ -47,6 +54,30 @@ class PlotterWindow(
         changes = transformation.update(msOffset) || changes
 
         return changes
+    }
+
+    private fun drawPlaceholder() {
+        val stripWidth = 100.0
+        val stripOffset = stripWidth * 2.3
+
+        val dimension = canvas.dimension
+        var start = 0.0
+        val heightOffset = dimension.height / tan(PI * 0.3)
+        while (start - heightOffset < dimension.width) {
+            val points = listOf(
+                Point(start, 0.0),
+                Point(start + stripWidth, 0.0),
+                Point(start + stripWidth - heightOffset, dimension.height),
+                Point(start - heightOffset, dimension.height),
+            )
+
+            canvas.fillPolygon(
+                points,
+                theme.plotter.lineColor.a(0.03)
+            )
+
+            start += stripOffset
+        }
     }
 
     fun onDraw() {
@@ -58,6 +89,12 @@ class PlotterWindow(
             ),
             context.theme.plotter.secondaryBackgroundColor
         )
+        val d = document
+        if (d != null) {
+            d.onDraw(context)
+        } else {
+            drawPlaceholder()
+        }
         document?.onDraw(context)
     }
 
@@ -108,9 +145,9 @@ class PlotterWindow(
             lastAttachedDocument = document
             lastAttachedDocument?.onAttach(this)
         }
-        document = rootDocument
+        this.planetDocument = planetDocument
 
-        canvas.setListener(interaction)
+        canvas.addListener(interaction)
         transformation.onViewChange {
             updatePointer()
         }

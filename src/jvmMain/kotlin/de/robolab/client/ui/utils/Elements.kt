@@ -7,9 +7,12 @@ import javafx.scene.Node
 import javafx.scene.layout.HBox
 import tornadofx.*
 
-fun EventTarget.buttonGroup(init: HBox.() -> Unit) {
+fun EventTarget.buttonGroup(inputButtonGroup: Boolean = false, init: HBox.() -> Unit) {
     hbox {
         addClass(MainStyle.buttonGroup)
+        if (inputButtonGroup) {
+            addClass(MainStyle.inputButtonGroup)
+        }
 
         init()
 
@@ -23,6 +26,7 @@ fun ObservableList<Node>.bindFirstLastPseudoElements() {
             it.removePseudoClass("first")
             it.removePseudoClass("last")
         }
+
         firstOrNull()?.addPseudoClass("first")
         lastOrNull()?.addPseudoClass("last")
     }

@@ -4,6 +4,12 @@
   }
 }
 
+@mixin mobile {
+  @media only screen and (max-width: 799px) {
+    @content
+  }
+}
+
 @mixin radius {
   border-radius: 0.3rem;
 }

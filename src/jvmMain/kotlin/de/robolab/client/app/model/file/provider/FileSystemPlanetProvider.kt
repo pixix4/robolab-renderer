@@ -4,16 +4,11 @@ import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.common.parser.PlanetFile
 import de.westermann.kobserve.event.EventHandler
-import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.property.constObservable
+import de.westermann.kobserve.property.property
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.io.File
-import java.nio.file.FileSystems
-import java.nio.file.Path
-import java.nio.file.StandardWatchEventKinds
-import java.nio.file.WatchKey
-import kotlin.concurrent.thread
 import kotlin.coroutines.CoroutineContext
 
 class FileSystemPlanetLoader(
@@ -22,7 +17,9 @@ class FileSystemPlanetLoader(
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 
-    override val onRemoteChange = EventHandler<Unit>()
+    override val onRemoteChange = EventHandler<FileIdentifier?>()
+
+    override val planetCountProperty = property(0)
 
     override val nameProperty = constObservable("Directory")
 
@@ -36,12 +33,12 @@ class FileSystemPlanetLoader(
         return (PlanetFile.getName(lines) ?: "").replace(' ', '_')
     }
 
-    private fun findUnusedFile(name: String, vararg exclude: File): File {
+    private fun findUnusedFile(base: File, name: String, vararg exclude: File): File {
         var count = 0
-        var file = baseDirectory.resolve("$name.planet")
+        var file = base.resolve("$name.planet")
         while (file.exists() && file !in exclude) {
             count += 1
-            file = baseDirectory.resolve("$name ($count).planet")
+            file = base.resolve("$name ($count).planet")
         }
         return file
     }
@@ -61,7 +58,7 @@ class FileSystemPlanetLoader(
         return try {
             identifier.file.writeText(lines.joinToString("\n"))
 
-            val file = findUnusedFile(name, identifier.file)
+            val file = findUnusedFile(identifier.file.parentFile, name, identifier.file)
             identifier.file.renameTo(file)
 
             FileIdentifier(identifier.file)
@@ -70,10 +67,10 @@ class FileSystemPlanetLoader(
         }
     }
 
-    override suspend fun createPlanet(lines: List<String>) {
+    override suspend fun createPlanet(identifier: FileIdentifier?, lines: List<String>) {
         val name = getFileNameOfLines(lines)
         try {
-            val file = findUnusedFile(name)
+            val file = findUnusedFile(identifier?.file ?: baseDirectory, name)
             file.writeText(lines.joinToString("\n"))
         } catch (e: Exception) {
 
@@ -110,6 +107,11 @@ class FileSystemPlanetLoader(
         return try {
             listPlanetFiles(identifier?.file ?: baseDirectory, false)
                 .map { FileIdentifier(it) }
+                .sortedWith(compareBy<FileIdentifier> {
+                    !it.isDirectory
+                }.thenBy(String.CASE_INSENSITIVE_ORDER) {
+                    it.name
+                })
         } catch (e: Exception) {
             emptyList()
         }
@@ -141,7 +143,7 @@ class FileSystemPlanetLoader(
         }
     }
 
-    class FileIdentifier(
+    inner class FileIdentifier(
         val file: File,
         override val lastModified: DateTime = file.lastModified
     ) : IFilePlanetIdentifier {
@@ -151,6 +153,13 @@ class FileSystemPlanetLoader(
 
         override val name: String
             get() = file.name
+
+        override val childrenCount: Int
+            get() = if (file.isDirectory) {
+                listPlanetFiles(file, false).size
+            } else {
+                0
+            }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -170,47 +179,27 @@ class FileSystemPlanetLoader(
         }
     }
 
-    private fun emitRemoteChange() {
+    private fun updatePlanetCount() {
+        planetCountProperty.value = listPlanetFiles(baseDirectory, true).size
+    }
+
+    private fun emitRemoteChange(file: File) {
+        val event = if (file == baseDirectory) null else FileIdentifier(file)
         synchronized(onRemoteChange) {
-            onRemoteChange.emit()
+            onRemoteChange.emit(event)
         }
+        updatePlanetCount()
     }
 
     init {
         if (baseDirectory.exists()) {
-            thread {
-                val watchService = FileSystems.getDefault().newWatchService()
-                val folder = baseDirectory.toPath()
+            val watcher = FileSystemWatcher(baseDirectory)
 
-                folder.register(
-                    watchService,
-                    StandardWatchEventKinds.ENTRY_CREATE,
-                    StandardWatchEventKinds.ENTRY_DELETE,
-                    StandardWatchEventKinds.ENTRY_MODIFY
-                )
-
-                var key: WatchKey = watchService.take()
-                while (true) {
-                    var shouldEmit = false
-                    for (event in key.pollEvents()) {
-                        val name = event.context()
-                        if (name is Path) {
-                            shouldEmit = true
-                        }
-                    }
-
-                    if (shouldEmit) {
-                        try {
-                            emitRemoteChange()
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-
-                    key.reset()
-                    key = watchService.take()
-                }
+            watcher.onFolderChange {
+                emitRemoteChange(it)
             }
+
+            updatePlanetCount()
         }
     }
 

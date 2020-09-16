@@ -10,23 +10,34 @@ import tornadofx.*
 class MainStyle : Stylesheet() {
     companion object {
         val buttonGroup by cssclass()
+        val inputButtonGroup by cssclass()
         val toolBar by cssclass()
         val toolBarContainer by cssclass()
         val iconView by cssclass()
         val listCellGraphic by cssclass()
 
-        val navigationBar by cssclass()
-        val statusBar by cssclass()
         val infoBar by cssclass()
         val detailBox by cssclass()
         val codeArea by cssclass()
         val dialog by cssclass()
 
+        val statusBar by cssclass()
+        val statusBarStatus by cssclass()
+        val statusBarBoxes by cssclass()
+
+        val tabBar by cssclass()
+        val tabBarSide by cssclass()
+        val tabBarContainer by cssclass()
+        val tabBarTab by cssclass()
+        val tabBarTabIcon by cssclass()
+
         val success by cssclass()
         val warn by cssclass()
         val error by cssclass()
 
+        val navigationBar by cssclass()
         val navigationBarBackButton by cssclass()
+        val navigationBarSearchBox by cssclass()
 
         val disabled by cssclass()
         val active by cssclass()
@@ -116,6 +127,7 @@ class MainStyle : Stylesheet() {
         initNavigationBarStyle()
         initStatusBarStyle()
         initToolBarStyle()
+        initTabBarStyle()
 
         // Debug generated css:
         // println(render().split("\n").mapIndexed { i, s -> "${i.toString().padStart(3, '0')}: $s" }.joinToString("\n"))

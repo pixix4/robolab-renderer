@@ -8,7 +8,9 @@ import de.robolab.common.utils.Rectangle
 
 interface ICanvas {
 
-    fun setListener(listener: ICanvasListener)
+    fun addListener(listener: ICanvasListener)
+
+    fun removeListener(listener: ICanvasListener)
 
     val dimension: Dimension
 

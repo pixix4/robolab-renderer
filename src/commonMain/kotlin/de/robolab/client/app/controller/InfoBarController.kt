@@ -1,12 +1,26 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.base.INavigationBarPlottable
-import de.westermann.kobserve.base.ObservableProperty
+import de.robolab.client.app.model.base.IPlanetDocument
+import de.robolab.client.app.model.base.MaterialIcon
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.nullableFlatMapBinding
 
-class InfoBarController(private val selectedEntryProperty: ObservableProperty<INavigationBarPlottable?>) {
+class InfoBarController(
+    private val activeDocumentProperty: ObservableValue<IPlanetDocument?>
+) {
 
-    val selectedContentProperty = selectedEntryProperty.nullableFlatMapBinding { it?.infoBarProperty }
+    val infoBarContentProperty = activeDocumentProperty
+        .nullableFlatMapBinding { it?.infoBarProperty }
 
-    val detailBoxProperty = selectedEntryProperty.nullableFlatMapBinding { it?.detailBoxProperty }
+    val infoBarTabsProperty = activeDocumentProperty
+        .nullableFlatMapBinding { it?.infoBarTabsProperty }
+
+    val infoBarActiveTabProperty = activeDocumentProperty
+        .nullableFlatMapBinding { it?.infoBarActiveTabProperty }
+
+    interface Tab {
+        val icon: MaterialIcon
+        val tooltip: String
+        fun open()
+    }
 }

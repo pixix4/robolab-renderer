@@ -1,18 +1,15 @@
 package de.robolab.client.ui.view
 
 import de.robolab.client.app.controller.CanvasController
+import de.robolab.client.app.controller.UiController
 import de.robolab.client.ui.adapter.FxCanvas
-import de.westermann.kobserve.base.ObservableProperty
 import javafx.scene.Cursor
+import javafx.scene.layout.Priority
 import tornadofx.*
-import kotlin.math.max
 
 class MainCanvas(
     canvasController: CanvasController,
-    navigationBarActiveProperty: ObservableProperty<Boolean>,
-    navigationBarWidthProperty: ObservableProperty<Double>,
-    infoBarActiveProperty: ObservableProperty<Boolean>,
-    infoBarWidthProperty: ObservableProperty<Double>
+    private val uiController: UiController,
 ) : View() {
 
     private val canvas = FxCanvas()
@@ -20,6 +17,9 @@ class MainCanvas(
     override val root = anchorpane {
         minWidth = 0.0
         minHeight = 0.0
+
+        hgrow = Priority.ALWAYS
+        vgrow = Priority.ALWAYS
 
         add(canvas.canvas)
         canvas.canvas.widthProperty().bind(widthProperty())
@@ -49,19 +49,7 @@ class MainCanvas(
 
             setOnMouseDragged { event ->
                 if (event.button == javafx.scene.input.MouseButton.PRIMARY) {
-                    var width = event.screenX - scene.window.x
-                    if (navigationBarActiveProperty.value) {
-                        if (width < 50.0) {
-                            navigationBarActiveProperty.value = false
-                        } else {
-                            width = max(width, 200.0)
-                            navigationBarWidthProperty.value = width
-                        }
-                    } else {
-                        if (width >= 50.0) {
-                            navigationBarActiveProperty.value = true
-                        }
-                    }
+                    uiController.setNavigationBarWidth(event.screenX - scene.window.x)
                 }
             }
         }
@@ -83,23 +71,12 @@ class MainCanvas(
 
             setOnMouseDragged { event ->
                 if (event.button == javafx.scene.input.MouseButton.PRIMARY) {
-                    var width = (scene.window.x + scene.window.width) - event.screenX
-                    if (infoBarActiveProperty.value) {
-                        if (width < 50.0) {
-                            infoBarActiveProperty.value = false
-                        } else {
-                            width = max(width, 200.0)
-                            infoBarWidthProperty.value = width
-                        }
-                    } else {
-                        if (width >= 50.0) {
-                            infoBarActiveProperty.value = true
-                        }
-                    }
+                    uiController.setInfoBarWidth((scene.window.x + scene.window.width) - event.screenX)
                 }
             }
         }
     }
+
 
     init {
         canvasController.setupCanvas(canvas)

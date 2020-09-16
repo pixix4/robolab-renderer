@@ -36,7 +36,6 @@ kotlin {
             kotlinOptions {
                 jvmTarget = "11"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
-                freeCompilerArgs += "-Xinline-classes"
             }
         }
     }
@@ -54,7 +53,6 @@ kotlin {
             kotlinOptions {
                 moduleKind = "commonjs"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
-                freeCompilerArgs += "-Xinline-classes"
             }
         }
     }
@@ -66,7 +64,6 @@ kotlin {
             kotlinOptions {
                 moduleKind = "commonjs"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
-                freeCompilerArgs += "-Xinline-classes"
             }
         }
     }
@@ -78,7 +75,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
                 implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
 
-                implementation("dev.gitlive:kotlin-diff-utils:4.1.4")
+                implementation("dev.gitlive:kotlin-diff-utils:4.1.6")
 
                 api("io.ktor:ktor-client-core:$ktorVersion")
             }
@@ -115,10 +112,15 @@ kotlin {
                 implementation("org.fxmisc.richtext:richtextfx:0.10.5")
                 implementation("org.fusesource.jansi:jansi:1.18")
                 implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4")
+                implementation("org.slf4j:slf4j-nop:1.7.30")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutineVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$coroutineVersion")
+
+                implementation("com.h2database:h2:1.4.199")
+                implementation("org.jetbrains.exposed:exposed-core:0.27.1")
+                implementation("org.jetbrains.exposed:exposed-jdbc:0.27.1")
 
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-apache:$ktorVersion")
@@ -144,7 +146,7 @@ kotlin {
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("hammerjs", "2.0.8"))
 
-                implementation(npm("sass","1.26.10"))
+                implementation(devNpm("sass","1.26.10"))
             }
         }
         val jsClientTest by getting {
@@ -172,6 +174,9 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-junit"))
             }
+        }
+        all {
+            languageSettings.enableLanguageFeature("InlineClasses")
         }
     }
 }

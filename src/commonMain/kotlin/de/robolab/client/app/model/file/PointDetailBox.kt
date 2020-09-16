@@ -1,12 +1,10 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.model.base.IDetailBox
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.letter
 
-class PointDetailBox(point: PointAnimatableManager.AttributePoint, planetFile: PlanetFile) :
-    IDetailBox {
+class PointDetailBox(point: PointAnimatableManager.AttributePoint, planetFile: PlanetFile){
 
     val coordinate = point.coordinate
 

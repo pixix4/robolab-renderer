@@ -9,65 +9,69 @@ class ClippingCanvas(private val canvas: ICanvas, initClip: Rectangle) : ICanvas
     var clip = initClip
         set(value) {
             field = value
-            iCanvasListener?.onResize(value.dimension)
+            listenerManager.onResize(value.dimension)
         }
 
-    private var iCanvasListener: ICanvasListener? = null
-    override fun setListener(listener: ICanvasListener) {
-        this.iCanvasListener = listener
+    private val listenerManager = CanvasListenerManager()
+    override fun addListener(listener: ICanvasListener) {
+        listenerManager += listener
+    }
+
+    override fun removeListener(listener: ICanvasListener) {
+        listenerManager -= listener
     }
 
     val transformListener = object : ICanvasListener {
         override fun onPointerDown(event: PointerEvent) {
-            iCanvasListener?.onPointerDown(event.clip(clip))
+            listenerManager.onPointerDown(event.clip(clip))
         }
 
         override fun onPointerUp(event: PointerEvent) {
-            iCanvasListener?.onPointerUp(event.clip(clip))
+            listenerManager.onPointerUp(event.clip(clip))
         }
 
         override fun onPointerMove(event: PointerEvent) {
-            iCanvasListener?.onPointerMove(event.clip(clip))
+            listenerManager.onPointerMove(event.clip(clip))
         }
 
         override fun onPointerDrag(event: PointerEvent) {
-            iCanvasListener?.onPointerDrag(event.clip(clip))
+            listenerManager.onPointerDrag(event.clip(clip))
         }
 
         override fun onPointerSecondaryAction(event: PointerEvent) {
-            iCanvasListener?.onPointerSecondaryAction(event.clip(clip))
+            listenerManager.onPointerSecondaryAction(event.clip(clip))
         }
 
         override fun onPointerEnter(event: PointerEvent) {
-            iCanvasListener?.onPointerEnter(event.clip(clip))
+            listenerManager.onPointerEnter(event.clip(clip))
         }
 
         override fun onPointerLeave(event: PointerEvent) {
-            iCanvasListener?.onPointerLeave(event.clip(clip))
+            listenerManager.onPointerLeave(event.clip(clip))
         }
 
         override fun onScroll(event: ScrollEvent) {
-            iCanvasListener?.onScroll(event.clip(clip))
+            listenerManager.onScroll(event.clip(clip))
         }
 
         override fun onZoom(event: ZoomEvent) {
-            iCanvasListener?.onZoom(event.clip(clip))
+            listenerManager.onZoom(event.clip(clip))
         }
 
         override fun onRotate(event: RotateEvent) {
-            iCanvasListener?.onRotate(event.clip(clip))
+            listenerManager.onRotate(event.clip(clip))
         }
 
         override fun onKeyPress(event: KeyEvent) {
-            iCanvasListener?.onKeyPress(event)
+            listenerManager.onKeyPress(event)
         }
 
         override fun onKeyRelease(event: KeyEvent) {
-            iCanvasListener?.onKeyRelease(event)
+            listenerManager.onKeyRelease(event)
         }
 
         override fun onResize(size: Dimension) {
-            iCanvasListener?.onResize(clip.dimension)
+            listenerManager.onResize(clip.dimension)
         }
     }
 

@@ -1,5 +1,6 @@
 package de.robolab.client.ui.adapter
 
+import de.robolab.client.renderer.canvas.CanvasListenerManager
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.ICanvasListener
 import de.robolab.client.renderer.events.*
@@ -39,217 +40,13 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         )
     }
 
-    override fun setListener(listener: ICanvasListener) {
-        canvas.onMouseMove { event ->
-            event.stopPropagation()
-            event.preventDefault()
+    private val listenerManager = CanvasListenerManager()
+    override fun addListener(listener: ICanvasListener) {
+        listenerManager += listener
+    }
 
-            listener.onPointerMove(mouseEventToPointerEvent(event))
-        }
-        canvas.onClick { event ->
-            when (event.button) {
-                MOUSE_BUTTON_SECONDARY -> {
-                    event.stopPropagation()
-                    event.preventDefault()
-                    listener.onPointerSecondaryAction(mouseEventToPointerEvent(event))
-                }
-                MOUSE_BUTTON_FORWARD -> {
-                    listener.onKeyPress(
-                        KeyEvent(
-                            KeyCode.REDO,
-                            "",
-                            event.ctrlKey,
-                            event.altKey,
-                            event.shiftKey
-                        )
-                    )
-                }
-                MOUSE_BUTTON_BACK -> {
-                    listener.onKeyPress(
-                        KeyEvent(
-                            KeyCode.UNDO,
-                            "",
-                            event.ctrlKey,
-                            event.altKey,
-                            event.shiftKey
-                        )
-                    )
-                }
-            }
-        }
-        canvas.onContext { event ->
-            event.preventDefault()
-            event.stopPropagation()
-            listener.onPointerSecondaryAction(mouseEventToPointerEvent(event))
-        }
-        canvas.onMouseEnter { event ->
-            event.preventDefault()
-            event.stopPropagation()
-            listener.onPointerEnter(mouseEventToPointerEvent(event))
-        }
-        canvas.onMouseLeave { event ->
-            event.preventDefault()
-            event.stopPropagation()
-            listener.onPointerLeave(mouseEventToPointerEvent(event))
-        }
-        canvas.onWheel { event ->
-            event.stopPropagation()
-            event.preventDefault()
-
-            val factor = when (event.deltaMode) {
-                DOM_DELTA_PIXEL -> 1.0
-                DOM_DELTA_LINE -> {
-                    window.getComputedStyle(canvas.html).fontSize.replace("px", "").toDoubleOrNull()
-                }
-                DOM_DELTA_PAGE -> {
-                    window.innerHeight.toDouble()
-                }
-                else -> null
-            } ?: 1.0
-
-            listener.onScroll(
-                ScrollEvent(
-                    Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
-                    Point(event.deltaX * factor * WHEEL_FACTOR, event.deltaY * factor * WHEEL_FACTOR),
-                    dimension,
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-                )
-            )
-        }
-
-        canvas.onKeyDown { event ->
-            val code = event.toCommon() ?: return@onKeyDown
-            event.stopPropagation()
-            event.preventDefault()
-            listener.onKeyPress(
-                KeyEvent(
-                    code,
-                    event.key,
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-                )
-            )
-        }
-        canvas.onKeyPress { event ->
-            val code = event.toCommon() ?: return@onKeyPress
-            event.stopPropagation()
-            event.preventDefault()
-            listener.onKeyPress(
-                KeyEvent(
-                    code,
-                    event.key,
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-                )
-            )
-        }
-        canvas.onKeyUp { event ->
-            val code = event.toCommon() ?: return@onKeyUp
-            event.stopPropagation()
-            event.preventDefault()
-            listener.onKeyRelease(
-                KeyEvent(
-                    code,
-                    event.key,
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-                )
-            )
-        }
-
-        hammer.onPanStart { event ->
-            event.preventDefault()
-
-            listener.onPointerDown(hammerEventToPointerEvent(event))
-        }
-        hammer.onPanMove { event ->
-            event.preventDefault()
-
-            listener.onPointerDrag(hammerEventToPointerEvent(event))
-        }
-        hammer.onPanEnd { event ->
-            event.preventDefault()
-
-            listener.onPointerUp(hammerEventToPointerEvent(event))
-        }
-
-        hammer.onTap { event ->
-            event.preventDefault()
-
-            if (event.tapCount > 1 && event.isTouch()) {
-                listener.onPointerSecondaryAction(hammerEventToPointerEvent(event))
-            } else {
-                listener.onPointerDown(hammerEventToPointerEvent(event))
-                listener.onPointerUp(hammerEventToPointerEvent(event))
-            }
-        }
-
-        hammer.onPress { event ->
-            event.preventDefault()
-
-            listener.onPointerSecondaryAction(hammerEventToPointerEvent(event))
-        }
-
-        var lastScale = 0.0
-        hammer.onPinchStart { event ->
-            event.preventDefault()
-
-            lastScale = event.scale
-        }
-        hammer.onPinchMove { event ->
-            event.preventDefault()
-
-            val delta = 1.0 - (lastScale - event.scale)
-            listener.onZoom(
-                ZoomEvent(
-                    Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
-                    delta,
-                    dimension,
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-                )
-            )
-            lastScale = event.scale
-        }
-        hammer.onPinchEnd { event ->
-            event.preventDefault()
-        }
-
-        var lastRotation = 0.0
-        hammer.onRotateStart { event ->
-            event.preventDefault()
-
-            lastRotation = event.rotation
-        }
-        hammer.onRotateMove { event ->
-            event.preventDefault()
-
-            val delta = (event.rotation - lastRotation) / 180.0 * PI
-            listener.onRotate(
-                RotateEvent(
-                    Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
-                    delta,
-                    dimension,
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-                )
-            )
-            lastRotation = event.rotation
-        }
-        hammer.onRotateEnd { event ->
-            event.preventDefault()
-        }
-
-        canvas.onResize {
-            listener.onResize(dimension)
-        }
+    override fun removeListener(listener: ICanvasListener) {
+        listenerManager -= listener
     }
 
     override val dimension: Dimension
@@ -426,6 +223,217 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         hammer.enableTap()
 
         canvas.html.tabIndex = 0
+
+        canvas.onMouseMove { event ->
+            event.stopPropagation()
+            event.preventDefault()
+
+            listenerManager.onPointerMove(mouseEventToPointerEvent(event))
+        }
+        canvas.onClick { event ->
+            when (event.button) {
+                MOUSE_BUTTON_SECONDARY -> {
+                    event.stopPropagation()
+                    event.preventDefault()
+                    listenerManager.onPointerSecondaryAction(mouseEventToPointerEvent(event))
+                }
+                MOUSE_BUTTON_FORWARD -> {
+                    listenerManager.onKeyPress(
+                        KeyEvent(
+                            KeyCode.REDO,
+                            "",
+                            event.ctrlKey,
+                            event.altKey,
+                            event.shiftKey
+                        )
+                    )
+                }
+                MOUSE_BUTTON_BACK -> {
+                    listenerManager.onKeyPress(
+                        KeyEvent(
+                            KeyCode.UNDO,
+                            "",
+                            event.ctrlKey,
+                            event.altKey,
+                            event.shiftKey
+                        )
+                    )
+                }
+            }
+        }
+        canvas.onContext { event ->
+            event.preventDefault()
+            event.stopPropagation()
+            listenerManager.onPointerSecondaryAction(mouseEventToPointerEvent(event))
+        }
+        canvas.onMouseEnter { event ->
+            event.preventDefault()
+            event.stopPropagation()
+            listenerManager.onPointerEnter(mouseEventToPointerEvent(event))
+        }
+        canvas.onMouseLeave { event ->
+            event.preventDefault()
+            event.stopPropagation()
+            listenerManager.onPointerLeave(mouseEventToPointerEvent(event))
+        }
+        canvas.onWheel { event ->
+            event.stopPropagation()
+            event.preventDefault()
+
+            val factor = when (event.deltaMode) {
+                DOM_DELTA_PIXEL -> 1.0
+                DOM_DELTA_LINE -> {
+                    window.getComputedStyle(canvas.html).fontSize.replace("px", "").toDoubleOrNull()
+                }
+                DOM_DELTA_PAGE -> {
+                    window.innerHeight.toDouble()
+                }
+                else -> null
+            } ?: 1.0
+
+            listenerManager.onScroll(
+                ScrollEvent(
+                    Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
+                    Point(event.deltaX * factor * WHEEL_FACTOR, event.deltaY * factor * WHEEL_FACTOR),
+                    dimension,
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
+                )
+            )
+        }
+
+        canvas.onKeyDown { event ->
+            val code = event.toCommon() ?: return@onKeyDown
+            event.stopPropagation()
+            event.preventDefault()
+            listenerManager.onKeyPress(
+                KeyEvent(
+                    code,
+                    event.key,
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
+                )
+            )
+        }
+        canvas.onKeyPress { event ->
+            val code = event.toCommon() ?: return@onKeyPress
+            event.stopPropagation()
+            event.preventDefault()
+            listenerManager.onKeyPress(
+                KeyEvent(
+                    code,
+                    event.key,
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
+                )
+            )
+        }
+        canvas.onKeyUp { event ->
+            val code = event.toCommon() ?: return@onKeyUp
+            event.stopPropagation()
+            event.preventDefault()
+            listenerManager.onKeyRelease(
+                KeyEvent(
+                    code,
+                    event.key,
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
+                )
+            )
+        }
+
+        hammer.onPanStart { event ->
+            event.preventDefault()
+
+            listenerManager.onPointerDown(hammerEventToPointerEvent(event))
+        }
+        hammer.onPanMove { event ->
+            event.preventDefault()
+
+            listenerManager.onPointerDrag(hammerEventToPointerEvent(event))
+        }
+        hammer.onPanEnd { event ->
+            event.preventDefault()
+
+            listenerManager.onPointerUp(hammerEventToPointerEvent(event))
+        }
+
+        hammer.onTap { event ->
+            event.preventDefault()
+
+            if (event.tapCount > 1 && event.isTouch()) {
+                listenerManager.onPointerSecondaryAction(hammerEventToPointerEvent(event))
+            } else {
+                listenerManager.onPointerDown(hammerEventToPointerEvent(event))
+                listenerManager.onPointerUp(hammerEventToPointerEvent(event))
+            }
+        }
+
+        hammer.onPress { event ->
+            event.preventDefault()
+
+            listenerManager.onPointerSecondaryAction(hammerEventToPointerEvent(event))
+        }
+
+        var lastScale = 0.0
+        hammer.onPinchStart { event ->
+            event.preventDefault()
+
+            lastScale = event.scale
+        }
+        hammer.onPinchMove { event ->
+            event.preventDefault()
+
+            val delta = 1.0 - (lastScale - event.scale)
+            listenerManager.onZoom(
+                ZoomEvent(
+                    Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
+                    delta,
+                    dimension,
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
+                )
+            )
+            lastScale = event.scale
+        }
+        hammer.onPinchEnd { event ->
+            event.preventDefault()
+        }
+
+        var lastRotation = 0.0
+        hammer.onRotateStart { event ->
+            event.preventDefault()
+
+            lastRotation = event.rotation
+        }
+        hammer.onRotateMove { event ->
+            event.preventDefault()
+
+            val delta = (event.rotation - lastRotation) / 180.0 * PI
+            listenerManager.onRotate(
+                RotateEvent(
+                    Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
+                    delta,
+                    dimension,
+                    event.ctrlKey,
+                    event.altKey,
+                    event.shiftKey
+                )
+            )
+            lastRotation = event.rotation
+        }
+        hammer.onRotateEnd { event ->
+            event.preventDefault()
+        }
+
+        canvas.onResize {
+            listenerManager.onResize(dimension)
+        }
     }
 
     companion object {

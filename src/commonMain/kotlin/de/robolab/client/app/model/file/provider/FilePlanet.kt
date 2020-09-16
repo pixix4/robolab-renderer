@@ -7,8 +7,8 @@ import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
 class FilePlanet<T : IFilePlanetIdentifier>(
-    identifier: T,
-    private val loader: IFilePlanetLoader<T>
+    private val loader: IFilePlanetLoader<T>,
+    identifier: T
 ) {
 
     private val localIdentifierProperty = property<T>()
@@ -34,10 +34,10 @@ class FilePlanet<T : IFilePlanetIdentifier>(
         remoteIdentifier = identifier
     }
 
-    suspend fun copy() {
+    suspend fun copy(base: T?) {
         val content = PlanetFile(planetFile.content)
         content.setName(content.planet.name + " - Copy")
-        loader.createPlanet(content.content)
+        loader.createPlanet(base, content.content)
     }
 
     suspend fun delete() {
@@ -70,5 +70,23 @@ class FilePlanet<T : IFilePlanetIdentifier>(
         remoteIdentifier = newIdentifier
     }
 
-    fun matchesSearch(request: SearchRequest): Boolean = (localIdentifier ?: remoteIdentifier)?.matchesSearch(request, planetFile.planet) ?: request.matches(planetFile.planet)
+    fun matchesSearch(request: SearchRequest): Boolean =
+        (localIdentifier ?: remoteIdentifier)?.matchesSearch(request, planetFile.planet)
+            ?: request.matches(planetFile.planet)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FilePlanet<*>) return false
+
+        if (loader != other.loader) return false
+        if (remoteIdentifier != other.remoteIdentifier) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = loader.hashCode()
+        result = 31 * result + remoteIdentifier.hashCode()
+        return result
+    }
 }

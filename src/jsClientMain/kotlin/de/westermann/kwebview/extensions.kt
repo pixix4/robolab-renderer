@@ -79,3 +79,10 @@ fun <V : View> ViewCollection<V>.bindView(vararg properties: ObservableValue<*>,
 
 val KeyboardEvent.modifierKey: Boolean
     get() = altKey || ctrlKey || shiftKey
+
+fun View.bindStyleProperty(name: String, property: ObservableValue<String>) {
+    html.style.setProperty(name, property.value)
+    property.onChange {
+        html.style.setProperty(name, property.value)
+    }
+}

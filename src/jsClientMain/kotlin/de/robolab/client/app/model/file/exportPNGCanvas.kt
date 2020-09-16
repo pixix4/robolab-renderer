@@ -11,7 +11,7 @@ import de.robolab.common.parser.PlanetFile
 import de.robolab.common.utils.Dimension
 import de.westermann.kwebview.components.Canvas
 
-actual fun exportPNGCanvas(dimension: Dimension): ICanvas {
+actual fun createPNGExportCanvas(dimension: Dimension): ICanvas {
     val exportCanvas = Canvas()
     exportCanvas.updateSize(dimension.width.toInt(), dimension.height.toInt(), PreferenceStorage.exportScale)
 
@@ -28,8 +28,8 @@ actual fun saveExportPNG(name: String, canvas: ICanvas) {
     triggerDownloadPNG("$name.png", webCanvas.canvas)
 }
 
-actual fun openExportDialog(provider: FilePlanetEntry) {
-    ExportDialog.open(provider)
+actual fun openExportDialog(planetDocument: FileEntryPlanetDocument) {
+    ExportDialog.open(planetDocument)
 }
 
 actual fun openPlanetTransformDialog(planetFile: PlanetFile) {

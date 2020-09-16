@@ -16,7 +16,9 @@ class RemoteFilePlanetLoader(
     val server: IRobolabServer
 ) : IFilePlanetLoader<PlanetJsonInfo> {
 
-    override val onRemoteChange = EventHandler<Unit>()
+    override val onRemoteChange = EventHandler<PlanetJsonInfo?>()
+
+    override val planetCountProperty = constObservable(0)
 
     override val nameProperty = constObservable("Remote")
 
@@ -64,7 +66,7 @@ class RemoteFilePlanetLoader(
         }
     }
 
-    override suspend fun createPlanet(lines: List<String>) {
+    override suspend fun createPlanet(identifier: PlanetJsonInfo?, lines: List<String>) {
         return withContext(Dispatchers.Default) {
             try {
                 available = true

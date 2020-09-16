@@ -12,7 +12,7 @@ fun Stylesheet.initFormStyle() {
         fill = MainStyle.theme.ui.primaryTextColor.toFx()
     }
     Stylesheet.comboBox {
-        backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+        backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
         borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
@@ -20,7 +20,7 @@ fun Stylesheet.initFormStyle() {
         backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
         textFill = MainStyle.theme.ui.primaryTextColor.toFx()
         backgroundInsets = multi(box(0.px))
-        prefHeight = 2.2.em
+        prefHeight = 2.em
 
         Stylesheet.arrow {
             backgroundColor = multi(MainStyle.theme.ui.secondaryTextColor.toFx())
@@ -37,16 +37,11 @@ fun Stylesheet.initFormStyle() {
         }
 
         and(Stylesheet.focused) {
-            backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
             borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
-
-            and(Stylesheet.hover) {
-                backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())
-            }
         }
 
         and(Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
+            backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())
         }
     }
     Stylesheet.comboBoxPopup {
@@ -85,7 +80,7 @@ fun Stylesheet.initFormStyle() {
         }
     }
     Stylesheet.textField {
-        backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+        backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
         borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(1.px))
@@ -94,25 +89,25 @@ fun Stylesheet.initFormStyle() {
         textFill = MainStyle.theme.ui.primaryTextColor.toFx()
         promptTextFill = MainStyle.theme.ui.secondaryTextColor.toFx()
         backgroundInsets = multi(box(0.px))
-        prefHeight = 2.2.em
+        prefHeight = 2.em
         padding = box(0.3.em, 0.7.em)
 
         and(Stylesheet.focused) {
-            backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
             borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
-
-            and(Stylesheet.hover) {
-                backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())
-            }
         }
 
         and(Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
+            backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())
         }
     }
+
+    MainStyle.iconView {
+        opacity = 0.7
+    }
+
     Stylesheet.button {
-        backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
-        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
+        backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
+        borderColor = multi(box(MainStyle.theme.ui.secondaryBackground.toFx()))
         textFill = MainStyle.theme.ui.primaryTextColor.toFx()
         borderRadius = multi(box(MainStyle.BORDER_RADIUS))
         backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
@@ -121,23 +116,26 @@ fun Stylesheet.initFormStyle() {
         borderWidth = multi(box(1.px))
         backgroundInsets = multi(box(0.px))
         prefHeight = 2.2.em
+        padding = box(0.em, 0.6.em)
 
-        and(Stylesheet.focused, Stylesheet.hover) {
-            backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
+        and(Stylesheet.hover) {
+            backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+            borderColor = multi(box(MainStyle.theme.ui.tertiaryBackground.toFx()))
             textFill = MainStyle.theme.ui.primaryTextColor.toFx()
         }
         and(Stylesheet.focused) {
-            borderColor = multi(box(MainStyle.theme.ui.themeColor.toFx()))
         }
 
         and(Stylesheet.selected) {
-            backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
+            backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+            borderColor = multi(box(MainStyle.theme.ui.tertiaryBackground.toFx()))
             textFill = MainStyle.theme.ui.themeColor.toFx()
             fontWeight = FontWeight.BOLD
 
-            and(Stylesheet.focused, Stylesheet.hover) {
+            and(Stylesheet.hover) {
                 textFill = MainStyle.theme.ui.themeColor.toFx()
-                backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())
+                backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+                borderColor = multi(box(MainStyle.theme.ui.tertiaryBackground.toFx()))
             }
             MainStyle.iconView {
                 fill = MainStyle.theme.ui.themeColor.toFx()
@@ -161,6 +159,7 @@ fun Stylesheet.initFormStyle() {
             backgroundRadius = multi(box(0.px))
 
             borderWidth = multi(box(1.px, 0.px, 1.px, 1.px))
+            padding = box(0.em, 0.25.em)
 
             and(MainStyle.first) {
                 borderRadius = multi(box(MainStyle.BORDER_RADIUS, 0.px, 0.px, MainStyle.BORDER_RADIUS))
@@ -173,6 +172,7 @@ fun Stylesheet.initFormStyle() {
                 and(MainStyle.first) {
                     borderRadius = multi(box(MainStyle.BORDER_RADIUS))
                     backgroundRadius = multi(box(MainStyle.BORDER_RADIUS))
+                    padding = box(0.em, 0.6.em)
                 }
             }
             and(Stylesheet.focused) {
@@ -229,10 +229,17 @@ fun Stylesheet.initFormStyle() {
         }
     }
 
+    MainStyle.inputButtonGroup {
+        Stylesheet.button {
+            prefHeight = 2.em
+            borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
+        }
+    }
+
     Stylesheet.checkBox {
 
         Stylesheet.box {
-            backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+            backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
             borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
             borderStyle = multi(BorderStrokeStyle.SOLID)
             borderWidth = multi(box(1.px))
@@ -243,7 +250,7 @@ fun Stylesheet.initFormStyle() {
 
         and(Stylesheet.hover) {
             Stylesheet.box {
-                backgroundColor = multi(MainStyle.theme.ui.tertiaryHoverBackground.toFx())
+                backgroundColor = multi(MainStyle.theme.ui.primaryHoverBackground.toFx())
             }
         }
 

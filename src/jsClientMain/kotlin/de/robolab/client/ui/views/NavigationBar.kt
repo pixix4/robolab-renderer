@@ -2,17 +2,15 @@ package de.robolab.client.ui.views
 
 import de.robolab.client.app.controller.FileImportController
 import de.robolab.client.app.controller.NavigationBarController
+import de.robolab.client.app.controller.UiController
 import de.robolab.client.app.model.base.INavigationBarEntry
-import de.robolab.client.app.model.base.INavigationBarPlottable
+import de.robolab.client.ui.lineSequence
 import de.robolab.client.ui.openFile
 import de.robolab.client.ui.readText
-import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.common.utils.Point
-import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
-import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
@@ -24,29 +22,28 @@ import kotlinx.coroutines.launch
 class NavigationBar(
     private val navigationBarController: NavigationBarController,
     private val fileImportController: FileImportController,
-    navigationBarActiveProperty: ObservableProperty<Boolean>
-) :
-    ViewCollection<View>() {
+    private val uiController: UiController
+) : ViewCollection<View>() {
 
-    private fun createEntry(entry: INavigationBarEntry) = NavigationBarEntry(entry, navigationBarController)
+    private fun createEntry(entry: INavigationBarEntry) = NavigationBarEntry(entry)
 
     init {
-        classList.bind("active", navigationBarActiveProperty)
+        boxView("navigation-bar-header", "tab-bar") {
+            for (tab in NavigationBarController.Tab.values()) {
+                boxView("tab-bar-item") {
+                    classList.bind("active", navigationBarController.tabProperty.mapBinding { it == tab })
 
-        boxView("navigation-bar-header") {
-            buttonGroup {
-                for (tab in NavigationBarController.Tab.values()) {
-                    button(tab.label) {
-                        classList.bind("active", navigationBarController.tabProperty.mapBinding { it == tab })
-                        onClick {
-                            navigationBarController.tabProperty.value = tab
-                        }
+                    iconView(tab.icon)
+                    title = tab.label
+
+                    onClick {
+                        navigationBarController.tabProperty.value = tab
                     }
                 }
             }
         }
         boxView("navigation-bar-content") {
-            boxView("navigation-bar-search", "button-group") {
+            boxView("navigation-bar-search", "button-group", "button-form-group") {
                 val searchView = inputView(InputType.SEARCH, navigationBarController.searchStringProperty) {
                     placeholder = "Search…"
                 }
@@ -60,7 +57,7 @@ class NavigationBar(
                 }
 
                 button {
-                    iconView(MaterialIcon.ADD)
+                    iconView(MaterialIcon.PUBLISH)
 
                     onClick {
                         GlobalScope.launch(Dispatchers.Main) {
@@ -70,7 +67,7 @@ class NavigationBar(
                             for (file in files) {
                                 val content = file.readText()
                                 if (content != null) {
-                                    fileImportController.importFile(file.name, content)
+                                    fileImportController.importFile(file.name, file.lineSequence())
                                 }
                             }
                         }
@@ -78,8 +75,7 @@ class NavigationBar(
                 }
             }
             boxView("navigation-bar-group-head") {
-                val labelText = navigationBarController.selectedGroupProperty
-                    .nullableFlatMapBinding { it?.tabNameProperty }
+                val labelText = navigationBarController.backButtonLabelProperty
                     .mapBinding { it ?: "" }
 
                 iconView(MaterialIcon.ARROW_BACK)
@@ -89,42 +85,24 @@ class NavigationBar(
                     title = labelText.value
                 }
 
-                classList.bind("active", navigationBarController.selectedGroupProperty.mapBinding { it != null })
+                classList.bind("active", navigationBarController.backButtonLabelProperty.mapBinding { it != null })
 
                 onClick {
-                    navigationBarController.closeGroup()
+                    navigationBarController.onBackButtonClick()
                 }
             }
             boxView("navigation-bar-list") {
-                listFactory(navigationBarController.filteredEntryListProperty, this@NavigationBar::createEntry)
+                listFactory(navigationBarController.entryListProperty, this@NavigationBar::createEntry)
             }
             boxView("navigation-bar-empty") {
                 textView("Nothing to show!")
             }
         }
-        boxView("navigation-bar-footer") {
-            classList.bind(
-                "success",
-                navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.SUCCESS })
-            classList.bind(
-                "warn",
-                navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.WARN })
-            classList.bind(
-                "error",
-                navigationBarController.statusColor.mapBinding { it == NavigationBarController.StatusColor.ERROR })
-
-            textView(navigationBarController.statusMessage)
-            textView(navigationBarController.statusActionLabel) {
-                onClick {
-                    navigationBarController.onStatusAction()
-                }
-            }
-        }
 
         // Close navigation bar on mobile
         onClick {
-            if (it.target == html && navigationBarActiveProperty.value) {
-                navigationBarActiveProperty.value = false
+            if (it.target == html && uiController.navigationBarEnabledProperty.value) {
+                uiController.navigationBarEnabledProperty.value = false
                 it.preventDefault()
                 it.stopPropagation()
             }
@@ -132,13 +110,11 @@ class NavigationBar(
     }
 }
 
-class NavigationBarEntry(entry: INavigationBarEntry, navigationBarController: NavigationBarController) :
+class NavigationBarEntry(entry: INavigationBarEntry) :
     ViewCollection<View>() {
 
-    private val selectedProperty = navigationBarController.selectedElementListProperty.mapBinding { entry in it }
-
     init {
-        textView(entry.titleProperty)
+        textView(entry.nameProperty)
         textView(entry.subtitleProperty)
         boxView {
             entry.statusIconProperty.onChange.now {
@@ -149,21 +125,18 @@ class NavigationBarEntry(entry: INavigationBarEntry, navigationBarController: Na
             }
         }
 
-        classList.bind("active", selectedProperty)
-
-        if (entry is INavigationBarPlottable) {
-            classList.bind("disabled", !entry.enabledProperty)
-        }
+        classList.bind("disabled", !entry.enabledProperty)
 
         onClick {
-            navigationBarController.open(entry)
+            entry.open(it.ctrlKey)
         }
 
         onContext { event ->
             event.stopPropagation()
             event.preventDefault()
-            if (entry.hasContextMenu) {
-                val menu = entry.buildContextMenu(Point(event.clientX, event.clientY))
+
+            val menu = entry.contextMenu(Point(event.clientX, event.clientY))
+            if (menu != null) {
                 ContextMenuView.open(menu)
             }
         }

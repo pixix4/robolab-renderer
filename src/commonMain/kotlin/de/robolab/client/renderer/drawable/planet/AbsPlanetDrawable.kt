@@ -17,6 +17,7 @@ import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
+import de.robolab.common.utils.Vector
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
@@ -119,12 +120,13 @@ abstract class AbsPlanetDrawable(
     }
 
 
-    private var centerOfPlanets = Point.ZERO
+    private var centerOfPlanets: Vector? = null
 
     override var autoCentering = true
     override fun centerPlanet(duration: Double) {
+        val centerOfPlanets = centerOfPlanets ?: return
         val transformation = plotter?.transformation ?: return
-        val targetCenter = centerOfPlanets
+        val targetCenter = centerOfPlanets.rotate(transformation.rotation)
         val size = (plotter?.dimension ?: Dimension.ZERO) / Point(2.0, -2.0) * Point(if (flipView) -1.0 else 1.0, 1.0)
         val point = (targetCenter * transformation.scaledGridWidth - size) * Point(if (flipView) 1.0 else -1.0, 1.0)
 
@@ -142,7 +144,7 @@ abstract class AbsPlanetDrawable(
         val edge = paperArea?.bottomRight ?: Point.ZERO
         nameView.setSource(edge - Point(0.3, 0.4))
 
-        centerOfPlanets = area?.center ?: Point.ZERO
+        centerOfPlanets = area?.center
         if (autoCentering) {
             centerPlanet(if (isFirstImport) 0.0 else TransformationInteraction.ANIMATION_TIME)
         }

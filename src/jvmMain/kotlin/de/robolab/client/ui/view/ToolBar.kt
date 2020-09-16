@@ -11,21 +11,19 @@ import de.robolab.client.ui.utils.buttonGroup
 import de.robolab.client.ui.utils.iconNoAdd
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
-import de.westermann.kobserve.property.property
 import javafx.geometry.Side
 import javafx.scene.control.Button
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
+import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 import javafx.scene.text.FontWeight
 import tornadofx.*
 
 class ToolBar(private val toolBarController: ToolBarController) : View() {
-
-    val navigationBarActiveProperty = property(true)
-    val infoBarActiveProperty = property(true)
 
     private fun Button.bindIcon(iconProperty: ObservableValue<MaterialIcon?>) {
         graphicProperty().bind(iconProperty.mapBinding { it?.let { iconNoAdd(it) } }.toFx())
@@ -50,16 +48,16 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                     }
                 }
 
-                paddingRight = 8
+                paddingRight = PADDING
             }
         }
     }
 
-    private fun HBox.setupToolbar(property: ObservableValue<List<List<ToolBarEntry>>>) {
+    private fun HBox.setupToolbar(property: ObservableValue<List<List<ToolBarEntry>>?>) {
         val toolBarAction = hbox { }
-        updateToolBarActions(toolBarAction, property.value)
+        updateToolBarActions(toolBarAction, property.value ?: emptyList())
         property.onChange {
-            updateToolBarActions(toolBarAction, property.value)
+            updateToolBarActions(toolBarAction, property.value ?: emptyList())
         }
     }
 
@@ -76,15 +74,73 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
             addClass(Stylesheet.toolBar, MainStyle.toolBar)
             hbox {
                 hbox {
-                    button {
-                        graphic = iconNoAdd(MaterialIcon.MENU)
-                        tooltip("Toggle navigation bar")
+                    buttonGroup {
+                        button {
+                            graphic = iconNoAdd(MaterialIcon.MENU)
+                            tooltip("Toggle navigation bar")
 
-                        bindSelectedProperty(navigationBarActiveProperty)
-                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+                            // bindSelectedProperty(toolBarController.uiController.navigationBarEnabledProperty)
+                            setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+                            setOnAction {
+                                toolBarController.uiController.navigationBarEnabledProperty.value =
+                                    !toolBarController.uiController.navigationBarEnabledProperty.value
+                            }
+                        }
+
+                        paddingRight = PADDING
                     }
 
-                    paddingRight = 8
+                    buttonGroup {
+                        button {
+                            graphic = iconNoAdd(MaterialIcon.SETTINGS)
+                            tooltip("Open settings")
+
+                            setOnAction {
+                                SettingsDialog.open()
+                            }
+                            setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+                        }
+
+                        paddingRight = PADDING
+                    }
+
+                    buttonGroup {
+                        visibleWhen(UpdateDialog.autoUpdateAvailable.toFx())
+                        managedWhen(UpdateDialog.autoUpdateAvailable.toFx())
+
+                        button {
+
+                            graphic = iconNoAdd(MaterialIcon.SYSTEM_UPDATE)
+                            tooltip("New update available")
+
+                            setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+
+                            setOnAction {
+                                UpdateDialog.open()
+                            }
+                        }
+
+                        paddingRight = PADDING
+                    }
+
+                    buttonGroup {
+                        button {
+                            graphic = iconNoAdd(toolBarController.fullscreenProperty.mapBinding {
+                                if (it) MaterialIcon.FULLSCREEN_EXIT else MaterialIcon.FULLSCREEN
+                            }.toFx()) {
+                                vgrow = Priority.ALWAYS
+                            }
+
+                            setOnMouseClicked {
+                                toolBarController.toggleFullscreen()
+                            }
+                        }
+
+                        visibleWhen((!toolBarController.fullscreenProperty).toFx())
+                        managedWhen((!toolBarController.fullscreenProperty).toFx())
+
+                        paddingRight = PADDING
+                    }
                 }
 
                 setupToolbar(toolBarController.leftActionListProperty)
@@ -101,6 +157,29 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
 
             hbox {
                 setupToolbar(toolBarController.rightActionListProperty)
+
+                buttonGroup {
+                    button {
+                        graphic = iconNoAdd(MaterialIcon.UNDO)
+                        tooltip("Undo last action")
+                        enableWhen(toolBarController.canUndoProperty.toFx())
+                        setOnAction {
+                            toolBarController.undo()
+                        }
+                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+                    }
+                    button {
+                        graphic = iconNoAdd(MaterialIcon.REDO)
+                        tooltip("Redo last action")
+                        enableWhen(toolBarController.canRedoProperty.toFx())
+                        setOnAction {
+                            toolBarController.redo()
+                        }
+                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+                    }
+
+                    paddingRight = PADDING
+                }
 
                 buttonGroup {
                     button {
@@ -127,12 +206,12 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                         setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
                     }
 
-                    paddingRight = 8
+                    paddingRight = PADDING
                 }
 
                 buttonGroup {
                     button {
-                        graphic = iconNoAdd(MaterialIcon.VIEW_AGENDA)
+                        graphic = iconNoAdd(MaterialIcon.VIEW_QUILT, "1.5em")
                         tooltip("Window layout")
                         contextmenu {
                             item("Split vertical") {
@@ -165,35 +244,7 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                         }
                         setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
                     }
-                    button {
-                        graphic = iconNoAdd(MaterialIcon.SETTINGS)
-                        tooltip("Open settings")
-
-                        setOnAction {
-                            SettingsDialog.open()
-                        }
-                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
-                    }
-
-                    paddingRight = 8
-                }
-
-                buttonGroup {
-                    visibleWhen(UpdateDialog.autoUpdateAvailable.toFx())
-                    managedWhen(UpdateDialog.autoUpdateAvailable.toFx())
-
-                    button {
-                        graphic = iconNoAdd(MaterialIcon.UPDATE)
-                        tooltip("New update available")
-
-                        setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
-
-                        setOnAction {
-                            UpdateDialog.open()
-                        }
-                    }
-
-                    paddingRight = 8
+                    paddingRight = PADDING
                 }
 
                 buttonGroup {
@@ -201,12 +252,20 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                         graphic = iconNoAdd(MaterialIcon.MENU)
                         tooltip("Toggle info bar")
 
-                        bindSelectedProperty(infoBarActiveProperty)
+                        // bindSelectedProperty(toolBarController.uiController.infoBarEnabledProperty)
                         setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
+                        setOnAction {
+                            toolBarController.uiController.infoBarEnabledProperty.value =
+                                !toolBarController.uiController.infoBarEnabledProperty.value
+                        }
                     }
                 }
             }
         }
+    }
+
+    companion object {
+        const val PADDING = 12
     }
 }
 

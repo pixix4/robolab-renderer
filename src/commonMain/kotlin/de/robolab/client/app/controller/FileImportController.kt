@@ -25,7 +25,7 @@ class FileImportController(private val robolabMessageProvider: RobolabMessagePro
         return supportedFileTypes.any { fileName.endsWith(it) }
     }
 
-    suspend fun importFile(fileName: String, content: String) {
+    suspend fun importFile(fileName: String, content: Sequence<String>) {
         if (!isFileSupported(fileName)) return
 
         withContext(Dispatchers.Default) {

@@ -11,7 +11,7 @@ import de.robolab.common.parser.PlanetFile
 import de.robolab.common.utils.Dimension
 import java.io.File
 
-actual fun exportPNGCanvas(dimension: Dimension): ICanvas {
+actual fun createPNGExportCanvas(dimension: Dimension): ICanvas {
     return AwtCanvas(dimension, PreferenceStorage.exportScale)
 }
 
@@ -24,8 +24,8 @@ actual fun saveExportPNG(name: String, canvas: ICanvas) {
     exportCanvas.writePNG(File("$name.png"))
 }
 
-actual fun openExportDialog(provider: FilePlanetEntry) {
-    ExportDialog.open(provider)
+actual fun openExportDialog(planetDocument: FileEntryPlanetDocument) {
+    ExportDialog.open(planetDocument)
 }
 
 actual fun openPlanetTransformDialog(planetFile: PlanetFile) {

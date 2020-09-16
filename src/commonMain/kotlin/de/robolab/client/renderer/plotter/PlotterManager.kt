@@ -1,10 +1,10 @@
 package de.robolab.client.renderer.plotter
 
+import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.renderer.canvas.ClippingCanvas
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.ICanvasListener
 import de.robolab.client.renderer.events.*
-import de.robolab.client.renderer.utils.CommonTimer
 import de.robolab.client.theme.ITheme
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.*
@@ -24,8 +24,6 @@ class PlotterManager(
                 window.plotter.animationTime = value
             }
         }
-
-    private val timer = CommonTimer(60.0)
 
     class Window(
         layout: Rectangle,
@@ -53,10 +51,10 @@ class PlotterManager(
     }
 
     private fun createWindow(layout: Rectangle = Rectangle(0.0, 0.0, 1.0, 1.0)): Window {
-        val canvas = ClippingCanvas(canvas, Rectangle.ZERO)
-        val plotter = PlotterWindow(canvas, null, theme, animationTime)
+        val clippingCanvas = ClippingCanvas(canvas, Rectangle.ZERO)
+        val plotter = PlotterWindow(clippingCanvas, null, theme, animationTime)
 
-        val window = Window(layout, canvas, plotter)
+        val window = Window(layout, clippingCanvas, plotter)
         window.updateClipping(this.canvas.dimension)
         return window
     }
@@ -65,9 +63,8 @@ class PlotterManager(
     val windowList = mutableListOf(createWindow())
 
     private var hoveredWindow: Window? = null
-    val activeWindowProperty = property(windowList.first())
-    var activeWindow by activeWindowProperty
-        private set
+    private val activeWindowProperty = property(windowList.first())
+    private var activeWindow by activeWindowProperty
 
     fun setActive(window: Window) {
         if (activeWindow != window) {
@@ -81,7 +78,7 @@ class PlotterManager(
 
     private var debugMode = PreferenceStorage.debugMode
 
-    private fun render(msOffset: Double) {
+    fun render(msOffset: Double) {
         val windows = windowList
         if (requestRedraw) {
             canvas.fillRect(
@@ -278,6 +275,9 @@ class PlotterManager(
         setActive(select)
         windowList.remove(activeWindow)
 
+        activeWindow.plotter.planetDocument?.onDetach()
+        activeWindow.plotter.planetDocument?.onDestroy()
+
         if (lane.size > 1) {
             smoothLane(lane)
         }
@@ -328,6 +328,36 @@ class PlotterManager(
         requestRedraw = true
     }
 
+    private var isAttached = false
+    fun onDetach() {
+        isAttached = false
+        for (window in windowList) {
+            window.plotter.planetDocument?.onDetach()
+        }
+    }
+
+    fun onAttach() {
+        isAttached = true
+        for (window in windowList) {
+            window.plotter.planetDocument?.onAttach()
+        }
+        requestRedraw = true
+    }
+
+    fun open(document: IPlanetDocument) {
+        if (isAttached) {
+            activePlotter.planetDocument?.onDetach()
+        }
+
+        activePlotter.planetDocument?.onDestroy()
+        activePlotter.planetDocument = document
+        document.onCreate()
+
+        if (isAttached) {
+            document.onAttach()
+        }
+    }
+
     init {
         PreferenceStorage.selectedThemeProperty.onChange {
             theme = PreferenceStorage.selectedTheme.theme
@@ -352,7 +382,7 @@ class PlotterManager(
             requestRedraw = true
         }
 
-        canvas.setListener(object : ICanvasListener {
+        canvas.addListener(object : ICanvasListener {
             override fun onPointerDown(event: PointerEvent) {
                 checkPointer(event, true)
                 activeWindow.canvas.transformListener.onPointerDown(event)
@@ -483,9 +513,6 @@ class PlotterManager(
                 activeWindow.canvas.transformListener.onKeyRelease(event)
             }
         })
-
-        timer.onRender(this::render)
-        timer.start()
     }
 }
 

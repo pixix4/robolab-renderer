@@ -2,61 +2,78 @@ package de.robolab.client.ui.view
 
 import de.robolab.client.app.controller.InfoBarController
 import de.robolab.client.app.controller.TraverserBarController
-import de.robolab.client.app.model.file.*
-import de.robolab.client.app.model.group.InfoBarGroupInfo
-import de.robolab.client.app.model.group.JsonDetailBox
+import de.robolab.client.app.model.file.InfoBarFileEdit
+import de.robolab.client.app.model.file.InfoBarFilePaper
+import de.robolab.client.app.model.file.InfoBarFileTraverse
+import de.robolab.client.app.model.file.InfoBarFileView
+import de.robolab.client.app.model.group.InfoBarGroupMessages
+import de.robolab.client.app.model.room.InfoBarRoomRobots
 import de.robolab.client.ui.style.MainStyle
+import de.robolab.client.ui.utils.icon
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
-import javafx.scene.Cursor
+import de.westermann.kobserve.property.mapBinding
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import tornadofx.*
-import kotlin.math.max
-import kotlin.math.min
 
 class InfoBar(private val infoBarController: InfoBarController) : View() {
 
-    private var detailBoxSize = 0.3
+    private fun updateTabs(tabBox: HBox) {
+        tabBox.clear()
+
+        val list = infoBarController.infoBarTabsProperty.value ?: return
+
+        var last: HBox? = null
+        tabBox.spacer()
+        for (tab in list) {
+            last = tabBox.hbox {
+                addClass(MainStyle.tabBarTab)
+                bindClass(MainStyle.active, infoBarController.infoBarActiveTabProperty.mapBinding { it == tab })
+
+                setOnMouseClicked {
+                    tab.open()
+                }
+
+                spacer()
+                icon(tab.icon)
+                tooltip(tab.tooltip)
+                spacer()
+
+                hgrow = Priority.ALWAYS
+            }
+        }
+        last?.addPseudoClass("last")
+        tabBox.spacer()
+    }
 
     private fun updateContent(contentBox: VBox) {
         contentBox.clear()
 
-        val content = infoBarController.selectedContentProperty.value ?: return
+        val content = infoBarController.infoBarContentProperty.value ?: return
 
         when (content) {
-            is InfoBarFileEditor -> {
-                contentBox.add(InfoBarPlanetEditorView(content))
+            is InfoBarFileView -> {
+                contentBox.add(InfoBarFileViewView(content))
             }
-            is InfoBarTraverser -> {
+            is InfoBarFilePaper -> {
+                contentBox.add(InfoBarFilePaperView(content))
+            }
+            is InfoBarFileEdit -> {
+                contentBox.add(InfoBarFileEditView(content))
+            }
+            is InfoBarFileTraverse -> {
                 if (content.traverserProperty.value == null) {
                     content.traverse()
                 }
                 contentBox.add(NullableViewContainer(content.traverserProperty))
             }
-            is InfoBarGroupInfo -> {
-                contentBox.add(InfoBarGroupView(content))
+            is InfoBarGroupMessages -> {
+                contentBox.add(InfoBarGroupMessagesView(content))
             }
-        }
-    }
-
-    private fun updateDetailBox(detailBox: VBox) {
-        detailBox.clear()
-
-        val content = infoBarController.detailBoxProperty.value ?: return
-
-        when (content) {
-            is JsonDetailBox -> {
-                detailBox.add(DetailBoxJson(content))
-            }
-            is PointDetailBox -> {
-                detailBox.add(DetailBoxPoint(content))
-            }
-            is PathDetailBox -> {
-                detailBox.add(DetailBoxPath(content))
-            }
-            is PlanetStatisticsDetailBox -> {
-                detailBox.add(DetailBoxPlanetStatistics(content))
+            is InfoBarRoomRobots -> {
+                contentBox.add(InfoBarRoomRobotsView(content))
             }
         }
     }
@@ -66,79 +83,25 @@ class InfoBar(private val infoBarController: InfoBarController) : View() {
         vgrow = Priority.ALWAYS
         minWidth = 200.0
 
-        val rootView = this
+        hbox {
+            addClass(MainStyle.tabBar)
+            addClass(MainStyle.tabBarSide)
+            hgrow = Priority.ALWAYS
 
-        val contentBoxView = vbox {
+            infoBarController.infoBarTabsProperty.onChange {
+                updateTabs(this)
+            }
+            updateTabs(this)
+        }
+
+        vbox {
             hgrow = Priority.ALWAYS
             vgrow = Priority.ALWAYS
 
-            infoBarController.selectedContentProperty.onChange {
+            infoBarController.infoBarContentProperty.onChange {
                 updateContent(this)
             }
             updateContent(this)
-        }
-
-        val detailBoxView = anchorpane {
-            addClass(MainStyle.detailBox)
-            hgrow = Priority.ALWAYS
-            val detailBoxView = this
-
-            scrollpane {
-                anchorpaneConstraints {
-                    topAnchor = 0.0
-                    leftAnchor = 0.0
-                    rightAnchor = 0.0
-                    bottomAnchor = 0.0
-                }
-
-                hgrow = Priority.ALWAYS
-                vgrow = Priority.ALWAYS
-
-                vbox {
-                    hgrow = Priority.ALWAYS
-                    vgrow = Priority.ALWAYS
-
-                    infoBarController.detailBoxProperty.onChange {
-                        updateDetailBox(this)
-                    }
-                    updateDetailBox(this)
-                }
-            }
-
-            hbox {
-                anchorpaneConstraints {
-                    topAnchor = 0.0
-                    leftAnchor = 0.0
-                    rightAnchor = 0.0
-                }
-
-                minHeight = 10.0
-                prefHeight = 10.0
-                maxHeight = 10.0
-
-                style {
-                    cursor = Cursor.N_RESIZE
-                }
-
-                setOnMouseDragged { event ->
-                    if (event.button == javafx.scene.input.MouseButton.PRIMARY) {
-                        val bounds = rootView.localToScreen(0.0, 0.0)
-                        val height = event.screenY - bounds.y
-                        val percent = 1.0 - (height / rootView.height)
-                        detailBoxSize = max(0.05, min(0.95, percent))
-
-                        val detailBoxHeight = rootView.height * detailBoxSize
-                        contentBoxView.prefHeight = rootView.height - detailBoxHeight
-                        detailBoxView.prefHeight = detailBoxHeight
-                    }
-                }
-            }
-        }
-
-        rootView.heightProperty().onChange {
-            val detailBoxHeight = rootView.height * detailBoxSize
-            contentBoxView.prefHeight = rootView.height - detailBoxHeight
-            detailBoxView.prefHeight = detailBoxHeight
         }
     }
 }
@@ -146,7 +109,7 @@ class InfoBar(private val infoBarController: InfoBarController) : View() {
 class NullableViewContainer(private val traverserProperty: ObservableValue<TraverserBarController?>) : View() {
 
     private var prop: ObservableProperty<TraverserBarController>? = null
-    private var view: InfoBarTraverserView? = null
+    private var view: InfoBarFileTraverseView? = null
 
     private fun updateView() {
         val traverser = traverserProperty.value
@@ -162,7 +125,7 @@ class NullableViewContainer(private val traverserProperty: ObservableValue<Trave
             prop?.value = traverser
         }
         if (view == null) {
-            view = InfoBarTraverserView(prop!!)
+            view = InfoBarFileTraverseView(prop!!)
         }
 
         root.add(view!!)

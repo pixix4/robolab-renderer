@@ -39,7 +39,10 @@ class AwtCanvas(
     }
 
 
-    override fun setListener(listener: ICanvasListener) {
+    override fun addListener(listener: ICanvasListener) {
+    }
+
+    override fun removeListener(listener: ICanvasListener) {
     }
 
     override fun fillRect(rectangle: Rectangle, color: Color) {

@@ -37,15 +37,16 @@ class RobotView(
         val position = robot.position
         val orientation = robot.orientation
 
+        val alpha = color.toColor(context.theme.plotter).alpha
         val trans = { point: Point -> transform(point, position, orientation) }
 
-        context.fillPolygon(ROBOT_WHEEL.map(trans), context.theme.plotter.robotWheelColor)
-        context.fillPolygon(ROBOT_BLOCK.map(trans), context.theme.plotter.robotMainColor)
-        context.fillPolygon(ROBOT_DISPLAY.map(trans), context.theme.plotter.robotDisplayColor)
+        context.fillPolygon(ROBOT_WHEEL.map(trans), context.theme.plotter.robotWheelColor.a(alpha))
+        context.fillPolygon(ROBOT_BLOCK.map(trans), context.theme.plotter.robotMainColor.a(alpha))
+        context.fillPolygon(ROBOT_DISPLAY.map(trans), context.theme.plotter.robotDisplayColor.a(alpha))
 
-        context.fillPolygon(ROBOT_SENSOR.map(trans), context.theme.plotter.robotSensorColor)
+        context.fillPolygon(ROBOT_SENSOR.map(trans), context.theme.plotter.robotSensorColor.a(alpha))
 
-        val c = context.theme.plotter.robotButtonColor
+        val c = context.theme.plotter.robotButtonColor.a(alpha)
         context.fillPolygon(ROBOT_CROSS_TOP.map(trans), c)
         context.fillPolygon(ROBOT_CROSS_BOTTOM.map(trans), c)
         context.fillPolygon(ROBOT_CROSS_LEFT.map(trans), c)

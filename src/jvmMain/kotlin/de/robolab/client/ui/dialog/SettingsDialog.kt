@@ -1,8 +1,8 @@
 package de.robolab.client.ui.dialog
 
 import de.jensd.fx.glyphs.materialicons.MaterialIcon
-import de.robolab.client.app.model.file.MultiFilePlanetProvider
-import de.robolab.client.renderer.drawable.edit.PaperBackgroundDrawable
+import de.robolab.client.app.model.file.FileNavigationRoot
+import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.utils.buttonGroup
@@ -12,6 +12,7 @@ import de.robolab.client.utils.UpdateChannel
 import de.robolab.common.utils.BuildInformation
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.and
+import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.not
 import javafx.scene.control.TextField
@@ -43,6 +44,9 @@ class SettingsDialog : GenericDialog() {
                     field("Use system theme") {
                         checkbox("", PreferenceStorage.useSystemThemeProperty.toFx())
                     }
+                    field("Hide empty tab bar") {
+                        checkbox("", PreferenceStorage.hideEmptyTabBarProperty.toFx())
+                    }
                 }
 
                 fieldset("Plotting") {
@@ -58,7 +62,7 @@ class SettingsDialog : GenericDialog() {
                             DoubleStringConverter(PreferenceStorage.animationTimeProperty.default)
                         )
                     }
-                    field("Render sender grouping chars") {
+                    field("Sender group names") {
                         checkbox("", PreferenceStorage.renderSenderGroupingProperty.toFx())
                     }
                 }
@@ -128,7 +132,7 @@ class SettingsDialog : GenericDialog() {
                     }
                 }
                 fieldset("File sources") {
-                    tooltip(MultiFilePlanetProvider.loaderFactoryList.joinToString("\n") { it.usage })
+                    tooltip(FileNavigationRoot.loaderFactoryList.joinToString("\n") { it.usage })
 
                     val fieldList = mutableListOf<Field>()
 
@@ -147,7 +151,7 @@ class SettingsDialog : GenericDialog() {
 
                         for (connection in PreferenceStorage.fileServer) {
                             fieldList += field(forceLabelIndent = true) {
-                                buttonGroup {
+                                buttonGroup(true) {
                                     hgrow = Priority.ALWAYS
                                     val t = textfield(connection) {
                                         hgrow = Priority.ALWAYS
@@ -172,7 +176,7 @@ class SettingsDialog : GenericDialog() {
                             }
                         }
                         fieldList += field(forceLabelIndent = true) {
-                            buttonGroup {
+                            buttonGroup(true) {
                                 hgrow = Priority.ALWAYS
                                 textFields += textfield("") {
                                     hgrow = Priority.ALWAYS
@@ -186,43 +190,6 @@ class SettingsDialog : GenericDialog() {
                                 }
                             }
                         }
-                    }
-                }
-            }
-        }
-        tab("Paper constraints") {
-            form {
-                fieldset {
-                    field("Paper orientation") {
-                        combobox(
-                            PreferenceStorage.paperOrientationProperty.toFx(),
-                            PaperBackgroundDrawable.Orientation.values().toList()
-                        )
-                    }
-                    field("Grid width") {
-                        textfield(
-                            PreferenceStorage.paperGridWidthProperty.toFx(),
-                            DoubleStringConverter(PreferenceStorage.paperGridWidthProperty.default)
-                        )
-                    }
-                    field("Paper strip width") {
-                        textfield(
-                            PreferenceStorage.paperStripWidthProperty.toFx(),
-                            DoubleStringConverter(PreferenceStorage.paperStripWidthProperty.default)
-                        )
-                    }
-                    field("Minimal padding") {
-                        textfield(
-                            PreferenceStorage.paperMinimalPaddingProperty.toFx(), DoubleStringConverter(
-                                PreferenceStorage.paperMinimalPaddingProperty.default
-                            )
-                        )
-                    }
-                    field("Precision") {
-                        textfield(
-                            PreferenceStorage.paperPrecisionProperty.toFx(),
-                            IntStringConverter(PreferenceStorage.paperPrecisionProperty.default)
-                        )
                     }
                 }
             }
@@ -266,6 +233,13 @@ class SettingsDialog : GenericDialog() {
                         button("Reset") {
                             setOnAction {
                                 PreferenceStorage.clear()
+                            }
+                        }
+                    }
+                    field("Clear mqtt storage") {
+                        button("Clear mqtt") {
+                            setOnAction {
+                                emit(MessageRepository.ClearStorageEvent)
                             }
                         }
                     }

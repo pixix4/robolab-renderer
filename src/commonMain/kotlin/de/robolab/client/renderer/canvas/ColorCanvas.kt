@@ -6,10 +6,6 @@ import de.robolab.common.utils.Rectangle
 
 class ColorCanvas(private val canvas: ICanvas, private val colorAdapter: (Color) -> Color) : ICanvas by canvas {
 
-    override fun setListener(listener: ICanvasListener) {
-        canvas.setListener(listener)
-    }
-
     override fun fillRect(rectangle: Rectangle, color: Color) {
         fillPolygon(
             rectangle.toEdgeList(),

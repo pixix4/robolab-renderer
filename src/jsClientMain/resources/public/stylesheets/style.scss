@@ -23,7 +23,6 @@ body, html {
 
   --navigation-bar-width: 20rem;
   --info-bar-width: 20rem;
-  --detail-box-height: 30%;
 
   --context-menu-left: 0px;
   --context-menu-top: 0px;
@@ -55,6 +54,8 @@ body, html {
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0.7;
+  font-size: 1.1rem;
 }
 
 .debug-terminal {

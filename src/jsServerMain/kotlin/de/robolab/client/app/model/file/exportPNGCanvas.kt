@@ -6,7 +6,7 @@ import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.utils.Dimension
 
-actual fun exportPNGCanvas(dimension: Dimension): ICanvas {
+actual fun createPNGExportCanvas(dimension: Dimension): ICanvas {
     throw UnsupportedOperationException()
 }
 
@@ -18,7 +18,7 @@ actual fun saveExportPNG(name: String, canvas: ICanvas) {
     throw UnsupportedOperationException()
 }
 
-actual fun openExportDialog(provider: FilePlanetEntry) {
+actual fun openExportDialog(planetDocument: FileEntryPlanetDocument) {
     throw UnsupportedOperationException()
 }
 

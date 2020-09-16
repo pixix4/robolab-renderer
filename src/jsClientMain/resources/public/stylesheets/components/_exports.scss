@@ -1,3 +1,4 @@
+@forward '_app';
 @forward '_context-menu';
 @forward '_dialog';
 @forward '_form';
@@ -5,4 +6,5 @@
 @forward '_main-canvas';
 @forward 'navigation-bar';
 @forward '_status-bar';
+@forward '_tab-bar';
 @forward '_tool-bar';

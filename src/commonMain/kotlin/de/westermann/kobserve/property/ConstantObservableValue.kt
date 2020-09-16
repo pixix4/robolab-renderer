@@ -16,6 +16,7 @@ class ConstantObservableValue<T>(private val internal: T) : ObservableValue<T> {
  * @param value The constant value.
  */
 fun <T> constObservable(value: T): ObservableValue<T> = ConstantObservableValue(value)
+fun <T> constObservable(): ObservableValue<T?> = ConstantObservableValue(null)
 
 /**
  * Create an constant property that cannot change.

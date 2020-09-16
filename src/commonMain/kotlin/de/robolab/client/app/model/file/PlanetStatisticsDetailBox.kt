@@ -1,6 +1,5 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.model.base.IDetailBox
 import de.robolab.client.utils.PathClassifier
 import de.robolab.client.utils.PlanetStatistic
 import de.robolab.client.utils.PreferenceStorage
@@ -9,8 +8,7 @@ import de.robolab.common.parser.toFixed
 import de.robolab.common.planet.StartPoint
 import de.westermann.kobserve.property.mapBinding
 
-class PlanetStatisticsDetailBox(planetFile: PlanetFile) :
-    IDetailBox {
+class PlanetStatisticsDetailBox(planetFile: PlanetFile) {
 
     private val statisticsProperty = planetFile.planetProperty.mapBinding { PlanetStatistic(it) }
 

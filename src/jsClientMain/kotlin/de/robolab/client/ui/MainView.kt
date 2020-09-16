@@ -1,19 +1,22 @@
 package de.robolab.client.ui
 
 import de.robolab.client.app.controller.MainController
-import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.ui.views.*
+import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.toDashCase
+import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import de.westermann.kwebview.bindStyleProperty
 import de.westermann.kwebview.components.BoxView
+import de.westermann.kwebview.components.boxView
 import de.westermann.kwebview.components.init
+import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
-import kotlinx.browser.document
-import kotlinx.browser.window
 
 fun main() {
 
@@ -34,21 +37,39 @@ fun main() {
             add(debugView)
         }
 
+        val uiController = mainController.uiController
         dataset.bind("theme", PreferenceStorage.selectedThemeProperty.mapBinding { it.name.toDashCase() })
 
-        val toolBar = ToolBar(mainController.toolBarController)
-        +toolBar
-        +NavigationBar(
-            mainController.navigationBarController,
-            mainController.fileImportController,
-            toolBar.navigationBarActiveProperty
-        )
-        +StatusBar(mainController.statusBarController, toolBar.navigationBarActiveProperty)
+        bindStyleProperty(
+            "--navigation-bar-width",
+            uiController.navigationBarWidthProperty.join(uiController.navigationBarVisibleProperty) { width, visible ->
+                if (visible) "${width}px" else "0px"
+            })
+        bindStyleProperty(
+            "--info-bar-width",
+            uiController.infoBarWidthProperty.join(uiController.infoBarVisibleProperty) { width, visible ->
+                if (visible) "${width}px" else "0px"
+            })
+        boxView("app") {
+            classList.bind("navigation-bar-active", uiController.navigationBarVisibleProperty)
+            classList.bind("info-bar-active", uiController.infoBarVisibleProperty)
+            classList.bind("fullscreen", uiController.fullscreenProperty)
 
-        val infoBarWidthProperty = property(0.0)
-        +MainCanvas(mainController.canvasController, toolBar.navigationBarActiveProperty, toolBar.infoBarActiveProperty, infoBarWidthProperty)
-        +InfoBar(mainController.infoBarController, toolBar.infoBarActiveProperty, infoBarWidthProperty)
+            +ToolBar(mainController.toolBarController)
+            +TabBar(mainController.tabController)
+            +NavigationBar(
+                mainController.navigationBarController,
+                mainController.fileImportController,
+                mainController.uiController
+            )
+            +StatusBar(mainController.statusBarController)
 
+            +MainCanvas(
+                mainController.canvasController,
+                mainController.uiController
+            )
+            +InfoBar(mainController.infoBarController, mainController.uiController)
+        }
         onDragOver { event ->
             event.stopPropagation()
             event.preventDefault()
@@ -67,11 +88,13 @@ fun main() {
                 for (file in files) {
                     val content = file.readText()
                     if (content != null) {
-                        mainController.fileImportController.importFile(file.name, content)
+                        mainController.fileImportController.importFile(file.name, file.lineSequence())
                     }
                 }
             }
         }
+
+        mainController.tabController.openNewTab()
     }
 }
 

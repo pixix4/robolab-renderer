@@ -3,55 +3,51 @@
 .info-bar {
   @include utils.prevent-user-select();
 
-  position: absolute;
-  right: -1rem;
-  margin-right: calc(-100% + 4rem);
-  top: 3rem;
-  bottom: 2rem;
-  width: calc(100% - 4rem);
+  position: relative;
   z-index: 1;
   border-left: solid 1px var(--border-color);
   background-color: var(--secondary-background);
-  display: none;
+}
 
-  &.active {
-    margin-right: 1rem;
+@include utils.mobile {
+  .info-bar-active .info-bar::after {
+    content: '';
     display: block;
-
-    &::after {
-      content: '';
-      display: block;
-      position: absolute;
-      width: 4rem;
-      height: 100%;
-      top: 0;
-      left: -4rem;
-    }
+    position: absolute;
+    width: 4rem;
+    height: 100%;
+    top: 0;
+    left: -4rem;
   }
 }
 
-@include utils.desktop {
-  .info-bar {
-    margin-right: -(var(--info-bar-width));
-    width: var(--info-bar-width);
-
-    &.active {
-      &::after {
-        content: none;
-      }
-    }
-  }
+.info-bar-header {
+  line-height: 2.2rem;
+  height: 2.2rem;
+  width: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+  border-bottom: solid 1px var(--border-color);
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
 }
 
 .info-bar-content {
   position: absolute;
-  top: 0;
+  top: 2.2rem;
   left: 0;
   width: 100%;
-  bottom: var(--detail-box-height);
+  bottom: 0;
   overflow-x: auto;
   overflow-y: auto;
   overscroll-behavior: contain;
+
+  & > div {
+    height: 100%;
+  }
 
   textarea {
     width: 100%;
@@ -66,33 +62,6 @@
     overflow-x: auto;
     overflow-y: scroll;
   }
-}
-
-.info-bar-details {
-  position: absolute;
-  height: var(--detail-box-height);
-  left: 0;
-  width: 100%;
-  bottom: 0;
-  overflow-x: auto;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-
-  border-top: solid 1px var(--border-color);
-
-  table {
-    width: 100%;
-  }
-}
-
-.detail-box-resize {
-  position: absolute;
-  height: 0.8rem;
-  width: 100%;
-  bottom: var(--detail-box-height);
-  margin-bottom: -0.8rem;
-  cursor: row-resize;
-  opacity: 0.5;
 }
 
 .traverser-bar-header {
@@ -289,5 +258,34 @@
 
   &.active {
     display: block;
+  }
+}
+
+.scroll-box-view {
+  height: 100%;
+  overflow: hidden;
+}
+
+.scroll-box-entry {
+  overflow: scroll;
+}
+
+.scroll-box-handler {
+  height: 1px;
+  background-color: var(--border-color);
+  cursor: row-resize;
+  z-index: 1;
+  display: block;
+  position: relative;
+
+  &::after {
+    content: "";
+    height: 1rem;
+    width: 100%;
+    top: -0.5rem;
+    left: 0;
+    display: block;
+    z-index: 1;
+    position: absolute;
   }
 }

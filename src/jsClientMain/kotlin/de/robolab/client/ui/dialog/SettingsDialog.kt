@@ -1,6 +1,6 @@
 package de.robolab.client.ui.dialog
 
-import de.robolab.client.app.model.file.MultiFilePlanetProvider
+import de.robolab.client.app.model.file.FileNavigationRoot
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.BuildInformation
@@ -98,7 +98,7 @@ class SettingsDialog private constructor(): Dialog("Settings") {
             }
 
             dialogFormGroup("Files") {
-                title = MultiFilePlanetProvider.loaderFactoryList.joinToString("\n") { it.usage }
+                title = FileNavigationRoot.loaderFactoryList.joinToString("\n") { it.usage }
                 boxView {
                     PreferenceStorage.fileServerProperty.onChange.now {
                         clear()
@@ -112,6 +112,7 @@ class SettingsDialog private constructor(): Dialog("Settings") {
                         for (connection in PreferenceStorage.fileServer) {
                             dialogFormEntry("") {
                                 classList += "button-group"
+                                classList += "button-form-group"
                                 val t = inputView(connection)
                                 textFields += t
                                 button {
@@ -131,6 +132,7 @@ class SettingsDialog private constructor(): Dialog("Settings") {
                         }
                         dialogFormEntry("") {
                             classList += "button-group"
+                            classList += "button-form-group"
                             textFields += inputView("")
                             button {
                                 iconView(MaterialIcon.ADD)
@@ -140,40 +142,6 @@ class SettingsDialog private constructor(): Dialog("Settings") {
                             }
                         }
                     }
-                }
-            }
-        }
-
-        tab("Paper constraints") {
-            dialogFormEntry("Orientation") {
-                selectView(PreferenceStorage.paperOrientationProperty)
-            }
-            dialogFormEntry("Grid width") {
-                inputView(InputType.NUMBER, PreferenceStorage.paperGridWidthProperty.bindStringParsing()) {
-                    min = 0.1
-                    max = 1000.0
-                    step = 0.001
-                }
-            }
-            dialogFormEntry("Paper strip width") {
-                inputView(InputType.NUMBER, PreferenceStorage.paperStripWidthProperty.bindStringParsing()) {
-                    min = 0.1
-                    max = 1000.0
-                    step = 0.001
-                }
-            }
-            dialogFormEntry("Minimal padding") {
-                inputView(InputType.NUMBER, PreferenceStorage.paperMinimalPaddingProperty.bindStringParsing()) {
-                    min = 0.1
-                    max = 1000.0
-                    step = 0.001
-                }
-            }
-            dialogFormEntry("Precision") {
-                inputView(InputType.NUMBER, PreferenceStorage.paperPrecisionProperty.bindStringParsing()) {
-                    min = 0.0
-                    max = 10.0
-                    step = 1.0
                 }
             }
         }

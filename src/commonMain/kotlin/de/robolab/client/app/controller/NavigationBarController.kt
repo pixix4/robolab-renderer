@@ -1,141 +1,84 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.base.INavigationBarEntry
-import de.robolab.client.app.model.base.INavigationBarGroup
-import de.robolab.client.app.model.base.INavigationBarPlottable
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.base.SearchRequest
-import de.robolab.client.app.model.file.MultiFilePlanetProvider
-import de.robolab.client.app.model.group.GroupPlanetProvider
-import de.robolab.client.app.model.room.RoomPlanetProvider
+import de.robolab.client.app.model.file.CachedFilePlanetProvider
+import de.robolab.client.app.model.file.FileNavigationRoot
+import de.robolab.client.app.model.group.GroupNavigationRoot
+import de.robolab.client.app.model.room.RoomNavigationRoot
+import de.robolab.client.app.repository.DatabaseMessageStorage
+import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
 import de.robolab.client.utils.PreferenceStorage
-import de.westermann.kobserve.base.ObservableProperty
-import de.westermann.kobserve.list.filterObservable
-import de.westermann.kobserve.property.flattenBinding
-import de.westermann.kobserve.property.flattenMutableBinding
+import de.westermann.kobserve.property.flatMapBinding
+import de.westermann.kobserve.property.flatMapMutableBinding
 import de.westermann.kobserve.property.mapBinding
-import de.westermann.kobserve.property.property
 
 class NavigationBarController(
-    selectedEntryProperty: ObservableProperty<INavigationBarPlottable?>,
+    private val tabController: TabController,
+    private val messageRepository: MessageRepository,
     messageManager: MessageManager,
-    private val connection: RobolabMqttConnection,
-    private val canvasController: CanvasController
 ) {
 
-    private val filePlanetProvider = MultiFilePlanetProvider()
-    private val groupPlanetProperty = GroupPlanetProvider(messageManager, filePlanetProvider)
-    private val roomPlanetProvider = RoomPlanetProvider(groupPlanetProperty.groupList, filePlanetProvider)
+    private val filePlanetProvider = FileNavigationRoot(
+        tabController
+    )
+    private val cachedFilePlanetProvider = CachedFilePlanetProvider(filePlanetProvider)
+    private val groupPlanetProperty = GroupNavigationRoot(
+        messageRepository,
+        messageManager,
+        tabController,
+        cachedFilePlanetProvider
+    )
+    private val roomPlanetProvider = RoomNavigationRoot(
+        messageRepository,
+        tabController,
+        cachedFilePlanetProvider
+    )
 
     val tabProperty = PreferenceStorage.selectedNavigationBarTabProperty
 
-    val selectedGroupProperty = property<INavigationBarGroup?>(null)
 
-    val selectedElementListProperty = selectedEntryProperty.mapBinding {
-        var list = emptyList<INavigationBarEntry>()
-
-        var elem: INavigationBarEntry? = it
-        while (elem != null) {
-            list = list + elem
-            elem = elem.parent
-        }
-
-        list
-    }
-
-    val searchStringProperty = property(tabProperty, selectedGroupProperty) {
-        val g = selectedGroupProperty.value
-
-        if (g != null) {
-            return@property property("")
-        }
-
+    val searchStringProperty = tabProperty.flatMapMutableBinding {
         when (tabProperty.value) {
-            Tab.GROUP -> groupPlanetProperty.searchStringProperty
-            Tab.ROOM -> roomPlanetProvider.searchStringProperty
-            Tab.FILE -> filePlanetProvider.searchStringProperty
+            Tab.GROUP -> groupPlanetProperty.searchProperty
+            Tab.ROOM -> roomPlanetProvider.searchProperty
+            Tab.FILE -> filePlanetProvider.searchProperty
         }
-    }.flattenMutableBinding()
+    }
 
-    val searchRequestProperty = searchStringProperty.mapBinding { SearchRequest.parse(it) }
+    val searchRequestProperty =
+        searchStringProperty.mapBinding { SearchRequest.parse(it) }
 
-    val entryListProperty = property(tabProperty, selectedGroupProperty) {
-        val g = selectedGroupProperty.value
 
-        if (g != null) {
-            return@property g.entryList
-        }
-
+    val backButtonLabelProperty = tabProperty.flatMapBinding {
         when (tabProperty.value) {
-            Tab.GROUP -> groupPlanetProperty.entryList
-            Tab.ROOM -> roomPlanetProvider.entryList
-            Tab.FILE -> filePlanetProvider.entryList
-        }
-    }.flattenBinding()
-
-    val filteredEntryListProperty = entryListProperty.mapBinding {
-        it.filterObservable(searchRequestProperty) { element, filter ->
-            element.matchesSearch(filter)
+            Tab.GROUP -> groupPlanetProperty.parentNameProperty
+            Tab.ROOM -> roomPlanetProvider.parentNameProperty
+            Tab.FILE -> filePlanetProvider.parentNameProperty
         }
     }
 
-    fun open(entry: INavigationBarEntry) {
-        when (entry) {
-            is INavigationBarGroup -> {
-                if (selectedGroupProperty.value == entry) {
-                    selectedGroupProperty.value = entry.parent
-                } else {
-                    selectedGroupProperty.value = entry
-                }
-            }
-            is INavigationBarPlottable -> {
-                canvasController.open(entry)
-            }
+    fun onBackButtonClick() {
+        when (tabProperty.value) {
+            Tab.GROUP -> groupPlanetProperty.openParent()
+            Tab.ROOM -> roomPlanetProvider.openParent()
+            Tab.FILE -> filePlanetProvider.openParent()
         }
     }
 
-    fun closeGroup() {
-        selectedGroupProperty.value = selectedGroupProperty.value?.parent
-    }
-
-    init {
-        tabProperty.onChange {
-            selectedGroupProperty.value = null
+    val entryListProperty = tabProperty.flatMapBinding {
+        when (tabProperty.value) {
+            Tab.GROUP -> groupPlanetProperty.childrenProperty
+            Tab.ROOM -> roomPlanetProvider.childrenProperty
+            Tab.FILE -> filePlanetProvider.childrenProperty
         }
     }
 
-    val statusColor = connection.connectionStateProperty.mapBinding {
-        when (it) {
-            is RobolabMqttConnection.Connected -> StatusColor.SUCCESS
-            is RobolabMqttConnection.Connecting -> StatusColor.WARN
-            is RobolabMqttConnection.ConnectionLost -> StatusColor.ERROR
-            is RobolabMqttConnection.Disconnected -> StatusColor.ERROR
-            else -> StatusColor.ERROR
-        }
-    }
-
-    val statusMessage = connection.connectionStateProperty.mapBinding {
-        it.name
-    }
-
-    val statusActionLabel = connection.connectionStateProperty.mapBinding {
-        it.actionLabel
-    }
-
-    fun onStatusAction() {
-        connection.connectionState.onAction()
-    }
-
-    enum class StatusColor {
-        SUCCESS,
-        WARN,
-        ERROR
-    }
-
-    enum class Tab(val label: String) {
-        GROUP("Groups"),
-        ROOM("Rooms"),
-        FILE("Files")
+    enum class Tab(val label: String, val icon: MaterialIcon) {
+        GROUP("MQTT Group list", MaterialIcon.GROUP),
+        ROOM("All robot per planet", MaterialIcon.PUBLIC),
+        FILE("List planet files", MaterialIcon.FOLDER_OPEN),
     }
 }

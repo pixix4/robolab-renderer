@@ -17,7 +17,7 @@ fun Stylesheet.initNavigationBarStyle() {
     Stylesheet.listView {
         borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
-        borderWidth = multi(box(1.px, 0.px, 0.px, 0.px))
+        borderWidth = multi(box(0.px))
 
         backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
         backgroundInsets = multi(box(0.px))
@@ -94,11 +94,17 @@ fun Stylesheet.initNavigationBarStyle() {
     MainStyle.navigationBarBackButton {
         borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
-        borderWidth = multi(box(1.px, 0.px, 0.px, 0.px))
+        borderWidth = multi(box(0.px, 0.px, 1.px, 0.px))
 
         and(Stylesheet.hover) {
             backgroundColor = multi(MainStyle.theme.ui.secondaryHoverBackground.toFx())
         }
+    }
+
+    MainStyle.navigationBarSearchBox {
+        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
+        borderStyle = multi(BorderStrokeStyle.SOLID)
+        borderWidth = multi(box(1.px, 0.px, 0.px, 0.px))
     }
 
     Stylesheet.scrollBar {

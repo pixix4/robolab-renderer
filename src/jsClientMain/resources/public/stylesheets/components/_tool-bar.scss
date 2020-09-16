@@ -3,11 +3,6 @@
 .tool-bar {
   @include utils.prevent-user-select();
 
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3rem;
   line-height: 3rem;
   z-index: 1;
   border-bottom: solid 1px var(--border-color);
@@ -35,10 +30,4 @@
   text-align: center;
   padding: 0 2rem;
   font-weight: bold;
-}
-
-@include utils.desktop {
-  .tool-bar.navigation-bar-active {
-    left: var(--navigation-bar-width);
-  }
 }

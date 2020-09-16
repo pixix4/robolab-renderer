@@ -4,10 +4,9 @@ import de.robolab.client.app.controller.MainController
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.dialog.UpdateDialog
 import de.robolab.client.ui.view.*
+import de.robolab.client.utils.progressReader
 import de.robolab.client.utils.runAfterTimeout
 import de.robolab.common.utils.Logger
-import de.westermann.kobserve.property.DelegatePropertyAccessor
-import de.westermann.kobserve.property.property
 import javafx.application.Platform
 import javafx.scene.image.Image
 import javafx.scene.input.TransferMode
@@ -19,13 +18,12 @@ import tornadofx.*
 import java.util.prefs.Preferences
 import kotlin.system.exitProcess
 
-
 class MainView : View() {
 
     private val logger = Logger("MainView")
     private val mainController = MainController()
 
-    override val root = hbox {
+    override val root = borderpane {
         val window = this
 
         window.prefWidth = 1200.0
@@ -38,113 +36,71 @@ class MainView : View() {
             requestFocus()
         }
 
-        val toolBar = ToolBar(mainController.toolBarController)
-
-        val navigationBarContainer = stackpane {
-            minWidth = 260.0
-
-            add(NavigationBar(mainController.navigationBarController, mainController.fileImportController))
-
-            visibleWhen(toolBar.navigationBarActiveProperty.toFx())
-        }
-
-        var lastNavigationBarWidth = 260.0
-        val navigationBarWidthProperty = property(object : DelegatePropertyAccessor<Double> {
-            override fun set(value: Double) {
-                navigationBarContainer.minWidth = value
-                navigationBarContainer.prefWidth = value
-                navigationBarContainer.maxWidth = value
-                if (value > 0.0) {
-                    lastNavigationBarWidth = value
-                }
+        val statusBar = StatusBar(mainController.statusBarController, mainController.uiController)
+        val navigationBar =
+            NavigationBar(mainController.navigationBarController, mainController.fileImportController, statusBar)
+        left {
+            stackpane {
+                add(navigationBar)
+                visibleWhen(mainController.uiController.navigationBarVisibleProperty.toFx())
+                managedWhen(mainController.uiController.navigationBarVisibleProperty.toFx())
             }
-
-            override fun get(): Double {
-                return navigationBarContainer.width
-            }
-        })
-        navigationBarContainer.widthProperty().onChange {
-            navigationBarWidthProperty.onChange.emit(Unit)
         }
-        toolBar.navigationBarActiveProperty.onChange {
-            if (toolBar.navigationBarActiveProperty.value) {
-                navigationBarWidthProperty.value = lastNavigationBarWidth
-            } else {
-                navigationBarWidthProperty.value = 0.0
+        mainController.uiController.navigationBarWidthProperty.onChange {
+            val value = mainController.uiController.navigationBarWidthProperty.value
+            navigationBar.root.minWidth = value
+            navigationBar.root.prefWidth = value
+            navigationBar.root.maxWidth = value
+        }
+        navigationBar.root.widthProperty().onChange {
+            if (it > 1.0 && it != mainController.uiController.navigationBarWidthProperty.value) {
+                mainController.uiController.setNavigationBarWidth(it, true)
             }
         }
 
-
-        borderpane {
-            hgrow = Priority.ALWAYS
-            vgrow = Priority.ALWAYS
-
-            val prefWidthBinding = window.widthProperty().subtract(navigationBarContainer.widthProperty())
-            prefWidthProperty().bind(prefWidthBinding)
-            maxWidthProperty().bind(prefWidthBinding)
-            minWidthProperty().bind(prefWidthBinding)
-
-            val infoBar = InfoBar(mainController.infoBarController)
-            right {
-                stackpane {
-                    add(infoBar)
-                    visibleWhen { toolBar.infoBarActiveProperty.toFx() }
-                }
+        val infoBar = InfoBar(mainController.infoBarController)
+        right {
+            stackpane {
+                add(infoBar)
+                visibleWhen(mainController.uiController.infoBarVisibleProperty.toFx())
+                managedWhen(mainController.uiController.infoBarVisibleProperty.toFx())
             }
-
-
-            var lastInfoBarWidth = 260.0
-            val infoBarWidthProperty = property(object : DelegatePropertyAccessor<Double> {
-                override fun set(value: Double) {
-                    infoBar.root.minWidth = value
-                    infoBar.root.prefWidth = value
-                    infoBar.root.maxWidth = value
-                    if (value > 0.0) {
-                        lastInfoBarWidth = value
-                    }
-                }
-
-                override fun get(): Double {
-                    return infoBar.root.width
-                }
-            })
-            infoBar.root.widthProperty().onChange {
-                infoBarWidthProperty.onChange.emit(Unit)
+        }
+        mainController.uiController.infoBarWidthProperty.onChange {
+            val value = mainController.uiController.infoBarWidthProperty.value
+            infoBar.root.minWidth = value
+            infoBar.root.prefWidth = value
+            infoBar.root.maxWidth = value
+        }
+        infoBar.root.widthProperty().onChange {
+            if (it > 1.0 && it != mainController.uiController.infoBarWidthProperty.value) {
+                mainController.uiController.setInfoBarWidth(it, true)
             }
-            toolBar.infoBarActiveProperty.onChange {
-                if (toolBar.infoBarActiveProperty.value) {
-                    infoBarWidthProperty.value = lastInfoBarWidth
-                } else {
-                    infoBarWidthProperty.value = 0.0
-                }
-            }
+        }
 
-            top {
-                add(toolBar)
+        top {
+            stackpane {
+                add(ToolBar(mainController.toolBarController))
+                visibleWhen(mainController.uiController.toolBarVisibleProperty.toFx())
+                managedWhen(mainController.uiController.toolBarVisibleProperty.toFx())
             }
-            center {
-                val mainCanvas = MainCanvas(
-                    mainController.canvasController,
-                    toolBar.navigationBarActiveProperty,
-                    navigationBarWidthProperty,
-                    toolBar.infoBarActiveProperty,
-                    infoBarWidthProperty
-                )
+        }
 
-                val centerWidthBinding = prefWidthBinding.subtract(
-                    infoBar.root.widthProperty().doubleBinding(toolBar.infoBarActiveProperty.toFx()) {
-                        (if (toolBar.infoBarActiveProperty.value) it?.toDouble() else null) ?: 0.0
-                    })
-                mainCanvas.root.prefWidthProperty().bind(centerWidthBinding)
-                mainCanvas.root.maxWidthProperty().bind(centerWidthBinding)
-                mainCanvas.root.minWidthProperty().bind(centerWidthBinding)
-
-                add(mainCanvas)
+        center {
+            vbox {
+                hgrow = Priority.ALWAYS
+                vgrow = Priority.ALWAYS
+                add(TabBar(mainController.tabController))
+                add(MainCanvas(mainController.canvasController, mainController.uiController))
             }
-            bottom {
-                add(StatusBar(mainController.statusBarController))
-            }
+        }
 
+        bottom {
+            stackpane {
+                add(statusBar)
+                visibleWhen(mainController.uiController.statusBarVisibleProperty.toFx())
+                managedWhen(mainController.uiController.statusBarVisibleProperty.toFx())
+            }
         }
 
         setOnDragOver { event ->
@@ -168,9 +124,10 @@ class MainView : View() {
                 GlobalScope.launch(Dispatchers.Default) {
                     for (file in fileList) {
                         try {
+                            val progressReader = file.progressReader(statusBar)
                             mainController.fileImportController.importFile(
                                 file.name,
-                                file.readText()
+                                progressReader.lineSequence()
                             )
                         } catch (e: Exception) {
                             logger.w { "Cannot import file '${file.absolutePath}'" }
@@ -187,6 +144,8 @@ class MainView : View() {
         runAfterTimeout(1000) {
             UpdateDialog.openIfUpdateAvailable()
         }
+
+        mainController.tabController.openNewTab()
     }
 
     private fun getPreferences(nodeName: String? = null): Preferences {

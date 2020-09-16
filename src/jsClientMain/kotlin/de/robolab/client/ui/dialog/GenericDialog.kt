@@ -28,16 +28,6 @@ abstract class Dialog(title: String) {
         }
     }
 
-    protected fun BoxView.dialogFormEntry(name: String, block: BoxView.() -> Unit): BoxView {
-        return boxView("dialog-form-entry") {
-            textView(name)
-
-            boxView("dialog-form-flex") {
-                block()
-            }
-        }
-    }
-
     private val tabList = mutableListOf<Pair<String, BoxView.() -> Unit>>()
     protected fun tab(name: String = "", init: BoxView.() -> Unit) {
         tabList += name to init
@@ -232,3 +222,13 @@ fun ObservableProperty<String?>.bindStringParsing() = property(object : Delegate
     }
 
 }, this)
+
+fun BoxView.dialogFormEntry(name: String, block: BoxView.() -> Unit): BoxView {
+    return boxView("dialog-form-entry") {
+        textView(name)
+
+        boxView("dialog-form-flex") {
+            block()
+        }
+    }
+}

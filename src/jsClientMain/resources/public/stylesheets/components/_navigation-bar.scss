@@ -3,120 +3,46 @@
 .navigation-bar {
   @include utils.prevent-user-select();
 
-  position: absolute;
-  left: calc(-100% + 4rem);
-  top: 0;
-  bottom: 0;
-  width: calc(100% - 4rem);
+  position: relative;
   z-index: 2;
   border-right: solid 1px var(--border-color);
   background-color: var(--secondary-background);
-
-  &.active {
-    left: 0;
-
-    &::after {
-      content: '';
-      display: block;
-      position: absolute;
-      width: 4rem;
-      height: 100%;
-      top: 0;
-      left: 100%;
-    }
-  }
 }
 
-@include utils.desktop {
-  .navigation-bar {
-    left: -(var(--navigation-bar-width));
-    width: var(--navigation-bar-width);
-
-    &.active {
-      left: 0;
-
-      &::after {
-        content: none;
-      }
-    }
+@include utils.mobile {
+  .navigation-bar-active .navigation-bar::after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 4rem;
+    height: 100%;
+    top: 0;
+    left: 100%;
   }
 }
 
 .navigation-bar-header {
-  line-height: 2.8rem;
-  height: 3rem;
+  line-height: 2.2rem;
+  height: 2.2rem;
   width: 100%;
   top: 0;
   left: 0;
   position: absolute;
   border-bottom: solid 1px var(--border-color);
-
-  .button-group {
-    display: flex;
-    margin: 0 0.5rem;
-    align-items: center;
-    align-content: center;
-    height: 3rem;
-
-    .button {
-      flex-grow: 1;
-      flex-shrink: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding: 0;
-      height: 2.1rem;
-      vertical-align: middle;
-    }
-  }
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
 }
 
 .navigation-bar-content {
   position: absolute;
-  top: 3rem;
+  top: 2.2rem;
   left: 0;
   width: 100%;
   bottom: calc(2rem - 1px);
   overflow-y: auto;
   overscroll-behavior: contain;
-}
-
-.navigation-bar-footer {
-  @include utils.prevent-user-select();
-
-  height: 2rem;
-  line-height: 1.9rem;
-  border-top: solid 1px var(--border-color);
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding: 0 1rem;
-
-  &.success {
-    background-color: var(--success-color);
-    color: var(--success-text-color);
-  }
-
-  &.warn {
-    background-color: var(--warn-color);
-    color: var(--warn-text-color);
-  }
-
-  &.error {
-    background-color: var(--error-color);
-    color: var(--error-text-color);
-  }
-
-  .text-view:nth-child(1) {
-  }
-
-  .text-view:nth-child(2) {
-    float: right;
-    text-decoration: underline;
-  }
 }
 
 .navigation-bar-group-head {

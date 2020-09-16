@@ -1,24 +1,38 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.base.INavigationBarPlottable
-import de.westermann.kobserve.base.ObservableProperty
+import de.robolab.client.app.model.base.IPlanetDocument
+import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
+import de.westermann.kobserve.property.property
 import kotlin.math.roundToInt
 
 class ToolBarController(
-    selectedEntryProperty: ObservableProperty<INavigationBarPlottable?>,
-    private val canvasController: CanvasController
+    private val activeTabProperty: ObservableValue<TabController.Tab?>,
+    private val activeDocumentProperty: ObservableValue<IPlanetDocument?>,
+    private val canvasController: CanvasController,
+    val uiController: UiController
 ) {
-    val leftActionListProperty = selectedEntryProperty.mapBinding { it?.toolBarLeft ?: emptyList() }
-    val rightActionListProperty = selectedEntryProperty.mapBinding { it?.toolBarRight ?: emptyList() }
 
-    val titleProperty = selectedEntryProperty.nullableFlatMapBinding { it?.tabNameProperty }.mapBinding {
+    val fullscreenProperty = uiController.fullscreenProperty
+
+    fun toggleFullscreen() {
+        fullscreenProperty.value = !fullscreenProperty.value
+    }
+
+
+    val leftActionListProperty = activeDocumentProperty
+        .nullableFlatMapBinding { it?.toolBarLeft ?: constObservable(emptyList())  }
+    val rightActionListProperty = activeDocumentProperty
+        .nullableFlatMapBinding { it?.toolBarRight ?: constObservable(emptyList()) }
+
+    val titleProperty = activeDocumentProperty.nullableFlatMapBinding { it?.nameProperty }.mapBinding {
         it ?: ""
     }
 
     val zoomProperty = canvasController.zoomProperty.mapBinding {
-        "${(it * 100).roundToInt()}%"
+        "${((it ?: 1.0) * 100).roundToInt()}%"
     }
 
     fun zoomIn() {
@@ -34,18 +48,34 @@ class ToolBarController(
     }
 
     fun splitHorizontal() {
-        canvasController.plotter.splitHorizontal()
+        activeTabProperty.value?.plotterManager?.splitHorizontal()
     }
 
     fun splitVertical() {
-        canvasController.plotter.splitVertical()
+        activeTabProperty.value?.plotterManager?.splitVertical()
     }
 
     fun closeWindow() {
-        canvasController.plotter.closeWindow()
+        activeTabProperty.value?.plotterManager?.closeWindow()
     }
 
     fun setGridLayout(rowCount: Int, colCount: Int) {
-        canvasController.plotter.setGridLayout(rowCount, colCount)
+        activeTabProperty.value?.plotterManager?.setGridLayout(rowCount, colCount)
+    }
+
+    val canUndoProperty = activeDocumentProperty
+        .nullableFlatMapBinding { it?.canUndoProperty }
+        .mapBinding { it == true }
+
+    fun undo() {
+        activeDocumentProperty.value?.undo()
+    }
+
+    val canRedoProperty = activeDocumentProperty
+        .nullableFlatMapBinding { it?.canRedoProperty }
+        .mapBinding { it == true }
+
+    fun redo() {
+        activeDocumentProperty.value?.redo()
     }
 }

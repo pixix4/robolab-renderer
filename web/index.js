@@ -4,7 +4,7 @@ let fs = require('fs');
 
 let app = express();
 
-let planetPath = path.join(__dirname, '../planet');
+let planetPath = path.join(__dirname, '../../robolab-planets/live');
 app.get('/planets', function (req, res) {
     fs.readdir(planetPath, function (err, files) {
         res.json(files)

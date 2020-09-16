@@ -195,8 +195,14 @@ class RobotDrawable(
         importRobot(planet, obj)
     }
 
+    private var lastRobot: Robot? = null
     fun importRobot(planet: Planet?, robot: Robot?) {
         this.planet = planet
+
+        if (robot == lastRobot) {
+            return
+        }
+        lastRobot = robot
 
         if (robot == null) {
             view.setColor(ViewColor.TRANSPARENT)

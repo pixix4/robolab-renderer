@@ -6,8 +6,10 @@ import de.robolab.common.utils.Logger
 import javafx.application.Platform
 import javafx.scene.control.Alert
 import javafx.scene.layout.VBox
+import javafx.scene.text.FontWeight
 import tornadofx.FX
 import tornadofx.label
+import tornadofx.style
 import tornadofx.textarea
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -57,7 +59,9 @@ class ErrorHandler : Thread.UncaughtExceptionHandler {
 
             dialogPane.content = VBox().apply {
                 label(error.cause?.message ?: "") {
-                    style = "-fx-font-weight: bold"
+                    style {
+                        fontWeight = FontWeight.BOLD
+                    }
                 }
 
                 val writer = StringWriter()

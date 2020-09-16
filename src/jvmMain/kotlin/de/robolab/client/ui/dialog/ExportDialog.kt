@@ -1,6 +1,6 @@
 package de.robolab.client.ui.dialog
 
-import de.robolab.client.app.model.file.FilePlanetEntry
+import de.robolab.client.app.model.file.FileEntryPlanetDocument
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.utils.buttonGroup
 import de.robolab.client.utils.PreferenceStorage
@@ -8,8 +8,8 @@ import tornadofx.*
 
 class ExportDialog : GenericDialog() {
 
-    private val provider: FilePlanetEntry by param()
-    private val fileNameProperty = de.westermann.kobserve.property.property(provider.planetFile.planet.name.trim())
+    private val planetDocument: FileEntryPlanetDocument by param()
+    private val fileNameProperty = de.westermann.kobserve.property.property(planetDocument.planetFile.planet.name.trim())
 
     override val root = buildContent("Export") {
         form {
@@ -27,13 +27,13 @@ class ExportDialog : GenericDialog() {
                     buttonGroup {
                         button("SVG") {
                             setOnAction {
-                                provider.exportAsSVG(fileNameProperty.value)
+                                planetDocument.exportAsSVG(fileNameProperty.value)
                                 close()
                             }
                         }
                         button("PNG") {
                             setOnAction {
-                                provider.exportAsPNG(fileNameProperty.value)
+                                planetDocument.exportAsPNG(fileNameProperty.value)
                                 close()
                             }
                         }
@@ -44,9 +44,9 @@ class ExportDialog : GenericDialog() {
     }
 
     companion object {
-        fun open(provider: FilePlanetEntry) {
+        fun open(planetDocument: FileEntryPlanetDocument) {
             open<ExportDialog>(
-                "provider" to provider
+                "planetDocument" to planetDocument
             )
         }
     }

@@ -1,21 +1,17 @@
 package de.robolab.client.ui.views
 
 import de.robolab.client.app.controller.CanvasController
+import de.robolab.client.app.controller.UiController
 import de.robolab.client.ui.adapter.*
 import de.robolab.common.utils.Point
-import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.Canvas
-import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlin.math.max
 
 class MainCanvas(
     canvasController: CanvasController,
-    navigationBarActiveProperty: ObservableProperty<Boolean>,
-    infoBarActiveProperty: ObservableProperty<Boolean>,
-    infoBarWidthProperty: ObservableProperty<Double>
+    private val uiController: UiController
 ) : ViewCollection<View>() {
 
     private val canvas = Canvas()
@@ -35,42 +31,14 @@ class MainCanvas(
     }
 
     init {
-        classList.bind("navigation-bar-active", navigationBarActiveProperty)
-        classList.bind("info-bar-active", infoBarActiveProperty)
-
         +canvas
 
         +ResizeView("navigation-bar-resize") { position, _ ->
-            var width = position.x
-            if (navigationBarActiveProperty.value) {
-                if (width < 50.0) {
-                    navigationBarActiveProperty.value = false
-                } else {
-                    width = max(width, 200.0)
-                    document.body?.style?.setProperty("--navigation-bar-width", "${width}px")
-                }
-            } else {
-                if (width >= 50.0) {
-                    navigationBarActiveProperty.value = true
-                }
-            }
+            uiController.setNavigationBarWidth(position.x)
         }
 
         +ResizeView("info-bar-resize") { position, size ->
-            var width = window.innerWidth - position.x - size.x
-            if (infoBarActiveProperty.value) {
-                if (width < 50.0) {
-                    infoBarActiveProperty.value = false
-                } else {
-                    width = max(width, 200.0)
-                    document.body?.style?.setProperty("--info-bar-width", "${width}px")
-                    infoBarWidthProperty.value = width
-                }
-            } else {
-                if (width >= 50.0) {
-                    infoBarActiveProperty.value = true
-                }
-            }
+            uiController.setInfoBarWidth(window.innerWidth - position.x - size.x)
         }
 
         canvasController.setupCanvas(webCanvas)

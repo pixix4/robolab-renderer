@@ -43,6 +43,11 @@ object PreferenceStorage : TypedStorage() {
     val selectedNavigationBarTabProperty = item("ui.selectedNavigationBarTab", NavigationBarController.Tab.GROUP)
     var selectedNavigationBarTab by selectedNavigationBarTabProperty
 
+    val hideEmptyTabBarProperty = item("ui.hideEmptyTabBar", true)
+    var hideEmptyTabBar by hideEmptyTabBarProperty
+
+    val infoBarEnabledProperty = item("ui.infoBarEnabledProperty", true)
+
 
     val clientIdProperty =
         item("communication.clientId", Random.nextBytes(16).joinToString("") { it.toString(16).padStart(2, '0') })

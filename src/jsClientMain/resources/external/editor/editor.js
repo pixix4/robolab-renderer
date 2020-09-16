@@ -8,10 +8,11 @@ class TextEditor {
         let KEYWORD_PATTERN = /\b(comment|left|center|right|name|version|spline|grouping|commen|blue|start|target|direction)\b/;
         let DIRECTION_PATTERN = /\b[NESWnesw]\b/;
         let NUMBER_PATTERN = /\b(-?[0-9]+)\b/;
-        let STRING_PATTERN = /\b([a-zA-Z]*)\b/;
+        let STRING_PATTERN = /\b([a-zA-Z]+)\b/;
         let HASH_PATTERN = /#/;
-        let COMMENT_PATTERN = /#.*/;
-        let TRAILING_WHITESPACE = /\\s*$/;
+        let COMMENT_PATTERN = /#.+/;
+        let TRAILING_WHITESPACE = /\\s+$/;
+        let OTHER = /.+/;
 
         CodeMirror.defineSimpleMode("simplemode", {
             start: [

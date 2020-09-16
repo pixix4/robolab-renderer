@@ -14,8 +14,8 @@ enum class Theme(val group: String, val isDarkMode: Boolean?, val theme: ITheme)
         else -> ""
     }
 
-    fun getThemeByMode(isDarkMode: Boolean): Theme {
-        if (this.isDarkMode == isDarkMode || this.isDarkMode == null) {
+    fun getThemeByMode(isDarkMode: Boolean?): Theme {
+        if (this.isDarkMode == isDarkMode || this.isDarkMode == null || isDarkMode == null) {
             return this
         }
 

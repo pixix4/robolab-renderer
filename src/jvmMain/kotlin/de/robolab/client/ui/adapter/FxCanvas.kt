@@ -1,5 +1,6 @@
 package de.robolab.client.ui.adapter
 
+import de.robolab.client.renderer.canvas.CanvasListenerManager
 import de.robolab.client.ui.view.ResizeableCanvas
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.ICanvasListener
@@ -22,176 +23,13 @@ class FxCanvas : ICanvas {
     private val context = canvas.graphicsContext2D
     private val logger = Logger(this)
 
-    override fun setListener(listener: ICanvasListener) {
-        canvas.setOnMousePressed { event ->
-            canvas.requestFocus()
-            if (event.button == MouseButton.PRIMARY) {
-                listener.onPointerDown(
-                    PointerEvent(
-                        Point(event.x, event.y),
-                        dimension,
-                        event.isControlDown,
-                        event.isAltDown,
-                        event.isShiftDown
-                    )
-                )
-            }
-        }
-        canvas.setOnMouseReleased { event ->
-            if (event.button == MouseButton.PRIMARY) {
-                listener.onPointerUp(
-                    PointerEvent(
-                        Point(event.x, event.y),
-                        dimension,
-                        event.isControlDown,
-                        event.isAltDown,
-                        event.isShiftDown
-                    )
-                )
-            }
-        }
-        canvas.setOnMouseDragged { event ->
-            listener.onPointerDrag(
-                PointerEvent(
-                    Point(event.x, event.y),
-                    dimension,
-                    event.isControlDown,
-                    event.isAltDown,
-                    event.isShiftDown
-                )
-            )
-        }
-        canvas.setOnMouseMoved { event ->
-            listener.onPointerMove(
-                PointerEvent(
-                    Point(event.x, event.y),
-                    dimension,
-                    event.isControlDown,
-                    event.isAltDown,
-                    event.isShiftDown
-                )
-            )
-        }
-        canvas.setOnMouseClicked { event ->
-            when (event.button) {
-                MouseButton.SECONDARY -> listener.onPointerSecondaryAction(
-                    PointerEvent(
-                        Point(event.x, event.y),
-                        dimension,
-                        event.isControlDown,
-                        event.isAltDown,
-                        event.isShiftDown
-                    )
-                )
-                MouseButton.FORWARD -> listener.onKeyPress(
-                    KeyEvent(
-                        KeyCode.REDO,
-                        "",
-                        event.isControlDown,
-                        event.isAltDown,
-                        event.isShiftDown
-                    )
-                )
-                MouseButton.BACK -> listener.onKeyPress(
-                    KeyEvent(
-                        KeyCode.UNDO,
-                        "",
-                        event.isControlDown,
-                        event.isAltDown,
-                        event.isShiftDown
-                    )
-                )
-                else -> {
-                }
-            }
-        }
-        canvas.setOnMouseEntered { event ->
-            listener.onPointerEnter(
-                PointerEvent(
-                    Point(event.x, event.y),
-                    dimension,
-                    event.isControlDown,
-                    event.isAltDown,
-                    event.isShiftDown
-                )
-            )
-        }
-        canvas.setOnMouseExited { event ->
-            listener.onPointerLeave(
-                PointerEvent(
-                    Point(event.x, event.y),
-                    dimension,
-                    event.isControlDown,
-                    event.isAltDown,
-                    event.isShiftDown
-                )
-            )
-        }
-        canvas.setOnScroll { event ->
-            listener.onScroll(
-                ScrollEvent(
-                    Point(event.x, event.y),
-                    Point(event.deltaX, event.deltaY),
-                    dimension,
-                    event.isControlDown,
-                    event.isAltDown,
-                    event.isShiftDown
-                )
-            )
-        }
-        canvas.setOnZoom { event ->
-            listener.onZoom(
-                ZoomEvent(
-                    Point(event.x, event.y),
-                    event.zoomFactor,
-                    dimension,
-                    event.isControlDown,
-                    event.isAltDown,
-                    event.isShiftDown
-                )
-            )
-        }
-        canvas.setOnRotate { event ->
-            listener.onRotate(
-                RotateEvent(
-                    Point(event.x, event.y),
-                    event.angle / 180.0 * PI,
-                    dimension,
-                    event.isControlDown,
-                    event.isAltDown,
-                    event.isShiftDown
-                )
-            )
-        }
-        canvas.addDrawHook {
-            listener.onResize(dimension)
-        }
-        canvas.setOnKeyPressed { event ->
-            val code = event.code.toCommon() ?: return@setOnKeyPressed
-            event.consume()
-            listener.onKeyPress(
-                KeyEvent(
-                    code,
-                    event.text,
-                    event.isControlDown,
-                    event.isAltDown,
-                    event.isShiftDown
-                )
-            )
-        }
-        canvas.setOnKeyReleased { event ->
-            val code = event.code.toCommon() ?: return@setOnKeyReleased
-            event.consume()
-            listener.onKeyRelease(
-                KeyEvent(
-                    code,
-                    event.text,
-                    event.isControlDown,
-                    event.isAltDown,
-                    event.isShiftDown
-                )
-            )
-        }
+    private val listenerManager = CanvasListenerManager()
+    override fun addListener(listener: ICanvasListener) {
+        listenerManager += listener
+    }
+
+    override fun removeListener(listener: ICanvasListener) {
+        listenerManager -= listener
     }
 
     override val dimension: Dimension
@@ -474,6 +312,177 @@ class FxCanvas : ICanvas {
         context.lineCap = StrokeLineCap.BUTT
         context.lineJoin = StrokeLineJoin.MITER
         canvas.isFocusTraversable = true
+
+
+        canvas.setOnMousePressed { event ->
+            canvas.requestFocus()
+            if (event.button == MouseButton.PRIMARY) {
+                listenerManager.onPointerDown(
+                    PointerEvent(
+                        Point(event.x, event.y),
+                        dimension,
+                        event.isControlDown,
+                        event.isAltDown,
+                        event.isShiftDown
+                    )
+                )
+            }
+        }
+        canvas.setOnMouseReleased { event ->
+            if (event.button == MouseButton.PRIMARY) {
+                listenerManager.onPointerUp(
+                    PointerEvent(
+                        Point(event.x, event.y),
+                        dimension,
+                        event.isControlDown,
+                        event.isAltDown,
+                        event.isShiftDown
+                    )
+                )
+            }
+        }
+        canvas.setOnMouseDragged { event ->
+            listenerManager.onPointerDrag(
+                PointerEvent(
+                    Point(event.x, event.y),
+                    dimension,
+                    event.isControlDown,
+                    event.isAltDown,
+                    event.isShiftDown
+                )
+            )
+        }
+        canvas.setOnMouseMoved { event ->
+            listenerManager.onPointerMove(
+                PointerEvent(
+                    Point(event.x, event.y),
+                    dimension,
+                    event.isControlDown,
+                    event.isAltDown,
+                    event.isShiftDown
+                )
+            )
+        }
+        canvas.setOnMouseClicked { event ->
+            when (event.button) {
+                MouseButton.SECONDARY -> listenerManager.onPointerSecondaryAction(
+                    PointerEvent(
+                        Point(event.x, event.y),
+                        dimension,
+                        event.isControlDown,
+                        event.isAltDown,
+                        event.isShiftDown
+                    )
+                )
+                MouseButton.FORWARD -> listenerManager.onKeyPress(
+                    KeyEvent(
+                        KeyCode.REDO,
+                        "",
+                        event.isControlDown,
+                        event.isAltDown,
+                        event.isShiftDown
+                    )
+                )
+                MouseButton.BACK -> listenerManager.onKeyPress(
+                    KeyEvent(
+                        KeyCode.UNDO,
+                        "",
+                        event.isControlDown,
+                        event.isAltDown,
+                        event.isShiftDown
+                    )
+                )
+                else -> {
+                }
+            }
+        }
+        canvas.setOnMouseEntered { event ->
+            listenerManager.onPointerEnter(
+                PointerEvent(
+                    Point(event.x, event.y),
+                    dimension,
+                    event.isControlDown,
+                    event.isAltDown,
+                    event.isShiftDown
+                )
+            )
+        }
+        canvas.setOnMouseExited { event ->
+            listenerManager.onPointerLeave(
+                PointerEvent(
+                    Point(event.x, event.y),
+                    dimension,
+                    event.isControlDown,
+                    event.isAltDown,
+                    event.isShiftDown
+                )
+            )
+        }
+        canvas.setOnScroll { event ->
+            listenerManager.onScroll(
+                ScrollEvent(
+                    Point(event.x, event.y),
+                    Point(event.deltaX, event.deltaY),
+                    dimension,
+                    event.isControlDown,
+                    event.isAltDown,
+                    event.isShiftDown
+                )
+            )
+        }
+        canvas.setOnZoom { event ->
+            listenerManager.onZoom(
+                ZoomEvent(
+                    Point(event.x, event.y),
+                    event.zoomFactor,
+                    dimension,
+                    event.isControlDown,
+                    event.isAltDown,
+                    event.isShiftDown
+                )
+            )
+        }
+        canvas.setOnRotate { event ->
+            listenerManager.onRotate(
+                RotateEvent(
+                    Point(event.x, event.y),
+                    event.angle / 180.0 * PI,
+                    dimension,
+                    event.isControlDown,
+                    event.isAltDown,
+                    event.isShiftDown
+                )
+            )
+        }
+        canvas.addDrawHook {
+            listenerManager.onResize(dimension)
+        }
+        canvas.setOnKeyPressed { event ->
+            val code = event.code.toCommon() ?: return@setOnKeyPressed
+            event.consume()
+            listenerManager.onKeyPress(
+                KeyEvent(
+                    code,
+                    event.text,
+                    event.isControlDown,
+                    event.isAltDown,
+                    event.isShiftDown
+                )
+            )
+        }
+        canvas.setOnKeyReleased { event ->
+            val code = event.code.toCommon() ?: return@setOnKeyReleased
+            event.consume()
+            listenerManager.onKeyRelease(
+                KeyEvent(
+                    code,
+                    event.text,
+                    event.isControlDown,
+                    event.isAltDown,
+                    event.isShiftDown
+                )
+            )
+        }
     }
 }
 

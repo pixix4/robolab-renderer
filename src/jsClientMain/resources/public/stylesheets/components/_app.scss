@@ -1,0 +1,123 @@
+@use '../utils';
+
+.app {
+  display: grid;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  grid-template-rows: 3rem 2.2rem auto 2rem;
+  grid-template-columns: auto;
+  grid-template-areas:
+    "tool"
+    "tab"
+    "canvas"
+    "status";
+
+  &.fullscreen {
+    grid-template-rows: 2.2rem auto !important;
+    grid-template-columns: auto !important;
+    grid-template-areas:
+      "tab"
+      "canvas" !important;
+
+    .navigation-bar {
+      display: none;
+    }
+
+    .info-bar {
+      display: none;
+    }
+
+    .status-bar {
+      display: none;
+    }
+
+    .tool-bar {
+      display: none;
+    }
+  }
+
+  .navigation-bar {
+    display: none;
+  }
+
+  &.navigation-bar-active {
+    .navigation-bar {
+      display: block;
+    }
+  }
+
+  .info-bar {
+    display: none;
+  }
+
+  &.info-bar-active {
+    .info-bar {
+      display: block;
+    }
+  }
+
+  .main-canvas {
+    grid-area: canvas;
+  }
+
+  .tool-bar {
+    grid-area: tool;
+  }
+
+  .tab-bar {
+    grid-area: tab;
+  }
+}
+
+@include utils.mobile {
+  .navigation-bar {
+    position: absolute !important;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 4rem;
+  }
+
+  .info-bar {
+    position: absolute !important;
+    left: 4rem;
+    top: 0;
+    bottom: 0;
+    right: 0;
+  }
+}
+
+@include utils.desktop {
+  .app {
+    display: grid;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    grid-template-rows: 3rem 2.2rem auto 2rem;
+    grid-template-columns: var(--navigation-bar-width) auto var(--info-bar-width);
+    grid-template-areas:
+      "tool tool tool"
+      "navigation tab info"
+      "navigation canvas info"
+      "status status status";
+  }
+
+  .navigation-bar {
+    grid-area: navigation;
+    width: 100%;
+  }
+
+  .info-bar {
+    grid-area: info;
+    width: 100%;
+  }
+}

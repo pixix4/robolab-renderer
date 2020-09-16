@@ -50,7 +50,7 @@ class MenuBuilder {
     }
 }
 
-fun menuBilder(position: Point, name: String, init: MenuBuilder.() -> Unit): ContextMenu {
+fun buildContextMenu(position: Point, name: String, init: MenuBuilder.() -> Unit): ContextMenu {
     val menuBuilder = MenuBuilder()
     init(menuBuilder)
     return ContextMenu(

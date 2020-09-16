@@ -1,15 +1,14 @@
 package de.robolab.client.ui.dialog
 
-import de.robolab.client.app.model.file.FilePlanetEntry
-import de.robolab.client.utils.PreferenceStorage
+import de.robolab.client.app.model.file.FileEntryPlanetDocument
 import de.robolab.client.ui.views.utils.buttonGroup
+import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.property.property
-import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.InputType
 import de.westermann.kwebview.components.button
 import de.westermann.kwebview.components.inputView
 
-class ExportDialog private constructor(private val provider: FilePlanetEntry) : Dialog("Export") {
+class ExportDialog private constructor(private val provider: FileEntryPlanetDocument) : Dialog("Export") {
 
     private val fileNameProperty = property(provider.planetFile.planet.name.trim())
 
@@ -45,7 +44,7 @@ class ExportDialog private constructor(private val provider: FilePlanetEntry) : 
     }
 
     companion object {
-        fun open(provider: FilePlanetEntry) {
+        fun open(provider: FileEntryPlanetDocument) {
             open(ExportDialog(provider))
         }
     }

@@ -130,7 +130,8 @@ class CommandLineParser: CliktCommand(invokeWithoutSubcommand = true) {
             drawable.drawName = true
             drawable.importPlanet(planetFile.planet)
 
-            val plotter = PlotterWindow(canvas, drawable.view, LightTheme, 0.0)
+            val planetDocument = HeadlessPlanetDocument(drawable.view)
+            val plotter = PlotterWindow(canvas, planetDocument, LightTheme, 0.0)
 
             drawable.centerPlanet()
 

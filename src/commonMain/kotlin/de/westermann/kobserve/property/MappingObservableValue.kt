@@ -39,6 +39,9 @@ open class MappingObservableValue<R, T>(
 fun <R, T> ObservableValue<R>.mapBinding(transform: (R) -> T): ObservableValue<T> =
         MappingObservableValue(transform, this)
 
+fun <T> ObservableValue<T>.readOnly(): ObservableValue<T> =
+    MappingObservableValue({ it }, this)
+
 /**
  * Maps the given property to an readonly field attribute.
  * The returned property supports invalidation.

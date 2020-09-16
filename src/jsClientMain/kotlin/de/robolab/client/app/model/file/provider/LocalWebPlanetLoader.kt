@@ -6,18 +6,18 @@ import de.robolab.client.net.http
 import de.robolab.client.net.web
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
+import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
-import kotlinx.browser.window
 import kotlin.coroutines.CoroutineContext
 
 class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifier>, CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main
 
-    override val onRemoteChange = EventHandler<Unit>()
+    override val onRemoteChange = EventHandler<FileIdentifier?>()
 
     override val nameProperty = constObservable("Local web")
 
@@ -27,8 +27,10 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
 
     override val availableProperty = constObservable(true)
 
+    override val planetCountProperty = constObservable(0)
+
     override suspend fun loadPlanet(identifier: FileIdentifier): Pair<FileIdentifier, List<String>>? {
-        val lines =  http {
+        val lines = http {
             web(identifier.url)
         }.exec().body?.split('\n') ?: emptyList()
 
@@ -40,7 +42,7 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
         return null
     }
 
-    override suspend fun createPlanet(lines: List<String>) {
+    override suspend fun createPlanet(identifier: FileIdentifier?, lines: List<String>) {
         println("Currently not supported!")
     }
 
@@ -75,6 +77,9 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
     ) : IFilePlanetIdentifier {
 
         override val isDirectory = false
+
+        override val childrenCount: Int
+            get() = 0
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

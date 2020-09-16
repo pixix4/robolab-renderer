@@ -5,7 +5,7 @@ import de.robolab.client.renderer.events.KeyEvent
 import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.transition.IAnimatable
 import de.robolab.client.utils.MenuBuilder
-import de.robolab.client.utils.menuBilder
+import de.robolab.client.utils.buildContextMenu
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
@@ -200,6 +200,6 @@ inline fun <reified T : Any> IView.extraPut(value: T) {
 }
 
 fun IView.menu(event: PointerEvent, name: String, init: MenuBuilder.() -> Unit) {
-    val contextMenu = menuBilder(event.planetPoint, name, init)
+    val contextMenu = buildContextMenu(event.planetPoint, name, init)
     document?.plotter?.context?.openContextMenu(contextMenu)
 }

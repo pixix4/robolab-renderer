@@ -2,22 +2,41 @@ package de.robolab.client.app.model.base
 
 import de.robolab.client.utils.ContextMenu
 import de.robolab.common.utils.Point
+import de.westermann.kobserve.base.ObservableList
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 
 interface INavigationBarEntry {
 
-    val titleProperty: ObservableValue<String>
+    val nameProperty: ObservableValue<String>
     val subtitleProperty: ObservableValue<String>
-    val tabNameProperty: ObservableValue<String>
 
-    val hasContextMenu: Boolean
+    val enabledProperty: ObservableValue<Boolean>
     val statusIconProperty: ObservableValue<List<MaterialIcon>>
 
-    fun buildContextMenu(position: Point): ContextMenu {
-        throw UnsupportedOperationException()
+    fun contextMenu(position: Point): ContextMenu? {
+        return null
     }
 
-    val parent: INavigationBarGroup?
+    fun open(asNewTab: Boolean)
+}
 
-    fun matchesSearch(request:SearchRequest): Boolean = request.literalQueries.all{titleProperty.value.contains(it, true)}
+interface INavigationBarList {
+
+    val parentNameProperty: ObservableValue<String?>
+
+    fun openParent()
+
+    val childrenProperty: ObservableList<INavigationBarEntry>
+}
+
+interface INavigationBarEntryRoot {
+
+    val searchProperty: ObservableProperty<String>
+
+    val parentNameProperty: ObservableValue<String?>
+
+    fun openParent()
+
+    val childrenProperty: ObservableValue<ObservableList<INavigationBarEntry>>
 }

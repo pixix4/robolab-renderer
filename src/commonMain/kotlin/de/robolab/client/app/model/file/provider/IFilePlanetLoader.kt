@@ -9,13 +9,13 @@ import de.westermann.kobserve.event.EventHandler
 
 interface IFilePlanetLoader<T: IFilePlanetIdentifier> {
 
-    val onRemoteChange: EventHandler<Unit>
+    val onRemoteChange: EventHandler<T?>
 
     suspend fun loadPlanet(identifier: T): Pair<T, List<String>>?
 
     suspend fun savePlanet(identifier: T, lines: List<String>): T?
 
-    suspend fun createPlanet(lines: List<String>)
+    suspend fun createPlanet(identifier: T?, lines: List<String>)
 
     suspend fun deletePlanet(identifier: T)
 
@@ -26,6 +26,8 @@ interface IFilePlanetLoader<T: IFilePlanetIdentifier> {
     val nameProperty: ObservableValue<String>
     val descProperty: ObservableValue<String>
 
+    val planetCountProperty: ObservableValue<Int>
+
     val iconProperty: ObservableValue<MaterialIcon>
 
     val availableProperty: ObservableValue<Boolean>
@@ -34,6 +36,8 @@ interface IFilePlanetLoader<T: IFilePlanetIdentifier> {
 interface IFilePlanetIdentifier {
 
     val isDirectory: Boolean
+
+    val childrenCount: Int
 
     val name: String
 

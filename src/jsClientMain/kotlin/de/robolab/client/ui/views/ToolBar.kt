@@ -1,6 +1,7 @@
 package de.robolab.client.ui.views
 
 import de.robolab.client.app.controller.ToolBarController
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.base.ToolBarEntry
 import de.robolab.client.ui.dialog.SettingsDialog
 import de.robolab.client.ui.triggerDownloadUrl
@@ -13,12 +14,8 @@ import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
-import kotlinx.browser.window
 
 class ToolBar(private val toolBarController: ToolBarController) : ViewCollection<View>() {
-
-    val navigationBarActiveProperty = property(true)
-    val infoBarActiveProperty = property(window.innerWidth >= 1500)
 
     private fun Button.bindIcon(iconProperty: ObservableValue<MaterialIcon?>) {
         var iconView: IconView? = null
@@ -37,8 +34,9 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
         }
     }
 
-    private fun updateToolBarActions(toolBarActions: BoxView, actionList: List<List<ToolBarEntry>>) {
+    private fun updateToolBarActions(toolBarActions: BoxView, actionList: List<List<ToolBarEntry>>?) {
         toolBarActions.clear()
+        if (actionList == null) return
 
         for (group in actionList) {
             toolBarActions.buttonGroup {
@@ -60,7 +58,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
         }
     }
 
-    private fun BoxView.setupToolbar(property: ObservableValue<List<List<ToolBarEntry>>>) {
+    private fun BoxView.setupToolbar(property: ObservableValue<List<List<ToolBarEntry>>?>) {
         val toolBarAction = boxView("tool-bar-actions")
         updateToolBarActions(toolBarAction, property.value)
         property.onChange {
@@ -69,17 +67,46 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
     }
 
     init {
-        classList.bind("navigation-bar-active", navigationBarActiveProperty)
-
         boxView("tool-bar-left") {
-            button {
-                iconView(MaterialIcon.MENU)
-                title = "Toggle navigation bar"
+            buttonGroup {
+                button {
+                    iconView(MaterialIcon.MENU)
+                    title = "Toggle navigation bar"
 
-                classList.bind("active", navigationBarActiveProperty)
+                    onClick {
+                        toolBarController.uiController.navigationBarEnabledProperty.value =
+                            !toolBarController.uiController.navigationBarEnabledProperty.value
+                    }
+                }
+            }
 
-                onClick {
-                    navigationBarActiveProperty.value = !navigationBarActiveProperty.value
+            buttonGroup {
+                button {
+                    iconView(MaterialIcon.SETTINGS)
+                    title = "Open settings"
+
+                    onClick {
+                        SettingsDialog.open()
+                    }
+                }
+                button {
+                    iconView(MaterialIcon.FILE_DOWNLOAD)
+                    title = "Download Java Version"
+
+                    onClick {
+                        triggerDownloadUrl("robolab-renderer.jar", "jvm/robolab-jvm.jar")
+                    }
+                }
+            }
+
+            buttonGroup {
+                button {
+                    iconView(MaterialIcon.FULLSCREEN)
+                    title = "Fullscreen mode"
+
+                    onClick {
+                        toolBarController.toggleFullscreen()
+                    }
                 }
             }
 
@@ -93,6 +120,29 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
         boxView("tool-bar-right") {
 
             setupToolbar(toolBarController.rightActionListProperty)
+
+            buttonGroup {
+                button {
+                    iconView(MaterialIcon.UNDO)
+                    title = "Undo last action"
+
+                    disabledProperty.bind(!toolBarController.canUndoProperty)
+
+                    onClick {
+                        toolBarController.undo()
+                    }
+                }
+                button {
+                    iconView(MaterialIcon.REDO)
+                    title = "Redo last Action"
+
+                    disabledProperty.bind(!toolBarController.canRedoProperty)
+
+                    onClick {
+                        toolBarController.redo()
+                    }
+                }
+            }
 
             buttonGroup {
                 button {
@@ -122,7 +172,11 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
 
             buttonGroup {
                 button {
-                    iconView(MaterialIcon.VIEW_AGENDA)
+                    iconView(MaterialIcon.VIEW_QUILT) {
+                        style {
+                            fontSize = "1.35rem"
+                        }
+                    }
                     title = "Window layout"
 
                     onClick {
@@ -148,25 +202,6 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                         }
                     }
                 }
-                button {
-                    iconView(MaterialIcon.SETTINGS)
-                    title = "Open settings"
-
-                    onClick {
-                        SettingsDialog.open()
-                    }
-                }
-            }
-
-            buttonGroup {
-                button {
-                    iconView(MaterialIcon.FILE_DOWNLOAD)
-                    title = "Download Java Version"
-
-                    onClick {
-                        triggerDownloadUrl("robolab-renderer.jar", "jvm/robolab-jvm.jar")
-                    }
-                }
             }
 
             buttonGroup {
@@ -174,10 +209,9 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                     iconView(MaterialIcon.MENU)
                     title = "Toggle info bar"
 
-                    classList.bind("active", infoBarActiveProperty)
-
                     onClick {
-                        infoBarActiveProperty.value = !infoBarActiveProperty.value
+                        toolBarController.uiController.infoBarEnabledProperty.value =
+                            !toolBarController.uiController.infoBarEnabledProperty.value
                     }
                 }
             }

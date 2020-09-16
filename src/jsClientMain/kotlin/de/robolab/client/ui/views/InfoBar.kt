@@ -2,93 +2,98 @@ package de.robolab.client.ui.views
 
 import de.robolab.client.app.controller.InfoBarController
 import de.robolab.client.app.controller.TraverserBarController
-import de.robolab.client.app.model.file.*
-import de.robolab.client.app.model.group.InfoBarGroupInfo
-import de.robolab.client.app.model.group.JsonDetailBox
+import de.robolab.client.app.controller.UiController
+import de.robolab.client.app.model.file.InfoBarFileEdit
+import de.robolab.client.app.model.file.InfoBarFilePaper
+import de.robolab.client.app.model.file.InfoBarFileTraverse
+import de.robolab.client.app.model.file.InfoBarFileView
+import de.robolab.client.app.model.group.InfoBarGroupMessages
+import de.robolab.client.app.model.room.InfoBarRoomRobots
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
+import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.clientPosition
 import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.boxView
-import kotlinx.browser.document
-import kotlin.math.max
-import kotlin.math.min
+import de.westermann.kwebview.components.iconView
 
 class InfoBar(
     private val infoBarController: InfoBarController,
-    private val infoBarActiveProperty: ObservableProperty<Boolean>,
-    private val infoBarWidthProperty: ObservableProperty<Double>
+    private val uiController: UiController
 ) : ViewCollection<View>() {
 
+    @Suppress("JoinDeclarationAndAssignment")
+    private val headerView: BoxView
+
+    @Suppress("JoinDeclarationAndAssignment")
     private val contentView: BoxView
-    private val detailsView: BoxView
+
+    private fun updateHeader() {
+        headerView.clear()
+
+        val tabs = infoBarController.infoBarTabsProperty.value ?: return
+
+        for (tab in tabs) {
+            headerView.boxView("tab-bar-item") {
+                classList.bind("active", infoBarController.infoBarActiveTabProperty.mapBinding { it == tab })
+
+                iconView(tab.icon)
+                title = tab.tooltip
+
+                onClick {
+                    tab.open()
+                }
+            }
+        }
+    }
 
     private fun updateContent() {
         contentView.clear()
 
-        val content = infoBarController.selectedContentProperty.value ?: return
+        val content = infoBarController.infoBarContentProperty.value ?: return
 
         when (content) {
-            is InfoBarFileEditor -> {
-                contentView.initInfoBarFileEditorView(content, infoBarActiveProperty, infoBarWidthProperty)
+            is InfoBarFileView -> {
+                contentView.add(InfoBarFileViewView(content))
             }
-            is InfoBarTraverser -> {
+            is InfoBarFilePaper -> {
+                contentView.add(InfoBarFilePaperView(content))
+            }
+            is InfoBarFileEdit -> {
+                contentView.add(InfoBarFileEditView(content, uiController))
+            }
+            is InfoBarFileTraverse -> {
                 if (content.traverserProperty.value == null) {
                     content.traverse()
                 }
                 contentView.add(NullableViewContainer(content.traverserProperty))
             }
-            is InfoBarGroupInfo -> {
-                contentView.add(InfoBarGroupView(content, contentView))
+            is InfoBarGroupMessages -> {
+                contentView.add(InfoBarGroupMessagesView(content))
             }
-        }
-    }
-
-    private fun updateDetails() {
-        detailsView.clear()
-
-        val data = infoBarController.detailBoxProperty.value ?: return
-
-        when (data) {
-            is JsonDetailBox -> {
-                detailsView.add(DetailBoxJson(data))
-            }
-            is PointDetailBox -> {
-                detailsView.add(DetailBoxPoint(data))
-            }
-            is PathDetailBox -> {
-                detailsView.add(DetailBoxPath(data))
-            }
-            is PlanetStatisticsDetailBox -> {
-                detailsView.add(DetailBoxPlanetStatistics(data))
+            is InfoBarRoomRobots -> {
+                contentView.add(InfoBarRoomRobotsView(content))
             }
         }
     }
 
     init {
-        classList.bind("active", infoBarActiveProperty)
-
+        headerView = boxView("info-bar-header") {}
         contentView = boxView("info-bar-content") {}
-        infoBarController.selectedContentProperty.onChange {
+
+        infoBarController.infoBarTabsProperty.onChange {
+            updateHeader()
+        }
+        updateHeader()
+
+        infoBarController.infoBarContentProperty.onChange {
             updateContent()
         }
         updateContent()
-
-        detailsView = boxView("info-bar-details") {}
-        infoBarController.detailBoxProperty.onChange {
-            updateDetails()
-        }
-        updateDetails()
-
-        +ResizeView("detail-box-resize") { position, _ ->
-            val height = position.y - this.offsetTopTotal
-            val percent = max(0.05, min(0.95, 1.0 - (height / this.clientHeight)))
-            document.body?.style?.setProperty("--detail-box-height", "${percent * 100}%")
-        }
 
         // Close info bar on mobile
         var closePosition = Point.ZERO
@@ -96,8 +101,8 @@ class InfoBar(
             closePosition = it.clientPosition
         }
         onClick {
-            if (it.target == html && it.clientPosition.distanceTo(closePosition) < 2.0 && infoBarActiveProperty.value) {
-                infoBarActiveProperty.value = false
+            if (it.target == html && it.clientPosition.distanceTo(closePosition) < 2.0 && uiController.infoBarEnabledProperty.value) {
+                uiController.infoBarEnabledProperty.value = false
                 it.preventDefault()
                 it.stopPropagation()
             }
