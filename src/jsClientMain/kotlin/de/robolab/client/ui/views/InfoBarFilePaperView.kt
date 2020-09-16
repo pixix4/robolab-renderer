@@ -1,9 +1,11 @@
 package de.robolab.client.ui.views
 
+import de.robolab.client.app.controller.UiController
 import de.robolab.client.app.model.file.*
 import de.robolab.client.ui.dialog.bindStringParsing
 import de.robolab.client.ui.dialog.dialogFormEntry
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.client.utils.runAsync
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.BoxView
@@ -13,7 +15,8 @@ import de.westermann.kwebview.components.selectView
 import de.westermann.kwebview.extra.scrollBoxView
 
 class InfoBarFilePaperView(
-    private val content: InfoBarFilePaper
+    private val content: InfoBarFilePaper,
+    private val uiController: UiController
 ) : ViewCollection<View>() {
 
     private fun updateContent(box: BoxView) {
@@ -34,6 +37,11 @@ class InfoBarFilePaperView(
 
     init {
         scrollBoxView {
+            uiController.infoBarVisibleProperty.onChange {
+                runAsync {
+                    updateScrollBox()
+                }
+            }
             resizeBox(0.5) {
                 dialogFormEntry("Orientation") {
                     selectView(PreferenceStorage.paperOrientationProperty)

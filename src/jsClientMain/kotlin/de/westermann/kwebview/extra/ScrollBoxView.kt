@@ -81,6 +81,7 @@ class ScrollBoxView : ViewCollection<View>() {
         update()
     }
 
+    fun updateScrollBox() = update()
     private fun update() {
         val targetListSize = rootHeight
 

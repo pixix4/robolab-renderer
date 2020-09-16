@@ -1,9 +1,11 @@
 package de.robolab.client.ui.views
 
 import de.robolab.client.app.controller.TraverserBarController
+import de.robolab.client.app.controller.UiController
 import de.robolab.client.app.model.traverser.CharacteristicItem
 import de.robolab.client.app.model.traverser.ITraverserStateEntry
 import de.robolab.client.ui.views.utils.buttonGroup
+import de.robolab.client.utils.runAsync
 import de.westermann.kobserve.and
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableValue
@@ -17,10 +19,18 @@ import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
 import de.westermann.kwebview.extra.scrollBoxView
 
-class TraverserBarView(private val traverserProperty: ObservableValue<TraverserBarController>) : ViewCollection<View>() {
+class InfoBarFileTraverseView(
+    private val traverserProperty: ObservableValue<TraverserBarController>,
+    private val uiController: UiController
+) : ViewCollection<View>() {
 
     init {
         scrollBoxView {
+            uiController.infoBarVisibleProperty.onChange {
+                runAsync {
+                    updateScrollBox()
+                }
+            }
             resizeBox(1.0) {
                 boxView("traverser-bar-header") {
                     textView(traverserProperty.flatMapBinding { it.traverserTitle })

@@ -1,6 +1,7 @@
 package de.robolab.client.ui.views
 
 import com.soywiz.klock.format
+import de.robolab.client.app.controller.UiController
 import de.robolab.client.app.model.group.InfoBarGroupMessages
 import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.renderer.events.KeyCode
@@ -16,11 +17,17 @@ import de.westermann.kwebview.extra.listFactory
 import de.westermann.kwebview.extra.scrollBoxView
 
 class InfoBarGroupMessagesView(
-    private val content: InfoBarGroupMessages
+    private val content: InfoBarGroupMessages,
+    private val uiController: UiController
 ) : ViewCollection<View>() {
 
     init {
         scrollBoxView {
+            uiController.infoBarVisibleProperty.onChange {
+                runAsync {
+                    updateScrollBox()
+                }
+            }
             resizeBox(0.2) {
                 table("info-bar-group-view-header") {
                     row {

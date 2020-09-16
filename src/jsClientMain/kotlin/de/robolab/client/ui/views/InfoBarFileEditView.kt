@@ -5,6 +5,7 @@ import de.robolab.client.app.model.file.InfoBarFileEdit
 import de.robolab.client.app.model.file.PathDetailBox
 import de.robolab.client.app.model.file.PlanetStatisticsDetailBox
 import de.robolab.client.app.model.file.PointDetailBox
+import de.robolab.client.utils.runAsync
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.BoxView
@@ -35,6 +36,11 @@ class InfoBarFileEditView(
 
     init {
         scrollBoxView {
+            uiController.infoBarVisibleProperty.onChange {
+                runAsync {
+                    updateScrollBox()
+                }
+            }
             resizeBox(0.5) {
                 val editorContainer = boxView("text-editor-container")
 

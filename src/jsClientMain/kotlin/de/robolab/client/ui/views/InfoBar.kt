@@ -58,10 +58,10 @@ class InfoBar(
 
         when (content) {
             is InfoBarFileView -> {
-                contentView.add(InfoBarFileViewView(content))
+                contentView.add(InfoBarFileViewView(content, uiController))
             }
             is InfoBarFilePaper -> {
-                contentView.add(InfoBarFilePaperView(content))
+                contentView.add(InfoBarFilePaperView(content, uiController))
             }
             is InfoBarFileEdit -> {
                 contentView.add(InfoBarFileEditView(content, uiController))
@@ -70,13 +70,13 @@ class InfoBar(
                 if (content.traverserProperty.value == null) {
                     content.traverse()
                 }
-                contentView.add(NullableViewContainer(content.traverserProperty))
+                contentView.add(NullableViewContainer(content.traverserProperty, uiController))
             }
             is InfoBarGroupMessages -> {
-                contentView.add(InfoBarGroupMessagesView(content))
+                contentView.add(InfoBarGroupMessagesView(content, uiController))
             }
             is InfoBarRoomRobots -> {
-                contentView.add(InfoBarRoomRobotsView(content))
+                contentView.add(InfoBarRoomRobotsView(content, uiController))
             }
         }
     }
@@ -110,10 +110,13 @@ class InfoBar(
     }
 }
 
-class NullableViewContainer(private val traverserProperty: ObservableValue<TraverserBarController?>) : ViewCollection<View>() {
+class NullableViewContainer(
+    private val traverserProperty: ObservableValue<TraverserBarController?>,
+    private val uiController: UiController
+) : ViewCollection<View>() {
 
     private var prop: ObservableProperty<TraverserBarController>? = null
-    private var view: TraverserBarView? = null
+    private var view: InfoBarFileTraverseView? = null
 
     private fun updateView() {
         val traverser = traverserProperty.value
@@ -129,7 +132,7 @@ class NullableViewContainer(private val traverserProperty: ObservableValue<Trave
             prop?.value = traverser
         }
         if (view == null) {
-            view = TraverserBarView(prop!!)
+            view = InfoBarFileTraverseView(prop!!, uiController)
         }
 
         add(view!!)
