@@ -7,6 +7,7 @@ import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.utils.buttonGroup
 import de.robolab.client.ui.utils.setIcon
+import de.robolab.client.utils.MqttStorage
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.UpdateChannel
 import de.robolab.common.utils.BuildInformation
@@ -129,6 +130,13 @@ class SettingsDialog : GenericDialog() {
 
                     field("Log uri") {
                         textfield(PreferenceStorage.logUriProperty.toFx())
+                    }
+                    field("Message Storage") {
+                        combobox(
+                            PreferenceStorage.mqttStorageProperty.toFx(),
+                            MqttStorage.values().toList()
+                        )
+                        tooltip("In Memory: Better performance\nDatabase: Less memory usage")
                     }
                 }
                 fieldset("File sources") {

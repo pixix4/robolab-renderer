@@ -69,6 +69,9 @@ object PreferenceStorage : TypedStorage() {
     val fileServerProperty = item("communication.fileServer", PlatformDefaultPreferences.fileServer)
     var fileServer by fileServerProperty
 
+    val mqttStorageProperty = item("communication.mqttStorage", MqttStorage.IN_MEMORY)
+    var mqttStorage by mqttStorageProperty
+
 
     val paperGridWidthProperty = item("paper.gridWidth", 0.5)
     val paperGridWidth by paperGridWidthProperty
@@ -117,6 +120,10 @@ object PreferenceStorage : TypedStorage() {
 
 enum class UpdateChannel {
     STABLE, NIGHTLY, NEVER
+}
+
+enum class MqttStorage {
+    IN_MEMORY, DATABASE
 }
 
 expect object PlatformDefaultPreferences {

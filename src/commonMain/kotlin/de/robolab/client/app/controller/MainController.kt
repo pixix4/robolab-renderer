@@ -1,10 +1,13 @@
 package de.robolab.client.app.controller
 
 import de.robolab.client.app.repository.DatabaseMessageStorage
+import de.robolab.client.app.repository.MemoryMessageStorage
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessageProvider
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
+import de.robolab.client.utils.MqttStorage
+import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.ConsoleGreeter
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
@@ -25,7 +28,11 @@ class MainController {
 
     val fileImportController = FileImportController(robolabMessageProvider)
 
-    val messageRepository = MessageRepository(DatabaseMessageStorage())
+    val mqttStorage = when (PreferenceStorage.mqttStorage) {
+        MqttStorage.IN_MEMORY -> MemoryMessageStorage()
+        MqttStorage.DATABASE -> DatabaseMessageStorage()
+    }
+    val messageRepository = MessageRepository(mqttStorage)
 
     val canvasController = CanvasController(tabController.activeTabProperty)
     val navigationBarController = NavigationBarController(
