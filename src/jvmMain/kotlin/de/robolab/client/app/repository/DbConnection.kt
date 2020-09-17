@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.sql.Connection.TRANSACTION_READ_UNCOMMITTED
 import java.sql.Connection.TRANSACTION_SERIALIZABLE
 import kotlin.system.exitProcess
 
@@ -27,7 +28,7 @@ object DbConnection {
             e.printStackTrace()
             exitProcess(1)
         }
-        TransactionManager.manager.defaultIsolationLevel = TRANSACTION_SERIALIZABLE
+        TransactionManager.manager.defaultIsolationLevel = TRANSACTION_READ_UNCOMMITTED
 
         try {
             reset()

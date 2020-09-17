@@ -1,6 +1,7 @@
 package de.robolab.client.app.controller
 
 import de.robolab.client.app.repository.DatabaseMessageStorage
+import de.robolab.client.app.repository.MemoryMessageStorage
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessageProvider
@@ -48,14 +49,10 @@ class MainController {
         ConsoleGreeter.greetClient()
 
         messageManager.onMessage {
-            GlobalScope.launch {
                 messageRepository.addMessage(it)
-            }
         }
         messageManager.onMessageList {
-            GlobalScope.launch {
                 messageRepository.addMessageList(it)
-            }
         }
     }
 

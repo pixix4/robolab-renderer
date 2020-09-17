@@ -187,7 +187,6 @@ class MessageRepository(
             onRoomAttemptListChange,
             onAttemptMessageListChange
         )
-
         storage.transaction {
             for (message in messageList) {
                 processMessage(message, events)

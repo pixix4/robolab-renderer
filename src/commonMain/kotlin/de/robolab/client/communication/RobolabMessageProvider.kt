@@ -8,7 +8,7 @@ import de.robolab.client.net.http
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.RobolabJson
-import de.westermann.kobserve.event.EventHandler
+import de.westermann.kobserve.event.SuspendEventHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -22,8 +22,8 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
 
     private val logger = Logger(this)
 
-    val onMessage = EventHandler<RobolabMessage>()
-    val onMessageList = EventHandler<List<RobolabMessage>>()
+    val onMessage = SuspendEventHandler<RobolabMessage>()
+    val onMessageList = SuspendEventHandler<List<RobolabMessage>>()
 
     private var logLoaded = false
 
@@ -100,7 +100,9 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
     }
 
     private fun onRobolabMessage(robolabMessage: RobolabMessage) {
-        onMessage.emit(robolabMessage)
+        GlobalScope.launch(Dispatchers.Main) {
+            onMessage.emit(robolabMessage)
+        }
     }
 
     companion object {
