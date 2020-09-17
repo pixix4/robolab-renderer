@@ -95,7 +95,6 @@ abstract class AbsPlanetDrawable(
     private val planetLayerViews = GroupView("Planet layer views")
     protected val overlayerViews = GroupView("Overlayer views")
 
-
     val view = Document(
         this,
         ConditionalView("Planet background", drawBackgroundProperty, backgroundView),

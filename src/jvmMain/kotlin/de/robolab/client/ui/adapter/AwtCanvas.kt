@@ -1,8 +1,8 @@
 package de.robolab.client.ui.adapter
 
-import de.robolab.client.ui.style.MainStyle
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.ICanvasListener
+import de.robolab.client.ui.style.MainStyle
 import de.robolab.client.utils.ContextMenu
 import de.robolab.common.utils.Color
 import de.robolab.common.utils.Dimension
@@ -19,11 +19,12 @@ import java.io.File
 import java.lang.invoke.MethodHandles
 import javax.imageio.ImageIO
 import kotlin.math.PI
+import kotlin.math.roundToInt
 
 
 class AwtCanvas(
     override val dimension: Dimension,
-    private val scale: Double
+    scale: Double
 ) : ICanvas {
 
     private val bufferedImage =
@@ -37,7 +38,6 @@ class AwtCanvas(
             file
         )
     }
-
 
     override fun addListener(listener: ICanvasListener) {
     }
@@ -138,9 +138,9 @@ class AwtCanvas(
             ICanvas.FontWeight.NORMAL -> Font.PLAIN
             ICanvas.FontWeight.BOLD -> Font.BOLD
         }
-        context.font = Font("Roboto Mono", mask, fontSize.toInt())
-
-        val metrics = context.fontMetrics
+        val font = Font("Roboto Mono", mask, fontSize.roundToInt())
+        context.font = font
+        val metrics = context.getFontMetrics(font)
 
         var x = position.left.toFloat()
         var y = position.top.toFloat()
@@ -211,7 +211,13 @@ class AwtCanvas(
 
         context.addRenderingHints(
             mutableMapOf(
-                RenderingHints.KEY_ANTIALIASING to RenderingHints.VALUE_ANTIALIAS_ON
+                RenderingHints.KEY_ANTIALIASING to RenderingHints.VALUE_ANTIALIAS_ON,
+                RenderingHints.KEY_DITHERING to RenderingHints.VALUE_DITHER_ENABLE,
+                RenderingHints.KEY_FRACTIONALMETRICS to RenderingHints.VALUE_FRACTIONALMETRICS_ON,
+                RenderingHints.KEY_INTERPOLATION to RenderingHints.VALUE_INTERPOLATION_BICUBIC,
+                RenderingHints.KEY_RENDERING to RenderingHints.VALUE_RENDER_QUALITY,
+                RenderingHints.KEY_COLOR_RENDERING to RenderingHints.VALUE_COLOR_RENDER_QUALITY,
+                RenderingHints.KEY_TEXT_ANTIALIASING to RenderingHints.VALUE_TEXT_ANTIALIAS_ON,
             )
         )
         context.scale(scale, scale)

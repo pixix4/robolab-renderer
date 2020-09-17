@@ -1,7 +1,6 @@
 package de.robolab.client.renderer.drawable.planet
 
 import de.robolab.client.renderer.canvas.DrawContext
-import de.robolab.client.renderer.drawable.edit.CreatePathManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.drawable.general.*
 import de.robolab.client.renderer.view.component.GroupTransformView
@@ -13,6 +12,7 @@ class EditPlanetLayer(
 ) : IPlanetLayer {
 
     private val targetManager = TargetAnimatableManager()
+    private val targetLabelManager = TargetLabelAnimatableManager()
     private val senderManager = SenderAnimatableManager()
     private val pathManager = PathAnimatableManager(editCallback)
     private val pathSelectManager = PathSelectAnimatableManager()
@@ -27,6 +27,7 @@ class EditPlanetLayer(
         pathManager.view,
         pathSelectManager.view,
         pointManager.view,
+        targetLabelManager.view,
         commentManager.view
     )
 
@@ -38,6 +39,7 @@ class EditPlanetLayer(
         this.planet = planet
 
         targetManager.importPlanet(planet)
+        targetLabelManager.importPlanet(planet)
         senderManager.importPlanet(planet)
         pathManager.importPlanet(planet)
         pathSelectManager.importPlanet(planet)

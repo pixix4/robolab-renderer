@@ -16,13 +16,13 @@ import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Rectangle
-import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlin.math.exp
 
 class FileEntryPlanetDocument(
     val filePlanet: FilePlanet<*>
@@ -211,14 +211,10 @@ class FileEntryPlanetDocument(
     }
 
     private fun exportRender(canvas: ICanvas) {
-        val drawable = SimplePlanetDrawable()
-        drawable.drawCompass = false
-        drawable.drawName = true
-        drawable.importPlanet(planetFile.planet)
+        val exportDocument = FileExportDocument(planetFile)
+        val plotter = PlotterWindow(canvas, exportDocument, LightTheme, 0.0)
 
-        val plotter = PlotterWindow(canvas, this, LightTheme, 0.0)
-
-        drawable.centerPlanet()
+        exportDocument.center()
 
         plotter.render(0.0)
     }

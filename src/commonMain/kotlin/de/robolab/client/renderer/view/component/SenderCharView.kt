@@ -1,6 +1,5 @@
 package de.robolab.client.renderer.view.component
 
-import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.drawable.general.viewColor
@@ -9,8 +8,10 @@ import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.common.utils.Color
 import de.robolab.common.utils.Point
 import kotlin.math.PI
+import kotlin.math.abs
 
 class SenderCharView(
     center: Point,
@@ -81,21 +82,27 @@ class SenderCharView(
         fun draw(context: DrawContext, position: Point, color: ViewColor, char: Char) {
             if (PreferenceStorage.renderSenderGrouping) {
                 val c = context.c(color)
-                context.strokeArc(
+                val b1 = context.theme.plotter.primaryBackgroundColor
+                val b2 = context.theme.plotter.lineColor
+                val textColor = if (b1.contrast(c) * 1.5 > b2.contrast(c)) b1 else b2
+                context.fillArc(
                     position,
                     0.07,
                     0.0,
                     2 * PI,
-                    c,
-                    PlottingConstraints.LINE_WIDTH / 2
+                    c
                 )
                 context.fillText(
                     char.toString(),
                     position,
-                    c,
+                    textColor,
                     alignment = ICanvas.FontAlignment.CENTER
                 )
             }
         }
     }
+}
+
+private fun Color.contrast(c: Color): Double {
+    return abs(luminance() - c.luminance())
 }

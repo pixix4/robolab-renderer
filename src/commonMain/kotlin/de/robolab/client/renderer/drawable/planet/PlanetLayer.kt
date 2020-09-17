@@ -11,6 +11,7 @@ class PlanetLayer(
 ) : IPlanetLayer {
 
     private val targetManager = TargetAnimatableManager()
+    private val targetLabelManager = TargetLabelAnimatableManager()
     private val senderManager = SenderAnimatableManager()
     private val pathManager = PathAnimatableManager()
     private val pathSelectManager = PathSelectAnimatableManager()
@@ -25,6 +26,7 @@ class PlanetLayer(
         pathManager.view,
         pathSelectManager.view,
         pointManager.view,
+        targetLabelManager.view,
         commentManager.view
     )
 
@@ -36,6 +38,7 @@ class PlanetLayer(
         this.planet = planet
 
         targetManager.importPlanet(planet)
+        targetLabelManager.importPlanet(planet)
         senderManager.importPlanet(planet)
         pathManager.importPlanet(planet)
         pathSelectManager.importPlanet(planet)

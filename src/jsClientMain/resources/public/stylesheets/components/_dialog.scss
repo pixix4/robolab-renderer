@@ -74,6 +74,7 @@
   color: var(--secondary-text-color);
   padding-bottom: 0.5rem;
   padding-left: 0.2rem;
+  position: sticky;
 }
 
 .dialog-form-entry {
@@ -111,12 +112,13 @@
 
 .tab-view {
   position: relative;
+
   .tab-view-header {
     @include utils.prevent-user-select();
 
     top: 0;
     left: 0;
-    right: 0;
+    width: 100%;
     height: 2rem;
     line-height: 2rem;
     border-bottom: solid 1px var(--border-color);

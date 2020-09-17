@@ -83,17 +83,17 @@
   .navigation-bar {
     position: absolute !important;
     left: 0;
-    top: 0;
-    bottom: 0;
-    right: 4rem;
+    top: 3rem;
+    height: calc(100% - 3rem);
+    width: calc(100% - 4rem)
   }
 
   .info-bar {
     position: absolute !important;
-    left: 4rem;
-    top: 0;
-    bottom: 0;
     right: 0;
+    top: 0;
+    height: calc(100% - 3rem);
+    width: calc(100% - 4rem)
   }
 }
 
