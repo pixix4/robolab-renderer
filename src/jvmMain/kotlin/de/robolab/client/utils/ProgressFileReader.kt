@@ -13,7 +13,7 @@ class ProgressFileReader(
     fun lineSequence(): Sequence<String> {
         val contentLength = file.length()
 
-        val progressStream = ProgressInputStream(file.inputStream())
+        val progressStream = ProgressInputStream(file.inputStream().buffered(DEFAULT_BUFFER_SIZE * 1024))
 
         return ProgressLinesSequence(progressStream, contentLength, listener)
     }

@@ -1,7 +1,6 @@
 package de.robolab.client.app.controller
 
 import de.robolab.client.app.repository.DatabaseMessageStorage
-import de.robolab.client.app.repository.MemoryMessageStorage
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessageProvider
@@ -9,8 +8,6 @@ import de.robolab.client.communication.mqtt.RobolabMqttConnection
 import de.robolab.common.utils.ConsoleGreeter
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 class MainController {
 
@@ -49,10 +46,10 @@ class MainController {
         ConsoleGreeter.greetClient()
 
         messageManager.onMessage {
-                messageRepository.addMessage(it)
+            messageRepository.addMessage(it)
         }
         messageManager.onMessageList {
-                messageRepository.addMessageList(it)
+            messageRepository.addMessageList(it)
         }
     }
 
