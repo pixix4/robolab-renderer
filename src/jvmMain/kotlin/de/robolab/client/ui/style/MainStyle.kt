@@ -17,7 +17,6 @@ class MainStyle : Stylesheet() {
         val listCellGraphic by cssclass()
 
         val infoBar by cssclass()
-        val detailBox by cssclass()
         val codeArea by cssclass()
         val dialog by cssclass()
 

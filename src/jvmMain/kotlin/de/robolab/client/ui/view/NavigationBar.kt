@@ -77,12 +77,9 @@ class NavigationBar(
             alignment = Pos.CENTER_LEFT
 
             vbox {
-                icon(MaterialIcon.ARROW_BACK) {
-                    style {
-                        fontSize = 1.2.em
-                    }
-                }
-                paddingTop = 8
+                vgrow = Priority.ALWAYS
+                alignment = Pos.CENTER
+                icon(MaterialIcon.ARROW_BACK, "1.3em")
             }
 
             val labelText = navigationBarController.backButtonLabelProperty

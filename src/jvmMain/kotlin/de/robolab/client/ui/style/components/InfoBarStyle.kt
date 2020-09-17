@@ -7,6 +7,7 @@ import javafx.scene.paint.Color
 import tornadofx.*
 
 fun Stylesheet.initInfoBarStyle() {
+
     MainStyle.infoBar {
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
@@ -56,13 +57,6 @@ fun Stylesheet.initInfoBarStyle() {
                 }
             }
         }
-    }
-
-    MainStyle.detailBox {
-        borderStyle = multi(BorderStrokeStyle.SOLID)
-        borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
-        borderWidth = multi(box(1.px, 0.px, 0.px, 0.px))
-        padding = box(0.px)
     }
 
     Stylesheet.scrollPane {

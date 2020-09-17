@@ -18,6 +18,7 @@ planet/*.exam
 planet/*.exam.*
 npm-debug.log
 *.db
+deploy.sh
 
 # It makes the project dirty
 .npmignore

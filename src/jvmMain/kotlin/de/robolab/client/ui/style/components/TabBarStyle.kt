@@ -2,10 +2,8 @@ package de.robolab.client.ui.style.components
 
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.style.MainStyle
-import de.robolab.common.utils.Color
 import javafx.geometry.Pos
 import javafx.scene.layout.BorderStrokeStyle
-import javafx.scene.text.FontWeight
 import tornadofx.*
 
 fun Stylesheet.initTabBarStyle() {
@@ -30,6 +28,8 @@ fun Stylesheet.initTabBarStyle() {
         borderColor = multi(box(MainStyle.theme.ui.borderColor.toFx()))
         borderStyle = multi(BorderStrokeStyle.SOLID)
         borderWidth = multi(box(0.px, 1.px, 0.px, 0.px))
+        borderInsets = multi(box(0.px))
+        backgroundInsets = multi(box(0.px, 0.px, 1.px, 0.px))
 
         MainStyle.iconView {
             opacity = 0.3
@@ -48,7 +48,6 @@ fun Stylesheet.initTabBarStyle() {
 
         and(MainStyle.active) {
             backgroundColor = multi(MainStyle.theme.ui.primaryBackground.toFx())
-            //backgroundColor = multi(Color(246, 215, 218).toFx())
 
             Stylesheet.label {
                 textFill = MainStyle.theme.ui.themeColor.toFx()
@@ -77,10 +76,9 @@ fun Stylesheet.initTabBarStyle() {
 
             MainStyle.iconView {
                 opacity = 0.6
-                fontScale = 4
             }
 
-            and(Stylesheet.focused, Stylesheet.hover) {
+            and(Stylesheet.focused) {
                 backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
             }
 
@@ -92,8 +90,12 @@ fun Stylesheet.initTabBarStyle() {
                     fill = MainStyle.theme.ui.themeColor.toFx()
                 }
 
-                and(Stylesheet.focused, Stylesheet.hover) {
+                and(Stylesheet.focused) {
                     backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
+                }
+
+                and(Stylesheet.hover) {
+                    backgroundColor = multi(MainStyle.theme.ui.secondaryHoverBackground.toFx())
                 }
             }
         }
