@@ -11,6 +11,8 @@ import de.robolab.client.renderer.view.component.GroupView
 import de.robolab.client.renderer.view.component.LineView
 import de.robolab.common.planet.Direction
 import de.robolab.common.utils.Point
+import de.westermann.kobserve.event.EventHandler
+import de.westermann.kobserve.event.emit
 import kotlin.math.max
 import kotlin.math.round
 
@@ -30,7 +32,9 @@ class PathEditManager(
 
     private val lineView = GroupView("Path edit manager - Lines")
     private val controlPointView = GroupView("Path edit manager - Control points")
-    
+
+    val onChangePath = EventHandler<Unit>()
+
     val view = GroupView(
             "Path edit manager",
             lineView,
@@ -65,7 +69,7 @@ class PathEditManager(
         }
     }
     
-    private fun updateControlPoint(index: Int, position: Point): Point {
+    private fun updateControlPoint(index: Int, position: Point, disableSnapping: Boolean = false): Point {
         return when {
             index == 0 -> {
                 val basisVector = animatable.reference.sourceDirection.toVector()
@@ -93,10 +97,14 @@ class PathEditManager(
             }
             else -> position
         }.let {
-            Point(
+            if (disableSnapping) {
+                it
+            } else {
+                Point(
                     round(it.left * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR,
                     round(it.top * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
-            )
+                )
+            }
         }
     }
 
@@ -140,7 +148,7 @@ class PathEditManager(
 
             val cp = editableControlPoints.toMutableList()
 
-            cp[index] = updateControlPoint(index, event.planetPoint)
+            cp[index] = updateControlPoint(index, event.planetPoint, event.shiftKey)
 
             if (cp != editableControlPoints) {
                 editCallback.updatePathControlPoints(
@@ -148,6 +156,7 @@ class PathEditManager(
                         cp,
                         groupChanges
                 )
+                onChangePath.emit()
                 groupChanges = true
             }
         }
@@ -172,6 +181,7 @@ class PathEditManager(
                             animatable.reference,
                             cp
                     )
+                    onChangePath.emit()
                 }
             }
         }
@@ -188,6 +198,7 @@ class PathEditManager(
                             animatable.reference,
                             cp
                     )
+                    onChangePath.emit()
                     groupChanges = false
                 }
                 KeyCode.ARROW_LEFT -> {
@@ -199,6 +210,8 @@ class PathEditManager(
                     if (cp != editableControlPoints) {
                         editCallback.updatePathControlPoints(animatable.reference, cp, groupChanges)
                         groupChanges = true
+                        onChangePath.emit()
+                        view.focus()
                     }
                 }
                 KeyCode.ARROW_RIGHT -> {
@@ -210,6 +223,8 @@ class PathEditManager(
                     if (cp != editableControlPoints) {
                         editCallback.updatePathControlPoints(animatable.reference, cp, groupChanges)
                         groupChanges = true
+                        onChangePath.emit()
+                        view.focus()
                     }
                 }
                 KeyCode.ARROW_UP -> {
@@ -221,6 +236,8 @@ class PathEditManager(
                     if (cp != editableControlPoints) {
                         editCallback.updatePathControlPoints(animatable.reference, cp, groupChanges)
                         groupChanges = true
+                        onChangePath.emit()
+                        view.focus()
                     }
                 }
                 KeyCode.ARROW_DOWN -> {
@@ -232,6 +249,8 @@ class PathEditManager(
                     if (cp != editableControlPoints) {
                         editCallback.updatePathControlPoints(animatable.reference, cp, groupChanges)
                         groupChanges = true
+                        onChangePath.emit()
+                        view.focus()
                     }
                 }
                 KeyCode.TAB -> {

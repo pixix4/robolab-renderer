@@ -156,6 +156,11 @@ class PathAnimatable(
             return if (currentManager == null) {
                 val manager = PathEditManager(this, editCallback ?: throw IllegalStateException("PathEditManager cannot be created if not IEditCallback is present"))
                 pathEditManager = manager
+
+                manager.onChangePath {
+                    view.focus()
+                }
+
                 manager
             } else currentManager
         }
