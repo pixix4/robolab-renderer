@@ -22,13 +22,13 @@ class EditPlanetLayer(
     override val view = GroupTransformView(
         "Edit planet layer",
         contextTransformation,
-        targetManager.view,
-        senderManager.view,
-        pathManager.view,
-        pathSelectManager.view,
-        pointManager.view,
-        targetLabelManager.view,
-        commentManager.view
+        targetManager,
+        senderManager,
+        pathManager,
+        pathSelectManager,
+        pointManager,
+        targetLabelManager,
+        commentManager
     )
 
 
@@ -38,13 +38,7 @@ class EditPlanetLayer(
     override fun importPlanet(planet: Planet) {
         this.planet = planet
 
-        targetManager.importPlanet(planet)
-        targetLabelManager.importPlanet(planet)
-        senderManager.importPlanet(planet)
-        pathManager.importPlanet(planet)
-        pathSelectManager.importPlanet(planet)
-        pointManager.importPlanet(planet)
-        commentManager.importPlanet(planet)
+        view.importPlanet(planet)
     }
 
     override fun focus(value: IPlanetValue) {

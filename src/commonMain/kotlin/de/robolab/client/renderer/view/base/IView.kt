@@ -142,6 +142,8 @@ interface IView : MutableList<IView>, IAnimatable {
     val isHovered: Boolean
         get() = document?.isViewHovered(this) == true
 
+    var disableInteraction: Boolean
+
     val onHoverEnter: EventHandler<Unit>
     val onHoverLeave: EventHandler<Unit>
 
@@ -169,7 +171,7 @@ fun IView.getViewStack(): List<IView> {
 fun IView.findHoveredView(planetPoint: Point, canvasPoint: Point, epsilon: Double): IView? {
     for (view in toList().asReversed()) {
         val box = view.boundingBox
-        if (box != null && planetPoint !in box) {
+        if (view.disableInteraction || box != null && planetPoint !in box) {
             continue
         }
 

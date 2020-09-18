@@ -88,7 +88,7 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
         val oldStack = focusedStack.toList()
         val newStack = view?.getViewStack() ?: emptyList()
 
-        if (oldStack == newStack) return
+        if (oldStack == newStack || newStack.any { it.disableInteraction }) return
 
         focusedStack.clear()
         focusedStack.addAll(newStack)

@@ -345,6 +345,8 @@ abstract class BaseView(
             field = value
         }
 
+    override var disableInteraction = false
+
     override var hoverable = true
 
     open fun debugStringParameter(): List<Any?> {

@@ -9,7 +9,7 @@ import tornadofx.*
 class ExportDialog : GenericDialog() {
 
     private val planetDocument: FileEntryPlanetDocument by param()
-    private val fileNameProperty = de.westermann.kobserve.property.property(planetDocument.planetFile.planet.name.trim())
+    private val fileNameProperty = de.westermann.kobserve.property.property("")
 
     override val root = buildContent("Export") {
         form {
@@ -41,6 +41,12 @@ class ExportDialog : GenericDialog() {
                 }
             }
         }
+    }
+
+    override fun onBeforeShow() {
+        super.onBeforeShow()
+
+        fileNameProperty.value = planetDocument.planetFile.planet.name.trim()
     }
 
     companion object {

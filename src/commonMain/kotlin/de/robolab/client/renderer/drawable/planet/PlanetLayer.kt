@@ -21,13 +21,13 @@ class PlanetLayer(
     override val view = GroupTransformView(
         name,
         contextTransformation,
-        targetManager.view,
-        senderManager.view,
-        pathManager.view,
-        pathSelectManager.view,
-        pointManager.view,
-        targetLabelManager.view,
-        commentManager.view
+        targetManager,
+        senderManager,
+        pathManager,
+        pathSelectManager,
+        pointManager,
+        targetLabelManager,
+        commentManager
     )
 
 
@@ -37,12 +37,6 @@ class PlanetLayer(
     override fun importPlanet(planet: Planet) {
         this.planet = planet
 
-        targetManager.importPlanet(planet)
-        targetLabelManager.importPlanet(planet)
-        senderManager.importPlanet(planet)
-        pathManager.importPlanet(planet)
-        pathSelectManager.importPlanet(planet)
-        pointManager.importPlanet(planet)
-        commentManager.importPlanet(planet)
+        view.importPlanet(planet)
     }
 }

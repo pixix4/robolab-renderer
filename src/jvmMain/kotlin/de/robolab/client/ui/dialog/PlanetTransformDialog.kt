@@ -19,7 +19,7 @@ class PlanetTransformDialog : GenericDialog() {
     private val planetScaleFactor = SimpleObjectProperty(1.0)
     private val planetScaleOffset = SimpleObjectProperty(0)
 
-    override val root = buildContent("Export") {
+    override val root = buildContent("Transform") {
         form {
             fieldset("Translate") {
                 field("Delta x") {
@@ -82,6 +82,13 @@ class PlanetTransformDialog : GenericDialog() {
                 }
             }
         }
+    }
+
+    override fun onBeforeShow() {
+        super.onBeforeShow()
+
+        planetRotateX.value =planetFile.planet.startPoint?.point?.x ?: 0
+        planetRotateY.value =planetFile.planet.startPoint?.point?.y ?: 0
     }
 
     companion object {

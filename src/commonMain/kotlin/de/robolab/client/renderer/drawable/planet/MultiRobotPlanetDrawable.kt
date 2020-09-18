@@ -21,6 +21,7 @@ class MultiRobotPlanetDrawable : AbsPlanetDrawable() {
     }
 
     init {
+        planetLayer.view.disableInteraction = true
         setPlanetLayers(planetLayer)
 
         overlayerViews.add(robotDrawableManager.view)

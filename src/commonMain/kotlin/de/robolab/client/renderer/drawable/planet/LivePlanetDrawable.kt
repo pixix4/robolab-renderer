@@ -2,7 +2,6 @@ package de.robolab.client.renderer.drawable.planet
 
 import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.client.renderer.utils.Transformation
-import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.base.ObservableProperty
@@ -66,10 +65,12 @@ class LivePlanetDrawable(
     }
 
     init {
+        backgroundLayer.view.disableInteraction = true
+
         setPlanetLayers(
-                backgroundLayer,
-                mqttLayer,
-                serverLayer
+            backgroundLayer,
+            mqttLayer,
+            serverLayer
         )
 
         overlayerViews.add(robotDrawable.view)

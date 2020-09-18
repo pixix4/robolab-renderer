@@ -1,8 +1,9 @@
 package de.robolab.client.renderer.view.component
 
 import de.robolab.client.renderer.canvas.DrawContext
+import de.robolab.client.renderer.drawable.base.AnimatableManager
 import de.robolab.client.renderer.view.base.BaseView
-import de.robolab.client.renderer.view.base.IView
+import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Point
 
 class GroupTransformView(
@@ -10,11 +11,18 @@ class GroupTransformView(
     val contextTransformation: (DrawContext) -> DrawContext
 ) : BaseView(tag) {
 
-    constructor(tag: String?, contextTransformation: (DrawContext) -> DrawContext, vararg viewList: IView) : this(
+    private var animatableManagerList = emptyList<AnimatableManager<*, *>>()
+
+    constructor(
+        tag: String?,
+        contextTransformation: (DrawContext) -> DrawContext,
+        vararg viewList: AnimatableManager<*, *>
+    ) : this(
         tag,
         contextTransformation
     ) {
-        addAll(viewList)
+        animatableManagerList = viewList.toList()
+        addAll(viewList.map { it.view })
     }
 
     override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
@@ -23,5 +31,11 @@ class GroupTransformView(
 
     override fun onDraw(context: DrawContext) {
         super.onDraw(contextTransformation(context))
+    }
+
+    fun importPlanet(planet: Planet) {
+        for (manager in animatableManagerList) {
+            manager.importPlanet(planet)
+        }
     }
 }
