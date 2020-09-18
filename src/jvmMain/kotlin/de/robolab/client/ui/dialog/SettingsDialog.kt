@@ -1,12 +1,12 @@
 package de.robolab.client.ui.dialog
 
-import de.jensd.fx.glyphs.materialicons.MaterialIcon
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.FileNavigationRoot
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.utils.buttonGroup
-import de.robolab.client.ui.utils.setIcon
+import de.robolab.client.ui.view.setIcon
 import de.robolab.client.utils.MqttStorage
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.UpdateChannel

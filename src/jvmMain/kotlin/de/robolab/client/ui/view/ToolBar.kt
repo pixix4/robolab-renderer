@@ -8,7 +8,7 @@ import de.robolab.client.ui.dialog.SettingsDialog
 import de.robolab.client.ui.dialog.UpdateDialog
 import de.robolab.client.ui.style.MainStyle
 import de.robolab.client.ui.utils.buttonGroup
-import de.robolab.client.ui.utils.iconNoAdd
+import de.robolab.client.ui.view.iconNoAdd
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.not

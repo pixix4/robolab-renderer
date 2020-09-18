@@ -1,12 +1,12 @@
 package de.robolab.client.ui.view
 
-import de.jensd.fx.glyphs.materialicons.MaterialIcon
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.controller.TraverserBarController
 import de.robolab.client.app.model.traverser.ITraverserStateEntry
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.style.MainStyle
 import de.robolab.client.ui.utils.buttonGroup
-import de.robolab.client.ui.utils.iconNoAdd
+import de.robolab.client.ui.view.iconNoAdd
 import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.not
 import de.westermann.kobserve.or

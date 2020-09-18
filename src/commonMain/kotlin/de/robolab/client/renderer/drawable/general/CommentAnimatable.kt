@@ -4,6 +4,7 @@ import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.drawable.base.Animatable
 import de.robolab.client.renderer.drawable.edit.IEditCallback
+import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.TextView
@@ -55,6 +56,13 @@ class CommentAnimatable(
         var groupHistory = false
         view.onPointerDown {
             groupHistory = false
+        }
+
+        view.registerPointerHint(
+            "Move comment",
+            PointerEvent.Type.DRAG
+        ) {
+            editCallback != null
         }
         view.onPointerDrag { event ->
             val callback = editCallback ?: return@onPointerDrag

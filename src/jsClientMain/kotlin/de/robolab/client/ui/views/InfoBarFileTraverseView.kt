@@ -2,6 +2,7 @@ package de.robolab.client.ui.views
 
 import de.robolab.client.app.controller.TraverserBarController
 import de.robolab.client.app.controller.UiController
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.traverser.CharacteristicItem
 import de.robolab.client.app.model.traverser.ITraverserStateEntry
 import de.robolab.client.ui.views.utils.buttonGroup

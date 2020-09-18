@@ -2,6 +2,7 @@ package de.robolab.client.renderer.drawable.edit
 
 import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.client.renderer.PlottingConstraints
+import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.component.GroupView
 import de.robolab.client.renderer.view.component.LineView
@@ -72,6 +73,20 @@ class PaperBackgroundDrawable {
         view.onPointerDown { event ->
             lastPosition = event.planetPoint
         }
+        view.registerPointerHint(
+            "Move paper",
+            PointerEvent.Type.DRAG
+        )
+        view.registerPointerHint(
+            "Resize paper",
+            PointerEvent.Type.DRAG,
+            ctrlKey = true
+        )
+        view.registerPointerHint(
+            "Resize paper",
+            PointerEvent.Type.DRAG,
+            altKey = true
+        )
         view.onPointerDrag { event ->
             event.stopPropagation()
 

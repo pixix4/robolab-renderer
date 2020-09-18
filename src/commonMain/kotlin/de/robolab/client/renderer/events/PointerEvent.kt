@@ -51,5 +51,7 @@ open class PointerEvent(
         return result
     }
 
-
+    enum class Type {
+        DOWN, UP, DRAG, MOVE
+    }
 }

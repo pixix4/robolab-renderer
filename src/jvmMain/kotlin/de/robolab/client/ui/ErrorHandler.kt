@@ -1,7 +1,7 @@
 package de.robolab.client.ui
 
-import de.jensd.fx.glyphs.materialicons.MaterialIcon
-import de.robolab.client.ui.utils.iconNoAdd
+import de.robolab.client.app.model.base.MaterialIcon
+import de.robolab.client.ui.view.iconNoAdd
 import de.robolab.common.utils.Logger
 import javafx.application.Platform
 import javafx.scene.control.Alert

@@ -1,10 +1,10 @@
 package de.robolab.client.ui.view
 
-import de.jensd.fx.glyphs.materialicons.MaterialIcon
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.controller.TabController
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.style.MainStyle
-import de.robolab.client.ui.utils.icon
+import de.robolab.client.ui.view.icon
 import de.westermann.kobserve.property.mapBinding
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority

@@ -7,6 +7,7 @@ import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.drawable.edit.PathEditManager
 import de.robolab.client.renderer.drawable.utils.*
 import de.robolab.client.renderer.events.KeyCode
+import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.*
@@ -184,6 +185,25 @@ class PathAnimatable(
             }
         }
 
+        view.registerPointerHint(
+            {
+                val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
+                if (focusedView != null) {
+                    val exposureCoordinate = Coordinate(
+                        focusedView.center.left.roundToInt(),
+                        focusedView.center.top.roundToInt()
+                    )
+                    "Toggle path exposure (Exposure: ${exposureCoordinate.toSimpleString()})"
+                } else {
+                    "Toggle path exposure"
+                }
+            },
+            PointerEvent.Type.DOWN,
+            ctrlKey = true
+        ) {
+            val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
+            editCallback != null && focusedView != null
+        }
         view.onPointerDown { event ->
             val callback = editCallback ?: return@onPointerDown
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
@@ -239,11 +259,17 @@ class PathAnimatable(
             }
         }
 
+        view.registerKeyHint(
+            "Delete path",
+            KeyCode.DELETE
+        ) {
+            editCallback != null
+        }
         view.onKeyPress { event ->
             val callback = editCallback ?: return@onKeyPress
 
             when (event.keyCode) {
-                KeyCode.DELETE, KeyCode.BACKSPACE -> {
+                KeyCode.DELETE -> {
                     callback.deletePath(this.reference)
                 }
                 else -> return@onKeyPress

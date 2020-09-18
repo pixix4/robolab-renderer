@@ -2,6 +2,7 @@ package de.robolab.client.ui.view
 
 import de.robolab.client.app.model.base.adjustBoxList
 import de.robolab.client.app.model.base.resizeBoxListBox
+import de.robolab.client.ui.style.MainStyle
 import javafx.event.EventTarget
 import javafx.scene.Cursor
 import javafx.scene.input.MouseEvent
@@ -20,6 +21,7 @@ class ScrollBoxView : View() {
     override val root = vbox {
         hgrow = Priority.ALWAYS
         vgrow = Priority.ALWAYS
+        addClass(MainStyle.scrollBoxView)
     }
 
     inner class Pane(
@@ -56,6 +58,7 @@ class ScrollBoxView : View() {
 
     fun resizeBox(initPercentageSize: Double, autoResize: Boolean = false, init: VBox.() -> Unit) {
         val pane = anchorpane {
+            addClass(MainStyle.scrollBoxViewEntry)
             hgrow = Priority.ALWAYS
 
             val boxPane = Pane(this, initPercentageSize, 0.0, autoResize)
@@ -106,6 +109,7 @@ class ScrollBoxView : View() {
         }
 
         root += pane
+        updatePseudoElement()
 
         update()
     }
@@ -151,6 +155,14 @@ class ScrollBoxView : View() {
         for ((size, box) in boxSizeList.zip(contentList)) {
             box.setHeight(size)
         }
+    }
+
+    private fun updatePseudoElement() {
+        for (element in root.children) {
+            element.removePseudoClass("last")
+        }
+        root.children.firstOrNull()?.addPseudoClass("first")
+        root.children.lastOrNull()?.addPseudoClass("last")
     }
 
     init {

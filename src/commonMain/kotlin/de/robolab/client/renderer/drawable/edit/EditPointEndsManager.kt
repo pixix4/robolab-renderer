@@ -1,8 +1,8 @@
 package de.robolab.client.renderer.drawable.edit
 
 import de.robolab.client.renderer.PlottingConstraints
-import de.robolab.client.renderer.drawable.general.PointAnimatable
 import de.robolab.client.renderer.drawable.utils.toPoint
+import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.extraPut
 import de.robolab.client.renderer.view.component.GroupView
@@ -89,6 +89,26 @@ class EditPointEndsManager(
             squareView.extraPut(coordinate)
             squareView.extraPut(direction)
 
+            squareView.registerPointerHint(
+                "Toggle path select",
+                PointerEvent.Type.DOWN,
+                altKey = true
+            ) {
+                editCallback != null
+            }
+            squareView.registerPointerHint(
+                "Start new path",
+                PointerEvent.Type.DOWN,
+            ) {
+                editCallback != null
+            }
+            squareView.registerPointerHint(
+                "Start new path (draw mode)",
+                PointerEvent.Type.DOWN,
+                ctrlKey = true
+            ) {
+                editCallback != null
+            }
             squareView.onPointerDown { event ->
                 val callback = editCallback ?: return@onPointerDown
 

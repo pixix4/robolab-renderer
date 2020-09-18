@@ -138,6 +138,10 @@ interface IView : MutableList<IView>, IAnimatable {
         document?.blurView(this)
     }
 
+    fun getActionHint(): List<ActionHint> {
+        return emptyList()
+    }
+
     var hoverable: Boolean
     val isHovered: Boolean
         get() = document?.isViewHovered(this) == true

@@ -11,6 +11,8 @@ import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.list.observableListOf
+import de.westermann.kobserve.list.sync
+import de.westermann.kobserve.property.property
 import kotlin.math.max
 
 class Document(val drawable: AbsPlanetDrawable) : BaseView() {
@@ -77,9 +79,21 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
             ov?.onHoverLeave?.emit()
             nv?.onHoverEnter?.emit()
         }
+        updateActionHintList()
         requestRedraw()
     }
 
+    val actionHintList = property(emptyList<ActionHint>())
+    fun updateActionHintList() {
+        var list = emptyList<ActionHint>()
+        list = focusedStack.asReversed().fold(list) { acc, view ->
+            acc.import(view.getActionHint().filter { it.action is ActionHint.Action.KeyboardAction })
+        }
+        list = hoveredStack.asReversed().fold(list) { acc, view ->
+            acc.import(view.getActionHint().filter { it.action is ActionHint.Action.PointerAction })
+        }
+        actionHintList.value = list
+    }
 
     val focusedStack = observableListOf<IView>()
 
@@ -102,6 +116,7 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
             ov?.onBlur?.emit()
             nv?.onFocus?.emit()
         }
+        updateActionHintList()
         requestRedraw()
     }
 
@@ -137,6 +152,7 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
 
             if (!event.bubbles) {
                 pointerDownPrevented = true
+                updateActionHintList()
                 return true
             }
         }
@@ -166,7 +182,10 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
         for (view in hoveredStack.asReversed()) {
             view.onPointerUp.emit(event)
 
-            if (!event.bubbles) return true
+            if (!event.bubbles) {
+                updateActionHintList()
+                return true
+            }
         }
         return false
     }
@@ -175,7 +194,10 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
         for (view in hoveredStack.asReversed()) {
             view.onPointerMove.emit(event)
 
-            if (!event.bubbles) return true
+            if (!event.bubbles) {
+                updateActionHintList()
+                return true
+            }
         }
         return false
     }
@@ -184,7 +206,10 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
         for (view in hoveredStack.asReversed()) {
             view.onPointerDrag.emit(event)
 
-            if (!event.bubbles) return true
+            if (!event.bubbles) {
+                updateActionHintList()
+                return true
+            }
         }
         return false
     }
@@ -193,7 +218,10 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
         for (view in hoveredStack.asReversed()) {
             view.onPointerSecondaryAction.emit(event)
 
-            if (!event.bubbles) return true
+            if (!event.bubbles) {
+                updateActionHintList()
+                return true
+            }
         }
         return false
     }
@@ -205,8 +233,12 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
         for (view in viewStack.distinct().asReversed()) {
             view.onKeyPress.emit(event)
 
-            if (!event.bubbles) return true
+            if (!event.bubbles) {
+                updateActionHintList()
+                return true
+            }
         }
+        updateActionHintList()
         return false
     }
 
@@ -233,8 +265,12 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
         for (view in viewStack.distinct().asReversed()) {
             view.onKeyRelease.emit(event)
 
-            if (!event.bubbles) return true
+            if (!event.bubbles) {
+                updateActionHintList()
+                return true
+            }
         }
+        updateActionHintList()
         return false
     }
 

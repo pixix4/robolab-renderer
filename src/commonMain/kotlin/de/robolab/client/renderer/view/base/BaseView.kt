@@ -1,6 +1,7 @@
 package de.robolab.client.renderer.view.base
 
 import de.robolab.client.renderer.canvas.DrawContext
+import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.renderer.events.KeyEvent
 import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.transition.*
@@ -390,4 +391,104 @@ abstract class BaseView(
     override fun extraGet(key: String): Any? {
         return extra[key]
     }
+
+    private var actionHintHelper = emptyList<IActionHintHelper>()
+
+    fun registerKeyHint(
+        description: String,
+        keyCode: KeyCode,
+        ctrlKey: Boolean = false,
+        altKey: Boolean = false,
+        shiftKey: Boolean = false,
+        predicate: () -> Boolean = { true }
+    ) {
+        actionHintHelper = actionHintHelper + ActionHintHelper(
+            ActionHint.key(description, keyCode, ctrlKey, altKey, shiftKey),
+            predicate
+        )
+    }
+
+    fun registerPointerHint(
+        description: String,
+        type: PointerEvent.Type,
+        ctrlKey: Boolean = false,
+        altKey: Boolean = false,
+        shiftKey: Boolean = false,
+        predicate: () -> Boolean = { true }
+    ) {
+        actionHintHelper = actionHintHelper + ActionHintHelper(
+            ActionHint.pointer(description, type, ctrlKey, altKey, shiftKey),
+            predicate
+        )
+    }
+
+    fun registerKeyHint(
+        description: () -> String,
+        keyCode: KeyCode,
+        ctrlKey: Boolean = false,
+        altKey: Boolean = false,
+        shiftKey: Boolean = false,
+        predicate: () -> Boolean = { true }
+    ) {
+        actionHintHelper = actionHintHelper + KeyActionHintHelper(
+            description, keyCode, ctrlKey, altKey, shiftKey, predicate
+        )
+    }
+
+    fun registerPointerHint(
+        description: () -> String,
+        type: PointerEvent.Type,
+        ctrlKey: Boolean = false,
+        altKey: Boolean = false,
+        shiftKey: Boolean = false,
+        predicate: () -> Boolean = { true }
+    ) {
+        actionHintHelper = actionHintHelper + PointerActionHintHelper(
+            description, type, ctrlKey, altKey, shiftKey, predicate
+        )
+    }
+
+    override fun getActionHint(): List<ActionHint> {
+        if (actionHintHelper.isEmpty()) {
+            return emptyList()
+        }
+        return actionHintHelper.filter { it.predicate() }.map { it.actionHint }
+    }
+
+    private interface IActionHintHelper {
+        val predicate: () -> Boolean
+        val actionHint: ActionHint
+    }
+
+    private class ActionHintHelper(
+        override val actionHint: ActionHint,
+        override val predicate: () -> Boolean
+    ) : IActionHintHelper
+
+    private class KeyActionHintHelper(
+        private val description: () -> String,
+        private val keyCode: KeyCode,
+        private val ctrlKey: Boolean = false,
+        private val altKey: Boolean = false,
+        private val shiftKey: Boolean = false,
+        override val predicate: () -> Boolean
+    ) : IActionHintHelper {
+
+        override val actionHint: ActionHint
+            get() = ActionHint.key(description(), keyCode, ctrlKey, altKey, shiftKey)
+    }
+
+    private class PointerActionHintHelper(
+        private val description: () -> String,
+        private val type: PointerEvent.Type,
+        private val ctrlKey: Boolean = false,
+        private val altKey: Boolean = false,
+        private val shiftKey: Boolean = false,
+        override val predicate: () -> Boolean
+    ) : IActionHintHelper {
+
+        override val actionHint: ActionHint
+            get() = ActionHint.pointer(description(), type, ctrlKey, altKey, shiftKey)
+    }
+
 }

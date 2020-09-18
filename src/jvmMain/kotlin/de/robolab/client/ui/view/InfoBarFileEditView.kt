@@ -1,18 +1,16 @@
 package de.robolab.client.ui.view
 
-import de.jensd.fx.glyphs.materialicons.MaterialIcon
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.InfoBarFileEdit
 import de.robolab.client.app.model.file.PathDetailBox
 import de.robolab.client.app.model.file.PlanetStatisticsDetailBox
 import de.robolab.client.app.model.file.PointDetailBox
+import de.robolab.client.renderer.view.base.ActionHint
 import de.robolab.client.ui.style.MainStyle
-import de.robolab.client.ui.utils.buttonGroup
-import de.robolab.client.ui.utils.iconNoAdd
 import de.robolab.common.parser.isLineValid
-import javafx.scene.control.ScrollPane
+import javafx.geometry.Pos
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.Priority
-import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import org.fxmisc.flowless.VirtualizedScrollPane
 import org.fxmisc.richtext.CodeArea
@@ -47,6 +45,39 @@ class InfoBarFileEditView(private val content: InfoBarFileEdit) : View() {
         }
     }
 
+    private fun updateActionList(box: VBox) {
+        box.clear()
+
+        for (hint in content.actionHintList.value) {
+            box.hbox {
+                paddingTop = 4
+                paddingBottom = 4
+                paddingLeft = 8
+                paddingRight = 8
+                vbox {
+                    alignment = Pos.CENTER
+                    icon(
+                        when (hint.action) {
+                            is ActionHint.Action.KeyboardAction -> MaterialIcon.KEYBOARD
+                            is ActionHint.Action.PointerAction -> MaterialIcon.MOUSE
+                        }
+                    ) {
+                        opacity = 0.3
+                    }
+                }
+                vbox {
+                    paddingLeft = 8
+                    label(hint.action.toString()) {
+                        style {
+                            fontSize = 0.8.em
+                        }
+                    }
+                    label(hint.description)
+                }
+            }
+        }
+    }
+
     override val root = vbox {
         hgrow = Priority.ALWAYS
         vgrow = Priority.ALWAYS
@@ -54,7 +85,7 @@ class InfoBarFileEditView(private val content: InfoBarFileEdit) : View() {
         vbox {
             vgrow = Priority.ALWAYS
             scrollBoxView {
-                resizeBox(0.7, true) {
+                resizeBox(0.5, true) {
                     anchorpane {
                         hgrow = Priority.ALWAYS
                         vgrow = Priority.ALWAYS
@@ -74,6 +105,12 @@ class InfoBarFileEditView(private val content: InfoBarFileEdit) : View() {
                         updateContent(this)
                     }
                     updateContent(this)
+                }
+                scrollBox(0.2) {
+                    this@InfoBarFileEditView.content.actionHintList.onChange {
+                        updateActionList(this)
+                    }
+                    updateActionList(this)
                 }
             }
         }

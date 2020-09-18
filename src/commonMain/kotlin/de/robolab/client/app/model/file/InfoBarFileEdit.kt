@@ -123,6 +123,8 @@ class InfoBarFileEdit(private val planetEntry: FileEntryPlanetDocument) :
         }
     }
 
+    val actionHintList = planetEntry.documentProperty.flatMapBinding { it.actionHintList }
+
     sealed class Change {
         data class LineModified(val line: List<Int>) : Change()
         data class LineCountModified(val from: Int, val to: Int) : Change()

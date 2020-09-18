@@ -3,6 +3,7 @@ package de.robolab.client.renderer.drawable.edit
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.drawable.general.PointAnimatable
 import de.robolab.client.renderer.drawable.utils.toPoint
+import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.GroupView
@@ -35,6 +36,24 @@ class EditPointsManager(
     private fun setupViewEvents(coordinate: Coordinate, view: SquareView) {
         view.focusable = true
 
+        view.registerPointerHint(
+            {
+                val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
+                if (focusedView != null) {
+                    val exposureCoordinate = Coordinate(
+                        focusedView.center.left.roundToInt(),
+                        focusedView.center.top.roundToInt()
+                    )
+                    "Toggle target (Exposure: ${exposureCoordinate.toSimpleString()})"
+                } else {
+                    "Toggle target"
+                }
+            },
+            PointerEvent.Type.DOWN,
+            ctrlKey = true
+        ) {
+            view.document?.focusedStack?.lastOrNull() as? SquareView != null
+        }
         view.onPointerDown { event ->
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             if (event.ctrlKey && focusedView != null) {

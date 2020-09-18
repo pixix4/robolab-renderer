@@ -1,9 +1,9 @@
 package de.robolab.client.ui.dialog
 
-import de.jensd.fx.glyphs.materialicons.MaterialIcon
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.controller.MainController
 import de.robolab.client.ui.style.MainStyle
-import de.robolab.client.ui.utils.iconNoAdd
+import de.robolab.client.ui.view.iconNoAdd
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.TabPane
 import javafx.scene.layout.VBox

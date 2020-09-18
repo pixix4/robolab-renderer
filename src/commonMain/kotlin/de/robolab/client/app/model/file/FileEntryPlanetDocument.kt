@@ -44,7 +44,7 @@ class FileEntryPlanetDocument(
         }
     }
     val PAPER = object : InfoBarController.Tab {
-        override val icon = MaterialIcon.STRAIGHTEN
+        override val icon = MaterialIcon.SQUARE_FOOT
         override val tooltip = "Paper"
         override fun open() {
             mode = this

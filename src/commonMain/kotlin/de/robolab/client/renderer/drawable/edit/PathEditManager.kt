@@ -3,6 +3,7 @@ package de.robolab.client.renderer.drawable.edit
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.renderer.events.KeyCode
+import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.IView
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
@@ -137,6 +138,16 @@ class PathEditManager(
         view.onPointerDown {
             groupChanges = false
         }
+
+        view.registerPointerHint(
+            "Move control point",
+            PointerEvent.Type.DRAG
+        )
+        view.registerPointerHint(
+            "Move control point (without snapping)",
+            PointerEvent.Type.DRAG,
+            shiftKey = true
+        )
         view.onPointerDrag { event ->
             event.stopPropagation()
 
@@ -185,12 +196,42 @@ class PathEditManager(
                 }
             }
         }
+
+        view.registerKeyHint(
+            "Delete control point",
+            KeyCode.DELETE
+        )
+        view.registerKeyHint(
+            "Move point up",
+            KeyCode.ARROW_UP
+        )
+        view.registerKeyHint(
+            "Move point down",
+            KeyCode.ARROW_DOWN
+        )
+        view.registerKeyHint(
+            "Move point left",
+            KeyCode.ARROW_LEFT
+        )
+        view.registerKeyHint(
+            "Move point right",
+            KeyCode.ARROW_RIGHT
+        )
+        view.registerKeyHint(
+            "Focus next control element",
+            KeyCode.TAB
+        )
+        view.registerKeyHint(
+            "Focus previous control element",
+            KeyCode.TAB,
+            shiftKey = true
+        )
         view.onKeyPress {event ->
             val index = controlPointView.indexOf(view)
             val cp = editableControlPoints.toMutableList()
             
             when (event.keyCode) {
-                KeyCode.DELETE, KeyCode.BACKSPACE -> {
+                KeyCode.DELETE -> {
                     cp.removeAt(index)
 
                     focusViewInDirection(view, -1)
@@ -320,6 +361,10 @@ class PathEditManager(
             updateSize()
         }
 
+        view.registerPointerHint(
+            "Create new control point",
+            PointerEvent.Type.DOWN
+        )
         view.onPointerDown { event ->
             val index = lineView.indexOf(view)
             val cp = editableControlPoints.toMutableList()
@@ -335,6 +380,20 @@ class PathEditManager(
             focusViewInDirection(view, 1)
             event.stopPropagation()
         }
+
+        view.registerKeyHint(
+            "Create new control point",
+            KeyCode.SPACE
+        )
+        view.registerKeyHint(
+            "Focus next control element",
+            KeyCode.TAB
+        )
+        view.registerKeyHint(
+            "Focus previous control element",
+            KeyCode.TAB,
+            shiftKey = true
+        )
         view.onKeyPress {event ->
             val index = lineView.indexOf(view)
             val cp = editableControlPoints.toMutableList()

@@ -2,11 +2,10 @@ package de.robolab.client.renderer.drawable.general
 
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.drawable.base.Animatable
-import de.robolab.client.renderer.drawable.edit.CreatePathManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.drawable.utils.toPoint
+import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
-import de.robolab.client.renderer.view.base.extraPut
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.SquareView
 import de.robolab.common.planet.Coordinate
@@ -45,8 +44,27 @@ class PointAnimatable(
     }
 
     init {
-        view.focusable =  true
+        view.focusable = true
 
+        view.registerPointerHint(
+            {
+                val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
+                if (focusedView != null) {
+                    val exposureCoordinate = Coordinate(
+                        focusedView.center.left.roundToInt(),
+                        focusedView.center.top.roundToInt()
+                    )
+                    "Toggle target (Exposure: ${exposureCoordinate.toSimpleString()})"
+                } else {
+                    "Toggle target"
+                }
+            },
+            PointerEvent.Type.DOWN,
+            ctrlKey = true
+        ) {
+            val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
+            editCallback != null && focusedView != null
+        }
         view.onPointerDown { event ->
             val callback = editCallback ?: return@onPointerDown
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView

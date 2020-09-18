@@ -19,6 +19,8 @@ class MainStyle : Stylesheet() {
         val infoBar by cssclass()
         val codeArea by cssclass()
         val dialog by cssclass()
+        val scrollBoxView by cssclass()
+        val scrollBoxViewEntry by cssclass()
 
         val statusBar by cssclass()
         val statusBarStatus by cssclass()

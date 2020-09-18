@@ -1,15 +1,19 @@
 package de.robolab.client.ui.views
 
 import de.robolab.client.app.controller.UiController
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.InfoBarFileEdit
 import de.robolab.client.app.model.file.PathDetailBox
 import de.robolab.client.app.model.file.PlanetStatisticsDetailBox
 import de.robolab.client.app.model.file.PointDetailBox
+import de.robolab.client.renderer.view.base.ActionHint
 import de.robolab.client.utils.runAsync
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.boxView
+import de.westermann.kwebview.components.iconView
+import de.westermann.kwebview.components.textView
 import de.westermann.kwebview.extra.scrollBoxView
 import org.w3c.dom.HTMLElement
 
@@ -33,6 +37,48 @@ class InfoBarFileEditView(
             }
         }
     }
+
+    private fun updateActionList(box: BoxView) {
+        box.clear()
+
+        for (hint in content.actionHintList.value) {
+            box.boxView {
+                style {
+                    padding = "0.3rem 0.4rem"
+                    whiteSpace = "nowrap"
+                }
+
+                boxView {
+                    style {
+                        display = "inline-block"
+                    }
+                    iconView(when (hint.action) {
+                        is ActionHint.Action.KeyboardAction -> MaterialIcon.KEYBOARD
+                        is ActionHint.Action.PointerAction -> MaterialIcon.MOUSE
+                    })
+                }
+                boxView {
+                    style {
+                        display = "inline-block"
+                        lineHeight = "1rem"
+                        paddingLeft = "0.4rem"
+                    }
+                    textView(hint.action.toString()) {
+                        style {
+                            display = "block"
+                            fontSize = "0.8rem"
+                        }
+                    }
+                    textView(hint.description) {
+                        style {
+                            display = "block"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     init {
         scrollBoxView {
@@ -82,11 +128,17 @@ class InfoBarFileEditView(
                 }
                 ignoreUpdate = false
             }
-            resizeBox(0.5) {
+            resizeBox(0.3) {
                 content.detailBoxProperty.onChange {
                     updateContent(this)
                 }
                 updateContent(this)
+            }
+            resizeBox(0.2) {
+                content.actionHintList.onChange {
+                    updateActionList(this)
+                }
+                updateActionList(this)
             }
         }
     }

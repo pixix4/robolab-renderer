@@ -1,7 +1,5 @@
 package de.robolab.common.planet
 
-import de.robolab.common.utils.Point
-import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -27,6 +25,8 @@ data class Coordinate(val x: Int, val y: Int): IPlanetValue {
             ((x - origin.x) * sin(direction.angle) + (y - origin.y) * cos(direction.angle)).roundToInt() + origin.y
         )
     }
+
+    fun toSimpleString() = "$x, $y"
 
     enum class Color {
         RED, BLUE, UNKNOWN

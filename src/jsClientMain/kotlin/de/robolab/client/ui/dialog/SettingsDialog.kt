@@ -1,5 +1,6 @@
 package de.robolab.client.ui.dialog
 
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.FileNavigationRoot
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.utils.PreferenceStorage

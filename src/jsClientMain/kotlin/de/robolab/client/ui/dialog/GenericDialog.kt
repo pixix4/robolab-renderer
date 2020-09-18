@@ -1,5 +1,6 @@
 package de.robolab.client.ui.dialog
 
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler

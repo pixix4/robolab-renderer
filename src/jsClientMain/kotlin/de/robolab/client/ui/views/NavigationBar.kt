@@ -4,6 +4,7 @@ import de.robolab.client.app.controller.FileImportController
 import de.robolab.client.app.controller.NavigationBarController
 import de.robolab.client.app.controller.UiController
 import de.robolab.client.app.model.base.INavigationBarEntry
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.ui.lineSequence
 import de.robolab.client.ui.openFile
 import de.robolab.client.ui.readText
