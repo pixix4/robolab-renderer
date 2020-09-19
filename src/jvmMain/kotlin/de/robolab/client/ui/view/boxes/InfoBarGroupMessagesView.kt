@@ -72,7 +72,7 @@ class InfoBarGroupMessagesView(private val contentInfo: InfoBarGroupMessages) : 
                 }
                 column<RobolabMessage, String>("Summary") {
                     it.value.summary.toProperty()
-                }
+                }.minWidth = 400.0
 
                 onSelectionChange {
                     val index = contentInfo.messages.indexOf(it ?: return@onSelectionChange)

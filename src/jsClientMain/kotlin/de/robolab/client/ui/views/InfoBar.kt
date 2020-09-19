@@ -9,6 +9,7 @@ import de.robolab.client.app.model.file.InfoBarFileTraverse
 import de.robolab.client.app.model.file.InfoBarFileView
 import de.robolab.client.app.model.group.InfoBarGroupMessages
 import de.robolab.client.app.model.room.InfoBarRoomRobots
+import de.robolab.client.ui.views.boxes.*
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue

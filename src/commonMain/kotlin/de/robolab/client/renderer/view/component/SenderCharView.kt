@@ -24,24 +24,43 @@ class SenderCharView(
         centerTransition.animate(center, duration, offset)
     }
 
-    private var oldGrouping = initGrouping
-    private var newGrouping = initGrouping
+    private var oldGrouping: SenderGrouping? = null
+    private var newGrouping: SenderGrouping? = initGrouping
 
     private val progressTransition = transition(0.0)
     val progress by progressTransition
     fun setGrouping(grouping: SenderGrouping?, duration: Double = animationTime, offset: Double = 0.0) {
+        progressTransition.resetValue(0.0)
+
         oldGrouping = newGrouping
         newGrouping = grouping
 
-        progressTransition.resetValue(0.0)
         progressTransition.animate(1.0, duration, offset)
     }
 
+    override fun onCreate() {
+        progressTransition.resetValue(0.0)
+        progressTransition.animate(1.0, animationTime)
+    }
+
+    override fun onDestroy(onFinish: () -> Unit) {
+        setGrouping(null)
+
+        animatableManager.onAnimationFinish {
+            onFinish()
+        }
+    }
 
     override fun onDraw(context: DrawContext) {
-        val new = newGrouping
         val old = oldGrouping
+        val new = newGrouping
+
         if (new != null) {
+            if (progress >= 1.0) {
+                draw(context, center, new.viewColor, new.char)
+                return
+            }
+
             if (old != null) {
                 draw(
                     context,
@@ -58,7 +77,7 @@ class SenderCharView(
                 )
             }
         } else {
-            if (old != null) {
+            if (old != null && progress < 1.0) {
                 draw(
                     context,
                     center,
@@ -84,7 +103,7 @@ class SenderCharView(
                 val c = context.c(color)
                 val b1 = context.theme.plotter.primaryBackgroundColor
                 val b2 = context.theme.plotter.lineColor
-                val textColor = if (b1.contrast(c) * 1.5 > b2.contrast(c)) b1 else b2
+                val textColor = (if (b1.contrast(c) * 1.5 > b2.contrast(c)) b1 else b2).a(c.alpha)
                 context.fillArc(
                     position,
                     0.07,

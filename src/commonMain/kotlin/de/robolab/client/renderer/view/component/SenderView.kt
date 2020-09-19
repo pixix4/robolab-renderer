@@ -6,7 +6,6 @@ import de.robolab.client.renderer.drawable.utils.SenderGrouping
 import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
-import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.Point
 import kotlin.math.PI
 import kotlin.math.max
@@ -41,7 +40,8 @@ class SenderView(
         start: Double,
         extend: Double = 90.0,
         color: ViewColor,
-        char: Char?
+        char: Char?,
+        alpha: Double
     ) {
         val c = context.c(color)
         context.strokeArc(
@@ -71,7 +71,8 @@ class SenderView(
 
         if (char != null) {
             val center = position + Point(PlottingConstraints.TARGET_RADIUS * 1.4, 0.0).rotate(start + extend / 2)
-            SenderCharView.draw(context, center, color, char)
+            val cc = if (alpha < 1.0) ViewColor.TRANSPARENT.interpolate(color, alpha) else color
+            SenderCharView.draw(context, center, cc, char)
         }
     }
 
@@ -105,14 +106,23 @@ class SenderView(
                         index * PI / 2,
                         extend,
                         oldColor.interpolate(newColor, progress),
-                        if (progress < 0.5) oldGroup.char else newGroup.char
+                        if (progress < 0.5) oldGroup.char else newGroup.char,
+                        1.0
                     )
                 } else {
-                    satellite(context, center + p, index * PI / 2, extend * progress, newColor, newGroup.char)
+                    satellite(context, center + p, index * PI / 2, extend * progress, newColor, newGroup.char, progress)
                 }
             } else if (oldGroup != null) {
                 val oldColor = oldGroup.color.let { ViewColor.c(it) }
-                satellite(context, center + p, index * PI / 2, extend * (1.0 - progress), oldColor, oldGroup.char)
+                satellite(
+                    context,
+                    center + p,
+                    index * PI / 2,
+                    extend * (1.0 - progress),
+                    oldColor,
+                    oldGroup.char,
+                    1.0 - progress
+                )
             }
         }
 

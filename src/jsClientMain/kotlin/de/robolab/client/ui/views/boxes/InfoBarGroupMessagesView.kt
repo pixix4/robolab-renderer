@@ -1,4 +1,4 @@
-package de.robolab.client.ui.views
+package de.robolab.client.ui.views.boxes
 
 import com.soywiz.klock.format
 import de.robolab.client.app.controller.UiController

@@ -19,19 +19,31 @@ data class ViewColor(
 
     fun toColor(theme: IThemePlotter): Color {
         return interpolations.fold(color.toColor(theme)) { acc, pair ->
-            acc.interpolate(pair.first.toColor(theme), pair.second)
+            val toColor = pair.first.toColor(theme)
+            val progress = pair.second
+
+            when {
+                acc == Color.TRANSPARENT -> toColor.a(progress)
+                toColor == Color.TRANSPARENT -> acc.a(1.0 - progress)
+                else -> acc.interpolate(toColor, progress)
+            }
         }
     }
 
     sealed class C {
         abstract fun toColor(theme: IThemePlotter): Color
-        
-        object POINT_RED: C() {
+
+        override fun toString(): String {
+            return "C(${this::class.simpleName})"
+        }
+
+        object POINT_RED : C() {
             override fun toColor(theme: IThemePlotter): Color {
                 return theme.redColor
             }
         }
-        object POINT_BLUE: C() {
+
+        object POINT_BLUE : C() {
             override fun toColor(theme: IThemePlotter): Color {
                 return theme.blueColor
             }
@@ -100,8 +112,11 @@ data class ViewColor(
             override fun toColor(theme: IThemePlotter): Color {
                 return color
             }
-        }
 
+            override fun toString(): String {
+                return "C($color)"
+            }
+        }
     }
 
     companion object {

@@ -1,4 +1,4 @@
-package de.robolab.client.ui.views
+package de.robolab.client.ui.views.boxes
 
 import de.robolab.client.app.model.file.PlanetStatisticsDetailBox
 import de.westermann.kwebview.View
