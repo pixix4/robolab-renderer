@@ -197,7 +197,7 @@ enum class Type {
             message.requireFrom(From.CLIENT)
             return RobolabMessage.TargetReachedMessage(
                 metadata,
-                message.payload::message orElse ""
+                message.payload::message.orElse("", metadata.groupId)
             )
         }
     },
@@ -209,7 +209,7 @@ enum class Type {
             message.requireFrom(From.CLIENT)
             return RobolabMessage.ExplorationCompletedMessage(
                 metadata,
-                message.payload::message orElse ""
+                message.payload::message.orElse("", metadata.groupId)
             )
         }
     },

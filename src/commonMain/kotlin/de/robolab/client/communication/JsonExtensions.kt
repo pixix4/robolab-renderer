@@ -12,8 +12,8 @@ private val logger = Logger("JsonExtensions")
 
 fun <T> KProperty0<T?>.parsed() = this.get() ?: throw MissingJsonArgumentException(this.name)
 
-infix fun <T> KProperty0<T?>.orElse(value: T) = this.get()
-        ?: value.also { logger.warn { "Attribute $name is missing." } }
+fun <T> KProperty0<T?>.orElse(value: T, groupId: String) = this.get()
+        ?: value.also { logger.warn { "Group $groupId: Attribute $name is missing." } }
 
 class MissingJsonArgumentException(val argumentName: String) : Exception()
 
