@@ -1,8 +1,8 @@
 package de.robolab.client.app.model.file
 
 import de.robolab.client.app.model.base.INavigationBarEntry
+import de.robolab.client.app.model.base.INavigationBarList
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.client.app.model.file.provider.FilePlanet
 import de.robolab.client.app.model.file.provider.IFilePlanetIdentifier
 import de.robolab.client.app.model.file.provider.IFilePlanetLoader
 import de.robolab.client.utils.ContextMenu
@@ -10,61 +10,32 @@ import de.robolab.client.utils.buildContextMenu
 import de.robolab.client.utils.runAsync
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.constObservable
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class FileEntryNavigationList<T : IFilePlanetIdentifier>(
+class FileSearchNavigationList<T : IFilePlanetIdentifier>(
     private val root: FileNavigationRoot,
-    override val loader: IFilePlanetLoader<T>,
-    private val entry: T?,
+    val loader: IFilePlanetLoader<T>,
+    private val search: String,
     private val parents: List<T> = emptyList()
-) : FileRemoteNavigationList.RepositoryList<T> {
+) : INavigationBarList {
 
-    override val parentNameProperty = if (entry == null) {
-        loader.nameProperty
-    } else {
-        constObservable(entry.name)
-    }
+    override val parentNameProperty = constObservable("Search")
 
     override fun openParent() {
-        if (entry == null) {
-            root.openRemoteList()
-        } else {
-            root.openRemoteEntryList(
-                loader,
-                parents.dropLast(1).lastOrNull(),
-                parents.dropLast(1),
-            )
-        }
+        root.openRemoteEntryList(
+            loader,
+            parents.lastOrNull(),
+            parents,
+        )
     }
 
     override val childrenProperty = observableListOf<Entry>()
 
-    override fun onChange(entry: T?) {
-        if (entry == this.entry) {
-            GlobalScope.launch {
-                val planets = loader.listPlanets(entry)
-
-                runAsync {
-                    childrenProperty.sync(planets.map { Entry(it) })
-                }
-            }
-        }
-    }
-
-    fun createSearchList(search: String) = FileSearchNavigationList(
-        root,
-        loader,
-        search,
-        parents
-    )
-
     init {
         GlobalScope.launch {
-            val planets = loader.listPlanets(entry)
+            val planets = loader.searchPlanets(search)
 
             runAsync {
                 childrenProperty.addAll(planets.map { Entry(it) })
@@ -89,7 +60,11 @@ class FileEntryNavigationList<T : IFilePlanetIdentifier>(
                 }
             }
         } else {
-            entry.lastModified.format("yyyy-MM-dd HH:mm:ss z")
+            entry.path.joinToString("/").let {
+                if (it.isEmpty()) {
+                    entry.lastModified.format("yyyy-MM-dd HH:mm:ss z")
+                } else it
+            }
         })
 
         override val enabledProperty = loader.availableProperty
@@ -118,20 +93,6 @@ class FileEntryNavigationList<T : IFilePlanetIdentifier>(
             return buildContextMenu(position, "Planet ${entry.name}") {
                 action("Open in new tab") {
                     open(true)
-                }
-                action("Copy") {
-                    GlobalScope.launch(Dispatchers.Main) {
-                        val filePlanet = FilePlanet(loader, entry)
-                        filePlanet.load()
-                        filePlanet.copy(this@FileEntryNavigationList.entry)
-                    }
-                }
-                action("Delete") {
-                    GlobalScope.launch(Dispatchers.Main) {
-                        val filePlanet = FilePlanet(loader, entry)
-                        filePlanet.load()
-                        filePlanet.delete()
-                    }
                 }
             }
         }

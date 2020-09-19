@@ -1,13 +1,11 @@
 package de.robolab.client.ui.view
 
-import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.controller.FileImportController
 import de.robolab.client.app.controller.NavigationBarController
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.style.MainStyle
 import de.robolab.client.ui.utils.buttonGroup
-import de.robolab.client.ui.view.icon
-import de.robolab.client.ui.view.iconNoAdd
 import de.robolab.client.updater.Downloader
 import de.robolab.client.utils.progressReader
 import de.robolab.common.utils.Logger

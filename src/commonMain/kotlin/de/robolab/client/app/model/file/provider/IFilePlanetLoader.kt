@@ -43,6 +43,8 @@ interface IFilePlanetIdentifier {
 
     val lastModified: DateTime
 
+    val path: List<String>
+
     fun matchesSearch(request: SearchRequest, planet: Planet): Boolean = request.matches(planet)
 }
 

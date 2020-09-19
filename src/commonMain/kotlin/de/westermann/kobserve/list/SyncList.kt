@@ -8,9 +8,7 @@ import dev.gitlive.difflib.DiffUtils
 fun<T> MutableList<T>.sync(other: List<T>) {
     val patch = DiffUtils.diff(this, other)
 
-    val it = patch.getDeltas().listIterator()
-    while (it.hasNext()) {
-        val delta = it.next()
+    for (delta in patch.getDeltas().asReversed()) {
         delta.applyTo(this)
     }
 }

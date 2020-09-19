@@ -9,8 +9,9 @@ import de.robolab.client.app.repository.Group
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.utils.runAsync
+import de.westermann.kobserve.list.asObservable
 import de.westermann.kobserve.property.flatMapBinding
-import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -27,21 +28,32 @@ class GroupNavigationRoot(
     private val activeListProperty = property<RepositoryList>(GroupNavigationList(messageRepository, this))
     private val activeList by activeListProperty
 
-    override val childrenProperty = activeListProperty.mapBinding { it.childrenProperty }
+    override val childrenProperty = searchProperty.join(activeListProperty) { search, active ->
+        if (search.isEmpty()) {
+            active.childrenProperty
+        } else {
+            active.childrenProperty.filter {
+                it.nameProperty.value.contains(search, true)
+            }.toMutableList().asObservable()
+        }
+    }
 
     override val parentNameProperty = activeListProperty.flatMapBinding {
         it.parentNameProperty
     }
 
     override fun openParent() {
+        searchProperty.value = ""
         activeList.openParent()
     }
 
     fun openGroupList() {
+        searchProperty.value = ""
         activeListProperty.value = GroupNavigationList(messageRepository, this)
     }
 
     fun openGroupAttemptList(group: Group) {
+        searchProperty.value = ""
         activeListProperty.value = GroupAttemptNavigationList(group, messageRepository, this)
     }
 

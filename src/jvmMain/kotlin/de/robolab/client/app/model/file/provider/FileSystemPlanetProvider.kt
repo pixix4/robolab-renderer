@@ -161,6 +161,9 @@ class FileSystemPlanetLoader(
                 0
             }
 
+        override val path: List<String>
+            get() = file.parentFile.relativeTo(baseDirectory).path.split("""[/\\]""".toRegex())
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is FileIdentifier) return false

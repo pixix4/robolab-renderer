@@ -9,6 +9,7 @@ import de.robolab.client.net.requests.getExamInfo
 import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.event.subscribe
 import de.westermann.kobserve.property.flatMapBinding
+import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.GlobalScope
@@ -38,7 +39,14 @@ class FileNavigationRoot(
     private val activeListProperty = property<INavigationBarList>(FileRemoteNavigationList(this))
     val activeList by activeListProperty
 
-    override val childrenProperty = activeListProperty.mapBinding { it.childrenProperty }
+    override val childrenProperty = searchProperty.join(activeListProperty) { search, active ->
+        if (search.isEmpty()) {
+            active.childrenProperty
+        } else {
+            val current = active as? FileEntryNavigationList<*>
+            current?.createSearchList(search)?.childrenProperty ?: active.childrenProperty
+        }
+    }
 
     override val parentNameProperty = activeListProperty.flatMapBinding {
         it.parentNameProperty

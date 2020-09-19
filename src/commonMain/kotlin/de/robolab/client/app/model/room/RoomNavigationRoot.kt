@@ -7,8 +7,9 @@ import de.robolab.client.app.model.file.CachedFilePlanetProvider
 import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.app.repository.Room
+import de.westermann.kobserve.list.asObservable
 import de.westermann.kobserve.property.flatMapBinding
-import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.property
 
 class RoomNavigationRoot(
@@ -30,10 +31,14 @@ class RoomNavigationRoot(
         activeList.openParent()
     }
 
-    override val childrenProperty = activeListProperty.mapBinding { it.childrenProperty }
-
-    fun openRoomList() {
-        activeListProperty.value = RoomNavigationList(messageRepository, this)
+    override val childrenProperty = searchProperty.join(activeListProperty) { search, active ->
+        if (search.isEmpty()) {
+            active.childrenProperty
+        } else {
+            active.childrenProperty.filter {
+                it.nameProperty.value.contains(search, true)
+            }.toMutableList().asObservable()
+        }
     }
 
     fun openRoom(room: Room, asNewTab: Boolean) {

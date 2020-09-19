@@ -48,6 +48,8 @@ class PlanetJsonInfo(
 
     override val childrenCount = 0
 
+    override val path = emptyList<String>()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PlanetJsonInfo) return false
