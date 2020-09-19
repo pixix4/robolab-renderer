@@ -128,7 +128,7 @@ object SegmentDrawer {
         SEGMENT_G
     )
 
-    fun drawSegments(
+    private fun drawSegments(
         canvas: ICanvas,
         segments: List<List<Point>>,
         color: Color,

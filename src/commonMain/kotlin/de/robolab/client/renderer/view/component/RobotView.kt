@@ -115,7 +115,7 @@ class RobotView(
             Point(0.35, 0.0),
             Point(-0.35, 0.0)
         )
-        const val ROBOT_DISPLAY_CHAR_SIZE = 0.25
+        const val ROBOT_DISPLAY_CHAR_SIZE = 0.3
         val ROBOT_DISPLAY_CHAR_2 =
             Rectangle.fromEdges(ROBOT_DISPLAY).center - Point(ROBOT_DISPLAY_CHAR_SIZE / 2, ROBOT_DISPLAY_CHAR_SIZE / 2)
         val ROBOT_DISPLAY_CHAR_1 = ROBOT_DISPLAY_CHAR_2 - Point(ROBOT_DISPLAY_CHAR_SIZE * 0.8, 0.0)

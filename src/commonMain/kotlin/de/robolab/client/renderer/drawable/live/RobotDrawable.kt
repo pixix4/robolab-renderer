@@ -43,17 +43,63 @@ class RobotDrawable(
         private val robot: Robot?
     ) : IInterpolatable<DrawRobot> {
 
+        private var cachedToRobot: Robot? = null
+        private var cachedToRobotPathPoints: Pair<Path, List<Point>>? = null
+        private fun getPathPoints(toRobot: Robot): Pair<Path, List<Point>> {
+            if (robot == null) throw IllegalStateException()
+
+            if (cachedToRobot == toRobot) {
+                val cache = cachedToRobotPathPoints
+                if (cache != null) {
+                    return cache
+                }
+            } else {
+                cachedToRobot = toRobot
+                cachedToRobotPathPoints = null
+            }
+
+            var path = Path(
+                robot.point,
+                robot.direction,
+                toRobot.point,
+                toRobot.direction,
+                1,
+                emptySet(),
+                emptyList(),
+                hidden = false,
+                showDirectionArrow = false
+            )
+            val planetPath = planet?.pathList?.find { it.equalPath(path) }
+            if (planetPath != null) {
+                path = if (path.source == planetPath.source && path.sourceDirection == planetPath.sourceDirection) {
+                    path.copy(
+                        controlPoints = planetPath.controlPoints
+                    )
+                } else {
+                    path.copy(
+                        controlPoints = planetPath.controlPoints.reversed()
+                    )
+                }
+            }
+
+            val result = path to PathAnimatable.getControlPointsFromPath(planet?.version ?: PlanetVersion.CURRENT, path)
+            cachedToRobotPathPoints = result
+            return result
+        }
+
         fun getAnimationTimeMultiplier(toValue: DrawRobot): Double {
             if (position == toValue.position && orientation == toValue.orientation) {
                 return 1.0
             }
 
-            if (toValue.robot?.backwardMotion == true ) {
-                return toValue.getAnimationTimeMultiplier(DrawRobot(
-                    position,
-                    orientation,
-                    robot?.copy(backwardMotion = false)
-                ))
+            if (toValue.robot?.backwardMotion == true) {
+                return toValue.getAnimationTimeMultiplier(
+                    DrawRobot(
+                        position,
+                        orientation,
+                        robot?.copy(backwardMotion = false)
+                    )
+                )
             }
 
             if (robot != null && toValue.robot != null) {
@@ -61,34 +107,10 @@ class RobotDrawable(
                     return 1.0
                 }
 
-                var path = Path(
-                    robot.point,
-                    robot.direction,
-                    toValue.robot.point,
-                    toValue.robot.direction,
-                    1,
-                    emptySet(),
-                    emptyList(),
-                    hidden = false,
-                    showDirectionArrow = false
-                )
-                val planetPath = planet?.pathList?.find { it.equalPath(path) }
-                if (planetPath != null) {
-                    path = if (path.source == planetPath.source && path.sourceDirection == planetPath.sourceDirection) {
-                        path.copy(
-                            controlPoints = planetPath.controlPoints
-                        )
-                    } else {
-                        path.copy(
-                            controlPoints = planetPath.controlPoints.reversed()
-                        )
-                    }
-                }
-
-                val points = PathAnimatable.getControlPointsFromPath(planet?.version ?: PlanetVersion.CURRENT, path)
+                val (path, points) = getPathPoints(toValue.robot)
                 val length = path.length(points)
 
-                return max(0.5, min(10.0, length))
+                return max(0.5, min(8.0, length))
             }
 
             return 1.0
@@ -122,31 +144,7 @@ class RobotDrawable(
                     )
                 }
 
-                var path = Path(
-                    robot.point,
-                    robot.direction,
-                    toValue.robot.point,
-                    toValue.robot.direction,
-                    1,
-                    emptySet(),
-                    emptyList(),
-                    hidden = false,
-                    showDirectionArrow = false
-                )
-                val planetPath = planet?.pathList?.find { it.equalPath(path) }
-                if (planetPath != null) {
-                    path = if (path.source == planetPath.source && path.sourceDirection == planetPath.sourceDirection) {
-                        path.copy(
-                            controlPoints = planetPath.controlPoints
-                        )
-                    } else {
-                        path.copy(
-                            controlPoints = planetPath.controlPoints.reversed()
-                        )
-                    }
-                }
-
-                val points = PathAnimatable.getControlPointsFromPath(planet?.version ?: PlanetVersion.CURRENT, path)
+                val (path, points) = getPathPoints(toValue.robot)
 
                 val position: Point
                 val d: Point
