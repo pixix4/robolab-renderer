@@ -1,4 +1,4 @@
-package de.robolab.client.ui.view
+package de.robolab.client.ui.view.boxes
 
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.InfoBarFileEdit
@@ -7,6 +7,8 @@ import de.robolab.client.app.model.file.PlanetStatisticsDetailBox
 import de.robolab.client.app.model.file.PointDetailBox
 import de.robolab.client.renderer.view.base.ActionHint
 import de.robolab.client.ui.style.MainStyle
+import de.robolab.client.ui.view.icon
+import de.robolab.client.ui.view.scrollBoxView
 import de.robolab.common.parser.isLineValid
 import javafx.geometry.Pos
 import javafx.scene.input.KeyCode

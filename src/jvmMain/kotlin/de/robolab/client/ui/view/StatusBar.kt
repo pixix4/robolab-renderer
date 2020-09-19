@@ -5,9 +5,12 @@ import de.robolab.client.app.controller.UiController
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.style.MainStyle
 import de.robolab.client.updater.Downloader
+import de.robolab.client.utils.runAfterTimeoutInterval
 import de.robolab.common.parser.toFixed
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import javafx.beans.property.SimpleDoubleProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.layout.HBox
 import tornadofx.*
@@ -89,6 +92,45 @@ class StatusBar(
 
             progressbar(progress.toFx())
             label(progressLabel.toFx())
+        }
+
+        hbox {
+            addClass(MainStyle.memoryIndicator)
+
+            val memoryProperty = SimpleDoubleProperty(0.0)
+            val memoryLabelProperty = SimpleStringProperty("0 of 0M")
+
+            anchorpane {
+                progressbar(memoryProperty) {
+                    anchorpaneConstraints {
+                        topAnchor = 0
+                        bottomAnchor = 0
+                        leftAnchor = 0
+                        rightAnchor = 0
+                    }
+                }
+                label(memoryLabelProperty) {
+                    paddingLeft = 4
+                    paddingRight = 4
+                    alignment = Pos.CENTER
+                    anchorpaneConstraints {
+                        topAnchor = 0
+                        bottomAnchor = 0
+                        leftAnchor = 0
+                        rightAnchor = 0
+                    }
+                }
+            }
+
+            runAfterTimeoutInterval(1000) {
+                val totalMemory = Runtime.getRuntime().totalMemory()
+                val freeMemory = Runtime.getRuntime().freeMemory()
+                memoryProperty.value = (totalMemory - freeMemory).toDouble() / totalMemory.toDouble()
+
+                val totalStr = "${totalMemory / 1024 / 1024}"
+                val usedStr = "${(totalMemory - freeMemory) / 1024 / 1024}"
+                memoryLabelProperty.value = "$usedStr of ${totalStr}M"
+            }
         }
     }
 

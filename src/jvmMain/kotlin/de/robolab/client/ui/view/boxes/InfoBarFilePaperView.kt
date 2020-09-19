@@ -1,10 +1,11 @@
-package de.robolab.client.ui.view
+package de.robolab.client.ui.view.boxes
 
 import de.robolab.client.app.model.file.*
 import de.robolab.client.renderer.drawable.edit.PaperBackgroundDrawable
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.dialog.DoubleStringConverter
 import de.robolab.client.ui.dialog.IntStringConverter
+import de.robolab.client.ui.view.scrollBoxView
 import de.robolab.client.utils.PreferenceStorage
 import javafx.scene.layout.VBox
 import tornadofx.*

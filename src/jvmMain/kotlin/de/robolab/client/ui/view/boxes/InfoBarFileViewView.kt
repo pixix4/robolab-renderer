@@ -1,16 +1,12 @@
-package de.robolab.client.ui.view
+package de.robolab.client.ui.view.boxes
 
 import de.robolab.client.app.model.file.InfoBarFileView
 import de.robolab.client.app.model.file.PathDetailBox
 import de.robolab.client.app.model.file.PlanetStatisticsDetailBox
 import de.robolab.client.app.model.file.PointDetailBox
-import de.robolab.common.parser.isLineValid
+import de.robolab.client.ui.view.scrollBoxView
 import javafx.scene.layout.VBox
-import org.fxmisc.richtext.model.StyleSpans
-import org.fxmisc.richtext.model.StyleSpansBuilder
 import tornadofx.*
-import java.util.*
-import java.util.regex.Pattern
 
 /**
  * @author lars

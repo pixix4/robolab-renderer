@@ -1,4 +1,4 @@
-package de.robolab.client.ui.view
+package de.robolab.client.ui.view.boxes
 
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.controller.TraverserBarController
@@ -6,6 +6,8 @@ import de.robolab.client.app.model.traverser.ITraverserStateEntry
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.style.MainStyle
 import de.robolab.client.ui.utils.buttonGroup
+import de.robolab.client.ui.view.bindClass
+import de.robolab.client.ui.view.bindSelectedProperty
 import de.robolab.client.ui.view.iconNoAdd
 import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.not

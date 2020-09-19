@@ -25,6 +25,7 @@ class MainStyle : Stylesheet() {
         val statusBar by cssclass()
         val statusBarStatus by cssclass()
         val statusBarBoxes by cssclass()
+        val memoryIndicator by cssclass()
 
         val tabBar by cssclass()
         val tabBarSide by cssclass()

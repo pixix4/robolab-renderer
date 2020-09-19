@@ -1,4 +1,4 @@
-package de.robolab.client.ui.view
+package de.robolab.client.ui.view.boxes
 
 import de.robolab.client.app.model.file.PlanetStatisticsDetailBox
 import de.robolab.client.ui.adapter.toFx

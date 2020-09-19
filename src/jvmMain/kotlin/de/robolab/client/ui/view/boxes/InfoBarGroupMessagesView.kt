@@ -1,10 +1,11 @@
-package de.robolab.client.ui.view
+package de.robolab.client.ui.view.boxes
 
 import com.soywiz.klock.format
 import de.robolab.client.app.model.group.InfoBarGroupMessages
 import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.utils.buttonGroup
+import de.robolab.client.ui.view.scrollBoxView
 import de.robolab.client.utils.PreferenceStorage
 import javafx.scene.layout.Priority
 import javafx.scene.text.Font

@@ -55,4 +55,26 @@ fun Stylesheet.initStatusBarStyle() {
             padding = box(1.px)
         }
     }
+
+    MainStyle.memoryIndicator {
+        Stylesheet.progressBar {
+            prefHeight = 100.percent
+            minWidth = 4.em
+            padding = box(0.px)
+
+            Stylesheet.track {
+                backgroundColor = multi(MainStyle.theme.ui.secondaryBackground.toFx())
+                borderWidth = multi(box(0.px))
+                backgroundRadius = multi(box(0.px))
+            }
+
+            Stylesheet.bar {
+                backgroundColor = multi(MainStyle.theme.ui.tertiaryBackground.toFx())
+
+                borderRadius = multi(box(0.px))
+                backgroundRadius = multi(box(0.px))
+                padding = box(0.px)
+            }
+        }
+    }
 }

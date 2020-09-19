@@ -1,4 +1,4 @@
-package de.robolab.client.ui.view
+package de.robolab.client.ui.view.boxes
 
 import de.robolab.client.app.model.room.InfoBarRoomRobots
 import de.robolab.client.app.model.room.RoomPlanetDocument

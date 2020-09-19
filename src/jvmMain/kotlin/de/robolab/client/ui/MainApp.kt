@@ -10,8 +10,6 @@ import de.robolab.client.utils.UpdateChannel
 import de.robolab.client.utils.runAfterTimeoutInterval
 import de.robolab.common.utils.ConfigFile
 import de.robolab.common.utils.ConsoleGreeter
-import de.robolab.common.utils.Logger
-import de.westermann.kobserve.event.now
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +19,6 @@ import tornadofx.App
 import tornadofx.NoPrimaryViewSpecified
 import tornadofx.UIComponent
 import java.nio.file.Paths
-import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 
 
@@ -116,31 +113,7 @@ class MainApp : App(NoPrimaryViewSpecified::class) {
 
             setupTheme()
 
-            setupMemoryDebugThread()
-
             LauncherImpl.launchApplication(MainApp::class.java, MainAppPreloader::class.java, args)
-        }
-    }
-}
-
-fun setupMemoryDebugThread() {
-    fun createThread() {
-        thread(name = "MemoryDebugThread") {
-            val logger = Logger("Memory logger")
-            while (PreferenceStorage.debugMode) {
-                Thread.sleep(1_000)
-                logger.i {
-                    val bytes = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
-                    val mb = bytes / 1024 / 1024
-                    "Mem: ${mb}MB"
-                }
-            }
-        }
-    }
-
-    PreferenceStorage.debugModeProperty.onChange.now {
-        if (PreferenceStorage.debugMode) {
-            createThread()
         }
     }
 }
