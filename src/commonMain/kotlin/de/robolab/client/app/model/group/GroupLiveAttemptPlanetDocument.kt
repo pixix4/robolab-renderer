@@ -97,6 +97,8 @@ class GroupLiveAttemptPlanetDocument(
 
     private var serverPlanet = Planet.EMPTY
     private var mqttPlanet = Planet.EMPTY
+
+    private var lastSelectedIndex = selectedIndexProperty.value
     fun update() {
         val selectedIndex = selectedIndexProperty.value
         val m = if (selectedIndex >= messages.lastIndex) messages else messages.subList(0, selectedIndex + 1)
@@ -116,7 +118,10 @@ class GroupLiveAttemptPlanetDocument(
             true
         )
         drawable.importMqttPlanet(mqttPlanet.importSplines(planet))
-        drawable.importRobot(m.toRobot(group.name.toIntOrNull()))
+
+        val backward = selectedIndex < lastSelectedIndex
+        lastSelectedIndex = selectedIndex
+        drawable.importRobot(m.toRobot(group.name.toIntOrNull(), backward))
     }
 
     private var isAttached = false

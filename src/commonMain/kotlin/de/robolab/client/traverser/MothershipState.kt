@@ -23,7 +23,8 @@ fun IMothershipState.toDrawableRobot(groupNumber: Int? = null): RobotDrawable.Ro
     currentLocation,
     forcedDirection ?: selectedDirection ?: drivenPath.targetDirection,
     beforePoint,
-    groupNumber
+    groupNumber,
+    false
 )
 
 data class MothershipState(

@@ -147,7 +147,7 @@ fun List<RobolabMessage>.toMqttPlanet(): Planet {
     ).generateMissingSenderGroupings()
 }
 
-fun List<RobolabMessage>.toRobot(groupNumber: Int?): RobotDrawable.Robot? {
+fun List<RobolabMessage>.toRobot(groupNumber: Int?, backwardMotion: Boolean = false): RobotDrawable.Robot? {
     var currentPoint: Coordinate? = null
     var currentDirection = Direction.NORTH
     var beforePoint = true
@@ -179,5 +179,5 @@ fun List<RobolabMessage>.toRobot(groupNumber: Int?): RobotDrawable.Robot? {
         }
     }
 
-    return RobotDrawable.Robot(currentPoint ?: return null, currentDirection, beforePoint, groupNumber)
+    return RobotDrawable.Robot(currentPoint ?: return null, currentDirection, beforePoint, groupNumber, backwardMotion)
 }

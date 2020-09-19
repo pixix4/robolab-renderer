@@ -29,7 +29,8 @@ class RobotDrawable(
         val point: Coordinate,
         val direction: Direction,
         val beforePoint: Boolean,
-        val groupNumber: Int?
+        val groupNumber: Int?,
+        val backwardMotion: Boolean,
     ) {
         val afterPoint: Boolean = !beforePoint
     }
@@ -47,8 +48,16 @@ class RobotDrawable(
                 return 1.0
             }
 
+            if (toValue.robot?.backwardMotion == true ) {
+                return toValue.getAnimationTimeMultiplier(DrawRobot(
+                    position,
+                    orientation,
+                    robot?.copy(backwardMotion = false)
+                ))
+            }
+
             if (robot != null && toValue.robot != null) {
-                if (robot.beforePoint || toValue.robot.afterPoint) {
+                if (robot.beforePoint || toValue.robot.afterPoint || toValue.robot.backwardMotion) {
                     return 1.0
                 }
 
@@ -89,6 +98,15 @@ class RobotDrawable(
             if (position == toValue.position && orientation == toValue.orientation) {
                 return this
             }
+
+            if (toValue.robot?.backwardMotion == true ) {
+                return toValue.interpolate(DrawRobot(
+                    position,
+                    orientation,
+                    robot?.copy(backwardMotion = false)
+                ), 1.0 - progress)
+            }
+
             val orientationDelta = when {
                 orientation - toValue.orientation > PI -> toValue.orientation - (orientation - 2 * PI)
                 toValue.orientation - orientation > PI -> (toValue.orientation - 2 * PI) - orientation
@@ -96,7 +114,7 @@ class RobotDrawable(
             }
 
             if (robot != null && toValue.robot != null) {
-                if (robot.beforePoint || toValue.robot.afterPoint) {
+                if (robot.beforePoint || toValue.robot.afterPoint || toValue.robot.backwardMotion) {
                     return DrawRobot(
                         position.interpolate(toValue.position, progress),
                         orientation + orientationDelta * progress,
@@ -185,7 +203,7 @@ class RobotDrawable(
         return DrawRobot(
             Point(robot.point).shift(robot.direction, PlottingConstraints.CURVE_FIRST_POINT),
             if (robot.beforePoint) robot.direction.opposite().toAngle() else robot.direction.toAngle(),
-            robot
+            robot,
         )
     }
 
