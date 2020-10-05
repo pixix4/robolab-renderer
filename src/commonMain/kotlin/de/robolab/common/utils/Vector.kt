@@ -88,13 +88,13 @@ data class Vector(
     }
 
     fun max(other: Vector): Vector = Vector(
-            kotlin.math.max(left, other.left),
-            kotlin.math.max(top, other.top)
+            max(left, other.left),
+            max(top, other.top)
     )
 
     fun min(other: Vector): Vector = Vector(
-            kotlin.math.min(left, other.left),
-            kotlin.math.min(top, other.top)
+            min(left, other.left),
+            min(top, other.top)
     )
 
     fun rounded() = Vector(round(left), round(top))
@@ -115,8 +115,6 @@ data class Vector(
 
     val y: Double
         get() = top
-
-
 
     companion object {
         val ZERO = Vector(0.0, 0.0)

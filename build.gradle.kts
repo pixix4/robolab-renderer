@@ -4,8 +4,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 plugins {
-    kotlin("multiplatform") version "1.4.0"
-    kotlin("plugin.serialization") version "1.4.0"
+    kotlin("multiplatform") version "1.4.10"
+    kotlin("plugin.serialization") version "1.4.10"
     id("com.gorylenko.gradle-git-properties") version "2.2.2"
 }
 
@@ -26,10 +26,10 @@ repositories {
     }
 }
 
-val serializationVersion = "1.0.0-RC"
+val serializationVersion = "1.0.0-RC2"
 val klockVersion = "1.12.0"
 val coroutineVersion = "1.3.9"
-val ktorVersion = "1.4.0"
+val ktorVersion = "1.4.1"
 kotlin {
     jvm("jvm") {
         compilations.all {
@@ -71,7 +71,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
                 implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
 
@@ -106,15 +106,13 @@ kotlin {
                 implementation("org.openjfx:javafx-graphics:14:mac")
                 implementation("org.openjfx:javafx-base:14:mac")
 
-                // implementation("de.jensd:fontawesomefx-commons:9.1.2")
-                // implementation("de.jensd:fontawesomefx-materialicons:2.2.0-9.1.2")
                 implementation("org.fxmisc.flowless:flowless:0.6.1")
                 implementation("org.fxmisc.richtext:richtextfx:0.10.5")
                 implementation("org.fusesource.jansi:jansi:1.18")
                 implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4")
                 implementation("org.slf4j:slf4j-nop:1.7.30")
 
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutineVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$coroutineVersion")
 
@@ -136,7 +134,7 @@ kotlin {
 
         val jsClientMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-js:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
 
@@ -158,7 +156,7 @@ kotlin {
 
         val jsServerMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-js:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
 

@@ -83,9 +83,9 @@ class PlotterWindow(
     fun onDraw() {
         context.canvas.fillRect(
             Rectangle(
-                -1.0, -1.0,
-                dimension.width + 2.0,
-                dimension.height + 2.0
+                0.0, 0.0,
+                dimension.width,
+                dimension.height
             ),
             context.theme.plotter.secondaryBackgroundColor
         )
