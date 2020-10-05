@@ -4,6 +4,7 @@ import de.robolab.client.app.controller.MainController
 import de.robolab.client.ui.views.*
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.toDashCase
+import de.westermann.kobserve.not
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -50,10 +51,12 @@ fun main() {
             uiController.infoBarWidthProperty.join(uiController.infoBarVisibleProperty) { width, visible ->
                 if (visible) "${width}px" else "0px"
             })
+
         boxView("app") {
             classList.bind("navigation-bar-active", uiController.navigationBarVisibleProperty)
             classList.bind("info-bar-active", uiController.infoBarVisibleProperty)
             classList.bind("fullscreen", uiController.fullscreenProperty)
+            classList.bind("tab-bar-hidden", !mainController.tabController.visibleProperty)
 
             +ToolBar(mainController.toolBarController)
             +TabBar(mainController.tabController)

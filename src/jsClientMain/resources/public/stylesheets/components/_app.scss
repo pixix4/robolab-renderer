@@ -18,6 +18,18 @@
     "canvas"
     "status";
 
+  &.tab-bar-hidden {
+    grid-template-areas:
+      "tool"
+      "canvas"
+      "canvas"
+      "status";
+
+    & > .tab-bar {
+      display: none;
+    }
+  }
+
   &.fullscreen {
     grid-template-rows: 2.2rem auto !important;
     grid-template-columns: auto !important;
@@ -106,6 +118,16 @@
       "navigation tab info"
       "navigation canvas info"
       "status status status";
+
+
+
+    &.tab-bar-hidden {
+      grid-template-areas:
+      "tool tool tool"
+      "navigation canvas info"
+      "navigation canvas info"
+      "status status status";
+    }
   }
 
   .navigation-bar {

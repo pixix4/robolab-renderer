@@ -31,6 +31,9 @@ class SettingsDialog private constructor(): Dialog("Settings") {
                 dialogFormEntry("Use system theme") {
                     label(checkbox(PreferenceStorage.useSystemThemeProperty))
                 }
+                dialogFormEntry("Hide empty tab bar") {
+                    label(checkbox(PreferenceStorage.hideEmptyTabBarProperty))
+                }
             }
 
             dialogFormGroup("Plotting") {

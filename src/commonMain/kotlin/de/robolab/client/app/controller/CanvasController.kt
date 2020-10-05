@@ -2,6 +2,8 @@ package de.robolab.client.app.controller
 
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.VirtualCanvas
+import de.robolab.client.renderer.drawable.utils.normalizeRadiant
+import de.robolab.client.renderer.drawable.utils.radiantToDegree
 import de.robolab.client.renderer.utils.CommonTimer
 import de.robolab.client.renderer.utils.Pointer
 import de.robolab.client.renderer.utils.TransformationInteraction
@@ -14,7 +16,6 @@ import de.westermann.kobserve.event.now
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
-import kotlin.math.PI
 import kotlin.math.roundToInt
 
 class CanvasController(
@@ -37,8 +38,11 @@ class CanvasController(
         val list = mutableListOf<String>()
         list.add("Pointer: ${format(pointer.roundedPosition)}")
         val rotation = plotterWindowProperty.value?.transformation?.rotation
-        if (rotation != null && rotation != 0.0) {
-            list.add("Rotation: ${((rotation / PI * 180) % 360).roundToInt()}%")
+        if (rotation != null) {
+            val degree = (360.0 - rotation.normalizeRadiant().radiantToDegree()).roundToInt()
+            if (degree in 1..359) {
+                list.add("Rotation: $degree°")
+            }
         }
         list.filter { it.isNotBlank() }
     }

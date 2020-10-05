@@ -1,14 +1,12 @@
 package de.robolab.client.renderer.drawable.utils
 
 import de.robolab.client.renderer.drawable.live.toAngle
-import de.robolab.common.parser.toFixed
 import de.robolab.common.planet.Direction
 import de.robolab.common.planet.PlanetVersion
 import de.robolab.common.utils.Line
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Vector
 import kotlin.math.*
-
 
 object PathGenerator {
 
@@ -406,6 +404,16 @@ fun List<Vector>.removeDuplicates(): List<Vector> {
     return list
 }
 
-fun Double.toDegree() = this / PI * 180
-fun Double.toRadiant() = this / 180.0 * PI
-fun Double.toRadiantFactor() = (this / PI).toFixed(2) + " PI"
+fun Double.normalizeRadiant(): Double {
+    val h = this % (2.0 * PI)
+    if (h < 0) return  h + 2.0 * PI
+    return h
+}
+fun Double.normalizeDegree(): Double {
+    val h = this % 360.0
+    if (h < 0) return  h + 360.0
+    return h
+}
+
+fun Double.radiantToDegree() = this / PI * 180.0
+fun Double.degreeToRadiant() = this / 180.0 * PI
