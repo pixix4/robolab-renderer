@@ -116,7 +116,7 @@ open class ObservableSubList<T>(
         }
 
         parent.onClear { elements ->
-            if (elements is List<T>) {
+            if (elements is List<T> && range.first <= elements.lastIndex && range.last <= elements.lastIndex) {
                 val e = elements.subList(range.first, range.last + 1)
                 range = IntRange.EMPTY
                 emitOnClear(e)

@@ -101,7 +101,7 @@ class GroupLiveAttemptPlanetDocument(
     private var lastSelectedIndex = selectedIndexProperty.value
     fun update() {
         val selectedIndex = selectedIndexProperty.value
-        val m = if (selectedIndex >= messages.lastIndex) messages else messages.subList(0, selectedIndex + 1)
+        val m = if (selectedIndex >= messages.lastIndex) messages else messages.take(selectedIndex + 1)
 
         val (sp, visitedPoints) = m.toServerPlanet()
         serverPlanet = sp
