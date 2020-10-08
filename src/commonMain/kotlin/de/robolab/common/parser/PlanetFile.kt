@@ -1,6 +1,7 @@
 package de.robolab.common.parser
 
 import de.robolab.client.renderer.drawable.edit.IEditCallback
+import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.renderer.drawable.utils.toPoint
 import de.robolab.client.renderer.utils.History
 import de.robolab.common.planet.*
@@ -515,6 +516,10 @@ class PlanetFile(lines: List<String>) : IEditCallback {
         }
     }
 
+    fun extendedContentString(): String {
+        return createFromPlanet(planet, true).contentString
+    }
+
     companion object {
         fun getName(text: String): String? {
             val lines = text.split('\n')
@@ -530,6 +535,81 @@ class PlanetFile(lines: List<String>) : IEditCallback {
             }
 
             return null
+        }
+
+        fun createFromPlanet(planet: Planet, includeEmptySplines: Boolean = false): PlanetFile {
+            val lines = mutableListOf<FileLine<*>>()
+
+            if (planet.name.isNotBlank()) {
+                lines += FileLine.NameLine.create(planet.name)
+            }
+            lines += FileLine.VersionLine.create(planet.version)
+
+            lines += FileLine.BlankLine.create()
+            for ((key, value) in planet.tagMap) {
+                lines += FileLine.TagLine.create(Tag(key, value))
+            }
+
+            lines += FileLine.BlankLine.create()
+            if (planet.startPoint != null) {
+                lines += FileLine.StartPointLine.create(planet.startPoint)
+                if (includeEmptySplines) {
+                    val points = PathAnimatable.getControlPointsFromPath(planet.version, planet.startPoint.path).drop(1).dropLast(1)
+                    if (points.isNotEmpty()) {
+                        lines += FileLine.SplineLine.create(points)
+                    }
+                } else {
+                    if (planet.startPoint.controlPoints.isNotEmpty()) {
+                        lines += FileLine.SplineLine.create(planet.startPoint.controlPoints)
+                    }
+                }
+            }
+            if (planet.bluePoint != null) {
+                lines += FileLine.BluePointLine.create(planet.bluePoint)
+            }
+
+            lines += FileLine.BlankLine.create()
+            for (path in planet.pathList) {
+                lines += FileLine.PathLine.create(path)
+                if (includeEmptySplines) {
+                    val points = PathAnimatable.getControlPointsFromPath(planet.version, path).drop(1).dropLast(1)
+                    if (points.isNotEmpty()) {
+                        lines += FileLine.SplineLine.create(points)
+                    }
+                } else {
+                    if (path.controlPoints.isNotEmpty()) {
+                        lines += FileLine.SplineLine.create(path.controlPoints)
+                    }
+                }
+                if (path.hidden) {
+                    lines += FileLine.HiddenLine.create()
+                }
+            }
+
+            lines += FileLine.BlankLine.create()
+            for (pathSelect in planet.pathSelectList) {
+                lines += FileLine.PathSelectLine.create(pathSelect)
+            }
+
+            lines += FileLine.BlankLine.create()
+            for (target in planet.targetList) {
+                lines += FileLine.TargetLine.create(target)
+            }
+
+            lines += FileLine.BlankLine.create()
+            for ((set, char) in planet.senderGrouping) {
+                lines += FileLine.GroupingLine.create(set, char)
+            }
+
+            lines += FileLine.BlankLine.create()
+            for (comment in planet.commentList) {
+                lines += FileLine.CommentLine.createAll(comment)
+            }
+
+            val stringLines = lines.fold(emptyList<FileLine<*>>()) { acc, line ->
+                if (line is FileLine.BlankLine && acc.lastOrNull() is FileLine.BlankLine) acc else acc + line
+            }.map { it.line }
+            return PlanetFile(stringLines)
         }
     }
 }

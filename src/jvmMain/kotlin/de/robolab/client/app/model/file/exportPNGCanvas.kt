@@ -53,6 +53,23 @@ actual fun saveExportPNG(name: String, canvas: ICanvas): Boolean {
     return true
 }
 
+actual fun saveExportExtendedPlanetFile(name: String, content: String): Boolean {
+    val file = if (Stage.getWindows().isNotEmpty()) {
+        chooseFile(
+            "Export as extended planet",
+            arrayOf(FileChooser.ExtensionFilter("Planet File", "*.planet")),
+            null,
+            "$name.planet",
+            mode = FileChooserMode.Save
+        ).firstOrNull() ?: return false
+    } else {
+        File("$name.planet")
+    }
+
+    file.writeText(content)
+    return true
+}
+
 actual fun openExportDialog(planetDocument: FileEntryPlanetDocument) {
     ExportDialog.open(planetDocument)
 }

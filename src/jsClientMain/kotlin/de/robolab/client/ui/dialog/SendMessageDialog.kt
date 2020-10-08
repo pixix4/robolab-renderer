@@ -12,6 +12,7 @@ class SendMessageDialog private constructor(
 
     init {
         tab {
+            classList += "dialog-form"
             dialogFormEntry("Topic") {
                 boxView {
                     style {

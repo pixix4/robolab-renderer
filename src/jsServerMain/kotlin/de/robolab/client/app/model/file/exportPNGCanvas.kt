@@ -18,6 +18,10 @@ actual fun saveExportPNG(name: String, canvas: ICanvas): Boolean {
     throw UnsupportedOperationException()
 }
 
+actual fun saveExportExtendedPlanetFile(name: String, content: String): Boolean {
+    throw UnsupportedOperationException()
+}
+
 actual fun openExportDialog(planetDocument: FileEntryPlanetDocument) {
     throw UnsupportedOperationException()
 }

@@ -14,6 +14,7 @@ class ExportDialog private constructor(private val provider: FileEntryPlanetDocu
 
     init {
         tab {
+            classList += "dialog-form"
             dialogFormEntry("File name") {
                 inputView(fileNameProperty)
             }
@@ -36,6 +37,13 @@ class ExportDialog private constructor(private val provider: FileEntryPlanetDocu
                     button("PNG") {
                         onClick {
                             provider.exportAsPNG(fileNameProperty.value)
+                        }
+                    }
+                }
+                buttonGroup {
+                    button("Extended planet file") {
+                        onClick {
+                            provider.exportAsExtendedPlanetFile(fileNameProperty.value)
                         }
                     }
                 }

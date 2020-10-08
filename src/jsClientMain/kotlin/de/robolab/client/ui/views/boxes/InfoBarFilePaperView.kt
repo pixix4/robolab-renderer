@@ -43,6 +43,7 @@ class InfoBarFilePaperView(
                 }
             }
             resizeBox(0.5) {
+                classList += "dialog-form"
                 dialogFormEntry("Orientation") {
                     selectView(PreferenceStorage.paperOrientationProperty)
                 }

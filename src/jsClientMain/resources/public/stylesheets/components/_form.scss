@@ -7,6 +7,7 @@ input, button, a, textarea, select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  font-size: 0.9em;
 
   &:focus {
     outline: none;
@@ -113,7 +114,7 @@ input::placeholder {
   border: solid 1px var(--border-color);
   background-color: var(--primary-background);
   color: var(--primary-text-color);
-  padding: 0.5rem 1rem;
+  padding: 0 1rem;
   transition: background-color 200ms, border-color 200ms;
   height: 2rem;
 

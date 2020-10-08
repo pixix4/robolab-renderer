@@ -188,6 +188,17 @@ class FileEntryPlanetDocument(
         return saveExportPNG(fileName, drawToPNGCanvas())
     }
 
+    fun exportAsExtendedPlanetFile(name: String = ""): Boolean {
+        var fileName = name
+        if (fileName.isEmpty()) {
+            fileName = planetFile.planet.name.trim()
+        }
+        if (fileName.isEmpty()) {
+            fileName = "export"
+        }
+        return saveExportExtendedPlanetFile(fileName, planetFile.extendedContentString())
+    }
+
     private fun writeToSVGString(): String {
         val dimension = getExportSize()
         val canvas = SvgCanvas(dimension)
@@ -276,6 +287,7 @@ class FileEntryPlanetDocument(
 expect fun createPNGExportCanvas(dimension: Dimension): ICanvas
 expect fun saveExportPNG(name: String, canvas: ICanvas): Boolean
 expect fun saveExportSVG(name: String, content: String): Boolean
+expect fun saveExportExtendedPlanetFile(name: String, content: String): Boolean
 expect fun openExportDialog(planetDocument: FileEntryPlanetDocument)
 expect fun openPlanetTransformDialog(planetFile: PlanetFile)
 expect fun openSendMessageDialog(controller: SendMessageController)

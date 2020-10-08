@@ -24,18 +24,30 @@ class ExportDialog : GenericDialog() {
                     )
                 }
                 field("Export as") {
-                    buttonGroup {
-                        button("SVG") {
-                            setOnAction {
-                                if (planetDocument.exportAsSVG(fileNameProperty.value)) {
-                                    close()
+                    vbox {
+                        buttonGroup {
+                            button("SVG") {
+                                setOnAction {
+                                    if (planetDocument.exportAsSVG(fileNameProperty.value)) {
+                                        close()
+                                    }
+                                }
+                            }
+                            button("PNG") {
+                                setOnAction {
+                                    if (planetDocument.exportAsPNG(fileNameProperty.value)) {
+                                        close()
+                                    }
                                 }
                             }
                         }
-                        button("PNG") {
-                            setOnAction {
-                                if (planetDocument.exportAsPNG(fileNameProperty.value)) {
-                                    close()
+
+                        buttonGroup {
+                            button("Extended planet file") {
+                                setOnAction {
+                                    if (planetDocument.exportAsExtendedPlanetFile(fileNameProperty.value)) {
+                                        close()
+                                    }
                                 }
                             }
                         }

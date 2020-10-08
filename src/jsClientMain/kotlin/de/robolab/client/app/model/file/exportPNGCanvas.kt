@@ -23,6 +23,11 @@ actual fun saveExportSVG(name: String, content: String): Boolean {
     return true
 }
 
+actual fun saveExportExtendedPlanetFile(name: String, content: String): Boolean {
+    triggerDownload("$name.planet", content)
+    return true
+}
+
 actual fun saveExportPNG(name: String, canvas: ICanvas): Boolean {
     val webCanvas = canvas as? WebCanvas ?: return false
 

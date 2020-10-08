@@ -22,6 +22,7 @@ class PlanetTransformDialog private constructor(private val planetFile: PlanetFi
 
     init {
         tab {
+            classList += "dialog-form"
             dialogFormGroup("Translate") {
                 dialogFormEntry("Delta x") {
                     inputView(InputType.NUMBER, planetTranslateX.bindStringParsing()) {
