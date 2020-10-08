@@ -27,14 +27,16 @@ class ExportDialog : GenericDialog() {
                     buttonGroup {
                         button("SVG") {
                             setOnAction {
-                                planetDocument.exportAsSVG(fileNameProperty.value)
-                                close()
+                                if (planetDocument.exportAsSVG(fileNameProperty.value)) {
+                                    close()
+                                }
                             }
                         }
                         button("PNG") {
                             setOnAction {
-                                planetDocument.exportAsPNG(fileNameProperty.value)
-                                close()
+                                if (planetDocument.exportAsPNG(fileNameProperty.value)) {
+                                    close()
+                                }
                             }
                         }
                     }

@@ -18,14 +18,16 @@ actual fun createPNGExportCanvas(dimension: Dimension): ICanvas {
     return WebCanvas(exportCanvas)
 }
 
-actual fun saveExportSVG(name: String, content: String) {
+actual fun saveExportSVG(name: String, content: String): Boolean {
     triggerDownload("$name.svg", content)
+    return true
 }
 
-actual fun saveExportPNG(name: String, canvas: ICanvas) {
-    val webCanvas = canvas as? WebCanvas ?: return
+actual fun saveExportPNG(name: String, canvas: ICanvas): Boolean {
+    val webCanvas = canvas as? WebCanvas ?: return false
 
     triggerDownloadPNG("$name.png", webCanvas.canvas)
+    return true
 }
 
 actual fun openExportDialog(planetDocument: FileEntryPlanetDocument) {

@@ -10,11 +10,11 @@ actual fun createPNGExportCanvas(dimension: Dimension): ICanvas {
     throw UnsupportedOperationException()
 }
 
-actual fun saveExportSVG(name: String, content: String) {
+actual fun saveExportSVG(name: String, content: String): Boolean {
     throw UnsupportedOperationException()
 }
 
-actual fun saveExportPNG(name: String, canvas: ICanvas) {
+actual fun saveExportPNG(name: String, canvas: ICanvas): Boolean {
     throw UnsupportedOperationException()
 }
 

@@ -166,7 +166,7 @@ class FileEntryPlanetDocument(
         filePlanet.load()
     }
 
-    fun exportAsSVG(name: String = "") {
+    fun exportAsSVG(name: String = ""): Boolean {
         var fileName = name
         if (fileName.isEmpty()) {
             fileName = planetFile.planet.name.trim()
@@ -174,10 +174,10 @@ class FileEntryPlanetDocument(
         if (fileName.isEmpty()) {
             fileName = "export"
         }
-        saveExportSVG(fileName, writeToSVGString())
+        return saveExportSVG(fileName, writeToSVGString())
     }
 
-    fun exportAsPNG(name: String = "") {
+    fun exportAsPNG(name: String = ""): Boolean {
         var fileName = name
         if (fileName.isEmpty()) {
             fileName = planetFile.planet.name.trim()
@@ -185,7 +185,7 @@ class FileEntryPlanetDocument(
         if (fileName.isEmpty()) {
             fileName = "export"
         }
-        saveExportPNG(fileName, drawToPNGCanvas())
+        return saveExportPNG(fileName, drawToPNGCanvas())
     }
 
     private fun writeToSVGString(): String {
@@ -274,8 +274,8 @@ class FileEntryPlanetDocument(
 }
 
 expect fun createPNGExportCanvas(dimension: Dimension): ICanvas
-expect fun saveExportSVG(name: String, content: String)
-expect fun saveExportPNG(name: String, canvas: ICanvas)
+expect fun saveExportPNG(name: String, canvas: ICanvas): Boolean
+expect fun saveExportSVG(name: String, content: String): Boolean
 expect fun openExportDialog(planetDocument: FileEntryPlanetDocument)
 expect fun openPlanetTransformDialog(planetFile: PlanetFile)
 expect fun openSendMessageDialog(controller: SendMessageController)
