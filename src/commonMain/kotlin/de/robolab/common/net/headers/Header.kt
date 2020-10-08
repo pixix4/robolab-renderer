@@ -3,6 +3,8 @@ package de.robolab.common.net.headers
 interface IHeader {
     val name: String
     val value: String
+    operator fun component1() = name
+    operator fun component2() = value
 }
 
 abstract class Header(

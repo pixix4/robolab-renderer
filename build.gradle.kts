@@ -36,6 +36,7 @@ kotlin {
             kotlinOptions {
                 jvmTarget = "11"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
+                freeCompilerArgs += "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
             }
         }
     }
@@ -53,6 +54,7 @@ kotlin {
             kotlinOptions {
                 moduleKind = "commonjs"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
+                freeCompilerArgs += "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
             }
         }
     }
@@ -64,6 +66,7 @@ kotlin {
             kotlinOptions {
                 moduleKind = "commonjs"
                 freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
+                freeCompilerArgs += "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
             }
         }
     }

@@ -11,10 +11,7 @@ import de.robolab.server.externaljs.express.*
 import de.robolab.server.externaljs.http.createServer
 import de.robolab.server.externaljs.toJSArray
 import de.robolab.server.jsutils.setHeader
-import de.robolab.server.routes.BeverageRouter
-import de.robolab.server.routes.InfoRouter
-import de.robolab.server.routes.PlanetRouter
-import de.robolab.server.routes.logoResponse
+import de.robolab.server.routes.*
 
 object DefaultEnvironment {
     val app: ExpressApp = createApp()
@@ -35,7 +32,7 @@ object DefaultEnvironment {
         router.use("/mate", BeverageRouter.mateRouter)
         router.use("/planets", PlanetRouter.router)
         router.use("/info", InfoRouter.router)
-        router.get("/", logoResponse)
+        router.use("/auth", AuthRouter.router)
 
         router.get("/version") { _, res ->
             res.status(HttpStatusCode.Ok)
@@ -48,6 +45,8 @@ object DefaultEnvironment {
                 res.send(BuildInformation.versionServer.toString())
             })
         }
+
+        router.get("/", logoResponse)
 
         return router
     }

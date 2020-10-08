@@ -1,5 +1,6 @@
 package de.robolab.server
 
+import de.robolab.client.net.ServerResponse
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 
@@ -20,4 +21,11 @@ class RequestError : RuntimeException {
         this.code = code
         this.mimeType = null
     }
+}
+
+fun ServerResponse.`throw`() : Nothing{
+    if(this.body != null)
+        throw RequestError(status,this.body)
+    else
+        throw RequestError(status)
 }

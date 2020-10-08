@@ -1,6 +1,6 @@
 package de.robolab.client.net
 
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.js.*
 
-actual val client : HttpClient
-    get() = throw UnsupportedOperationException("Server cannot send messages")
+actual val client: HttpClient = HttpClient(Js)

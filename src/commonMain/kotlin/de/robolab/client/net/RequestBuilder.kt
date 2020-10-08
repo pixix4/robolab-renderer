@@ -3,6 +3,7 @@ package de.robolab.client.net
 import de.robolab.client.net.requests.IRESTRequest
 import de.robolab.client.net.requests.IRESTResponse
 import de.robolab.common.net.HttpMethod
+import de.robolab.common.net.headers.Header
 import kotlin.jvm.JvmName
 
 class RequestBuilder {
@@ -114,6 +115,10 @@ class RequestBuilder {
     fun header(vararg header: Pair<String, List<String>>) {
         val mapped = header.toMap()
         this.headers.putAll(mapped)
+    }
+
+    fun header(vararg header: Header){
+        this.header(header.associate { it.name to it.value })
     }
 
     @JvmName("simpleHeader")

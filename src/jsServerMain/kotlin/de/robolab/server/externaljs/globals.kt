@@ -351,3 +351,5 @@ external class Buffer {
     fun writeIntBE(value: Int, offset: Int, byteLength: Int): Int
     fun writeIntLE(value: Int, offset: Int, byteLength: Int): Int
 }
+
+external fun encodeURIComponent(uri: String): String

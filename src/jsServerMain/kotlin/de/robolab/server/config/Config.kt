@@ -53,6 +53,24 @@ object Config : TypedStorage() {
         //Fallback-Name for smallPlanet when it could not be found via ID
         val examPlanetSmallName by item("info.examPlanetSmallName", "ExminatorSmall")
     }
+
+    //--------AUTH--------
+
+    object Auth {
+        //Base URL to use for gitlab
+        val gitlabURL by item("auth.gitlabURL","https://se-gitlab.inf.tu-dresden.de")
+
+        //Application ID of this app for requesting access-tokens from users
+        val gitlabApplicationID by item("auth.gitlabApplicationID","")
+
+        //Application Secret of this app for requesting access-tokens from  users
+        val gitlabApplicationSecret by item("auth.gitlabApplicationSecret","")
+
+        //GitLab access token to use for server operations
+        val gitlabAPIToken by item("auth.gitlabAPIToken","")
+
+        val hostURL by item("auth.hostURL","http://localhost:8080")
+    }
 }
 
 suspend fun IPlanetMetaStore.getSmallExamPlanetInfo(): PlanetJsonInfo =
