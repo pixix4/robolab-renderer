@@ -9,10 +9,11 @@ import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.common.utils.Point
 import kotlin.math.PI
 import kotlin.math.max
+import kotlin.math.sin
 
 class SenderView(
     center: Point,
-    private val initColors: List<SenderGrouping>
+    private val initColors: List<Pair<SenderGrouping, List<Point>>>,
 ) : BaseView() {
 
     private val centerTransition = transition(center)
@@ -21,18 +22,23 @@ class SenderView(
         centerTransition.animate(center, duration, offset)
     }
 
-    private var oldColors: List<SenderGrouping> = emptyList()
-    private var newColors: List<SenderGrouping> = emptyList()
+    private var oldColors: List<Pair<SenderGrouping, List<Point>>> = emptyList()
+    private var newColors: List<Pair<SenderGrouping, List<Point>>> = emptyList()
 
     private val progressTransition = transition(0.0)
     val progress by progressTransition
-    fun setColors(colors: List<SenderGrouping>, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setColors(
+        colors: List<Pair<SenderGrouping, List<Point>>>,
+        duration: Double = animationTime,
+        offset: Double = 0.0
+    ) {
         oldColors = newColors
         newColors = colors
 
         progressTransition.resetValue(0.0)
         progressTransition.animate(1.0, duration, offset)
     }
+
 
     private fun satellite(
         context: DrawContext,
@@ -41,6 +47,7 @@ class SenderView(
         extend: Double = 90.0,
         color: ViewColor,
         char: Char?,
+        directions: List<Point>,
         alpha: Double
     ) {
         val c = context.c(color)
@@ -72,6 +79,35 @@ class SenderView(
         if (char != null) {
             val center = position + Point(PlottingConstraints.TARGET_RADIUS * 1.4, 0.0).rotate(start + extend / 2)
             val cc = if (alpha < 1.0) ViewColor.TRANSPARENT.interpolate(color, alpha) else color
+
+            val r = 0.07
+            val a = PI / 3
+            val b = PI / 2 - a / 2
+            val h = r / sin(a / 2)
+
+            for (d in directions) {
+                val t = (d - center).normalize() * r
+
+                val points = listOf(
+                    center + t.rotate(b),
+                    center + t.rotate(-b),
+                    center + t.normalize() * h
+                )
+
+                context.fillPolygon(
+                    points,
+                    context.c(cc)
+                )
+
+                // ArrowView.draw(
+                //     context,
+                //     center,
+                //     center + t,
+                //     PlottingConstraints.LINE_WIDTH * 0.6,
+                //     cc
+                // )
+            }
+
             SenderCharView.draw(context, center, cc, char)
         }
     }
@@ -97,30 +133,41 @@ class SenderView(
             val extend = (PI / 2 - step * PI / (steps * 2.0))
 
             if (newGroup != null) {
-                val newColor = newGroup.color.let { ViewColor.c(it) }
+                val newColor = newGroup.first.color.let { ViewColor.c(it) }
                 if (oldGroup != null) {
-                    val oldColor = oldGroup.color.let { ViewColor.c(it) }
+                    val oldColor = oldGroup.first.color.let { ViewColor.c(it) }
                     satellite(
                         context,
                         center + p,
                         index * PI / 2,
                         extend,
                         oldColor.interpolate(newColor, progress),
-                        if (progress < 0.5) oldGroup.char else newGroup.char,
+                        if (progress < 0.5) oldGroup.first.char else newGroup.first.char,
+                        if (progress < 0.5) oldGroup.second else newGroup.second,
                         1.0
                     )
                 } else {
-                    satellite(context, center + p, index * PI / 2, extend * progress, newColor, newGroup.char, progress)
+                    satellite(
+                        context,
+                        center + p,
+                        index * PI / 2,
+                        extend * progress,
+                        newColor,
+                        newGroup.first.char,
+                        newGroup.second,
+                        progress
+                    )
                 }
             } else if (oldGroup != null) {
-                val oldColor = oldGroup.color.let { ViewColor.c(it) }
+                val oldColor = oldGroup.first.color.let { ViewColor.c(it) }
                 satellite(
                     context,
                     center + p,
                     index * PI / 2,
                     extend * (1.0 - progress),
                     oldColor,
-                    oldGroup.char,
+                    oldGroup.first.char,
+                    oldGroup.second,
                     1.0 - progress
                 )
             }

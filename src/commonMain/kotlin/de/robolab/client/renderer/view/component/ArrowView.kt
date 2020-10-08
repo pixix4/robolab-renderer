@@ -4,6 +4,7 @@ import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
+import de.robolab.common.utils.Color
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.unionNullable
@@ -63,22 +64,8 @@ class ArrowView(
             scaledTarget = target
             scaledWidth = width
         }
-        val c = context.c(color)
 
-        context.strokeLine(
-                listOf(scaledSource, scaledTarget.interpolate(scaledSource, 0.3)),
-                c,
-                scaledWidth
-        )
-
-        val arrowMiddle = scaledTarget.interpolate(scaledSource, 0.4)
-        val vector = (arrowMiddle - scaledTarget) * 0.7
-        val left = arrowMiddle + Point(vector.top, -vector.left)
-        val right = arrowMiddle + Point(-vector.top, vector.left)
-        context.fillPolygon(
-                listOf(scaledTarget, left, right),
-                c
-        )
+        draw(context, scaledSource, scaledTarget, scaledWidth, color)
 
         super.onDraw(context)
     }
@@ -113,5 +100,31 @@ class ArrowView(
         setColor(ViewColor.TRANSPARENT)
 
         animatableManager.onFinish(onFinish)
+    }
+
+    companion object {
+        fun draw(
+            context: DrawContext,
+            source: Point,
+            target: Point,
+            width: Double,
+            color: ViewColor
+        ) {
+            val c = context.c(color)
+            context.strokeLine(
+                listOf(source, target.interpolate(source, 0.3)),
+                c,
+                width
+            )
+
+            val arrowMiddle = target.interpolate(source, 0.4)
+            val vector = (arrowMiddle - target) * 0.7
+            val left = arrowMiddle + Point(vector.top, -vector.left)
+            val right = arrowMiddle + Point(-vector.top, vector.left)
+            context.fillPolygon(
+                listOf(target, left, right),
+                c
+            )
+        }
     }
 }

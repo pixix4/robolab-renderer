@@ -8,15 +8,21 @@ import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Planet
 
 class SenderAnimatable(
-    reference: Coordinate,
+    reference: Data,
     grouping: List<SenderGrouping>
-) : Animatable<Coordinate>(reference) {
+) : Animatable<SenderAnimatable.Data>(reference) {
 
-    override val view = SenderView(reference.toPoint(), grouping)
+    override val view = SenderView(reference.coordinate.toPoint(), grouping.map { it to reference.targets.map { it.toPoint() } })
 
-    override fun onUpdate(obj: Coordinate, planet: Planet) {
+    override fun onUpdate(obj: Data, planet: Planet) {
         super.onUpdate(obj, planet)
-        
-        view.setColors(planet.senderGrouping.filterKeys { obj in it }.values.toList().map { SenderGrouping(it) })
+
+        val colors= planet.senderGrouping.filterKeys { obj.coordinate in it }.values.toList().map { SenderGrouping(it) }
+        view.setColors(colors.map { it to obj.targets.map { it.toPoint() } })
     }
+
+    data class Data(
+        val coordinate: Coordinate,
+        val targets: List<Coordinate>
+    )
 }

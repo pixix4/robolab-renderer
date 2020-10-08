@@ -30,7 +30,7 @@ object PreferenceStorage : TypedStorage() {
     val animationTimeProperty = item("plotting.animationTime", 1000.0)
     var animationTime by animationTimeProperty
 
-    val renderSenderGroupingProperty = item("plotting.senderGrouping", false)
+    val renderSenderGroupingProperty = item("plotting.senderGrouping", true)
     var renderSenderGrouping by renderSenderGroupingProperty
 
 
