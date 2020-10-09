@@ -1,4 +1,4 @@
-
+@file:JvmName("StringConvertersJava")
 package de.robolab.common.utils
 
 import java.util.Base64
