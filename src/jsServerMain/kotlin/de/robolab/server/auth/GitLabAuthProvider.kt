@@ -21,12 +21,12 @@ import kotlin.random.Random
 import kotlin.random.nextUInt
 import kotlin.random.nextULong
 
-class GitLabAuthHandler(private val callbackURL: String) {
+class GitLabAuthProvider(private val callbackURL: String) {
     private val rand: Random = Random
     private val encodedCallbackURL: String = encodeURIComponent(callbackURL)
     private val apiHeader: AuthorizationHeader = AuthorizationHeader.Bearer(Config.Auth.gitlabAPIToken)
 
-    suspend fun getRoboLabUserSet(): Set<Int>{
+    suspend fun getRoboLabUserSet(): Set<UserID>{
         val response = http{
             url("${Config.Auth.gitlabURL}/api/v4/groups/9/members")
             header(apiHeader)
@@ -37,7 +37,7 @@ class GitLabAuthHandler(private val callbackURL: String) {
             else
                 throw RequestError(response.status)
         }
-        return response.jsonBody!!.jsonArray.map{it.jsonObject["id"]!!.jsonPrimitive.int}.toSet()
+        return response.jsonBody!!.jsonArray.map{it.jsonObject["id"]!!.jsonPrimitive.int.toUInt()}.toSet()
     }
 
     fun startAuthURL(): String {
@@ -76,12 +76,12 @@ class GitLabAuthHandler(private val callbackURL: String) {
             currentUserResponse.`throw`()
         }
         val robolabUserSet = getRoboLabUserSet()
-        val currentUserId = currentUserResponse.jsonBody!!.jsonObject["resource_owner_id"]!!.jsonPrimitive.int
+        val currentUserId = currentUserResponse.jsonBody!!.jsonObject["resource_owner_id"]!!.jsonPrimitive.int.toUInt()
         if (currentUserId in robolabUserSet) {
             println("\t\t!!! USER IS AUTHORIZED !!!")
         } else {
             println("\t\t??? USER IS NOT AUTHORIZED ???")
         }
-        return User(currentUserId in robolabUserSet)
+        return User(currentUserId, currentUserId in robolabUserSet)
     }
 }

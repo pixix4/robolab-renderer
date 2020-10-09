@@ -27,6 +27,7 @@ object DefaultEnvironment {
         }
         router.use(json())
         router.use(text())
+        router.use(AuthRouter::userLookupMiddleware)
         router.use("/tea", BeverageRouter.teaRouter)
         router.use("/coffee", BeverageRouter.coffeeRouter)
         router.use("/mate", BeverageRouter.mateRouter)

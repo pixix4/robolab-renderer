@@ -5,6 +5,7 @@ import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.ContentTypeHeader
 import de.robolab.common.planet.ID
 import de.robolab.server.RequestError
+import de.robolab.server.auth.User
 import de.robolab.server.externaljs.Buffer
 import de.robolab.server.externaljs.JSArray
 import de.robolab.server.externaljs.NodeError
@@ -80,6 +81,7 @@ interface Request<Data> : de.robolab.server.externaljs.http.IncomingServerMessag
     val subdomains: JSArray<String>
     val xhr: Boolean
     var localData: Data
+    var user: User
 
     fun accepts(types: String): Any
     fun accepts(types: List<String>): Any

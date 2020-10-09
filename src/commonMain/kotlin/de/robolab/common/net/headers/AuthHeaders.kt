@@ -40,6 +40,15 @@ sealed class AuthorizationHeader constructor(val schemaName: String, schemaValue
 
     companion object {
         const val name: String = "authorization"
+
+        fun parse(value: String): AuthorizationHeader{
+            val ( schemaName: String, schemaValue: String) = value.split(' ',limit=2)
+            return when(AuthenticationSchema.parse(schemaName)){
+                null->Unknown(schemaName, schemaValue)
+                AuthenticationSchema.Basic->Basic(schemaValue)
+                AuthenticationSchema.Bearer->Bearer(schemaValue)
+            }
+        }
     }
 }
 
