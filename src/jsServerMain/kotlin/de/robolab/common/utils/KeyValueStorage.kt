@@ -10,11 +10,11 @@ actual class KeyValueStorage {
 
     private var configCache: Map<String, String> = emptyMap()
 
-    private fun loadFile() {
-        if (existsSync(fileName)) {
-            val string = readFileSync(fileName, "utf8") as String
+    private fun loadFile(filename: String) {
+        if (existsSync(filename)) {
+            val string = readFileSync(filename, "utf8") as String
 
-            configCache = IniConverter.fromString(string)
+            configCache += IniConverter.fromString(string)
         }
     }
 
@@ -51,6 +51,23 @@ actual class KeyValueStorage {
     }
 
     init {
-        loadFile()
+        val log = Logger(this)
+        try {
+            loadFile(fileName)
+        } catch (_: Exception) {
+            log.error("Cannot load config file $fileName")
+        }
+
+        for (file in overrideFiles) {
+            try {
+                loadFile(file)
+            } catch (_: Exception) {
+                log.error("Cannot load config file $file")
+            }
+        }
+    }
+
+    companion object {
+        var overrideFiles = emptyList<String>()
     }
 }

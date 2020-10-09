@@ -95,7 +95,7 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.0")
 
                 implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
-                implementation("com.github.ajalt:clikt:2.8.0")
+                implementation("com.github.ajalt.clikt:clikt:3.0.1")
 
                 implementation("org.openjfx:javafx-controls:14:win")
                 implementation("org.openjfx:javafx-graphics:14:win")
@@ -162,6 +162,8 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
+
+                implementation("com.github.ajalt.clikt:clikt:3.0.1")
 
                 implementation(npm("ioredis", "4.17.3"))
                 implementation(npm("express", "4.17.1"))
