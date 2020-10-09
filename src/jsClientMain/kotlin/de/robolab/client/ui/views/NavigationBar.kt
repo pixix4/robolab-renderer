@@ -142,6 +142,13 @@ class NavigationBarEntry(entry: INavigationBarEntry) :
         onClick {
             entry.open(it.ctrlKey)
         }
+        onAuxClick { event ->
+            val which = event.asDynamic().which as Int
+            if (which == 2) {
+                event.preventDefault()
+                entry.open(true)
+            }
+        }
 
         onContext { event ->
             event.stopPropagation()

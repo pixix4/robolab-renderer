@@ -122,6 +122,7 @@ abstract class View(view: HTMLElement = createHtmlView()) {
     }
 
     val onClick = EventHandler<MouseEvent>()
+    val onAuxClick = EventHandler<MouseEvent>()
     val onDblClick = EventHandler<MouseEvent>()
     val onContext = EventHandler<MouseEvent>()
 
@@ -150,6 +151,7 @@ abstract class View(view: HTMLElement = createHtmlView()) {
 
     init {
         onClick.bind(view, "click")
+        onAuxClick.bind(view, "auxclick")
         onDblClick.bind(view, "dblclick")
         onContext.bind(view, "contextmenu")
 

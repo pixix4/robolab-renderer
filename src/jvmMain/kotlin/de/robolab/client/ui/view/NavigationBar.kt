@@ -2,6 +2,7 @@ package de.robolab.client.ui.view
 
 import de.robolab.client.app.controller.FileImportController
 import de.robolab.client.app.controller.NavigationBarController
+import de.robolab.client.app.model.base.INavigationBarEntry
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.style.MainStyle
@@ -18,6 +19,7 @@ import de.westermann.kobserve.property.mapBinding
 import javafx.application.Platform
 import javafx.css.Styleable
 import javafx.geometry.Pos
+import javafx.scene.Node
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseButton
@@ -175,8 +177,22 @@ class NavigationBar(
             }
 
             addEventFilter(MouseEvent.MOUSE_CLICKED) { event ->
-                val selectedItem = this.selectedItem
-                if (event.clickCount == 1 && event.button == MouseButton.PRIMARY && selectedItem != null && event.target.isInsideRow()) {
+                var selectedItem = this.selectedItem
+
+                if (event.target.isInsideRow()) {
+                    var target = event.target
+                    while (target != null) {
+                        if (target is SmartListCell<*>) {
+                            val item = target.item as? INavigationBarEntry
+                            if (item != selectedItem && item != null) {
+                                selectedItem = item
+                                selectionModel.select(item)
+                            }
+                        }
+                        target = if (target is Node) target.parent else null
+                    }
+                }
+                if (event.clickCount == 1 && (event.button == MouseButton.PRIMARY || event.button == MouseButton.MIDDLE) && selectedItem != null && event.target.isInsideRow()) {
                     val asNewTab = event.button == MouseButton.MIDDLE || event.isControlDown
                     selectedItem.open(asNewTab)
                 }
