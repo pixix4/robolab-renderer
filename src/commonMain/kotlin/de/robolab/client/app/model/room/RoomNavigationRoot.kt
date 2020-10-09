@@ -1,8 +1,10 @@
 package de.robolab.client.app.model.room
 
+import de.robolab.client.app.controller.NavigationBarController
 import de.robolab.client.app.controller.TabController
 import de.robolab.client.app.model.base.INavigationBarEntryRoot
 import de.robolab.client.app.model.base.INavigationBarList
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.CachedFilePlanetProvider
 import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.MessageRepository
@@ -16,7 +18,10 @@ class RoomNavigationRoot(
     private val messageRepository: MessageRepository,
     private val tabController: TabController,
     private val planetProvider: CachedFilePlanetProvider
-) : INavigationBarEntryRoot {
+) : INavigationBarEntryRoot, NavigationBarController.Tab {
+
+    override val label = property("All robot per planet")
+    override val icon = property(MaterialIcon.PUBLIC)
 
     override val searchProperty = property("")
 

@@ -1,6 +1,5 @@
 package de.robolab.client.utils
 
-import de.robolab.client.app.controller.NavigationBarController
 import de.robolab.client.app.model.file.LoadRemoteExamStateEvent
 import de.robolab.client.renderer.drawable.edit.PaperBackgroundDrawable
 import de.robolab.client.theme.Theme
@@ -40,7 +39,7 @@ object PreferenceStorage : TypedStorage() {
     val useSystemThemeProperty = item("ui.useSystemTheme", true)
     var useSystemTheme by useSystemThemeProperty
 
-    val selectedNavigationBarTabProperty = item("ui.selectedNavigationBarTab", NavigationBarController.Tab.GROUP)
+    val selectedNavigationBarTabProperty = item("ui.selectedNavigationBarTabIndex", 0)
     var selectedNavigationBarTab by selectedNavigationBarTabProperty
 
     val hideEmptyTabBarProperty = item("ui.hideEmptyTabBar", true)
@@ -66,11 +65,18 @@ object PreferenceStorage : TypedStorage() {
         item("communication.logUri", "https://mothership.inf.tu-dresden.de/logs/mqtt/latest/?count=100")
     var logUri by logUriProperty
 
-    val fileServerProperty = item("communication.fileServer", PlatformDefaultPreferences.fileServer)
-    var fileServer by fileServerProperty
-
     val mqttStorageProperty = item("communication.mqttStorage", MqttStorage.IN_MEMORY)
     var mqttStorage by mqttStorageProperty
+
+
+    val remoteFilesProperty = item("remote.files", PlatformDefaultPreferences.fileServer)
+    var remoteFiles by remoteFilesProperty
+
+    val remoteServerUrlProperty = item("remote.url", "")
+    var remoteServerUrl by remoteServerUrlProperty
+
+    val remoteServerTokenProperty = item("remote.token", "")
+    var remoteServerToken by remoteServerTokenProperty
 
 
     val paperGridWidthProperty = item("paper.gridWidth", 0.5)

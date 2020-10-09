@@ -4,5 +4,5 @@ actual object PlatformDefaultPreferences {
 
     actual val serverUriProperty = "wss://mothership.inf.tu-dresden.de:9002/mqtt"
 
-    actual val fileServer = listOf("local://")
+    actual val fileServer = listOf("")
 }

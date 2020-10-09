@@ -1,72 +1,53 @@
 package de.robolab.client.app.model.file
 
 import de.robolab.client.app.controller.TabController
-import de.robolab.client.app.model.base.INavigationBarEntryRoot
-import de.robolab.client.app.model.base.INavigationBarList
 import de.robolab.client.app.model.file.provider.*
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.requests.getExamInfo
 import de.robolab.client.utils.PreferenceStorage
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.subscribe
-import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
-import de.westermann.kobserve.property.property
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class FileNavigationRoot(
     private val tabController: TabController
-) : INavigationBarEntryRoot {
+) {
 
     private fun firstRemoteServer(): IRobolabServer? {
-        return fileLoaderProperty.value
-            .filterIsInstance<RemoteFilePlanetLoader>()
-            .firstOrNull()?.server
+        return remotePlanetLoader.value?.server
     }
 
-    val fileLoaderProperty = PreferenceStorage
-        .fileServerProperty.mapBinding { list ->
-            list.mapNotNull { uri ->
-                val protocol = uri.substringBefore("://")
-                val factory = loaderFactoryList.find { it.protocol.equals(protocol, true) }
-                factory?.create(uri)
+    private val remotePlanetLoader: ObservableValue<RemoteFilePlanetLoader?> =
+        PreferenceStorage.remoteServerUrlProperty.mapBinding {
+            if (it.isBlank()) {
+                null
+            } else {
+                if (it.startsWith("https")) {
+                    RemoteFilePlanetLoader.HttpsFactory.create(it)
+                } else {
+                    RemoteFilePlanetLoader.HttpFactory.create(it)
+                } as? RemoteFilePlanetLoader
             }
         }
 
-    override val searchProperty = property("")
-
-    private val activeListProperty = property<INavigationBarList>(FileRemoteNavigationList(this))
-    val activeList by activeListProperty
-
-    override val childrenProperty = searchProperty.join(activeListProperty) { search, active ->
-        if (search.isEmpty()) {
-            active.childrenProperty
-        } else {
-            val current = active as? FileEntryNavigationList<*>
-            current?.createSearchList(search)?.childrenProperty ?: active.childrenProperty
+    val fileLoaderProperty = PreferenceStorage
+        .remoteFilesProperty.join(remotePlanetLoader) { list, remote ->
+            listOfNotNull(
+                remote
+            ) + list.mapNotNull { uri ->
+                loaderFactoryList.firstOrNull()?.create(uri)
+            }
         }
-    }
 
-    override val parentNameProperty = activeListProperty.flatMapBinding {
-        it.parentNameProperty
-    }
-
-    override fun openParent() {
-        activeList.openParent()
-    }
-
-    fun openRemoteList() {
-        activeListProperty.value = FileRemoteNavigationList(this)
-    }
-
-    fun <T : IFilePlanetIdentifier> openRemoteEntryList(
-        loader: IFilePlanetLoader<T>,
-        entry: T? = null,
-        parents: List<T> = emptyList()
-    ) {
-        activeListProperty.value = FileEntryNavigationList(this, loader, entry, parents)
-    }
+    val fileNavigationList =
+        fileLoaderProperty.mapBinding { list ->
+            list.map {
+                FileEntryNavigationRootList(this, it)
+            }
+        }
 
     fun <T : IFilePlanetIdentifier> openFileEntry(loader: IFilePlanetLoader<T>, entry: T, asNewTab: Boolean) {
         tabController.open(FileEntryPlanetDocument(FilePlanet(loader, entry)), asNewTab)
@@ -100,10 +81,7 @@ class FileNavigationRoot(
     }
 
     companion object {
-        val loaderFactoryList = getFilePlanetLoaderFactoryList() + listOf(
-            RemoteFilePlanetLoader.HttpsFactory,
-            RemoteFilePlanetLoader.HttpFactory
-        )
+        val loaderFactoryList = getFilePlanetLoaderFactoryList()
     }
 }
 

@@ -17,24 +17,21 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class FileEntryNavigationList<T : IFilePlanetIdentifier>(
-    private val root: FileNavigationRoot,
+    private val root: FileEntryNavigationRootList<T>,
     override val loader: IFilePlanetLoader<T>,
     private val entry: T?,
     private val parents: List<T> = emptyList()
-) : FileRemoteNavigationList.RepositoryList<T> {
+) : FileEntryNavigationRootList.RepositoryList<T> {
 
     override val parentNameProperty = if (entry == null) {
-        loader.nameProperty
+        constObservable(null)
     } else {
         constObservable(entry.name)
     }
 
     override fun openParent() {
-        if (entry == null) {
-            root.openRemoteList()
-        } else {
-            root.openRemoteEntryList(
-                loader,
+        if (entry != null) {
+            root.openEntryList(
                 parents.dropLast(1).lastOrNull(),
                 parents.dropLast(1),
             )
@@ -104,9 +101,9 @@ class FileEntryNavigationList<T : IFilePlanetIdentifier>(
 
         override fun open(asNewTab: Boolean) {
             if (entry.isDirectory) {
-                root.openRemoteEntryList(loader, entry, parents + entry)
+                root.openEntryList(entry, parents + entry)
             } else {
-                root.openFileEntry(loader, entry, asNewTab)
+                root.openFileEntry(entry, asNewTab)
             }
         }
 

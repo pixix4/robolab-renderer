@@ -15,7 +15,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class FileSearchNavigationList<T : IFilePlanetIdentifier>(
-    private val root: FileNavigationRoot,
+    private val root: FileEntryNavigationRootList<T>,
     val loader: IFilePlanetLoader<T>,
     private val search: String,
     private val parents: List<T> = emptyList()
@@ -24,8 +24,7 @@ class FileSearchNavigationList<T : IFilePlanetIdentifier>(
     override val parentNameProperty = constObservable("Search")
 
     override fun openParent() {
-        root.openRemoteEntryList(
-            loader,
+        root.openEntryList(
             parents.lastOrNull(),
             parents,
         )
@@ -79,9 +78,9 @@ class FileSearchNavigationList<T : IFilePlanetIdentifier>(
 
         override fun open(asNewTab: Boolean) {
             if (entry.isDirectory) {
-                root.openRemoteEntryList(loader, entry, parents + entry)
+                root.openEntryList(entry, parents + entry)
             } else {
-                root.openFileEntry(loader, entry, asNewTab)
+                root.openFileEntry(entry, asNewTab)
             }
         }
 

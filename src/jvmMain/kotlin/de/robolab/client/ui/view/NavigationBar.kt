@@ -32,12 +32,38 @@ import kotlinx.coroutines.launch
 import tornadofx.*
 
 class NavigationBar(
-    navigationBarController: NavigationBarController,
+    private val navigationBarController: NavigationBarController,
     fileImportController: FileImportController,
     progressListener: Downloader.ProgressListener
 ) : View() {
 
     private val logger = Logger(this)
+
+    private fun HBox.setupTabs() {
+        clear()
+
+        var last: HBox? = null
+        spacer()
+        for ((index, tab) in navigationBarController.tabListProperty.value.withIndex()) {
+            last = hbox {
+                addClass(MainStyle.tabBarTab)
+                bindClass(MainStyle.active, navigationBarController.tabProperty.mapBinding { it == tab })
+                setOnMouseClicked {
+                    navigationBarController.tabIndexProperty.value = index
+                }
+
+                spacer()
+                icon(tab.icon.toFx())
+                spacer()
+                tab.label.onChange.now {
+                    tooltip(tab.label.value)
+                }
+                hgrow = Priority.ALWAYS
+            }
+        }
+        last?.addPseudoClass("last")
+        spacer()
+    }
 
     override val root = vbox {
         addClass(MainStyle.navigationBar)
@@ -47,26 +73,9 @@ class NavigationBar(
             addClass(MainStyle.tabBarSide)
             hgrow = Priority.ALWAYS
 
-            var last: HBox? = null
-            spacer()
-            for (tab in NavigationBarController.Tab.values()) {
-                last = hbox {
-                    addClass(MainStyle.tabBarTab)
-                    bindClass(MainStyle.active, navigationBarController.tabProperty.mapBinding { it == tab })
-                    setOnMouseClicked {
-                        navigationBarController.tabProperty.value = tab
-                    }
-
-                    spacer()
-                    icon(tab.icon)
-                    spacer()
-                    tooltip(tab.label)
-
-                    hgrow = Priority.ALWAYS
-                }
+            navigationBarController.tabListProperty.onChange.now {
+                setupTabs()
             }
-            last?.addPseudoClass("last")
-            spacer()
         }
 
         hbox {

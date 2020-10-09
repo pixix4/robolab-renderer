@@ -1,7 +1,6 @@
 package de.robolab.client.ui.dialog
 
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.client.app.model.file.FileNavigationRoot
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.ui.adapter.toFx
@@ -114,6 +113,94 @@ class SettingsDialog : GenericDialog() {
         }
         tab("Connection") {
             form {
+                fieldset("Remote Server") {
+                    field("Server uri") {
+                        textfield(PreferenceStorage.remoteServerUrlProperty.toFx())
+                    }
+                    field(forceLabelIndent = true) {
+                        button("Request access token") {
+                            setOnAction {
+                                println("Not implemented!")
+                            }
+                        }
+                    }
+                }
+                fieldset("Local file sources") {
+                    val fieldList = mutableListOf<Field>()
+
+                    PreferenceStorage.remoteFilesProperty.onChange.now {
+                        for (field in fieldList) {
+                            field.removeFromParent()
+                        }
+                        fieldList.clear()
+
+                        val textFields = mutableListOf<TextField>()
+
+                        fun save() {
+                            PreferenceStorage.remoteFiles =
+                                textFields.map { it.text.trim() }.filter { it.isNotEmpty() }
+                        }
+
+                        for (connection in PreferenceStorage.remoteFiles) {
+                            fieldList += field("Path") {
+                                buttonGroup(true) {
+                                    hgrow = Priority.ALWAYS
+                                    val t = textfield(connection) {
+                                        hgrow = Priority.ALWAYS
+
+                                        setOnAction {
+                                            save()
+                                        }
+                                    }
+                                    textFields += t
+                                    button {
+                                        setIcon(MaterialIcon.FOLDER_OPEN)
+                                        tooltip("Select folder")
+                                        setOnAction {
+                                            val dir = chooseDirectory("Choose directory")
+                                            if (dir != null) {
+                                                t.text = dir.absolutePath
+                                                save()
+                                            }
+                                        }
+                                    }
+                                    button {
+                                        setIcon(MaterialIcon.DELETE)
+                                        tooltip("Delete source")
+                                        setOnAction {
+                                            t.text = ""
+                                            save()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        fieldList += field(forceLabelIndent = true) {
+                            buttonGroup(true) {
+                                hgrow = Priority.ALWAYS
+                                val t = textfield("") {
+                                    hgrow = Priority.ALWAYS
+
+                                    setOnAction {
+                                        save()
+                                    }
+                                }
+                                textFields += t
+                                button {
+                                    setIcon(MaterialIcon.FOLDER_OPEN)
+                                    tooltip("Select folder")
+                                    setOnAction {
+                                        val dir = chooseDirectory("Choose directory")
+                                        if (dir != null) {
+                                            t.text = dir.absolutePath
+                                            save()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 fieldset("MQTT") {
                     field("Server uri") {
                         textfield(PreferenceStorage.serverUriProperty.toFx())
@@ -137,67 +224,6 @@ class SettingsDialog : GenericDialog() {
                             MqttStorage.values().toList()
                         )
                         tooltip("In Memory: Better performance\nDatabase: Less memory usage")
-                    }
-                }
-                fieldset("File sources") {
-                    tooltip(FileNavigationRoot.loaderFactoryList.joinToString("\n") { it.usage })
-
-                    val fieldList = mutableListOf<Field>()
-
-                    PreferenceStorage.fileServerProperty.onChange.now {
-                        for (field in fieldList) {
-                            field.removeFromParent()
-                        }
-                        fieldList.clear()
-
-                        val textFields = mutableListOf<TextField>()
-
-                        fun save() {
-                            PreferenceStorage.fileServer =
-                                textFields.map { it.text.trim() }.filter { it.isNotEmpty() }
-                        }
-
-                        for (connection in PreferenceStorage.fileServer) {
-                            fieldList += field(forceLabelIndent = true) {
-                                buttonGroup(true) {
-                                    hgrow = Priority.ALWAYS
-                                    val t = textfield(connection) {
-                                        hgrow = Priority.ALWAYS
-                                    }
-                                    textFields += t
-                                    button {
-                                        setIcon(MaterialIcon.DONE)
-                                        tooltip("Save source")
-                                        setOnAction {
-                                            save()
-                                        }
-                                    }
-                                    button {
-                                        setIcon(MaterialIcon.DELETE)
-                                        tooltip("Delete source")
-                                        setOnAction {
-                                            t.text = ""
-                                            save()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        fieldList += field(forceLabelIndent = true) {
-                            buttonGroup(true) {
-                                hgrow = Priority.ALWAYS
-                                textFields += textfield("") {
-                                    hgrow = Priority.ALWAYS
-                                }
-                                button {
-                                    setIcon(MaterialIcon.ADD)
-                                    tooltip("Create source")
-                                    setOnAction {
-                                        save()
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }

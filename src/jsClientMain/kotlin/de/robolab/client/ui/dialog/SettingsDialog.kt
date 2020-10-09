@@ -83,48 +83,34 @@ class SettingsDialog private constructor(): Dialog("Settings") {
         }
 
         tab("Connection") {
-            dialogFormGroup("MQTT") {
+            dialogFormGroup("Remote server") {
                 dialogFormEntry("Server uri") {
-                    inputView(PreferenceStorage.serverUriProperty)
-                }
-                dialogFormEntry("Username") {
-                    inputView(PreferenceStorage.usernameProperty)
-                }
-                dialogFormEntry("Password") {
-                    inputView(InputType.PASSWORD, PreferenceStorage.passwordProperty)
-                }
-                dialogFormEntry("Client id") {
-                    inputView(PreferenceStorage.clientIdProperty)
-                }
-                dialogFormEntry("Log uri") {
-                    inputView(PreferenceStorage.logUriProperty)
+                    inputView(PreferenceStorage.remoteServerUrlProperty)
                 }
             }
 
-            dialogFormGroup("Files") {
+            dialogFormGroup("Local file sources") {
                 title = FileNavigationRoot.loaderFactoryList.joinToString("\n") { it.usage }
                 boxView {
-                    PreferenceStorage.fileServerProperty.onChange.now {
+                    PreferenceStorage.remoteFilesProperty.onChange.now {
                         clear()
                         val textFields = mutableListOf<InputView>()
 
                         fun save() {
-                            PreferenceStorage.fileServer =
+                            PreferenceStorage.remoteFiles =
                                 textFields.map { it.value.trim() }.filter { it.isNotEmpty() }
                         }
 
-                        for (connection in PreferenceStorage.fileServer) {
+                        for (connection in PreferenceStorage.remoteFiles) {
                             dialogFormEntry("") {
                                 classList += "button-group"
                                 classList += "button-form-group"
-                                val t = inputView(connection)
-                                textFields += t
-                                button {
-                                    iconView(MaterialIcon.DONE)
-                                    onClick {
+                                val t = inputView(connection) {
+                                    onKeyUp {
                                         save()
                                     }
                                 }
+                                textFields += t
                                 button {
                                     iconView(MaterialIcon.DELETE)
                                     onClick {
@@ -146,6 +132,23 @@ class SettingsDialog private constructor(): Dialog("Settings") {
                             }
                         }
                     }
+                }
+            }
+            dialogFormGroup("MQTT") {
+                dialogFormEntry("Server uri") {
+                    inputView(PreferenceStorage.serverUriProperty)
+                }
+                dialogFormEntry("Username") {
+                    inputView(PreferenceStorage.usernameProperty)
+                }
+                dialogFormEntry("Password") {
+                    inputView(InputType.PASSWORD, PreferenceStorage.passwordProperty)
+                }
+                dialogFormEntry("Client id") {
+                    inputView(PreferenceStorage.clientIdProperty)
+                }
+                dialogFormEntry("Log uri") {
+                    inputView(PreferenceStorage.logUriProperty)
                 }
             }
         }

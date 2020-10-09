@@ -28,19 +28,29 @@ class NavigationBar(
 
     private fun createEntry(entry: INavigationBarEntry) = NavigationBarEntry(entry)
 
+    private fun BoxView.setupTabs() {
+        clear()
+
+        for ((index, tab) in navigationBarController.tabListProperty.value.withIndex()) {
+            boxView("tab-bar-item") {
+                classList.bind("active", navigationBarController.tabProperty.mapBinding { it == tab })
+
+                iconView(tab.icon)
+                tab.label.onChange.now {
+                    title = tab.label.value
+                }
+
+                onClick {
+                    navigationBarController.tabIndexProperty.value = index
+                }
+            }
+        }
+    }
+
     init {
         boxView("navigation-bar-header", "tab-bar") {
-            for (tab in NavigationBarController.Tab.values()) {
-                boxView("tab-bar-item") {
-                    classList.bind("active", navigationBarController.tabProperty.mapBinding { it == tab })
-
-                    iconView(tab.icon)
-                    title = tab.label
-
-                    onClick {
-                        navigationBarController.tabProperty.value = tab
-                    }
-                }
+            navigationBarController.tabListProperty.onChange.now {
+                setupTabs()
             }
         }
         boxView("navigation-bar-content") {

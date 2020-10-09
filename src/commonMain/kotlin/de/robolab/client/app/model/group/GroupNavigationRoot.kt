@@ -1,8 +1,10 @@
 package de.robolab.client.app.model.group
 
+import de.robolab.client.app.controller.NavigationBarController
 import de.robolab.client.app.controller.TabController
 import de.robolab.client.app.model.base.INavigationBarEntryRoot
 import de.robolab.client.app.model.base.INavigationBarList
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.CachedFilePlanetProvider
 import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.Group
@@ -21,7 +23,10 @@ class GroupNavigationRoot(
     private val messageManager: MessageManager,
     private val tabController: TabController,
     private val planetProvider: CachedFilePlanetProvider
-) : INavigationBarEntryRoot {
+) : INavigationBarEntryRoot, NavigationBarController.Tab {
+
+    override val label = property("MQTT Group list")
+    override val icon = property(MaterialIcon.GROUP)
 
     override val searchProperty = property("")
 

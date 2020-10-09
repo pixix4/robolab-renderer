@@ -1,12 +1,16 @@
 package de.robolab.client.ui
 
 import de.robolab.client.app.controller.MainController
-import de.robolab.client.ui.adapter.toFx
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.theme.ThemePropertySelectorMapper
+import de.robolab.client.ui.adapter.toFx
+import de.robolab.client.ui.utils.buttonGroup
+import de.robolab.client.ui.view.setIcon
 import de.robolab.client.utils.PreferenceStorage
 import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.image.Image
+import javafx.scene.layout.Priority
 import javafx.scene.text.FontWeight
 import javafx.stage.StageStyle
 import tornadofx.*
@@ -47,7 +51,7 @@ class SetupView : View() {
                 }
 
                 form {
-                    fieldset("Connection") {
+                    fieldset("MQTT Connection") {
                         field("Server uri") {
                             textfield(PreferenceStorage.serverUriProperty.toFx())
                         }
@@ -59,15 +63,30 @@ class SetupView : View() {
                         }
                     }
 
-                    fieldset("Planet repo") {
-                        field("Repo") {
-                            textfield(planetFolder.toFx())
-                            button("Select") {
-                                setOnAction {
-                                    val f = chooseDirectory("Select planet repo")
+                    fieldset("Remote planet repo") {
+                        field("Server uri") {
+                            textfield(PreferenceStorage.remoteServerUrlProperty.toFx())
+                        }
+                    }
 
-                                    if (f != null) {
-                                        planetFolder.value = f.absolutePath
+                    fieldset("Local planet repo") {
+                        field("Repo") {
+                            buttonGroup(true) {
+                                hgrow = Priority.ALWAYS
+                                textfield(planetFolder.toFx()) {
+                                    hgrow = Priority.ALWAYS
+                                    maxWidth = Double.MAX_VALUE
+                                }
+                                button {
+                                    setIcon(MaterialIcon.FOLDER_OPEN)
+                                    tooltip("Select folder")
+
+                                    setOnAction {
+                                        val f = chooseDirectory("Select planet repo")
+
+                                        if (f != null) {
+                                            planetFolder.value = f.absolutePath
+                                        }
                                     }
                                 }
                             }
@@ -110,10 +129,10 @@ class SetupView : View() {
 
     init {
         planetFolder.onChange {
-            PreferenceStorage.fileServer = if (planetFolder.value.isEmpty()) {
+            PreferenceStorage.remoteFiles = if (planetFolder.value.isEmpty()) {
                 emptyList()
             } else {
-                listOf("directory://" + planetFolder.value)
+                listOf(planetFolder.value)
             }
         }
     }
