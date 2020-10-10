@@ -26,23 +26,18 @@ class GitLabAuthProvider(private val callbackURL: String) {
     private val encodedCallbackURL: String = encodeURIComponent(callbackURL)
     private val apiHeader: AuthorizationHeader = AuthorizationHeader.Bearer(Config.Auth.gitlabAPIToken)
 
-    suspend fun getRoboLabUserSet(): Set<UserID>{
-        val response = http{
+    suspend fun getRoboLabUserSet(): Set<UserID> {
+        val response = http {
             url("${Config.Auth.gitlabURL}/api/v4/groups/9/members")
             header(apiHeader)
         }.exec()
-        if(response.status != HttpStatusCode.Ok){
-            if(response.body != null)
-                throw RequestError(response.status,response.body)
-            else
-                throw RequestError(response.status)
-        }
-        return response.jsonBody!!.jsonArray.map{it.jsonObject["id"]!!.jsonPrimitive.int.toUInt()}.toSet()
+        if (response.status != HttpStatusCode.Ok)
+            response.`throw`()
+        return response.jsonBody!!.jsonArray.map { it.jsonObject["id"]!!.jsonPrimitive.int.toUInt() }.toSet()
     }
 
-    fun startAuthURL(): String {
-
-        val state: UInt = rand.nextUInt()
+    fun startAuthURL(shareCode: ShareCode): String {
+        val state: UInt = shareCode
 
         return "${Config.Auth.gitlabURL}/oauth/authorize" +
                 "?client_id=${Config.Auth.gitlabApplicationID}" +
@@ -52,36 +47,41 @@ class GitLabAuthProvider(private val callbackURL: String) {
                 "&redirect_uri=$encodedCallbackURL"
     }
 
-    suspend fun performAuth(code: String, state: UInt): User {
+    suspend fun performAuth(code: String, state: String): User? {
+        return performAuth(code, state, extractShareCode(state) ?: return null)
+    }
+
+    suspend fun performAuth(code: String, state: String, shareCode: ShareCode): User {
         val tokenResponse = http {
-            url("${Config.Auth.gitlabURL}/oauth/token" +
-                    "?client_id=${Config.Auth.gitlabApplicationID}" +
-                    "&client_secret=${Config.Auth.gitlabApplicationSecret}" +
-                    "&code=$code" +
-                    "&grant_type=authorization_code" +
-                    "&redirect_uri=$callbackURL")
+            url(
+                "${Config.Auth.gitlabURL}/oauth/token" +
+                        "?client_id=${Config.Auth.gitlabApplicationID}" +
+                        "&client_secret=${Config.Auth.gitlabApplicationSecret}" +
+                        "&code=$code" +
+                        "&grant_type=authorization_code" +
+                        "&redirect_uri=$callbackURL"
+            )
             body("")
             post()
         }.exec()
-        if(tokenResponse.status != HttpStatusCode.Ok){
+        if (tokenResponse.status != HttpStatusCode.Ok) {
             tokenResponse.`throw`()
         }
         val accessToken: String = tokenResponse.jsonBody!!.jsonObject["access_token"]!!.jsonPrimitive.content
         val authHeader: Header = AuthorizationHeader.Bearer(accessToken)
-        val currentUserResponse = http{
+        val currentUserResponse = http {
             url("${Config.Auth.gitlabURL}/oauth/token/info")
             header(authHeader)
         }.exec()
-        if(currentUserResponse.status != HttpStatusCode.Ok){
+        if (currentUserResponse.status != HttpStatusCode.Ok) {
             currentUserResponse.`throw`()
         }
         val robolabUserSet = getRoboLabUserSet()
         val currentUserId = currentUserResponse.jsonBody!!.jsonObject["resource_owner_id"]!!.jsonPrimitive.int.toUInt()
-        if (currentUserId in robolabUserSet) {
-            println("\t\t!!! USER IS AUTHORIZED !!!")
-        } else {
-            println("\t\t??? USER IS NOT AUTHORIZED ???")
-        }
         return User(currentUserId, currentUserId in robolabUserSet)
+    }
+
+    fun extractShareCode(state: String): ShareCode? {
+        return state.toUIntOrNull()
     }
 }

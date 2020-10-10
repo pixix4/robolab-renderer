@@ -3,23 +3,16 @@ package de.robolab.server.externaljs.express
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.ContentTypeHeader
-import de.robolab.common.planet.ID
 import de.robolab.server.RequestError
 import de.robolab.server.auth.User
 import de.robolab.server.externaljs.Buffer
 import de.robolab.server.externaljs.JSArray
 import de.robolab.server.externaljs.NodeError
 import de.robolab.server.externaljs.dynamicOf
-import de.robolab.server.externaljs.events.EventEmitter
-import de.robolab.server.externaljs.http.IncomingMessage
 import de.robolab.server.jsutils.*
-import kotlinx.atomicfu.AtomicBoolean
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.w3c.dom.events.Event
-import kotlin.contracts.Returns
 import kotlin.js.Promise
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
@@ -223,6 +216,8 @@ external interface Response<Data> : de.robolab.server.externaljs.http.ServerResp
 fun <ResData, ResDataT> Response<ResData>.withData(data: ResDataT): Response<ResDataT> {
     return this.jsCreateDelegate("localData").unsafeCast<Response<ResDataT>>().apply { this.localData = data }
 }
+
+fun <D> Response<D>.type(type: MIMEType): Response<D> = this.type(type.primaryName)
 
 fun <D> Response<D>.formatReceiving(
     vararg handlers: Pair<String, Response<D>.() -> Unit>,
@@ -1050,12 +1045,14 @@ private fun handlePromiseError(err: Throwable, res: AnyResponse) {
         is RequestError -> Triple(err.code, err.message, err.mimeType)
         else -> Triple(HttpStatusCode.InternalServerError, err.message, null)
     }
-    console.error(err)
+    if (err !is RequestError || err.verbose)
+        console.error(err)
     if (!res.headersSent) {
         if (errorMime != null) {
             res.setHeader(ContentTypeHeader.name, errorMime)
         }
         if (errorMessage != null) {
+            res.setHeader("robolab-error", errorMessage)
             res.status(errorCode)
             res.send(errorMessage)
         } else {
@@ -1093,7 +1090,7 @@ private fun <ReqData, ResData> TerminalPromiseCreator<ReqData, ResData>.toMiddle
         }
         if (err != null && err != undefined)
             handlePromiseError(err, res)
-        else{
+        else {
             prom!!.catch {
                 handlePromiseError(it, res, next)
             }

@@ -62,7 +62,7 @@ object PlanetRouter {
         }
     }
 
-    suspend fun clearMeta(): Pair<Boolean,String> = planetStore.clearMeta()
+    suspend fun clearMeta(): Pair<Boolean, String> = planetStore.clearMeta()
 
     class PlanetIDRouter(planetStore: IPlanetStore) {
         val baseRouter: DefaultRouter = createRouter()
@@ -134,7 +134,8 @@ object PlanetRouter {
             fun throwIDNotFound(): Nothing {
                 throw RequestError(
                     HttpStatusCode.NotFound,
-                    "Planet with id '${requestedID.toIDString()}' could not be found"
+                    "Planet with id '${requestedID.toIDString()}' could not be found",
+                    verbose = false
                 )
             }
 

@@ -17,4 +17,12 @@ class User(val userID: UserID, val isRoboLab: Boolean) {
             return User(sub.toUInt(),roboLvl>=10)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        return (other is User) && (other.userID == userID)
+    }
+
+    override fun hashCode(): Int {
+        return userID.hashCode()
+    }
 }

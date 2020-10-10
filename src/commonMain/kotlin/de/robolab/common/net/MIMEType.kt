@@ -24,7 +24,9 @@ enum class MIMEType(primaryName: String, vararg alsoKnownAs:String) {
     PlainText("text/plain"),
     HTML("text/html"),
     OCTET_STREAM("application/octet-stream"),
-    JSON("application/json");
+    JSON("application/json"),
+    JWT("application/jwt"),
+    ;
 
     val primaryName = primaryName.toLowerCase()
     val knownAs: List<String> = listOf(this.primaryName) + alsoKnownAs.map(String::toLowerCase)
