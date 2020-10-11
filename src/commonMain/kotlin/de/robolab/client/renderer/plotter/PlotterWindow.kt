@@ -13,6 +13,7 @@ import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
+import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
 import kotlin.math.PI
@@ -125,7 +126,11 @@ class PlotterWindow(
     val pointer by pointerProperty
     fun updatePointer(mousePosition: Point? = pointer?.mousePosition): Point? {
         if (mousePosition == null) {
-            pointerProperty.value = null
+            if (pointerProperty.value != null) {
+                pointerProperty.value = null
+            } else {
+                pointerProperty.onChange.emit()
+            }
             return null
         }
 

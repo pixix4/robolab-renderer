@@ -60,8 +60,8 @@ abstract class AbsPlanetDrawable(
 
     val flipViewProperty = transformationProperty.nullableFlatMapBinding { it?.flipViewProperty }
     val flipView by flipViewProperty.mapBinding { it == true }
-    fun flip() {
-        transformation?.flipViewProperty?.value = !flipView
+    fun flip(flipped: Boolean? = null) {
+        transformation?.flipViewProperty?.value = flipped ?: !flipView
         centerPlanet()
     }
 

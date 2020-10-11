@@ -33,17 +33,24 @@ class CanvasController(
 
     val pointerProperty = property<Pointer?>(null)
     val pointerStringProperty = pointerProperty.mapBinding { pointer ->
-        if (pointer == null) return@mapBinding emptyList<String>()
-
         val list = mutableListOf<String>()
-        list.add("Pointer: ${format(pointer.roundedPosition)}")
+
+        if (pointer != null) {
+            list += "Pointer: ${format(pointer.roundedPosition)}"
+        }
+
         val rotation = plotterWindowProperty.value?.transformation?.rotation
         if (rotation != null) {
             val degree = (360.0 - rotation.normalizeRadiant().radiantToDegree()).roundToInt()
             if (degree in 1..359) {
-                list.add("Rotation: $degree°")
+                list += "Rotation: $degree°"
             }
         }
+
+        if (plotterWindowProperty.value?.transformation?.flipView == true) {
+            list += "Flipped"
+        }
+
         list.filter { it.isNotBlank() }
     }
 

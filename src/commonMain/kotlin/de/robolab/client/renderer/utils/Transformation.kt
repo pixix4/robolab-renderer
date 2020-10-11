@@ -5,6 +5,7 @@ import de.robolab.client.renderer.transition.ValueTransition
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.event.EventHandler
+import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlin.math.PI
@@ -166,12 +167,39 @@ class Transformation(
         flipViewProperty.value = state.flipped
     }
 
+    init {
+        flipViewProperty.onChange {
+            onViewChange.emit()
+        }
+    }
+
     companion object {
         const val PIXEL_PER_UNIT: Double = 100.0
         val PIXEL_PER_UNIT_DIMENSION = Dimension(PIXEL_PER_UNIT, -PIXEL_PER_UNIT)
 
 
-        private val SCALE_STEPS = listOf(0.1, 0.17, 0.25, 0.4, 0.5, 0.67, 0.8, 0.9, 1.0, 1.1, 1.2, 1.33, 1.5, 1.7, 2.0, 2.4, 3.0, 4.0, 6.5, 10.0)
+        private val SCALE_STEPS = listOf(
+            0.1,
+            0.17,
+            0.25,
+            0.4,
+            0.5,
+            0.67,
+            0.8,
+            0.9,
+            1.0,
+            1.1,
+            1.2,
+            1.33,
+            1.5,
+            1.7,
+            2.0,
+            2.4,
+            3.0,
+            4.0,
+            6.5,
+            10.0
+        )
 
         fun normalizeScale(scale: Double) = min(10.0, max(0.1, scale))
     }

@@ -78,23 +78,24 @@ class FileEntryPlanetDocument(
         }
     }
 
+    private val flippedProperty = property(false)
+
     override val toolBarLeft = constObservable(listOf(
         listOf(
             ToolBarEntry(
-                constObservable("Export"),
-                toolTipProperty = constObservable("Open planet export dialog")
+                iconProperty = constObservable(MaterialIcon.CAMERA_ALT),
+                toolTipProperty = constObservable("Export dialog as …")
             ) {
                 openExportDialog(this)
             },
+        ),
+        listOf(
             ToolBarEntry(
-                constObservable("Flip"),
-                toolTipProperty = constObservable("Flip the planet"),
-                selectedProperty = viewDrawable.flipViewProperty.mapBinding { it == true }
+                iconProperty = constObservable(MaterialIcon.FLIP_CAMERA_ANDROID),
+                toolTipProperty = constObservable("Flip planet view horizontally"),
+                selectedProperty = flippedProperty
             ) {
-                viewDrawable.flip()
-                paperDrawable.flip()
-                editDrawable.flip()
-                traverserDrawable.flip()
+                flippedProperty.value = !flippedProperty.value
             }
         )
     ))
@@ -103,6 +104,7 @@ class FileEntryPlanetDocument(
         listOf(
             ToolBarEntry(
                 iconProperty = constObservable(MaterialIcon.SAVE),
+                toolTipProperty = constObservable("Save changes"),
                 enabledProperty = planetFile.history.canUndoProperty
             ) {
                 GlobalScope.launch(Dispatchers.Main) {
@@ -272,6 +274,13 @@ class FileEntryPlanetDocument(
             paperDrawable.importPlanet(planetFile.planet)
             editDrawable.importPlanet(planetFile.planet)
             traverserDrawable.importBackgroundPlanet(planetFile.planet)
+        }
+
+        flippedProperty.onChange {
+            viewDrawable.flip(flippedProperty.value)
+            paperDrawable.flip(flippedProperty.value)
+            editDrawable.flip(flippedProperty.value)
+            traverserDrawable.flip(flippedProperty.value)
         }
 
         infoBarFileTraverse.traverserRenderStateProperty.onChange {
