@@ -131,6 +131,23 @@ data class Planet(
         )
     }
 
+    fun getDefaultSenderGroupings(): Map<Set<Coordinate>, Char> {
+        val missing = getDrawableSenderGrouping()
+
+        val groupings = mutableMapOf<Set<Coordinate>, Char>()
+
+        var lastChar = 'A'
+        for (set in missing) {
+            while (lastChar in groupings.values) {
+                lastChar += 1
+            }
+            groupings += set to lastChar
+            lastChar += 1
+        }
+
+        return groupings
+    }
+
     fun scaleWeights(factor: Double = 1.0, offset: Int = 0): Planet {
         return copy(
             pathList = pathList.map { path ->

@@ -50,7 +50,7 @@ class InfoBarFileEdit(private val planetEntry: FileEntryPlanetDocument) :
             return planetEntry.content
         }
 
-    }, planetEntry.planetFile.planetProperty)
+    }, planetEntry.planetFile.history)
     var content by contentProperty
 
     fun undo() {
@@ -65,6 +65,17 @@ class InfoBarFileEdit(private val planetEntry: FileEntryPlanetDocument) :
         GlobalScope.launch {
             planetEntry.filePlanet.save()
         }
+    }
+
+    fun transform() {
+        planetEntry.transform()
+    }
+
+    fun format() {
+        planetEntry.format(false)
+    }
+    fun formatExplicit() {
+        planetEntry.format(true)
     }
 
     var ignoreSetLine = false

@@ -86,6 +86,25 @@ class InfoBarFileEditView(private val content: InfoBarFileEdit) : View() {
 
         vbox {
             vgrow = Priority.ALWAYS
+
+            toolbar {
+                button("Transform") {
+                    setOnAction {
+                        content.transform()
+                    }
+                }
+                button("Format") {
+                    setOnAction {
+                        content.format()
+                    }
+                }
+                button("Format explicit") {
+                    setOnAction {
+                        content.formatExplicit()
+                    }
+                }
+            }
+
             scrollBoxView {
                 resizeBox(0.5, true) {
                     anchorpane {
@@ -124,7 +143,14 @@ class InfoBarFileEditView(private val content: InfoBarFileEdit) : View() {
 
     private fun change() {
         updateOnTextChange = false
+
+        val pos = editor.caretPosition
+
         editor.replaceText(contentProperty.value)
+
+        editor.moveTo(pos)
+        editor.requestFollowCaret()
+
         updateOnTextChange = true
     }
 
@@ -238,10 +264,10 @@ class InfoBarFileEditView(private val content: InfoBarFileEdit) : View() {
             "blue",
             "start",
             "target",
-            "direction"
+            "direction",
         )
 
-        private val KEYWORD_PATTERN = ("\\b(" + KEYWORDS.joinToString("|") + ")\\b").toRegex()
+        private val KEYWORD_PATTERN = ("(\\b(" + KEYWORDS.joinToString("|") + ")|\\\$[\\w-]*)\\b").toRegex()
         private val DIRECTION_PATTERN = "\\b([NESWnesw])\\b".toRegex()
         private val NUMBER_PATTERN = "(-?[0-9]+)".toRegex()
         private val STRING_PATTERN = "[a-zA-Z]".toRegex()

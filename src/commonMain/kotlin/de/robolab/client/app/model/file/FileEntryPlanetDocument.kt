@@ -87,14 +87,9 @@ class FileEntryPlanetDocument(
                 openExportDialog(this)
             },
             ToolBarEntry(
-                constObservable("Transform"),
-                toolTipProperty = constObservable("Apply planet transformations")
-            ) {
-                openPlanetTransformDialog(planetFile)
-            },
-            ToolBarEntry(
                 constObservable("Flip"),
-                toolTipProperty = constObservable("Flip the planet")
+                toolTipProperty = constObservable("Flip the planet"),
+                selectedProperty = viewDrawable.flipViewProperty.mapBinding { it == true }
             ) {
                 viewDrawable.flip()
                 paperDrawable.flip()
@@ -261,6 +256,14 @@ class FileEntryPlanetDocument(
 
     override fun hashCode(): Int {
         return filePlanet.hashCode()
+    }
+
+    fun transform() {
+        openPlanetTransformDialog(planetFile)
+    }
+
+    fun format(explicit: Boolean) {
+        planetFile.format(explicit)
     }
 
     init {

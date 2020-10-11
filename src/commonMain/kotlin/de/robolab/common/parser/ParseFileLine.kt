@@ -58,6 +58,20 @@ interface FileLine<T> {
             blockMode = BlockMode.Skip(builder.previousBlockHead)
         }
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is BlankLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
+        }
+
+
         companion object : Parser {
             override val name = "Blank line parser"
             override fun testLine(line: String): Boolean {
@@ -85,6 +99,22 @@ interface FileLine<T> {
             } else {
                 BlockMode.Append(head)
             }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is UnknownLine) return false
+
+            if (line != other.line) return false
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = line.hashCode()
+            result = 31 * result + data.hashCode()
+            return result
         }
     }
 
@@ -120,6 +150,19 @@ interface FileLine<T> {
             if (obj !is Path) return false
 
             return obj.equalPath(data)
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is PathLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
         }
 
         companion object : Parser {
@@ -189,6 +232,19 @@ interface FileLine<T> {
             return obj.equalPoint(data)
         }
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is StartPointLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
+        }
+
         companion object : Parser {
             override val name = "Start point line parser"
             val REGEX =
@@ -233,6 +289,19 @@ interface FileLine<T> {
             if (obj !is Coordinate) return false
 
             return obj == data
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is BluePointLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
         }
 
         companion object : Parser {
@@ -280,6 +349,19 @@ interface FileLine<T> {
             if (obj !is PathSelect) return false
 
             return obj == data
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is PathSelectLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
         }
 
         companion object : Parser {
@@ -331,6 +413,19 @@ interface FileLine<T> {
             return obj == data
         }
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is TargetLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
+        }
+
         companion object : Parser {
             override val name = "Target line parser"
             val REGEX =
@@ -375,6 +470,19 @@ interface FileLine<T> {
             return obj == data
         }
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is NameLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
+        }
+
         companion object : Parser {
             override val name = "Name line parser"
             val REGEX =
@@ -417,6 +525,19 @@ interface FileLine<T> {
             if (obj !is Int) return false
 
             return obj == data
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is VersionLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
         }
 
         companion object : Parser {
@@ -488,6 +609,19 @@ interface FileLine<T> {
             return super.isAssociatedTo(obj)
         }
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is SplineLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
+        }
+
         companion object : Parser {
             override val name = "Spline line parser"
             val REGEX =
@@ -531,6 +665,19 @@ interface FileLine<T> {
             builder.planet = builder.planet.copy(
                 senderGrouping = builder.planet.senderGrouping + (data.second to data.first)
             )
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is GroupingLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
         }
 
         companion object : Parser {
@@ -591,6 +738,19 @@ interface FileLine<T> {
             return super.isAssociatedTo(obj)
         }
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is HiddenLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
+        }
+
         companion object : Parser {
             override val name = "Hidden line parser"
             val REGEX =
@@ -625,6 +785,19 @@ interface FileLine<T> {
             builder.planet = builder.planet.copy(tagMap = builder.planet.tagMap.withEntry(data.key to data.values.orEmpty()){
                 _, a:List<String>,b:List<String> -> a+b
             })
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is TagLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
         }
 
         companion object : Parser {
@@ -696,6 +869,19 @@ interface FileLine<T> {
             return super.isAssociatedTo(obj)
         }
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is CommentLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
+        }
+
         companion object : Parser {
             override val name = "Comment line parser"
             val REGEX =
@@ -745,6 +931,19 @@ interface FileLine<T> {
             )
         }
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is CommentSubLine) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
+        }
+
         companion object : Parser {
             override val name = "Comment line parser"
             val REGEX =
@@ -774,6 +973,22 @@ interface FileLine<T> {
         }
 
         override fun isAssociatedTo(obj: Any) = false
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ErrorLine) return false
+
+            if (line != other.line) return false
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = line.hashCode()
+            result = 31 * result + data.hashCode()
+            return result
+        }
     }
 }
 

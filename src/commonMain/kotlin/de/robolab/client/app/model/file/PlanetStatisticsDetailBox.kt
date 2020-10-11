@@ -18,18 +18,21 @@ class PlanetStatisticsDetailBox(planetFile: PlanetFile) {
 
     val data = listOf(
         "General" to listOf(
-            "Version" to planetFile.planetProperty.mapBinding { planet -> planet.version.toString() },
+            "Name" to planetFile.planetProperty.mapBinding { it.name },
+            "Tags" to planetFile.planetProperty.mapBinding { it.tagMap.toList().joinToString("; ") { (key, value) -> "$key: $value" } },
+            "Version" to planetFile.planetProperty.mapBinding { it.version.toString() },
             "Start point" to statisticsProperty.mapBinding { it.startPoint?.toFormattedString() ?: "" },
             "Path unveil count" to statisticsProperty.mapBinding { it.pathUnveilCount.toString() },
             "Paths select count" to statisticsProperty.mapBinding { it.pathSelectCount.toString() },
             "Target count" to statisticsProperty.mapBinding { it.targetCount.toString() },
-            "Sender count" to statisticsProperty.mapBinding { it.senderCount.toString() }
+            "Sender count" to statisticsProperty.mapBinding { it.senderCount.toString() },
         ),
         "Points" to listOf(
             "Point count" to statisticsProperty.mapBinding { it.pointCount.toString() },
             "Blue point count" to statisticsProperty.mapBinding { it.pointBlueCount.toString() },
             "Red point count" to statisticsProperty.mapBinding { it.pointRedCount.toString() },
-            "Hidden point count" to statisticsProperty.mapBinding { it.pointHiddenCount.toString() }
+            "Hidden point count" to statisticsProperty.mapBinding { it.pointHiddenCount.toString() },
+            "Bottle count" to statisticsProperty.mapBinding { it.bottleCount.toString() },
         ),
         "Paths" to listOf(
             "Path count" to statisticsProperty.mapBinding { it.pathCount.toString() },
@@ -42,12 +45,12 @@ class PlanetStatisticsDetailBox(planetFile: PlanetFile) {
                 }
                 val lengthMeter = lengthGrid * PreferenceStorage.paperGridWidth
                 "${lengthMeter.toFixed(2)}m (${lengthGrid.toFixed(2)} grid units)"
-            }
+            },
         ),
         "Path classifiers" to listOf(
             *PathClassifier.values().map { classifier ->
                 classifier.desc to statisticsProperty.mapBinding { (it.pathClassifier[classifier] ?: 0).toString() }
-            }.toTypedArray()
+            }.toTypedArray(),
         )
     )
 }

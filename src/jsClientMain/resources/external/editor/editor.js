@@ -5,7 +5,7 @@ class TextEditor {
      * @param container: HTMLElement
      */
     constructor(container) {
-        let KEYWORD_PATTERN = /\b(comment|left|center|right|name|version|spline|grouping|commen|blue|start|target|direction)\b/;
+        let KEYWORD_PATTERN = /(\b(comment|left|center|right|name|version|spline|grouping|commen|blue|start|target|direction)|\$[\w-]*)\b/;
         let DIRECTION_PATTERN = /\b[NESWnesw]\b/;
         let NUMBER_PATTERN = /\b(-?[0-9]+)\b/;
         let STRING_PATTERN = /\b([a-zA-Z]+)\b/;
@@ -61,8 +61,10 @@ class TextEditor {
 
     set value(val) {
         let cursor = this.editor.getCursor();
+        let scroll = this.editor.getScrollInfo();
         this.editor.setValue(val);
         this.editor.setCursor(cursor);
+        this.editor.scrollTo(scroll.left, scroll.top);
     }
 
     addOnChangeListener(callback) {
