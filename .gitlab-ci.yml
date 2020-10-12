@@ -68,3 +68,4 @@ deploy-server:
       artifacts: true
   tags:
     - shell
+    - robolab
