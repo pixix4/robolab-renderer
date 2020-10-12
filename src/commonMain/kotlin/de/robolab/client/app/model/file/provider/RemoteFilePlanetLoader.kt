@@ -100,11 +100,15 @@ class RemoteFilePlanetLoader(
         }
     }
 
-    override suspend fun searchPlanets(search: String): List<PlanetJsonInfo> {
+    override suspend fun searchPlanets(search: String, matchExact: Boolean): List<PlanetJsonInfo> {
         return withContext(Dispatchers.Default) {
             try {
                 available = true
-                server.listPlanets(nameExact = search).planets
+                if (matchExact) {
+                    server.listPlanets(nameExact = search).planets
+                } else  {
+                    server.listPlanets(nameContains = search).planets
+                }
             } catch (e: Exception) {
                 available = false
                 emptyList()

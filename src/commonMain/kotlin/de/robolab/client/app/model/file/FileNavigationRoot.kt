@@ -90,7 +90,7 @@ object LoadRemoteExamStateEvent
 expect fun getFilePlanetLoaderFactoryList(): List<IFilePlanetLoaderFactory>
 
 suspend fun <T : IFilePlanetIdentifier> IFilePlanetLoader<T>.searchPlanet(name: String): FilePlanet<T>? {
-    val entry = searchPlanets(name).firstOrNull() ?: return null
+    val entry = searchPlanets(name, true).firstOrNull() ?: return null
     return FilePlanet(this, entry)
 }
 

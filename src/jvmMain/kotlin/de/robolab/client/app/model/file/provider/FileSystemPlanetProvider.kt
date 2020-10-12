@@ -125,13 +125,17 @@ class FileSystemPlanetLoader(
         }
     }
 
-    override suspend fun searchPlanets(search: String): List<FileIdentifier> {
+    override suspend fun searchPlanets(search: String, matchExact: Boolean): List<FileIdentifier> {
+        val filter: (Pair<String, File>) -> Boolean = if (matchExact) { (name, _) ->
+            name == search
+        } else { (name, _) ->
+            name.contains(search, true)
+        }
+
         return try {
             listPlanetFiles(baseDirectory, true)
                 .map { (getPlanetNameOfFile(it) ?: "") to it }
-                .filter { (name, _) ->
-                    name.contains(search, true)
-                }
+                .filter(filter)
                 .sortedBy { (name, _) ->
                     name.length
                 }

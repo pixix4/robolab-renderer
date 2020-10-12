@@ -64,12 +64,15 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
         }
     }
 
-    override suspend fun searchPlanets(search: String): List<FileIdentifier> {
-        val identifier = listPlanets(null)
+    override suspend fun searchPlanets(search: String, matchExact: Boolean): List<FileIdentifier> {
+        val identifierList = listPlanets(null)
+        val filter: (FileIdentifier) -> Boolean = if (matchExact) { identifier ->
+            identifier.name == search
+        } else { identifier ->
+            identifier.name.contains(search, true)
+        }
 
-        return identifier.filter {
-            it.name.contains(search, true)
-        }.sortedBy {
+        return identifierList.filter(filter).sortedBy {
             it.name.length
         }
     }
