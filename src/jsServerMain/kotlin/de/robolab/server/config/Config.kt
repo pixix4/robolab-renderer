@@ -10,6 +10,13 @@ import de.robolab.server.model.asPlanetJsonInfo
 
 object Config : TypedStorage() {
 
+    object General {
+
+        val port by item("general.port", 8080)
+
+        val mount by item("general.mount", "/api")
+    }
+
     object Beverage {
         //URL which should be redirected to when requesting /mate
         val payPalMateURL by item("beverage.payPalMateURL", "")

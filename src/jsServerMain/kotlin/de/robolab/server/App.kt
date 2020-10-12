@@ -21,10 +21,12 @@ class App : CliktCommand() {
         ConsoleGreeter.greetServer()
         val logger = Logger("MainApp")
 
-        DefaultEnvironment.app.use("/api", DefaultEnvironment.createApiRouter())
-        DefaultEnvironment.app.get("/", logoResponse)
-        DefaultEnvironment.http.listen(8080) {
-            logger.i("Listening on port 8080")
+        DefaultEnvironment.app.use(Config.General.mount, DefaultEnvironment.createApiRouter())
+        if (Config.General.mount.isEmpty() || Config.General.mount != "/") {
+            DefaultEnvironment.app.get("/", logoResponse)
+        }
+        DefaultEnvironment.http.listen(Config.General.port) {
+            logger.i("Listening on port http://localhost/${Config.General.port}${Config.General.mount}")
         }
     }
 }
