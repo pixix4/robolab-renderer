@@ -26,7 +26,7 @@ repositories {
     }
 }
 
-val serializationVersion = "1.0.0-RC2"
+val serializationVersion = "1.0.0"
 val klockVersion = "1.12.0"
 val coroutineVersion = "1.3.9"
 val ktorVersion = "1.4.1"
