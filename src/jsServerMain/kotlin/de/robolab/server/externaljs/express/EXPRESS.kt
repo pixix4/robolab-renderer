@@ -5,10 +5,7 @@ import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.ContentTypeHeader
 import de.robolab.server.RequestError
 import de.robolab.server.auth.User
-import de.robolab.server.externaljs.Buffer
-import de.robolab.server.externaljs.JSArray
-import de.robolab.server.externaljs.NodeError
-import de.robolab.server.externaljs.dynamicOf
+import de.robolab.server.externaljs.*
 import de.robolab.server.jsutils.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -234,9 +231,14 @@ fun <D> Response<D>.format(vararg handlers: Pair<String, () -> Unit>) =
 fun <D> Response<D>.formatReceiving(vararg handlers: Pair<String, Response<D>.() -> Unit>) =
     formatReceiving(*handlers, defaultHandler = { sendStatus(HttpStatusCode.NotAcceptable) })
 
+fun <D> Response<D>.formatReceiving(vararg handlers: Pair<MIMEType, Response<D>.() -> Unit>) =
+    formatReceiving(*(handlers.map {it.first.primaryName to it.second}).toTypedArray(), defaultHandler = {sendStatus(HttpStatusCode.NotAcceptable)})
+
 fun <D> formatReceiving(vararg handlers: Pair<String, Response<D>.() -> Unit>): (Response<D>) -> Unit =
     formatReceiving(*handlers, defaultHandler = { sendStatus(HttpStatusCode.NotAcceptable) })
 
+fun <D> formatReceiving(vararg handlers: Pair<MIMEType, Response<D>.() -> Unit>) : (Response<D>) -> Unit =
+    formatReceiving(*(handlers.map { it.first.primaryName to it.second }).toTypedArray())
 
 fun <D> formatReceiving(
     vararg handlers: Pair<String, Response<D>.() -> Unit>,

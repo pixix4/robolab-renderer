@@ -5,6 +5,7 @@ import de.robolab.common.net.headers.AccessControlAllowMethods
 import de.robolab.common.utils.BuildInformation
 import de.robolab.server.externaljs.body_parser.json
 import de.robolab.server.externaljs.body_parser.text
+import de.robolab.server.externaljs.cookie_parser.cookieParser
 import de.robolab.server.externaljs.createIO
 import de.robolab.server.externaljs.emptyDynamic
 import de.robolab.server.externaljs.express.*
@@ -27,6 +28,7 @@ object DefaultEnvironment {
         }
         router.use(json())
         router.use(text())
+        router.use(cookieParser())
         router.use(AuthRouter::userLookupMiddleware)
         router.use("/tea", BeverageRouter.teaRouter)
         router.use("/coffee", BeverageRouter.coffeeRouter)

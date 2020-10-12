@@ -9,6 +9,15 @@ class User(val userID: UserID, val isRoboLab: Boolean) {
         "roboLvl" to if(isRoboLab) 10 else 0
     )
 
+    fun toJSON(): dynamic{
+        val payload: dynamic = toJWTPayload()
+        payload.anonymous = this == Anonymous
+        return payload
+    }
+
+    val internalName: String
+        get() = if(this == Anonymous) "anonymous" else userID.toString()
+
     companion object{
         val Anonymous: User = User(UserID.MAX_VALUE,false)
         fun fromJWTPayload(payload: dynamic): User?{

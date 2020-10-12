@@ -19,8 +19,16 @@ import org.w3c.dom.MimeType
 object AuthRouter {
     val router: DefaultRouter = createRouter()
     val authProvider: GitLabAuthProvider = GitLabAuthProvider("${Config.Auth.hostURL}/api/auth/gitlab/redirect")
-    val authService: AuthService = AuthService(false)
-
+    val authService: AuthService = AuthService()
+    val allowedInvalidTokenRoutes: Set<String> = setOf(
+        "/version",
+        "/info/status",
+        "/auth/gitlab",
+        "/auth/gitlab/relay",
+        "/auth/gitlab/redirect",
+        "/auth/token",
+        "/auth/clear",
+    )
 
     init {
         router.getSuspend("/gitlab") { _, res ->
@@ -32,9 +40,16 @@ object AuthRouter {
             val dynCode: dynamic = req.query.code
             val dynState: dynamic = req.query.state
             val code: String? = dynCode as? String
-            val stateString: String = dynState as? String ?: throw RequestError(HttpStatusCode.BadRequest, "Missing State-parameter",verbose=false)
+            val stateString: String = dynState as? String ?: throw RequestError(
+                HttpStatusCode.BadRequest,
+                "Missing State-parameter",
+                verbose = false
+            )
             val shareCode: ShareCode
-            shareCode = authProvider.extractShareCode(stateString) ?: throw RequestError(HttpStatusCode.BadRequest,"State-parameter is not valid")
+            shareCode = authProvider.extractShareCode(stateString) ?: throw RequestError(
+                HttpStatusCode.BadRequest,
+                "State-parameter is not valid"
+            )
             authService.assertCanProvide(shareCode)
             if (code == null) {
                 authService.abortShare(shareCode)
@@ -44,14 +59,28 @@ object AuthRouter {
                 val token = authService.obtainToken(user);
                 if (authService.provideSharedToken(shareCode, token, user.userID)) {
                     //Code is used in a share-process, JWT has already been passed on
-                    res.status(HttpStatusCode.NoContent).end() //TODO: Close page
+                    res.status(HttpStatusCode.Ok).type(MIMEType.HTML).send(
+                        """<!DOCTYPE html>
+<html>
+<body>
+<script>
+window.close();
+</script>
+</body>
+</html>
+""".trimIndent()
+                    )
                 } else {
                     //Code is not used in a share-process, return JWT
-                    res.status(HttpStatusCode.Ok).type(MIMEType.JWT)
-                        .send(token.rawToken) //TODO: Set auth-header and redirect to index
+                    res.cookie("robolab_auth", token.rawToken, dynamicOf("httpOnly" to true))
+                    res.redirect(Config.Auth.redirectURL)
                 }
             }
             return@getSuspend
+        }
+        router.getSuspend("/clear") { _, res ->
+            res.clearCookie("robolab_auth")
+            res.sendStatus(HttpStatusCode.NoContent)
         }
         router.getSuspend("/gitlab/relay") { _, res ->
             val shareCode = authService.createShareCode(true)
@@ -64,12 +93,19 @@ object AuthRouter {
         }
         router.getSuspend("/gitlab/token") { req, res ->
             val dynState = req.query.state
-            val state = dynState as? String ?: throw RequestError(HttpStatusCode.BadRequest, "Missing State-parameter",verbose=false)
-            val shareCode: ShareCode = authProvider.extractShareCode(state) ?: throw RequestError(HttpStatusCode.BadRequest,"State-parameter is not valid")
+            val state = dynState as? String ?: throw RequestError(
+                HttpStatusCode.BadRequest,
+                "Missing State-parameter",
+                verbose = false
+            )
+            val shareCode: ShareCode = authProvider.extractShareCode(state) ?: throw RequestError(
+                HttpStatusCode.BadRequest,
+                "State-parameter is not valid"
+            )
             val token = authService.getSharedToken(shareCode)
-            if(token == null){
-                res.sendStatus(HttpStatusCode.Unauthorized)
-            }else{
+            if (token == null) {
+                res.sendStatus(HttpStatusCode.NoContent)
+            } else {
                 res.status(HttpStatusCode.Ok).type(MIMEType.JWT).send(token.rawToken)
             }
         }
@@ -80,11 +116,16 @@ object AuthRouter {
     }
 
     fun userLookupMiddleware(req: Request<*>, res: Response<*>, next: (NodeError?) -> Unit) {
-        val authHeaderValue: String? = req.headers[AuthorizationHeader.name] as? String
+        var authHeaderValue: String? = req.headers[AuthorizationHeader.name] as? String
         if (authHeaderValue == null) {
-            req.user = User.Anonymous
-            res.setHeader("robolab-user", "anonymous")
-            return next(null)
+            val authCookie = req.cookies?.robolab_auth as? String
+            if (authCookie == null) {
+                req.user = User.Anonymous
+                res.setHeader("robolab-user", req.user.internalName)
+                return next(null)
+            } else {
+                authHeaderValue = "Bearer $authCookie"
+            }
         }
         val authHeader: AuthorizationHeader = AuthorizationHeader.parse(authHeaderValue)
         if (authHeader !is AuthorizationHeader.Bearer) {
@@ -93,17 +134,16 @@ object AuthRouter {
             return
         }
         val headerUser = authService.obtainUser(authHeader)
+            ?: if (req.path in allowedInvalidTokenRoutes) User.Anonymous else null
         if (headerUser == null) {
             res.setHeader("robolab-error", "Invalid/Expired Bearer-Token")
             res.sendStatus(HttpStatusCode.Unauthorized)
             return
         } else {
             req.user = headerUser
-            res.setHeader("robolab-user",
-                if(req.user == User.Anonymous)
-                    "anonymous"
-                else
-                    req.user.userID.toString())
+            res.setHeader(
+                "robolab-user",req.user.internalName
+            )
             return next(null)
         }
     }

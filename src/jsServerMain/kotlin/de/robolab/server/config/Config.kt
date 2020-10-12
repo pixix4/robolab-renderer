@@ -76,8 +76,11 @@ object Config : TypedStorage() {
         //GitLab access token to use for server operations
         val gitlabAPIToken by item("auth.gitlabAPIToken","")
 
-        //URL the server is hosted on, including port. Required for redirects
+        //URL this server is hosted on, including port. Required for redirects
         val hostURL by item("auth.hostURL","http://localhost:8080")
+
+        //URL the server should redirect to after authorization.
+        val redirectURL by item("auth.redirectURL", "/")
 
         //Algorithm to use for generating new JWTs for authentication. See https://www.npmjs.com/package/jsonwebtoken#algorithms-supported
         val tokenAlgorithm by item("auth.tokenAlgorithm","HS256")
