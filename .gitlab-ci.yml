@@ -59,8 +59,8 @@ deploy-client:
 deploy-server:
   stage: deploy
   script:
-    - chmod 0600 $SSH_KEY
-    - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c webServer/ ubuntu@robolab.pixix4.com:jsServer/
+    - chmod 0600 $SSH_KEY_ROBOLAB
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c webServer/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer-server/
   only:
     - master
   needs:
