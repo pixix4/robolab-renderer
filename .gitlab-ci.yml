@@ -48,6 +48,10 @@ deploy-client:
     - ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY ubuntu@robolab.pixix4.com cp jvmClient/robolab-jvm.jar jvmClient/robolab-jvmheadless.jar
   only:
     - master
+  environment:
+    name: pixix4-client
+    url: https://robolab.pixix4.com
+
   needs:
     - job: build-jvm
       artifacts: true
@@ -63,6 +67,9 @@ deploy-server:
     - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c webServer/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer-server/
   only:
     - master
+  environment:
+    name: robolab-server
+    url: https://robolab.inf.tu-dresden.de/renderer/api
   needs:
     - job: build-js-server
       artifacts: true
