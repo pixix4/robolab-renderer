@@ -1,9 +1,7 @@
 package de.robolab.client.net.requests
 
 import de.robolab.client.net.*
-import de.robolab.common.net.HttpMethod
-import de.robolab.common.net.HttpStatusCode
-import de.robolab.common.net.MIMEType
+import de.robolab.common.net.*
 import de.robolab.common.planet.ID
 import de.robolab.common.utils.filterValuesNotNull
 import kotlinx.serialization.builtins.ListSerializer
@@ -30,17 +28,18 @@ open class ListPlanets(
         } else null)
     ).filterValuesNotNull()
     override val headers: Map<String, List<String>> = mapOf()
-    override val forceAuth: Boolean = true
 
-    override fun parseResponse(serverResponse: ServerResponse) = ListPlanetsResponse(serverResponse)
+    override fun parseResponse(serverResponse: ServerResponse) =
+        parseResponseCatchingWrapper(serverResponse, this, ::ListPlanetsResponse)
 
-    class ListPlanetsResponse(serverResponse: IServerResponse) : RESTResponse(serverResponse) {
+    class ListPlanetsResponse(serverResponse: IServerResponse, triggeringRequest: IRESTRequest<ListPlanetsResponse>) :
+        RESTResponse(serverResponse) {
 
         val planets: List<PlanetJsonInfo>
 
         init {
             planets = if (serverResponse.status != HttpStatusCode.Ok)
-                emptyList()
+                `throw`(triggeringRequest)
             else when (val mimeType = serverResponse.contentType?.mimeType) {
                 MIMEType.JSON -> parse(ListSerializer(PlanetJsonInfo.serializer()))
                 else -> throw IllegalArgumentException("Cannot parse MIME-Type '$mimeType'")
@@ -52,7 +51,7 @@ open class ListPlanets(
     }
 }
 
-suspend fun IRobolabServer.listPlanets(): ListPlanets.ListPlanetsResponse = request(ListPlanets.Simple)
+suspend fun IRobolabServer.listPlanets() = request(ListPlanets.Simple)
 suspend fun IRobolabServer.listPlanets(block: RequestBuilder.() -> Unit) = request(ListPlanets.Simple, block)
 suspend fun IRobolabServer.listPlanets(
     nameExact: String? = null,
@@ -60,7 +59,7 @@ suspend fun IRobolabServer.listPlanets(
     nameContains: String? = null,
     nameEndsWith: String? = null,
     ignoreCase: Boolean = false
-): ListPlanets.ListPlanetsResponse = request(
+) = request(
     ListPlanets(
         nameExact = nameExact,
         nameStartsWith = nameStartsWith,
@@ -69,6 +68,7 @@ suspend fun IRobolabServer.listPlanets(
         ignoreCase = ignoreCase
     )
 )
+
 suspend fun IRobolabServer.listPlanets(
     nameExact: String? = null,
     nameStartsWith: String? = null,
@@ -76,7 +76,7 @@ suspend fun IRobolabServer.listPlanets(
     nameEndsWith: String? = null,
     ignoreCase: Boolean = false,
     block: RequestBuilder.() -> Unit
-): ListPlanets.ListPlanetsResponse = request(
+) = request(
     ListPlanets(
         nameExact = nameExact,
         nameStartsWith = nameStartsWith,

@@ -4,7 +4,7 @@ import com.soywiz.klock.js.toDateTime
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.ServerPlanetInfo
-import de.robolab.server.RequestError
+import de.robolab.server.net.RESTRequestClientCodeError
 import de.robolab.server.externaljs.fs.*
 import de.robolab.server.externaljs.os.EOL
 import de.robolab.server.externaljs.path.safeJoinPath
@@ -109,10 +109,9 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
     override suspend fun get(id: String): SPlanet? {
         var planetFile: PlanetFile? = null
         if (id.contains('\u0000'))
-            throw RequestError(
+            throw RESTRequestClientCodeError(
                 HttpStatusCode.UnprocessableEntity,
-                "Invalid id: \"${id.toIDString()}\"",
-                verbose = false
+                "Invalid id: \"${id.toIDString()}\""
             )
         val path: String = getPath(id)
         val metadata: ServerPlanetInfo? = metaStore.retrieveInfo(id) {
@@ -164,10 +163,9 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
 
     private suspend fun lookupInfo(id: String): ServerPlanetInfo? {
         if (id.contains('\u0000'))
-            throw RequestError(
+            throw RESTRequestClientCodeError(
                 HttpStatusCode.UnprocessableEntity,
-                "Invalid id: \"${id.toIDString()}\"",
-                verbose = false
+                "Invalid id: \"${id.toIDString()}\""
             )
         return try {
             ServerPlanetInfo.fromPlanet(id, readPlanetFile(id)?.planet, stat(getPath(id)).await().mtime.toDateTime())

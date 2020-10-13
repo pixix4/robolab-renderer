@@ -59,7 +59,7 @@ class FileNavigationRoot(
 
         GlobalScope.launch {
             try {
-                val info = server.getExamInfo()
+                val info = server.getExamInfo().okOrThrow()
 
                 PreferenceStorage.examActive = info.isExam
                 if (info.isExam) {

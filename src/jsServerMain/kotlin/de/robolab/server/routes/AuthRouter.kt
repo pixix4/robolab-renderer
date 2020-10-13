@@ -3,8 +3,7 @@ package de.robolab.server.routes
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.AuthorizationHeader
-import de.robolab.common.net.headers.ContentTypeHeader
-import de.robolab.server.RequestError
+import de.robolab.server.net.RESTRequestClientCodeError
 import de.robolab.server.auth.AuthService
 import de.robolab.server.auth.GitLabAuthProvider
 import de.robolab.server.auth.ShareCode
@@ -13,8 +12,6 @@ import de.robolab.server.config.Config
 import de.robolab.server.externaljs.NodeError
 import de.robolab.server.externaljs.dynamicOf
 import de.robolab.server.externaljs.express.*
-import de.robolab.server.externaljs.jsonwebtoken.parseJWT
-import org.w3c.dom.MimeType
 
 object AuthRouter {
     val router: DefaultRouter = createRouter()
@@ -40,13 +37,12 @@ object AuthRouter {
             val dynCode: dynamic = req.query.code
             val dynState: dynamic = req.query.state
             val code: String? = dynCode as? String
-            val stateString: String = dynState as? String ?: throw RequestError(
+            val stateString: String = dynState as? String ?: throw RESTRequestClientCodeError(
                 HttpStatusCode.BadRequest,
-                "Missing State-parameter",
-                verbose = false
+                "Missing State-parameter"
             )
             val shareCode: ShareCode
-            shareCode = authProvider.extractShareCode(stateString) ?: throw RequestError(
+            shareCode = authProvider.extractShareCode(stateString) ?: throw RESTRequestClientCodeError(
                 HttpStatusCode.BadRequest,
                 "State-parameter is not valid"
             )
@@ -93,12 +89,11 @@ window.close();
         }
         router.getSuspend("/gitlab/token") { req, res ->
             val dynState = req.query.state
-            val state = dynState as? String ?: throw RequestError(
+            val state = dynState as? String ?: throw RESTRequestClientCodeError(
                 HttpStatusCode.BadRequest,
-                "Missing State-parameter",
-                verbose = false
+                "Missing State-parameter"
             )
-            val shareCode: ShareCode = authProvider.extractShareCode(state) ?: throw RequestError(
+            val shareCode: ShareCode = authProvider.extractShareCode(state) ?: throw RESTRequestClientCodeError(
                 HttpStatusCode.BadRequest,
                 "State-parameter is not valid"
             )

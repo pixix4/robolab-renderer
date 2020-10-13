@@ -1,4 +1,4 @@
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "USELESS_CAST")
 
 package de.robolab.server.jsutils
 

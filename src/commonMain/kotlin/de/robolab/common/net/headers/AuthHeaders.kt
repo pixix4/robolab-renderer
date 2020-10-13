@@ -1,9 +1,10 @@
 package de.robolab.common.net.headers
 
+import de.robolab.client.net.ICredentialProvider
 import de.robolab.common.utils.decodeFromB64
 import de.robolab.common.utils.encodeAsB64
 
-sealed class AuthorizationHeader constructor(val schemaName: String, schemaValue: String) :
+sealed class AuthorizationHeader constructor(val schemaName: String, val schemaValue: String) :
     Header(name, "$schemaName $schemaValue") {
 
     val schema: AuthenticationSchema?
@@ -11,9 +12,9 @@ sealed class AuthorizationHeader constructor(val schemaName: String, schemaValue
 
     constructor(schema: AuthenticationSchema, schemaValue: String) : this(schema.name, schemaValue)
 
-    class Basic : AuthorizationHeader {
-        val username: String
-        val password: String
+    class Basic : AuthorizationHeader, ICredentialProvider {
+        override val username: String
+        override val password: String
 
         constructor(encodedCredentials: String) : super(AuthenticationSchema.Basic.name, encodedCredentials) {
             val credentials = encodedCredentials.decodeFromB64(url = false).split(':', limit = 2)

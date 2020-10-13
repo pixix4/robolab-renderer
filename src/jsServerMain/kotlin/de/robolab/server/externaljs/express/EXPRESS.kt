@@ -5,7 +5,7 @@ package de.robolab.server.externaljs.express
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.ContentTypeHeader
-import de.robolab.server.RequestError
+import de.robolab.server.net.RESTRequestClientCodeError
 import de.robolab.server.auth.User
 import de.robolab.server.externaljs.Buffer
 import de.robolab.server.externaljs.JSArray
@@ -1043,10 +1043,10 @@ fun <ReqData, ResData, ReqDataT, ResDataT> Router<ReqDataT, ResDataT>.asMappedSu
 
 private fun handlePromiseError(err: Throwable, res: AnyResponse) {
     val (errorCode: HttpStatusCode, errorMessage: String?, errorMime: MIMEType?) = when (err) {
-        is RequestError -> Triple(err.code, err.message, err.mimeType)
+        is RESTRequestClientCodeError -> Triple(err.code, err.message, err.mimeType)
         else -> Triple(HttpStatusCode.InternalServerError, err.message, null)
     }
-    if (err !is RequestError || err.verbose)
+    if (err !is RESTRequestClientCodeError)
         console.error(err)
     if (!res.headersSent) {
         if (errorMime != null) {
@@ -1071,7 +1071,7 @@ private fun handlePromiseError(err: Throwable, res: AnyResponse) {
 private fun handlePromiseError(err: Throwable?, res: AnyResponse, next: (NodeError?) -> Unit) {
     when (err) {
         null -> next(err)
-        is RequestError -> handlePromiseError(err, res)
+        is RESTRequestClientCodeError -> handlePromiseError(err, res)
         is NodeError -> next(err)
         else -> {
             handlePromiseError(err, res)
@@ -1083,10 +1083,10 @@ private fun handlePromiseError(err: Throwable?, res: AnyResponse, next: (NodeErr
 private fun <ReqData, ResData> TerminalPromiseCreator<ReqData, ResData>.toMiddleware(): Middleware<ReqData, ResData> {
     return { req, res, next ->
         var prom: Promise<*>? = null
-        var err: RequestError? = null
+        var err: RESTRequestClientCodeError? = null
         try {
             prom = this(req, res)
-        } catch (ex: RequestError) {
+        } catch (ex: RESTRequestClientCodeError) {
             err = ex
         }
         if (err != null && err != undefined)
@@ -1117,7 +1117,7 @@ private fun <ReqData, ResData> MiddlewarePromiseCreator<ReqData, ResData>.toMidd
         }
         try {
             prom = this(req, res, ::next2)
-        } catch (ex: RequestError) {
+        } catch (ex: RESTRequestClientCodeError) {
             err = ex
         }
         if (err != null && err != undefined)

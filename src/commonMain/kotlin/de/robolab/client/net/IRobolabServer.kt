@@ -1,16 +1,14 @@
 package de.robolab.client.net
 
-import de.robolab.client.net.requests.IRESTRequest
-import de.robolab.client.net.requests.IRESTResponse
-import de.robolab.client.net.requests.buildRequest
-import de.robolab.client.net.requests.loadRequest
+import de.robolab.client.net.requests.*
 import de.robolab.common.net.HttpMethod
+import de.robolab.common.net.headers.AuthorizationHeader
 
 interface IRobolabServer {
     val hostURL: String
     val hostPort: Int
     val protocol: String
-    var credentials: ICredentialProvider?
+    var authHeader: AuthorizationHeader?
 
     fun resetAuthSession()
 
@@ -18,19 +16,17 @@ interface IRobolabServer {
         method: HttpMethod,
         path: String,
         body: String? = null, query: Map<String, String> = emptyMap(),
-        headers: Map<String, List<String>> = emptyMap(),
-        forceAuth: Boolean = false
+        headers: Map<String, List<String>> = emptyMap()
     ): ServerResponse
 }
 
-suspend fun <R> IRobolabServer.request(request: IRESTRequest<R>): R where R : IRESTResponse {
+suspend fun <R> IRobolabServer.request(request: IRESTRequest<R>): RESTResult<R> where R : IRESTResponse {
     val response = request(
         request.method,
         request.path,
         request.body,
         request.query,
-        request.headers,
-        request.forceAuth
+        request.headers
     )
     return request.parseResponse(response)
 }
@@ -38,7 +34,7 @@ suspend fun <R> IRobolabServer.request(request: IRESTRequest<R>): R where R : IR
 suspend fun <R> IRobolabServer.request(
     request: IRESTRequest<R>,
     block: RequestBuilder.() -> Unit
-): R where R : IRESTResponse {
+): RESTResult<R> where R : IRESTResponse {
     val builder = RequestBuilder()
     builder.loadRequest(request)
     builder.block()

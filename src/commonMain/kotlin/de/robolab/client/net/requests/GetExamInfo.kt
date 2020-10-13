@@ -4,8 +4,8 @@ package de.robolab.client.net.requests
 import de.robolab.client.net.*
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
-import de.robolab.common.planet.ID
-import de.robolab.common.utils.RobolabJson
+import de.robolab.common.net.`throw`
+import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.utils.decode
 import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.jsonObject
@@ -17,20 +17,17 @@ object GetExamInfo : IRESTRequest<GetExamInfo.ExamInfoResponse> {
     override val body: String? = null
     override val query: Map<String, String> = emptyMap()
     override val headers: Map<String, List<String>> = mapOf()
-    override val forceAuth: Boolean = false
 
-    override fun parseResponse(serverResponse: ServerResponse) = ExamInfoResponse(serverResponse)
+    override fun parseResponse(serverResponse: ServerResponse) = parseResponseCatchingWrapper(serverResponse,this,::ExamInfoResponse)
 
-    class ExamInfoResponse(serverResponse: IServerResponse) : RESTResponse(serverResponse) {
+    class ExamInfoResponse(serverResponse: IServerResponse, triggeringRequest: IRESTRequest<ExamInfoResponse>) : RESTResponse(serverResponse) {
         val isExam: Boolean
         val smallInfo: PlanetJsonInfo?
         val largeInfo: PlanetJsonInfo?
 
         init {
             if (status != HttpStatusCode.Ok) {
-                isExam = false
-                smallInfo = null
-                largeInfo = null
+                `throw`(triggeringRequest)
             } else {
                 val json = serverResponse.jsonBody!!
                 isExam = json.jsonObject.getValue("isExam").jsonPrimitive.boolean
@@ -50,6 +47,5 @@ object GetExamInfo : IRESTRequest<GetExamInfo.ExamInfoResponse> {
     }
 }
 
-suspend fun IRobolabServer.getExamInfo(): GetExamInfo.ExamInfoResponse = request(GetExamInfo)
-suspend fun IRobolabServer.getExamInfo(block: RequestBuilder.() -> Unit): GetExamInfo.ExamInfoResponse =
-    request(GetExamInfo, block)
+suspend fun IRobolabServer.getExamInfo() = request(GetExamInfo)
+suspend fun IRobolabServer.getExamInfo(block: RequestBuilder.() -> Unit)= request(GetExamInfo, block)

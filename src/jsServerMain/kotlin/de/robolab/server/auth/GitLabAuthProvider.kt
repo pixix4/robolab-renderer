@@ -1,25 +1,17 @@
 package de.robolab.server.auth
 
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.TimeSpan
 import de.robolab.client.net.http
-import de.robolab.client.net.sendHttpRequest
-import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AuthorizationHeader
 import de.robolab.common.net.headers.Header
-import de.robolab.server.RequestError
-import de.robolab.server.`throw`
+import de.robolab.common.net.`throw`
 import de.robolab.server.config.Config
 import de.robolab.server.externaljs.encodeURIComponent
-import io.ktor.client.request.*
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlin.random.Random
-import kotlin.random.nextUInt
-import kotlin.random.nextULong
 
 class GitLabAuthProvider(private val callbackURL: String) {
     private val rand: Random = Random
@@ -51,6 +43,7 @@ class GitLabAuthProvider(private val callbackURL: String) {
         return performAuth(code, state, extractShareCode(state) ?: return null)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     suspend fun performAuth(code: String, state: String, shareCode: ShareCode): User {
         val tokenResponse = http {
             url(

@@ -5,6 +5,7 @@ import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.ContentTypeHeader
 import de.robolab.common.net.headers.mapOf
+import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.parser.PlanetFile
 
 class PostPlanet(content: String? = null) : IRESTRequest<PostPlanet.PostPlanetResponse> {
@@ -19,27 +20,19 @@ class PostPlanet(content: String? = null) : IRESTRequest<PostPlanet.PostPlanetRe
         if (content != null) mapOf(ContentTypeHeader(MIMEType.PlainText))
         else emptyMap()
 
-    override val forceAuth: Boolean = false
+    override fun parseResponse(serverResponse: ServerResponse) = parseResponseCatchingWrapper(serverResponse,this,::PostPlanetResponse)
 
-    override fun parseResponse(serverResponse: ServerResponse): PostPlanetResponse = PostPlanetResponse(serverResponse)
-
-    class PostPlanetResponse(serverResponse: IServerResponse) : ClientPlanetInfoRestResponse(serverResponse)
+    class PostPlanetResponse(serverResponse: IServerResponse, triggeringRequest: IRESTRequest<PostPlanetResponse>) : ClientPlanetInfoRestResponse(serverResponse, triggeringRequest)
 }
 
-suspend fun IRobolabServer.postPlanet(content: String? = null): PostPlanet.PostPlanetResponse =
-    request(PostPlanet(content))
+suspend fun IRobolabServer.postPlanet(content: String? = null) = request(PostPlanet(content))
 
 suspend fun IRobolabServer.postPlanet(
     content: String? = null,
     block: RequestBuilder.() -> Unit
-): PostPlanet.PostPlanetResponse =
-    request(PostPlanet(content), block)
+) = request(PostPlanet(content), block)
 
-suspend fun IRobolabServer.postPlanet(planet: PlanetFile): PostPlanet.PostPlanetResponse =
-    request(PostPlanet(planet))
+suspend fun IRobolabServer.postPlanet(planet: PlanetFile) = request(PostPlanet(planet))
 
-suspend fun IRobolabServer.postPlanet(
-    planet: PlanetFile,
-    block: RequestBuilder.() -> Unit
-): PostPlanet.PostPlanetResponse =
+suspend fun IRobolabServer.postPlanet(planet: PlanetFile, block: RequestBuilder.() -> Unit) =
     request(PostPlanet(planet), block)

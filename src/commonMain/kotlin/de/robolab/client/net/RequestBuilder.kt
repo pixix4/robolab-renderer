@@ -2,6 +2,7 @@ package de.robolab.client.net
 
 import de.robolab.client.net.requests.IRESTRequest
 import de.robolab.client.net.requests.IRESTResponse
+import de.robolab.client.net.requests.RESTResult
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.headers.Header
 import kotlin.jvm.JvmName
@@ -161,8 +162,7 @@ class RequestBuilder {
     }
 
     fun <R> buildRequest(
-        forceAuth: Boolean = true,
-        parser: (ServerResponse) -> R
+        parser: (ServerResponse) -> RESTResult<R>
     ): IRESTRequest<R> where R : IRESTResponse {
         return object : IRESTRequest<R> {
             override val method: HttpMethod = this@RequestBuilder.method
@@ -170,9 +170,8 @@ class RequestBuilder {
             override val body: String? = this@RequestBuilder.body
             override val query: Map<String, String> = this@RequestBuilder.query
             override val headers: Map<String, List<String>> = this@RequestBuilder.headers
-            override val forceAuth: Boolean = forceAuth
 
-            override fun parseResponse(serverResponse: ServerResponse): R = parser(serverResponse)
+            override fun parseResponse(serverResponse: ServerResponse): RESTResult<R> = parser(serverResponse)
         }
     }
 

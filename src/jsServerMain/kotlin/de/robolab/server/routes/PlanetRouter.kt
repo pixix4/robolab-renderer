@@ -8,7 +8,7 @@ import de.robolab.common.net.MIMEType
 import de.robolab.server.config.Config
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.utils.map
-import de.robolab.server.RequestError
+import de.robolab.server.net.RESTRequestClientCodeError
 import de.robolab.server.data.*
 import de.robolab.server.externaljs.*
 import de.robolab.server.externaljs.express.*
@@ -132,10 +132,9 @@ object PlanetRouter {
         ) {
 
             fun throwIDNotFound(): Nothing {
-                throw RequestError(
+                throw RESTRequestClientCodeError(
                     HttpStatusCode.NotFound,
-                    "Planet with id '${requestedID.toIDString()}' could not be found",
-                    verbose = false
+                    "Planet with id '${requestedID.toIDString()}' could not be found"
                 )
             }
 

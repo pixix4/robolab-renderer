@@ -5,6 +5,7 @@ import de.robolab.client.net.ICredentialProvider
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.RESTRobolabServer
 import de.robolab.client.net.requests.*
+import de.robolab.client.net.toAuthHeader
 import de.robolab.common.net.HttpStatusCode
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
@@ -32,14 +33,9 @@ class RemoteFilePlanetLoader(
     override suspend fun loadPlanet(identifier: PlanetJsonInfo): Pair<PlanetJsonInfo, List<String>>? {
         return withContext(Dispatchers.Default) {
             try {
-                val result = server.getPlanet(identifier.id)
-                if (result.status != HttpStatusCode.Ok) {
-                    available = false
-                    null
-                } else {
-                    available = true
-                    PlanetJsonInfo(identifier.id, identifier.name, result.lastModified, identifier.tags) to result.lines
-                }
+                val result = server.getPlanet(identifier.id).okOrThrow()
+                available = true
+                PlanetJsonInfo(identifier.id, identifier.name, result.lastModified, identifier.tags) to result.lines
             } catch (e: Exception) {
                 available = false
                 null
@@ -50,15 +46,9 @@ class RemoteFilePlanetLoader(
     override suspend fun savePlanet(identifier: PlanetJsonInfo, lines: List<String>): PlanetJsonInfo? {
         return withContext(Dispatchers.Default) {
             try {
-                val result = server.putPlanet(identifier.id, lines.joinToString("\n"))
-
-                if (result.status != HttpStatusCode.Ok) {
-                    available = false
-                    null
-                } else {
-                    available = true
-                    identifier
-                }
+                server.putPlanet(identifier.id, lines.joinToString("\n")).okOrThrow()
+                available = true
+                identifier
             } catch (e: Exception) {
                 available = false
                 null
@@ -70,7 +60,7 @@ class RemoteFilePlanetLoader(
         return withContext(Dispatchers.Default) {
             try {
                 available = true
-                server.postPlanet(lines.joinToString("\n"))
+                server.postPlanet(lines.joinToString("\n")).okOrThrow()
             } catch (e: Exception) {
                 available = false
             }
@@ -81,7 +71,7 @@ class RemoteFilePlanetLoader(
         return withContext(Dispatchers.Default) {
             try {
                 available = true
-                server.deletePlanet(identifier.id)
+                server.deletePlanet(identifier.id).okOrThrow()
             } catch (e: Exception) {
                 available = false
             }
@@ -92,7 +82,7 @@ class RemoteFilePlanetLoader(
         return withContext(Dispatchers.Default) {
             try {
                 available = true
-                server.listPlanets().planets
+                server.listPlanets().okOrThrow().planets
             } catch (e: Exception) {
                 available = false
                 emptyList()
@@ -105,9 +95,9 @@ class RemoteFilePlanetLoader(
             try {
                 available = true
                 if (matchExact) {
-                    server.listPlanets(nameExact = search).planets
+                    server.listPlanets(nameExact = search).okOrThrow().planets
                 } else  {
-                    server.listPlanets(nameContains = search).planets
+                    server.listPlanets(nameContains = search).okOrThrow().planets
                 }
             } catch (e: Exception) {
                 available = false
@@ -131,7 +121,7 @@ class RemoteFilePlanetLoader(
             val (host, auth) = HttpsFactory.parse(uri)
             val restRobolabServer = RESTRobolabServer(host, 0, false)
             if (auth != null) {
-                restRobolabServer.credentials = auth
+                restRobolabServer.authHeader = auth.toAuthHeader()
             }
             return RemoteFilePlanetLoader(restRobolabServer)
         }
@@ -147,7 +137,7 @@ class RemoteFilePlanetLoader(
             val (host, auth) = parse(uri)
             val restRobolabServer = RESTRobolabServer(host, 0, true)
             if (auth != null) {
-                restRobolabServer.credentials = auth
+                restRobolabServer.authHeader = auth.toAuthHeader()
             }
             return RemoteFilePlanetLoader(restRobolabServer)
         }

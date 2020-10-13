@@ -4,15 +4,14 @@ import de.robolab.client.net.RequestBuilder
 import de.robolab.client.net.ServerResponse
 import de.robolab.common.net.HttpMethod
 
-interface IRESTRequest<R> where R : IRESTResponse {
+interface IRESTRequest<out R> where R : IRESTResponse {
     val method: HttpMethod
     val path: String
     val body: String?
     val query: Map<String, String>
     val headers: Map<String, List<String>>
-    val forceAuth: Boolean
 
-    fun parseResponse(serverResponse: ServerResponse): R
+    fun parseResponse(serverResponse: ServerResponse): RESTResult<R>
 }
 
 fun RequestBuilder.loadRequest(request: IRESTRequest<*>) {
@@ -24,4 +23,4 @@ fun RequestBuilder.loadRequest(request: IRESTRequest<*>) {
 }
 
 fun <R> RequestBuilder.buildRequest(baseRequest: IRESTRequest<R>): IRESTRequest<R> where R : IRESTResponse =
-    buildRequest(baseRequest.forceAuth, baseRequest::parseResponse)
+    buildRequest(baseRequest::parseResponse)
