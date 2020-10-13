@@ -72,6 +72,11 @@ kotlin {
     }
 
     sourceSets {
+        all {
+            languageSettings.enableLanguageFeature("InlineClasses")
+            languageSettings.useExperimentalAnnotation("kotlin.contracts.ExperimentalContracts")
+        }
+
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
@@ -179,9 +184,6 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-junit"))
             }
-        }
-        all {
-            languageSettings.enableLanguageFeature("InlineClasses")
         }
     }
 }
