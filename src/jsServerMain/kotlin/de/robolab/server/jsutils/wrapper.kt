@@ -59,51 +59,51 @@ fun <T> T.jsCreate(): T = jsCreateCall(this).unsafeCast<T>()
 fun <T> T.jsClone(): T = jsAssign(emptyDynamic(), this).unsafeCast<T>()
 fun <T> jsClone(target: T): T = jsAssign(emptyDynamic(), target).unsafeCast<T>()
 
-private val jsCreateDelegateCallFactory: () -> (dynamic, JSArray<String>) -> dynamic =
-    js(
-        "function jsCreateDelegateCallFactory() {\n" +
-                "    var defaultExceptions = []//[\"constructor\",\"__defineGetter__\",\"__defineSetter__\",\"hasOwnProperty\"]\n" +
-                "\n" +
-                "    function delegateProp(original, copy, propName){\n" +
-                "        if (propName in copy){\n" +
-                "            return\n" +
-                "        }\n" +
-                "        Object.defineProperty(copy, propName, {\n" +
-                "            get: function() {\n" +
-                "                var val= original[propName]\n" +
-                "                if (typeof val == \"function\")\n" +
-                "                    return val.bind(original)\n" +
-                "                return val\n" +
-                "            },\n" +
-                "            set: function(v) {\n" +
-                "                original[propName] = v\n" +
-                "            }\n" +
-                "        })\n" +
-                "    }\n" +
-                "\n" +
-                "    function applyDelegates(original, copy, currentProto, except) {\n" +
-                "        var protoProto = Object.getPrototypeOf(currentProto)\n" +
-                "        if (protoProto){\n" +
-                "            applyDelegates(original, copy, protoProto, except)\n" +
-                "        }\n" +
-                "        var propDescriptors = Object.getOwnPropertyDescriptors(currentProto)\n" +
-                "        var x\n" +
-                "        for (x in propDescriptors){\n" +
-                "            if (defaultExceptions.includes(x) || (except && (except.includes(x)))){\n" +
-                "                continue\n" +
-                "            }\n" +
-                "            delegateProp(original, copy, x)\n" +
-                "        }\n" +
-                "    }\n" +
-                "\n" +
-                "    return function jsCreateDelegateCall(obj, exceptArray) {\n" +
-                "        var copy = Object.create(null)\n" +
-                "        applyDelegates(obj, copy, obj, exceptArray)\n" +
-                "        return copy\n" +
-                "    }\n" +
-                "}\n" +
-                "\n"
-    ) as () -> (dynamic, JSArray<String>) -> dynamic
+private val jsCreateDelegateCallFactory: () -> (dynamic, JSArray<String>) -> dynamic = js(
+    """
+function jsCreateDelegateCallFactory() {
+    var defaultExceptions = []//["constructor","__defineGetter__","__defineSetter__","hasOwnProperty"]
+
+    function delegateProp(original, copy, propName){
+        if (propName in copy){
+            return
+        }
+        Object.defineProperty(copy, propName, {
+            get: function() {
+                var val = original[propName]
+                if (typeof val == "function")
+                    return val.bind(original)
+                return val
+            },
+            set: function(v) {
+                original[propName] = v
+            }
+        })
+    }
+
+    function applyDelegates(original, copy, currentProto, except) {
+        var protoProto = Object.getPrototypeOf(currentProto)
+        if (protoProto){
+            applyDelegates(original, copy, protoProto, except)
+        }
+        var propDescriptors = Object.getOwnPropertyDescriptors(currentProto)
+        var x
+        for (x in propDescriptors){
+            if (defaultExceptions.includes(x) || (except && (except.includes(x)))){
+                continue
+            }
+            delegateProp(original, copy, x)
+        }
+    }
+
+    return function jsCreateDelegateCall(obj, exceptArray) {
+        var copy = Object.create(null)
+        applyDelegates(obj, copy, obj, exceptArray)
+        return copy
+    }
+}
+"""
+) as () -> (dynamic, JSArray<String>) -> dynamic
 private val jsCreateDelegateCall: (dynamic, JSArray<String>) -> dynamic = jsCreateDelegateCallFactory()
 
 fun <T> jsCreateDelegate(target: T, vararg except: String): T =

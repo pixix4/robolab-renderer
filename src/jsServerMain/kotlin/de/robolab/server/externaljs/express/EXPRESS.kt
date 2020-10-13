@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package de.robolab.server.externaljs.express
 
 import de.robolab.common.net.HttpStatusCode
@@ -5,14 +7,19 @@ import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.ContentTypeHeader
 import de.robolab.server.RequestError
 import de.robolab.server.auth.User
-import de.robolab.server.externaljs.*
-import de.robolab.server.jsutils.*
+import de.robolab.server.externaljs.Buffer
+import de.robolab.server.externaljs.JSArray
+import de.robolab.server.externaljs.NodeError
+import de.robolab.server.externaljs.dynamicOf
+import de.robolab.server.jsutils.JSDynErrorCallback
+import de.robolab.server.jsutils.PromiseScope
+import de.robolab.server.jsutils.jsCreateDelegate
+import de.robolab.server.jsutils.promise
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.js.Promise
 import kotlin.properties.ReadOnlyProperty
-import kotlin.reflect.KProperty
 
 val Express = js("require(\"express\")")
 
@@ -98,29 +105,19 @@ fun <ReqData, ReqDataT> Request<ReqData>.withData(data: ReqDataT): Request<ReqDa
 }
 
 val AnyRequest.paramProp: ReadOnlyProperty<Nothing?, String>
-    get() = object : ReadOnlyProperty<Nothing?, String> {
-        override operator fun getValue(thisRef: Nothing?, property: KProperty<*>): String {
-            val value = this@paramProp.params[property.name]
-            if (value == null || value == undefined) {
-                throw IllegalArgumentException("Param ${property.name} not found in ${this@paramProp.params}!")
-            }
-            return value as String
+    get() = ReadOnlyProperty { _, property ->
+        val value = this@paramProp.params[property.name]
+        if (value == null || value == undefined) {
+            throw IllegalArgumentException("Param ${property.name} not found in ${this@paramProp.params}!")
         }
+        value as String
     }
 
 val AnyRequest.queryProp: ReadOnlyProperty<Nothing?, String?>
-    get() = object : ReadOnlyProperty<Nothing?, String?> {
-        override operator fun getValue(thisRef: Nothing?, property: KProperty<*>): String? {
-            return this@queryProp.params[property.name] as String?
-        }
-    }
+    get() = ReadOnlyProperty { _, property -> this@queryProp.params[property.name] as String? }
 
 fun AnyRequest.queryProp(default: String): ReadOnlyProperty<Nothing?, String> =
-    object : ReadOnlyProperty<Nothing?, String> {
-        override operator fun getValue(thisRef: Nothing?, property: KProperty<*>): String {
-            return this@queryProp.params[property.name] as String? ?: default
-        }
-    }
+    ReadOnlyProperty { _, property -> this@queryProp.params[property.name] as String? ?: default }
 
 val isMimeTypeProto = Express.request["is"]
 
@@ -232,12 +229,14 @@ fun <D> Response<D>.formatReceiving(vararg handlers: Pair<String, Response<D>.()
     formatReceiving(*handlers, defaultHandler = { sendStatus(HttpStatusCode.NotAcceptable) })
 
 fun <D> Response<D>.formatReceiving(vararg handlers: Pair<MIMEType, Response<D>.() -> Unit>) =
-    formatReceiving(*(handlers.map {it.first.primaryName to it.second}).toTypedArray(), defaultHandler = {sendStatus(HttpStatusCode.NotAcceptable)})
+    formatReceiving(
+        *(handlers.map { it.first.primaryName to it.second }).toTypedArray(),
+        defaultHandler = { sendStatus(HttpStatusCode.NotAcceptable) })
 
 fun <D> formatReceiving(vararg handlers: Pair<String, Response<D>.() -> Unit>): (Response<D>) -> Unit =
     formatReceiving(*handlers, defaultHandler = { sendStatus(HttpStatusCode.NotAcceptable) })
 
-fun <D> formatReceiving(vararg handlers: Pair<MIMEType, Response<D>.() -> Unit>) : (Response<D>) -> Unit =
+fun <D> formatReceiving(vararg handlers: Pair<MIMEType, Response<D>.() -> Unit>): (Response<D>) -> Unit =
     formatReceiving(*(handlers.map { it.first.primaryName to it.second }).toTypedArray())
 
 fun <D> formatReceiving(
@@ -1390,9 +1389,9 @@ fun <ReqData, ResData> Router<ReqData, ResData>.useSuspend(
 external interface ExpressApp : DefaultRouter {
     val locals: dynamic
     val mountpath: Any
-    fun disable(name: String): Unit
+    fun disable(name: String)
     fun disabled(name: String): Boolean
-    fun enable(name: String): Unit
+    fun enable(name: String)
     fun enabled(name: String): Boolean
     fun path(): String
     operator fun get(name: String): Any?
