@@ -1,0 +1,12 @@
+[Unit]
+Description=Robolab renderer frontend (develop)
+
+[Service]
+Type=exec
+Restart=always
+User=deploy
+ExecStart=node index.js
+WorkingDirectory=/home/deploy/web-projects/robolab-renderer/develop/frontendServer
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Robolab renderer backend (develop)
+
+[Service]
+Type=exec
+Restart=always
+User=deploy
+ExecStart=nodemon packages/robolab-jsServer/kotlin/robolab-jsServer.js -c ../backend.ini
+WorkingDirectory=/home/deploy/web-projects/robolab-renderer/develop/backend
+
+[Install]
+WantedBy=multi-user.target
