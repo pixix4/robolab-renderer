@@ -37,7 +37,7 @@ build-js-server:
   tags:
     - docker
 
-deploy-client:
+deploy-client-stable:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY
@@ -51,7 +51,6 @@ deploy-client:
   environment:
     name: pixix4-client
     url: https://robolab.pixix4.com
-
   needs:
     - job: build-jvm
       artifacts: true
@@ -60,15 +59,66 @@ deploy-client:
   tags:
     - shell
 
-deploy-server:
+deploy-frontend-develop:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY_ROBOLAB
-    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c webServer/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer-server/
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c web/website/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/develop/frontend/
+  only:
+    - develop
+  environment:
+    name: develop/robolab-renderer-frontend
+    url: https://robolab.inf.tu-dresden.de/renderer-dev
+  needs:
+    - job: build-js-client
+      artifacts: true
+  tags:
+    - shell
+    - robolab
+
+deploy-backend-develop:
+  stage: deploy
+  script:
+    - chmod 0600 $SSH_KEY_ROBOLAB
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c webServer/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/develop/backend/
+  only:
+    - develop
+  environment:
+    name: develop/robolab-renderer-backend
+    url: https://robolab.inf.tu-dresden.de/renderer/api
+  needs:
+    - job: build-js-server
+      artifacts: true
+  tags:
+    - shell
+    - robolab
+
+deploy-frontend-stable:
+  stage: deploy
+  script:
+    - chmod 0600 $SSH_KEY_ROBOLAB
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c web/website/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/frontend/
   only:
     - master
   environment:
-    name: robolab-server
+    name: stable/robolab-renderer-frontend
+    url: https://robolab.inf.tu-dresden.de/renderer
+  needs:
+    - job: build-js-client
+      artifacts: true
+  tags:
+    - shell
+    - robolab
+
+deploy-backend-stable:
+  stage: deploy
+  script:
+    - chmod 0600 $SSH_KEY_ROBOLAB
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c webServer/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/backend/
+  only:
+    - master
+  environment:
+    name: stable/robolab-renderer-backend
     url: https://robolab.inf.tu-dresden.de/renderer/api
   needs:
     - job: build-js-server
