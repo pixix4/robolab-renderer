@@ -21,7 +21,6 @@ class GroupNavigationList(
     override val parentNameProperty = constObservable<String?>(null)
 
     override fun openParent() {
-        throw IllegalStateException()
     }
 
     override val childrenProperty = observableListOf<Entry>()

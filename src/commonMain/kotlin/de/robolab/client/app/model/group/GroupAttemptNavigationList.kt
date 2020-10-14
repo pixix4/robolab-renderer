@@ -35,6 +35,7 @@ class GroupAttemptNavigationList(
     private val liveList = listOf(LiveEntry())
 
     override fun onGroupAttemptListChange(group: Group) {
+        if (group.groupId != this.group.groupId) return
         GlobalScope.launch {
             entryList = messageRepository
                 .getGroupAttemptList(group.groupId)

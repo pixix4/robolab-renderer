@@ -169,12 +169,12 @@ class GroupLiveAttemptPlanetDocument(
         ref2?.detach()
         updateAttempt()
         ref1 = messageRepository.onAttemptMessageListChange.reference {
-            if (it.attemptId == latestAttempt.attemptId) {
+            if (it.groupId == group.groupId && it.attemptId == latestAttempt.attemptId) {
                 updateMessageList()
             }
         }
         ref2 = messageRepository.onGroupAttemptListChange.reference {
-            if (group.latestAttemptId != it.latestAttemptId) {
+            if (it.groupId == group.groupId && group.latestAttemptId != it.latestAttemptId) {
                 group = it
                 updateAttempt()
             }
