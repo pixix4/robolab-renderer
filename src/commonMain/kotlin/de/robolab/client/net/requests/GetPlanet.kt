@@ -6,11 +6,11 @@ import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.planet.ID
 
 class GetPlanet(val id: ID) : IRESTRequest<GetPlanet.GetPlanetResponse> {
-    override val method: HttpMethod = HttpMethod.GET
-    override val path: String = "/api/planets/${id.id}"
-    override val body: String? = null
-    override val query: Map<String, String> = emptyMap()
-    override val headers: Map<String, List<String>> = mapOf()
+    override val requestMethod: HttpMethod = HttpMethod.GET
+    override val requestPath: String = "/api/planets/${id.id}"
+    override val requestBody: String? = null
+    override val requestQuery: Map<String, String> = emptyMap()
+    override val requestHeader: Map<String, List<String>> = mapOf()
 
     override fun parseResponse(serverResponse: ServerResponse) =
         parseResponseCatchingWrapper(serverResponse, this, ::GetPlanetResponse)

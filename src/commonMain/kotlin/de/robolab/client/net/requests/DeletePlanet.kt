@@ -6,11 +6,11 @@ import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.planet.ID
 
 class DeletePlanet(val id: ID) : IRESTRequest<DeletePlanet.DeletePlanetResponse> {
-    override val method: HttpMethod = HttpMethod.DELETE
-    override val path: String = "/api/planets/${id.id}"
-    override val body: String? = null
-    override val query: Map<String, String> = emptyMap()
-    override val headers: Map<String, List<String>> = mapOf()
+    override val requestMethod: HttpMethod = HttpMethod.DELETE
+    override val requestPath: String = "/api/planets/${id.id}"
+    override val requestBody: String? = null
+    override val requestQuery: Map<String, String> = emptyMap()
+    override val requestHeader: Map<String, List<String>> = mapOf()
 
     override fun parseResponse(serverResponse: ServerResponse) = parseResponseCatchingWrapper(
         serverResponse, this, ::DeletePlanetResponse

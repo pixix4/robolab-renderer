@@ -165,11 +165,11 @@ class RequestBuilder {
         parser: (ServerResponse) -> RESTResult<R>
     ): IRESTRequest<R> where R : IRESTResponse {
         return object : IRESTRequest<R> {
-            override val method: HttpMethod = this@RequestBuilder.method
-            override val path: String = this@RequestBuilder.path
-            override val body: String? = this@RequestBuilder.body
-            override val query: Map<String, String> = this@RequestBuilder.query
-            override val headers: Map<String, List<String>> = this@RequestBuilder.headers
+            override val requestMethod: HttpMethod = this@RequestBuilder.method
+            override val requestPath: String = this@RequestBuilder.path
+            override val requestBody: String? = this@RequestBuilder.body
+            override val requestQuery: Map<String, String> = this@RequestBuilder.query
+            override val requestHeader: Map<String, List<String>> = this@RequestBuilder.headers
 
             override fun parseResponse(serverResponse: ServerResponse): RESTResult<R> = parser(serverResponse)
         }

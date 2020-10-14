@@ -5,21 +5,21 @@ import de.robolab.client.net.ServerResponse
 import de.robolab.common.net.HttpMethod
 
 interface IRESTRequest<out R> where R : IRESTResponse {
-    val method: HttpMethod
-    val path: String
-    val body: String?
-    val query: Map<String, String>
-    val headers: Map<String, List<String>>
+    val requestMethod: HttpMethod
+    val requestPath: String
+    val requestBody: String?
+    val requestQuery: Map<String, String>
+    val requestHeader: Map<String, List<String>>
 
     fun parseResponse(serverResponse: ServerResponse): RESTResult<R>
 }
 
 fun RequestBuilder.loadRequest(request: IRESTRequest<*>) {
-    method(request.method)
-    path(request.path)
-    body(request.body)
-    query(request.query)
-    header(request.headers)
+    method(request.requestMethod)
+    path(request.requestPath)
+    body(request.requestBody)
+    query(request.requestQuery)
+    header(request.requestHeader)
 }
 
 fun <R> RequestBuilder.buildRequest(baseRequest: IRESTRequest<R>): IRESTRequest<R> where R : IRESTResponse =

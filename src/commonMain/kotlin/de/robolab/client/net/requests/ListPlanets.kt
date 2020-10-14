@@ -15,10 +15,10 @@ open class ListPlanets(
 ) : IRESTRequest<ListPlanets.ListPlanetsResponse> {
     object Simple : ListPlanets()
 
-    override val method: HttpMethod = HttpMethod.GET
-    override val path: String = "/api/planets"
-    override val body: String? = null
-    override val query: Map<String, String> = mapOf(
+    override val requestMethod: HttpMethod = HttpMethod.GET
+    override val requestPath: String = "/api/planets"
+    override val requestBody: String? = null
+    override val requestQuery: Map<String, String> = mapOf(
         "name" to nameExact,
         "nameStartsWith" to nameStartsWith,
         "nameContains" to nameContains,
@@ -27,7 +27,7 @@ open class ListPlanets(
             if (ignoreCase) "1" else "0"
         } else null)
     ).filterValuesNotNull()
-    override val headers: Map<String, List<String>> = mapOf()
+    override val requestHeader: Map<String, List<String>> = mapOf()
 
     override fun parseResponse(serverResponse: ServerResponse) =
         parseResponseCatchingWrapper(serverResponse, this, ::ListPlanetsResponse)

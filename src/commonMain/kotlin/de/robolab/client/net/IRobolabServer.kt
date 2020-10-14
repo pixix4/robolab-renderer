@@ -22,11 +22,11 @@ interface IRobolabServer {
 
 suspend fun <R> IRobolabServer.request(request: IRESTRequest<R>): RESTResult<R> where R : IRESTResponse {
     val response = request(
-        request.method,
-        request.path,
-        request.body,
-        request.query,
-        request.headers
+        request.requestMethod,
+        request.requestPath,
+        request.requestBody,
+        request.requestQuery,
+        request.requestHeader
     )
     return request.parseResponse(response)
 }

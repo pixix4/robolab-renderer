@@ -12,11 +12,11 @@ class PostPlanet(content: String? = null) : IRESTRequest<PostPlanet.PostPlanetRe
 
     constructor(planet: PlanetFile) : this(planet.contentString)
 
-    override val method: HttpMethod = HttpMethod.POST
-    override val path: String = "/api/planets"
-    override val body: String? = content
-    override val query: Map<String, String> = emptyMap()
-    override val headers: Map<String, List<String>> =
+    override val requestMethod: HttpMethod = HttpMethod.POST
+    override val requestPath: String = "/api/planets"
+    override val requestBody: String? = content
+    override val requestQuery: Map<String, String> = emptyMap()
+    override val requestHeader: Map<String, List<String>> =
         if (content != null) mapOf(ContentTypeHeader(MIMEType.PlainText))
         else emptyMap()
 

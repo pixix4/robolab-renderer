@@ -7,11 +7,11 @@ import kotlinx.serialization.Serializable
 
 
 object GetTokenLinkPair : IRESTRequest<GetTokenLinkPair.TokenLinkResponse> {
-    override val method: HttpMethod = HttpMethod.GET
-    override val path: String = "/api/auth/gitlab/relay"
-    override val body: String? = null
-    override val query: Map<String, String> = emptyMap()
-    override val headers: Map<String, List<String>> = mapOf()
+    override val requestMethod: HttpMethod = HttpMethod.GET
+    override val requestPath: String = "/api/auth/gitlab/relay"
+    override val requestBody: String? = null
+    override val requestQuery: Map<String, String> = emptyMap()
+    override val requestHeader: Map<String, List<String>> = mapOf()
 
     override fun parseResponse(serverResponse: ServerResponse) =
         parseResponseCatchingWrapper(serverResponse, this, ::TokenLinkResponse)
@@ -20,7 +20,10 @@ object GetTokenLinkPair : IRESTRequest<GetTokenLinkPair.TokenLinkResponse> {
         RESTResponse(serverResponse), IRESTRequest<TokenLinkResponse.TokenResponse> {
         val tokenPath: String
         val loginPath: String
-        override val query: Map<String, String> = emptyMap()
+        override val requestMethod: HttpMethod = HttpMethod.GET
+        override val requestBody: String? = null
+        override val requestQuery: Map<String, String> = emptyMap()
+        override val requestHeader: Map<String, List<String>> = mapOf()
 
 
         init {
@@ -32,7 +35,7 @@ object GetTokenLinkPair : IRESTRequest<GetTokenLinkPair.TokenLinkResponse> {
             loginPath = r.login
         }
 
-        override val path: String = tokenPath
+        override val requestPath: String = tokenPath
 
         override fun parseResponse(serverResponse: ServerResponse) =
             parseResponseCatchingWrapper(serverResponse, this, ::TokenResponse)
@@ -58,8 +61,7 @@ object GetTokenLinkPair : IRESTRequest<GetTokenLinkPair.TokenLinkResponse> {
                         this
                     )
                 }
-                rawToken =
-                    body ?: throw RESTRequestError("Token response does not have a body", triggeringRequest, this)
+                rawToken = body ?: throw RESTRequestError("Token response does not have a body", triggeringRequest, this)
             }
 
             val tokenHeader: AuthorizationHeader.Bearer by lazy {

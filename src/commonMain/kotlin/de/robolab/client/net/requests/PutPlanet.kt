@@ -13,11 +13,11 @@ class PutPlanet(id: ID, content: String? = null) : IRESTRequest<PutPlanet.PutPla
 
     constructor(id: ID, planet: PlanetFile) : this(id, planet.contentString)
 
-    override val method: HttpMethod = HttpMethod.PUT
-    override val path: String = "/api/planets/${id.id}"
-    override val body: String? = content
-    override val query: Map<String, String> = emptyMap()
-    override val headers: Map<String, List<String>> =
+    override val requestMethod: HttpMethod = HttpMethod.PUT
+    override val requestPath: String = "/api/planets/${id.id}"
+    override val requestBody: String? = content
+    override val requestQuery: Map<String, String> = emptyMap()
+    override val requestHeader: Map<String, List<String>> =
         if (content != null) mapOf(ContentTypeHeader(MIMEType.PlainText))
         else emptyMap()
 
