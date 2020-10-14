@@ -1,10 +1,12 @@
 package de.robolab.client.net
 
-import de.robolab.client.net.requests.IRESTRequest
+import de.robolab.client.net.requests.IUnboundRESTRequest
 import de.robolab.client.net.requests.IRESTResponse
 import de.robolab.client.net.requests.RESTResult
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.headers.Header
+import io.ktor.http.*
+import io.ktor.util.*
 import kotlin.jvm.JvmName
 
 class RequestBuilder {
@@ -54,9 +56,9 @@ class RequestBuilder {
     }
 
     fun url(url: String) {
-        val result = urlPattern.matchEntire(url) ?: return
+        val (method, protocol, host, port, path, query) = URLInfo.fromURL(url) ?: return
 
-        val (protocol, host, port, path, query) = result.destructured
+        this.method = method
 
         if (protocol.isNotBlank()) {
             this.protocol = protocol.trim()
@@ -66,20 +68,17 @@ class RequestBuilder {
             this.host = host.trim()
         }
 
-        if (port.isNotBlank()) {
-            this.port = port.trim().toIntOrNull() ?: this.port
+        if (port != DEFAULT_PORT) {
+            this.port = port
         }
 
         if (path.isNotBlank()) {
             this.path = path.trim().replace("//+".toRegex(), "/")
         }
 
-        if (query.isNotBlank()) {
-            for (pair in query.split('&')) {
-                val split = pair.split('=')
-                if (split.first().isNotBlank()) {
-                    this.query.put(split.first(), split.getOrNull(1) ?: "")
-                }
+        if (query.isNotEmpty()) {
+            for ((key,value) in query) {
+                this.query[key] = value
             }
         }
     }
@@ -163,8 +162,8 @@ class RequestBuilder {
 
     fun <R> buildRequest(
         parser: (ServerResponse) -> RESTResult<R>
-    ): IRESTRequest<R> where R : IRESTResponse {
-        return object : IRESTRequest<R> {
+    ): IUnboundRESTRequest<R> where R : IRESTResponse { //TODO: Make Bound
+        return object : IUnboundRESTRequest<R> {
             override val requestMethod: HttpMethod = this@RequestBuilder.method
             override val requestPath: String = this@RequestBuilder.path
             override val requestBody: String? = this@RequestBuilder.body
@@ -175,8 +174,25 @@ class RequestBuilder {
         }
     }
 
-    companion object {
-        private val urlPattern = """([a-zA-Z]*)(?:://)([^/:]*):?([0-9]*)([^?]*)\??(.*)""".toRegex()
+}
+
+data class URLInfo(val method: HttpMethod, val protocol:String, val host:String, val port:Int, val path:String, val query:Map<String,String>){
+    companion object{
+        private val urlPattern = """(?:([a-zA-Z]*)(?:://))?([^/:]*)(?::([0-9]*))?([^?]*)(?:\?(.*))?""".toRegex()
+        fun fromURL(url:String, method:HttpMethod=HttpMethod.GET): URLInfo?{
+            val (protocol, host, port, path, query) = (urlPattern.matchEntire(url)?:return null).destructured
+            return URLInfo(
+                method,
+                protocol,
+                host,
+                port.toIntOrNull() ?: DEFAULT_PORT,
+                path,
+                parseQueryString(query).toMap().mapValues { (_,value) ->
+                    if(value.isEmpty()) ""
+                    else value.single()
+                }
+            )
+        }
     }
 }
 

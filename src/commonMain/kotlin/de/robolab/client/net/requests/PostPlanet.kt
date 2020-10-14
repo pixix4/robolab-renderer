@@ -8,7 +8,7 @@ import de.robolab.common.net.headers.mapOf
 import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.parser.PlanetFile
 
-class PostPlanet(content: String? = null) : IRESTRequest<PostPlanet.PostPlanetResponse> {
+class PostPlanet(content: String? = null) : IUnboundRESTRequest<PostPlanet.PostPlanetResponse> {
 
     constructor(planet: PlanetFile) : this(planet.contentString)
 

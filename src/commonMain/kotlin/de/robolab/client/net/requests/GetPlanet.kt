@@ -5,7 +5,7 @@ import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.planet.ID
 
-class GetPlanet(val id: ID) : IRESTRequest<GetPlanet.GetPlanetResponse> {
+class GetPlanet(val id: ID) : IUnboundRESTRequest<GetPlanet.GetPlanetResponse> {
     override val requestMethod: HttpMethod = HttpMethod.GET
     override val requestPath: String = "/api/planets/${id.id}"
     override val requestBody: String? = null

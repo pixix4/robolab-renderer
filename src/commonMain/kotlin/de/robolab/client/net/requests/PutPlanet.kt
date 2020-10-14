@@ -9,7 +9,7 @@ import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.ID
 
-class PutPlanet(id: ID, content: String? = null) : IRESTRequest<PutPlanet.PutPlanetResponse> {
+class PutPlanet(id: ID, content: String? = null) : IUnboundRESTRequest<PutPlanet.PutPlanetResponse> {
 
     constructor(id: ID, planet: PlanetFile) : this(id, planet.contentString)
 

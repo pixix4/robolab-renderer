@@ -6,7 +6,7 @@ import de.robolab.common.net.headers.AuthorizationHeader
 import kotlinx.serialization.Serializable
 
 
-object GetTokenLinkPair : IRESTRequest<GetTokenLinkPair.TokenLinkResponse> {
+object GetTokenLinkPair : IUnboundRESTRequest<GetTokenLinkPair.TokenLinkResponse> {
     override val requestMethod: HttpMethod = HttpMethod.GET
     override val requestPath: String = "/api/auth/gitlab/relay"
     override val requestBody: String? = null
@@ -17,13 +17,10 @@ object GetTokenLinkPair : IRESTRequest<GetTokenLinkPair.TokenLinkResponse> {
         parseResponseCatchingWrapper(serverResponse, this, ::TokenLinkResponse)
 
     class TokenLinkResponse(serverResponse: ServerResponse, triggeringRequest: IRESTRequest<TokenLinkResponse>) :
-        RESTResponse(serverResponse), IRESTRequest<TokenLinkResponse.TokenResponse> {
-        val tokenPath: String
-        val loginPath: String
-        override val requestMethod: HttpMethod = HttpMethod.GET
-        override val requestBody: String? = null
-        override val requestQuery: Map<String, String> = emptyMap()
-        override val requestHeader: Map<String, List<String>> = mapOf()
+        RESTResponse(serverResponse), IBoundRestRequest<TokenLinkResponse.TokenResponse> {
+        val tokenURL: String
+        val loginURL: String
+        override val requestURL: URLInfo
 
 
         init {
@@ -31,11 +28,11 @@ object GetTokenLinkPair : IRESTRequest<GetTokenLinkPair.TokenLinkResponse> {
                 `throw`(triggeringRequest)
             val r = this.parse(R.serializer())
                 ?: throw RESTRequestError("Could not parse body", triggeringRequest, this)
-            tokenPath = r.token
-            loginPath = r.login
+            tokenURL = r.token
+            loginURL = r.login
+            requestURL = (URLInfo.fromURL(tokenURL)?:throw RESTRequestError())
         }
 
-        override val requestPath: String = tokenPath
 
         override fun parseResponse(serverResponse: ServerResponse) =
             parseResponseCatchingWrapper(serverResponse, this, ::TokenResponse)

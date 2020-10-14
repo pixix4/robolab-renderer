@@ -2,6 +2,7 @@ package de.robolab.server.net
 
 import de.robolab.client.net.IServerResponse
 import de.robolab.client.net.requests.IRESTRequest
+import de.robolab.client.net.requests.IUnboundRESTRequest
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.RESTRequestCodeError

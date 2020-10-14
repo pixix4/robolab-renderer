@@ -1,20 +1,20 @@
 package de.robolab.client.net
 
+import de.robolab.client.net.requests.IBoundRestRequest
+import de.robolab.client.net.requests.IRESTResponse
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
-import io.ktor.client.HttpClient
+import io.ktor.client.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.readText
-import io.ktor.client.statement.request
-import io.ktor.client.utils.EmptyContent
-import io.ktor.http.ContentType
-import io.ktor.http.URLProtocol
-import io.ktor.http.content.TextContent
-import io.ktor.util.toMap
-import io.ktor.utils.io.charsets.Charsets
+import io.ktor.client.statement.*
+import io.ktor.client.utils.*
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.util.*
+import io.ktor.utils.io.charsets.*
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlin.jvm.JvmName
 import io.ktor.http.HttpMethod as KtorHttpMethod
 import io.ktor.http.HttpStatusCode as KtorHttpStatusCode
 
@@ -29,6 +29,48 @@ private val specialHeaderApplicators: Map<String, (HttpRequestBuilder, List<Stri
             builder.body = TextContent(body.toString(), ContentType.parse(value))
         }
     )
+
+suspend fun sendHttpRequest(
+    url: String,
+    method: HttpMethod = HttpMethod.GET,
+    body: String? = null,
+    headers: Map<String, List<String>> = emptyMap()
+): ServerResponse = sendHttpRequest(
+    URLInfo.fromURL(url, method)
+        ?: throw IllegalArgumentException("Invalid URL: $url"), body, headers
+)
+
+suspend fun <R : IRESTResponse> sendHttpRequest(boundRequest: IBoundRestRequest<R>) =
+    boundRequest.parseResponse(
+        sendHttpRequest(
+            boundRequest.requestURL,
+            boundRequest.requestBody,
+            boundRequest.requestHeaders
+        )
+    )
+
+@JvmName("sendHttpRequestReceiving")
+suspend fun <R : IRESTResponse> IBoundRestRequest<R>.sendHttpRequest() = sendHttpRequest(this)
+
+suspend fun sendHttpRequest(
+    urlInfo: URLInfo,
+    body: String? = null,
+    headers: Map<String, List<String>> = emptyMap()
+): ServerResponse =
+    sendHttpRequest(
+        urlInfo.method,
+        urlInfo.protocol,
+        urlInfo.host,
+        urlInfo.port,
+        urlInfo.path,
+        body,
+        urlInfo.query,
+        headers
+    )
+
+@JvmName("sendHttpRequestReceiving")
+suspend fun URLInfo.sendHttpRequest(body: String? = null, headers: Map<String, List<String>> = emptyMap()) =
+    sendHttpRequest(this, body, headers)
 
 suspend fun sendHttpRequest(
     method: HttpMethod,
@@ -106,7 +148,11 @@ suspend fun HttpResponse.toRobolabResponse(): ServerResponse =
         status = this.status.toRobolabStatusCode(),
         method = this.request.method.toRobolabMethod(),
         url = this.request.url.encodedPath,
-        body = try { this.readText(fallbackCharset) } catch (e: Exception) { null },
+        body = try {
+            this.readText(fallbackCharset)
+        } catch (e: Exception) {
+            null
+        },
         headers = this.headers.toMap()
     )
 

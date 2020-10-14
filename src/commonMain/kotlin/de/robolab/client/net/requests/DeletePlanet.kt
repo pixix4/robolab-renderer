@@ -5,7 +5,7 @@ import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.planet.ID
 
-class DeletePlanet(val id: ID) : IRESTRequest<DeletePlanet.DeletePlanetResponse> {
+class DeletePlanet(val id: ID) : IUnboundRESTRequest<DeletePlanet.DeletePlanetResponse> {
     override val requestMethod: HttpMethod = HttpMethod.DELETE
     override val requestPath: String = "/api/planets/${id.id}"
     override val requestBody: String? = null

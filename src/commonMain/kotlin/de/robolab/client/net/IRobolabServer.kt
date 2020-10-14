@@ -20,7 +20,7 @@ interface IRobolabServer {
     ): ServerResponse
 }
 
-suspend fun <R> IRobolabServer.request(request: IRESTRequest<R>): RESTResult<R> where R : IRESTResponse {
+suspend fun <R> IRobolabServer.request(request: IUnboundRESTRequest<R>): RESTResult<R> where R : IRESTResponse {
     val response = request(
         request.requestMethod,
         request.requestPath,
@@ -32,7 +32,7 @@ suspend fun <R> IRobolabServer.request(request: IRESTRequest<R>): RESTResult<R> 
 }
 
 suspend fun <R> IRobolabServer.request(
-    request: IRESTRequest<R>,
+    request: IUnboundRESTRequest<R>,
     block: RequestBuilder.() -> Unit
 ): RESTResult<R> where R : IRESTResponse {
     val builder = RequestBuilder()

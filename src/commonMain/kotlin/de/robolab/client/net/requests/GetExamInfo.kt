@@ -11,7 +11,7 @@ import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-object GetExamInfo : IRESTRequest<GetExamInfo.ExamInfoResponse> {
+object GetExamInfo : IUnboundRESTRequest<GetExamInfo.ExamInfoResponse> {
     override val requestMethod: HttpMethod = HttpMethod.GET
     override val requestPath: String = "/api/info/exam"
     override val requestBody: String? = null

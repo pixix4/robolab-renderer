@@ -3,6 +3,7 @@ package de.robolab.common.net
 import de.robolab.client.net.IServerResponse
 import de.robolab.client.net.ServerResponse
 import de.robolab.client.net.requests.IRESTRequest
+import de.robolab.client.net.requests.IUnboundRESTRequest
 import de.robolab.client.net.requests.IRESTResponse
 import de.robolab.client.net.requests.RESTResult
 import de.robolab.common.utils.Err

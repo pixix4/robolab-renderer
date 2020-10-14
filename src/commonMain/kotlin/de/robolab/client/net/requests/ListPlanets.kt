@@ -12,7 +12,7 @@ open class ListPlanets(
     nameContains: String? = null,
     nameEndsWith: String? = null,
     ignoreCase: Boolean = false
-) : IRESTRequest<ListPlanets.ListPlanetsResponse> {
+) : IUnboundRESTRequest<ListPlanets.ListPlanetsResponse> {
     object Simple : ListPlanets()
 
     override val requestMethod: HttpMethod = HttpMethod.GET
