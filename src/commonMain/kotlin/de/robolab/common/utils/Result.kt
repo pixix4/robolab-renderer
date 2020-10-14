@@ -6,7 +6,7 @@ sealed class Result<out T, out E> {
 
     fun okOrThrow(): T = when (this) {
         is Ok -> value
-        is Err -> throw IllegalStateException("this is not ok")
+        is Err -> if (error is Throwable) throw IllegalStateException("this is not ok", error) else  throw IllegalStateException("this is not ok")
     }
 
     fun okOrNull(): T? = when (this) {

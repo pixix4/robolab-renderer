@@ -94,6 +94,11 @@ open class RESTRequestCodeError : RESTRequestError {
         this.code = code
         this.mimeType = null
     }
+
+    override fun toString(): String {
+        return "RESTRequestCodeError(code=$code, mimeType=$mimeType)"
+    }
+
 }
 
 inline fun <R : IRESTResponse> parseResponseCatchingWrapper(

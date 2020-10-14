@@ -81,6 +81,8 @@ enum class HttpStatusCode(val code:Int) {
     NotExtended(510),
     NetworkAuthenticationRequired(511);
 
+
+
     @Suppress("MemberVisibilityCanBePrivate")
     companion object {
         //Should already be sorted correctly, but just to make sure...
@@ -93,5 +95,9 @@ enum class HttpStatusCode(val code:Int) {
             else
                 sortedCodes[index]
         }
+    }
+
+    override fun toString(): String {
+        return "$name($code)"
     }
 }

@@ -1,6 +1,7 @@
 package de.robolab.client.app.controller
 
 import de.robolab.client.app.model.base.IPlanetDocument
+import de.robolab.client.app.model.file.FileNavigationRoot
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
@@ -12,7 +13,8 @@ class ToolBarController(
     private val activeTabProperty: ObservableValue<TabController.Tab?>,
     private val activeDocumentProperty: ObservableValue<IPlanetDocument?>,
     private val canvasController: CanvasController,
-    val uiController: UiController
+    val uiController: UiController,
+    val fileNavigationRoot: FileNavigationRoot
 ) {
 
     val fullscreenProperty = uiController.fullscreenProperty

@@ -11,7 +11,9 @@ import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.components.*
 
-class SettingsDialog private constructor(): Dialog("Settings") {
+class SettingsDialog private constructor(
+    private val requestAuthToken: () -> Unit
+): Dialog("Settings") {
 
     init {
         tab("General") {
@@ -86,6 +88,11 @@ class SettingsDialog private constructor(): Dialog("Settings") {
             dialogFormGroup("Remote server") {
                 dialogFormEntry("Server uri") {
                     inputView(PreferenceStorage.remoteServerUrlProperty)
+                }
+                button("Request access token") {
+                    onClick {
+                        requestAuthToken()
+                    }
                 }
             }
 
@@ -187,8 +194,8 @@ class SettingsDialog private constructor(): Dialog("Settings") {
     }
 
     companion object {
-        fun open() {
-            open(SettingsDialog())
+        fun open(requestAuthToken: () -> Unit) {
+            open(SettingsDialog(requestAuthToken))
         }
     }
 }

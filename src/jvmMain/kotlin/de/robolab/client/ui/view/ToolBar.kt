@@ -3,12 +3,12 @@ package de.robolab.client.ui.view
 import de.robolab.client.app.controller.ToolBarController
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.base.ToolBarEntry
+import de.robolab.client.app.model.file.requestAuthToken
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.dialog.SettingsDialog
 import de.robolab.client.ui.dialog.UpdateDialog
 import de.robolab.client.ui.style.MainStyle
 import de.robolab.client.ui.utils.buttonGroup
-import de.robolab.client.ui.view.iconNoAdd
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.not
@@ -21,6 +21,8 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 import javafx.scene.text.FontWeight
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import tornadofx.*
 
 class ToolBar(private val toolBarController: ToolBarController) : View() {
@@ -96,7 +98,14 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                             tooltip("Open settings")
 
                             setOnAction {
-                                SettingsDialog.open()
+                                SettingsDialog.open {
+                                    val server = toolBarController.fileNavigationRoot.remoteServer
+                                    if (server != null) {
+                                        GlobalScope.launch {
+                                            requestAuthToken(server, false)
+                                        }
+                                    }
+                                }
                             }
                             setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
                         }

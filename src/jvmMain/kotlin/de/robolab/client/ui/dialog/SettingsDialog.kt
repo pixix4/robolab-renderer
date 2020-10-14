@@ -23,6 +23,8 @@ import tornadofx.*
 
 class SettingsDialog : GenericDialog() {
 
+    private val requestAuthToken: () -> Unit by param()
+
     init {
         tab("General") {
             form {
@@ -120,7 +122,7 @@ class SettingsDialog : GenericDialog() {
                     field(forceLabelIndent = true) {
                         button("Request access token") {
                             setOnAction {
-                                println("Not implemented!")
+                                requestAuthToken()
                             }
                         }
                     }
@@ -285,8 +287,10 @@ class SettingsDialog : GenericDialog() {
     override val root = buildContent("Settings")
 
     companion object {
-        fun open() {
-            open<SettingsDialog>()
+        fun open(requestAuthToken: () -> Unit) {
+            open<SettingsDialog>(
+                "requestAuthToken" to requestAuthToken
+            )
         }
     }
 }

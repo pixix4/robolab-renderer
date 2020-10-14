@@ -82,22 +82,26 @@ suspend fun sendHttpRequest(
     query: Map<String, String>,
     headers: Map<String, List<String>>
 ): ServerResponse {
+    val p = if (port == 443 && scheme.startsWith("https") || port == 80 && scheme.startsWith("http")) 0 else port
+
     val builtApplicators = buildApplicators(query, headers)
     @Suppress("REDUNDANT_ELSE_IN_WHEN") val response: HttpResponse = when (method) {
-        HttpMethod.GET -> client.get(scheme, host, port, path, body ?: EmptyContent, builtApplicators)
-        HttpMethod.PUT -> client.put(scheme, host, port, path, body ?: EmptyContent, builtApplicators)
-        HttpMethod.POST -> client.post(scheme, host, port, path, body ?: EmptyContent, builtApplicators)
-        HttpMethod.DELETE -> client.delete(scheme, host, port, path, body ?: EmptyContent, builtApplicators)
+        HttpMethod.GET -> client.get(scheme, host, p, path, body ?: EmptyContent, builtApplicators)
+        HttpMethod.PUT -> client.put(scheme, host, p, path, body ?: EmptyContent, builtApplicators)
+        HttpMethod.POST -> client.post(scheme, host, p, path, body ?: EmptyContent, builtApplicators)
+        HttpMethod.DELETE -> client.delete(scheme, host, p, path, body ?: EmptyContent, builtApplicators)
         else -> client.request {
             this.method = method.toKtorMethod()
             this.host = host
-            this.port = port
+            this.port = p
             this.url {
                 this.encodedPath = path
                 this.protocol = URLProtocol.createOrDefault(scheme)
                 this.host = host
-                this.port = port
+
+                this.port = if (port == 443 && scheme.startsWith("https") || port == 80 && scheme.startsWith("http")) 0 else port
             }
+
             if (body != null)
                 this.body = body
             builtApplicators(this)
