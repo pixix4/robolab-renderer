@@ -5,6 +5,7 @@ import de.robolab.client.app.model.file.FileNavigationRoot
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.BuildInformation
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.not
 import de.westermann.kobserve.or
@@ -13,8 +14,10 @@ import de.westermann.kwebview.components.*
 import kotlinx.browser.window
 
 class SettingsDialog private constructor(
-    private val requestAuthToken: () -> Unit
+    private val requestAuthToken: () -> Unit,
+    private val serverVersionProperty: ObservableValue<String>
 ): Dialog("Settings") {
+
 
     init {
         tab("General") {
@@ -98,6 +101,7 @@ class SettingsDialog private constructor(
                         }
                     }
                 }
+                textView(serverVersionProperty)
                 button("Request access token") {
                     onClick {
                         requestAuthToken()
@@ -200,11 +204,13 @@ class SettingsDialog private constructor(
                 }
             }
         }
+
+
     }
 
     companion object {
-        fun open(requestAuthToken: () -> Unit) {
-            open(SettingsDialog(requestAuthToken))
+        fun open(serverVersionProperty: ObservableValue<String>, requestAuthToken: () -> Unit) {
+            open(SettingsDialog(requestAuthToken, serverVersionProperty))
         }
     }
 }

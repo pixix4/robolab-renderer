@@ -4,13 +4,17 @@ import de.robolab.client.app.controller.TabController
 import de.robolab.client.app.model.file.provider.*
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.requests.getExamInfo
+import de.robolab.client.net.requests.getVersion
 import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.subscribe
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.property
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FileNavigationRoot(
     private val tabController: TabController
@@ -33,6 +37,8 @@ class FileNavigationRoot(
                 } as? RemoteFilePlanetLoader
             }
         }
+
+    val remoteServerVersionProperty = property("")
 
     val fileLoaderProperty = PreferenceStorage
         .remoteFilesProperty.join(remotePlanetLoader) { list, remote ->
@@ -76,9 +82,43 @@ class FileNavigationRoot(
     init {
         subscribe<LoadRemoteExamStateEvent> {
             loadRemoteExamState()
+            updateServerVersion()
+        }
+
+        remotePlanetLoader.onChange {
+            updateServerVersion()
         }
 
         loadRemoteExamState()
+        updateServerVersion()
+    }
+
+    private fun updateServerVersion() {
+        val server = remoteServer
+
+        if (server == null){
+            GlobalScope.launch {
+                withContext(Dispatchers.Main) {
+                    remoteServerVersionProperty.value = ""
+                }
+            }
+        } else {
+            GlobalScope.launch {
+                withContext(Dispatchers.Main) {
+                    remoteServerVersionProperty.value = "Loading…"
+                }
+                try {
+                    val version = server.getVersion().okOrThrow().version
+                    withContext(Dispatchers.Main) {
+                        remoteServerVersionProperty.value = version.toString()
+                    }
+                } catch (e: Throwable) {
+                    withContext(Dispatchers.Main) {
+                        remoteServerVersionProperty.value = "Cannot find server!"
+                    }
+                }
+            }
+        }
     }
 
     companion object {

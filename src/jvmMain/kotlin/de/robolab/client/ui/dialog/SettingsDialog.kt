@@ -12,9 +12,11 @@ import de.robolab.client.utils.UpdateChannel
 import de.robolab.common.utils.BuildInformation
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.and
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.not
+import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.TextField
 import javafx.scene.layout.Priority
 import javafx.util.StringConverter
@@ -24,6 +26,9 @@ import tornadofx.*
 class SettingsDialog : GenericDialog() {
 
     private val requestAuthToken: () -> Unit by param()
+    private val serverVersionProperty: ObservableValue<String> by param()
+
+    private val serverVersionPropertyCopy = SimpleStringProperty("")
 
     init {
         tab("General") {
@@ -118,6 +123,9 @@ class SettingsDialog : GenericDialog() {
                 fieldset("Remote Server") {
                     field("Server uri") {
                         textfield(PreferenceStorage.remoteServerUrlProperty.toFx())
+                    }
+                    field(forceLabelIndent = true) {
+                        label(serverVersionPropertyCopy)
                     }
                     field(forceLabelIndent = true) {
                         button("Request access token") {
@@ -284,12 +292,22 @@ class SettingsDialog : GenericDialog() {
         }
     }
 
+    override fun onBeforeShow() {
+        super.onBeforeShow()
+
+        serverVersionPropertyCopy.value = serverVersionProperty.value
+        serverVersionProperty.onChange {
+            serverVersionPropertyCopy.value = serverVersionProperty.value
+        }
+    }
+
     override val root = buildContent("Settings")
 
     companion object {
-        fun open(requestAuthToken: () -> Unit) {
+        fun open(serverVersionProperty: ObservableValue<String>, requestAuthToken: () -> Unit) {
             open<SettingsDialog>(
-                "requestAuthToken" to requestAuthToken
+                "requestAuthToken" to requestAuthToken,
+                "serverVersionProperty" to serverVersionProperty
             )
         }
     }

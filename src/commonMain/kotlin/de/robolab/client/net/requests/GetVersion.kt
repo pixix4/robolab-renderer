@@ -24,6 +24,7 @@ object GetVersion : IUnboundRESTRequest<GetVersion.VersionResponse> {
                 `throw`(triggeringRequest)
             } else {
                 val json = serverResponse.jsonBody!!
+                println(json)
                 version = VersionWithName.serializer().decode(json).version
             }
         }
@@ -36,7 +37,7 @@ object GetVersion : IUnboundRESTRequest<GetVersion.VersionResponse> {
     @Serializable
     class VersionWithName(
         val version: Version,
-        val versionName: String
+        val versionString: String
     )
 }
 

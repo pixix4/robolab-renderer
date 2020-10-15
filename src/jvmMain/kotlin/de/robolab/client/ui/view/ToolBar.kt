@@ -98,7 +98,9 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                             tooltip("Open settings")
 
                             setOnAction {
-                                SettingsDialog.open {
+                                SettingsDialog.open(
+                                    toolBarController.fileNavigationRoot.remoteServerVersionProperty
+                                ) {
                                     val server = toolBarController.fileNavigationRoot.remoteServer
                                     if (server != null) {
                                         GlobalScope.launch {

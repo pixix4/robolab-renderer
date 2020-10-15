@@ -57,7 +57,7 @@ class LocalWebPlanetLoader(
 
     override suspend fun listPlanets(identifier: FileIdentifier?): List<FileIdentifier> {
         val names = http {
-            web("${baseUri}planets")
+            web("${baseUri}/planets")
         }.exec().parse(ListSerializer(String.serializer())) ?: emptyList()
 
         planetCountProperty.value = names.size
