@@ -40,6 +40,7 @@ object DefaultEnvironment {
         router.use("/planets", PlanetRouter.router)
         router.use("/info", InfoRouter.router)
         router.use("/auth", AuthRouter.router)
+        router.use("/mqtt", MQTTRouter.router)
 
         router.get("/version") { _, res ->
             res.status(HttpStatusCode.Ok)

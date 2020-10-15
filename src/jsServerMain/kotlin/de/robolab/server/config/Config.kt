@@ -61,32 +61,42 @@ object Config : TypedStorage() {
         val examPlanetSmallName by item("info.examPlanetSmallName", "ExminatorSmall")
     }
 
+    //--------MQTT--------
+
+    object MQTT {
+        //Username for the Tutor-MQTT login
+        val tutorUser by item("mqtt.tutorUser","tutor")
+
+        //Password for the Tutor-MQTT login
+        val tutorPassword by item("mqtt.tutorPassword","password")
+    }
+
     //--------AUTH--------
 
     object Auth {
         //Base URL to use for gitlab
-        val gitlabURL by item("auth.gitlabURL","https://se-gitlab.inf.tu-dresden.de")
+        val gitlabURL by item("auth.gitlabURL", "https://se-gitlab.inf.tu-dresden.de")
 
         //Application ID of this app for requesting access-tokens from users
-        val gitlabApplicationID by item("auth.gitlabApplicationID","")
+        val gitlabApplicationID by item("auth.gitlabApplicationID", "")
 
         //Application Secret of this app for requesting access-tokens from  users
-        val gitlabApplicationSecret by item("auth.gitlabApplicationSecret","")
+        val gitlabApplicationSecret by item("auth.gitlabApplicationSecret", "")
 
         //GitLab access token to use for server operations
-        val gitlabAPIToken by item("auth.gitlabAPIToken","")
+        val gitlabAPIToken by item("auth.gitlabAPIToken", "")
 
         //URL this server is hosted on, including port. Required for redirects
-        val hostURL by item("auth.hostURL","http://localhost:8080")
+        val hostURL by item("auth.hostURL", "http://localhost:8080")
 
         //URL the server should redirect to after authorization.
         val redirectURL by item("auth.redirectURL", "/")
 
         //Algorithm to use for generating new JWTs for authentication. See https://www.npmjs.com/package/jsonwebtoken#algorithms-supported
-        val tokenAlgorithm by item("auth.tokenAlgorithm","HS256")
+        val tokenAlgorithm by item("auth.tokenAlgorithm", "HS256")
 
         //Public key to use for signing JWTs
-        val tokenPublicKey by item("auth.tokenPublicKey","")
+        val tokenPublicKey by item("auth.tokenPublicKey", "")
 
         //Private key to use for verification of JWTs
         val tokenPrivateKey by item("auth.tokenPrivateKey", "")
