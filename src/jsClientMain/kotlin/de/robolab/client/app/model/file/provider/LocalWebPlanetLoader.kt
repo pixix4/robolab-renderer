@@ -62,7 +62,7 @@ class LocalWebPlanetLoader(
 
         planetCountProperty.value = names.size
         return names.map { name ->
-            FileIdentifier("${baseUri}planet/$name", name)
+            FileIdentifier("${baseUri}/planet/$name", name)
         }
     }
 
@@ -112,7 +112,11 @@ class LocalWebPlanetLoader(
         override val usage: String = "$protocol://"
 
         override fun create(uri: String): IFilePlanetLoader<*>? {
-            return LocalWebPlanetLoader(uri)
+            @Suppress("NAME_SHADOWING") var uri = uri
+            if (uri.isEmpty()) {
+                uri = window.location.pathname
+            }
+            return LocalWebPlanetLoader(if (uri.endsWith("/")) uri.dropLast(1) else uri)
         }
     }
 
