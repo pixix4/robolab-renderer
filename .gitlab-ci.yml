@@ -37,7 +37,7 @@ build-js-server:
   tags:
     - docker
 
-deploy-client-stable:
+deploy-pixix4:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY
@@ -63,6 +63,8 @@ deploy-frontend-develop:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY_ROBOLAB
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c build/libs/robolab-jvm.jar deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/develop/frontendJvm/robolab-renderer.jar
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c build/processedResources/build.ini deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/develop/frontendJvm/build.ini
     - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c web/website/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/develop/frontend/
   only:
     - develop
@@ -70,6 +72,8 @@ deploy-frontend-develop:
     name: develop/robolab-renderer-frontend
     url: https://robolab.inf.tu-dresden.de/renderer-dev
   needs:
+    - job: build-jvm
+      artifacts: true
     - job: build-js-client
       artifacts: true
   tags:
@@ -97,6 +101,8 @@ deploy-frontend-stable:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY_ROBOLAB
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c build/libs/robolab-jvm.jar deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/frontendJvm/robolab-renderer.jar
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c build/processedResources/build.ini deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/frontendJvm/build.ini
     - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c web/website/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/frontend/
   only:
     - master
@@ -104,6 +110,8 @@ deploy-frontend-stable:
     name: stable/robolab-renderer-frontend
     url: https://robolab.inf.tu-dresden.de/renderer
   needs:
+    - job: build-jvm
+      artifacts: true
     - job: build-js-client
       artifacts: true
   tags:

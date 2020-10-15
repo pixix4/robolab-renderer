@@ -104,7 +104,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                     title = "Download Java Version"
 
                     onClick {
-                        triggerDownloadUrl("robolab-renderer.jar", "jvm/robolab-jvm.jar")
+                        triggerDownloadUrl("robolab-renderer.jar", "jvm/robolab-renderer.jar")
                     }
                 }
             }

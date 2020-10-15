@@ -10,13 +10,11 @@ import de.robolab.client.app.model.file.CachedFilePlanetProvider
 import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.communication.MessageManager
-import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.client.utils.runAsync
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventListener
-import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.constObservable
 import kotlinx.coroutines.GlobalScope
