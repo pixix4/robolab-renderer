@@ -2,7 +2,7 @@ package de.robolab.client.net.requests
 
 import com.soywiz.klock.DateTime
 import de.robolab.client.net.IServerResponse
-import de.robolab.common.net.RESTRequestError
+import de.robolab.common.net.RESTRequestException
 import de.robolab.common.net.`throw`
 import de.robolab.client.net.contentType
 import de.robolab.common.net.HttpMethod
@@ -17,7 +17,7 @@ import kotlinx.serialization.builtins.serializer
 
 interface IRESTResponse : IServerResponse
 
-typealias RESTResult<T> = Result<T, RESTRequestError>
+typealias RESTResult<T> = Result<T, RESTRequestException>
 
 private const val EAGER_PLANET_EVAL = false
 

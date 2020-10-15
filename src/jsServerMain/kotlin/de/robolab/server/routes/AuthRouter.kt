@@ -3,7 +3,7 @@ package de.robolab.server.routes
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.AuthorizationHeader
-import de.robolab.server.net.RESTRequestClientCodeError
+import de.robolab.server.net.RESTResponseCodeException
 import de.robolab.server.auth.AuthService
 import de.robolab.server.auth.GitLabAuthProvider
 import de.robolab.server.auth.ShareCode
@@ -37,12 +37,12 @@ object AuthRouter {
             val dynCode: dynamic = req.query.code
             val dynState: dynamic = req.query.state
             val code: String? = dynCode as? String
-            val stateString: String = dynState as? String ?: throw RESTRequestClientCodeError(
+            val stateString: String = dynState as? String ?: throw RESTResponseCodeException(
                 HttpStatusCode.BadRequest,
                 "Missing State-parameter"
             )
             val shareCode: ShareCode
-            shareCode = authProvider.extractShareCode(stateString) ?: throw RESTRequestClientCodeError(
+            shareCode = authProvider.extractShareCode(stateString) ?: throw RESTResponseCodeException(
                 HttpStatusCode.BadRequest,
                 "State-parameter is not valid"
             )
@@ -89,11 +89,11 @@ window.close();
         }
         router.getSuspend("/gitlab/token") { req, res ->
             val dynState = req.query.state
-            val state = dynState as? String ?: throw RESTRequestClientCodeError(
+            val state = dynState as? String ?: throw RESTResponseCodeException(
                 HttpStatusCode.BadRequest,
                 "Missing State-parameter"
             )
-            val shareCode: ShareCode = authProvider.extractShareCode(state) ?: throw RESTRequestClientCodeError(
+            val shareCode: ShareCode = authProvider.extractShareCode(state) ?: throw RESTResponseCodeException(
                 HttpStatusCode.BadRequest,
                 "State-parameter is not valid"
             )

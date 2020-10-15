@@ -71,7 +71,7 @@ class GitLabAuthProvider(private val callbackURL: String) {
         }
         val robolabUserSet = getRoboLabUserSet()
         val currentUserId = currentUserResponse.jsonBody!!.jsonObject["resource_owner_id"]!!.jsonPrimitive.int.toUInt()
-        return User(currentUserId, currentUserId in robolabUserSet)
+        return User(currentUserId, if(currentUserId in robolabUserSet) 10 else 0)
     }
 
     fun extractShareCode(state: String): ShareCode? {

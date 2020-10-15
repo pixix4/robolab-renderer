@@ -1,14 +1,15 @@
 package de.robolab.server.auth
 
-import de.robolab.common.net.RESTRequestError
+import de.robolab.common.net.HttpStatusCode
 import de.robolab.server.externaljs.dynamicOf
+import de.robolab.server.net.RESTResponseCodeException
 
 typealias UserID = UInt
 
-class User(val userID: UserID, val roboLvl: Int) {
+class User(val userID: UserID, val accessLevel: Int) {
     fun toJWTPayload(): dynamic = dynamicOf(
         "sub" to userID.toString(),
-        "roboLvl" to roboLvl
+        "accessLevel" to accessLevel
     )
 
     fun toJSON(): dynamic {
@@ -24,8 +25,8 @@ class User(val userID: UserID, val roboLvl: Int) {
         val Anonymous: User = User(UserID.MAX_VALUE, Int.MIN_VALUE)
         fun fromJWTPayload(payload: dynamic): User? {
             val sub = payload.sub as? String ?: return null
-            val roboLvl = payload.roboLvl as? Int ?: return null
-            return User(sub.toUInt(), roboLvl)
+            val accessLevel = payload.accessLevel as? Int ?: return null
+            return User(sub.toUInt(), accessLevel)
         }
     }
 
@@ -38,23 +39,40 @@ class User(val userID: UserID, val roboLvl: Int) {
     }
 }
 
-abstract class UserPermissionException : RESTRequestError {
+abstract class UserPermissionException : RESTResponseCodeException {
     val user: User
 
     constructor(
         user: User,
-        message: String = "The user '${user.internalName}' does not have the required permissions"
-    ) : super(message) {
+        message: String = "The user '${user.internalName}' does not have the required permissions",
+        statusCode: HttpStatusCode = HttpStatusCode.Forbidden
+    ) : super(statusCode, message) {
         this.user = user
     }
 
     constructor(
         user: User,
         message: String = "The user '${user.internalName}' does not have the required permissions",
-        cause: Throwable?
-    ) : super(message, cause) {
+        cause: Throwable?,
+        statusCode: HttpStatusCode = HttpStatusCode.Forbidden
+    ) : super(statusCode, message, cause = cause) {
         this.user = user
     }
+}
+
+class UserUnauthorizedException : UserPermissionException {
+    constructor(message: String = "Authorization required") : super(
+        User.Anonymous,
+        message,
+        HttpStatusCode.Unauthorized
+    )
+
+    constructor(message: String = "Authorization required", cause: Throwable?) : super(
+        User.Anonymous,
+        message,
+        cause,
+        HttpStatusCode.Unauthorized
+    )
 }
 
 class UserNumericPermissionException : UserPermissionException {
@@ -64,7 +82,7 @@ class UserNumericPermissionException : UserPermissionException {
     constructor(
         user: User,
         requiredLevel: Int,
-        message: String = "The user '${user.internalName}' does not have the required permission-Level of $requiredLevel, only ${user.roboLvl}"
+        message: String = "The user '${user.internalName}' does not have the required permission-Level of $requiredLevel, only ${user.accessLevel}"
     ) : super(user, message) {
         this.requiredLevel = requiredLevel
     }
@@ -72,15 +90,16 @@ class UserNumericPermissionException : UserPermissionException {
     constructor(
         user: User,
         requiredLevel: Int,
-        message: String = "The user '${user.internalName}' does not have the required permission-Level of $requiredLevel, only ${user.roboLvl}",
+        message: String = "The user '${user.internalName}' does not have the required permission-Level of $requiredLevel, only ${user.accessLevel}",
         cause: Throwable?
     ) : super(user, message, cause) {
         this.requiredLevel = requiredLevel
     }
 }
 
-fun User.requireLogin(userLevel: Int) {
-    if (userLevel < roboLvl) throw UserNumericPermissionException(this, userLevel)
+fun User.requireLogin(accessLevel: Int) {
+    if (this == User.Anonymous) throw UserUnauthorizedException()
+    if (this.accessLevel < accessLevel) throw UserNumericPermissionException(this, accessLevel)
 }
 
 fun User.requireLogin() = requireLogin(0)

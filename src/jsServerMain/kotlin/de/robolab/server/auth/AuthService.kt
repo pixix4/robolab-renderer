@@ -4,7 +4,7 @@ import com.soywiz.klock.DateTime
 import com.soywiz.klock.TimeSpan
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AuthorizationHeader
-import de.robolab.server.net.RESTRequestClientCodeError
+import de.robolab.server.net.RESTResponseCodeException
 import de.robolab.server.config.Config
 import de.robolab.server.externaljs.jsonwebtoken.JSONWebToken
 import de.robolab.server.externaljs.jsonwebtoken.parseJWT
@@ -74,7 +74,7 @@ class AuthService(val random: Random = Random, val shareCodeTimeout:TimeSpan=Tim
 
     fun assertCodeExists(code: ShareCode): Unit {
         if (code !in activeShareCodes)
-            throw RESTRequestClientCodeError(HttpStatusCode.NotFound, "Code does not exist")
+            throw RESTResponseCodeException(HttpStatusCode.NotFound, "Code does not exist")
     }
 
     fun assertCanProvide(code: ShareCode): Unit {
@@ -83,7 +83,7 @@ class AuthService(val random: Random = Random, val shareCodeTimeout:TimeSpan=Tim
             if (code !in providedShares)
                 return
             else
-                throw RESTRequestClientCodeError(HttpStatusCode.BadRequest, "Code is already providing a Token")
+                throw RESTResponseCodeException(HttpStatusCode.BadRequest, "Code is already providing a Token")
     }
 
     // Returns true if the ShareCode is used in a share-process, false otherwise
@@ -101,7 +101,7 @@ class AuthService(val random: Random = Random, val shareCodeTimeout:TimeSpan=Tim
             return false
         }
         if (providedShares.containsKey(code))
-            throw RESTRequestClientCodeError(HttpStatusCode.BadRequest, "Code is already providing a Token")
+            throw RESTResponseCodeException(HttpStatusCode.BadRequest, "Code is already providing a Token")
         providedShares[code] = userID to token
         return true
     }
@@ -117,7 +117,7 @@ class AuthService(val random: Random = Random, val shareCodeTimeout:TimeSpan=Tim
             activeShareCodes.remove(code)
             return providedValue.second
         } else
-            throw RESTRequestClientCodeError(
+            throw RESTResponseCodeException(
                 HttpStatusCode.Forbidden,
                 "Requesting UserID does not match Providing UserID"
             )

@@ -3,13 +3,12 @@ package de.robolab.common.net
 import de.robolab.client.net.IServerResponse
 import de.robolab.client.net.ServerResponse
 import de.robolab.client.net.requests.IRESTRequest
-import de.robolab.client.net.requests.IUnboundRESTRequest
 import de.robolab.client.net.requests.IRESTResponse
 import de.robolab.client.net.requests.RESTResult
 import de.robolab.common.utils.Err
 import de.robolab.common.utils.Ok
 
-open class RESTRequestError : RuntimeException {
+open class RESTRequestException : RuntimeException {
     val triggeringRequest: IRESTRequest<*>?
     val triggeringResponse: IServerResponse?
 
@@ -50,7 +49,7 @@ open class RESTRequestError : RuntimeException {
     }
 }
 
-open class RESTRequestCodeError : RESTRequestError {
+open class RESTRequestCodeException : RESTRequestException {
     val code: HttpStatusCode
     val mimeType: MIMEType?
 
@@ -108,10 +107,10 @@ inline fun <R : IRESTResponse> parseResponseCatchingWrapper(
 ): RESTResult<R> = try {
     Ok(parser(response))
 } catch (ex: Exception) {
-    if(ex is RESTRequestError)
+    if(ex is RESTRequestException)
         Err(ex)
     else
-        Err(RESTRequestError(ex,triggeringRequest,response))
+        Err(RESTRequestException(ex,triggeringRequest,response))
 }
 
 inline fun <R : IRESTResponse, T: IRESTRequest<R>> parseResponseCatchingWrapper(
@@ -125,7 +124,7 @@ fun IServerResponse.`throw`(
 ): Nothing {
     val body = this.body
     if (body != null)
-        throw RESTRequestCodeError(status, body,triggeringResponse = this, triggeringRequest = triggeringRequest)
+        throw RESTRequestCodeException(status, body,triggeringResponse = this, triggeringRequest = triggeringRequest)
     else
-        throw RESTRequestCodeError(status, triggeringResponse = this, triggeringRequest = triggeringRequest)
+        throw RESTRequestCodeException(status, triggeringResponse = this, triggeringRequest = triggeringRequest)
 }

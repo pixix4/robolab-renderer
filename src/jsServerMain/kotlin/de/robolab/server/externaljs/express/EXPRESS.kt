@@ -5,7 +5,7 @@ package de.robolab.server.externaljs.express
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.ContentTypeHeader
-import de.robolab.server.net.RESTRequestClientCodeError
+import de.robolab.server.net.RESTResponseException
 import de.robolab.server.auth.User
 import de.robolab.server.externaljs.Buffer
 import de.robolab.server.externaljs.JSArray
@@ -15,6 +15,7 @@ import de.robolab.server.jsutils.JSDynErrorCallback
 import de.robolab.server.jsutils.PromiseScope
 import de.robolab.server.jsutils.jsCreateDelegate
 import de.robolab.server.jsutils.promise
+import de.robolab.server.net.RESTResponseCodeException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -1043,10 +1044,11 @@ fun <ReqData, ResData, ReqDataT, ResDataT> Router<ReqDataT, ResDataT>.asMappedSu
 
 private fun handlePromiseError(err: Throwable, res: AnyResponse) {
     val (errorCode: HttpStatusCode, errorMessage: String?, errorMime: MIMEType?) = when (err) {
-        is RESTRequestClientCodeError -> Triple(err.code, err.message, err.mimeType)
+        is RESTResponseCodeException -> Triple(err.code, err.message, err.mimeType)
+        is RESTResponseException -> Triple(HttpStatusCode.BadRequest, err.message, err.mimeType)
         else -> Triple(HttpStatusCode.InternalServerError, err.message, null)
     }
-    if (err !is RESTRequestClientCodeError)
+    if (err !is RESTResponseException)
         console.error(err)
     if (!res.headersSent) {
         if (errorMime != null) {
@@ -1071,7 +1073,7 @@ private fun handlePromiseError(err: Throwable, res: AnyResponse) {
 private fun handlePromiseError(err: Throwable?, res: AnyResponse, next: (NodeError?) -> Unit) {
     when (err) {
         null -> next(err)
-        is RESTRequestClientCodeError -> handlePromiseError(err, res)
+        is RESTResponseException -> handlePromiseError(err, res)
         is NodeError -> next(err)
         else -> {
             handlePromiseError(err, res)
@@ -1083,10 +1085,10 @@ private fun handlePromiseError(err: Throwable?, res: AnyResponse, next: (NodeErr
 private fun <ReqData, ResData> TerminalPromiseCreator<ReqData, ResData>.toMiddleware(): Middleware<ReqData, ResData> {
     return { req, res, next ->
         var prom: Promise<*>? = null
-        var err: RESTRequestClientCodeError? = null
+        var err: RESTResponseException? = null
         try {
             prom = this(req, res)
-        } catch (ex: RESTRequestClientCodeError) {
+        } catch (ex: RESTResponseException) {
             err = ex
         }
         if (err != null && err != undefined)
@@ -1117,7 +1119,7 @@ private fun <ReqData, ResData> MiddlewarePromiseCreator<ReqData, ResData>.toMidd
         }
         try {
             prom = this(req, res, ::next2)
-        } catch (ex: RESTRequestClientCodeError) {
+        } catch (ex: RESTResponseException) {
             err = ex
         }
         if (err != null && err != undefined)

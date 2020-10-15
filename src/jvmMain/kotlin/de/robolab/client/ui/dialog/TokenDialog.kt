@@ -4,7 +4,7 @@ import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.requests.getTokenLinkPair
 import de.robolab.client.net.sendHttpRequest
 import de.robolab.common.net.HttpStatusCode
-import de.robolab.common.net.RESTRequestCodeError
+import de.robolab.common.net.RESTRequestCodeException
 import de.robolab.common.utils.Logger
 import javafx.scene.layout.Priority
 import kotlinx.coroutines.*
@@ -46,7 +46,7 @@ class TokenDialog : GenericDialog() {
                 while (isDocked) {
                     val r = tokenLinkPair.sendHttpRequest().also {
                         it.ifErr { e ->
-                            if (e !is RESTRequestCodeError || e.code != HttpStatusCode.NoContent) {
+                            if (e !is RESTRequestCodeException || e.code != HttpStatusCode.NoContent) {
                                 logger.warn(e.toString())
                             }
                         }

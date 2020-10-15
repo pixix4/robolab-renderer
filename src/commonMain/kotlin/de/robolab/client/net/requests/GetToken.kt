@@ -27,10 +27,10 @@ object GetTokenLinkPair : IUnboundRESTRequest<GetTokenLinkPair.TokenLinkResponse
             if (status != HttpStatusCode.Ok)
                 `throw`(triggeringRequest)
             val r = this.parse(R.serializer())
-                ?: throw RESTRequestError("Could not parse body", triggeringRequest, this)
+                ?: throw RESTRequestException("Could not parse body", triggeringRequest, this)
             tokenURL = r.token
             loginURL = r.login
-            requestURL = (URLInfo.fromURL(tokenURL)?:throw RESTRequestError())
+            requestURL = (URLInfo.fromURL(tokenURL)?:throw RESTRequestException())
         }
 
 
@@ -52,13 +52,13 @@ object GetTokenLinkPair : IUnboundRESTRequest<GetTokenLinkPair.TokenLinkResponse
                 if (status != HttpStatusCode.Ok)
                     `throw`(triggeringRequest)
                 if (contentType?.mimeType != MIMEType.JWT) {
-                    throw RESTRequestError(
+                    throw RESTRequestException(
                         "Cannot parse MIME-Type \"${contentType?.mimeType}\"",
                         triggeringRequest,
                         this
                     )
                 }
-                rawToken = body ?: throw RESTRequestError("Token response does not have a body", triggeringRequest, this)
+                rawToken = body ?: throw RESTRequestException("Token response does not have a body", triggeringRequest, this)
             }
 
             val tokenHeader: AuthorizationHeader.Bearer by lazy {
