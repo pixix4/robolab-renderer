@@ -1,12 +1,9 @@
 package de.robolab.client.app.model.file.provider
 
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.client.net.ICredentialProvider
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.RESTRobolabServer
 import de.robolab.client.net.requests.*
-import de.robolab.client.net.toAuthHeader
-import de.robolab.common.net.HttpStatusCode
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
@@ -106,23 +103,15 @@ class RemoteFilePlanetLoader(
         }
     }
 
-    private data class Auth(
-        override val username: String,
-        override val password: String
-    ) : ICredentialProvider
-
     object HttpFactory : IFilePlanetLoaderFactory {
 
         override val protocol = "http"
 
-        override val usage: String = "$protocol://[username:password@]example.org"
+        override val usage: String = "$protocol://example.org"
 
         override fun create(uri: String): IFilePlanetLoader<*>? {
-            val (host, auth) = HttpsFactory.parse(uri)
+            val host = HttpsFactory.parse(uri)
             val restRobolabServer = RESTRobolabServer(host, 0, false)
-            if (auth != null) {
-                restRobolabServer.authHeader = auth.toAuthHeader()
-            }
             return RemoteFilePlanetLoader(restRobolabServer)
         }
     }
@@ -131,28 +120,16 @@ class RemoteFilePlanetLoader(
 
         override val protocol = "https"
 
-        override val usage: String = "$protocol://[username:password@]example.org"
+        override val usage: String = "$protocol://example.org"
 
         override fun create(uri: String): IFilePlanetLoader<*>? {
-            val (host, auth) = parse(uri)
+            val host = parse(uri)
             val restRobolabServer = RESTRobolabServer(host, 0, true)
-            if (auth != null) {
-                restRobolabServer.authHeader = auth.toAuthHeader()
-            }
             return RemoteFilePlanetLoader(restRobolabServer)
         }
 
-        fun parse(uri: String): Pair<String, ICredentialProvider?> {
-            val uriContent = uri.substringAfter("://")
-            return if ("@" in uriContent) {
-                val (auth, host) = uriContent.split('@', limit = 2)
-                val authSplit = auth.split(':', limit = 2)
-                val username = authSplit.getOrNull(0) ?: ""
-                val password = authSplit.getOrNull(1) ?: ""
-                host to Auth(username, password)
-            } else {
-                uriContent to null
-            }
+        fun parse(uri: String): String {
+            return uri.substringAfter("://").trimEnd('/')
         }
     }
 }
