@@ -5,14 +5,14 @@ import de.robolab.server.externaljs.Buffer
 
 private fun btoa(str: String, encoding: String = "utf8"): String {
     return Buffer.from(
-        str, "base64"
-    ).toString(encoding)
+        str, encoding
+    ).toString("base64")
 }
 
 private fun atob(str: String, encoding: String = "utf8"): String {
     return Buffer.from(
-        str, encoding
-    ).toString("base64")
+        str, "base64"
+    ).toString(encoding)
 }
 
 
