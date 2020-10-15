@@ -5,9 +5,9 @@ import de.robolab.client.app.model.file.FileNavigationRoot
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.BuildInformation
-import de.westermann.kobserve.and
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.not
+import de.westermann.kobserve.or
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.components.*
 
@@ -64,21 +64,20 @@ class SettingsDialog private constructor(
                 }
                 dialogFormEntry("Active") {
                     label(checkbox(PreferenceStorage.examActiveProperty) {
-                        disabledProperty.bind(!PreferenceStorage.useRemoteExamStateProperty)
+                        disabledProperty.bind(PreferenceStorage.useRemoteExamStateProperty)
                     })
                 }
 
-                val enabled = !(!PreferenceStorage.useRemoteExamStateProperty)
-                    .and(PreferenceStorage.examActiveProperty)
+                val disabled = PreferenceStorage.useRemoteExamStateProperty or !PreferenceStorage.examActiveProperty
 
                 dialogFormEntry("Small Planet") {
                     inputView(PreferenceStorage.examSmallProperty) {
-                        disabledProperty.bind(!enabled)
+                        disabledProperty.bind(disabled)
                     }
                 }
                 dialogFormEntry("Large Planet") {
                     inputView(PreferenceStorage.examLargeProperty) {
-                        disabledProperty.bind(!PreferenceStorage.examActiveProperty)
+                        disabledProperty.bind(disabled)
                     }
                 }
             }
