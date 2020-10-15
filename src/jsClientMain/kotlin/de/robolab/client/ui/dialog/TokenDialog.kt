@@ -4,6 +4,10 @@ import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.requests.getTokenLinkPair
 import de.robolab.client.net.sendHttpRequest
 import de.westermann.kobserve.event.emit
+import de.westermann.kwebview.components.BoxView
+import de.westermann.kwebview.components.button
+import de.westermann.kwebview.components.link
+import de.westermann.kwebview.components.textView
 import kotlinx.browser.window
 import kotlinx.coroutines.*
 
@@ -17,7 +21,7 @@ class TokenDialog private constructor(
     private var isOpen = true
 
     init {
-        tab {
+        val contentTab = tab {
 
         }
 
@@ -31,7 +35,16 @@ class TokenDialog private constructor(
             success = false
 
             if (tokenLinkPair != null) {
-                window.open(tokenLinkPair.loginURL)
+                if (window.open(tokenLinkPair.loginURL) == null) {
+                    contentTab.apply {
+                        classList += "token-popup"
+                        textView("The browser has blocked the OAuth page. Please open the OAuth page manually or allow this popup in your browsers settings.")
+                        link(tokenLinkPair.loginURL) {
+                            button("Open OAuth page")
+                            this.html.target = "_blank"
+                        }
+                    }
+                }
 
                 delay(1000)
 

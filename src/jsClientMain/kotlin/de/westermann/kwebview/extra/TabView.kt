@@ -16,8 +16,8 @@ class TabView : ViewCollection<View>(createHtmlView<HTMLDivElement>()) {
     private val tabContentBox = boxView("tab-view-content")
 
     private val tabList = mutableListOf<Tab>()
-    fun tab(name: String, content: BoxView.() -> Unit) {
-        tabList += Tab(name, content)
+    fun tab(name: String, content: BoxView.() -> Unit, boxView: BoxView) {
+        tabList += Tab(name, content, boxView)
 
         if (tabList.size == 1) {
             tabList.firstOrNull()?.open()
@@ -26,12 +26,12 @@ class TabView : ViewCollection<View>(createHtmlView<HTMLDivElement>()) {
 
     private inner class Tab(
         name: String,
-        val contentInit: BoxView.() -> Unit
+        val contentInit: BoxView.() -> Unit,
+        private val content: BoxView = BoxView()
     ) {
 
+        private var isInit = false
         private val header = tabHeaderBox.textView(name)
-
-        private var content: BoxView? = null
 
         fun open() {
             for (tab in tabList) {
@@ -42,10 +42,10 @@ class TabView : ViewCollection<View>(createHtmlView<HTMLDivElement>()) {
 
             tabContentBox.clear()
 
-            if (content == null) {
-                content = BoxView().also(contentInit)
+            if (!isInit) {
+                contentInit(content)
+                isInit = true
             }
-            val content = content ?: return
             tabContentBox += content
         }
 

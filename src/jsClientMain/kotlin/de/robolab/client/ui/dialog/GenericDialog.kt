@@ -29,21 +29,24 @@ abstract class Dialog(title: String) {
         }
     }
 
-    private val tabList = mutableListOf<Pair<String, BoxView.() -> Unit>>()
-    protected fun tab(name: String = "", init: BoxView.() -> Unit) {
-        tabList += name to init
+    private val tabList = mutableListOf<Triple<String, BoxView.() -> Unit, BoxView>>()
+    protected fun tab(name: String = "", init: BoxView.() -> Unit): BoxView {
+        val boxView = BoxView()
+        tabList += Triple(name, init, boxView)
+        return boxView
     }
 
     private fun BoxView.initSingleTab() {
-        val (_, init) = tabList.single()
+        val (_, init, boxView) = tabList.single()
 
-        init()
+        boxView.init()
+        add(boxView)
     }
 
     private fun BoxView.initMultiTab() {
         tabView {
-            for ((name, init) in tabList) {
-                tab(name, init)
+            for ((name, init, boxView) in tabList) {
+                tab(name, init, boxView)
             }
         }
     }
