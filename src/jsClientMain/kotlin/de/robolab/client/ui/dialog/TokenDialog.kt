@@ -10,6 +10,7 @@ import de.westermann.kobserve.event.emit
 import de.westermann.kwebview.components.button
 import de.westermann.kwebview.components.link
 import de.westermann.kwebview.components.textView
+import kotlinx.browser.window
 import kotlinx.coroutines.*
 
 class TokenDialog private constructor(
