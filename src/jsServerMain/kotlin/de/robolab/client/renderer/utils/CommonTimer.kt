@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_PARAMETER")
+
 package de.robolab.client.renderer.utils
 
 import de.westermann.kobserve.event.EventHandler

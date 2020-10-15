@@ -47,6 +47,7 @@ class AuthService(val random: Random = Random, val shareCodeTimeout:TimeSpan=Tim
 
     fun createShareCode(sharing: Boolean): ShareCode {
         var code: ShareCode
+        runCodeTimeouts()
         do {
             code = random.nextUInt()
         } while (!activeShareCodes.add(code))

@@ -3,8 +3,10 @@ package de.robolab.client.ui.dialog
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.requests.getTokenLinkPair
 import de.robolab.client.net.sendHttpRequest
+import de.robolab.common.net.HttpStatusCode
+import de.robolab.common.net.RESTRequestCodeError
+import de.robolab.common.utils.Logger
 import de.westermann.kobserve.event.emit
-import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.button
 import de.westermann.kwebview.components.link
 import de.westermann.kwebview.components.textView
@@ -19,6 +21,8 @@ class TokenDialog private constructor(
 
     private var success = false
     private var isOpen = true
+
+    private val logger = Logger(this)
 
     init {
         val contentTab = tab {
@@ -51,7 +55,9 @@ class TokenDialog private constructor(
                 while (isOpen) {
                     val r = tokenLinkPair.sendHttpRequest().also {
                         it.ifErr { e ->
-                            e.printStackTrace()
+                            if (e !is RESTRequestCodeError || e.code != HttpStatusCode.NoContent) {
+                                logger.warn(e.toString())
+                            }
                         }
                     }.okOrNull()
                     if (r != null) {

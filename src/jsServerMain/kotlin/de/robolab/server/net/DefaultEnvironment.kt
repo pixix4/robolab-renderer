@@ -21,9 +21,13 @@ object DefaultEnvironment {
 
     fun createApiRouter() : DefaultRouter {
         val router = createRouter()
-        router.use("/") { _, res, next ->
+        router.use("/") { req, res, next ->
             res.setHeader(AccessControlAllowMethods.All)
-            res.setHeader("Access-Control-Allow-Origin", "*")
+            res.setHeader("Access-Control-Allow-Origin", req.headers.Origin ?: req.headers.origin ?: "*")
+            res.setHeader("Access-Control-Allow-Headers","authorization")
+            res.setHeader("Access-Control-Allow-Credentials", true)
+            res.setHeader("Access-Control-Max-Age", 3600)
+            res.setHeader("Vary","Origin")
             next(null)
         }
         router.use(json())

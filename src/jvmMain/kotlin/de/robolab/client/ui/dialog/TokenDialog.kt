@@ -3,6 +3,9 @@ package de.robolab.client.ui.dialog
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.requests.getTokenLinkPair
 import de.robolab.client.net.sendHttpRequest
+import de.robolab.common.net.HttpStatusCode
+import de.robolab.common.net.RESTRequestCodeError
+import de.robolab.common.utils.Logger
 import javafx.scene.layout.Priority
 import kotlinx.coroutines.*
 import tornadofx.vbox
@@ -16,6 +19,7 @@ class TokenDialog : GenericDialog() {
     private val server: IRobolabServer by param()
     private val userConfirm: Boolean by param()
     private val onFinish: (Boolean) -> Unit by param()
+    private val logger = Logger(this)
 
     override val root = buildContent("Token") {
         vgrow = Priority.ALWAYS
@@ -42,7 +46,9 @@ class TokenDialog : GenericDialog() {
                 while (isDocked) {
                     val r = tokenLinkPair.sendHttpRequest().also {
                         it.ifErr { e ->
-                            e.printStackTrace()
+                            if (e !is RESTRequestCodeError || e.code != HttpStatusCode.NoContent) {
+                                logger.warn(e.toString())
+                            }
                         }
                     }.okOrNull()
                     if (r != null) {
