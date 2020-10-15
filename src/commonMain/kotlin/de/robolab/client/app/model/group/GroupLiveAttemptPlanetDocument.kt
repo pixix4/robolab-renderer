@@ -33,8 +33,6 @@ class GroupLiveAttemptPlanetDocument(
     private val latestAttemptProperty = property(attempt)
     private var latestAttempt by latestAttemptProperty
 
-    private val messages = observableListOf<RobolabMessage>()
-
     override val nameProperty = constObservable("Group ${group.name}")
 
     override val toolBarLeft = constObservable(emptyList<List<ToolBarEntry>>())

@@ -18,7 +18,7 @@ abstract class AbstractGroupAttemptPlanetDocument : IPlanetDocument {
 
     abstract val attempt: Attempt
 
-    private val messages = observableListOf<RobolabMessage>()
+    protected val messages = observableListOf<RobolabMessage>()
 
     val selectedIndexProperty = property(messages.lastIndex)
 

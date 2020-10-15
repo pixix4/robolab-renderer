@@ -29,8 +29,6 @@ class GroupAttemptPlanetDocument(
     private val planetProvider: CachedFilePlanetProvider
 ) : AbstractGroupAttemptPlanetDocument() {
 
-    private val messages = observableListOf<RobolabMessage>()
-
     override val nameProperty = constObservable(
         "Group ${attempt.groupName}: ${dateFormat.format(DateTimeTz.Companion.fromUnixLocal(attempt.startMessageTime))}"
     )
