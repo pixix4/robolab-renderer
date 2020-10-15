@@ -110,3 +110,7 @@ fun <T> jsCreateDelegate(target: T, vararg except: String): T =
     jsCreateDelegateCall(target, jsArrayOf(*except)).unsafeCast<T>()
 
 fun <T> T.jsCreateDelegate(vararg except: String): T = jsCreateDelegateCall(this, jsArrayOf(*except)).unsafeCast<T>()
+
+fun <V> Map<String,V>.toDynamic():dynamic = dynamicOf(this.map { it.key to it.value })
+
+fun <V> Map<String,V>.toDynamicWhereDefined():dynamic = dynamicOfDefined(this.map { it.key to it.value })

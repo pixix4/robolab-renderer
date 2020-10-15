@@ -1,8 +1,11 @@
+@file:Suppress("USELESS_CAST")
+
 package de.robolab.server.routes
 
 import de.robolab.client.net.requests.PlanetJsonInfo
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
+import de.robolab.common.utils.BuildInformation
 import de.robolab.common.utils.encode
 import de.robolab.server.auth.User
 import de.robolab.server.config.Config
@@ -11,6 +14,7 @@ import de.robolab.server.config.getSmallExamPlanetInfo
 import de.robolab.server.data.FilePlanetStore
 import de.robolab.server.data.RedisPlanetMetaStore
 import de.robolab.server.externaljs.express.*
+import de.robolab.server.jsutils.toDynamic
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -45,6 +49,21 @@ object InfoRouter {
                 },
                 MIMEType.PlainText to {
                     res.status(200).send(req.user.internalName)
+                },
+            )
+        }
+
+        router.getSuspend("/commit"){_, res ->
+            res.formatReceiving(
+                MIMEType.PlainText to {
+                    res.sendFile("./build.ini")
+                },
+                MIMEType.JSON to {
+                    res.status(200).send(BuildInformation.dataMap.associate {(groupName, group)->
+                        groupName to group.associate { (key, value) ->
+                            key to value.value.toString()
+                        }.toDynamic()
+                    }.toDynamic() as Any?)
                 },
             )
         }

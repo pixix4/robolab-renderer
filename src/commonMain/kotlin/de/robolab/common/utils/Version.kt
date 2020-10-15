@@ -1,7 +1,9 @@
 package de.robolab.common.utils
 
+import kotlinx.serialization.Serializable
 import kotlin.math.min
 
+@Serializable
 data class Version(
     val major: Int,
     val minor: Int,
