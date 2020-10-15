@@ -12,7 +12,7 @@ actual fun getBuildInformation(): String? {
 
 actual suspend fun getAsyncBuildInformation(): String {
     return http {
-        web("build.ini")
+        web("${window.location.pathname}build.ini")
     }.exec().body ?: ""
 }
 
