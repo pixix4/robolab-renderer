@@ -65,6 +65,7 @@ deploy-frontend-develop:
     - chmod 0600 $SSH_KEY_ROBOLAB
     - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c build/libs/robolab-jvm.jar deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/develop/frontendJvm/robolab-renderer.jar
     - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c build/processedResources/build.ini deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/develop/frontendJvm/build.ini
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c build/processedResources/build.ini deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/develop/frontend/build.ini
     - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c web/website/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/develop/frontend/
   only:
     - develop
@@ -103,6 +104,7 @@ deploy-frontend-stable:
     - chmod 0600 $SSH_KEY_ROBOLAB
     - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c build/libs/robolab-jvm.jar deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/frontendJvm/robolab-renderer.jar
     - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c build/processedResources/build.ini deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/frontendJvm/build.ini
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c build/processedResources/build.ini deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/frontend/build.ini
     - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c web/website/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/frontend/
   only:
     - master
