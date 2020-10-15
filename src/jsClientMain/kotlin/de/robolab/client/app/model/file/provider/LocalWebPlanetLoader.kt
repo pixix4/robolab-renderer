@@ -16,7 +16,9 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlin.coroutines.CoroutineContext
 
-class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifier>, CoroutineScope {
+class LocalWebPlanetLoader(
+    private val baseUri: String
+) : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifier>, CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main
 
@@ -55,12 +57,12 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
 
     override suspend fun listPlanets(identifier: FileIdentifier?): List<FileIdentifier> {
         val names = http {
-            web("/planets")
+            web("${baseUri}planets")
         }.exec().parse(ListSerializer(String.serializer())) ?: emptyList()
 
         planetCountProperty.value = names.size
         return names.map { name ->
-            FileIdentifier("/planet/$name", name)
+            FileIdentifier("${baseUri}planet/$name", name)
         }
     }
 
@@ -110,7 +112,7 @@ class LocalWebPlanetLoader : IFilePlanetLoader<LocalWebPlanetLoader.FileIdentifi
         override val usage: String = "$protocol://"
 
         override fun create(uri: String): IFilePlanetLoader<*>? {
-            return LocalWebPlanetLoader()
+            return LocalWebPlanetLoader(uri)
         }
     }
 
