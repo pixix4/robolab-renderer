@@ -10,6 +10,7 @@ import de.westermann.kobserve.not
 import de.westermann.kobserve.or
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.components.*
+import kotlinx.browser.window
 
 class SettingsDialog private constructor(
     private val requestAuthToken: () -> Unit
@@ -86,7 +87,16 @@ class SettingsDialog private constructor(
         tab("Connection") {
             dialogFormGroup("Remote server") {
                 dialogFormEntry("Server uri") {
+                    classList += "button-group"
+                    classList += "button-form-group"
+
                     inputView(PreferenceStorage.remoteServerUrlProperty)
+                    button {
+                        iconView(MaterialIcon.SETTINGS_BACKUP_RESTORE)
+                        onClick {
+                            PreferenceStorage.remoteServerUrl = window.location.href
+                        }
+                    }
                 }
                 button("Request access token") {
                     onClick {

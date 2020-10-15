@@ -52,7 +52,7 @@ object PreferenceStorage : TypedStorage() {
         item("communication.clientId", Random.nextBytes(16).joinToString("") { it.toString(16).padStart(2, '0') })
     var clientId by clientIdProperty
 
-    val serverUriProperty = item("communication.serverUri", PlatformDefaultPreferences.serverUriProperty)
+    val serverUriProperty = item("communication.serverUri", PlatformDefaultPreferences.mqttServerUri)
     var serverUri by serverUriProperty
 
     val usernameProperty = item("communication.username", "")
@@ -72,7 +72,7 @@ object PreferenceStorage : TypedStorage() {
     val remoteFilesProperty = item("remote.files", PlatformDefaultPreferences.fileServer)
     var remoteFiles by remoteFilesProperty
 
-    val remoteServerUrlProperty = item("remote.url", "")
+    val remoteServerUrlProperty = item("remote.url", PlatformDefaultPreferences.remoteServerUri)
     var remoteServerUrl by remoteServerUrlProperty
 
     val remoteServerTokenProperty = item("remote.token", "")
@@ -133,6 +133,7 @@ enum class MqttStorage {
 }
 
 expect object PlatformDefaultPreferences {
-    val serverUriProperty: String
+    val mqttServerUri: String
+    val remoteServerUri: String
     val fileServer: List<String>
 }
