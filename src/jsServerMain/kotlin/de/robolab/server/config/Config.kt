@@ -69,6 +69,13 @@ object Config : TypedStorage() {
 
         //Password for the Tutor-MQTT login
         val tutorPassword by item("mqtt.tutorPassword","password")
+
+        //Mothership URLs for Websockets and SSL
+        val mothershipURLWSS by item("mqtt.mothershipURLWSS", "wss://mothership.inf.tu-dresden.de:9002/mqtt")
+        val mothershipURLSSL by item("mqtt.mothershipURLSSL", "ssl://mothership.inf.tu-dresden.de:8883")
+
+        //Mothership URL for logs
+        val mothershipURLLog by item("mqtt.mothershipURLLog", "https://mothership.inf.tu-dresden.de/logs/mqtt/latest")
     }
 
     //--------AUTH--------

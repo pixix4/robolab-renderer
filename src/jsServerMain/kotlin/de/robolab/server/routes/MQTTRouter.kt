@@ -13,10 +13,21 @@ object MQTTRouter {
     val router: DefaultRouter = createRouter()
 
     init {
+        router.getSuspend("/urls") { req, res ->
+            res.formatReceiving(MIMEType.JSON to {
+                status(HttpStatusCode.Ok).send(
+                    dynamicOf(
+                        "wss" to Config.MQTT.mothershipURLWSS,
+                        "ssl" to Config.MQTT.mothershipURLSSL,
+                        "log" to Config.MQTT.mothershipURLLog,
+                    ) as Any?
+                )
+            })
+        }
         router.getSuspend("/credentials") { req, res ->
             req.user.requireTutor()
             res.formatReceiving(MIMEType.PlainText to {
-                status(HttpStatusCode.Ok).send(Config.MQTT.tutorUser+":"+Config.MQTT.tutorPassword)
+                status(HttpStatusCode.Ok).send(Config.MQTT.tutorUser + ":" + Config.MQTT.tutorPassword)
             }, MIMEType.JSON to {
                 status(HttpStatusCode.Ok).send(
                     dynamicOf(

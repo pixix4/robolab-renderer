@@ -11,7 +11,7 @@ import kotlinx.serialization.json.jsonPrimitive
 
 object GetMQTTCredentials : IUnboundRESTRequest<GetMQTTCredentials.MQTTCredentialsResponse> {
     override val requestMethod: HttpMethod = HttpMethod.GET
-    override val requestPath: String = "/api/info/exam"
+    override val requestPath: String = "/api/mqtt/credentials"
     override val requestBody: String? = null
     override val requestQuery: Map<String, String> = emptyMap()
     override val requestHeader: Map<String, List<String>> = mapOf("Accept" to listOf(MIMEType.PlainText.primaryName))
