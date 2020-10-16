@@ -16,6 +16,7 @@ build-jvm:
     paths:
       - build/libs/robolab-jvm.jar
       - build/processedResources/build.ini
+    expire_in: 1 hrs
   tags:
     - docker
 
@@ -25,6 +26,7 @@ build-js-client:
   artifacts:
     paths:
       - web/website
+    expire_in: 1 hrs
   tags:
     - docker
 
@@ -34,6 +36,7 @@ build-js-server:
   artifacts:
     paths:
       - webServer
+    expire_in: 1 hrs
   tags:
     - docker
 
