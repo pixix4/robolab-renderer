@@ -26,7 +26,7 @@ class PlotterManager(
             }
         }
 
-    var highlightActiveWindow = true
+    private var highlightActiveWindow = true
 
     class Window(
         layout: Rectangle,
@@ -74,6 +74,15 @@ class PlotterManager(
             activeWindow = window
             requestRedraw = true
         }
+    }
+
+    fun setActive(index: Int) {
+        setActive(windowList.getOrNull(index) ?: return)
+    }
+
+    fun hideHighlight() {
+        highlightActiveWindow = false
+        requestRedraw = true
     }
 
     val activePlotterProperty = activeWindowProperty.mapBinding { it.plotter }

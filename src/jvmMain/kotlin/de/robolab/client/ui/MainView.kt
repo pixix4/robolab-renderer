@@ -21,7 +21,7 @@ import kotlin.system.exitProcess
 class MainView : View() {
 
     private val logger = Logger("MainView")
-    private val mainController = MainController()
+    private val mainController = MainController(MainController.Args())
 
     override val root = borderpane {
         val window = this
@@ -145,7 +145,7 @@ class MainView : View() {
             UpdateDialog.openIfUpdateAvailable()
         }
 
-        mainController.tabController.openNewTab()
+        mainController.finishSetup()
     }
 
     private fun getPreferences(nodeName: String? = null): Preferences {

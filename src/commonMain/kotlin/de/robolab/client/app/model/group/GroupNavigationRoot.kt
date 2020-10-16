@@ -24,7 +24,7 @@ class GroupNavigationRoot(
     private val messageRepository: MessageRepository,
     private val messageManager: MessageManager,
     private val tabController: TabController,
-    private val planetProvider: CachedFilePlanetProvider
+    val planetProvider: CachedFilePlanetProvider
 ) : INavigationBarEntryRoot, NavigationBarController.Tab {
 
     override val label = property("MQTT Group list")

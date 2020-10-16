@@ -26,7 +26,7 @@ class NavigationBarController(
 
     val filePlanetProvider = FileNavigationRoot(tabController)
     private val cachedFilePlanetProvider = CachedFilePlanetProvider(filePlanetProvider)
-    private val groupPlanetProperty = GroupNavigationRoot(
+    val groupPlanetProperty = GroupNavigationRoot(
         messageRepository,
         messageManager,
         tabController,

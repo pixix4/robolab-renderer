@@ -197,7 +197,7 @@ class MessageRepository(
         events.emit()
     }
 
-    suspend fun createEmptyGroup(groupName: String) {
+    suspend fun createEmptyGroup(groupName: String): Group? {
         val events = EventMessageStorage(
             storage,
             onGroupListChange,
@@ -207,10 +207,10 @@ class MessageRepository(
             onAttemptMessageListChange
         )
 
-        storage.transaction {
+        val group = storage.transaction {
             try {
                 if (events.getGroupByName(groupName) != null) {
-                    return@transaction
+                    return@transaction null
                 }
                 var group = events.createGroup(
                     Group(
@@ -238,12 +238,15 @@ class MessageRepository(
 
                 group = group.copy(latestAttemptId = attempt.attemptId)
                 events.updateGroup(group)
+                group
             } catch (e: Exception) {
                 logger.error("Error creating empty group $groupName: ${e.message}\n${e.stackTraceToString()}")
+                null
             }
         }
 
         events.emit()
+        return group
     }
 
     suspend fun clear() {
