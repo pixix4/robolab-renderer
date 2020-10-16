@@ -15,8 +15,10 @@ import de.westermann.kobserve.list.asObservable
 import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.property
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GroupNavigationRoot(
     private val messageRepository: MessageRepository,
@@ -29,6 +31,18 @@ class GroupNavigationRoot(
     override val icon = property(MaterialIcon.GROUP)
 
     override val searchProperty = property("")
+
+    override fun submitSearch() {
+        val value = searchProperty.value.trim()
+        if (childrenProperty.value.isEmpty() && value.isNotEmpty()) {
+            GlobalScope.launch {
+                messageRepository.createEmptyGroup(value)
+                withContext(Dispatchers.Main) {
+                    searchProperty.value = ""
+                }
+            }
+        }
+    }
 
     private val activeListProperty = property<RepositoryList>(GroupNavigationList(messageRepository, this))
     private val activeList by activeListProperty

@@ -34,6 +34,8 @@ interface INavigationBarEntryRoot {
 
     val searchProperty: ObservableProperty<String>
 
+    fun submitSearch()
+
     val parentNameProperty: ObservableValue<String?>
 
     fun openParent()

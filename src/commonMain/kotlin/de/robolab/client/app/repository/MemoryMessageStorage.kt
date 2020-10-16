@@ -115,7 +115,7 @@ class MemoryMessageStorage : IMessageStorage {
     }
 
     override fun getMessageList(attemptId: AttemptId): List<RobolabMessage> {
-        return messageMap.getValue(attemptId)
+        return messageMap[attemptId] ?: emptyList()
     }
 
     override fun createMessage(message: RobolabMessage, attempt: Attempt) {

@@ -21,6 +21,10 @@ class FileEntryNavigationRootList<T : IFilePlanetIdentifier>(
 
     override val searchProperty = property("")
 
+    override fun submitSearch() {
+
+    }
+
     private val activeListProperty = property<INavigationBarList>(FileEntryNavigationList(this, loader, null))
     val activeList by activeListProperty
 

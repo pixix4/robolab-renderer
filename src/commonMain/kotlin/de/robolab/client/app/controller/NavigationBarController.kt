@@ -64,6 +64,10 @@ class NavigationBarController(
         it.searchProperty
     }
 
+    fun submitSearch() {
+        tabProperty.value.submitSearch()
+    }
+
     val backButtonLabelProperty = tabProperty.flatMapBinding {
         it.parentNameProperty
     }
@@ -85,6 +89,8 @@ class NavigationBarController(
         val childrenProperty: ObservableValue<ObservableList<INavigationBarEntry>>
 
         fun openParent()
+
+        fun submitSearch()
     }
 
     object EmptyTab : Tab {
@@ -96,6 +102,7 @@ class NavigationBarController(
             property(observableListOf())
 
         override fun openParent() {}
+        override fun submitSearch() {}
     }
 
     init {

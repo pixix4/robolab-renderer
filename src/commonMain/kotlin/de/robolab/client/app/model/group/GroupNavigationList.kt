@@ -95,7 +95,11 @@ class GroupNavigationList(
         override val statusIconProperty = constObservable<List<MaterialIcon>>(emptyList())
 
         override fun open(asNewTab: Boolean) {
-            root.openGroupAttemptList(group)
+            if (asNewTab) {
+                root.openGroupLiveAttempt(group, false)
+            } else {
+                root.openGroupAttemptList(group)
+            }
         }
     }
 }

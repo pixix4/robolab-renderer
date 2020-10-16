@@ -82,6 +82,12 @@ class NavigationBar(
         boxView("navigation-bar-search", "button-group", "button-form-group") {
             val searchView = inputView(InputType.SEARCH, navigationBarController.searchStringProperty) {
                 placeholder = "Search…"
+
+                onKeyDown {
+                    if (it.keyCode == 13) {
+                        navigationBarController.submitSearch()
+                    }
+                }
             }
             iconView(MaterialIcon.CANCEL) {
                 onClick {

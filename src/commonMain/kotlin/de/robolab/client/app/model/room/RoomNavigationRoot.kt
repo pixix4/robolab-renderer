@@ -25,6 +25,10 @@ class RoomNavigationRoot(
 
     override val searchProperty = property("")
 
+    override fun submitSearch() {
+
+    }
+
     private val activeListProperty = property<RepositoryList>(RoomNavigationList(messageRepository, this))
     private val activeList by activeListProperty
 

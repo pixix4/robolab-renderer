@@ -223,6 +223,10 @@ class NavigationBar(
                     hgrow = Priority.ALWAYS
                     maxWidth = Double.MAX_VALUE
                     promptText = "Search…"
+
+                    setOnAction {
+                        navigationBarController.submitSearch()
+                    }
                 }
                 button {
                     graphic = iconNoAdd(MaterialIcon.PUBLISH)
