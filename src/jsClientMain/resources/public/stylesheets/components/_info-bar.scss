@@ -166,6 +166,9 @@
 .info-bar-group-view-content {
   border-collapse: collapse;
   white-space: nowrap;
+  min-width: 100%;
+  min-height: 100%;
+  outline: none;
 
   thead {
     line-height: 2rem;
