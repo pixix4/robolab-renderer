@@ -52,7 +52,8 @@ object AuthRouter {
                 res.sendStatus(HttpStatusCode.Unauthorized)
             } else {
                 val user = authProvider.performAuth(code, stateString, shareCode)
-                val token = authService.obtainToken(user);
+                val token = authService.obtainToken(user)
+                res.cookie("robolab_auth", token.rawToken, dynamicOf("httpOnly" to true))
                 if (authService.provideSharedToken(shareCode, token, user.userID)) {
                     //Code is used in a share-process, JWT has already been passed on
                     res.status(HttpStatusCode.Ok).type(MIMEType.HTML).send(
@@ -68,7 +69,6 @@ window.close();
                     )
                 } else {
                     //Code is not used in a share-process, return JWT
-                    res.cookie("robolab_auth", token.rawToken, dynamicOf("httpOnly" to true))
                     res.redirect(Config.Auth.redirectURL)
                 }
             }
