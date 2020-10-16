@@ -3,6 +3,7 @@ package de.robolab.common.utils
 import de.robolab.client.renderer.transition.IInterpolatable
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.round
 
 data class Rectangle(
     val left: Double,
@@ -70,6 +71,21 @@ data class Rectangle(
         Point(right, bottom),
         Point(left, bottom)
     )
+
+
+    fun rounded() = Rectangle(
+        round(left),
+        round(top),
+        round(right) - round(left),
+        round(bottom) - round(top),
+    )
+    fun roundedWithMultiplier(multiplier: Double = 1.0) = Rectangle(
+        round(left * multiplier) / multiplier,
+        round(top * multiplier) / multiplier,
+        round(right * multiplier) / multiplier - round(left * multiplier) / multiplier,
+        round(bottom * multiplier) / multiplier - round(top * multiplier) / multiplier
+    )
+
 
     companion object {
         val ZERO = Rectangle(0.0, 0.0, 0.0, 0.0)

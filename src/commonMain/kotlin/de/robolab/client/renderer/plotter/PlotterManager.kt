@@ -10,6 +10,7 @@ import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.*
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import kotlin.math.PI
 import kotlin.math.absoluteValue
 
 class PlotterManager(
@@ -24,6 +25,8 @@ class PlotterManager(
                 window.plotter.animationTime = value
             }
         }
+
+    var highlightActiveWindow = true
 
     class Window(
         layout: Rectangle,
@@ -46,7 +49,7 @@ class PlotterManager(
                 layout.top * dimension.height,
                 layout.width * dimension.width,
                 layout.height * dimension.height
-            )
+            ).rounded()
         }
     }
 
@@ -98,42 +101,70 @@ class PlotterManager(
                 }
                 window.canvas.endClip()
 
-                if (window.layout.bottom < 1.0) {
-                    if (window.layout.right < 1.0) {
-                        canvas.strokeLine(
-                            listOf(
-                                window.canvas.clip.topRight,
-                                window.canvas.clip.bottomRight,
-                                window.canvas.clip.bottomLeft
-                            ),
-                            theme.ui.borderColor,
-                            1.0
-                        )
-                    } else {
-                        canvas.strokeLine(
-                            listOf(
-                                window.canvas.clip.bottomRight,
-                                window.canvas.clip.bottomLeft
-                            ),
-                            theme.ui.borderColor,
-                            1.0
-                        )
+                if (windowList.size > 1) {
+                    val edges = mutableListOf<Pair<Point, Point>>()
+
+                    if (window.layout.top > 0.0) {
+                        edges += window.canvas.clip.topLeft to window.canvas.clip.topRight
                     }
-                } else if (window.layout.right < 1.0) {
-                    canvas.strokeLine(
-                        listOf(
-                            window.canvas.clip.topRight,
-                            window.canvas.clip.bottomRight
+                    if (window.layout.left > 0.0) {
+                        edges += window.canvas.clip.topLeft to window.canvas.clip.bottomLeft
+                    }
+                    if (window.layout.bottom < 1.0) {
+                        edges += window.canvas.clip.bottomLeft to window.canvas.clip.bottomRight
+                    }
+                    if (window.layout.right < 1.0) {
+                        edges += window.canvas.clip.topRight to window.canvas.clip.bottomRight
+                    }
+
+                    for ((start, end) in edges) {
+                        canvas.strokeLine(listOf(start, end), theme.ui.borderColor, 2.0)
+                    }
+                }
+
+                val name = window.plotter.planetDocument?.nameProperty?.value?.trim()
+                if (windowList.size > 1 && name != null && name.isNotEmpty()) {
+                    val (backgroundColor, textColor) = if (window == activeWindow && highlightActiveWindow) {
+                        theme.ui.themeColor.interpolate(theme.ui.primaryBackground, 0.3) to theme.ui.themePrimaryText
+                    } else {
+                        theme.ui.tertiaryBackground to theme.ui.primaryTextColor
+                    }
+                    val radius = 10.0
+                    val width = 10.0 * name.length + 24.0
+                    val height = 28.0
+                    canvas.fillRect(
+                        Rectangle(window.canvas.clip.left, window.canvas.clip.top, width - radius, height),
+                        backgroundColor
+                    )
+                    canvas.fillRect(
+                        Rectangle(
+                            window.canvas.clip.left + width - radius - 10.0,
+                            window.canvas.clip.top,
+                            radius + 10.0,
+                            height - radius
                         ),
-                        theme.ui.borderColor,
-                        1.0
+                        backgroundColor
+                    )
+                    canvas.fillArc(
+                        Point(window.canvas.clip.left + width - radius, window.canvas.clip.top + height - radius),
+                        radius,
+                        0.0,
+                        2.0 * PI,
+                        backgroundColor
+                    )
+                    canvas.fillText(
+                        name,
+                        window.canvas.clip.topLeft + Point(12.0, 14.0),
+                        textColor,
+                        fontSize = 16.0,
+                        fontWeight = ICanvas.FontWeight.BOLD
                     )
                 }
             }
         }
         requestRedraw = false
 
-        if (windows.size > 1) {
+        if (windows.size > 1 && highlightActiveWindow) {
             canvas.strokeRect(
                 activeWindow.canvas.clip.shrink(1.0),
                 theme.ui.themeColor,
@@ -384,11 +415,13 @@ class PlotterManager(
 
         canvas.addListener(object : ICanvasListener {
             override fun onPointerDown(event: PointerEvent) {
+                highlightActiveWindow = true
                 checkPointer(event, true)
                 activeWindow.canvas.transformListener.onPointerDown(event)
             }
 
             override fun onPointerUp(event: PointerEvent) {
+                highlightActiveWindow = true
                 activeWindow.canvas.transformListener.onPointerUp(event)
             }
 
@@ -397,25 +430,30 @@ class PlotterManager(
             }
 
             override fun onPointerDrag(event: PointerEvent) {
+                highlightActiveWindow = true
                 activeWindow.canvas.transformListener.onPointerDrag(event)
             }
 
             override fun onPointerSecondaryAction(event: PointerEvent) {
+                highlightActiveWindow = true
                 checkPointer(event, true)
                 activeWindow.canvas.transformListener.onPointerSecondaryAction(event)
             }
 
             override fun onScroll(event: ScrollEvent) {
+                highlightActiveWindow = true
                 checkPointer(event, true)
                 activeWindow.canvas.transformListener.onScroll(event)
             }
 
             override fun onZoom(event: ZoomEvent) {
+                highlightActiveWindow = true
                 checkPointer(event, true)
                 activeWindow.canvas.transformListener.onZoom(event)
             }
 
             override fun onRotate(event: RotateEvent) {
+                highlightActiveWindow = true
                 checkPointer(event, true)
                 activeWindow.canvas.transformListener.onRotate(event)
             }
@@ -436,6 +474,13 @@ class PlotterManager(
             }
 
             override fun onKeyPress(event: KeyEvent) {
+                if (event.keyCode == KeyCode.ESCAPE && highlightActiveWindow) {
+                    highlightActiveWindow = false
+                    requestRedraw = true
+                    return
+                } else {
+                    highlightActiveWindow = true
+                }
                 if (event.ctrlKey) {
                     when (event.keyCode) {
                         KeyCode.ARROW_UP -> {
