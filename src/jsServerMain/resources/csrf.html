@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Warning</title>
+    <link rel="stylesheet" href="///Marker:CSSFile///">
+    <style>
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: 3em;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        #container {
+            width:70vw;
+            margin:0 auto;
+            border: 1px solid var(--border-color);
+            padding: 2em;
+            border-radius: 2px;
+            min-width: 400px;
+        }
+        #warning {
+            margin-bottom: 1em;
+            display: block;
+        }
+        #warning a:link, #warning a:active, #warning a:visited, #warning a:hover {
+            color: var(--text-color);
+            font-style: italic;
+        }
+        #warning a:link::after {
+            background: url("https://upload.wikimedia.org/wikipedia/commons/2/2c/Tango_style_Wikipedia_Icon.svg");
+            background-size: 1em 1em;
+            content:"";
+            width: 1em;
+            height: 1em;
+            display: inline-block;
+        }
+        #buttonNS, #buttonJS {
+            border:1px solid #000000;
+            background: var(--link-bg-color);
+            color: var(--link-text-color);
+            padding: 5px;
+            border-radius: 2px;
+            text-align:center;
+            display: block;
+            width: max-content;
+            margin: 0 auto;
+            text-decoration: none;
+            font-size: 140%;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        #buttonJS:disabled {
+            background:var(--link-disabled-bg-color);
+            color:var(--link-disabled-text-color);
+            cursor:initial;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <span id="warning">Your browser took unusually long to request this page.<br/>
+            If this page was not opened by the robolab-renderer application (ie. if you received this link via email), you might a victim of a <a href="https://en.wikipedia.org/wiki/Cross-site_request_forgery" title="Link to Wikipedia">CSRF-Attack</a>.<br/><br/>
+            <b>Do not click this button unless you are attempting to log in to (or "request token" from) our server!</b></span>
+            <form action="///Marker:URL///">
+                <noscript>
+                    <input type="submit" id="buttonNS" value="Click here for redirect"/>
+                </noscript>
+                    <input id="buttonJS" type="submit" style="display:none" disabled value="Click here for redirect" />
+            </form>
+    </div>
+    <script>
+        let button = document.getElementById("buttonJS");
+        button.style.display = "block";
+        setTimeout(() => {button.disabled = false}, 2000);
+        let lang = navigator.language || navigator.userLanguage; 
+        if(lang.substring(0,2) == "de") {
+            let warningBlock = "Dein Browser hat ungewöhnlich lange gebraucht, diese Seite aufzurufen.<br/>" +
+                                "Wenn diese Seite nicht vom robolab-renderer selbst geöffnet wurde (zB. wenn du diesen Link per Mail bekommen hast), bist du evtl. Opfer einer <a href=\"https://de.wikipedia.org/wiki/Cross-Site-Request-Forgery\" title=\"Linkzu Wikipedia\">CSRF-Attacke</a>.<br/><br/>" +
+                                "<b>Klick nicht auf diesen Button, wenn du dich nicht auf unserem Server einloggen (oder. einen \"Request Token\" anfordern) möchtest!</b>"
+            document.getElementById("warning").innerHTML = warningBlock;
+            button.value = "Klick hier, um weitergeleitet zu werden";
+        }
+    </script>
+</body>
+</html>

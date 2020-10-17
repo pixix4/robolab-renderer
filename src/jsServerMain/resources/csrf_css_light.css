@@ -1,0 +1,9 @@
+:root {
+    --bg-color: #fdfdfd;
+    --text-color: #222222;
+    --border-color: #222222;
+    --link-bg-color: #ff3b3b;
+    --link-text-color: #000000;
+    --link-disabled-bg-color: #aaaaaa;
+    --link-disabled-text-color: #444444;
+}
