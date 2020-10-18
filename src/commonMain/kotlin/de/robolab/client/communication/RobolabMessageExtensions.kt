@@ -164,6 +164,7 @@ fun List<RobolabMessage>.toRobot(groupNumber: Int?, backwardMotion: Boolean = fa
                 beforePoint = true
             }
             is RobolabMessage.PathSelectMessageFromRobot -> {
+                currentPoint = message.point
                 currentDirection = message.direction
                 beforePoint = false
             }
