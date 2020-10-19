@@ -54,7 +54,7 @@ class SendMessageController(
                 from = From.CLIENT
             }
             Type.TestPlanetMessage -> {
-                topicPlanet()
+                topicExplorer()
                 from = From.CLIENT
             }
             Type.PathUnveilMessage -> {

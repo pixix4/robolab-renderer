@@ -9,13 +9,11 @@ import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.Group
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.communication.MessageManager
-import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.client.utils.runAsync
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventListener
-import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
@@ -24,7 +22,7 @@ import kotlinx.coroutines.launch
 
 class GroupLiveAttemptPlanetDocument(
     var group: Group,
-    override val attempt: Attempt,
+    attempt: Attempt,
     private val messageRepository: MessageRepository,
     messageManager: MessageManager,
     private val planetProvider: CachedFilePlanetProvider
@@ -32,6 +30,7 @@ class GroupLiveAttemptPlanetDocument(
 
     private val latestAttemptProperty = property(attempt)
     private var latestAttempt by latestAttemptProperty
+    override val attempt by latestAttemptProperty
 
     override val nameProperty = constObservable("Group ${group.name}")
 
@@ -76,6 +75,7 @@ class GroupLiveAttemptPlanetDocument(
 
     private fun updateAttempt() {
         GlobalScope.launch {
+            group = messageRepository.getGroup(group.groupId)
             val attempt = messageRepository.getAttempt(group.latestAttemptId)
 
             val messageList = messageRepository
@@ -112,7 +112,6 @@ class GroupLiveAttemptPlanetDocument(
         }
         ref2 = messageRepository.onGroupAttemptListChange.reference {
             if (it.groupId == group.groupId && group.latestAttemptId != it.latestAttemptId) {
-                group = it
                 updateAttempt()
             }
         }
