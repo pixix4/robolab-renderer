@@ -35,8 +35,8 @@ fun main() {
         MainController.Args(
             argMap["layout"],
             argMap["groups"],
-            argMap["fullscreen"],
-            argMap["connect"],
+            argMap["fullscreen"]?.let { "true" },
+            argMap["connect"]?.let { "true" },
         )
     )
 

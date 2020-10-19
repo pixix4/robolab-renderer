@@ -85,7 +85,7 @@ class MainController(private val args: Args) {
             }
         }
         if (args.groups != null) {
-            val groups = args.groups.split("+").distinct().filter { it.isNotEmpty() }
+            val groups = args.groups.split("+")
             GlobalScope.launch {
                 for ((index, groupName) in groups.withIndex()) {
                     val group = messageRepository.createEmptyGroup(groupName) ?: continue
