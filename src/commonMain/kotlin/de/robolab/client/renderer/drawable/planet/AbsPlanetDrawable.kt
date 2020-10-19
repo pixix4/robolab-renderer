@@ -12,6 +12,7 @@ import de.robolab.client.renderer.view.base.Document
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.extraGet
 import de.robolab.client.renderer.view.component.*
+import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.planet.IPlanetValue
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
@@ -119,6 +120,7 @@ abstract class AbsPlanetDrawable(
     }
 
 
+    private var paper: Rectangle = Rectangle.ZERO
     private var centerOfPlanets: Vector? = null
 
     override var autoCentering = true
@@ -126,10 +128,20 @@ abstract class AbsPlanetDrawable(
         val centerOfPlanets = centerOfPlanets ?: return
         val transformation = plotter?.transformation ?: return
         val targetCenter = centerOfPlanets.rotate(transformation.rotation)
-        val size = (plotter?.dimension ?: Dimension.ZERO) / Point(2.0, -2.0) * Point(if (flipView) -1.0 else 1.0, 1.0)
+        val window = plotter?.dimension ?: Dimension.ZERO
+        val size = window / Point(2.0, -2.0) * Point(if (flipView) -1.0 else 1.0, 1.0)
         val point = (targetCenter * transformation.scaledGridWidth - size) * Point(if (flipView) 1.0 else -1.0, 1.0)
 
         transformation.translateTo(point, duration)
+
+        if (PreferenceStorage.renderAutoScaling && paper.width > 0 && paper.height > 0) {
+            transformation.scaleTo(
+                min(
+                    window.width / (paper.width * transformation.gridWidth),
+                    window.height / (paper.height * transformation.gridWidth),
+                ), window / 2
+            )
+        }
     }
 
     private var isFirstImport = true
@@ -143,6 +155,7 @@ abstract class AbsPlanetDrawable(
         val edge = paperArea?.bottomRight ?: Point.ZERO
         nameView.setSource(edge - Point(0.3, 0.4))
 
+        paper = paperArea ?: Rectangle.ZERO
         centerOfPlanets = area?.center
         if (autoCentering) {
             centerPlanet(if (isFirstImport) 0.0 else TransformationInteraction.ANIMATION_TIME)

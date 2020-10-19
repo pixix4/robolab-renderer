@@ -37,6 +37,11 @@ class MainStyle : Stylesheet() {
         val warn by cssclass()
         val error by cssclass()
 
+        val tabBarTabStatus by cssclass()
+        val successTab by cssclass()
+        val warnTab by cssclass()
+        val errorTab by cssclass()
+
         val navigationBar by cssclass()
         val navigationBarBackButton by cssclass()
         val navigationBarSearchBox by cssclass()

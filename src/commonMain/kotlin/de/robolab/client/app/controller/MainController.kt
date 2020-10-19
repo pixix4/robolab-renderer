@@ -19,10 +19,11 @@ import kotlinx.coroutines.withContext
 
 class MainController(private val args: Args) {
 
-    val tabController = TabController()
+    private val connection = RobolabMqttConnection()
+
+    val tabController = TabController(connection)
     val uiController = UiController(tabController)
 
-    private val connection = RobolabMqttConnection()
     val robolabMessageProvider = RobolabMessageProvider(connection)
     private val messageManager = MessageManager(robolabMessageProvider)
 
@@ -64,6 +65,12 @@ class MainController(private val args: Args) {
         messageManager.onMessageList {
             messageRepository.addMessageList(it)
         }
+
+        tabController.fullscreenProperty.onChange {
+            if (tabController.fullscreenProperty.value) {
+                tabController.activeTabProperty.value?.plotterManager?.hideHighlight()
+            }
+        }
     }
 
     fun finishSetup() {
@@ -103,10 +110,10 @@ class MainController(private val args: Args) {
                 }
             }
         }
-        if (args.fullscreen != null) {
+        if (args.fullscreen != null && args.fullscreen.toBoolean()) {
             tabController.fullscreenProperty.value = true
         }
-        if (args.connect != null) {
+        if (args.connect != null && args.connect.toBoolean()) {
             connection.connectionState.onAction()
         }
     }

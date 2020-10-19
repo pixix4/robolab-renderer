@@ -20,8 +20,16 @@ import kotlin.system.exitProcess
 
 class MainView : View() {
 
+    @Suppress("UNCHECKED_CAST")
+    val appParams = primaryStage.properties["params"] as? List<String> ?: exitProcess(1)
+
     private val logger = Logger("MainView")
-    private val mainController = MainController(MainController.Args())
+    private val mainController = MainController(MainController.Args(
+        appParams[0].let{ if (it.isEmpty()) null else it },
+        appParams[1].let{ if (it.isEmpty()) null else it },
+        appParams[2].let{ if (it.isEmpty()) null else it },
+        appParams[3].let{ if (it.isEmpty()) null else it },
+    ))
 
     override val root = borderpane {
         val window = this
@@ -143,6 +151,11 @@ class MainView : View() {
 
         runAfterTimeout(1000) {
             UpdateDialog.openIfUpdateAvailable()
+        }
+
+        mainController.tabController.fullscreenProperty.onChange {
+            val isFullscreen = mainController.tabController.fullscreenProperty.value
+            primaryStage.isFullScreen = isFullscreen
         }
 
         mainController.finishSetup()

@@ -66,6 +66,28 @@ fun Stylesheet.initTabBarStyle() {
         }
     }
 
+    MainStyle.successTab {
+        MainStyle.iconView {
+            fill = MainStyle.theme.ui.successColor.toFx()
+            opacity = 0.8
+        }
+    }
+
+    MainStyle.warnTab {
+        MainStyle.iconView {
+            fill = MainStyle.theme.ui.warnColor.toFx()
+            opacity = 0.8
+        }
+    }
+
+    MainStyle.errorTab {
+        MainStyle.iconView {
+            fill = MainStyle.theme.ui.errorColor.toFx()
+            opacity = 0.8
+        }
+    }
+
+
     MainStyle.tabBarContainer {
     }
 

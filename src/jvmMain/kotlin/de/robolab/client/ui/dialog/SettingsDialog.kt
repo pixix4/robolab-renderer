@@ -72,6 +72,9 @@ class SettingsDialog : GenericDialog() {
                     field("Sender group names") {
                         checkbox("", PreferenceStorage.renderSenderGroupingProperty.toFx())
                     }
+                    field("Auto scaling") {
+                        checkbox("", PreferenceStorage.renderAutoScalingProperty.toFx())
+                    }
                 }
 
                 fieldset("Exam mode") {

@@ -1,6 +1,7 @@
 package de.robolab.client.app.controller
 
 import de.robolab.client.app.model.base.IPlanetDocument
+import de.robolab.client.communication.mqtt.RobolabMqttConnection
 import de.robolab.client.renderer.canvas.VirtualCanvas
 import de.robolab.client.renderer.plotter.PlotterManager
 import de.robolab.client.utils.PreferenceStorage
@@ -12,7 +13,23 @@ import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
 
-class TabController {
+class TabController(
+    private val connection: RobolabMqttConnection
+) {
+
+    val statusColor = connection.connectionStateProperty.mapBinding {
+        when (it) {
+            is RobolabMqttConnection.Connected -> StatusBarController.StatusColor.SUCCESS
+            is RobolabMqttConnection.Connecting -> StatusBarController.StatusColor.WARN
+            is RobolabMqttConnection.ConnectionLost -> StatusBarController.StatusColor.ERROR
+            is RobolabMqttConnection.Disconnected -> StatusBarController.StatusColor.ERROR
+            else -> StatusBarController.StatusColor.ERROR
+        }
+    }
+
+    fun onStatusAction() {
+        connection.connectionState.onAction()
+    }
 
     val fullscreenProperty = property(false)
 

@@ -1,5 +1,6 @@
 package de.robolab.client.ui.view
 
+import de.robolab.client.app.controller.StatusBarController
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.controller.TabController
 import de.robolab.client.ui.adapter.toFx
@@ -77,6 +78,41 @@ class TabBar(private val tabController: TabController) : View() {
             visibleWhen(fullscreenFx)
             managedWhen(fullscreenFx)
         }
+
+        hbox {
+            vgrow = Priority.ALWAYS
+            addClass(MainStyle.tabBarTab)
+            addClass(MainStyle.tabBarTabStatus)
+
+            bindClass(
+                MainStyle.successTab,
+                tabController.statusColor.mapBinding { it == StatusBarController.StatusColor.SUCCESS })
+            bindClass(
+                MainStyle.warnTab,
+                tabController.statusColor.mapBinding { it == StatusBarController.StatusColor.WARN })
+            bindClass(
+                MainStyle.errorTab,
+                tabController.statusColor.mapBinding { it == StatusBarController.StatusColor.ERROR })
+
+            icon(tabController.statusColor.mapBinding {
+                when (it) {
+                    StatusBarController.StatusColor.SUCCESS -> MaterialIcon.LINK
+                    StatusBarController.StatusColor.WARN -> MaterialIcon.LINK_OFF
+                    StatusBarController.StatusColor.ERROR -> MaterialIcon.LINK_OFF
+                }
+            }.toFx()) {
+                vgrow = Priority.ALWAYS
+            }
+
+            setOnMouseClicked {
+                tabController.onStatusAction()
+            }
+
+            val fullscreenFx = tabController.fullscreenProperty.toFx()
+            visibleWhen(fullscreenFx)
+            managedWhen(fullscreenFx)
+        }
+
 
         hbox {
             hgrow = Priority.ALWAYS

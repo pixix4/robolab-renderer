@@ -8,7 +8,6 @@ import de.robolab.client.ui.style.SystemTheme.isSystemThemeSupported
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.UpdateChannel
 import de.robolab.client.utils.runAfterTimeoutInterval
-import de.robolab.common.utils.ConfigFile
 import de.robolab.common.utils.ConsoleGreeter
 import javafx.stage.Stage
 import javafx.stage.StageStyle
@@ -18,7 +17,6 @@ import kotlinx.coroutines.launch
 import tornadofx.App
 import tornadofx.NoPrimaryViewSpecified
 import tornadofx.UIComponent
-import java.nio.file.Paths
 import kotlin.reflect.KClass
 
 
@@ -37,6 +35,8 @@ class MainApp : App(NoPrimaryViewSpecified::class) {
         } else {
             stage.initStyle(StageStyle.DECORATED)
         }
+
+        stage.properties["params"] = parameters.raw
 
         super.start(stage)
 
@@ -91,14 +91,6 @@ class MainApp : App(NoPrimaryViewSpecified::class) {
             ConsoleGreeter.greetClient()
 
             setupSystemProperties()
-
-            for (arg in args) {
-                try {
-                    val path = Paths.get(arg)
-                    ConfigFile.localPath = path
-                } catch (e: Exception) {
-                }
-            }
 
             runAfterTimeoutInterval(60000) {
                 if (PreferenceStorage.autoUpdateChannel != UpdateChannel.NEVER) {

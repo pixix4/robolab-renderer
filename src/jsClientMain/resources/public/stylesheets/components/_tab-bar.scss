@@ -50,6 +50,22 @@
   }
 }
 
+.tab-bar-status {
+
+  &.success {
+    color: var(--success-color);
+  }
+
+  &.warn {
+    color: var(--warn-color);
+  }
+
+  &.error {
+    color: var(--error-color);
+  }
+
+}
+
 .tab-bar-content {
   display: flex;
   align-items: center;

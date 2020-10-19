@@ -60,6 +60,9 @@ class SettingsDialog private constructor(
                 dialogFormEntry("Render sender grouping chars") {
                     label(checkbox(PreferenceStorage.renderSenderGroupingProperty))
                 }
+                dialogFormEntry("Auto scaling") {
+                    label(checkbox(PreferenceStorage.renderAutoScalingProperty))
+                }
             }
 
             dialogFormGroup("Exam mode") {

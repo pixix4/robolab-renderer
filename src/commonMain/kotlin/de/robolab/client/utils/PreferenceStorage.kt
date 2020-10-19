@@ -35,6 +35,9 @@ object PreferenceStorage : TypedStorage() {
     val renderSenderGroupingProperty = item("plotting.senderGrouping", true)
     var renderSenderGrouping by renderSenderGroupingProperty
 
+    val renderAutoScalingProperty = item("plotting.autoScaling", true)
+    var renderAutoScaling by renderAutoScalingProperty
+
 
     val selectedThemeProperty = item("ui.theme", Theme.DEFAULT)
     var selectedTheme by selectedThemeProperty

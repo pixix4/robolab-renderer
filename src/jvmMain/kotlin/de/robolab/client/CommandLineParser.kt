@@ -24,10 +24,20 @@ import java.io.File
 
 class CommandLineParser: CliktCommand(invokeWithoutSubcommand = true) {
 
+    private val layout by option("--layout", help = "Layout of the plotter (row x col)")
+    private val groups by option("--groups", help = "Init loaded groups (Separated with '+')")
+    private val connect by option("--connect").flag(default = false)
+    private val fullscreen by option("--fullscreen").flag(default = false)
+
     override fun run() {
         val subcommand = currentContext.invokedSubcommand
         if (subcommand == null) {
-            MainApp.main(arrayOf())
+            MainApp.main(arrayOf(
+                (layout ?: "").toString(),
+                (groups ?: "").toString(),
+                connect.toString(),
+                fullscreen.toString()
+            ))
         }
     }
 
