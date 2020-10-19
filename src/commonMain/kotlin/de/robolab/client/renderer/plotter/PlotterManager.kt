@@ -223,7 +223,7 @@ class PlotterManager(
         }
     }
 
-    private var requestRedraw = false
+    var requestRedraw = false
     private fun checkPointer(event: PointerEvent, updateActiveWindow: Boolean) {
         val hovered = windowList.find { event.mousePoint in it.canvas.clip }
 

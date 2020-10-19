@@ -9,6 +9,7 @@ import de.robolab.client.communication.RobolabMessageProvider
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
 import de.robolab.client.utils.MqttStorage
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.client.utils.runAfterTimeout
 import de.robolab.common.utils.ConsoleGreeter
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
@@ -88,6 +89,7 @@ class MainController(private val args: Args) {
             val groups = args.groups.split("+")
             GlobalScope.launch {
                 for ((index, groupName) in groups.withIndex()) {
+                    if (groupName.isBlank()) continue
                     val group = messageRepository.createEmptyGroup(groupName) ?: continue
                     val attempt = messageRepository.getLatestAttempt(group.groupId)
 
@@ -115,6 +117,10 @@ class MainController(private val args: Args) {
         }
         if (args.connect != null && args.connect.toBoolean()) {
             connection.connectionState.onAction()
+        }
+
+        runAfterTimeout(1000) {
+            tabController.activeTabProperty.value?.plotterManager?.requestRedraw = true
         }
     }
 
