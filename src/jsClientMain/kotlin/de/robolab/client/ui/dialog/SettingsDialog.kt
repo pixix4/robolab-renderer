@@ -193,8 +193,11 @@ class SettingsDialog private constructor(
                     selectView(PreferenceStorage.logLevelProperty, transform = { it.name.toLowerCase().capitalize() })
                 }
 
-                dialogFormEntry("Enable render debugging") {
-                    label(checkbox(PreferenceStorage.debugModeProperty))
+                dialogFormEntry("Debug render status") {
+                    label(checkbox(PreferenceStorage.debugStatusProperty))
+                }
+                dialogFormEntry("Debug render hierarchy") {
+                    label(checkbox(PreferenceStorage.debugHierarchyProperty))
                 }
 
                 button("Reset all settings") {
@@ -204,8 +207,6 @@ class SettingsDialog private constructor(
                 }
             }
         }
-
-
     }
 
     companion object {

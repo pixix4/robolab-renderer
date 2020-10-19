@@ -12,6 +12,7 @@ import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlin.math.PI
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 class PlotterManager(
     private val canvas: ICanvas,
@@ -88,9 +89,24 @@ class PlotterManager(
     val activePlotterProperty = activeWindowProperty.mapBinding { it.plotter }
     val activePlotter by activePlotterProperty
 
-    private var debugMode = PreferenceStorage.debugMode
+    private var debugStatus = PreferenceStorage.debugStatus
+    private var debugHierarchy = PreferenceStorage.debugHierarchy
+
+    private val fpsWindow = DoubleArray(FPS_WINDOW_SIZE) { 0.0 }
+    private var fps = 0.0
+    private var fpsInt = 0
+    private var index = 0
 
     fun render(msOffset: Double) {
+        if (msOffset > 0.0) {
+            val oldFps = fpsWindow[index]
+            val newFps = 1000.0 / FPS_WINDOW_SIZE / msOffset
+            fpsWindow[index++] = newFps
+            index %= FPS_WINDOW_SIZE
+            fps = fps - oldFps + newFps
+            fpsInt = fps.roundToInt()
+        }
+
         val windows = windowList
         if (requestRedraw) {
             canvas.fillRect(
@@ -105,7 +121,7 @@ class PlotterManager(
             if (windowChanged || requestRedraw) {
                 window.canvas.startClip(window.canvas.clip)
                 window.plotter.onDraw()
-                if (debugMode) {
+                if (debugHierarchy) {
                     window.plotter.onDebugDraw()
                 }
                 window.canvas.endClip()
@@ -130,45 +146,56 @@ class PlotterManager(
                         canvas.strokeLine(listOf(start, end), theme.ui.borderColor, 2.0)
                     }
                 }
+            }
 
-                val name = window.plotter.planetDocument?.nameProperty?.value?.trim()
-                if (windowList.size > 1 && name != null && name.isNotEmpty()) {
-                    val (backgroundColor, textColor) = if (window == activeWindow && highlightActiveWindow) {
-                        theme.ui.themeColor.interpolate(theme.ui.primaryBackground, 0.3) to theme.ui.themePrimaryText
-                    } else {
-                        theme.ui.tertiaryBackground to theme.ui.primaryTextColor
-                    }
-                    val radius = 10.0
-                    val width = 10.0 * name.length + 24.0
-                    val height = 28.0
-                    canvas.fillRect(
-                        Rectangle(window.canvas.clip.left, window.canvas.clip.top, width - radius, height),
-                        backgroundColor
-                    )
-                    canvas.fillRect(
-                        Rectangle(
-                            window.canvas.clip.left + width - radius - 10.0,
-                            window.canvas.clip.top,
-                            radius + 10.0,
-                            height - radius
-                        ),
-                        backgroundColor
-                    )
-                    canvas.fillArc(
-                        Point(window.canvas.clip.left + width - radius, window.canvas.clip.top + height - radius),
-                        radius,
-                        0.0,
-                        2.0 * PI,
-                        backgroundColor
-                    )
+            val name = window.plotter.planetDocument?.nameProperty?.value?.trim()
+            if ((windowChanged || requestRedraw) && windowList.size > 1 && name != null && name.isNotEmpty() || debugStatus) {
+                val lines = if (debugStatus) listOfNotNull(
+                    name,
+                    "Active: ${windowChanged || requestRedraw}",
+                    "FPS: $fpsInt"
+                ) else listOfNotNull(
+                    name
+                )
+
+                if (lines.isEmpty()) break
+
+                val (backgroundColor, textColor) = if (window == activeWindow && highlightActiveWindow) {
+                    theme.ui.themeColor.interpolate(theme.ui.primaryBackground, 0.3) to theme.ui.themePrimaryText
+                } else {
+                    theme.ui.tertiaryBackground to theme.ui.primaryTextColor
+                }
+                val radius = 10.0
+                val width = 10.0 * (lines.map { it.length }.maxOrNull() ?: 0) + 24.0
+                val height = 18.0 * lines.size + 10.0
+                canvas.fillRect(
+                    Rectangle(window.canvas.clip.left, window.canvas.clip.top, width - radius, height),
+                    backgroundColor
+                )
+                canvas.fillRect(
+                    Rectangle(
+                        window.canvas.clip.left + width - radius - 10.0,
+                        window.canvas.clip.top,
+                        radius + 10.0,
+                        height - radius
+                    ),
+                    backgroundColor
+                )
+                canvas.fillArc(
+                    Point(window.canvas.clip.left + width - radius, window.canvas.clip.top + height - radius),
+                    radius,
+                    0.0,
+                    2.0 * PI,
+                    backgroundColor
+                )
+                for ((i, l) in lines.withIndex())
                     canvas.fillText(
-                        name,
-                        window.canvas.clip.topLeft + Point(12.0, 14.0),
+                        l,
+                        window.canvas.clip.topLeft + Point(12.0, 14.0 + 16.0 * i),
                         textColor,
                         fontSize = 16.0,
                         fontWeight = ICanvas.FontWeight.BOLD
                     )
-                }
             }
         }
         requestRedraw = false
@@ -409,10 +436,19 @@ class PlotterManager(
             requestRedraw = true
         }
 
-        PreferenceStorage.debugModeProperty.onChange {
-            debugMode = PreferenceStorage.debugMode
+        PreferenceStorage.debugStatusProperty.onChange {
+            debugStatus = PreferenceStorage.debugStatus
 
-            if (debugMode) {
+            if (debugStatus) {
+                activeWindow.plotter.debug()
+            }
+
+            requestRedraw = true
+        }
+        PreferenceStorage.debugHierarchyProperty.onChange {
+            debugHierarchy = PreferenceStorage.debugHierarchy
+
+            if (debugHierarchy) {
                 activeWindow.plotter.debug()
             }
 
@@ -567,6 +603,10 @@ class PlotterManager(
                 activeWindow.canvas.transformListener.onKeyRelease(event)
             }
         })
+    }
+
+    companion object {
+        private const val FPS_WINDOW_SIZE: Int = 60
     }
 }
 

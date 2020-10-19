@@ -270,8 +270,11 @@ class SettingsDialog : GenericDialog() {
                         }
                     }
 
-                    field("Enable render debugging") {
-                        checkbox("", PreferenceStorage.debugModeProperty.toFx())
+                    field("Debug render status") {
+                        checkbox("", PreferenceStorage.debugStatusProperty.toFx())
+                    }
+                    field("Debug render hierarchy") {
+                        checkbox("", PreferenceStorage.debugHierarchyProperty.toFx())
                     }
                     field("Reset all settings") {
                         button("Reset") {

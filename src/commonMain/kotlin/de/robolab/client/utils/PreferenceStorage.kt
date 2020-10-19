@@ -11,16 +11,19 @@ import kotlin.random.Random
 
 object PreferenceStorage : TypedStorage() {
 
-
     val firstStartProperty = item("firstStart", true)
     var firstStart by firstStartProperty
 
 
-    val debugModeProperty = item("debugMode", false)
-    var debugMode by debugModeProperty
-
     val logLevelProperty = item("logLevel", Logger.Level.WARN)
     val logLevel by logLevelProperty
+
+
+    val debugStatusProperty = item("renderer.debugStatus", false)
+    var debugStatus by debugStatusProperty
+
+    val debugHierarchyProperty = item("renderer.debugHierarchy", false)
+    var debugHierarchy by debugHierarchyProperty
 
 
     val exportScaleProperty = item("plotting.exportScale", 4.0)

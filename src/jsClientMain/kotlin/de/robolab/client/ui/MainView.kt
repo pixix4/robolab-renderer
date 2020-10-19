@@ -21,7 +21,7 @@ import org.w3c.dom.HTMLElement
 
 fun main() {
 
-    val debugView = if (PreferenceStorage.debugMode || window.location.search.contains("debug", true)) {
+    val debugView = if (PreferenceStorage.debugStatus || window.location.search.contains("debug", true)) {
         createDebugView().also {
             document.body?.appendChild(it.html)
         }
