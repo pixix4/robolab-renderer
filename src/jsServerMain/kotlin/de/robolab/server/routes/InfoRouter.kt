@@ -8,6 +8,7 @@ import de.robolab.common.net.MIMEType
 import de.robolab.common.utils.BuildInformation
 import de.robolab.common.utils.encode
 import de.robolab.server.auth.User
+import de.robolab.server.auth.requireTutor
 import de.robolab.server.config.Config
 import de.robolab.server.config.getLargeExamPlanetInfo
 import de.robolab.server.config.getSmallExamPlanetInfo
@@ -24,7 +25,8 @@ object InfoRouter {
     val router: DefaultRouter = createRouter()
 
     init {
-        router.getSuspend("/exam") { _, res ->
+        router.getSuspend("/exam") { req, res ->
+            req.user.requireTutor()
             val result: JsonObject = buildJsonObject {
                 put("isExam", Config.Info.examEnabled)
                 if (Config.Info.examEnabled) {
@@ -36,7 +38,8 @@ object InfoRouter {
             res.status(200).send(result.toString())
         }
 
-        router.getSuspend("/flushdbyesreallyiknowwhatimdoing"){ _, res->
+        router.getSuspend("/flushdbyesreallyiknowwhatimdoing"){ req, res->
+            req.user.requireTutor()
             res.setHeader("content-type","text/plain")
             val response = PlanetRouter.clearMeta()
             res.status(if(response.first) HttpStatusCode.Ok else HttpStatusCode.InternalServerError).send(response.second)

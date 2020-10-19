@@ -8,6 +8,7 @@ import de.robolab.common.net.MIMEType
 import de.robolab.server.config.Config
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.utils.map
+import de.robolab.server.auth.requireTutor
 import de.robolab.server.net.RESTResponseCodeException
 import de.robolab.server.data.*
 import de.robolab.server.externaljs.*
@@ -49,6 +50,7 @@ object PlanetRouter {
             res.sendClientInfos(infos)
         }
         router.postSuspend("/") { req, res ->
+            req.user.requireTutor()
             val lines: List<String>? =
                 if (req.body == null || req.body == undefined) null else when (req.mimeType) {
                     MIMEType.PlainText -> (req.body as? String)?.split("""\r?\n""".toRegex())
@@ -76,6 +78,7 @@ object PlanetRouter {
             }
 
             planetRouter.putSuspend("/") { req, res ->
+                req.user.requireTutor()
                 val planet: SPlanet = req.localData.assertPlanetFound()
                 val planetContent: String =
                     when (req.mimeType) {
@@ -119,6 +122,7 @@ object PlanetRouter {
             }
 
             planetRouter.deleteSuspend("/") { req, res ->
+                req.user.requireTutor()
                 val id = req.localData.requestedID
                 val removedPlanet = planetStore.remove(id) ?: req.localData.throwIDNotFound()
                 res.sendPlanet(removedPlanet)

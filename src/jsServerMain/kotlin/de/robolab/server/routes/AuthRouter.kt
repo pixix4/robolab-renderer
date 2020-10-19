@@ -112,8 +112,9 @@ window.close();
 
     fun userLookupMiddleware(req: Request<*>, res: Response<*>, next: (NodeError?) -> Unit) {
         var authHeaderValue: String? = req.headers[AuthorizationHeader.name] as? String
+        val authCookie = req.cookies?.robolab_auth as? String
+        val actualHeaderPresent: Boolean = authHeaderValue != null
         if (authHeaderValue == null) {
-            val authCookie = req.cookies?.robolab_auth as? String
             if (authCookie == null) {
                 req.user = User.Anonymous
                 res.setHeader("robolab-user", req.user.internalName)
@@ -122,8 +123,27 @@ window.close();
                 authHeaderValue = "Bearer $authCookie"
             }
         }
-        val authHeader: AuthorizationHeader = AuthorizationHeader.parse(authHeaderValue)
+        var authHeader: AuthorizationHeader = AuthorizationHeader.parse(authHeaderValue)
         if (authHeader !is AuthorizationHeader.Bearer) {
+            if(actualHeaderPresent){
+                if (authCookie == null) {
+                    req.user = User.Anonymous
+                    res.setHeader("robolab-user", req.user.internalName)
+                    return next(null)
+                } else {
+                    authHeaderValue = "Bearer $authCookie"
+                    authHeader = AuthorizationHeader.parse(authHeaderValue)
+                    if(authHeader !is AuthorizationHeader.Bearer){ //TODO: fall-through into BEARER-Schema-Requirement again
+                        req.user = User.Anonymous
+                        res.setHeader("robolab-user",req.user.internalName)
+                        return next(null)
+                    }
+                }
+            }else{ //TODO: fall-through into BEARER-Schema-Requirement again
+                req.user = User.Anonymous
+                res.setHeader("robolab-user",req.user.internalName)
+                return next(null)
+            }
             res.setHeader("robolab-error", "Authorization requires the \"Bearer\"-Schema")
             res.sendStatus(HttpStatusCode.Unauthorized)
             return
