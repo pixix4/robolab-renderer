@@ -1,6 +1,8 @@
 package de.robolab.client.renderer.plotter
 
 import de.robolab.client.app.model.base.IPlanetDocument
+import de.robolab.client.app.model.group.AbstractGroupAttemptPlanetDocument
+import de.robolab.client.app.model.group.getDuration
 import de.robolab.client.renderer.canvas.ClippingCanvas
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.ICanvasListener
@@ -148,8 +150,20 @@ class PlotterManager(
                 }
             }
 
-            val name = window.plotter.planetDocument?.nameProperty?.value?.trim()
-            if ((windowChanged || requestRedraw) && windowList.size > 1 && name != null && name.isNotEmpty() || debugStatus) {
+            val planetDocument = window.plotter.planetDocument
+            var name = window.plotter.planetDocument?.nameProperty?.value?.trim() ?: ""
+
+            if (planetDocument != null && planetDocument is AbstractGroupAttemptPlanetDocument) {
+                val extra = listOfNotNull(
+                    planetDocument.planetNameProperty.value.let { if (it.isEmpty()) null else it },
+                    planetDocument.duration.let { if (it.isEmpty()) null else it },
+                )
+                if (extra.isNotEmpty()) {
+                    name += " " + extra.joinToString(", ", "(", ")")
+                }
+            }
+
+            if ((windowChanged || requestRedraw) && windowList.size > 1 && name.isNotBlank() && name.isNotEmpty() || debugStatus) {
                 val lines = if (debugStatus) listOfNotNull(
                     name,
                     "Active: ${windowChanged || requestRedraw}",

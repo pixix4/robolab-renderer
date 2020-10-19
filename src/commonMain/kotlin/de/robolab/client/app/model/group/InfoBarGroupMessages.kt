@@ -86,12 +86,7 @@ class InfoBarGroupMessages(
     }
 
     val attemptDurationStringProperty = messages.mapBinding { list ->
-        val first = list.firstOrNull()?.metadata?.time ?: return@mapBinding ""
-        val last = list.lastOrNull()?.metadata?.time ?: return@mapBinding ""
-        val diff = last - first
-
-        val roundedSeconds = (diff / 1000.0).roundToInt()
-        "${roundedSeconds / 60}:${(roundedSeconds % 60).toString().padStart(2, '0')}"
+        list.getDuration()
     }
 
     val headerProperty = robolabMessageProperty.mapBinding {
@@ -223,4 +218,13 @@ class InfoBarGroupMessages(
             return builder.toString()
         }
     }
+}
+
+fun Collection<RobolabMessage>.getDuration(): String {
+    val first = firstOrNull()?.metadata?.time ?: return ""
+    val last = lastOrNull()?.metadata?.time ?: return ""
+    val diff = last - first
+
+    val roundedSeconds = (diff / 1000.0).roundToInt()
+    return "${roundedSeconds / 60}:${(roundedSeconds % 60).toString().padStart(2, '0')}"
 }

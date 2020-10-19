@@ -35,8 +35,8 @@ class CommandLineParser: CliktCommand(invokeWithoutSubcommand = true) {
             MainApp.main(arrayOf(
                 (layout ?: "").toString(),
                 (groups ?: "").toString(),
-                connect.toString(),
-                fullscreen.toString()
+                fullscreen.toString(),
+                connect.toString()
             ))
         }
     }

@@ -18,7 +18,9 @@ abstract class AbstractGroupAttemptPlanetDocument : IPlanetDocument {
 
     abstract val attempt: Attempt
 
-    protected val messages = observableListOf<RobolabMessage>()
+    val messages = observableListOf<RobolabMessage>()
+
+    var duration = ""
 
     val selectedIndexProperty = property(messages.lastIndex)
 
@@ -78,4 +80,10 @@ abstract class AbstractGroupAttemptPlanetDocument : IPlanetDocument {
     }
 
     abstract val isAttached: Boolean
+
+    init {
+        messages.onChange {
+            duration = messages.getDuration()
+        }
+    }
 }
