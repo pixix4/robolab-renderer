@@ -15,14 +15,13 @@ class InfoBarRoomRobotsView(
     private val uiController: UiController
 ) : ViewCollection<View>() {
 
-    private lateinit var box: BoxView
 
-    private fun update() {
+    private fun update(box: BoxView) {
         box.clear()
 
         val list = content.groupStateList.value
         for (state in list) {
-            boxView {
+            box.boxView {
                 textView(state.attempt.groupName)
                 textView(state.description())
             }
@@ -36,10 +35,10 @@ class InfoBarRoomRobotsView(
                     updateScrollBox()
                 }
             }
-            box = resizeBox(1.0) {
-                update()
+            resizeBox(1.0) {
+                update(this)
                 content.groupStateList.onChange {
-                    update()
+                    update(this)
                 }
             }
         }
