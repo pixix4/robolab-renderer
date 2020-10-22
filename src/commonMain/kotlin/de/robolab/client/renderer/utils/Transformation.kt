@@ -48,6 +48,24 @@ class Transformation(
 
     private var hasChanges = false
 
+    override fun canvasToPlanet(canvasCoordinate: Point): Point {
+        return super.canvasToPlanet(
+            canvasCoordinate,
+            translationProperty.targetValue,
+            scaleProperty.targetValue,
+            rotationProperty.targetValue
+        )
+    }
+
+    override fun planetToCanvas(planetCoordinate: Point): Point {
+        return super.planetToCanvas(
+            planetCoordinate,
+            translationProperty.targetValue,
+            scaleProperty.targetValue,
+            rotationProperty.targetValue
+        )
+    }
+
     fun translateBy(point: Point, duration: Double = 0.0) {
         translateTo(translationProperty.targetValue + point, duration)
     }
@@ -95,7 +113,7 @@ class Transformation(
         scaleProperty.animate(max(min(scale, 10.0), 0.1), duration)
         val newCenter = planetToCanvas(planetPoint)
 
-        translateBy(scaleCenter - newCenter)
+        translateBy(scaleCenter - newCenter, duration)
     }
 
     private fun scaleDirected(direction: Int, center: Point, duration: Double = 0.0) {

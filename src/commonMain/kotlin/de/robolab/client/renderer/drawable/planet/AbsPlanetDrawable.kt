@@ -23,10 +23,7 @@ import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
-import kotlin.math.PI
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.round
+import kotlin.math.*
 
 @Suppress("LeakingThis")
 abstract class AbsPlanetDrawable(
@@ -132,15 +129,27 @@ abstract class AbsPlanetDrawable(
         val size = window / Point(2.0, -2.0) * Point(if (flipView) -1.0 else 1.0, 1.0)
         val point = (targetCenter * transformation.scaledGridWidth - size) * Point(if (flipView) 1.0 else -1.0, 1.0)
 
-        transformation.translateTo(point, duration)
-
         if (PreferenceStorage.renderAutoScaling && paper.width > 0 && paper.height > 0) {
-            transformation.scaleTo(
-                min(
-                    window.width / (paper.width * transformation.gridWidth),
-                    window.height / (paper.height * transformation.gridWidth),
-                ), window / 2
+            val scaleToFactor = min(
+                window.width / (paper.width * transformation.gridWidth),
+                window.height / (paper.height * transformation.gridWidth),
             )
+            val scaleByFactor = scaleToFactor / transformation.scale
+            if (abs(scaleByFactor - 1) > 1e-5) {
+                val windowCenter = window / 2
+                val targetWindowCenter = transformation.planetToCanvas(targetCenter)
+                val rawDiffVector = (targetWindowCenter - windowCenter)
+                val multipliedDiffVector = rawDiffVector * (1.0 + (1.0 / (scaleByFactor - 1.0)))
+                val zoomPoint = multipliedDiffVector + windowCenter
+                transformation.scaleBy(
+                    scaleByFactor, zoomPoint, duration
+                )
+            } else {
+                transformation.scaleBy(scaleByFactor, point, duration)
+                transformation.translateTo(point, duration)
+            }
+        } else {
+            transformation.translateTo(point, duration)
         }
     }
 
