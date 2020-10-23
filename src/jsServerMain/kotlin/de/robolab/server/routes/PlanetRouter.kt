@@ -22,7 +22,7 @@ object PlanetRouter {
     val router: DefaultRouter = createRouter()
     val planetStore: IPlanetStore = FilePlanetStore(
         Config.Planets.directory,
-        RedisPlanetMetaStore(Config.Planets.database)
+        RedisPlanetMetaStore(Config.Planets.database, Config.Planets.connectionName)
     )
     val defaultIDRouter: PlanetIDRouter = PlanetIDRouter(planetStore)
 

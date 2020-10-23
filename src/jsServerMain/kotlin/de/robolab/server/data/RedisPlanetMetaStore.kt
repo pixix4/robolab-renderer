@@ -2,12 +2,13 @@ package de.robolab.server.data
 
 import com.soywiz.klock.DateTime
 import de.robolab.common.planet.ServerPlanetInfo
+import de.robolab.server.externaljs.dynamicOfDefined
 import de.robolab.server.externaljs.ioredis.*
 import de.robolab.server.externaljs.toList
 import de.robolab.server.jsutils.jsTruthy
 import kotlinx.coroutines.await
 
-class RedisPlanetMetaStore(connectionString: String) : IPlanetMetaStore {
+class RedisPlanetMetaStore(connectionString: String, connectionName: String = "") : IPlanetMetaStore {
 
     private companion object {
         private fun planetNameKey(id: String) = "planet:name@$id"
@@ -16,7 +17,10 @@ class RedisPlanetMetaStore(connectionString: String) : IPlanetMetaStore {
         private fun planetTagKey(id: String, tag: String) = "planet:tag:$tag@$id"
     }
 
-    private val redis: Redis = createRedis(connectionString)
+    private val redis: Redis = createRedis(
+        connectionString,
+        options = dynamicOfDefined("connectionName" to if (connectionName.isEmpty()) undefined else connectionName)
+    )
 
     private suspend fun setTag(id: String, tagName: String, tagValues: List<String>) {
         redis.del(planetTagKey(id, tagName)).await()

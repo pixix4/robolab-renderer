@@ -40,6 +40,9 @@ object Config : TypedStorage() {
 
         //Connection string used to connect to the redis database for planet information (ID to name, locations, etc.)
         val database by item("planets.database", "redis://127.0.0.1:6379/4")
+
+        //Name to set using "CLIENT SETNAME" when connecting to the redis database
+        val connectionName by item("planets.connectionName", "")
     }
 
     //--------INFO--------
