@@ -5,6 +5,7 @@ import de.robolab.client.app.model.file.provider.*
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.requests.getExamInfo
 import de.robolab.client.net.requests.getVersion
+import de.robolab.client.net.requests.whoami
 import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.subscribe
@@ -39,6 +40,7 @@ class FileNavigationRoot(
         }
 
     val remoteServerVersionProperty = property("")
+    val remoteServerAuthenticationProperty = property("")
 
     val fileLoaderProperty = PreferenceStorage
         .remoteFilesProperty.join(remotePlanetLoader) { list, remote ->
@@ -100,12 +102,14 @@ class FileNavigationRoot(
             GlobalScope.launch {
                 withContext(Dispatchers.Main) {
                     remoteServerVersionProperty.value = ""
+                    remoteServerAuthenticationProperty.value = ""
                 }
             }
         } else {
             GlobalScope.launch {
                 withContext(Dispatchers.Main) {
                     remoteServerVersionProperty.value = "Loading…"
+                    remoteServerAuthenticationProperty.value = "Loading…"
                 }
                 try {
                     val version = server.getVersion().okOrThrow().version
@@ -115,6 +119,17 @@ class FileNavigationRoot(
                 } catch (e: Throwable) {
                     withContext(Dispatchers.Main) {
                         remoteServerVersionProperty.value = "Cannot find server!"
+                    }
+                }
+
+                try {
+                    val version = server.whoami().okOrThrow().accessLevelName
+                    withContext(Dispatchers.Main) {
+                        remoteServerAuthenticationProperty.value = version
+                    }
+                } catch (e: Throwable) {
+                    withContext(Dispatchers.Main) {
+                        remoteServerAuthenticationProperty.value = "Cannot find server!"
                     }
                 }
             }

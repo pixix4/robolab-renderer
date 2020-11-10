@@ -27,8 +27,10 @@ class SettingsDialog : GenericDialog() {
 
     private val requestAuthToken: () -> Unit by param()
     private val serverVersionProperty: ObservableValue<String> by param()
+    private val serverAuthenticationProperty: ObservableValue<String> by param()
 
     private val serverVersionPropertyCopy = SimpleStringProperty("")
+    private val serverAuthenticationPropertyCopy = SimpleStringProperty("")
 
     init {
         tab("General") {
@@ -127,13 +129,20 @@ class SettingsDialog : GenericDialog() {
                     field("Server uri") {
                         textfield(PreferenceStorage.remoteServerUrlProperty.toFx())
                     }
-                    field(forceLabelIndent = true) {
-                        label(serverVersionPropertyCopy)
+                    field("Server version") {
+                        textfield(serverVersionPropertyCopy) {
+                            isEditable = false
+                        }
                     }
-                    field(forceLabelIndent = true) {
-                        button("Request access token") {
-                            setOnAction {
-                                requestAuthToken()
+                    field("Server authentication") {
+                        buttonGroup(true) {
+                            textfield(serverAuthenticationPropertyCopy) {
+                                isEditable = false
+                            }
+                            button("Authenticate") {
+                                setOnAction {
+                                    requestAuthToken()
+                                }
                             }
                         }
                     }
@@ -305,15 +314,25 @@ class SettingsDialog : GenericDialog() {
         serverVersionProperty.onChange {
             serverVersionPropertyCopy.value = serverVersionProperty.value
         }
+
+        serverAuthenticationPropertyCopy.value = serverAuthenticationProperty.value
+        serverAuthenticationProperty.onChange {
+            serverAuthenticationPropertyCopy.value = serverAuthenticationProperty.value
+        }
     }
 
     override val root = buildContent("Settings")
 
     companion object {
-        fun open(serverVersionProperty: ObservableValue<String>, requestAuthToken: () -> Unit) {
+        fun open(
+            serverVersionProperty: ObservableValue<String>,
+            serverAuthenticationProperty: ObservableValue<String>,
+            requestAuthToken: () -> Unit
+        ) {
             open<SettingsDialog>(
                 "requestAuthToken" to requestAuthToken,
-                "serverVersionProperty" to serverVersionProperty
+                "serverVersionProperty" to serverVersionProperty,
+                "serverAuthenticationProperty" to serverAuthenticationProperty,
             )
         }
     }

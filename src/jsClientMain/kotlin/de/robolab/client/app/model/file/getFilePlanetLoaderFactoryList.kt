@@ -1,7 +1,6 @@
 package de.robolab.client.app.model.file
 
 import de.robolab.client.app.model.file.provider.IFilePlanetLoaderFactory
-import de.robolab.client.app.model.file.provider.LocalWebPlanetLoader
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.ui.dialog.TokenDialog
 import kotlinx.coroutines.CompletableDeferred
@@ -9,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 actual fun getFilePlanetLoaderFactoryList(): List<IFilePlanetLoaderFactory> {
-    return listOf(LocalWebPlanetLoader)
+    return listOf()
 }
 
 /**

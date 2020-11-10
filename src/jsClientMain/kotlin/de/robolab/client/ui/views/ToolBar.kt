@@ -90,7 +90,8 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
 
                     onClick {
                         SettingsDialog.open(
-                            toolBarController.fileNavigationRoot.remoteServerVersionProperty
+                            toolBarController.fileNavigationRoot.remoteServerVersionProperty,
+                            toolBarController.fileNavigationRoot.remoteServerAuthenticationProperty,
                         ) {
                             val server = toolBarController.fileNavigationRoot.remoteServer
                             if (server != null) {

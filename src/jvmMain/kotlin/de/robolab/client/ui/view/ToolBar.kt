@@ -99,7 +99,8 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
 
                             setOnAction {
                                 SettingsDialog.open(
-                                    toolBarController.fileNavigationRoot.remoteServerVersionProperty
+                                    toolBarController.fileNavigationRoot.remoteServerVersionProperty,
+                                    toolBarController.fileNavigationRoot.remoteServerAuthenticationProperty
                                 ) {
                                     val server = toolBarController.fileNavigationRoot.remoteServer
                                     if (server != null) {

@@ -1,12 +1,10 @@
 package de.robolab.client.ui.dialog
 
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.client.app.model.file.FileNavigationRoot
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.BuildInformation
 import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.event.now
 import de.westermann.kobserve.not
 import de.westermann.kobserve.or
 import de.westermann.kobserve.property.mapBinding
@@ -15,7 +13,8 @@ import kotlinx.browser.window
 
 class SettingsDialog private constructor(
     private val requestAuthToken: () -> Unit,
-    private val serverVersionProperty: ObservableValue<String>
+    private val serverVersionProperty: ObservableValue<String>,
+    private val serverAuthenticationProperty: ObservableValue<String>,
 ): Dialog("Settings") {
 
 
@@ -99,64 +98,32 @@ class SettingsDialog private constructor(
                     inputView(PreferenceStorage.remoteServerUrlProperty)
                     button {
                         iconView(MaterialIcon.SETTINGS_BACKUP_RESTORE)
+                        title = "Restore default uri"
                         onClick {
                             PreferenceStorage.remoteServerUrl = window.location.href
                         }
                     }
                 }
-                textView(serverVersionProperty)
-                button("Request access token") {
-                    onClick {
-                        requestAuthToken()
+
+                dialogFormEntry("Server version") {
+                    inputView(serverVersionProperty) {
+                        readonly = true
+                    }
+                }
+                dialogFormEntry("Server authentication") {
+                    classList += "button-group"
+                    classList += "button-form-group"
+                    inputView(serverAuthenticationProperty) {
+                        readonly = true
+                    }
+                    button("Authenticate") {
+                        onClick {
+                            requestAuthToken()
+                        }
                     }
                 }
             }
 
-            dialogFormGroup("Local file sources") {
-                title = FileNavigationRoot.loaderFactoryList.joinToString("\n") { it.usage }
-                boxView {
-                    PreferenceStorage.remoteFilesProperty.onChange.now {
-                        clear()
-                        val textFields = mutableListOf<InputView>()
-
-                        fun save() {
-                            PreferenceStorage.remoteFiles =
-                                textFields.map { it.value.trim() }.filter { it.isNotEmpty() }
-                        }
-
-                        for (connection in PreferenceStorage.remoteFiles) {
-                            dialogFormEntry("") {
-                                classList += "button-group"
-                                classList += "button-form-group"
-                                val t = inputView(connection) {
-                                    onKeyUp {
-                                        save()
-                                    }
-                                }
-                                textFields += t
-                                button {
-                                    iconView(MaterialIcon.DELETE)
-                                    onClick {
-                                        t.value = ""
-                                        save()
-                                    }
-                                }
-                            }
-                        }
-                        dialogFormEntry("") {
-                            classList += "button-group"
-                            classList += "button-form-group"
-                            textFields += inputView("")
-                            button {
-                                iconView(MaterialIcon.ADD)
-                                onClick {
-                                    save()
-                                }
-                            }
-                        }
-                    }
-                }
-            }
             dialogFormGroup("MQTT") {
                 dialogFormEntry("Server uri") {
                     inputView(PreferenceStorage.serverUriProperty)
@@ -213,8 +180,12 @@ class SettingsDialog private constructor(
     }
 
     companion object {
-        fun open(serverVersionProperty: ObservableValue<String>, requestAuthToken: () -> Unit) {
-            open(SettingsDialog(requestAuthToken, serverVersionProperty))
+        fun open(
+            serverVersionProperty: ObservableValue<String>,
+            serverAuthenticationProperty: ObservableValue<String>,
+            requestAuthToken: () -> Unit
+        ) {
+            open(SettingsDialog(requestAuthToken, serverVersionProperty, serverAuthenticationProperty))
         }
     }
 }
