@@ -1052,7 +1052,7 @@ private fun handlePromiseError(err: Throwable, res: AnyResponse) {
         console.error(err)
     if (!res.headersSent) {
         if (errorMime != null) {
-            res.setHeader(ContentTypeHeader.name, errorMime)
+            res.setHeader(ContentTypeHeader.name, errorMime.primaryName)
         }
         if (errorMessage != null) {
             res.setHeader("robolab-error", errorMessage)
