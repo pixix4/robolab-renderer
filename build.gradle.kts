@@ -177,6 +177,7 @@ kotlin {
                 implementation(npm("body-parser","1.19.0"))
                 implementation(npm("jsonwebtoken","8.5.1"))
                 implementation(npm("cookie-parser","1.4.5"))
+                implementation(npm("pg","8.5.0"))
             }
         }
         val jsServerTest by getting {

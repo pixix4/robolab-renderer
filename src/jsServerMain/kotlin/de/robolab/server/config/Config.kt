@@ -73,6 +73,9 @@ object Config : TypedStorage() {
         //Password for the Tutor-MQTT login
         val tutorPassword by item("mqtt.tutorPassword","password")
 
+        //Connection string used to connect to the postgres database for mqtt information
+        val database by item("mqtt.database","postgresql://mothership.inf.tu-dresden.de/robolab")
+
         //Mothership URLs for Websockets and SSL
         val mothershipURLWSS by item("mqtt.mothershipURLWSS", "wss://mothership.inf.tu-dresden.de:9002/mqtt")
         val mothershipURLSSL by item("mqtt.mothershipURLSSL", "ssl://mothership.inf.tu-dresden.de:8883")
