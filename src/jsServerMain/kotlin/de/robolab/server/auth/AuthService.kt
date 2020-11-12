@@ -36,7 +36,11 @@ class AuthService(val random: Random = Random, val shareCodeTimeout:TimeSpan=Tim
     fun obtainUser(header: AuthorizationHeader.Bearer): User? {
         val token: JSONWebToken
         try {
-            token = header.parseJWT(Config.Auth.tokenPublicKey, listOf(Config.Auth.tokenAlgorithm), "robolab-renderer")
+            token = header.parseJWT(
+                Config.Auth.tokenPublicKey,
+                listOf(Config.Auth.tokenAlgorithm),
+                issuer = Config.Auth.tokenIssuer
+            )
         } catch (ex: dynamic) {
             if (ex.name != "JsonWebTokenError" && ex.name != "TokenExpiredError")
                 throw ex as Throwable

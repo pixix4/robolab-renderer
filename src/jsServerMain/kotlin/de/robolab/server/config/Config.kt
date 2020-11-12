@@ -113,6 +113,15 @@ object Config : TypedStorage() {
 
         //Private key to use for verification of JWTs
         val tokenPrivateKey by item("auth.tokenPrivateKey", "")
+
+        //Token issuer used for verification and new tokens
+        val tokenIssuer by item("auth.tokenIssuer", "robolab-renderer")
+
+        //How long the tokens should last before expiring
+        val tokenExpiration by item("auth.tokenExpiration", "6h")
+
+        //The time required to pass before the token is valid
+        val tokenNotBefore by item("auth.tokenNotBefore", "5ms")
     }
 }
 

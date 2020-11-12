@@ -96,19 +96,23 @@ class JSONWebToken internal constructor(val dynamic: dynamic, val rawToken: Stri
             payload: dynamic,
             privateKey: String,
             algorithm: String,
-            subject: String?=undefined,
-            issuer: String = "robolab-renderer",
-            expiresIn:String? = "6h",
-            notBefore:String? = "2s"
+            subject: String? = undefined,
+            issuer: String = Config.Auth.tokenIssuer,
+            expiresIn: String? = Config.Auth.tokenExpiration,
+            notBefore: String? = Config.Auth.tokenNotBefore
         ): JSONWebToken {
-            return JSONWebToken(payload, jwtSign(payload,
-            privateKey,
-            algorithm,
-            expiresIn,
-            notBefore,
-            issuer=issuer,
-            subject = subject
-            ))
+
+            return JSONWebToken(
+                payload, jwtSign(
+                    payload,
+                    privateKey,
+                    algorithm,
+                    expiresIn,
+                    notBefore,
+                    issuer = issuer,
+                    subject = subject
+                )
+            )
         }
     }
 }
