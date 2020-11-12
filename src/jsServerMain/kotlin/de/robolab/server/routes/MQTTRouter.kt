@@ -17,7 +17,7 @@ import de.robolab.server.routes.MQTTRouter.requireAccessForMQTTUsername
 object MQTTRouter {
 
     val User.defaultMQTTUsername: String
-        get() = if (hasTutorAccess) "tutor" else this.internalName
+        get() = if (hasTutorAccess) "tutor" else "RANDOM CONSTANT NAME WHICH IS NOT A VALID GROUP-ID"
 
     fun User.requireAccessForMQTTUsername(username: String) {
         if (username != defaultMQTTUsername)
