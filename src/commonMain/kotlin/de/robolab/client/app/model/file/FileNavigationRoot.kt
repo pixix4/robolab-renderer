@@ -7,6 +7,7 @@ import de.robolab.client.net.requests.getExamInfo
 import de.robolab.client.net.requests.getVersion
 import de.robolab.client.net.requests.whoami
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.common.net.headers.AuthorizationHeader
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.subscribe
@@ -30,7 +31,7 @@ class FileNavigationRoot(
 
     private val remotePlanetLoader: ObservableValue<RemoteFilePlanetLoader?> =
         PreferenceStorage.remoteServerUrlProperty.mapBinding {
-            if (it.isBlank()) {
+            val loader = if (it.isBlank()) {
                 null
             } else {
                 if (it.startsWith("https")) {
@@ -39,6 +40,16 @@ class FileNavigationRoot(
                     RemoteFilePlanetLoader.HttpFactory.create(it)
                 } as? RemoteFilePlanetLoader
             }
+
+            if (PreferenceStorage.authenticationToken.isNotEmpty()) {
+                try {
+                    loader?.server?.authHeader = AuthorizationHeader.Bearer(PreferenceStorage.authenticationToken)
+                } catch (e: Exception) {
+                    logger.e(e.stackTraceToString())
+                }
+            }
+
+            loader
         }
 
     val remoteServerVersionProperty = property("")

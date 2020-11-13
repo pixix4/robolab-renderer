@@ -67,6 +67,9 @@ object PreferenceStorage : TypedStorage() {
     val passwordProperty = item("communication.password", "")
     var password by passwordProperty
 
+    val authenticationTokenProperty = item("authentication.token", "")
+    var authenticationToken by authenticationTokenProperty
+
     val logUriProperty =
         item("communication.logUri", "https://mothership.inf.tu-dresden.de/logs/mqtt/latest/?count=100")
     var logUri by logUriProperty

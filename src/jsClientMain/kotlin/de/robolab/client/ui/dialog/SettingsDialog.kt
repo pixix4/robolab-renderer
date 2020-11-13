@@ -13,6 +13,7 @@ import kotlinx.browser.window
 
 class SettingsDialog private constructor(
     private val requestAuthToken: () -> Unit,
+    private val loadMqttSettings: () -> Unit,
     private val serverVersionProperty: ObservableValue<String>,
     private val serverAuthenticationProperty: ObservableValue<String>,
 ): Dialog("Settings") {
@@ -125,6 +126,13 @@ class SettingsDialog private constructor(
             }
 
             dialogFormGroup("MQTT") {
+                dialogFormEntry("") {
+                    button("Load remote config") {
+                        onClick {
+                            loadMqttSettings()
+                        }
+                    }
+                }
                 dialogFormEntry("Server uri") {
                     inputView(PreferenceStorage.serverUriProperty)
                 }
@@ -183,9 +191,10 @@ class SettingsDialog private constructor(
         fun open(
             serverVersionProperty: ObservableValue<String>,
             serverAuthenticationProperty: ObservableValue<String>,
-            requestAuthToken: () -> Unit
+            requestAuthToken: () -> Unit,
+            loadMqttSettings: () -> Unit,
         ) {
-            open(SettingsDialog(requestAuthToken, serverVersionProperty, serverAuthenticationProperty))
+            open(SettingsDialog(requestAuthToken, loadMqttSettings, serverVersionProperty, serverAuthenticationProperty))
         }
     }
 }

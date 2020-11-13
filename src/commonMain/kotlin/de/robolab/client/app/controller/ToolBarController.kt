@@ -2,11 +2,19 @@ package de.robolab.client.app.controller
 
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.app.model.file.FileNavigationRoot
+import de.robolab.client.net.requests.GetMQTTURLs
+import de.robolab.client.net.requests.getMQTTCredentials
+import de.robolab.client.net.requests.getMQTTURLs
+import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 class ToolBarController(
@@ -23,6 +31,30 @@ class ToolBarController(
         fullscreenProperty.value = !fullscreenProperty.value
     }
 
+    fun requestAuthToken() {
+        val server = fileNavigationRoot.remoteServer
+        if (server != null) {
+            GlobalScope.launch {
+                de.robolab.client.app.model.file.requestAuthToken(server, false)
+            }
+        }
+    }
+
+    fun loadMqttSettings(selectUri: (GetMQTTURLs.MQTTURLsResponse) -> String) {
+        val server = fileNavigationRoot.remoteServer
+        if (server != null) {
+            GlobalScope.launch {
+                val credentials = server.getMQTTCredentials().okOrNull() ?: return@launch
+                val urls = server.getMQTTURLs().okOrNull() ?: return@launch
+
+                withContext(Dispatchers.Main) {
+                    PreferenceStorage.serverUri = selectUri(urls)
+                    PreferenceStorage.username = credentials.credentials.username
+                    PreferenceStorage.password = credentials.credentials.password
+                }
+            }
+        }
+    }
 
     val leftActionListProperty = activeDocumentProperty
         .nullableFlatMapBinding { it?.toolBarLeft ?: constObservable(emptyList())  }

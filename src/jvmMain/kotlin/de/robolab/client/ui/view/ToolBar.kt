@@ -3,15 +3,11 @@ package de.robolab.client.ui.view
 import de.robolab.client.app.controller.ToolBarController
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.base.ToolBarEntry
-import de.robolab.client.app.model.file.requestAuthToken
-import de.robolab.client.net.requests.getMQTTCredentials
-import de.robolab.client.net.requests.getMQTTURLs
 import de.robolab.client.ui.adapter.toFx
 import de.robolab.client.ui.dialog.SettingsDialog
 import de.robolab.client.ui.dialog.UpdateDialog
 import de.robolab.client.ui.style.MainStyle
 import de.robolab.client.ui.utils.buttonGroup
-import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.not
@@ -24,10 +20,6 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 import javafx.scene.text.FontWeight
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import tornadofx.*
 
 class ToolBar(private val toolBarController: ToolBarController) : View() {
@@ -68,31 +60,6 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
         }
     }
 
-    private fun requestAuthToken() {
-        val server = toolBarController.fileNavigationRoot.remoteServer
-        if (server != null) {
-            GlobalScope.launch {
-                requestAuthToken(server, false)
-            }
-        }
-    }
-
-    private fun loadMqttSettings() {
-        val server = toolBarController.fileNavigationRoot.remoteServer
-        if (server != null) {
-            GlobalScope.launch {
-                val credentials = server.getMQTTCredentials().okOrNull() ?: return@launch
-                val urls = server.getMQTTURLs().okOrNull() ?: return@launch
-
-                withContext(Dispatchers.Main) {
-                    PreferenceStorage.serverUri = urls.sslURL
-                    PreferenceStorage.username = credentials.credentials.username
-                    PreferenceStorage.password = credentials.credentials.password
-                }
-            }
-        }
-    }
-
     override val root = scrollpane(fitToWidth = true) {
         addClass(MainStyle.toolBarContainer)
 
@@ -129,9 +96,12 @@ class ToolBar(private val toolBarController: ToolBarController) : View() {
                                 SettingsDialog.open(
                                     toolBarController.fileNavigationRoot.remoteServerVersionProperty,
                                     toolBarController.fileNavigationRoot.remoteServerAuthenticationProperty,
-                                    this@ToolBar::requestAuthToken,
-                                    this@ToolBar::loadMqttSettings,
-                                )
+                                    toolBarController::requestAuthToken,
+                                ) {
+                                    toolBarController.loadMqttSettings {
+                                        it.sslURL
+                                    }
+                                }
                             }
                             setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE)
                         }

@@ -3,7 +3,6 @@ package de.robolab.client.ui.views
 import de.robolab.client.app.controller.ToolBarController
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.base.ToolBarEntry
-import de.robolab.client.app.model.file.requestAuthToken
 import de.robolab.client.ui.dialog.SettingsDialog
 import de.robolab.client.ui.triggerDownloadUrl
 import de.robolab.client.ui.views.utils.buttonGroup
@@ -15,8 +14,6 @@ import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 class ToolBar(private val toolBarController: ToolBarController) : ViewCollection<View>() {
 
@@ -92,12 +89,10 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                         SettingsDialog.open(
                             toolBarController.fileNavigationRoot.remoteServerVersionProperty,
                             toolBarController.fileNavigationRoot.remoteServerAuthenticationProperty,
+                            toolBarController::requestAuthToken,
                         ) {
-                            val server = toolBarController.fileNavigationRoot.remoteServer
-                            if (server != null) {
-                                GlobalScope.launch {
-                                    requestAuthToken(server, false)
-                                }
+                            toolBarController.loadMqttSettings {
+                                it.wssURL
                             }
                         }
                     }
