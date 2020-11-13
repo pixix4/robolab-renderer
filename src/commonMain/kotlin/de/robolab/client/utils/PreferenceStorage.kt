@@ -71,8 +71,12 @@ object PreferenceStorage : TypedStorage() {
     var authenticationToken by authenticationTokenProperty
 
     val logUriProperty =
-        item("communication.logUri", "https://mothership.inf.tu-dresden.de/logs/mqtt/latest/?count=100")
+        item("communication.logUri", "https://mothership.inf.tu-dresden.de/logs/mqtt/latest")
     var logUri by logUriProperty
+
+    val logCountProperty =
+        item("communication.logCount", 1000)
+    var logCount by logCountProperty
 
     val mqttStorageProperty = item("communication.mqttStorage", MqttStorage.IN_MEMORY)
     var mqttStorage by mqttStorageProperty

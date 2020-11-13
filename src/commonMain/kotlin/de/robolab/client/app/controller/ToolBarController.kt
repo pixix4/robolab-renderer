@@ -10,7 +10,6 @@ import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
-import de.westermann.kobserve.property.property
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -49,6 +48,7 @@ class ToolBarController(
 
                 withContext(Dispatchers.Main) {
                     PreferenceStorage.serverUri = selectUri(urls)
+                    PreferenceStorage.logUri = urls.logURL
                     PreferenceStorage.username = credentials.credentials.username
                     PreferenceStorage.password = credentials.credentials.password
                 }

@@ -241,13 +241,19 @@ class SettingsDialog : GenericDialog() {
                     field("Password") {
                         passwordfield(PreferenceStorage.passwordProperty.toFx())
                     }
+                    field("Log uri") {
+                        buttonGroup {
+                            textfield(PreferenceStorage.logUriProperty.toFx())
+                            textfield(
+                                PreferenceStorage.logCountProperty.toFx(),
+                                IntStringConverter(PreferenceStorage.logCountProperty.default)
+                            )
+                        }
+                    }
                     field("Client id") {
                         textfield(PreferenceStorage.clientIdProperty.toFx())
                     }
 
-                    field("Log uri") {
-                        textfield(PreferenceStorage.logUriProperty.toFx())
-                    }
                     field("Message Storage") {
                         combobox(
                             PreferenceStorage.mqttStorageProperty.toFx(),

@@ -142,11 +142,18 @@ class SettingsDialog private constructor(
                 dialogFormEntry("Password") {
                     inputView(InputType.PASSWORD, PreferenceStorage.passwordProperty)
                 }
+                dialogFormEntry("Log uri") {
+                    classList += "button-group"
+                    classList += "button-form-group"
+                    inputView(PreferenceStorage.logUriProperty)
+                    inputView(InputType.NUMBER, PreferenceStorage.logCountProperty.bindStringParsing()) {
+                        min = 0.0
+                        max = 100000.0
+                        step = 1.0
+                    }
+                }
                 dialogFormEntry("Client id") {
                     inputView(PreferenceStorage.clientIdProperty)
-                }
-                dialogFormEntry("Log uri") {
-                    inputView(PreferenceStorage.logUriProperty)
                 }
             }
         }

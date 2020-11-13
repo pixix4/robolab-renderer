@@ -84,8 +84,12 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
     private fun loadMqttLog() {
         try {
             GlobalScope.launch(Dispatchers.Default) {
+                if (PreferenceStorage.logUri.contains("?count=")) {
+                    PreferenceStorage.logUri = PreferenceStorage.logUri.substringBefore("?count=")
+                }
+                val logUri = "${PreferenceStorage.logUri}?count=${PreferenceStorage.logCount}"
                 val response = http {
-                    url(PreferenceStorage.logUri)
+                    url(logUri)
                 }.exec()
 
                 if (response.body == null) {
