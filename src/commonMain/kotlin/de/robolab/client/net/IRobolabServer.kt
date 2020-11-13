@@ -3,11 +3,13 @@ package de.robolab.client.net
 import de.robolab.client.net.requests.*
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.headers.AuthorizationHeader
+import de.westermann.kobserve.base.ObservableProperty
 
 interface IRobolabServer {
     val hostURL: String
     val hostPort: Int
     val protocol: String
+    val authHeaderProperty: ObservableProperty<AuthorizationHeader?>
     var authHeader: AuthorizationHeader?
 
     fun resetAuthSession()

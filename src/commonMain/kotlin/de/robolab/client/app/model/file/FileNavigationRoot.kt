@@ -7,10 +7,12 @@ import de.robolab.client.net.requests.getExamInfo
 import de.robolab.client.net.requests.getVersion
 import de.robolab.client.net.requests.whoami
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.common.utils.Logger
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.subscribe
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.nullableFlatMapBinding
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -84,21 +86,24 @@ class FileNavigationRoot(
     init {
         subscribe<LoadRemoteExamStateEvent> {
             loadRemoteExamState()
-            updateServerVersion()
+            updateServerState()
         }
 
         remotePlanetLoader.onChange {
-            updateServerVersion()
+            updateServerState()
+        }
+        remotePlanetLoader.nullableFlatMapBinding { it?.server?.authHeaderProperty }.onChange {
+            updateServerState()
         }
 
         loadRemoteExamState()
-        updateServerVersion()
+        updateServerState()
     }
 
-    private fun updateServerVersion() {
+    private fun updateServerState() {
         val server = remoteServer
 
-        if (server == null){
+        if (server == null) {
             GlobalScope.launch {
                 withContext(Dispatchers.Main) {
                     remoteServerVersionProperty.value = ""
@@ -117,6 +122,7 @@ class FileNavigationRoot(
                         remoteServerVersionProperty.value = version.toString()
                     }
                 } catch (e: Throwable) {
+                    logger.e("Load server version: " + e.stackTraceToString())
                     withContext(Dispatchers.Main) {
                         remoteServerVersionProperty.value = "Cannot find server!"
                     }
@@ -128,6 +134,7 @@ class FileNavigationRoot(
                         remoteServerAuthenticationProperty.value = version
                     }
                 } catch (e: Throwable) {
+                    logger.e("Load server who am i: " + e.stackTraceToString())
                     withContext(Dispatchers.Main) {
                         remoteServerAuthenticationProperty.value = "Cannot find server!"
                     }
@@ -137,6 +144,7 @@ class FileNavigationRoot(
     }
 
     companion object {
+        private val logger = Logger("FileNavigationRoot")
         val loaderFactoryList = getFilePlanetLoaderFactoryList()
     }
 }

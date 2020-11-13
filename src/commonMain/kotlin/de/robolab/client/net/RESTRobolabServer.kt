@@ -4,6 +4,7 @@ import de.robolab.client.app.model.file.requestAuthToken
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AuthorizationHeader
+import de.westermann.kobserve.property.property
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.random.Random
@@ -18,16 +19,8 @@ class RESTRobolabServer(
     constructor(hostURL: String, hostPort: Int? = null, secure: Boolean = false) :
             this(hostURL, hostPort ?: if (secure) 443 else 80, if (secure) "https" else "http")
 
-    private var _authHeader: AuthorizationHeader? = null
-    override var authHeader: AuthorizationHeader?
-        get() {
-            return _authHeader
-        }
-        set(value) {
-            _authHeader = value
-            if (value == null)
-                resetAuthSession()
-        }
+    override val authHeaderProperty = property<AuthorizationHeader>()
+    override var authHeader by authHeaderProperty
 
     override fun resetAuthSession() {
 
@@ -38,6 +31,14 @@ class RESTRobolabServer(
     private val _waitingRequests: MutableList<Triple<Any, HttpMethod, String>> = mutableListOf()
     val waitingRequests: List<Pair<HttpMethod, String>>
         get() = _waitingRequests.map { it.second to it.third }
+
+    init {
+        authHeaderProperty.onChange {
+            if (authHeader == null) {
+                resetAuthSession()
+            }
+        }
+    }
 
     override suspend fun request(
         method: HttpMethod,

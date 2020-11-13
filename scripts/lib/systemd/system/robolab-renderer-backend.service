@@ -7,6 +7,8 @@ Restart=always
 User=deploy
 ExecStart=nodemon packages/robolab-jsServer/kotlin/robolab-jsServer.js -c ../backend.ini
 WorkingDirectory=/home/deploy/web-projects/robolab-renderer/stable/backend
+StandardOutput=file:/home/deploy/web-projects/robolab-renderer/stable/logs/backend-output.log
+StandardError=file:/home/deploy/web-projects/robolab-renderer/stable/logs/backend-error.log
 
 [Install]
 WantedBy=multi-user.target

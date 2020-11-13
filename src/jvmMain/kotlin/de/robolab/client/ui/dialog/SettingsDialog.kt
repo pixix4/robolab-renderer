@@ -26,6 +26,7 @@ import tornadofx.*
 class SettingsDialog : GenericDialog() {
 
     private val requestAuthToken: () -> Unit by param()
+    private val loadMqttSettings: () -> Unit by param()
     private val serverVersionProperty: ObservableValue<String> by param()
     private val serverAuthenticationProperty: ObservableValue<String> by param()
 
@@ -224,6 +225,13 @@ class SettingsDialog : GenericDialog() {
                     }
                 }
                 fieldset("MQTT") {
+                    field(forceLabelIndent = true) {
+                        button("Load remote config") {
+                            setOnAction {
+                                loadMqttSettings()
+                            }
+                        }
+                    }
                     field("Server uri") {
                         textfield(PreferenceStorage.serverUriProperty.toFx())
                     }
@@ -327,10 +335,12 @@ class SettingsDialog : GenericDialog() {
         fun open(
             serverVersionProperty: ObservableValue<String>,
             serverAuthenticationProperty: ObservableValue<String>,
-            requestAuthToken: () -> Unit
+            requestAuthToken: () -> Unit,
+            loadMqttSettings: () -> Unit
         ) {
             open<SettingsDialog>(
                 "requestAuthToken" to requestAuthToken,
+                "loadMqttSettings" to loadMqttSettings,
                 "serverVersionProperty" to serverVersionProperty,
                 "serverAuthenticationProperty" to serverAuthenticationProperty,
             )
