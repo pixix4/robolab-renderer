@@ -2,11 +2,14 @@ package de.robolab.client.net
 
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
+import de.robolab.common.net.MIMEType
+import de.robolab.common.net.RESTRequestException
 import de.robolab.common.net.headers.ContentTypeHeader
 import de.robolab.common.net.headers.TypedHeaders
 import de.robolab.common.net.headers.toLowerCaseKeys
 import de.robolab.common.utils.RobolabJson
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 
 interface IServerResponse {
@@ -29,8 +32,8 @@ interface IServerResponse {
     }
 }
 
-val IServerResponse.contentType: ContentTypeHeader?
-    get() = typedHeaders.contentTypeHeaders.firstOrNull()
+val IServerResponse.mimeType: MIMEType?
+    get() = typedHeaders.contentTypeHeaders.firstOrNull()?.mimeType
 
 class ServerResponse(
     override val status: HttpStatusCode,

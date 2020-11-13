@@ -2,12 +2,8 @@ package de.robolab.client.net.requests
 
 import com.soywiz.klock.DateTime
 import de.robolab.client.net.IServerResponse
-import de.robolab.common.net.RESTRequestException
-import de.robolab.common.net.`throw`
-import de.robolab.client.net.contentType
-import de.robolab.common.net.HttpMethod
-import de.robolab.common.net.HttpStatusCode
-import de.robolab.common.net.MIMEType
+import de.robolab.client.net.mimeType
+import de.robolab.common.net.*
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Result
@@ -31,21 +27,61 @@ abstract class RESTResponse(protected val parentResponse: IServerResponse) : IRE
         parentResponse.parse(deserializer)
 }
 
+open class JsonRestResponse<T : Any> : RESTResponse {
+
+    val decodedValue: T
+
+    constructor(
+        serverResponse: IServerResponse,
+        triggeringRequest: IRESTRequest<JsonRestResponse<T>>,
+        deserializationStrategy: DeserializationStrategy<T>,
+        acceptedStatusCode: HttpStatusCode?
+    ) : super(serverResponse) {
+        decodedValue = serverResponse.parseOrThrow(deserializationStrategy, triggeringRequest, acceptedStatusCode)
+    }
+
+    constructor(
+        serverResponse: IServerResponse,
+        triggeringRequest: IRESTRequest<JsonRestResponse<T>>,
+        deserializationStrategy: DeserializationStrategy<T>,
+        acceptedStatusCodes: Collection<HttpStatusCode> = HttpStatusCode.okLikeCodes
+    ) : super(serverResponse) {
+        decodedValue = serverResponse.parseOrThrow(deserializationStrategy, triggeringRequest, acceptedStatusCodes)
+    }
+
+    constructor(
+        serverResponse: IServerResponse,
+        triggeringRequest: IRESTRequest<JsonRestResponse<T>>,
+        deserializationStrategy: DeserializationStrategy<T>,
+        acceptedStatusCode: HttpStatusCode?,
+        default: T
+    ) : super(serverResponse) {
+        decodedValue =
+            serverResponse.parseOrThrow(deserializationStrategy, triggeringRequest, acceptedStatusCode, default)
+    }
+
+    constructor(
+        serverResponse: IServerResponse,
+        triggeringRequest: IRESTRequest<JsonRestResponse<T>>,
+        deserializationStrategy: DeserializationStrategy<T>,
+        acceptedStatusCodes: Collection<HttpStatusCode> = HttpStatusCode.okLikeCodes,
+        default: T
+    ) : super(serverResponse) {
+        decodedValue =
+            serverResponse.parseOrThrow(deserializationStrategy, triggeringRequest, acceptedStatusCodes, default)
+    }
+}
+
 open class ClientPlanetInfoRestResponse(
     serverResponse: IServerResponse,
     triggeringRequest: IRESTRequest<ClientPlanetInfoRestResponse>
-) : RESTResponse(serverResponse) {
-    val info: PlanetJsonInfo
-
-    init {
-        info = if (status != HttpStatusCode.Ok && status != HttpStatusCode.Created) {
-            `throw`(triggeringRequest)
-        } else when (val mimeType = contentType?.mimeType) {
-            MIMEType.JSON -> parse(PlanetJsonInfo.serializer())
-                ?: throw IllegalArgumentException("Received empty body for planet-info")
-            else -> throw IllegalArgumentException("Cannot parse MIME-Type '$mimeType'")
-        }
-    }
+) : JsonRestResponse<PlanetJsonInfo>(
+    serverResponse,
+    triggeringRequest,
+    PlanetJsonInfo.serializer(),
+    setOf(HttpStatusCode.Ok, HttpStatusCode.Created)
+) {
+    val info: PlanetJsonInfo = decodedValue
 }
 
 @Suppress("LeakingThis")
@@ -56,20 +92,14 @@ open class PlanetResponse(serverResponse: IServerResponse, triggeringRequest: IR
     val lastModified: DateTime
 
     init {
-        if (serverResponse.status != HttpStatusCode.Ok) {
-            `throw`(triggeringRequest)
-        } else {
-            lines = when (val mimeType = serverResponse.typedHeaders.contentTypeHeaders.single().mimeType) {
-                MIMEType.JSON -> {
-                    parse(ListSerializer(String.serializer())) ?: emptyList()
-                }
-                MIMEType.PlainText -> {
-                    body?.split('\n') ?: emptyList()
-                }
-                else -> throw IllegalArgumentException("Cannot parse MIME-Type '$mimeType'")
-            }
-            lastModified = serverResponse.typedHeaders.lastModifiedHeader?.dateTime ?: DateTime.Companion.fromUnix(0)
-        }
+        serverResponse.requireOk(triggeringRequest)
+        serverResponse.requireMimeType(setOf(MIMEType.JSON, MIMEType.PlainText), triggeringRequest)
+        lines = serverResponse.format<List<String>>(MIMEType.JSON to {
+            parse(ListSerializer(String.serializer())) ?: emptyList()
+        }, MIMEType.PlainText to {
+            body?.split('\n') ?: emptyList()
+        }, triggeringRequest = triggeringRequest)
+        lastModified = serverResponse.typedHeaders.lastModifiedHeader?.dateTime ?: DateTime.Companion.fromUnix(0)
     }
 
     val planet: Planet by lazy {

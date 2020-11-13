@@ -3,9 +3,9 @@ package de.robolab.client.app.model.file
 import de.robolab.client.app.controller.TabController
 import de.robolab.client.app.model.file.provider.*
 import de.robolab.client.net.IRobolabServer
-import de.robolab.client.net.requests.getExamInfo
+import de.robolab.client.net.requests.info.getExamInfo
 import de.robolab.client.net.requests.getVersion
-import de.robolab.client.net.requests.whoami
+import de.robolab.client.net.requests.info.whoami
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.net.headers.AuthorizationHeader
 import de.robolab.common.utils.Logger

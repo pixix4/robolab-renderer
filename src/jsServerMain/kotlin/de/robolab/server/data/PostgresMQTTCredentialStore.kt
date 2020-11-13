@@ -1,20 +1,15 @@
 package de.robolab.server.data
 
-import de.robolab.client.net.ICredentialProvider
+import de.robolab.client.net.requests.mqtt.MQTTConnectionInfo
 import de.robolab.server.config.Config
 import de.robolab.server.externaljs.JSArray
 import de.robolab.server.externaljs.pg.Client
 import de.robolab.server.externaljs.pg.obtainClient
 import de.robolab.server.externaljs.pg.withConnection
 import de.robolab.server.externaljs.toList
-import kotlinx.atomicfu.AtomicInt
-import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.await
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeoutOrNull
 
 object PostgresMQTTCredentialStore {
     val client: Client = obtainClient(Config.MQTT.database)
@@ -22,11 +17,11 @@ object PostgresMQTTCredentialStore {
 
     private val connectionRLock: ReentrantLock = ReentrantLock()
 
-    private var storedUserInfos: Map<String, MQTTUserInfo>? = null
+    private var storedUserInfos: Map<String, MQTTConnectionInfo>? = null
 
 
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-    suspend fun getMQTTUserInfos(): Map<String, MQTTUserInfo> {
+    suspend fun getMQTTUserInfos(): Map<String, MQTTConnectionInfo> {
         var storedInfo = storedUserInfos
         if (storedInfo != null) return storedInfo
         connectionRLock.withLock {
@@ -44,12 +39,12 @@ object PostgresMQTTCredentialStore {
                     storedInfo = result.rows.toList().associate { entry ->
                         Pair(
                             entry.username,
-                            MQTTUserInfo(
+                            MQTTConnectionInfo(
                                 username = entry.username as String,
                                 password = entry.password as String,
-                                subscribeTopics = (entry.subscribe_acl as JSArray<dynamic>).toList()
+                                subscribeTopicPatterns = (entry.subscribe_acl as JSArray<dynamic>).toList()
                                     .map { (it.pattern as String).replace("%u", entry.username as String) },
-                                publishTopics = (entry.subscribe_acl as JSArray<dynamic>).toList()
+                                publishTopicPatterns = (entry.subscribe_acl as JSArray<dynamic>).toList()
                                     .map { (it.pattern as String).replace("%u", entry.username as String) }
                             )
                         )
@@ -62,9 +57,11 @@ object PostgresMQTTCredentialStore {
                         ex
                     )
                     return mapOf(
-                        Config.MQTT.tutorUser to MQTTUserInfo(
-                            Config.MQTT.tutorUser, Config.MQTT.tutorPassword,
-                            listOf("#"), listOf("#")
+                        Config.MQTT.tutorUser to MQTTConnectionInfo(
+                            username = Config.MQTT.tutorUser,
+                            password = Config.MQTT.tutorPassword,
+                            subscribeTopicPatterns = listOf("#"),
+                            publishTopicPatterns = listOf("#")
                         )
                     )
                 }
@@ -72,11 +69,4 @@ object PostgresMQTTCredentialStore {
             }
         }
     }
-
-    data class MQTTUserInfo(
-        override val username: String,
-        override val password: String,
-        val subscribeTopics: List<String>,
-        val publishTopics: List<String>,
-    ) : ICredentialProvider
 }

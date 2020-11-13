@@ -4,7 +4,7 @@ import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 
 open class RESTResponseCodeException : RESTResponseException {
-    val code: HttpStatusCode
+    final override val code: HttpStatusCode
 
     constructor(
         code: HttpStatusCode,
@@ -31,7 +31,7 @@ open class RESTResponseCodeException : RESTResponseException {
 
     constructor(
         code: HttpStatusCode, cause: Throwable?
-    ) : super(cause){
+    ) : super(cause) {
         this.code = code
     }
 }

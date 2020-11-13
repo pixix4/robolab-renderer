@@ -1,7 +1,10 @@
-package de.robolab.client.net.requests
+package de.robolab.client.net.requests.mqtt
 
 
 import de.robolab.client.net.*
+import de.robolab.client.net.requests.IRESTRequest
+import de.robolab.client.net.requests.IUnboundRESTRequest
+import de.robolab.client.net.requests.RESTResponse
 import de.robolab.common.net.*
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -14,7 +17,7 @@ object GetMQTTURLs : IUnboundRESTRequest<GetMQTTURLs.MQTTURLsResponse> {
     override val requestHeader: Map<String, List<String>> = mapOf("Accept" to listOf(MIMEType.JSON.primaryName))
 
     override fun parseResponse(serverResponse: ServerResponse) =
-        parseResponseCatchingWrapper(serverResponse, this, ::MQTTURLsResponse)
+        parseResponseCatchingWrapper(serverResponse, this, GetMQTTURLs::MQTTURLsResponse)
 
     class MQTTURLsResponse(
         serverResponse: IServerResponse,
@@ -29,14 +32,11 @@ object GetMQTTURLs : IUnboundRESTRequest<GetMQTTURLs.MQTTURLsResponse> {
         operator fun component3() = logURL
 
         init {
-            if (status != HttpStatusCode.Ok) {
-                `throw`(triggeringRequest)
-            } else {
-                val json = jsonBody!!.jsonObject
-                wssURL = json.getValue("wss").jsonPrimitive.content
-                sslURL = json.getValue("ssl").jsonPrimitive.content
-                logURL = json.getValue("log").jsonPrimitive.content
-            }
+            serverResponse.requireOk(triggeringRequest)
+            val json = serverResponse.requireJSONBody(triggeringRequest).jsonObject
+            wssURL = json.getValue("wss").jsonPrimitive.content
+            sslURL = json.getValue("ssl").jsonPrimitive.content
+            logURL = json.getValue("log").jsonPrimitive.content
         }
 
         override fun toString(): String {

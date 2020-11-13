@@ -1,6 +1,8 @@
-package de.robolab.client.net.requests
+package de.robolab.client.net.requests.planets
 
 import de.robolab.client.net.*
+import de.robolab.client.net.requests.ClientPlanetInfoRestResponse
+import de.robolab.client.net.requests.IUnboundRESTRequest
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.ContentTypeHeader
@@ -8,7 +10,7 @@ import de.robolab.common.net.headers.mapOf
 import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.parser.PlanetFile
 
-class PostPlanet(content: String? = null) : IUnboundRESTRequest<PostPlanet.PostPlanetResponse> {
+class PostPlanet(content: String? = null) : IUnboundRESTRequest<ClientPlanetInfoRestResponse> {
 
     constructor(planet: PlanetFile) : this(planet.contentString)
 
@@ -20,9 +22,8 @@ class PostPlanet(content: String? = null) : IUnboundRESTRequest<PostPlanet.PostP
         if (content != null) mapOf(ContentTypeHeader(MIMEType.PlainText))
         else emptyMap()
 
-    override fun parseResponse(serverResponse: ServerResponse) = parseResponseCatchingWrapper(serverResponse,this,::PostPlanetResponse)
-
-    class PostPlanetResponse(serverResponse: IServerResponse, triggeringRequest: IRESTRequest<PostPlanetResponse>) : ClientPlanetInfoRestResponse(serverResponse, triggeringRequest)
+    override fun parseResponse(serverResponse: ServerResponse) =
+        parseResponseCatchingWrapper(serverResponse, this, ::ClientPlanetInfoRestResponse)
 }
 
 suspend fun IRobolabServer.postPlanet(content: String? = null) = request(PostPlanet(content))

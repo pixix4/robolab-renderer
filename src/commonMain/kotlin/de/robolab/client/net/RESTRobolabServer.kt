@@ -4,6 +4,7 @@ import de.robolab.client.app.model.file.requestAuthToken
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AuthorizationHeader
+import de.robolab.common.utils.Logger
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -18,6 +19,9 @@ class RESTRobolabServer(
 
     constructor(hostURL: String, hostPort: Int? = null, secure: Boolean = false) :
             this(hostURL, hostPort ?: if (secure) 443 else 80, if (secure) "https" else "http")
+
+    private val headerHashcodeXorMask: Int = Random.nextInt()
+    private val logger: Logger = Logger("ServerLogger")
 
     override val authHeaderProperty = property<AuthorizationHeader>()
     override var authHeader by authHeaderProperty
@@ -81,6 +85,13 @@ class RESTRobolabServer(
                     usedHeader = authHeader
                     if (_requestAuthTokenMutex.holdsLock(owner))
                         _requestAuthTokenMutex.unlock(owner)
+                    logger.debug(
+                        "|C-->S| $method:$path HED: ${
+                            usedHeader?.let {
+                                "${it.schemaName}#${it.hashCode() xor headerHashcodeXorMask}"
+                            }
+                        }"
+                    )
                     response = sendHttpRequest(
                         method,
                         protocol,
@@ -92,6 +103,12 @@ class RESTRobolabServer(
                         if (usedHeader == null) headers
                         else headers + (AuthorizationHeader.name to listOf(usedHeader.value))
                     )
+                    logger.debug("|C<--S| $method:$path - ${response.status}:${response.mimeType}; CNT:\"${
+                        response.body?.let {
+                            if (it.length < 8) return@let it
+                            else it.substring(0, 4) + "…[${it.length - 8}+8]…" + it.substring(it.length - 4)
+                        }
+                    }\"")
                     if (response.status != HttpStatusCode.Unauthorized)
                         return response
                     if (enableWaitingRequestList)

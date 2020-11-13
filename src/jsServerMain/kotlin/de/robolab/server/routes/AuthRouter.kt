@@ -1,5 +1,7 @@
 package de.robolab.server.routes
 
+import de.robolab.client.net.requests.auth.TokenLinkPair
+import de.robolab.common.auth.User
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.AuthorizationHeader
@@ -7,7 +9,6 @@ import de.robolab.server.net.RESTResponseCodeException
 import de.robolab.server.auth.AuthService
 import de.robolab.server.auth.GitLabAuthProvider
 import de.robolab.server.auth.ShareCode
-import de.robolab.server.auth.User
 import de.robolab.server.config.Config
 import de.robolab.server.externaljs.NodeError
 import de.robolab.server.externaljs.dynamicOf
@@ -80,11 +81,20 @@ window.close();
         }
         router.getSuspend("/gitlab/relay") { _, res ->
             val shareCode = authService.createShareCode(true)
-            res.json(
-                dynamicOf(
-                    "login" to authProvider.startAuthURL(shareCode),
-                    "token" to requestTokenURL(shareCode)
+            res.sendSerializable(
+                TokenLinkPair(
+                    login = authProvider.startAuthURL(shareCode),
+                    token = requestTokenURL(shareCode)
                 )
+            )
+        }
+        router.getSuspend("/gitlab/relay/html"){ _, res ->
+            val shareCode = authService.createShareCode(true)
+            res.sendSerializable(
+                TokenLinkPair(
+                    login = authProvider.startAuthURL(shareCode),
+                    token = requestTokenURL(shareCode)
+                ), MIMEType.HTML
             )
         }
         router.getSuspend("/gitlab/token") { req, res ->
@@ -125,7 +135,7 @@ window.close();
         }
         var authHeader: AuthorizationHeader = AuthorizationHeader.parse(authHeaderValue)
         if (authHeader !is AuthorizationHeader.Bearer) {
-            if(actualHeaderPresent){
+            if (actualHeaderPresent) {
                 if (authCookie == null) {
                     req.user = User.Anonymous
                     res.setHeader("robolab-user", req.user.internalName)
@@ -133,15 +143,15 @@ window.close();
                 } else {
                     authHeaderValue = "Bearer $authCookie"
                     authHeader = AuthorizationHeader.parse(authHeaderValue)
-                    if(authHeader !is AuthorizationHeader.Bearer){ //TODO: fall-through into BEARER-Schema-Requirement again
+                    if (authHeader !is AuthorizationHeader.Bearer) { //TODO: fall-through into BEARER-Schema-Requirement again
                         req.user = User.Anonymous
-                        res.setHeader("robolab-user",req.user.internalName)
+                        res.setHeader("robolab-user", req.user.internalName)
                         return next(null)
                     }
                 }
-            }else{ //TODO: fall-through into BEARER-Schema-Requirement again
+            } else { //TODO: fall-through into BEARER-Schema-Requirement again
                 req.user = User.Anonymous
-                res.setHeader("robolab-user",req.user.internalName)
+                res.setHeader("robolab-user", req.user.internalName)
                 return next(null)
             }
             res.setHeader("robolab-error", "Authorization requires the \"Bearer\"-Schema")
@@ -157,7 +167,7 @@ window.close();
         } else {
             req.user = headerUser
             res.setHeader(
-                "robolab-user",req.user.internalName
+                "robolab-user", req.user.internalName
             )
             return next(null)
         }

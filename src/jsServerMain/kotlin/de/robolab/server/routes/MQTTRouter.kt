@@ -2,33 +2,34 @@
 
 package de.robolab.server.routes
 
+import de.robolab.client.net.requests.mqtt.MQTTConnectionInfo
+import de.robolab.client.net.requests.mqtt.MQTTTopicsInfo
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
-import de.robolab.server.auth.*
+import de.robolab.common.auth.*
 import de.robolab.server.config.Config
 import de.robolab.server.data.PostgresMQTTCredentialStore
 import de.robolab.server.externaljs.dynamicOf
 import de.robolab.server.externaljs.express.*
 import de.robolab.server.externaljs.toJSArray
 import de.robolab.server.net.RESTResponseCodeException
-import de.robolab.server.routes.MQTTRouter.defaultMQTTUsername
-import de.robolab.server.routes.MQTTRouter.requireAccessForMQTTUsername
 
 object MQTTRouter {
 
     val User.defaultMQTTUsername: String
-        get() = if (hasTutorAccess) "tutor" else "RANDOM CONSTANT NAME WHICH IS NOT A VALID GROUP-ID"
+        get() = if (hasTutorAccess) "tutor" else group?.toString()
+            ?: "RANDOM CONSTANT NAME WHICH IS NOT A VALID GROUP-ID"
 
     fun User.requireAccessForMQTTUsername(username: String) {
         if (username != defaultMQTTUsername)
             requireTutor()
         else
-            requireLogin()
+            requireGroupMember()
     }
 
     val router: DefaultRouter = createRouter()
 
-    suspend fun obtainUserInfo(user: User, username: String? = null): PostgresMQTTCredentialStore.MQTTUserInfo {
+    suspend fun obtainUserInfo(user: User, username: String? = null): MQTTConnectionInfo {
         val requestedUserName: String = username ?: user.defaultMQTTUsername
         user.requireAccessForMQTTUsername(requestedUserName)
         val userInfos = PostgresMQTTCredentialStore.getMQTTUserInfos()
@@ -51,7 +52,7 @@ object MQTTRouter {
             })
         }
         router.getSuspend("/credentials") { req, res ->
-            req.user.requireLogin()
+            req.user.requireGroupMember()
             val mqttInfo = obtainUserInfo(req.user, req.query.username as? String)
 
             res.formatReceiving(MIMEType.PlainText to {
@@ -66,44 +67,39 @@ object MQTTRouter {
             })
         }
         router.getSuspend("/topics") { req, res ->
-            req.user.requireLogin()
+            req.user.requireGroupMember()
             val mqttInfo = obtainUserInfo(req.user, req.query.username as? String)
 
             res.formatReceiving(MIMEType.PlainText to {
                 status(HttpStatusCode.Ok).send(
                     ("---SUBSCRIBE---\n" +
-                            mqttInfo.subscribeTopics.joinToString("\n") { "\t$it" } +
+                            mqttInfo.subscribeTopicPatterns.joinToString("\n") { "\t$it" } +
                             "\n---PUBLISH---\n" +
-                            mqttInfo.publishTopics.joinToString("\n") { "\t$it" }).replace("\n\n", "\n")
+                            mqttInfo.publishTopicPatterns.joinToString("\n") { "\t$it" }).replace("\n\n", "\n")
                 )
             }, MIMEType.JSON to {
-                status(HttpStatusCode.Ok).send(
-                    dynamicOf(
-                        "subscribe" to mqttInfo.subscribeTopics.toJSArray(),
-                        "publish" to mqttInfo.publishTopics.toJSArray()
-                    ) as Any?
+                status(HttpStatusCode.Ok).sendSerializable(
+                    MQTTTopicsInfo(
+                        subscribeTopicPatterns = mqttInfo.subscribeTopicPatterns,
+                        publishTopicPatterns = mqttInfo.publishTopicPatterns
+                    )
                 )
             })
         }
         router.getSuspend("/connection") { req, res ->
-            req.user.requireLogin()
+            req.user.requireGroupMember()
             val mqttInfo = obtainUserInfo(req.user, req.query.username as? String)
 
             res.formatReceiving(MIMEType.PlainText to {
                 status(HttpStatusCode.Ok).send(
                     (mqttInfo.username + ":" + mqttInfo.password +
-                            "\n---SUBSCRIBE---\n" + mqttInfo.subscribeTopics.joinToString("\n") { "\t$it" } +
+                            "\n---SUBSCRIBE---\n" + mqttInfo.subscribeTopicPatterns.joinToString("\n") { "\t$it" } +
                             "\n---PUBLISH---\n" +
-                            mqttInfo.publishTopics.joinToString("\n") { "\t$it" }).replace("\n\n", "\n")
+                            mqttInfo.publishTopicPatterns.joinToString("\n") { "\t$it" }).replace("\n\n", "\n")
                 )
             }, MIMEType.JSON to {
-                status(HttpStatusCode.Ok).send(
-                    dynamicOf(
-                        "username" to mqttInfo.username,
-                        "password" to mqttInfo.password,
-                        "subscribe" to mqttInfo.subscribeTopics.toJSArray(),
-                        "publish" to mqttInfo.publishTopics.toJSArray()
-                    ) as Any?
+                status(HttpStatusCode.Ok).sendSerializable(
+                    mqttInfo
                 )
             })
         }

@@ -3,12 +3,12 @@
 package de.robolab.server.routes
 
 import de.robolab.client.app.model.base.SearchRequest
+import de.robolab.common.auth.*
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.server.config.Config
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.utils.map
-import de.robolab.server.auth.requireTutor
 import de.robolab.server.net.RESTResponseCodeException
 import de.robolab.server.data.*
 import de.robolab.server.externaljs.*

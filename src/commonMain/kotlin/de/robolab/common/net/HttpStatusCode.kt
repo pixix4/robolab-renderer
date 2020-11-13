@@ -88,6 +88,8 @@ enum class HttpStatusCode(val code:Int) {
         //Should already be sorted correctly, but just to make sure...
         val sortedCodes: List<HttpStatusCode> = values().sortedBy(HttpStatusCode::code)
 
+        val okLikeCodes: Set<HttpStatusCode> = values().filter { it.code in 200..299 }.toSet()
+
         fun get(code:Int): HttpStatusCode?{
             val index:Int? = sortedCodes.binarySearchBy(code, selector = HttpStatusCode::code)
             return if(index == null || index < 0)

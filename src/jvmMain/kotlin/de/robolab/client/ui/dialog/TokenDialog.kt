@@ -1,7 +1,7 @@
 package de.robolab.client.ui.dialog
 
 import de.robolab.client.net.IRobolabServer
-import de.robolab.client.net.requests.getTokenLinkPair
+import de.robolab.client.net.requests.auth.getTokenLinkPair
 import de.robolab.client.net.sendHttpRequest
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.net.HttpStatusCode

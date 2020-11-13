@@ -2,6 +2,7 @@ package de.robolab.server.auth
 
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.TimeSpan
+import de.robolab.common.auth.User
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AuthorizationHeader
 import de.robolab.server.net.RESTResponseCodeException
@@ -14,7 +15,7 @@ import kotlin.random.nextUInt
 
 typealias ShareCode = UInt
 
-class AuthService(val random: Random = Random, val shareCodeTimeout:TimeSpan=TimeSpan(15.0*60*1000)) {
+class AuthService(val random: Random = Random, val shareCodeTimeout: TimeSpan = TimeSpan(15.0 * 60 * 1000)) {
 
     private val activeShareCodes: MutableSet<ShareCode> = mutableSetOf()
     private val nonSharingCodes: MutableSet<ShareCode> = mutableSetOf()
@@ -30,7 +31,7 @@ class AuthService(val random: Random = Random, val shareCodeTimeout:TimeSpan=Tim
     }
 
     fun obtainUser(token: JSONWebToken): User? {
-        return User.fromJWTPayload(token.dynamic)
+        return userFromJWTPayload(token.dynamic)
     }
 
     fun obtainUser(header: AuthorizationHeader.Bearer): User? {
@@ -63,14 +64,14 @@ class AuthService(val random: Random = Random, val shareCodeTimeout:TimeSpan=Tim
 
     fun runCodeTimeouts() = runCodeTimeouts(DateTime.now())
 
-    fun runCodeTimeouts(time:DateTime){
-        while(codeTimeouts.isNotEmpty() && codeTimeouts.first().first < time ){
-            val shareCode= codeTimeouts.removeFirst().second
+    fun runCodeTimeouts(time: DateTime) {
+        while (codeTimeouts.isNotEmpty() && codeTimeouts.first().first < time) {
+            val shareCode = codeTimeouts.removeFirst().second
             timeoutCode(shareCode)
         }
     }
 
-    private fun timeoutCode(code: ShareCode){
+    private fun timeoutCode(code: ShareCode) {
         providedShares.remove(code)
         nonSharingCodes.remove(code)
         activeShareCodes.remove(code)
@@ -84,22 +85,22 @@ class AuthService(val random: Random = Random, val shareCodeTimeout:TimeSpan=Tim
     fun assertCanProvide(code: ShareCode): Unit {
         assertCodeExists(code)
         if (code in nonSharingCodes) return
-            if (code !in providedShares)
-                return
-            else
-                throw RESTResponseCodeException(HttpStatusCode.BadRequest, "Code is already providing a Token")
+        if (code !in providedShares)
+            return
+        else
+            throw RESTResponseCodeException(HttpStatusCode.BadRequest, "Code is already providing a Token")
     }
 
     // Returns true if the ShareCode is used in a share-process, false otherwise
-    fun provideSharedToken(code:ShareCode, token:JSONWebToken, userID: UserID? = null): Boolean =
-        _provideSharedToken(code,token,userID)
+    fun provideSharedToken(code: ShareCode, token: JSONWebToken, userID: UserID? = null): Boolean =
+        _provideSharedToken(code, token, userID)
 
     private fun _provideSharedToken(code: ShareCode, token: JSONWebToken?, userID: UserID?): Boolean {
         assertCodeExists(code)
         if (code in nonSharingCodes) {
             nonSharingCodes.remove(code)
             val index = codeTimeouts.indexOfFirst { it.second == code }
-            if(index >=0)
+            if (index >= 0)
                 codeTimeouts.removeAt(index)
             activeShareCodes.remove(code)
             return false
@@ -116,7 +117,7 @@ class AuthService(val random: Random = Random, val shareCodeTimeout:TimeSpan=Tim
         if (userID == null || providedValue.first == null || providedValue.first == userID) {
             providedShares.remove(code)
             val index = codeTimeouts.indexOfFirst { it.second == code }
-            if(index >=0)
+            if (index >= 0)
                 codeTimeouts.removeAt(index)
             activeShareCodes.remove(code)
             return providedValue.second
@@ -127,5 +128,5 @@ class AuthService(val random: Random = Random, val shareCodeTimeout:TimeSpan=Tim
             )
     }
 
-    fun abortShare(code: ShareCode) = _provideSharedToken(code,null,null)
+    fun abortShare(code: ShareCode) = _provideSharedToken(code, null, null)
 }

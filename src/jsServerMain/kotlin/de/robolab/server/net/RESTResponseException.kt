@@ -1,11 +1,12 @@
 package de.robolab.server.net
 
 import de.robolab.common.net.HttpStatusCode
+import de.robolab.common.net.IRESTStatusProvider
 import de.robolab.common.net.MIMEType
 
-open class RESTResponseException : RuntimeException {
-
-    val mimeType: MIMEType?
+open class RESTResponseException : RuntimeException, IRESTStatusProvider {
+    final override val mimeType: MIMEType?
+    override val code: HttpStatusCode = HttpStatusCode.BadRequest
 
     constructor(
         message: String,

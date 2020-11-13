@@ -75,6 +75,7 @@ kotlin {
         all {
             languageSettings.enableLanguageFeature("InlineClasses")
             languageSettings.useExperimentalAnnotation("kotlin.contracts.ExperimentalContracts")
+            languageSettings.useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
         }
 
         val commonMain by getting {

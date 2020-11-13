@@ -2,9 +2,9 @@ package de.robolab.client.app.controller
 
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.app.model.file.FileNavigationRoot
-import de.robolab.client.net.requests.GetMQTTURLs
-import de.robolab.client.net.requests.getMQTTCredentials
-import de.robolab.client.net.requests.getMQTTURLs
+import de.robolab.client.net.requests.mqtt.GetMQTTURLs
+import de.robolab.client.net.requests.mqtt.getMQTTCredentials
+import de.robolab.client.net.requests.mqtt.getMQTTURLs
 import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.constObservable

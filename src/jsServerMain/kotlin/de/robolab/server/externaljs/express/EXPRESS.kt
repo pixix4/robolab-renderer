@@ -2,11 +2,15 @@
 
 package de.robolab.server.externaljs.express
 
+import de.robolab.common.auth.UserPermissionException
+import de.robolab.common.auth.User
 import de.robolab.common.net.HttpStatusCode
+import de.robolab.common.net.IRESTStatusProvider
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.ContentTypeHeader
+import de.robolab.common.utils.RobolabJson
+import de.robolab.common.utils.encodeString
 import de.robolab.server.net.RESTResponseException
-import de.robolab.server.auth.User
 import de.robolab.server.externaljs.Buffer
 import de.robolab.server.externaljs.JSArray
 import de.robolab.server.externaljs.NodeError
@@ -15,14 +19,16 @@ import de.robolab.server.jsutils.JSDynErrorCallback
 import de.robolab.server.jsutils.PromiseScope
 import de.robolab.server.jsutils.jsCreateDelegate
 import de.robolab.server.jsutils.promise
-import de.robolab.server.net.RESTResponseCodeException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.encodeToString
 import kotlin.js.Promise
 import kotlin.properties.ReadOnlyProperty
 
 val Express = js("require(\"express\")")
+val localRobolabJson = RobolabJson
 
 fun createApp(): ExpressApp = Express()
     .unsafeCast<ExpressApp>()
@@ -206,6 +212,18 @@ external interface Response<Data> : de.robolab.server.externaljs.http.ServerResp
     fun type(type: String): Response<Data>
 
     fun vary(field: String): Response<Data>
+}
+
+inline fun <reified T> AnyResponse.sendSerializable(obj: T, type: MIMEType? = MIMEType.JSON) {
+    if (type != null && type != undefined)
+        type(type)
+    send(localRobolabJson.encodeToString(obj))
+}
+
+fun <T> AnyResponse.sendSerializable(obj: T, serializer: SerializationStrategy<T>, type: MIMEType? = MIMEType.JSON) {
+    if (type != null && type != undefined)
+        type(type)
+    send(localRobolabJson.encodeToString(serializer, obj))
 }
 
 fun <ResData, ResDataT> Response<ResData>.withData(data: ResDataT): Response<ResDataT> {
@@ -1043,12 +1061,11 @@ fun <ReqData, ResData, ReqDataT, ResDataT> Router<ReqDataT, ResDataT>.asMappedSu
 }
 
 private fun handlePromiseError(err: Throwable, res: AnyResponse) {
-    val (errorCode: HttpStatusCode, errorMessage: String?, errorMime: MIMEType?) = when (err) {
-        is RESTResponseCodeException -> Triple(err.code, err.message, err.mimeType)
-        is RESTResponseException -> Triple(HttpStatusCode.BadRequest, err.message, err.mimeType)
-        else -> Triple(HttpStatusCode.InternalServerError, err.message, null)
-    }
-    if (err !is RESTResponseException)
+    val (errorCode: HttpStatusCode, errorMessage: String?, errorMime: MIMEType?) = if (err is IRESTStatusProvider)
+        Triple(err.code, err.message, err.mimeType)
+    else
+        Triple(HttpStatusCode.InternalServerError, err.message, null)
+    if ((err !is RESTResponseException) && (err !is UserPermissionException))
         console.error(err)
     if (!res.headersSent) {
         if (errorMime != null) {

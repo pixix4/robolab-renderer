@@ -1,6 +1,8 @@
 package de.robolab.server.auth
 
 import de.robolab.client.net.http
+import de.robolab.common.auth.AccessLevel
+import de.robolab.common.auth.User
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AuthorizationHeader
 import de.robolab.common.net.headers.Header
@@ -71,7 +73,8 @@ class GitLabAuthProvider(private val callbackURL: String) {
         }
         val robolabUserSet = getRoboLabUserSet()
         val currentUserId = currentUserResponse.jsonBody!!.jsonObject["resource_owner_id"]!!.jsonPrimitive.int.toUInt()
-        return User(currentUserId, if(currentUserId in robolabUserSet) 10 else 0)
+        //TODO: Add group-lookup here
+        return User(currentUserId, if (currentUserId in robolabUserSet) AccessLevel.Tutor else AccessLevel.LoggedIn)
     }
 
     fun extractShareCode(state: String): ShareCode? {

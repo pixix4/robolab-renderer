@@ -1,6 +1,10 @@
-package de.robolab.client.net.requests
+package de.robolab.client.net.requests.planets
 
 import de.robolab.client.net.*
+import de.robolab.client.net.requests.IRESTRequest
+import de.robolab.client.net.requests.IUnboundRESTRequest
+import de.robolab.client.net.requests.JsonRestResponse
+import de.robolab.client.net.requests.PlanetJsonInfo
 import de.robolab.common.net.*
 import de.robolab.common.planet.ID
 import de.robolab.common.utils.filterValuesNotNull
@@ -33,19 +37,14 @@ open class ListPlanets(
         parseResponseCatchingWrapper(serverResponse, this, ::ListPlanetsResponse)
 
     class ListPlanetsResponse(serverResponse: IServerResponse, triggeringRequest: IRESTRequest<ListPlanetsResponse>) :
-        RESTResponse(serverResponse) {
+        JsonRestResponse<List<PlanetJsonInfo>>(
+            serverResponse,
+            triggeringRequest,
+            ListSerializer(PlanetJsonInfo.serializer()),
+            emptyList()
+        ) {
 
-        val planets: List<PlanetJsonInfo>
-
-        init {
-            planets = if (serverResponse.status != HttpStatusCode.Ok)
-                `throw`(triggeringRequest)
-            else when (val mimeType = serverResponse.contentType?.mimeType) {
-                MIMEType.JSON -> parse(ListSerializer(PlanetJsonInfo.serializer()))
-                else -> throw IllegalArgumentException("Cannot parse MIME-Type '$mimeType'")
-            } ?: emptyList()
-        }
-
+        val planets: List<PlanetJsonInfo> = decodedValue
         val names: List<String> = planets.map(PlanetJsonInfo::name)
         val ids: List<ID> = planets.map(PlanetJsonInfo::id)
     }

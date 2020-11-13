@@ -14,19 +14,12 @@ object GetVersion : IUnboundRESTRequest<GetVersion.VersionResponse> {
     override val requestQuery: Map<String, String> = emptyMap()
     override val requestHeader: Map<String, List<String>> = mapOf("Accept" to listOf(MIMEType.JSON.primaryName))
 
-    override fun parseResponse(serverResponse: ServerResponse) = parseResponseCatchingWrapper(serverResponse,this,::VersionResponse)
+    override fun parseResponse(serverResponse: ServerResponse) =
+        parseResponseCatchingWrapper(serverResponse, this, ::VersionResponse)
 
-    class VersionResponse(serverResponse: IServerResponse, triggeringRequest: IRESTRequest<VersionResponse>) : RESTResponse(serverResponse) {
-        val version: Version
-
-        init {
-            if (status != HttpStatusCode.Ok) {
-                `throw`(triggeringRequest)
-            } else {
-                val json = serverResponse.jsonBody!!
-                version = VersionWithName.serializer().decode(json).version
-            }
-        }
+    class VersionResponse(serverResponse: IServerResponse, triggeringRequest: IRESTRequest<VersionResponse>) :
+        JsonRestResponse<VersionWithName>(serverResponse, triggeringRequest, VersionWithName.serializer()) {
+        val version: Version = decodedValue.version
 
         override fun toString(): String {
             return "VersionResponse(version=$version)"
@@ -42,4 +35,4 @@ object GetVersion : IUnboundRESTRequest<GetVersion.VersionResponse> {
 }
 
 suspend fun IRobolabServer.getVersion() = request(GetVersion)
-suspend fun IRobolabServer.getVersion(block: RequestBuilder.() -> Unit)= request(GetVersion, block)
+suspend fun IRobolabServer.getVersion(block: RequestBuilder.() -> Unit) = request(GetVersion, block)
