@@ -103,12 +103,14 @@ class RESTRobolabServer(
                         if (usedHeader == null) headers
                         else headers + (AuthorizationHeader.name to listOf(usedHeader.value))
                     )
-                    logger.debug("|C<--S| $method:$path - ${response.status}:${response.mimeType}; CNT:\"${
+                    logger.debug("|C<--S| $method:$path - ${response.status}:${response.mimeType}; CNT:${
                         response.body?.let {
-                            if (it.length < 8) return@let it
-                            else it.substring(0, 4) + "…[${it.length - 8}+8]…" + it.substring(it.length - 4)
+                            if (it.length < 8) '\"' + it + '\"'
+                            else '\"' + it.substring(0, 4) +
+                                    "…[${it.length - 8}+8]…" +
+                                    it.substring(it.length - 4) + '\"'
                         }
-                    }\"")
+                    }")
                     if (response.status != HttpStatusCode.Unauthorized)
                         return response
                     if (enableWaitingRequestList)
