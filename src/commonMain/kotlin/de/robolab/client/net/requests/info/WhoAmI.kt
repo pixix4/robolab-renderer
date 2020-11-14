@@ -23,10 +23,9 @@ object WhoAmI : IUnboundRESTRequest<WhoAmI.Response> {
 
         val user: User = decodedValue
 
-        val sub: String = user.internalName
-        val accessLevel: Int = user.accessLevel.numericLevel
-        val accessLevelName: String = user.accessLevel.name
-        val anonymous: Boolean = user.userID == User.Anonymous.userID
+        private val sub: String = user.internalName
+        private val accessLevel: Int = user.accessLevel.numericLevel
+        private val anonymous: Boolean = user.userID == User.Anonymous.userID
 
         override fun toString(): String {
             return "Response(sub='$sub', accessLevel='$accessLevel', anonymous=$anonymous)"

@@ -140,9 +140,9 @@ class FileNavigationRoot(
                 }
 
                 try {
-                    val version = server.whoami().okOrThrow().accessLevelName
+                    val user = server.whoami().okOrThrow().user
                     withContext(Dispatchers.Main) {
-                        remoteServerAuthenticationProperty.value = version
+                        remoteServerAuthenticationProperty.value = "${user.name} (${user.accessLevel.name})"
                     }
                 } catch (e: Throwable) {
                     logger.error("Load server who am i", e)
