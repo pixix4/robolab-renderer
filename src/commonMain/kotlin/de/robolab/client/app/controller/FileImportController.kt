@@ -31,12 +31,12 @@ class FileImportController(private val robolabMessageProvider: RobolabMessagePro
         withContext(Dispatchers.Default) {
             try {
                 if (fileName.endsWith(".planet")) {
-                    logger.i { "Import of *.planet files is currently not supported!" }
+                    logger.info { "Import of *.planet files is currently not supported!" }
                 } else if (fileName.endsWith(".log")) {
                     robolabMessageProvider.importMqttLog(content)
                 }
             } catch (e: Exception) {
-                logger.w { e }
+                logger.warn { e }
             }
         }
     }

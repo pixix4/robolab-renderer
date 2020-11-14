@@ -131,7 +131,7 @@ class MessageRepository(
 
             storage.createMessage(message, attempt)
         } catch (e: Exception) {
-            logger.error("Error processing mqtt message: ${e.message}\n${e.stackTraceToString()}")
+            logger.error("Error processing mqtt message!", e)
         }
     }
 
@@ -240,7 +240,7 @@ class MessageRepository(
                 events.updateGroup(group)
                 group
             } catch (e: Exception) {
-                logger.error("Error creating empty group $groupName: ${e.message}\n${e.stackTraceToString()}")
+                logger.error("Error creating empty group $groupName!", e)
                 null
             }
         }

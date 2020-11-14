@@ -47,7 +47,7 @@ object ConfigFile {
                 return Files.readString(path)
             }
         } catch (e: Exception) {
-            Logger("ConfigFile").w("Cannot read config file ${path.toAbsolutePath()}: ${e.message}")
+            Logger("ConfigFile").warn("Cannot read config file ${path.toAbsolutePath()}: ${e.message}")
         }
         return ""
     }
@@ -59,7 +59,7 @@ object ConfigFile {
                 Files.writeString(path, config)
             }
         } catch (e: Exception) {
-            Logger("ConfigFile").w("Cannot write config file ${path.toAbsolutePath()}: ${e.message}")
+            Logger("ConfigFile").warn("Cannot write config file ${path.toAbsolutePath()}: ${e.message}")
         }
     }
 }

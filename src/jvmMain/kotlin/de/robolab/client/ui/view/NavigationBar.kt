@@ -249,8 +249,8 @@ class NavigationBar(
                                         progressReader.lineSequence()
                                     )
                                 } catch (e: Exception) {
-                                    logger.w { "Cannot import file '${file.absolutePath}'" }
-                                    logger.w { e }
+                                    logger.warn { "Cannot import file '${file.absolutePath}'" }
+                                    logger.warn { e }
                                 }
                             }
                         }

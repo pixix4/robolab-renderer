@@ -56,7 +56,9 @@ class TokenDialog private constructor(
                     val r = tokenLinkPair.sendHttpRequest().also {
                         it.ifErr { e ->
                             if (e !is RESTRequestCodeException || e.code != HttpStatusCode.NoContent) {
-                                logger.warn(e.toString())
+                                logger.warn {
+                                    e.toString()
+                                }
                             }
                         }
                     }.okOrNull()

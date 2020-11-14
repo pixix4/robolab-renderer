@@ -1,7 +1,7 @@
 package de.robolab.common.utils
 
 actual class LoggerOutput actual constructor() {
-    actual fun log(logger: Logger, level: Logger.Level, msg: Any?) {
+    actual fun log(logger: Logger, level: Logger.Level, vararg msg: Any?) {
         val color = when (level) {
             Logger.Level.ERROR -> "\u001B[31m"
             Logger.Level.WARN -> "\u001B[33m"
@@ -10,7 +10,7 @@ actual class LoggerOutput actual constructor() {
         }
         console.log(
             "${logger.getCurrentDate()} [$color${level.name.padEnd(5, ' ')}\u001B[0m] ${logger.name}:",
-            msg
+            *msg
         )
     }
 

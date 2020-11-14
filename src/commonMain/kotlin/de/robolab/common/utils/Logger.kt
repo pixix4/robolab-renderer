@@ -5,17 +5,17 @@ import com.soywiz.klock.DateTimeTz
 
 class Logger(val name: String) {
 
-    val output = LoggerOutput()
-
     fun log(level: Level, msg: () -> Any?) {
         if (level.index <= Logger.level.index) {
-            output.log(this, level, msg())
+            val m = format(msg())
+            output.log(this, level, m)
         }
     }
 
-    fun log(level: Level, msg: Any?) {
+    fun log(level: Level, vararg msg: Any?) {
         if (level.index <= Logger.level.index) {
-            output.log(this, level, msg)
+            val m = msg.map(Logger::format).toTypedArray()
+            output.log(this, level, *m)
         }
     }
 
@@ -24,24 +24,16 @@ class Logger(val name: String) {
     }
 
     fun error(msg: () -> Any?) = log(Level.ERROR, msg)
-    fun error(msg: Any?) = log(Level.ERROR, msg)
-    fun e(msg: () -> Any?) = log(Level.ERROR, msg)
-    fun e(msg: Any?) = log(Level.ERROR, msg)
+    fun error(vararg msg: Any?) = log(Level.ERROR, msg)
 
     fun warn(msg: () -> Any?) = log(Level.WARN, msg)
-    fun warn(msg: Any?) = log(Level.WARN, msg)
-    fun w(msg: () -> Any?) = log(Level.WARN, msg)
-    fun w(msg: Any?) = log(Level.WARN, msg)
+    fun warn(vararg msg: Any?) = log(Level.WARN, msg)
 
     fun info(msg: () -> Any?) = log(Level.INFO, msg)
-    fun info(msg: Any?) = log(Level.INFO, msg)
-    fun i(msg: () -> Any?) = log(Level.INFO, msg)
-    fun i(msg: Any?) = log(Level.INFO, msg)
+    fun info(vararg msg: Any?) = log(Level.INFO, msg)
 
     fun debug(msg: () -> Any?) = log(Level.DEBUG, msg)
-    fun debug(msg: Any?) = log(Level.DEBUG, msg)
-    fun d(msg: () -> Any?) = log(Level.DEBUG, msg)
-    fun d(msg: Any?) = log(Level.DEBUG, msg)
+    fun debug(vararg msg: Any?) = log(Level.DEBUG, msg)
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun printStacktrace() {
@@ -55,6 +47,8 @@ class Logger(val name: String) {
     companion object {
         val DEFAULT = Logger("DefaultLogger")
 
+        val output = LoggerOutput()
+
         var level = Level.DEBUG
 
         private val loggerCache = mutableMapOf<String, Logger>()
@@ -64,12 +58,19 @@ class Logger(val name: String) {
             return loggerCache.getOrPut(name) { Logger(name) }
         }
 
+        fun format(msg: Any?) : Any? {
+            if (msg is Throwable) {
+                return msg.stackTraceToString()
+            }
+            return msg
+        }
+
         val LOG_DATE_FORMAT = DateFormat("yyyy-MM-dd HH:mm:ss.SSS")
     }
 }
 
 expect class LoggerOutput() {
-    fun log(logger: Logger, level: Logger.Level, msg: Any?)
+    fun log(logger: Logger, level: Logger.Level, vararg msg: Any?)
 
     fun printStacktrace()
 }

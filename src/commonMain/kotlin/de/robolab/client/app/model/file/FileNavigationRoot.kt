@@ -45,7 +45,7 @@ class FileNavigationRoot(
                 try {
                     loader?.server?.authHeader = AuthorizationHeader.Bearer(PreferenceStorage.authenticationToken)
                 } catch (e: Exception) {
-                    logger.e(e.stackTraceToString())
+                    logger.error(e)
                 }
             }
 
@@ -133,7 +133,7 @@ class FileNavigationRoot(
                         remoteServerVersionProperty.value = version.toString()
                     }
                 } catch (e: Throwable) {
-                    logger.e("Load server version: " + e.stackTraceToString())
+                    logger.error("Load server version", e)
                     withContext(Dispatchers.Main) {
                         remoteServerVersionProperty.value = "Cannot find server!"
                     }
@@ -145,7 +145,7 @@ class FileNavigationRoot(
                         remoteServerAuthenticationProperty.value = version
                     }
                 } catch (e: Throwable) {
-                    logger.e("Load server who am i: " + e.stackTraceToString())
+                    logger.error("Load server who am i", e)
                     withContext(Dispatchers.Main) {
                         remoteServerAuthenticationProperty.value = "Cannot find server!"
                     }

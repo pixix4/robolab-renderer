@@ -127,8 +127,8 @@ object BuildInformation: BuildInformationFile() {
         val runtime = try {
             getRuntimeInformation()
         } catch (e: Exception) {
-            Logger("BuildInformation").w { "Cannot get runtime information!" }
-            Logger("BuildInformation").w { e }
+            Logger("BuildInformation").warn { "Cannot get runtime information!" }
+            Logger("BuildInformation").warn { e }
             emptyList()
         }
 

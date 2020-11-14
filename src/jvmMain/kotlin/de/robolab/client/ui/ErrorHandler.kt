@@ -24,7 +24,11 @@ class ErrorHandler : Thread.UncaughtExceptionHandler {
         val message = writer.toString()
 
         if (isSilent(error)) {
-            log.warn("Silent uncaught exception. This error is known and comes from the underlying javafx system where it cannot be fixed.\nIf you think this is a false positive please report this error message: $message")
+            log.warn(
+                """Silent uncaught exception. This error is known and comes from the underlying javafx system where it cannot be fixed.
+If you think this is a false positive please report this error message:
+""", error
+            )
             return
         }
 

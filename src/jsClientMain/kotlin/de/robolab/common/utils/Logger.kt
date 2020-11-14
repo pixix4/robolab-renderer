@@ -1,7 +1,7 @@
 package de.robolab.common.utils
 
 actual class LoggerOutput actual constructor() {
-    actual fun log(logger: Logger, level: Logger.Level, msg: Any?) {
+    actual fun log(logger: Logger, level: Logger.Level, vararg msg: Any?) {
         val color = when (level) {
             Logger.Level.ERROR -> "#c0392b"
             Logger.Level.WARN -> "#f39c12"
@@ -13,7 +13,7 @@ actual class LoggerOutput actual constructor() {
                 "color: initial",
                 "color: $color",
                 "color: initial",
-                msg
+                *msg
         )
     }
 

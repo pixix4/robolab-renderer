@@ -85,13 +85,13 @@ class RESTRobolabServer(
                     usedHeader = authHeader
                     if (_requestAuthTokenMutex.holdsLock(owner))
                         _requestAuthTokenMutex.unlock(owner)
-                    logger.debug(
+                    logger.debug {
                         "|C-->S| $method:$path HED: ${
                             usedHeader?.let {
                                 "${it.schemaName}#${it.hashCode() xor headerHashcodeXorMask}"
                             }
                         }"
-                    )
+                    }
                     response = sendHttpRequest(
                         method,
                         protocol,
@@ -103,14 +103,16 @@ class RESTRobolabServer(
                         if (usedHeader == null) headers
                         else headers + (AuthorizationHeader.name to listOf(usedHeader.value))
                     )
-                    logger.debug("|C<--S| $method:$path - ${response.status}:${response.mimeType}; CNT:${
-                        response.body?.let {
-                            if (it.length < 8) '\"' + it + '\"'
-                            else '\"' + it.substring(0, 4) +
-                                    "…[${it.length - 8}+8]…" +
-                                    it.substring(it.length - 4) + '\"'
-                        }
-                    }")
+                    logger.debug {
+                        "|C<--S| $method:$path - ${response.status}:${response.mimeType}; CNT:${
+                            response.body?.let {
+                                if (it.length < 8) '\"' + it + '\"'
+                                else '\"' + it.substring(0, 4) +
+                                        "…[${it.length - 8}+8]…" +
+                                        it.substring(it.length - 4) + '\"'
+                            }
+                        }"
+                    }
                     if (response.status != HttpStatusCode.Unauthorized)
                         return response
                     if (enableWaitingRequestList)

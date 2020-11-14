@@ -26,7 +26,9 @@ class App : CliktCommand() {
             DefaultEnvironment.app.get("/", logoResponse)
         }
         DefaultEnvironment.http.listen(Config.General.port) {
-            logger.i("Listening on port http://localhost:${Config.General.port}${Config.General.mount}")
+            logger.info {
+                "Listening on port http://localhost:${Config.General.port}${Config.General.mount}"
+            }
         }
     }
 }

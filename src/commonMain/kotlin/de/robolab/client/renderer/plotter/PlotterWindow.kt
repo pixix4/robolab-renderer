@@ -173,6 +173,8 @@ class PlotterWindow(
 
         log(document, 0)
 
-        logger.info(result.joinToString("\n"))
+        logger.info {
+            result.joinToString("\n")
+        }
     }
 }
