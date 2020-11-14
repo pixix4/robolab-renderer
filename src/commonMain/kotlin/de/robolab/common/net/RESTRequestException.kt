@@ -335,7 +335,7 @@ fun <T : Any> IServerResponse.parseOrThrow(
         throw if (ex is RESTRequestException)
             ex
         else
-            RESTRequestException("Could not deserialize the body of $this", ex, triggeringRequest, this)
+            RESTRequestException("Could not deserialize the body of $this: ${this.body}", ex, triggeringRequest, this)
     }
 }
 

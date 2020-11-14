@@ -1091,6 +1091,7 @@ private fun handlePromiseError(err: Throwable?, res: AnyResponse, next: (NodeErr
     when (err) {
         null -> next(err)
         is RESTResponseException -> handlePromiseError(err, res)
+        is UserPermissionException -> handlePromiseError(err, res)
         is NodeError -> next(err)
         else -> {
             handlePromiseError(err, res)
@@ -1102,10 +1103,12 @@ private fun handlePromiseError(err: Throwable?, res: AnyResponse, next: (NodeErr
 private fun <ReqData, ResData> TerminalPromiseCreator<ReqData, ResData>.toMiddleware(): Middleware<ReqData, ResData> {
     return { req, res, next ->
         var prom: Promise<*>? = null
-        var err: RESTResponseException? = null
+        var err: Exception? = null //RESTResponseException or UserPermissionException
         try {
             prom = this(req, res)
         } catch (ex: RESTResponseException) {
+            err = ex
+        } catch (ex: UserPermissionException) {
             err = ex
         }
         if (err != null && err != undefined)
@@ -1137,6 +1140,8 @@ private fun <ReqData, ResData> MiddlewarePromiseCreator<ReqData, ResData>.toMidd
         try {
             prom = this(req, res, ::next2)
         } catch (ex: RESTResponseException) {
+            err = ex
+        } catch (ex: UserPermissionException) {
             err = ex
         }
         if (err != null && err != undefined)

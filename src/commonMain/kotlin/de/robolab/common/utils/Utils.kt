@@ -1,6 +1,10 @@
 package de.robolab.common.utils
 
 import kotlin.jvm.JvmName
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.ExperimentalTime
+import kotlin.time.toDuration
 
 
 fun String.toDashCase() = replace("([a-z])([A-Z])".toRegex(), "$1-$2").toLowerCase()
@@ -17,17 +21,22 @@ fun <K, V> Map<K, V>.withEntry(entry: Pair<K, V>): Map<K, V> =
     withEntry(entry) { key, oldValue, newValue -> throw IllegalArgumentException("No merger specified, map already contains an entry with key $key and value $oldValue when adding $newValue") }
 
 
-fun <K, V> Map<K, V>.withEntry(entry: Pair<K, V>, merger:(key: K, oldValue: V, newValue: V)-> V): Map<K, V> {
+fun <K, V> Map<K, V>.withEntry(entry: Pair<K, V>, merger: (key: K, oldValue: V, newValue: V) -> V): Map<K, V> {
     val oldValue: V = this[entry.first] ?: return (this + entry)
-    return this + (entry.first to merger(entry.first, oldValue,entry.second))
+    return this + (entry.first to merger(entry.first, oldValue, entry.second))
 }
 
 @JvmName("withEntryList")
-fun <K, V> Map<K, List<V>>.withEntry(entry: Pair<K, V>) = this.withEntry(entry.first to listOf(entry.second)){ _:K, oldValue:List<V>, newValue:List<V> ->
-    oldValue + newValue
-}
+fun <K, V> Map<K, List<V>>.withEntry(entry: Pair<K, V>) =
+    this.withEntry(entry.first to listOf(entry.second)) { _: K, oldValue: List<V>, newValue: List<V> ->
+        oldValue + newValue
+    }
 
-inline fun <T, R, S, V> Iterable<T>.zip(other1: Iterable<R>, other2: Iterable<S>, transform: (a: T, b: R, c: S) -> V): List<V> {
+inline fun <T, R, S, V> Iterable<T>.zip(
+    other1: Iterable<R>,
+    other2: Iterable<S>,
+    transform: (a: T, b: R, c: S) -> V
+): List<V> {
     val first = iterator()
     val second = other1.iterator()
     val third = other2.iterator()
@@ -47,4 +56,22 @@ inline fun <T> Iterable<T>.intersect(other: Iterable<T>, predicate: (T, T) -> Bo
     return filter { selfPath ->
         other.any { predicate(selfPath, it) }
     }
+}
+
+private val durationRegex: Regex = "^(\\d+)([dhms]|ms)$".toRegex(RegexOption.IGNORE_CASE)
+
+@ExperimentalTime
+fun String.toDuration(): Duration {
+    val (count, unit) = (durationRegex.matchEntire(this)
+        ?: throw IllegalArgumentException("Could not parse duration-string \"$this\"")).destructured
+    return count.toLong().toDuration(
+        when (unit.toLowerCase()) {
+            "d" -> DurationUnit.DAYS
+            "h" -> DurationUnit.HOURS
+            "m" -> DurationUnit.MINUTES
+            "s" -> DurationUnit.SECONDS
+            "ms" -> DurationUnit.MILLISECONDS
+            else -> throw IllegalArgumentException("Cannot parse unit \"$unit\" from duration-string \"$this\"")
+        }
+    )
 }

@@ -4,8 +4,6 @@ import de.robolab.common.auth.AccessLevel
 import de.robolab.common.auth.User
 import de.robolab.server.externaljs.dynamicOf
 
-typealias UserID = UInt
-
 fun User.toJWTPayload(): dynamic = dynamicOf(
     "sub" to userID.toString(),
     "accessLevel" to accessLevel.numericLevel,

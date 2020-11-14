@@ -68,13 +68,13 @@ object Config : TypedStorage() {
 
     object MQTT {
         //Username for the Tutor-MQTT login
-        val tutorUser by item("mqtt.tutorUser","tutor")
+        val tutorUser by item("mqtt.tutorUser", "tutor")
 
         //Password for the Tutor-MQTT login
-        val tutorPassword by item("mqtt.tutorPassword","password")
+        val tutorPassword by item("mqtt.tutorPassword", "password")
 
         //Connection string used to connect to the postgres database for mqtt information
-        val database by item("mqtt.database","postgresql://mothership.inf.tu-dresden.de/robolab")
+        val database by item("mqtt.database", "postgresql://mothership.inf.tu-dresden.de/robolab")
 
         //Mothership URLs for Websockets and SSL
         val mothershipURLWSS by item("mqtt.mothershipURLWSS", "wss://mothership.inf.tu-dresden.de:9002/mqtt")
@@ -122,6 +122,21 @@ object Config : TypedStorage() {
 
         //The time required to pass before the token is valid
         val tokenNotBefore by item("auth.tokenNotBefore", "5ms")
+
+        //Id of the gitlab-group to use for determining tutors, admins etc.
+        val robolabGroupID by item("auth.robolabGroupID", 9)
+
+        //Duration for which responses from gitlab may be cached unless a related lookup fails
+        val cacheDuration by item("auth.cacheDuration", "30m")
+
+        //Duration for which responses from gitlab will be cached even if a related lookup fails
+        val cacheDurationOnKeyMiss by item("auth.cacheDurationOnKeyMiss", "2m")
+
+        //Regex to use for determining the group-number on matching projects
+        val groupProjectsRegex by item("auth.groupProjectsRegex", "^group-(\\d\\d\\d)$")
+
+        //Projects must be direct descendants of this namespace to be tested as group-projects
+        val groupProjectsGroupID by item("auth.groupProjectsGroupID", 192)
     }
 }
 

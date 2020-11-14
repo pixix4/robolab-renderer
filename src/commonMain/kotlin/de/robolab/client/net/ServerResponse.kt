@@ -26,7 +26,7 @@ interface IServerResponse {
     val typedHeaders: TypedHeaders
         get() = TypedHeaders.parse(headers)
 
-    fun<T: Any> parse(deserializer: DeserializationStrategy<T>): T? {
+    fun <T : Any> parse(deserializer: DeserializationStrategy<T>): T? {
         val body: String? = this.body
         return if (body == null) null else RobolabJson.decodeFromString(deserializer, body)
     }
@@ -34,6 +34,29 @@ interface IServerResponse {
 
 val IServerResponse.mimeType: MIMEType?
     get() = typedHeaders.contentTypeHeaders.firstOrNull()?.mimeType
+
+private val linkRegex = "<([^<>]+)>(?:\\s*;\\s*((?:[^;,]+(?:;[^;,]+)*)))?(?!\\s*;)".toRegex()
+
+val IServerResponse.links: List<Pair<String, Map<String, String>>>
+    get() = headers["link"]?.flatMap {
+        linkRegex.findAll(it)
+            .map { mr -> (mr.destructured.component1() to mr.destructured.component2()) } // I dont trust the MatchResults to not change while traversing the sequence
+    }.orEmpty().map { (link, params) ->
+        link to params.split(';').associate { param ->
+            if (param.contains("=")) {
+                val (paramName, paramValue) = param.split('=', limit = 2)
+                paramName.trim() to paramValue.trim().let { value ->
+                    if (value.startsWith('"') && value.endsWith('"')) value.substring(1, value.length - 1)
+                    else value
+                }
+            } else {
+                param.trim() to "true"
+            }
+        }
+    }
+
+val IServerResponse.linksRelMap: Map<String, String>
+    get() = links.filter { it.second.containsKey("rel") }.associate { (link, params) -> params.getValue("rel") to link }
 
 class ServerResponse(
     override val status: HttpStatusCode,

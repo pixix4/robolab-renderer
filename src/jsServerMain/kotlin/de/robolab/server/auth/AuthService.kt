@@ -3,6 +3,7 @@ package de.robolab.server.auth
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.TimeSpan
 import de.robolab.common.auth.User
+import de.robolab.common.auth.UserID
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AuthorizationHeader
 import de.robolab.server.net.RESTResponseCodeException

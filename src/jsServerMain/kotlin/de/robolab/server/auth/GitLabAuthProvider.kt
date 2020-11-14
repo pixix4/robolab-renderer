@@ -3,12 +3,16 @@ package de.robolab.server.auth
 import de.robolab.client.net.http
 import de.robolab.common.auth.AccessLevel
 import de.robolab.common.auth.User
+import de.robolab.common.auth.UserID
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AuthorizationHeader
 import de.robolab.common.net.headers.Header
 import de.robolab.common.net.`throw`
 import de.robolab.server.config.Config
 import de.robolab.server.externaljs.encodeURIComponent
+import de.robolab.server.net.gitlab.GitLabServer
+import de.robolab.server.net.gitlab.getGroupIDsForUser
+import de.robolab.server.net.gitlab.getRoboLabTutors
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -18,17 +22,6 @@ import kotlin.random.Random
 class GitLabAuthProvider(private val callbackURL: String) {
     private val rand: Random = Random
     private val encodedCallbackURL: String = encodeURIComponent(callbackURL)
-    private val apiHeader: AuthorizationHeader = AuthorizationHeader.Bearer(Config.Auth.gitlabAPIToken)
-
-    suspend fun getRoboLabUserSet(): Set<UserID> {
-        val response = http {
-            url("${Config.Auth.gitlabURL}/api/v4/groups/9/members")
-            header(apiHeader)
-        }.exec()
-        if (response.status != HttpStatusCode.Ok)
-            response.`throw`()
-        return response.jsonBody!!.jsonArray.map { it.jsonObject["id"]!!.jsonPrimitive.int.toUInt() }.toSet()
-    }
 
     fun startAuthURL(shareCode: ShareCode): String {
         val state: UInt = shareCode
@@ -71,10 +64,25 @@ class GitLabAuthProvider(private val callbackURL: String) {
         if (currentUserResponse.status != HttpStatusCode.Ok) {
             currentUserResponse.`throw`()
         }
-        val robolabUserSet = getRoboLabUserSet()
+        val robolabTutorSet = GitLabServer.getRoboLabTutors().keys
         val currentUserId = currentUserResponse.jsonBody!!.jsonObject["resource_owner_id"]!!.jsonPrimitive.int.toUInt()
+        var currentAccessLevel = if (currentUserId in robolabTutorSet) AccessLevel.Tutor else AccessLevel.LoggedIn
+        val groupID: Int?
+        if (currentAccessLevel satisfies AccessLevel.Tutor) {
+            groupID = null
+        } else {
+            val groupIDs = GitLabServer.getGroupIDsForUser(currentUserId)
+            if (groupIDs.isEmpty()) {
+                groupID = null
+            } else {
+                groupID = groupIDs.firstOrNull()
+                currentAccessLevel = AccessLevel.GroupMember
+                if (groupIDs.size > 1)
+                    console.error("User#$currentUserId is part of multiple groups: $groupIDs")
+            }
+        }
         //TODO: Add group-lookup here
-        return User(currentUserId, if (currentUserId in robolabUserSet) AccessLevel.Tutor else AccessLevel.LoggedIn)
+        return User(currentUserId, currentAccessLevel, groupID)
     }
 
     fun extractShareCode(state: String): ShareCode? {
