@@ -6,18 +6,22 @@ import de.robolab.server.externaljs.fs.writeFileSync
 
 actual class KeyValueStorage {
 
+    private val debugAccess: Boolean
+
     private val fileName = "server.ini"
+
+    private val log = Logger("KeyValueStorage")
 
     private var configCache: Map<String, String> = emptyMap()
 
     private fun loadFile(filename: String) {
         if (existsSync(filename)) {
-            log.info { "Load config '$filename'" }
+            println("Loading config file '$filename'!")
             val string = readFileSync(filename, "utf8") as String
 
             configCache += IniConverter.fromString(string)
         } else {
-            log.warn { "Cannot load config '$filename'" }
+            println("Config file '$filename' does not exist!")
         }
     }
 
@@ -28,13 +32,24 @@ actual class KeyValueStorage {
     }
 
     actual operator fun get(key: String): String? {
+        if (debugAccess) {
+            val value = configCache[key]
+            println("Read value $key: $value")
+            return value
+        }
         return configCache[key]
     }
 
     actual operator fun set(key: String, value: String?) {
         if (value == null) {
+            if (debugAccess) {
+                println("Remove key $key: (${configCache[key]})")
+            }
             configCache -= key
         } else {
+            if (debugAccess) {
+                println("Set value $key: ${configCache[key]} -> $value")
+            }
             configCache += key to value
         }
         saveFile()
@@ -60,18 +75,32 @@ actual class KeyValueStorage {
             log.error("Cannot load config file $fileName")
         }
 
-        for (file in overrideFiles) {
-            try {
-                loadFile(file)
-            } catch (_: Exception) {
-                log.error("Cannot load config file $file")
+        val files = overrideFiles
+        if (files == null) {
+            debugAccess = true
+            println(
+                """
+                |-------------------------------------------------------------------|
+                |                                                                   |
+                | KeyValueStorage was initialized before the command line arguments |
+                |   could be processed. External config files will not be loaded!   |
+                |                                                                   |
+                |-------------------------------------------------------------------|
+                """.trimIndent()
+            )
+        } else {
+            debugAccess = false
+            for (file in files) {
+                try {
+                    loadFile(file)
+                } catch (_: Exception) {
+                    log.error("Cannot load config file $file")
+                }
             }
         }
     }
 
     companion object {
-        val log = Logger("KeyValueStorage")
-
-        var overrideFiles = emptyList<String>()
+        var overrideFiles: List<String>? = null
     }
 }

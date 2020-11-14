@@ -6,7 +6,9 @@ import kotlinx.serialization.Transient
 
 typealias ProjectID = Int
 
-private val group_id_regex: Regex = Config.Auth.groupProjectsRegex.toRegex()
+private val group_id_regex: Regex by lazy {
+    Config.Auth.groupProjectsRegex.toRegex()
+}
 
 interface IProjectInfo {
     val id: ProjectID
