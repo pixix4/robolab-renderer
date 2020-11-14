@@ -7,10 +7,10 @@ import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.RESTRequestCodeException
 import de.robolab.common.utils.Logger
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.scene.layout.Priority
 import kotlinx.coroutines.*
-import tornadofx.vbox
-import tornadofx.vgrow
+import tornadofx.*
 import java.awt.Desktop
 import java.net.URI
 
@@ -22,19 +22,37 @@ class TokenDialog : GenericDialog() {
     private val onFinish: (Boolean) -> Unit by param()
     private val logger = Logger(this)
 
+    private val userConfirmProperty = SimpleBooleanProperty(false)
+
     override val root = buildContent("Token") {
         vgrow = Priority.ALWAYS
         vbox {
             vgrow = Priority.ALWAYS
 
+            vbox {
+                visibleWhen(userConfirmProperty)
+                managedWhen(userConfirmProperty)
 
+                label("You need to authenticate with the gitlab server!")
+
+                button("Request authentication token") {
+                    setOnAction {
+                        userConfirmProperty.value = false
+                        requestToken()
+                    }
+                }
+            }
+
+            vbox {
+                visibleWhen(!userConfirmProperty)
+                managedWhen(!userConfirmProperty)
+
+                label("Please authenticate to the gitlab server inside your browser!")
+            }
         }
     }
 
-    private var success = false
-    override fun onBeforeShow() {
-        super.onBeforeShow()
-
+    private fun requestToken() {
         GlobalScope.launch {
             val tokenLinkPair = server.getTokenLinkPair().okOrNull()
             success = false
@@ -48,7 +66,7 @@ class TokenDialog : GenericDialog() {
                     val r = tokenLinkPair.sendHttpRequest().also {
                         it.ifErr { e ->
                             if (e !is RESTRequestCodeException || e.code != HttpStatusCode.NoContent) {
-                                logger.warn(e.toString())
+                                logger.warn(e)
                             }
                         }
                     }.okOrNull()
@@ -56,6 +74,7 @@ class TokenDialog : GenericDialog() {
                         withContext(Dispatchers.Main) {
                             server.authHeader = r.tokenHeader
                             PreferenceStorage.authenticationToken = r.rawToken
+                            success = true
                             close()
                         }
                         break
@@ -67,6 +86,17 @@ class TokenDialog : GenericDialog() {
         }
     }
 
+    private var success = false
+    override fun onBeforeShow() {
+        super.onBeforeShow()
+
+        userConfirmProperty.value = userConfirm
+
+        if (!userConfirm) {
+            requestToken()
+        }
+    }
+
     override fun onUndock() {
         super.onUndock()
 
@@ -74,7 +104,7 @@ class TokenDialog : GenericDialog() {
     }
 
     companion object {
-        val browsers = arrayOf(
+        private val browsers = arrayOf(
             "xdg-open",
             "google-chrome",
             "firefox",
@@ -99,6 +129,7 @@ class TokenDialog : GenericDialog() {
                                 .exec(arrayOf("which", b)).inputStream.read() != -1
                         ) {
                             Runtime.getRuntime().exec(arrayOf(b.also { browser = it }, uri))
+                            break
                         }
                     }
                     if (browser == null) {
