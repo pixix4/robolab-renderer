@@ -25,6 +25,10 @@ abstract class RESTResponse(protected val parentResponse: IServerResponse) : IRE
     final override val headers: Map<String, List<String>> = parentResponse.headers
     final override fun <T : Any> parse(deserializer: DeserializationStrategy<T>): T? =
         parentResponse.parse(deserializer)
+
+    override fun toString(): String {
+        return "RESTResponse($method:$url --> ${metaInfoString()}: ${bodyInfoString()})"
+    }
 }
 
 open class JsonRestResponse<T : Any> : RESTResponse {

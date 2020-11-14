@@ -30,6 +30,16 @@ interface IServerResponse {
         val body: String? = this.body
         return if (body == null) null else RobolabJson.decodeFromString(deserializer, body)
     }
+
+    fun metaInfoString(sep: String = ":"): String = "$status$sep$mimeType"
+
+    fun bodyInfoString(visibleChars: Int = 6): String =
+        body?.let {
+            if (visibleChars < 0 || it.length < 2 * visibleChars) '\"' + it + '\"'
+            else '\"' + it.substring(0, visibleChars) +
+                    "…[${it.length - 2 * visibleChars}+${2 * visibleChars}]…" +
+                    it.substring(it.length - visibleChars) + '\"'
+        } ?: "null"
 }
 
 val IServerResponse.mimeType: MIMEType?
@@ -68,4 +78,8 @@ class ServerResponse(
     override val headers: Map<String, List<String>> = headers.toLowerCaseKeys(true)
     override val jsonBody: JsonElement? by lazy { super.jsonBody }
     override val typedHeaders: TypedHeaders = TypedHeaders.parseLowerCase(headers)
+
+    override fun toString(): String {
+        return "ServerResponse($method:$url --> ${metaInfoString()}: ${bodyInfoString()})"
+    }
 }
