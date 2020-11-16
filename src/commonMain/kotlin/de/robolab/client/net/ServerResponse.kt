@@ -33,7 +33,7 @@ interface IServerResponse {
 
     fun metaInfoString(sep: String = ":"): String = "$status$sep$mimeType"
 
-    fun bodyInfoString(visibleChars: Int = 6): String =
+    fun bodyInfoString(visibleChars: Int = 4): String =
         body?.let {
             if (visibleChars < 0 || it.length < 2 * visibleChars) '\"' + it + '\"'
             else '\"' + it.substring(0, visibleChars) +

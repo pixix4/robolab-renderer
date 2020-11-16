@@ -62,7 +62,7 @@ class User private constructor(
     @SerialName("userID")
     private val _userID: Int,
     val accessLevel: AccessLevel,
-    val name: String,
+    val username: String,
     val group: Int? = null
 ) {
 
@@ -72,7 +72,7 @@ class User private constructor(
         accessLevel: AccessLevel,
         group: Int? = null
     ) : this(
-        userID, accessLevel, group, name = when {
+        userID, accessLevel, group, username = when {
             accessLevel == AccessLevel.Anonymous -> "anonymous"
             accessLevel >= AccessLevel.Tutor -> accessLevel.name
             group != null -> "group-$group"
@@ -84,11 +84,11 @@ class User private constructor(
         userID: UserID,
         accessLevel: AccessLevel,
         group: Int? = null,
-        name: String
+        username: String
     ) : this(
         userID.toInt(),
         accessLevel,
-        name,
+        username,
         group,
     )
 
@@ -104,11 +104,11 @@ class User private constructor(
 
 
     companion object {
-        val Anonymous: User = User(UserID.MAX_VALUE, AccessLevel.Anonymous, null, name = "anonymous")
+        val Anonymous: User = User(UserID.MAX_VALUE, AccessLevel.Anonymous, null, username = "anonymous")
     }
 
 
-    override fun toString(): String = "\"$name\"('$internalName')"
+    override fun toString(): String = "\"$username\"('$internalName')"
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

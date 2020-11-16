@@ -27,12 +27,14 @@ class CachedValue<T>(val duration: Duration, private val producer: suspend () ->
         get() = (timeout?.elapsedNow() ?: Duration.INFINITE) + duration
 
 
+    @Suppress("UNCHECKED_CAST")
+    //use cast instead of !! because T might be nullable
     suspend fun getValue(): T {
         if (timeout?.hasNotPassedNow() == true)
-            return storedValue!!
+            return storedValue as T
         accessMutex.withLock {
             if (timeout?.hasNotPassedNow() == true)
-                return storedValue!!
+                return storedValue as T
             val result: T = producer()
             storedValue = result
             timeout = TimeSource.Monotonic.markNow() + duration
@@ -40,13 +42,35 @@ class CachedValue<T>(val duration: Duration, private val producer: suspend () ->
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
+    //use cast instead of !! because T might be nullable
     suspend fun getValue(maxAge: Duration): T {
         accessMutex.withLock {
-            if (age <= maxAge) return storedValue!!
+            if (age <= maxAge) return storedValue as T
             val result: T = producer()
             storedValue = result
             timeout = TimeSource.Monotonic.markNow() + duration
             return result
+        }
+    }
+
+    suspend fun getStoredValue(): Pair<Boolean, T?> {
+        if (timeout?.hasNotPassedNow() == true)
+            return true to storedValue
+        return accessMutex.withLock {
+            if (timeout?.hasNotPassedNow() == true)
+                true to storedValue
+            else
+                false to null
+        }
+    }
+
+    suspend fun getStoredValue(maxAge: Duration): Pair<Boolean, T?> {
+        return accessMutex.withLock {
+            if (age <= maxAge)
+                true to storedValue
+            else
+                false to null
         }
     }
 
@@ -78,7 +102,7 @@ fun <T> cachedValue(duration: Duration, producer: suspend () -> T): CachedValue<
 
 fun <T> cachedValue(
     duration: Duration,
-    producer: suspend () -> T,
     default: T,
-    defaultDuration: Duration = duration
+    defaultDuration: Duration = duration,
+    producer: suspend () -> T
 ): CachedValue<T> = CachedValue(duration, producer, default, defaultDuration)

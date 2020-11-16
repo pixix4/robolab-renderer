@@ -13,6 +13,7 @@ import de.robolab.server.externaljs.encodeURIComponent
 import de.robolab.server.net.gitlab.GitLabServer
 import de.robolab.server.net.gitlab.getGroupIDsForUser
 import de.robolab.server.net.gitlab.getRoboLabTutors
+import de.robolab.server.net.gitlab.getUserInfo
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -57,15 +58,16 @@ class GitLabAuthProvider(private val callbackURL: String) {
         }
         val accessToken: String = tokenResponse.jsonBody!!.jsonObject["access_token"]!!.jsonPrimitive.content
         val authHeader: Header = AuthorizationHeader.Bearer(accessToken)
-        val currentUserResponse = http {
+        val tokenInfoResponse = http {
             url("${Config.Auth.gitlabURL}/oauth/token/info")
             header(authHeader)
         }.exec()
-        if (currentUserResponse.status != HttpStatusCode.Ok) {
-            currentUserResponse.`throw`()
+        if (tokenInfoResponse.status != HttpStatusCode.Ok) {
+            tokenInfoResponse.`throw`()
         }
         val robolabTutorSet = GitLabServer.getRoboLabTutors().keys
-        val currentUserId = currentUserResponse.jsonBody!!.jsonObject["resource_owner_id"]!!.jsonPrimitive.int.toUInt()
+        val currentUserId = tokenInfoResponse.jsonBody!!.jsonObject["resource_owner_id"]!!.jsonPrimitive.int.toUInt()
+        val userInfo = GitLabServer.getUserInfo(currentUserId)
         var currentAccessLevel = if (currentUserId in robolabTutorSet) AccessLevel.Tutor else AccessLevel.LoggedIn
         val groupID: Int?
         if (currentAccessLevel satisfies AccessLevel.Tutor) {
@@ -81,8 +83,7 @@ class GitLabAuthProvider(private val callbackURL: String) {
                     console.error("User#$currentUserId is part of multiple groups: $groupIDs")
             }
         }
-        //TODO: Add group-lookup here
-        return User(currentUserId, currentAccessLevel, groupID)
+        return User(currentUserId, currentAccessLevel, groupID, userInfo.username)
     }
 
     fun extractShareCode(state: String): ShareCode? {

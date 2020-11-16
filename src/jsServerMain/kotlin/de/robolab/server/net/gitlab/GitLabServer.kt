@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package de.robolab.server.net.gitlab
 
 import de.robolab.client.net.IServerResponse
@@ -6,9 +8,7 @@ import de.robolab.client.net.linksRelMap
 import de.robolab.common.auth.UserID
 import de.robolab.common.net.headers.AuthorizationHeader
 import de.robolab.common.net.parseOrThrow
-import de.robolab.common.utils.CachedValue
-import de.robolab.common.utils.cachedValue
-import de.robolab.common.utils.toDuration
+import de.robolab.common.utils.*
 import de.robolab.server.config.Config
 import kotlinx.serialization.builtins.ListSerializer
 
@@ -21,6 +21,7 @@ object GitLabServer {
     val defaultCacheDuration = Config.Auth.cacheDuration.toDuration()
     val missCacheDuration = Config.Auth.cacheDurationOnKeyMiss.toDuration()
 
+    val userInfoCache: DefaultCachedMap<UserID, UserInfo> = cachedMap(defaultCacheDuration, ::requestUserInfo)
 
     val robolabTutorMapCache: CachedValue<MemberInfoMap> =
         cachedValue(defaultCacheDuration) {
@@ -29,7 +30,8 @@ object GitLabServer {
 
     val robolabGroupProjectsCache: CachedValue<GroupProjectsInfo<SimpleProjectInfo>> =
         cachedValue(defaultCacheDuration) {
-            val projects = requestNamespaceProjectsSimple(Config.Auth.groupProjectsGroupID).filter { it.group_id != null }
+            val projects =
+                requestNamespaceProjectsSimple(Config.Auth.groupProjectsGroupID).filter { it.group_id != null }
             GroupProjectsInfo(projects.associate {
                 it.group_id!! to GroupProjectsInfo.MemberedProjectInfo(it, requestProjectMembers(it.id))
             })
@@ -68,6 +70,14 @@ object GitLabServer {
             header(apiHeader)
         }.exec()
         return response.joinPagination { parseOrThrow(ListSerializer(SimpleProjectInfo.serializer())) }
+    }
+
+    suspend fun requestUserInfo(userID: UserID): UserInfo {
+        val response = http {
+            url("$baseURL/api/v4/users/$userID")
+            header(apiHeader)
+        }.exec()
+        return response.parseOrThrow(UserInfo.serializer())
     }
 
     suspend fun <T> IServerResponse.joinPagination(transform: IServerResponse.() -> List<T>): List<T> {
@@ -122,3 +132,5 @@ suspend fun GitLabServer.getGroupProjectsForUser(userID: UserID): List<Pair<Simp
 suspend fun GitLabServer.getGroupIDsForUser(userID: UserID): List<Int> = getGroupProjectsForUser(userID).mapNotNull {
     it.first.group_id
 }
+
+suspend fun GitLabServer.getUserInfo(userID: UserID): UserInfo = userInfoCache.getUpdated(userID)
