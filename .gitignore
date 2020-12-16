@@ -19,6 +19,7 @@ planet/*.exam.*
 npm-debug.log
 *.db
 deploy.sh
+redis-data/
 
 # It makes the project dirty
 .npmignore
