@@ -40,28 +40,6 @@ build-js-server:
   tags:
     - docker
 
-deploy-pixix4:
-  stage: deploy
-  script:
-    - chmod 0600 $SSH_KEY
-    - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/libs/robolab-jvm.jar ubuntu@robolab.pixix4.com:jvmClient/
-    - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c build/processedResources/build.ini ubuntu@robolab.pixix4.com:jvmClient/
-    - rsync -avz --progress -e "ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY" -c web/website/ ubuntu@robolab.pixix4.com:jsClient/website/
-    - ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY ubuntu@robolab.pixix4.com cp jvmClient/robolab-jvm.jar jvmClient/robolab-renderer.jar
-    - ssh -p2201 -o StrictHostKeyChecking=no -i $SSH_KEY ubuntu@robolab.pixix4.com cp jvmClient/robolab-jvm.jar jvmClient/robolab-jvmheadless.jar
-  only:
-    - master
-  environment:
-    name: pixix4-client
-    url: https://robolab.pixix4.com
-  needs:
-    - job: build-jvm
-      artifacts: true
-    - job: build-js-client
-      artifacts: true
-  tags:
-    - shell
-
 deploy-frontend-develop:
   stage: deploy
   script:
