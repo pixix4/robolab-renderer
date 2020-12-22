@@ -10,8 +10,6 @@ magic_draw/*
 .gradle/*
 robolab.conf
 export/*
-web/website/
-webServer/
 node_modules/
 .lck
 planet/*.exam
@@ -20,6 +18,8 @@ npm-debug.log
 *.db
 deploy.sh
 redis-data/
+.DS_Store
+webpack.config.d/
 
 # It makes the project dirty
 .npmignore

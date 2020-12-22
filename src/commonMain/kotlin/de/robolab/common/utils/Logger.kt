@@ -14,7 +14,9 @@ class Logger(val name: String) {
 
     fun log(level: Level, vararg msg: Any?) {
         if (level.index <= Logger.level.index) {
-            val m = msg.map(Logger::format).toTypedArray()
+            val m = msg.map {
+                format(it)
+            }.toTypedArray()
             output.log(this, level, *m)
         }
     }
@@ -58,7 +60,7 @@ class Logger(val name: String) {
             return loggerCache.getOrPut(name) { Logger(name) }
         }
 
-        fun format(msg: Any?) : Any? {
+        fun format(msg: Any?): Any? {
             if (msg is Throwable) {
                 return msg.stackTraceToString()
             }

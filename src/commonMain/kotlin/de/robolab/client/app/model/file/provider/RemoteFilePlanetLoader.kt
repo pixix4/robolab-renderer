@@ -5,6 +5,7 @@ import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.RESTRobolabServer
 import de.robolab.client.net.requests.*
 import de.robolab.client.net.requests.planets.*
+import de.robolab.common.utils.Logger
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
@@ -14,6 +15,8 @@ import kotlinx.coroutines.withContext
 class RemoteFilePlanetLoader(
     val server: IRobolabServer
 ) : IFilePlanetLoader<PlanetJsonInfo> {
+
+    private val logger = Logger(this)
 
     override val onRemoteChange = EventHandler<PlanetJsonInfo?>()
 
@@ -35,6 +38,7 @@ class RemoteFilePlanetLoader(
                 available = true
                 PlanetJsonInfo(identifier.id, identifier.name, result.lastModified, identifier.tags) to result.lines
             } catch (e: Exception) {
+                logger.error("loadPlanet", e)
                 available = false
                 null
             }
@@ -48,6 +52,7 @@ class RemoteFilePlanetLoader(
                 available = true
                 identifier
             } catch (e: Exception) {
+                logger.error("savePlanet", e)
                 available = false
                 null
             }
@@ -60,6 +65,7 @@ class RemoteFilePlanetLoader(
                 available = true
                 server.postPlanet(lines.joinToString("\n")).okOrThrow()
             } catch (e: Exception) {
+                logger.error("createPlanet", e)
                 available = false
             }
         }
@@ -71,6 +77,7 @@ class RemoteFilePlanetLoader(
                 available = true
                 server.deletePlanet(identifier.id).okOrThrow()
             } catch (e: Exception) {
+                logger.error("deletePlanet", e)
                 available = false
             }
         }
@@ -82,6 +89,7 @@ class RemoteFilePlanetLoader(
                 available = true
                 server.listPlanets().okOrThrow().planets
             } catch (e: Exception) {
+                logger.error("listPlanets", e)
                 available = false
                 emptyList()
             }
@@ -98,6 +106,7 @@ class RemoteFilePlanetLoader(
                     server.listPlanets(nameContains = search).okOrThrow().planets
                 }
             } catch (e: Exception) {
+                logger.error("searchPlanets", e)
                 available = false
                 emptyList()
             }

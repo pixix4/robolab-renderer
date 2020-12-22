@@ -1,0 +1,5 @@
+dist/
+electron/dist/
+electron/node_modules/
+electron/out/
+web/node_modules/

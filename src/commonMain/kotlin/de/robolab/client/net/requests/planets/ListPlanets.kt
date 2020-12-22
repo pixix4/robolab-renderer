@@ -40,8 +40,7 @@ open class ListPlanets(
         JsonRestResponse<List<PlanetJsonInfo>>(
             serverResponse,
             triggeringRequest,
-            ListSerializer(PlanetJsonInfo.serializer()),
-            emptyList()
+            ListSerializer(PlanetJsonInfo.serializer())
         ) {
 
         val planets: List<PlanetJsonInfo> = decodedValue

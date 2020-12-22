@@ -3,9 +3,12 @@
 import java.text.SimpleDateFormat
 import java.util.*
 
+val FRONTEND_VERSION = "4.0.0"
+val BACKEND_VERSION = "1.0.0"
+
 plugins {
-    kotlin("multiplatform") version "1.4.10"
-    kotlin("plugin.serialization") version "1.4.10"
+    kotlin("multiplatform") version "1.4.21"
+    kotlin("plugin.serialization") version "1.4.21"
     id("com.gorylenko.gradle-git-properties") version "2.2.2"
 }
 
@@ -26,21 +29,13 @@ repositories {
     }
 }
 
-val serializationVersion = "1.0.0"
+val serializationVersion = "1.0.1"
 val klockVersion = "1.12.0"
-val coroutineVersion = "1.3.9"
-val ktorVersion = "1.4.1"
+val coroutineVersion = "1.4.2"
+val ktorVersion = "1.4.3"
+
 kotlin {
-    jvm("jvm") {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "11"
-                freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
-                freeCompilerArgs += "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
-            }
-        }
-    }
-    js("jsClient") {
+    js("jsFrontend") {
         browser {
             binaries.executable()
             @Suppress("EXPERIMENTAL_API_USAGE")
@@ -53,20 +48,17 @@ kotlin {
         compilations.all {
             kotlinOptions {
                 moduleKind = "commonjs"
-                freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
-                freeCompilerArgs += "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
             }
         }
     }
-    js("jsServer") {
+
+    js("jsBackend") {
         nodejs {
             binaries.executable()
         }
         compilations.all {
             kotlinOptions {
                 moduleKind = "commonjs"
-                freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
-                freeCompilerArgs += "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
             }
         }
     }
@@ -90,59 +82,7 @@ kotlin {
                 api("io.ktor:ktor-client-core:$ktorVersion")
             }
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
-            }
-        }
-
-        val jvmMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.0")
-
-                implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
-                implementation("com.github.ajalt.clikt:clikt:3.0.1")
-
-                implementation("org.openjfx:javafx-controls:14:win")
-                implementation("org.openjfx:javafx-graphics:14:win")
-                implementation("org.openjfx:javafx-base:14:win")
-
-                implementation("org.openjfx:javafx-controls:14:linux")
-                implementation("org.openjfx:javafx-graphics:14:linux")
-                implementation("org.openjfx:javafx-base:14:linux")
-
-                implementation("org.openjfx:javafx-controls:14:mac")
-                implementation("org.openjfx:javafx-graphics:14:mac")
-                implementation("org.openjfx:javafx-base:14:mac")
-
-                implementation("org.fxmisc.flowless:flowless:0.6.1")
-                implementation("org.fxmisc.richtext:richtextfx:0.10.5")
-                implementation("org.fusesource.jansi:jansi:1.18")
-                implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4")
-                implementation("org.slf4j:slf4j-nop:1.7.30")
-
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:$serializationVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutineVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$coroutineVersion")
-
-                implementation("com.h2database:h2:1.4.199")
-                implementation("org.jetbrains.exposed:exposed-core:0.27.1")
-                implementation("org.jetbrains.exposed:exposed-jdbc:0.27.1")
-
-                implementation("io.ktor:ktor-client-core:$ktorVersion")
-                implementation("io.ktor:ktor-client-apache:$ktorVersion")
-                implementation("com.squareup.okhttp3:okhttp:4.8.1")
-            }
-        }
-        val jvmTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(kotlin("test-junit"))
-            }
-        }
-
-        val jsClientMain by getting {
+        val jsFrontendMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
@@ -157,14 +97,8 @@ kotlin {
                 implementation(devNpm("sass","1.26.10"))
             }
         }
-        val jsClientTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(kotlin("test-junit"))
-            }
-        }
 
-        val jsServerMain by getting {
+        val jsBackendMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
@@ -182,12 +116,6 @@ kotlin {
                 implementation(npm("pg","8.5.0"))
             }
         }
-        val jsServerTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(kotlin("test-junit"))
-            }
-        }
     }
 }
 
@@ -202,7 +130,8 @@ val generateGitProperties = tasks.named<com.gorylenko.GenerateGitPropertiesTask>
 
 val createBuildInfo = tasks.create("createBuildInfo") {
     dependsOn("generateGitProperties")
-    val file = File("$buildDir/processedResources/build.ini")
+    val webpackFile = File("$projectDir/webpack.config.d/build.js")
+    val iniFile = File("$buildDir/processedResources/build.ini")
 
     doLast {
         val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss z")
@@ -211,9 +140,44 @@ val createBuildInfo = tasks.create("createBuildInfo") {
 
         @Suppress("UNCHECKED_CAST") val git = project.ext["gitProps"] as Map<String, String>
 
-        val version = File("$projectDir/version.ini").readText()
-        file.writeText(
+        webpackFile.writeText(
             """
+            const webpack = require("webpack")
+
+            const definePlugin = new webpack.DefinePlugin(
+               {
+                  VERSION_FRONTEND: "\"$FRONTEND_VERSION\"",
+                  VERSION_BACKEND: "\"$BACKEND_VERSION\"",
+                  BUILD_TIME: "\"$buildTime\"",
+                  BUILD_JAVA_VERSION: "\"${System.getProperty("java.version")}\"",
+                  BUILD_JAVA_VENDOR: "\"${System.getProperty("java.vm.name")}\"",
+                  BUILD_GRADLE_VERSION: "\"gradle-${project.gradle.gradleVersion}\"",
+                  BUILD_SYSTEM_NAME: "\"${System.getProperty("os.name")}\"",
+                  BUILD_SYSTEM_VERSION: "\"${System.getProperty("os.version")}\"",
+                  BUILD_USER: "\"${System.getProperty("user.name")}\"",
+                  VCS_BRANCH: "\"${git["git.branch"]}\"",
+                  VCS_COMMIT_HASH: "\"${git["git.commit.id.abbrev"]}\"",
+                  VCS_COMMIT_MESSAGE: "\"${git["git.commit.message.short"]}\"",
+                  VCS_COMMIT_TIME: "\"${git["git.commit.time"]}\"",
+                  VCS_TAGS: "\"${git["git.tags"]}\"",
+                  VCS_LAST_TAG: "\"${git["git.closest.tag"] ?: ""}\"",
+                  VCS_LAST_TAG_DIFF: "\"${git["git.closest.tag.commit.count"]}\"",
+                  VCS_DIRTY: "\"${git["git.dirty"]}\"",
+                  VCS_COMMIT_COUNT: "\"${git["git.total.commit.count"]}\""
+               }
+            )
+
+            config.plugins.push(definePlugin)
+             
+        """.trimIndent()
+        )
+
+        iniFile.writeText(
+            """
+            [version]
+            frontend = $FRONTEND_VERSION
+            backend = $BACKEND_VERSION
+                
             [build]
             time = $buildTime
             javaVersion = ${System.getProperty("java.version")}
@@ -233,55 +197,16 @@ val createBuildInfo = tasks.create("createBuildInfo") {
             lastTagDiff = ${git["git.closest.tag.commit.count"]}
             dirty = ${git["git.dirty"]}
             commitCount = ${git["git.total.commit.count"]}
-
-
-        """.trimIndent() + version
+        """.trimIndent()
         )
     }
 
-    inputs.file(file("$projectDir/version.ini"))
-    outputs.file(file)
-}
-
-val mainClassName = "de.robolab.client.Launcher"
-
-val jvmJar = tasks.named<Jar>("jvmJar") {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes("Main-Class" to mainClassName)
-    }
-
-    from(Callable {
-        configurations["jvmRuntimeClasspath"].map {
-            if (it.isDirectory) it else zipTree(it)
-        }
-    }) {
-        exclude("META-INF/*.SF", "META-INF/*.RSA", "META-INF/*SF")
-    }
-}
-
-tasks.create<JavaExec>("jvmRun") {
-    dependsOn("jvmJar")
-
-    group = "application"
-    main = mainClassName
-    classpath(jvmJar)
-    args()
-}
-
-tasks.create<JavaExec>("buildSassTheme") {
-    dependsOn("jvmJar")
-
-    group = "application"
-    main = "de.robolab.client.utils.ThemeGenerator"
-    classpath(jvmJar)
-    args()
+    outputs.files(webpackFile, iniFile)
 }
 
 @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-tasks.create<Exec>("jsClientCompileSass") {
-    dependsOn("kotlinNpmInstall", "jsClientProcessResources")
+tasks.create<Exec>("jsFrontendCompileSass") {
+    dependsOn("kotlinNpmInstall", "jsFrontendProcessResources")
 
     doFirst {
         val nodeJs =
@@ -304,94 +229,69 @@ tasks.create<Exec>("jsClientCompileSass") {
 
     args(
         "$buildDir/js/node_modules/sass/sass.js",
-        "$projectDir/src/jsClientMain/resources/public/stylesheets/style.scss",
-        "$buildDir/processedResources/jsClient/main/public/stylesheets/style.css"
+        "$projectDir/src/jsFrontendMain/resources/public/stylesheets/style.scss",
+        "$buildDir/processedResources/jsFrontend/main/public/stylesheets/style.css"
     )
 
     outputs.cacheIf { true }
-    inputs.dir(file("$projectDir/src/jsClientMain/resources/public/stylesheets"))
+    inputs.dir(file("$projectDir/src/jsFrontendMain/resources/public/stylesheets"))
         .withPropertyName("stylesheets")
         .withPathSensitivity(PathSensitivity.RELATIVE)
 
-    outputs.file("$buildDir/processedResources/jsClient/main/public/stylesheets/style.css")
+    outputs.file("$buildDir/processedResources/jsFrontend/main/public/stylesheets/style.css")
         .withPropertyName("style")
 }
 
-tasks.named("jsClientBrowserDistributeResources") {
-    dependsOn("jsClientCompileSass")
+tasks.named("jsFrontendBrowserDistributeResources") {
+    dependsOn("jsFrontendCompileSass")
 }
-tasks.named("jsClientBrowserDevelopmentRun") {
-    dependsOn("jsClientCompileSass")
+tasks.named("jsFrontendBrowserDevelopmentRun") {
+    dependsOn("jsFrontendCompileSass")
 }
-tasks.named("jsClientBrowserProductionRun") {
-    dependsOn("jsClientCompileSass")
+tasks.named("jsFrontendBrowserProductionRun") {
+    dependsOn("jsFrontendCompileSass")
 }
 
-val jsClientBrowserProductionWebpack = tasks.named("jsClientBrowserProductionWebpack")
-
-val jsClientJar = tasks.named<Jar>("jsClientJar") {
-    dependsOn("jsClientBrowserProductionWebpack", createBuildInfo)
+val jsFrontendJar = tasks.named<Jar>("jsFrontendJar") {
+    dependsOn("jsFrontendBrowserProductionWebpack")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    val file = jsClientBrowserProductionWebpack.get().outputs.files.files.first { it.name == "robolab.js" }
+    val file = tasks.named("jsFrontendBrowserProductionWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
     val sourceMap = file.resolveSibling("robolab.js.map")
     from(file, sourceMap)
-    from(createBuildInfo)
 }
 
-tasks.create<Sync>("jsClientSync") {
-    dependsOn("jsClientJar")
+tasks.create<Sync>("jsFrontendSync") {
+    dependsOn("jsFrontendJar")
 
-    from(Callable { zipTree(jsClientJar.get().archiveFile) })
-    into("${projectDir}/web/website")
+    from(Callable { zipTree(jsFrontendJar.get().archiveFile) })
+    into("${projectDir}/deploy/dist/")
 }
 
-tasks.create<Sync>("jvmClientSync") {
-    dependsOn("jvmJar")
-
-    from(jvmJar)
-    from(Callable { zipTree(jvmJar.get().archiveFile) }) {
-        include("build.ini")
-    }
-
-    into("${projectDir}/web/website/jvm")
-    rename {
-        if (it == "robolab-jvm.jar") "robolab-renderer.jar" else it
-    }
-}
-
-tasks.create<Sync>("jsServerSync") {
-    dependsOn("compileKotlinJsServer", "jsServerPackageJson", "kotlinNpmInstall", createBuildInfo)
+tasks.create<Sync>("jsBackendSync") {
+    dependsOn("compileKotlinJsBackend", "jsBackendPackageJson", "kotlinNpmInstall", createBuildInfo)
 
     from("$buildDir/js")
     from(createBuildInfo)
-    into("${projectDir}/webServer")
+    into("${projectDir}/deploy/server")
 }
 
-tasks.create<Delete>("cleanJsClientSync") {
-    delete("${projectDir}/web/website")
+tasks.create<Delete>("cleanJsFrontendSync") {
+    delete("${projectDir}/deploy/dist")
 }
 
-tasks.create<Delete>("cleanJsServerSync") {
-    delete("${projectDir}/webServer")
+tasks.create<Delete>("cleanJsBackendSync") {
+    delete("${projectDir}/deploy/server")
 }
 
 tasks.named("clean") {
-    dependsOn("cleanJsClientSync", "cleanJsServerSync")
+    dependsOn("cleanJsFrontendSync", "cleanJsBackendSync")
 }
 
-tasks.named<ProcessResources>("jvmProcessResources") {
+tasks.named("jsFrontendBrowserDevelopmentWebpack") {
     dependsOn(createBuildInfo)
-
-    from(createBuildInfo)
 }
-tasks.named<ProcessResources>("jsClientProcessResources") {
-    dependsOn(createBuildInfo)
 
-    from(createBuildInfo)
-}
-tasks.named<ProcessResources>("jsServerProcessResources") {
+tasks.named("jsFrontendBrowserProductionWebpack") {
     dependsOn(createBuildInfo)
-
-    from(createBuildInfo)
 }
