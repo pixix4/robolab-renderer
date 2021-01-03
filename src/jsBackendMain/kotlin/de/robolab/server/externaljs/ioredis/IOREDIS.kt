@@ -2,11 +2,11 @@
 
 package de.robolab.server.externaljs.ioredis
 
-import de.robolab.server.externaljs.JSArray
-import de.robolab.server.externaljs.emptyJSArray
-import de.robolab.server.externaljs.events.EventEmitter
-import de.robolab.server.externaljs.toJSArray
-import de.robolab.server.jsutils.promise
+import de.robolab.common.externaljs.JSArray
+import de.robolab.common.externaljs.emptyJSArray
+import de.robolab.common.externaljs.events.EventEmitter
+import de.robolab.common.externaljs.toJSArray
+import de.robolab.common.jsutils.promise
 import kotlinx.coroutines.await
 import kotlin.js.Promise
 

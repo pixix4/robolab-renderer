@@ -3,19 +3,16 @@
 package de.robolab.server.routes
 
 import de.robolab.client.net.requests.PlanetJsonInfo
-import de.robolab.common.auth.User
 import de.robolab.common.auth.requireTutor
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.utils.BuildInformation
 import de.robolab.common.utils.encode
-import de.robolab.server.auth.userFromJWTPayload
 import de.robolab.server.config.Config
 import de.robolab.server.config.getLargeExamPlanetInfo
 import de.robolab.server.config.getSmallExamPlanetInfo
 import de.robolab.server.externaljs.express.*
-import de.robolab.server.jsutils.toDynamic
-import io.ktor.utils.io.*
+import de.robolab.common.jsutils.toDynamic
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put

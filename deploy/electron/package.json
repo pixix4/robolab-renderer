@@ -24,7 +24,7 @@
     "forge": {
       "packagerConfig": {
         "extraResource": [
-          "../dist/"
+          "../distElectron/"
         ]
       },
       "makers": [

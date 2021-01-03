@@ -1,8 +1,8 @@
 package de.robolab.common.utils
 
-import de.robolab.server.externaljs.fs.existsSync
-import de.robolab.server.externaljs.fs.readFileSync
-import de.robolab.server.externaljs.fs.writeFileSync
+import de.robolab.common.externaljs.fs.existsSync
+import de.robolab.common.externaljs.fs.readFileSync
+import de.robolab.common.externaljs.fs.writeFileSync
 
 actual class KeyValueStorage {
 

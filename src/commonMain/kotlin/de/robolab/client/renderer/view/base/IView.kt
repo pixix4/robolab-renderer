@@ -207,5 +207,7 @@ inline fun <reified T : Any> IView.extraPut(value: T) {
 
 fun IView.menu(event: PointerEvent, name: String, init: MenuBuilder.() -> Unit) {
     val contextMenu = buildContextMenu(event.planetPoint, name, init)
-    document?.plotter?.context?.openContextMenu(contextMenu)
+    if (contextMenu != null) {
+        document?.plotter?.context?.openContextMenu(contextMenu)
+    }
 }

@@ -4,21 +4,22 @@ package de.robolab.server.externaljs.express
 
 import de.robolab.common.auth.UserPermissionException
 import de.robolab.common.auth.User
+import de.robolab.common.externaljs.http.IncomingServerMessage
+import de.robolab.common.externaljs.http.ServerResponse
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.IRESTStatusProvider
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.ContentTypeHeader
 import de.robolab.common.utils.RobolabJson
-import de.robolab.common.utils.encodeString
 import de.robolab.server.net.RESTResponseException
-import de.robolab.server.externaljs.Buffer
-import de.robolab.server.externaljs.JSArray
-import de.robolab.server.externaljs.NodeError
-import de.robolab.server.externaljs.dynamicOf
-import de.robolab.server.jsutils.JSDynErrorCallback
-import de.robolab.server.jsutils.PromiseScope
-import de.robolab.server.jsutils.jsCreateDelegate
-import de.robolab.server.jsutils.promise
+import de.robolab.common.externaljs.Buffer
+import de.robolab.common.externaljs.JSArray
+import de.robolab.common.externaljs.NodeError
+import de.robolab.common.externaljs.dynamicOf
+import de.robolab.common.jsutils.JSDynErrorCallback
+import de.robolab.common.jsutils.PromiseScope
+import de.robolab.common.jsutils.jsCreateDelegate
+import de.robolab.common.jsutils.promise
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -65,7 +66,7 @@ fun <ReqData, ResData> createRouter(
         )
     ).unsafeCast<Router<ReqData, ResData>>()
 
-interface Request<Data> : de.robolab.server.externaljs.http.IncomingServerMessage {
+interface Request<Data> : IncomingServerMessage {
     val app: ExpressApp
     val baseUrl: String
     val body: dynamic
@@ -153,7 +154,7 @@ val AnyRequest.contentTypeHeader: ContentTypeHeader?
         return if (headerValue == null) null else ContentTypeHeader(headerValue)
     }
 
-external interface Response<Data> : de.robolab.server.externaljs.http.ServerResponse {
+external interface Response<Data> : ServerResponse {
     val app: ExpressApp
     val locals: dynamic
     var localData: Data

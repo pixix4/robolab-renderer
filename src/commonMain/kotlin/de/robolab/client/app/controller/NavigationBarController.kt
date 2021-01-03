@@ -1,18 +1,13 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.base.INavigationBarEntry
-import de.robolab.client.app.model.base.MaterialIcon
+import de.robolab.client.app.model.base.*
 import de.robolab.client.app.model.file.CachedFilePlanetProvider
-import de.robolab.client.app.model.file.FileNavigationRoot
-import de.robolab.client.app.model.group.GroupNavigationRoot
-import de.robolab.client.app.model.room.RoomNavigationRoot
+import de.robolab.client.app.model.file.FileNavigationManager
+import de.robolab.client.app.model.group.GroupNavigationTab
+import de.robolab.client.app.model.room.RoomNavigationTab
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.utils.PreferenceStorage
-import de.westermann.kobserve.base.ObservableList
-import de.westermann.kobserve.base.ObservableProperty
-import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.flatMapMutableBinding
 import de.westermann.kobserve.property.join
@@ -24,33 +19,33 @@ class NavigationBarController(
     messageManager: MessageManager,
 ) {
 
-    val filePlanetProvider = FileNavigationRoot(tabController)
+    val filePlanetProvider = FileNavigationManager(tabController)
     private val cachedFilePlanetProvider = CachedFilePlanetProvider(filePlanetProvider)
-    val groupPlanetProperty = GroupNavigationRoot(
+    val groupPlanetProperty = GroupNavigationTab(
         messageRepository,
         messageManager,
         tabController,
         cachedFilePlanetProvider
     )
-    private val roomPlanetProvider = RoomNavigationRoot(
+    private val roomPlanetProvider = RoomNavigationTab(
         messageRepository,
         tabController,
         cachedFilePlanetProvider
     )
 
     val tabListProperty = property(
-        listOf<Tab>(
+        listOf<INavigationBarTab>(
             groupPlanetProperty,
             roomPlanetProvider
         )
     )
     val tabIndexProperty = PreferenceStorage.selectedNavigationBarTabProperty
     val tabProperty = tabListProperty.join(tabIndexProperty) { list, index ->
-        list.getOrNull(index) ?: list.lastOrNull() ?: EmptyTab
+        list.getOrNull(index) ?: list.lastOrNull() ?: EmptyNavigationBarTab
     }
 
-    fun updateList() {
-        val newList = mutableListOf<Tab>(
+    private fun updateList() {
+        val newList = mutableListOf(
             groupPlanetProperty,
             roomPlanetProvider
         )
@@ -69,40 +64,19 @@ class NavigationBarController(
     }
 
     val backButtonLabelProperty = tabProperty.flatMapBinding {
-        it.parentNameProperty
+        it.labelProperty
+    }
+
+    val backButtonEnabledProperty = tabProperty.flatMapBinding {
+        it.canGoBackProperty
     }
 
     fun onBackButtonClick() {
-        tabProperty.value.openParent()
+        tabProperty.value.goBack()
     }
 
     val entryListProperty = tabProperty.flatMapBinding {
         it.childrenProperty
-    }
-
-    interface Tab {
-        val label: ObservableValue<String>
-        val icon: ObservableValue<MaterialIcon>
-
-        val searchProperty: ObservableProperty<String>
-        val parentNameProperty: ObservableValue<String?>
-        val childrenProperty: ObservableValue<ObservableList<INavigationBarEntry>>
-
-        fun openParent()
-
-        fun submitSearch()
-    }
-
-    object EmptyTab : Tab {
-        override val label = property("")
-        override val icon = property(MaterialIcon.CANCEL)
-        override val searchProperty = property("")
-        override val parentNameProperty: ObservableValue<String?> = property()
-        override val childrenProperty: ObservableValue<ObservableList<INavigationBarEntry>> =
-            property(observableListOf())
-
-        override fun openParent() {}
-        override fun submitSearch() {}
     }
 
     init {

@@ -7,10 +7,9 @@ import de.robolab.server.externaljs.body_parser.json
 import de.robolab.server.externaljs.body_parser.text
 import de.robolab.server.externaljs.cookie_parser.cookieParser
 import de.robolab.server.externaljs.createIO
-import de.robolab.server.externaljs.emptyDynamic
+import de.robolab.common.externaljs.emptyDynamic
 import de.robolab.server.externaljs.express.*
-import de.robolab.server.externaljs.http.createServer
-import de.robolab.server.externaljs.toJSArray
+import de.robolab.common.externaljs.http.createServer
 import de.robolab.server.jsutils.setHeader
 import de.robolab.server.routes.*
 

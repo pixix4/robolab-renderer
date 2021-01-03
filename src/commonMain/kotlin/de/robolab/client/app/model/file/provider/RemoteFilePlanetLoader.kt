@@ -113,33 +113,11 @@ class RemoteFilePlanetLoader(
         }
     }
 
-    object HttpFactory : IFilePlanetLoaderFactory {
-
-        override val protocol = "http"
-
-        override val usage: String = "$protocol://example.org"
-
-        override fun create(uri: String): IFilePlanetLoader<*>? {
-            val host = HttpsFactory.parse(uri)
-            val restRobolabServer = RESTRobolabServer(host, 0, false)
-            return RemoteFilePlanetLoader(restRobolabServer)
-        }
-    }
-
-    object HttpsFactory : IFilePlanetLoaderFactory {
-
-        override val protocol = "https"
-
-        override val usage: String = "$protocol://example.org"
-
-        override fun create(uri: String): IFilePlanetLoader<*>? {
-            val host = parse(uri)
+    companion object {
+        fun create(uri: String): RemoteFilePlanetLoader {
+            val host = uri.substringAfter("://").trimEnd('/')
             val restRobolabServer = RESTRobolabServer(host, 0, true)
             return RemoteFilePlanetLoader(restRobolabServer)
-        }
-
-        fun parse(uri: String): String {
-            return uri.substringAfter("://").trimEnd('/')
         }
     }
 }

@@ -1,15 +1,15 @@
 package de.robolab.server.data
 
-import com.soywiz.klock.js.toDateTime
+import de.robolab.common.externaljs.fs.*
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.server.net.RESTResponseCodeException
 import de.robolab.server.externaljs.fs.*
-import de.robolab.server.externaljs.os.EOL
-import de.robolab.server.externaljs.path.safeJoinPath
-import de.robolab.server.externaljs.toList
-import de.robolab.server.jsutils.jsTruthy
+import de.robolab.common.externaljs.os.EOL
+import de.robolab.common.externaljs.path.safeJoinPath
+import de.robolab.common.externaljs.toList
+import de.robolab.common.jsutils.jsTruthy
 import de.robolab.server.model.toIDString
 import kotlinx.coroutines.await
 import kotlin.js.Promise
@@ -31,11 +31,11 @@ private suspend fun makeClosestFile(
         counter++
         currentFileBaseName = "$name-$counter"
         currentFile = safeJoinPath(directory, currentFileBaseName + postfix)
-        return open(currentFile, "wx").catch(::catchHandler)
+        return de.robolab.common.externaljs.fs.open(currentFile, "wx").catch(::catchHandler)
     }
 
     //prom: T where T:Union<FileHandle,Promise<T>>
-    var prom: Any? = open(currentFile, "wx").catch(::catchHandler)
+    var prom: Any? = de.robolab.common.externaljs.fs.open(currentFile, "wx").catch(::catchHandler)
 
     while (prom is Promise<*>) {
         prom = prom.await()
@@ -95,7 +95,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         val path = getPath(planet.id)
         val stat = stat(path).await()
         if (stat.isFile()) {
-            val handle: FileHandle = open(path, "w").await()
+            val handle: FileHandle = de.robolab.common.externaljs.fs.open(path, "w").await()
             try {
                 handle.writeFile(planet.planetFile.contentString).await()
             } finally {

@@ -3,9 +3,9 @@ package de.robolab.server.externaljs.jsonwebtoken
 import com.soywiz.klock.DateTime
 import de.robolab.common.net.headers.AuthorizationHeader
 import de.robolab.server.config.Config
-import de.robolab.server.externaljs.JSArray
-import de.robolab.server.externaljs.dynamicOfDefined
-import de.robolab.server.externaljs.toJSArray
+import de.robolab.common.externaljs.JSArray
+import de.robolab.common.externaljs.dynamicOfDefined
+import de.robolab.common.externaljs.toJSArray
 
 private val jwt: dynamic = js("require(\"jsonwebtoken\")")
 

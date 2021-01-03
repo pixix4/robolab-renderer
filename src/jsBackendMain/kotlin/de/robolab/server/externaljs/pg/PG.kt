@@ -1,9 +1,7 @@
 package de.robolab.server.externaljs.pg
 
-import de.robolab.client.net.client
-import de.robolab.server.externaljs.JSArray
+import de.robolab.common.externaljs.JSArray
 import kotlinx.coroutines.await
-import kotlinx.coroutines.withTimeout
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.js.Promise

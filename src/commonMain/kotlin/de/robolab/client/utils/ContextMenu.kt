@@ -35,14 +35,16 @@ data class ContextMenuList(
 annotation class MenuMarker
 
 @MenuMarker
-class MenuBuilder {
+class MenuBuilder(
+    var name: String
+) {
 
     val entries = mutableListOf<ContextMenuEntry>()
 
     fun menu(name: String, init: MenuBuilder.() -> Unit) {
-        val menuBuilder = MenuBuilder()
+        val menuBuilder = MenuBuilder(name)
         init(menuBuilder)
-        entries += ContextMenuList(name, menuBuilder.entries)
+        entries += ContextMenuList(menuBuilder.name, menuBuilder.entries)
     }
 
     fun action(name: String, checked: Boolean? = null, action: () -> Unit) {
@@ -50,13 +52,16 @@ class MenuBuilder {
     }
 }
 
-fun buildContextMenu(position: Point, name: String, init: MenuBuilder.() -> Unit): ContextMenu {
-    val menuBuilder = MenuBuilder()
+fun buildContextMenu(position: Point, name: String = "", init: MenuBuilder.() -> Unit): ContextMenu? {
+    val menuBuilder = MenuBuilder(name)
     init(menuBuilder)
+
+    if (menuBuilder.entries.isEmpty()) return null
+
     return ContextMenu(
         position,
         ContextMenuList(
-            name,
+            menuBuilder.name,
             menuBuilder.entries
         )
     )

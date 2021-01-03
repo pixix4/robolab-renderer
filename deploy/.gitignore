@@ -1,4 +1,5 @@
-dist/
+distWeb/
+distElectron/
 electron/dist/
 electron/node_modules/
 electron/out/

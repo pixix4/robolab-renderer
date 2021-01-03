@@ -22,7 +22,7 @@ actual fun saveExportExtendedPlanetFile(name: String, content: String): Boolean 
     throw UnsupportedOperationException()
 }
 
-actual fun openExportDialog(planetDocument: FileEntryPlanetDocument) {
+actual fun openExportDialog(planetDocument: FilePlanetDocument) {
     throw UnsupportedOperationException()
 }
 

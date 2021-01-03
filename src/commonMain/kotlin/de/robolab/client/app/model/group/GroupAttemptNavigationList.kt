@@ -3,14 +3,13 @@ package de.robolab.client.app.model.group
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
 import de.robolab.client.app.model.base.INavigationBarEntry
+import de.robolab.client.app.model.base.INavigationBarList
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.Group
 import de.robolab.client.app.repository.MessageRepository
-import de.robolab.client.utils.ContextMenu
-import de.robolab.client.utils.buildContextMenu
+import de.robolab.client.utils.MenuBuilder
 import de.robolab.client.utils.runAsync
-import de.robolab.common.utils.Point
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.*
@@ -20,14 +19,11 @@ import kotlinx.coroutines.launch
 class GroupAttemptNavigationList(
     private val group: Group,
     private val messageRepository: MessageRepository,
-    private val root: GroupNavigationRoot
-) : GroupNavigationRoot.RepositoryList {
+    private val tab: GroupNavigationTab,
+    override val parent: INavigationBarList
+) : GroupNavigationTab.RepositoryList {
 
-    override val parentNameProperty = constObservable("Group ${group.name}")
-
-    override fun openParent() {
-        root.openGroupList()
-    }
+    override val nameProperty = constObservable("Group ${group.name}")
 
     private var entryList = listOf<Entry>()
     override val childrenProperty = observableListOf<INavigationBarEntry>()
@@ -78,6 +74,8 @@ class GroupAttemptNavigationList(
             attemptProperty.value = attempt
         }
 
+        override val tab = this@GroupAttemptNavigationList.tab
+
         override val nameProperty = attemptProperty.mapBinding { attempt ->
             dateFormat.format(DateTimeTz.Companion.fromUnixLocal(attempt.startMessageTime))
         }
@@ -101,15 +99,10 @@ class GroupAttemptNavigationList(
 
         override val statusIconProperty = constObservable<List<MaterialIcon>>(emptyList())
 
-        override fun open(asNewTab: Boolean) {
-            root.openGroupAttempt(attempt, asNewTab)
-        }
-
-        override fun contextMenu(position: Point): ContextMenu? {
-            return buildContextMenu(position, nameProperty.value) {
-                action("Open in new tab") {
-                    open(true)
-                }
+        override fun MenuBuilder.contextMenu() {
+            name = nameProperty.value
+            action("Open in new tab") {
+                open(true)
             }
         }
     }
@@ -121,17 +114,18 @@ class GroupAttemptNavigationList(
         override val nameProperty = constObservable("Live")
         override val subtitleProperty = entry.nullableFlatMapBinding { it?.subtitleProperty }.mapBinding { it ?: "" }
         override val enabledProperty = entry.nullableFlatMapBinding { it?.enabledProperty }.mapBinding { it ?: false }
-        override val statusIconProperty = entry.nullableFlatMapBinding { it?.statusIconProperty }.mapBinding { it ?: emptyList() }
+        override val statusIconProperty =
+            entry.nullableFlatMapBinding { it?.statusIconProperty }.mapBinding { it ?: emptyList() }
 
-        override fun open(asNewTab: Boolean) {
-            root.openGroupLiveAttempt(group, asNewTab)
-        }
+        override val tab = this@GroupAttemptNavigationList.tab
 
-        override fun contextMenu(position: Point): ContextMenu? {
-            return buildContextMenu(position, nameProperty.value) {
-                action("Open in new tab") {
-                    open(true)
-                }
+        val group: Group
+            get() = this@GroupAttemptNavigationList.group
+
+        override fun MenuBuilder.contextMenu() {
+            name = nameProperty.value
+            action("Open in new tab") {
+                open(true)
             }
         }
     }

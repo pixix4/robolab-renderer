@@ -1,7 +1,7 @@
 package de.robolab.server.externaljs.body_parser
 
 import de.robolab.common.net.MIMEType
-import de.robolab.server.externaljs.dynamicOf
+import de.robolab.common.externaljs.dynamicOf
 import de.robolab.server.externaljs.express.DefaultMiddleware
 
 private val module = js("require(\"body-parser\")")

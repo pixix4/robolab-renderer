@@ -1,14 +1,12 @@
 package de.robolab.client.app.model.room
 
 import de.robolab.client.app.model.base.INavigationBarEntry
+import de.robolab.client.app.model.base.INavigationBarList
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.client.app.repository.DatabaseMessageStorage
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.app.repository.Room
-import de.robolab.client.utils.ContextMenu
-import de.robolab.client.utils.buildContextMenu
+import de.robolab.client.utils.MenuBuilder
 import de.robolab.client.utils.runAsync
-import de.robolab.common.utils.Point
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.constObservable
@@ -19,14 +17,12 @@ import kotlinx.coroutines.launch
 
 class RoomNavigationList(
     private val messageRepository: MessageRepository,
-    private val root: RoomNavigationRoot
-) : RoomNavigationRoot.RepositoryList {
+    private val tab: RoomNavigationTab
+) : RoomNavigationTab.RepositoryList {
 
-    override val parentNameProperty = constObservable<String?>(null)
+    override val nameProperty = constObservable("Planets")
 
-    override fun openParent() {
-        throw IllegalStateException()
-    }
+    override val parent: INavigationBarList? = null
 
     override val childrenProperty = observableListOf<Entry>()
 
@@ -73,6 +69,8 @@ class RoomNavigationList(
             roomProperty.value = room
         }
 
+        override val tab = this@RoomNavigationList.tab
+
         override val nameProperty = roomProperty.mapBinding { room ->
             room.name
         }
@@ -91,16 +89,11 @@ class RoomNavigationList(
 
         override val statusIconProperty = constObservable<List<MaterialIcon>>(emptyList())
 
-        override fun contextMenu(position: Point): ContextMenu? {
-            return buildContextMenu(position, nameProperty.value) {
-                action("Open in new tab") {
-                    open(true)
-                }
+        override fun MenuBuilder.contextMenu() {
+            name = nameProperty.value
+            action("Open in new tab") {
+                open(true)
             }
-        }
-
-        override fun open(asNewTab: Boolean) {
-            root.openRoom(room, asNewTab)
         }
     }
 }

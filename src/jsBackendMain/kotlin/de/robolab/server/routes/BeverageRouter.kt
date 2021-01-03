@@ -3,7 +3,7 @@ package de.robolab.server.routes
 import de.robolab.server.config.Config
 import de.robolab.server.externaljs.express.DefaultRouter
 import de.robolab.server.externaljs.express.createRouter
-import de.robolab.server.jsutils.jsTruthy
+import de.robolab.common.jsutils.jsTruthy
 
 object BeverageRouter {
     val mateRouter: DefaultRouter = createRouter()

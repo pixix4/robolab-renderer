@@ -1,7 +1,7 @@
 
 package de.robolab.common.utils
 
-import de.robolab.server.externaljs.Buffer
+import de.robolab.common.externaljs.Buffer
 
 private fun btoa(str: String, encoding: String = "utf8"): String {
     return Buffer.from(

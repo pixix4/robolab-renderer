@@ -2,11 +2,11 @@ package de.robolab.server.data
 
 import de.robolab.client.net.requests.mqtt.MQTTConnectionInfo
 import de.robolab.server.config.Config
-import de.robolab.server.externaljs.JSArray
+import de.robolab.common.externaljs.JSArray
 import de.robolab.server.externaljs.pg.Client
 import de.robolab.server.externaljs.pg.obtainClient
 import de.robolab.server.externaljs.pg.withConnection
-import de.robolab.server.externaljs.toList
+import de.robolab.common.externaljs.toList
 import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.await

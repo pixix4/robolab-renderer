@@ -1,7 +1,7 @@
 package de.robolab.client.app.controller
 
 import de.robolab.client.app.model.base.IPlanetDocument
-import de.robolab.client.app.model.file.FileNavigationRoot
+import de.robolab.client.app.model.file.FileNavigationManager
 import de.robolab.client.net.requests.mqtt.GetMQTTURLs
 import de.robolab.client.net.requests.mqtt.getMQTTCredentials
 import de.robolab.client.net.requests.mqtt.getMQTTURLs
@@ -21,7 +21,7 @@ class ToolBarController(
     private val activeDocumentProperty: ObservableValue<IPlanetDocument?>,
     private val canvasController: CanvasController,
     val uiController: UiController,
-    val fileNavigationRoot: FileNavigationRoot
+    val fileNavigationManager: FileNavigationManager
 ) {
 
     val fullscreenProperty = uiController.fullscreenProperty
@@ -31,7 +31,7 @@ class ToolBarController(
     }
 
     fun requestAuthToken() {
-        val server = fileNavigationRoot.remoteServer
+        val server = fileNavigationManager.remoteServer
         if (server != null) {
             GlobalScope.launch {
                 de.robolab.client.app.model.file.requestAuthToken(server, false)
@@ -40,7 +40,7 @@ class ToolBarController(
     }
 
     fun loadMqttSettings(selectUri: (GetMQTTURLs.MQTTURLsResponse) -> String) {
-        val server = fileNavigationRoot.remoteServer
+        val server = fileNavigationManager.remoteServer
         if (server != null) {
             GlobalScope.launch {
                 val credentials = server.getMQTTCredentials().okOrNull() ?: return@launch

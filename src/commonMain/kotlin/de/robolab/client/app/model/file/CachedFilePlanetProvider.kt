@@ -9,7 +9,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class CachedFilePlanetProvider(
-    private val fileNavigationRoot: FileNavigationRoot
+    private val fileNavigationManager: FileNavigationManager
 ) {
 
     private val map: MutableMap<String, Entry> = mutableMapOf()
@@ -32,7 +32,7 @@ class CachedFilePlanetProvider(
             loading = true
             GlobalScope.launch(Dispatchers.Main) {
                 if (filePlanet == null) {
-                    filePlanet = fileNavigationRoot.searchPlanet(name)
+                    filePlanet = fileNavigationManager.searchPlanet(name)
 
                     val entry = filePlanet
                     if (entry != null) {

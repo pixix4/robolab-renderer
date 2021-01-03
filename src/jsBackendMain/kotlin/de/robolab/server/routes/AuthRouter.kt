@@ -10,8 +10,8 @@ import de.robolab.server.auth.AuthService
 import de.robolab.server.auth.GitLabAuthProvider
 import de.robolab.server.auth.ShareCode
 import de.robolab.server.config.Config
-import de.robolab.server.externaljs.NodeError
-import de.robolab.server.externaljs.dynamicOf
+import de.robolab.common.externaljs.NodeError
+import de.robolab.common.externaljs.dynamicOf
 import de.robolab.server.externaljs.express.*
 
 object AuthRouter {

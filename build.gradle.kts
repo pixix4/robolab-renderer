@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_VARIABLE", "SuspiciousCollectionReassignment")
+@file:Suppress("UNUSED_VARIABLE", "SuspiciousCollectionReassignment", "PropertyName")
 
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,7 +35,26 @@ val coroutineVersion = "1.4.2"
 val ktorVersion = "1.4.3"
 
 kotlin {
-    js("jsFrontend") {
+    js("jsFrontendCommon") {
+        browser()
+    }
+    js("jsFrontendWeb") {
+        browser {
+            binaries.executable()
+            @Suppress("EXPERIMENTAL_API_USAGE")
+            dceTask {
+                keep(
+                    "ktor-ktor-io.\$\$importsForInline\$\$.ktor-ktor-io.io.ktor.utils.io"
+                )
+            }
+        }
+        compilations.all {
+            kotlinOptions {
+                moduleKind = "commonjs"
+            }
+        }
+    }
+    js("jsFrontendElectron") {
         browser {
             binaries.executable()
             @Suppress("EXPERIMENTAL_API_USAGE")
@@ -52,6 +71,11 @@ kotlin {
         }
     }
 
+
+    js("jsBackendCommon") {
+        browser()
+        nodejs()
+    }
     js("jsBackend") {
         nodejs {
             binaries.executable()
@@ -82,12 +106,54 @@ kotlin {
                 api("io.ktor:ktor-client-core:$ktorVersion")
             }
         }
-        val jsFrontendMain by getting {
+
+        val jsFrontendCommonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
 
+                implementation(npm("mqtt", "4.1.0"))
+                implementation(npm("abort-controller", "3.0.0"))
+                implementation(npm("text-encoding", "0.7.0"))
+                implementation(npm("hammerjs", "2.0.8"))
+
+                implementation(devNpm("sass","1.26.10"))
+            }
+        }
+        val jsBackendCommonMain by getting {
+            dependencies {
+
+            }
+        }
+
+        val jsFrontendWebMain by getting {
+            dependencies {
+                dependsOn(jsFrontendCommonMain)
+
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
+                implementation("io.ktor:ktor-client-js:$ktorVersion")
+
+                implementation(npm("mqtt", "4.1.0"))
+                implementation(npm("abort-controller", "3.0.0"))
+                implementation(npm("text-encoding", "0.7.0"))
+                implementation(npm("hammerjs", "2.0.8"))
+
+                implementation(devNpm("sass","1.26.10"))
+            }
+        }
+
+        val jsFrontendElectronMain by getting {
+            dependencies {
+                dependsOn(jsFrontendCommonMain)
+                dependsOn(jsBackendCommonMain)
+
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
+                implementation("io.ktor:ktor-client-js:$ktorVersion")
+
+                implementation("com.github.ajalt.clikt:clikt:3.0.1")
 
                 implementation(npm("mqtt", "4.1.0"))
                 implementation(npm("abort-controller", "3.0.0"))
@@ -100,6 +166,8 @@ kotlin {
 
         val jsBackendMain by getting {
             dependencies {
+                dependsOn(jsBackendCommonMain)
+
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
@@ -128,7 +196,7 @@ val generateGitProperties = tasks.named<com.gorylenko.GenerateGitPropertiesTask>
     outputs.upToDateWhen { false }
 }
 
-val createBuildInfo = tasks.create("createBuildInfo") {
+val generateBuildInformation = tasks.create("generateBuildInformation") {
     dependsOn("generateGitProperties")
     val webpackFile = File("$projectDir/webpack.config.d/build.js")
     val iniFile = File("$buildDir/processedResources/build.ini")
@@ -205,8 +273,8 @@ val createBuildInfo = tasks.create("createBuildInfo") {
 }
 
 @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-tasks.create<Exec>("jsFrontendCompileSass") {
-    dependsOn("kotlinNpmInstall", "jsFrontendProcessResources")
+tasks.create<Exec>("jsFrontendWebCompileSass") {
+    dependsOn("kotlinNpmInstall", "jsFrontendWebProcessResources")
 
     doFirst {
         val nodeJs =
@@ -229,55 +297,135 @@ tasks.create<Exec>("jsFrontendCompileSass") {
 
     args(
         "$buildDir/js/node_modules/sass/sass.js",
-        "$projectDir/src/jsFrontendMain/resources/public/stylesheets/style.scss",
-        "$buildDir/processedResources/jsFrontend/main/public/stylesheets/style.css"
+        "$projectDir/src/jsFrontendCommonMain/resources/public/stylesheets/style.scss",
+        "$buildDir/processedResources/jsFrontendWeb/main/public/stylesheets/style.css"
     )
 
     outputs.cacheIf { true }
-    inputs.dir(file("$projectDir/src/jsFrontendMain/resources/public/stylesheets"))
+    inputs.dir(file("$projectDir/src/jsFrontendCommonMain/resources/public/stylesheets"))
         .withPropertyName("stylesheets")
         .withPathSensitivity(PathSensitivity.RELATIVE)
 
-    outputs.file("$buildDir/processedResources/jsFrontend/main/public/stylesheets/style.css")
+    outputs.file("$buildDir/processedResources/jsFrontendWeb/main/public/stylesheets/style.css")
         .withPropertyName("style")
 }
 
-tasks.named("jsFrontendBrowserDistributeResources") {
-    dependsOn("jsFrontendCompileSass")
-}
-tasks.named("jsFrontendBrowserDevelopmentRun") {
-    dependsOn("jsFrontendCompileSass")
-}
-tasks.named("jsFrontendBrowserProductionRun") {
-    dependsOn("jsFrontendCompileSass")
+@Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+tasks.create<Exec>("jsFrontendElectronCompileSass") {
+    dependsOn("kotlinNpmInstall", "jsFrontendElectronProcessResources")
+
+    doFirst {
+        val nodeJs =
+            rootProject.extensions.getByName(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension.Companion.EXTENSION_NAME) as org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
+
+        if (nodeJs.installationDir.list() == null) {
+            return@doFirst
+        }
+
+        val nodeJsDir =
+            nodeJs.installationDir
+                .resolve(nodeJs.installationDir.list().first())
+
+        val executableFile = nodeJsDir.listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
+            ?: nodeJsDir.resolve("bin").listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
+            ?: nodeJsDir.resolve("bin").resolve(nodeJs.nodeCommand)
+
+        executable(executableFile)
+    }
+
+    args(
+        "$buildDir/js/node_modules/sass/sass.js",
+        "$projectDir/src/jsFrontendCommonMain/resources/public/stylesheets/style.scss",
+        "$buildDir/processedResources/jsFrontendElectron/main/public/stylesheets/style.css"
+    )
+
+    outputs.cacheIf { true }
+    inputs.dir(file("$projectDir/src/jsFrontendCommonMain/resources/public/stylesheets"))
+        .withPropertyName("stylesheets")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+
+    outputs.file("$buildDir/processedResources/jsFrontendElectron/main/public/stylesheets/style.css")
+        .withPropertyName("style")
 }
 
-val jsFrontendJar = tasks.named<Jar>("jsFrontendJar") {
-    dependsOn("jsFrontendBrowserProductionWebpack")
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+tasks.named("jsFrontendWebBrowserDistributeResources") {
+    dependsOn("jsFrontendWebCompileSass")
+}
 
-    val file = tasks.named("jsFrontendBrowserProductionWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
+tasks.create<Sync>("jsFrontendWebSync") {
+    dependsOn("jsFrontendWebBrowserProductionWebpack", "jsFrontendWebJar")
+
+    val file = tasks.named("jsFrontendWebBrowserProductionWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
     val sourceMap = file.resolveSibling("robolab.js.map")
-    from(file, sourceMap)
+    from(
+        file,
+        sourceMap,
+        Callable { zipTree(tasks.get("jsFrontendWebJar").outputs.files.first()) }
+    )
+
+    into("${projectDir}/deploy/distWeb/")
 }
 
-tasks.create<Sync>("jsFrontendSync") {
-    dependsOn("jsFrontendJar")
+tasks.create<Sync>("jsFrontendWebSyncDev") {
+    dependsOn("jsFrontendWebBrowserDevelopmentWebpack", "jsFrontendWebJar")
 
-    from(Callable { zipTree(jsFrontendJar.get().archiveFile) })
-    into("${projectDir}/deploy/dist/")
+    val file = tasks.named("jsFrontendWebBrowserDevelopmentWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
+    val sourceMap = file.resolveSibling("robolab.js.map")
+    from(
+        file,
+        sourceMap,
+        Callable { zipTree(tasks.get("jsFrontendWebJar").outputs.files.first()) }
+    )
+
+    into("${projectDir}/deploy/distWeb/")
+}
+
+
+tasks.named("jsFrontendElectronBrowserDistributeResources") {
+    dependsOn("jsFrontendElectronCompileSass")
+}
+
+tasks.create<Sync>("jsFrontendElectronSync") {
+    dependsOn("jsFrontendElectronBrowserProductionWebpack", "jsFrontendElectronJar")
+
+    val file = tasks.named("jsFrontendElectronBrowserProductionWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
+    val sourceMap = file.resolveSibling("robolab.js.map")
+    from(
+        file,
+        sourceMap,
+        Callable { zipTree(tasks.get("jsFrontendElectronJar").outputs.files.first()) }
+    )
+
+    into("${projectDir}/deploy/distElectron/")
+}
+
+tasks.create<Sync>("jsFrontendElectronSyncDev") {
+    dependsOn("jsFrontendElectronBrowserDevelopmentWebpack", "jsFrontendElectronJar")
+
+    val file = tasks.named("jsFrontendElectronBrowserDevelopmentWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
+    val sourceMap = file.resolveSibling("robolab.js.map")
+    from(
+        file,
+        sourceMap,
+        Callable { zipTree(tasks.get("jsFrontendElectronJar").outputs.files.first()) }
+    )
+
+    into("${projectDir}/deploy/distElectron/")
 }
 
 tasks.create<Sync>("jsBackendSync") {
-    dependsOn("compileKotlinJsBackend", "jsBackendPackageJson", "kotlinNpmInstall", createBuildInfo)
+    dependsOn("compileKotlinJsBackend", "jsBackendPackageJson", "kotlinNpmInstall", generateBuildInformation)
 
     from("$buildDir/js")
-    from(createBuildInfo)
+    from(generateBuildInformation)
     into("${projectDir}/deploy/server")
 }
 
 tasks.create<Delete>("cleanJsFrontendSync") {
-    delete("${projectDir}/deploy/dist")
+    delete(
+        "${projectDir}/deploy/distWeb",
+        "${projectDir}/deploy/distElectron"
+    )
 }
 
 tasks.create<Delete>("cleanJsBackendSync") {
@@ -288,10 +436,40 @@ tasks.named("clean") {
     dependsOn("cleanJsFrontendSync", "cleanJsBackendSync")
 }
 
-tasks.named("jsFrontendBrowserDevelopmentWebpack") {
-    dependsOn(createBuildInfo)
+val jsFrontendWebTargetFile = tasks.create("jsFrontendWebTargetFile") {
+    dependsOn("generateGitProperties")
+    val file = File("$projectDir/webpack.config.d/target.js")
+
+    doLast {
+        file.writeText("""config.target = "web"""")
+    }
+
+    outputs.files(file)
 }
 
-tasks.named("jsFrontendBrowserProductionWebpack") {
-    dependsOn(createBuildInfo)
+val jsFrontendElectronTargetFile = tasks.create("jsFrontendElectronTargetFile") {
+    dependsOn("generateGitProperties")
+    val file = File("$projectDir/webpack.config.d/target.js")
+
+    doLast {
+        file.writeText("""config.target = "electron-renderer"""")
+    }
+
+    outputs.files(file)
+}
+
+tasks.named("jsFrontendWebBrowserDevelopmentWebpack") {
+    dependsOn(generateBuildInformation, jsFrontendWebTargetFile)
+}
+
+tasks.named("jsFrontendWebBrowserProductionWebpack") {
+    dependsOn(generateBuildInformation, jsFrontendWebTargetFile)
+}
+
+tasks.named("jsFrontendElectronBrowserDevelopmentWebpack") {
+    dependsOn(generateBuildInformation, jsFrontendElectronTargetFile)
+}
+
+tasks.named("jsFrontendElectronBrowserProductionWebpack") {
+    dependsOn(generateBuildInformation, jsFrontendElectronTargetFile)
 }

@@ -1,7 +1,7 @@
 package de.robolab.common.utils
 
-import de.robolab.server.externaljs.fs.existsSync
-import de.robolab.server.externaljs.fs.readFileSync
+import de.robolab.common.externaljs.fs.existsSync
+import de.robolab.common.externaljs.fs.readFileSync
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.observeConst
 

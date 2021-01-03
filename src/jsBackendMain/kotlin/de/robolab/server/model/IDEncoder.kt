@@ -4,7 +4,7 @@ import de.robolab.client.net.requests.PlanetJsonInfo
 import de.robolab.common.planet.ID
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.utils.decodeFromB64
-import de.robolab.server.externaljs.Buffer
+import de.robolab.common.externaljs.Buffer
 
 const val IDEncoding: String = "utf8"
 

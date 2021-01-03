@@ -4,6 +4,10 @@ package de.robolab.server.routes
 
 import de.robolab.client.app.model.base.SearchRequest
 import de.robolab.common.auth.*
+import de.robolab.common.externaljs.JSArray
+import de.robolab.common.externaljs.isJSArray
+import de.robolab.common.externaljs.toList
+import de.robolab.common.jsutils.jsTruthy
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.server.config.Config

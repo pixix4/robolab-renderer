@@ -2,7 +2,7 @@ package de.robolab.server.auth
 
 import de.robolab.common.auth.AccessLevel
 import de.robolab.common.auth.User
-import de.robolab.server.externaljs.dynamicOf
+import de.robolab.common.externaljs.dynamicOf
 
 fun User.toJWTPayload(): dynamic = dynamicOf(
     "sub" to userID.toString(),

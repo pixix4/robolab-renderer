@@ -19,7 +19,8 @@ npm-debug.log
 deploy.sh
 redis-data/
 .DS_Store
-webpack.config.d/
+webpack.config.d/build.js
+webpack.config.d/target.js
 
 # It makes the project dirty
 .npmignore

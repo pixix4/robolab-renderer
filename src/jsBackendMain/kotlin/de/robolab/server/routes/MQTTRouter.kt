@@ -9,9 +9,8 @@ import de.robolab.common.net.MIMEType
 import de.robolab.common.auth.*
 import de.robolab.server.config.Config
 import de.robolab.server.data.PostgresMQTTCredentialStore
-import de.robolab.server.externaljs.dynamicOf
+import de.robolab.common.externaljs.dynamicOf
 import de.robolab.server.externaljs.express.*
-import de.robolab.server.externaljs.toJSArray
 import de.robolab.server.net.RESTResponseCodeException
 
 object MQTTRouter {

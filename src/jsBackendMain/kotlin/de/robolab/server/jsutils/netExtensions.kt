@@ -6,12 +6,12 @@ import de.robolab.common.net.headers.IHeader
 import de.robolab.common.net.headers.LastModifiedHeader
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.utils.RobolabJson
-import de.robolab.server.externaljs.http.ServerResponse
+import de.robolab.common.externaljs.http.ServerResponse
 import de.robolab.server.externaljs.express.Response
 import de.robolab.server.externaljs.express.format
-import de.robolab.server.externaljs.toJSArray
+import de.robolab.common.externaljs.toJSArray
 import de.robolab.server.externaljs.express.status
-import de.robolab.server.externaljs.dynamicOf
+import de.robolab.common.externaljs.dynamicOf
 import de.robolab.server.model.asPlanetJsonInfo
 import de.robolab.server.model.ServerPlanet
 import kotlinx.serialization.builtins.ListSerializer

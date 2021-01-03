@@ -1,6 +1,8 @@
 package de.robolab.client.app.model.group
 
 import de.robolab.client.app.model.base.INavigationBarEntry
+import de.robolab.client.app.model.base.INavigationBarList
+import de.robolab.client.app.model.base.INavigationBarTab
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.repository.Group
 import de.robolab.client.app.repository.MessageRepository
@@ -15,13 +17,12 @@ import kotlinx.coroutines.launch
 
 class GroupNavigationList(
     private val messageRepository: MessageRepository,
-    private val root: GroupNavigationRoot
-) : GroupNavigationRoot.RepositoryList {
+    private val tab: GroupNavigationTab
+) : GroupNavigationTab.RepositoryList {
 
-    override val parentNameProperty = constObservable<String?>(null)
+    override val nameProperty = constObservable("Groups")
 
-    override fun openParent() {
-    }
+    override val parent: INavigationBarList? = null
 
     override val childrenProperty = observableListOf<Entry>()
 
@@ -68,6 +69,8 @@ class GroupNavigationList(
             groupProperty.value = group
         }
 
+        override val tab: INavigationBarTab = this@GroupNavigationList.tab
+
         override val nameProperty = groupProperty.mapBinding { group ->
             buildString {
                 append(group.name)
@@ -93,13 +96,5 @@ class GroupNavigationList(
         override val enabledProperty = constObservable(true)
 
         override val statusIconProperty = constObservable<List<MaterialIcon>>(emptyList())
-
-        override fun open(asNewTab: Boolean) {
-            if (asNewTab) {
-                root.openGroupLiveAttempt(group, false)
-            } else {
-                root.openGroupAttemptList(group)
-            }
-        }
     }
 }

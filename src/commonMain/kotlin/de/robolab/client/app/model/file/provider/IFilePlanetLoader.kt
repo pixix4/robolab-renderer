@@ -49,10 +49,5 @@ interface IFilePlanetIdentifier {
 }
 
 interface IFilePlanetLoaderFactory {
-
-    val usage: String
-
-    val protocol: String
-
     fun create(uri: String): IFilePlanetLoader<*>?
 }
