@@ -1,54 +1,28 @@
 {
   "name": "robolab-renderer",
-  "version": "1.0.0",
-  "description": "",
+  "version": "4.0.0",
+  "description": "Rewrite of the robolab rendering egnine.",
   "main": "main.js",
+  "author": "Lars Westermann",
   "scripts": {
     "dev": "env NODE_ENV='development' electron .",
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make"
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.54",
-    "@electron-forge/maker-deb": "^6.0.0-beta.54",
-    "@electron-forge/maker-rpm": "^6.0.0-beta.54",
-    "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
-    "@electron-forge/maker-zip": "^6.0.0-beta.54",
-    "electron": "^11.1.0"
+    "electron": "^11.1.0",
+    "electron-builder": "^22.10.4"
   },
-  "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
-  },
-  "config": {
-    "forge": {
-      "packagerConfig": {
-        "extraResource": [
-          "../distElectron/"
-        ]
-      },
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "robolab_renderer"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        }
-      ]
+  "build": {
+    "extraResources": [
+      {
+        "from": "../distElectron/",
+        "to": "app/"
+      }
+    ],
+    "appId": "de.robolab.renderer",
+    "mac": {
+      "category": "public.app-category.education"
     }
   }
 }

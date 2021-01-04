@@ -396,6 +396,16 @@ tasks.create<Sync>("jsFrontendElectronSync") {
         Callable { zipTree(tasks.get("jsFrontendElectronJar").outputs.files.first()) }
     )
 
+    exclude(
+        "robolab-jsFrontendElectron/**",
+        "robolab-jsFrontendElectron.js",
+        "robolab-jsFrontendElectron.js.map",
+        "robolab-jsFrontendElectron.meta.js",
+        "package.json",
+        "robolab.js.map",
+        "META-INF/**"
+    )
+
     into("${projectDir}/deploy/distElectron/")
 }
 

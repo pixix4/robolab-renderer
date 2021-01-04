@@ -16,7 +16,7 @@ function createWindow () {
     if (process.env.NODE_ENV === 'development') {
         win.loadFile('../distElectron/index.html')
     } else {
-        win.loadFile('../distElectron/index.html')
+        win.loadFile('../app/index.html')
     }
 }
 
