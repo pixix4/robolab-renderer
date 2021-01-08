@@ -8,5 +8,5 @@ actual object PlatformDefaultPreferences {
 
     actual val remoteServerUri = window.location.origin + window.location.pathname
 
-    actual val fileServer = listOf("")
+    actual val fileServer = ""
 }

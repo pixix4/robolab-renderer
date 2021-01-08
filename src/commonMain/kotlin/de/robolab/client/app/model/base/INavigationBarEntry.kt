@@ -108,10 +108,13 @@ abstract class INavigationBarTab(
             l = l.parent
         }
 
-        nameList += name
-        nameList.reverse()
+        val nameStr = nameList.filter { it.isNotEmpty() }.reversed().joinToString("/")
 
-        nameList.joinToString("/")
+        if (nameStr.isBlank()) {
+            return@join name
+        }
+
+        nameStr
     }
 }
 

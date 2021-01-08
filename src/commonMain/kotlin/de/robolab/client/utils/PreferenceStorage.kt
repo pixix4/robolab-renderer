@@ -148,5 +148,5 @@ enum class MqttStorage {
 expect object PlatformDefaultPreferences {
     val mqttServerUri: String
     val remoteServerUri: String
-    val fileServer: List<String>
+    val fileServer: String
 }

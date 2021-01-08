@@ -19,3 +19,6 @@ fun main() {
 
     initMainView(args)
 }
+
+@JsExport
+class electron

@@ -66,6 +66,10 @@ fun <ReqData, ResData> createRouter(
         )
     ).unsafeCast<Router<ReqData, ResData>>()
 
+fun createStatic(
+    path: String
+): Middleware<DefaultRequestData, DefaultResponseData> = Express.static(path)
+
 interface Request<Data> : IncomingServerMessage {
     val app: ExpressApp
     val baseUrl: String

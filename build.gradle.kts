@@ -25,7 +25,7 @@ repositories {
         url = uri("https://dl.bintray.com/kotlin/kotlinx")
     }
     maven {
-        url  = uri("https://kotlin.bintray.com/kotlinx")
+        url = uri("https://kotlin.bintray.com/kotlinx")
     }
 }
 
@@ -118,12 +118,12 @@ kotlin {
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("hammerjs", "2.0.8"))
 
-                implementation(devNpm("sass","1.26.10"))
+                implementation(devNpm("sass", "1.26.10"))
             }
         }
         val jsBackendCommonMain by getting {
             dependencies {
-
+                implementation("org.jetbrains.kotlinx:kotlinx-nodejs:0.0.7")
             }
         }
 
@@ -140,7 +140,7 @@ kotlin {
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("hammerjs", "2.0.8"))
 
-                implementation(devNpm("sass","1.26.10"))
+                implementation(devNpm("sass", "1.26.10"))
             }
         }
 
@@ -152,6 +152,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-nodejs:0.0.7")
 
                 implementation("com.github.ajalt.clikt:clikt:3.0.1")
 
@@ -160,7 +161,7 @@ kotlin {
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("hammerjs", "2.0.8"))
 
-                implementation(devNpm("sass","1.26.10"))
+                implementation(devNpm("sass", "1.26.10"))
             }
         }
 
@@ -171,6 +172,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-nodejs:0.0.7")
 
                 implementation("com.github.ajalt.clikt:clikt:3.0.1")
 
@@ -178,10 +180,10 @@ kotlin {
                 implementation(npm("express", "4.17.1"))
                 implementation(npm("socket.io", "2.3.0"))
                 implementation(npm("text-encoding", "0.7.0"))
-                implementation(npm("body-parser","1.19.0"))
-                implementation(npm("jsonwebtoken","8.5.1"))
-                implementation(npm("cookie-parser","1.4.5"))
-                implementation(npm("pg","8.5.0"))
+                implementation(npm("body-parser", "1.19.0"))
+                implementation(npm("jsonwebtoken", "8.5.1"))
+                implementation(npm("cookie-parser", "1.4.5"))
+                implementation(npm("pg", "8.5.0"))
             }
         }
     }
@@ -260,7 +262,7 @@ val generateBuildInformation = tasks.create("generateBuildInformation") {
             commitHash = ${git["git.commit.id.abbrev"]}
             commitMessage = ${git["git.commit.message.short"]}
             commitTime = ${git["git.commit.time"]}
-            tags = ${git["git.tags"] }
+            tags = ${git["git.tags"]}
             lastTag = ${git["git.closest.tag"] ?: ""}
             lastTagDiff = ${git["git.closest.tag.commit.count"]}
             dirty = ${git["git.dirty"]}
@@ -355,12 +357,23 @@ tasks.named("jsFrontendWebBrowserDistributeResources") {
 tasks.create<Sync>("jsFrontendWebSync") {
     dependsOn("jsFrontendWebBrowserProductionWebpack", "jsFrontendWebJar")
 
-    val file = tasks.named("jsFrontendWebBrowserProductionWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
+    val file =
+        tasks.named("jsFrontendWebBrowserProductionWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
     val sourceMap = file.resolveSibling("robolab.js.map")
     from(
         file,
         sourceMap,
         Callable { zipTree(tasks.get("jsFrontendWebJar").outputs.files.first()) }
+    )
+
+    exclude(
+        "robolab-jsFrontendWeb/**",
+        "robolab-jsFrontendWeb.js",
+        "robolab-jsFrontendWeb.js.map",
+        "robolab-jsFrontendWeb.meta.js",
+        "package.json",
+        "META-INF/**",
+        "**/*.scss"
     )
 
     into("${projectDir}/deploy/distWeb/")
@@ -369,7 +382,8 @@ tasks.create<Sync>("jsFrontendWebSync") {
 tasks.create<Sync>("jsFrontendWebSyncDev") {
     dependsOn("jsFrontendWebBrowserDevelopmentWebpack", "jsFrontendWebJar")
 
-    val file = tasks.named("jsFrontendWebBrowserDevelopmentWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
+    val file = tasks.named("jsFrontendWebBrowserDevelopmentWebpack")
+        .get().outputs.files.files.first { it.name == "robolab.js" }
     val sourceMap = file.resolveSibling("robolab.js.map")
     from(
         file,
@@ -388,7 +402,8 @@ tasks.named("jsFrontendElectronBrowserDistributeResources") {
 tasks.create<Sync>("jsFrontendElectronSync") {
     dependsOn("jsFrontendElectronBrowserProductionWebpack", "jsFrontendElectronJar")
 
-    val file = tasks.named("jsFrontendElectronBrowserProductionWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
+    val file = tasks.named("jsFrontendElectronBrowserProductionWebpack")
+        .get().outputs.files.files.first { it.name == "robolab.js" }
     val sourceMap = file.resolveSibling("robolab.js.map")
     from(
         file,
@@ -402,8 +417,8 @@ tasks.create<Sync>("jsFrontendElectronSync") {
         "robolab-jsFrontendElectron.js.map",
         "robolab-jsFrontendElectron.meta.js",
         "package.json",
-        "robolab.js.map",
-        "META-INF/**"
+        "META-INF/**",
+        "*.scss"
     )
 
     into("${projectDir}/deploy/distElectron/")
@@ -412,7 +427,8 @@ tasks.create<Sync>("jsFrontendElectronSync") {
 tasks.create<Sync>("jsFrontendElectronSyncDev") {
     dependsOn("jsFrontendElectronBrowserDevelopmentWebpack", "jsFrontendElectronJar")
 
-    val file = tasks.named("jsFrontendElectronBrowserDevelopmentWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
+    val file = tasks.named("jsFrontendElectronBrowserDevelopmentWebpack")
+        .get().outputs.files.files.first { it.name == "robolab.js" }
     val sourceMap = file.resolveSibling("robolab.js.map")
     from(
         file,
@@ -434,7 +450,10 @@ tasks.create<Sync>("jsBackendSync") {
 tasks.create<Delete>("cleanJsFrontendSync") {
     delete(
         "${projectDir}/deploy/distWeb",
-        "${projectDir}/deploy/distElectron"
+        "${projectDir}/deploy/web/node_modules",
+        "${projectDir}/deploy/distElectron",
+        "${projectDir}/deploy/electron/dist",
+        "${projectDir}/deploy/electron/node_modules"
     )
 }
 
@@ -451,7 +470,25 @@ val jsFrontendWebTargetFile = tasks.create("jsFrontendWebTargetFile") {
     val file = File("$projectDir/webpack.config.d/target.js")
 
     doLast {
-        file.writeText("""config.target = "web"""")
+        file.writeText(
+            """
+            config.target = "web"
+            
+            config.externals = [
+                (function () {
+                    var IGNORES = [
+                        'electron'
+                    ];
+                    return function (context, request, callback) {
+                        if (IGNORES.indexOf(request) >= 0) {
+                            return callback(null, "require('" + request + "')");
+                        }
+                        return callback();
+                    };
+                })()
+            ]
+            """.trimIndent()
+        )
     }
 
     outputs.files(file)

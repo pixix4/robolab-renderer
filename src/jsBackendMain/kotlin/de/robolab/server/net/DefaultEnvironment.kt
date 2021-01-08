@@ -1,32 +1,36 @@
 package de.robolab.server.net
 
+import de.robolab.common.externaljs.emptyDynamic
+import de.robolab.common.externaljs.fs.readdirSync
+import de.robolab.common.externaljs.http.createServer
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AccessControlAllowMethods
 import de.robolab.common.utils.BuildInformation
+import de.robolab.server.config.Config
 import de.robolab.server.externaljs.body_parser.json
 import de.robolab.server.externaljs.body_parser.text
 import de.robolab.server.externaljs.cookie_parser.cookieParser
 import de.robolab.server.externaljs.createIO
-import de.robolab.common.externaljs.emptyDynamic
 import de.robolab.server.externaljs.express.*
-import de.robolab.common.externaljs.http.createServer
 import de.robolab.server.jsutils.setHeader
 import de.robolab.server.routes.*
+import kotlinx.serialization.Serializable
+import path.path
 
 object DefaultEnvironment {
     val app: ExpressApp = createApp()
     val http: dynamic = createServer(app)
     val io: dynamic = createIO(http)
 
-    fun createApiRouter() : DefaultRouter {
+    fun createApiRouter(): DefaultRouter {
         val router = createRouter()
         router.use("/") { req, res, next ->
             res.setHeader(AccessControlAllowMethods.All)
             res.setHeader("Access-Control-Allow-Origin", req.headers.Origin ?: req.headers.origin ?: "*")
-            res.setHeader("Access-Control-Allow-Headers","authorization")
+            res.setHeader("Access-Control-Allow-Headers", "authorization")
             res.setHeader("Access-Control-Allow-Credentials", true)
             res.setHeader("Access-Control-Max-Age", 3600)
-            res.setHeader("Vary","Origin")
+            res.setHeader("Vary", "Origin")
             next(null)
         }
         router.use(json())
@@ -48,7 +52,7 @@ object DefaultEnvironment {
                 obj["version"] = BuildInformation.versionBackend
                 obj["versionString"] = BuildInformation.versionBackend.toString()
                 res.send(JSON.stringify(obj))
-            },"text" to {
+            }, "text" to {
                 res.send(BuildInformation.versionBackend.toString())
             })
         }
@@ -56,5 +60,200 @@ object DefaultEnvironment {
         router.get("/", logoResponse)
 
         return router
+    }
+
+    fun createWebRouter(): DefaultRouter {
+        val directory = path.resolve(Config.Web.directory)
+        val router = createRouter()
+
+        router.get("/") { _, res ->
+            res.sendFile(path.join(directory, "index.html"))
+        }
+        router.use("", createStatic(directory))
+
+        return router
+    }
+
+    fun createElectronRouter(): DefaultRouter {
+        val mount = Config.Electron.mount
+        val directory = path.resolve(Config.Electron.directory)
+        val router = createRouter()
+
+        router.get("/latest.json") { req, res ->
+            res.setHeader("content-type", "application/json")
+
+            val content = readdirSync(directory).toList().filterNot {
+                it.contains(".yml")
+            }.filter {
+                it.contains(".")
+            }
+
+            val data = content.mapNotNull {
+                Artefact.parse(mount, it)
+            }.groupBy {
+                it.os
+            }.mapValues { (_, v) ->
+                v.groupBy { it.arch }
+            }
+
+            res.sendSerializable(data)
+        }
+        router.use("", createStatic(directory))
+
+        return router
+    }
+}
+
+@Serializable
+data class Artefact(
+    val url: String,
+    val filename: String,
+    val os: String,
+    val arch: String,
+    val format: String,
+    val version: String,
+) {
+    companion object {
+
+        fun parse(mount: String, name: String): Artefact? {
+            val url = "$mount/$name".replace("//+".toRegex(), "/")
+
+            var n = name.replace("robolab-renderer([-_])".toRegex(), "")
+            if (n.endsWith(".dmg")) {
+                n = n.removeSuffix(".dmg")
+
+                return when {
+                    n.endsWith("-arm64") -> {
+                        n = n.removeSuffix("-arm64")
+
+                        Artefact(
+                            url,
+                            name,
+                            "mac",
+                            "arm64",
+                            "dmg",
+                            n
+                        )
+                    }
+                    n.endsWith("-universal") -> {
+                        n = n.removeSuffix("-universal")
+
+                        Artefact(
+                            url,
+                            name,
+                            "mac",
+                            "universal",
+                            "dmg",
+                            n
+                        )
+                    }
+                    else -> {
+                        Artefact(
+                            url,
+                            name,
+                            "mac",
+                            "x86",
+                            "dmg",
+                            n
+                        )
+                    }
+                }
+            }
+
+            if (n.endsWith("-mac.zip")) {
+                n = n.removeSuffix("-mac.zip")
+
+                return when {
+                    n.endsWith("-arm64") -> {
+                        n = n.removeSuffix("-arm64")
+
+                        Artefact(
+                            url,
+                            name,
+                            "mac",
+                            "arm64",
+                            "zip",
+                            n
+                        )
+                    }
+                    n.endsWith("-universal") -> {
+                        n = n.removeSuffix("-universal")
+
+                        Artefact(
+                            url,
+                            name,
+                            "mac",
+                            "universal",
+                            "zip",
+                            n
+                        )
+                    }
+                    else -> {
+                        Artefact(
+                            url,
+                            name,
+                            "mac",
+                            "x86",
+                            "zip",
+                            n
+                        )
+                    }
+                }
+            }
+
+            if (n.endsWith(".AppImage")) {
+                n = n.removeSuffix(".AppImage")
+
+                return if (n.endsWith("-arm64")) {
+                    n = n.removeSuffix("-arm64")
+
+                    Artefact(
+                        url,
+                        name,
+                        "linux",
+                        "arm64",
+                        "AppImage",
+                        n
+                    )
+                } else {
+                    Artefact(
+                        url,
+                        name,
+                        "linux",
+                        "x86",
+                        "AppImage",
+                        n
+                    )
+                }
+            }
+
+            if (n.endsWith(".deb")) {
+                n = n.removeSuffix(".deb")
+
+                return if (n.endsWith("_arm64")) {
+                    n = n.removeSuffix("_arm64")
+
+                    Artefact(
+                        url,
+                        name,
+                        "linux",
+                        "arm64",
+                        "deb",
+                        n
+                    )
+                } else {
+                    Artefact(
+                        url,
+                        name,
+                        "linux",
+                        "x86",
+                        "deb",
+                        n
+                    )
+                }
+            }
+
+            return null
+        }
     }
 }

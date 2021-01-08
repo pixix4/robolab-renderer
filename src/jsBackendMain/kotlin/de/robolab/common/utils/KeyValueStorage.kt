@@ -3,6 +3,7 @@ package de.robolab.common.utils
 import de.robolab.common.externaljs.fs.existsSync
 import de.robolab.common.externaljs.fs.readFileSync
 import de.robolab.common.externaljs.fs.writeFileSync
+import path.path
 
 actual class KeyValueStorage {
 
@@ -14,15 +15,16 @@ actual class KeyValueStorage {
 
     private var configCache: Map<String, String> = emptyMap()
 
-    private fun loadFile(filename: String) {
+    private fun loadFile(filename: String): Boolean {
         if (existsSync(filename)) {
             println("Loading config file '$filename'!")
             val string = readFileSync(filename, "utf8") as String
 
             configCache += IniConverter.fromString(string)
-        } else {
-            println("Config file '$filename' does not exist!")
+            return true
         }
+
+        return false
     }
 
     private fun saveFile() {
@@ -70,7 +72,14 @@ actual class KeyValueStorage {
 
     init {
         try {
-            loadFile(fileName)
+            var filePath = fileName
+            while (true) {
+                if (loadFile(path.resolve(filePath))) {
+                    break
+                }
+                filePath = path.join("..", filePath)
+                filePath = path.normalize(filePath)
+            }
         } catch (_: Exception) {
             log.error("Cannot load config file $fileName")
         }

@@ -3,6 +3,7 @@ package de.robolab.client.ui.views
 import de.robolab.client.app.controller.ToolBarController
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.base.ToolBarEntry
+import de.robolab.client.ui.dialog.DownloadDialog
 import de.robolab.client.ui.dialog.SettingsDialog
 import de.robolab.client.ui.triggerDownloadUrl
 import de.robolab.client.ui.views.utils.buttonGroup
@@ -15,6 +16,8 @@ import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
+import io.ktor.client.fetch.fetch
+import kotlinx.coroutines.await
 
 class ToolBar(private val toolBarController: ToolBarController) : ViewCollection<View>() {
 
@@ -104,7 +107,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                         title = "Download"
 
                         onClick {
-                            triggerDownloadUrl("robolab-renderer.jar", "jvm/robolab-renderer.jar")
+                            DownloadDialog.open()
                         }
                     }
                 }

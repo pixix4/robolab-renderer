@@ -227,11 +227,16 @@ fun ObservableProperty<String?>.bindStringParsing() = property(object : Delegate
 
 }, this)
 
-fun BoxView.dialogFormEntry(name: String, block: BoxView.() -> Unit): BoxView {
+fun BoxView.dialogFormEntry(name: String, formGroup: Boolean = false, block: BoxView.() -> Unit): BoxView {
     return boxView("dialog-form-entry") {
         textView(name)
 
         boxView("dialog-form-flex") {
+            if (formGroup) {
+                classList += "button-group"
+                classList += "button-form-group"
+            }
+
             block()
         }
     }

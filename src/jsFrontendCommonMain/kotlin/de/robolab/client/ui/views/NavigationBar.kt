@@ -7,6 +7,7 @@ import de.robolab.client.app.model.base.INavigationBarEntry
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.ui.lineSequence
 import de.robolab.client.ui.openFile
+import de.robolab.client.ui.pathOrName
 import de.robolab.client.ui.readText
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.event.now
@@ -108,7 +109,9 @@ class NavigationBar(
                         for (file in files) {
                             val content = file.readText()
                             if (content != null) {
-                                fileImportController.importFile(file.name, file.lineSequence())
+                                fileImportController.importFile(file.pathOrName()) {
+                                    file.lineSequence()
+                                }
                             }
                         }
                     }

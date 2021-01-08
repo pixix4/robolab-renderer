@@ -3,7 +3,15 @@
   "version": "4.0.0",
   "description": "Rewrite of the robolab rendering egnine.",
   "main": "main.js",
-  "author": "Lars Westermann",
+  "author": {
+    "name": "Lars Westermann",
+    "email": "lars-westermann@live.de"
+  },
+  "homepage": "https://github.com/pixix4/robolab-renderer",
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/pixix4/robolab-renderer"
+  },
   "scripts": {
     "dev": "env NODE_ENV='development' electron .",
     "pack": "electron-builder --dir",
@@ -21,8 +29,33 @@
       }
     ],
     "appId": "de.robolab.renderer",
+    "fileAssociations": [
+      {
+        "ext": "planet",
+        "name": "Planet file",
+        "description": "Robolab Planet File"
+      }
+    ],
     "mac": {
-      "category": "public.app-category.education"
+      "category": "public.app-category.education",
+      "publish": {
+        "provider": "generic",
+        "url": "https://robolab.inf.tu-dresden.de/renderer",
+        "useMultipleRangeRequest": false
+      },
+      "darkModeSupport": true
+    },
+    "linux": {
+      "category": "Education",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "publish": {
+        "provider": "generic",
+        "url": "https://robolab.inf.tu-dresden.de/renderer",
+        "useMultipleRangeRequest": false
+      }
     }
   }
 }

@@ -308,43 +308,56 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
             val code = event.toCommon() ?: return@onKeyDown
             event.stopPropagation()
             event.preventDefault()
-            listenerManager.onKeyPress(
-                KeyEvent(
-                    code,
-                    event.key,
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-                )
+
+            val e = KeyEvent(
+                code,
+                event.key,
+                event.ctrlKey,
+                event.altKey,
+                event.shiftKey
             )
+
+            listenerManager.onKeyPress(e)
+
+            if (!e.bubbles) {
+                event.stopPropagation()
+            }
         }
         canvas.onKeyPress { event ->
             val code = event.toCommon() ?: return@onKeyPress
-            event.stopPropagation()
             event.preventDefault()
-            listenerManager.onKeyPress(
-                KeyEvent(
-                    code,
-                    event.key,
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-                )
+
+            val e = KeyEvent(
+                code,
+                event.key,
+                event.ctrlKey,
+                event.altKey,
+                event.shiftKey
             )
+
+            listenerManager.onKeyPress(e)
+
+            if (!e.bubbles) {
+                event.stopPropagation()
+            }
         }
         canvas.onKeyUp { event ->
             val code = event.toCommon() ?: return@onKeyUp
-            event.stopPropagation()
             event.preventDefault()
-            listenerManager.onKeyRelease(
-                KeyEvent(
-                    code,
-                    event.key,
-                    event.ctrlKey,
-                    event.altKey,
-                    event.shiftKey
-                )
+
+            val e = KeyEvent(
+                code,
+                event.key,
+                event.ctrlKey,
+                event.altKey,
+                event.shiftKey
             )
+
+            listenerManager.onKeyRelease(e)
+
+            if (!e.bubbles) {
+                event.stopPropagation()
+            }
         }
 
         hammer.onPanStart { event ->

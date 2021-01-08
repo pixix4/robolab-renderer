@@ -33,7 +33,7 @@ class MainController(private val args: Args) {
             if (name == null || name.isBlank()) APPLICATION_NAME else "$APPLICATION_NAME - $name"
         }
 
-    val fileImportController = FileImportController(robolabMessageProvider)
+    val fileImportController = FileImportController(robolabMessageProvider, tabController)
 
     val mqttStorage = when (PreferenceStorage.mqttStorage) {
         MqttStorage.IN_MEMORY -> MemoryMessageStorage()

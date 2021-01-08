@@ -26,7 +26,7 @@ class RemoteFilePlanetLoader(
 
     override val descProperty = constObservable(server.hostURL)
 
-    override val iconProperty = constObservable(MaterialIcon.CLOUD_QUEUE)
+    override val iconProperty = constObservable(MaterialIcon.CLOUD)
 
     override val availableProperty = property(true)
     var available by availableProperty

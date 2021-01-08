@@ -3,6 +3,7 @@ package de.robolab.client.ui.dialog
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.theme.ThemePropertySelectorMapper
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.client.utils.electron
 import de.robolab.common.utils.BuildInformation
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.not
@@ -16,7 +17,7 @@ class SettingsDialog private constructor(
     private val loadMqttSettings: () -> Unit,
     private val serverVersionProperty: ObservableValue<String>,
     private val serverAuthenticationProperty: ObservableValue<String>,
-): Dialog("Settings") {
+) : Dialog("Settings") {
 
 
     init {
@@ -92,9 +93,7 @@ class SettingsDialog private constructor(
 
         tab("Connection") {
             dialogFormGroup("Remote server") {
-                dialogFormEntry("Server uri") {
-                    classList += "button-group"
-                    classList += "button-form-group"
+                dialogFormEntry("Server uri", true) {
 
                     inputView(PreferenceStorage.remoteServerUrlProperty) {
                         type = InputType.URL
@@ -113,15 +112,32 @@ class SettingsDialog private constructor(
                         readonly = true
                     }
                 }
-                dialogFormEntry("Server authentication") {
-                    classList += "button-group"
-                    classList += "button-form-group"
+                dialogFormEntry("Server authentication", true) {
                     inputView(serverAuthenticationProperty) {
                         readonly = true
                     }
                     button("Authenticate") {
                         onClick {
                             requestAuthToken()
+                        }
+                    }
+                }
+            }
+
+            electron { electron ->
+                dialogFormGroup("Local planet directory") {
+                    dialogFormEntry("Directory", true) {
+                        inputView(PreferenceStorage.remoteFilesProperty)
+                        button {
+                            iconView(MaterialIcon.FOLDER_OPEN)
+
+                            onClick {
+                                electron.ipcRenderer.send("select-directory")
+                                electron.ipcRenderer.once("select-directory") { _, args ->
+                                    val path = args[0].unsafeCast<String>()
+                                    PreferenceStorage.remoteFiles = path
+                                }
+                            }
                         }
                     }
                 }
@@ -203,7 +219,14 @@ class SettingsDialog private constructor(
             requestAuthToken: () -> Unit,
             loadMqttSettings: () -> Unit,
         ) {
-            open(SettingsDialog(requestAuthToken, loadMqttSettings, serverVersionProperty, serverAuthenticationProperty))
+            open(
+                SettingsDialog(
+                    requestAuthToken,
+                    loadMqttSettings,
+                    serverVersionProperty,
+                    serverAuthenticationProperty
+                )
+            )
         }
     }
 }

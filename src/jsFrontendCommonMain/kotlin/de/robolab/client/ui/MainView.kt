@@ -3,7 +3,7 @@ package de.robolab.client.ui
 import de.robolab.client.app.controller.MainController
 import de.robolab.client.ui.views.*
 import de.robolab.client.utils.PreferenceStorage
-import de.robolab.common.utils.EnvironmentStorage
+import de.robolab.client.utils.electron
 import de.robolab.common.utils.toDashCase
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.join
@@ -13,12 +13,14 @@ import de.westermann.kwebview.bindStyleProperty
 import de.westermann.kwebview.components.boxView
 import de.westermann.kwebview.components.init
 import kotlinx.browser.document
-import kotlinx.browser.window
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-fun initMainView(args: MainController.Args) {
+fun initMainView(
+    args: MainController.Args,
+    fileArgs: List<Pair<String, suspend () -> Sequence<String>>> = emptyList()
+) {
     val mainController = MainController(args)
 
     watchSystemTheme()
@@ -80,12 +82,29 @@ fun initMainView(args: MainController.Args) {
                 for (file in files) {
                     val content = file.readText()
                     if (content != null) {
-                        mainController.fileImportController.importFile(file.name, file.lineSequence())
+                        mainController.fileImportController.importFile(file.pathOrName()) { file.lineSequence() }
                     }
                 }
             }
         }
 
         mainController.finishSetup()
+
+        GlobalScope.launch {
+            for ((filename, producer) in fileArgs) {
+                mainController.fileImportController.importFile(filename, producer)
+            }
+        }
+
+        electron { electron ->
+            electron.ipcRenderer.on("open-file") { _, args ->
+                val name  = args.name.unsafeCast<String>()
+                val content = args.content.unsafeCast<String>()
+
+                GlobalScope.launch(Dispatchers.Default) {
+                    mainController.fileImportController.importFile(name) { content.splitToSequence("\n") }
+                }
+            }
+        }
     }
 }

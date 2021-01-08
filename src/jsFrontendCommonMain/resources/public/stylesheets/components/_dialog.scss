@@ -180,3 +180,17 @@
     text-align: center;
   }
 }
+
+.download-overview {
+  display: flex;
+
+  & > .box-view {
+    flex-grow: 1;
+    padding: 1rem;
+
+    & > .text-view {
+      display: block;
+      text-align: center;
+    }
+  }
+}

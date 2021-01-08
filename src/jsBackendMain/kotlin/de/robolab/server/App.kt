@@ -3,12 +3,14 @@ package de.robolab.server
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
+import de.robolab.common.externaljs.fs.existsSync
 import de.robolab.common.utils.ConsoleGreeter
 import de.robolab.common.utils.KeyValueStorage
 import de.robolab.common.utils.Logger
 import de.robolab.server.config.Config
 import de.robolab.server.net.DefaultEnvironment
 import de.robolab.server.routes.logoResponse
+import path.path
 
 class App : CliktCommand() {
 
@@ -21,13 +23,36 @@ class App : CliktCommand() {
         ConsoleGreeter.greetServer()
         val logger = Logger("MainApp")
 
-        DefaultEnvironment.app.use(Config.General.mount, DefaultEnvironment.createApiRouter())
-        if (Config.General.mount.isEmpty() || Config.General.mount != "/") {
+        val endpoints = mutableListOf<Pair<String, String>>()
+
+        DefaultEnvironment.app.use(Config.Api.mount, DefaultEnvironment.createApiRouter())
+        endpoints += "api" to "http://localhost:${Config.General.port}${Config.Api.mount}"
+
+        if (Config.Web.directory.isNotEmpty() && existsSync(Config.Web.directory)) {
+            DefaultEnvironment.app.use(Config.Web.mount, DefaultEnvironment.createWebRouter())
+            endpoints += "web" to "http://localhost:${Config.General.port}${Config.Web.mount} (${path.resolve(Config.Web.directory)})"
+        }
+
+        if (Config.Electron.directory.isNotEmpty() && existsSync(Config.Electron.directory)) {
+            DefaultEnvironment.app.use(Config.Electron.mount, DefaultEnvironment.createElectronRouter())
+            endpoints += "electron" to "http://localhost:${Config.General.port}${Config.Electron.mount} (${path.resolve(Config.Electron.directory)})"
+        }
+
+        if (Config.Api.mount.isEmpty() || Config.Api.mount != "/") {
             DefaultEnvironment.app.get("/", logoResponse)
         }
         DefaultEnvironment.http.listen(Config.General.port) {
             logger.info {
-                "Listening on port http://localhost:${Config.General.port}${Config.General.mount}"
+                buildString {
+                    appendLine("Server successfully started!")
+                    appendLine("Endpoints:")
+                    val length = endpoints.fold(0) { acc, (name, _) ->
+                        kotlin.math.max(acc, name.length)
+                    } + 1
+                    for ((name, url) in endpoints) {
+                        appendLine("    ${"$name:".padEnd(length)} $url")
+                    }
+                }
             }
         }
     }

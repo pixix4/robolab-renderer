@@ -31,7 +31,7 @@ class FileNavigationManager(
 
     private val remotePlanetLoader: ObservableValue<RemoteFilePlanetLoader?> =
         PreferenceStorage.remoteServerUrlProperty.mapBinding {
-            val loader = if (it.isBlank()) {
+            val loader = if (it.isBlank() || it.contains("file://")) {
                 null
             } else {
                 RemoteFilePlanetLoader.create(it)
@@ -52,12 +52,11 @@ class FileNavigationManager(
     val remoteServerAuthenticationProperty = property("")
 
     val fileLoaderProperty = PreferenceStorage
-        .remoteFilesProperty.join(remotePlanetLoader) { list, remote ->
+        .remoteFilesProperty.join(remotePlanetLoader) { local, remote ->
             listOfNotNull(
-                remote
-            ) + list.mapNotNull { uri ->
-                loaderFactoryList.asSequence().mapNotNull { it.create(uri) }.firstOrNull()
-            }
+                remote,
+                loaderFactoryList.asSequence().mapNotNull { it.create(local) }.firstOrNull()
+            )
         }
 
     val fileNavigationList =

@@ -1,22 +1,144 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron')
 
 const fs = require("fs")
 const process = require("process")
+const isMac = process.platform === 'darwin'
+const isDev = process.env.NODE_ENV === 'development'
 
-function createWindow () {
-    const win = new BrowserWindow({
+let mainWindow = null;
+
+let initOpenFileQueue = [];
+
+if (app.isPackaged) {
+    process.argv.unshift(null)
+}
+
+const template = [
+    // { role: 'appMenu' }
+    ...(isMac ? [{
+        label: "robolab-renderer",
+        submenu: [
+            {role: 'about'},
+            {type: 'separator'},
+            {role: 'services'},
+            {type: 'separator'},
+            {role: 'hide'},
+            {role: 'hideothers'},
+            {role: 'unhide'},
+            {type: 'separator'},
+            {role: 'quit'}
+        ]
+    }] : []),
+    // { role: 'fileMenu' }
+    {
+        label: 'File',
+        submenu: [
+            {
+                label: "Open planet file",
+                click: async () => {
+                    const result = await dialog.showOpenDialog(mainWindow, {
+                        properties: ['openFile', 'multiSelections'],
+                        filters: [
+                            {name: 'Planets', extensions: ['planet']},
+                            {name: 'All Files', extensions: ['*']}
+                        ]
+                    })
+
+                    result.filePaths.forEach((file) => {
+                        let text = fs.readFileSync(file).toString()
+                        mainWindow.webContents.send("open-file", {
+                            name: file,
+                            content: text
+                        })
+                    })
+                }
+            },
+            {
+                label: "Open mqtt log file",
+                click: async () => {
+                    const result = await dialog.showOpenDialog(mainWindow, {
+                        properties: ['openFile'],
+                        filters: [
+                            {name: 'Log file', extensions: ['log']},
+                            {name: 'All Files', extensions: ['*']}
+                        ]
+                    })
+                    result.filePaths.forEach((file) => {
+                        let text = fs.readFileSync(file).toString()
+                        mainWindow.webContents.send("open-file", {
+                            name: file,
+                            content: text
+                        })
+                    })
+                }
+            },
+            isMac ? {role: 'close'} : {role: 'quit'}
+        ]
+    },
+    // { role: 'editMenu' }
+    {
+        label: 'Edit',
+        submenu: [
+            {role: 'undo'},
+            {role: 'redo'},
+            {type: 'separator'},
+            {role: 'cut'},
+            {role: 'copy'},
+            {role: 'paste'},
+            ...(isMac ? [
+                {role: 'pasteAndMatchStyle'},
+                {role: 'delete'},
+                {role: 'selectAll'},
+                {type: 'separator'},
+                {
+                    label: 'Speech',
+                    submenu: [
+                        {role: 'startSpeaking'},
+                        {role: 'stopSpeaking'}
+                    ]
+                }
+            ] : [
+                {role: 'delete'},
+                {type: 'separator'},
+                {role: 'selectAll'}
+            ])
+        ]
+    },
+    ...(isDev ? [{
+        label: 'View',
+        submenu: [
+            {role: 'reload'},
+            {role: 'forceReload'},
+            {role: 'toggleDevTools'},
+            {type: 'separator'},
+            {role: 'resetZoom'},
+            {role: 'zoomIn'},
+            {role: 'zoomOut'},
+            {type: 'separator'},
+            {role: 'togglefullscreen'}
+        ]
+    }] : [])
+]
+
+const menu = Menu.buildFromTemplate(template)
+Menu.setApplicationMenu(menu)
+
+function createWindow() {
+    mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
             nodeIntegration: true,
-            additionalArguments: ["--##--", ...process.argv.slice(2)]
+            additionalArguments: ["--##--", ...process.argv.slice(2), ...initOpenFileQueue]
         }
     })
 
-    if (process.env.NODE_ENV === 'development') {
-        win.loadFile('../distElectron/index.html')
+    initOpenFileQueue = [];
+
+    if (isDev) {
+        mainWindow.loadFile('../distElectron/index.html')
     } else {
-        win.loadFile('../app/index.html')
+        mainWindow.loadFile('../app/index.html')
     }
 }
 
@@ -33,3 +155,27 @@ app.on('activate', () => {
         createWindow()
     }
 })
+
+app.on('will-finish-launching', () => {
+    app.on("open-file", (event, file) => {
+        if (mainWindow) {
+            let text = fs.readFileSync(file).toString()
+            mainWindow.webContents.send("open-file", {
+                name: file,
+                content: text
+            })
+        } else {
+            initOpenFileQueue.push(file);
+        };
+        event.preventDefault();
+    });
+});
+
+ipcMain.on("select-directory", async (event) => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openDirectory']
+    })
+    event.reply("select-directory", [
+        result.filePaths[0]
+    ])
+});

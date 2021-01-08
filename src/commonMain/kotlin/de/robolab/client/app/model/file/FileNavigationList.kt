@@ -11,6 +11,7 @@ import de.robolab.client.utils.runAsync
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.constObservable
+import de.westermann.kobserve.property.mapBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -23,7 +24,7 @@ class FileNavigationList<T : IFilePlanetIdentifier>(
 ) : FileNavigationTab.RepositoryList<T> {
 
     override val nameProperty = if (entry == null) {
-        tab.nameProperty
+        loader.nameProperty.mapBinding { it.toLowerCase() + ":/" }
     } else {
         constObservable(entry.name)
     }

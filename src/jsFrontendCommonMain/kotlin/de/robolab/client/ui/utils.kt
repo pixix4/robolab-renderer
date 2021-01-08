@@ -86,6 +86,14 @@ suspend fun openFile(vararg accept: String): List<File> = suspendCoroutine { con
     document.body?.removeChild(fileInput)
 }
 
+fun File.pathOrName(): String {
+    if (js("File.prototype.hasOwnProperty('path')").unsafeCast<Boolean>()) {
+        return this.asDynamic().path.unsafeCast<String>()
+    }
+
+    return name
+}
+
 suspend fun File.readText(): String? = suspendCoroutine { continuation ->
     val reader = FileReader()
 
