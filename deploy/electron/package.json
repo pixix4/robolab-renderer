@@ -57,5 +57,8 @@
         "useMultipleRangeRequest": false
       }
     }
+  },
+  "dependencies": {
+    "electron-window-state": "^5.0.3"
   }
 }

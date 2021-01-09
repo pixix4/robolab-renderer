@@ -1,24 +1,19 @@
 version: "3"
 services:
-  frontend:
-    build:
-      context: .
-      dockerfile: docker/frontend.Dockerfile
-    container_name: "robolab-renderer-frontend"
-    ports:
-      - "3000:80"
   backend:
     build:
       context: .
-      dockerfile: docker/backend.Dockerfile
+      dockerfile: docker/build.Dockerfile
     container_name: "robolab-renderer-backend"
     environment:
       - PLANETS_DIRECTORY=.
       - PLANETS_DATABASE=redis://redis:6379/4
+      - WEB_MOUNT=/
+      - WEB_DIRECTORY=./web/
     depends_on:
       - redis
     ports:
-      - "3001:8080"
+      - "3000:8080"
   redis:
     image: redis:latest
     container_name: "robolab-renderer-redis"

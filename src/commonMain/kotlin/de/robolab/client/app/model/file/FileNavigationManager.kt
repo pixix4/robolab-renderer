@@ -128,9 +128,8 @@ class FileNavigationManager(
                         remoteServerVersionProperty.value = version.toString()
                     }
                 } catch (e: Throwable) {
-                    logger.error("Load server version", e)
                     withContext(Dispatchers.Main) {
-                        remoteServerVersionProperty.value = "Cannot find server!"
+                        remoteServerVersionProperty.value = "Cannot load server version!"
                     }
                 }
 
@@ -140,9 +139,8 @@ class FileNavigationManager(
                         remoteServerAuthenticationProperty.value = "${user.username} (${user.accessLevel.name})"
                     }
                 } catch (e: Throwable) {
-                    logger.error("Load server who am i", e)
                     withContext(Dispatchers.Main) {
-                        remoteServerAuthenticationProperty.value = "Cannot find server!"
+                        remoteServerAuthenticationProperty.value = "Cannot load auth information!"
                     }
                 }
             }

@@ -19,6 +19,7 @@ npm-debug.log
 deploy.sh
 redis-data/
 .DS_Store
+._.DS_Store
 webpack.config.d/build.js
 webpack.config.d/target.js
 

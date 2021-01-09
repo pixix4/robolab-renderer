@@ -1,7 +1,8 @@
 const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron')
-
+const windowStateKeeper = require('electron-window-state');
 const fs = require("fs")
 const process = require("process")
+
 const isMac = process.platform === 'darwin'
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -124,14 +125,23 @@ const menu = Menu.buildFromTemplate(template)
 Menu.setApplicationMenu(menu)
 
 function createWindow() {
+    let mainWindowState = windowStateKeeper({
+        defaultWidth: 1200,
+        defaultHeight: 800
+    });
+
     mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        x: mainWindowState.x,
+        y: mainWindowState.y,
+        width: mainWindowState.width,
+        height: mainWindowState.height,
         webPreferences: {
             nodeIntegration: true,
             additionalArguments: ["--##--", ...process.argv.slice(2), ...initOpenFileQueue]
         }
     })
+
+    mainWindowState.manage(mainWindow);
 
     initOpenFileQueue = [];
 
@@ -166,7 +176,8 @@ app.on('will-finish-launching', () => {
             })
         } else {
             initOpenFileQueue.push(file);
-        };
+        }
+        ;
         event.preventDefault();
     });
 });
