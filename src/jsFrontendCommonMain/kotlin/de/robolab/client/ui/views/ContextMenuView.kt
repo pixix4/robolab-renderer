@@ -137,12 +137,5 @@ class ContextMenuView(
                 Body.remove(view)
             }
         }
-
-        fun open(position: Point, name: String, init: MenuBuilder.() -> Unit) {
-            val menu = buildContextMenu(position, name, init)
-            if (menu != null) {
-                open(menu)
-            }
-        }
     }
 }

@@ -137,6 +137,8 @@ function createWindow() {
         height: mainWindowState.height,
         webPreferences: {
             nodeIntegration: true,
+            enableRemoteModule: true,
+            contextIsolation: false,
             additionalArguments: ["--##--", ...process.argv.slice(2), ...initOpenFileQueue]
         }
     })
@@ -150,6 +152,12 @@ function createWindow() {
     } else {
         mainWindow.loadFile('../app/index.html')
     }
+
+    mainWindow.on("rotate-gesture", (event, rotation) => {
+        mainWindow.webContents.send("rotate-gesture", {
+            rotation: rotation
+        })
+    })
 }
 
 app.whenReady().then(createWindow)

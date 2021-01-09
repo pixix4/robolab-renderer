@@ -7,6 +7,8 @@ import de.robolab.client.ui.dialog.DownloadDialog
 import de.robolab.client.ui.dialog.SettingsDialog
 import de.robolab.client.ui.triggerDownloadUrl
 import de.robolab.client.ui.views.utils.buttonGroup
+import de.robolab.client.utils.buildContextMenu
+import de.robolab.client.utils.electron
 import de.robolab.client.utils.noElectron
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableValue
@@ -194,7 +196,7 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                     title = "Window layout"
 
                     onClick {
-                        ContextMenuView.open(Point(it.clientX, it.clientY), "Window layout") {
+                        val menu = buildContextMenu(Point(it.clientX, it.clientY), "Window layout") {
                             action("Split vertical") {
                                 toolBarController.splitVertical()
                             }
@@ -214,6 +216,15 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                                 }
                             }
                         }
+                        if (menu != null) {
+                            electron { electron ->
+                                electron.menu(menu)
+                            }
+                            noElectron {
+                                ContextMenuView.open(menu)
+                            }
+                        }
+
                     }
                 }
             }

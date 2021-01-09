@@ -6,6 +6,8 @@ import de.robolab.client.renderer.canvas.ICanvasListener
 import de.robolab.client.renderer.events.*
 import de.robolab.client.ui.views.ContextMenuView
 import de.robolab.client.utils.ContextMenu
+import de.robolab.client.utils.electron
+import de.robolab.client.utils.noElectron
 import de.robolab.common.utils.*
 import de.westermann.kwebview.Document
 import de.westermann.kwebview.components.Canvas
@@ -21,9 +23,11 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
 
     private val hammer = Hammer(canvas.html, js("{}"))
 
+    private var lastPoint: Point? = null
+
     private fun mouseEventToPointerEvent(event: MouseEvent): PointerEvent {
         return PointerEvent(
-            Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
+            pointFromEvent(event),
             dimension,
             event.ctrlKey,
             event.altKey,
@@ -33,12 +37,30 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
 
     private fun hammerEventToPointerEvent(event: HammerEvent): PointerEvent {
         return PointerEvent(
-            Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
+            pointFromEvent(event),
             dimension,
             event.ctrlKey,
             event.altKey,
             event.shiftKey
         )
+    }
+
+    private fun pointFromEvent(event: MouseEvent): Point {
+        val point = Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal)
+        lastPoint = point
+        return point
+    }
+
+    private fun pointFromEvent(event: HammerEvent): Point {
+        val point = Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal)
+        lastPoint = point
+        return point
+    }
+
+    private fun pointFromEvent(event: GestureEvent): Point {
+        val point = Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal)
+        lastPoint = point
+        return point
     }
 
     private val listenerManager = CanvasListenerManager()
@@ -195,11 +217,13 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
     }
 
     override fun openContextMenu(menu: ContextMenu) {
-        ContextMenuView.open(
-            menu.copy(
-                position = menu.position + Point(canvas.offsetLeftTotal, canvas.offsetTopTotal)
-            )
-        )
+        val m = menu.copy(position = menu.position + Point(canvas.offsetLeftTotal, canvas.offsetTopTotal))
+        electron { electron ->
+            electron.menu(m)
+        }
+        noElectron {
+            ContextMenuView.open(m)
+        }
     }
 
     override fun startClip(rectangle: Rectangle) {
@@ -276,15 +300,16 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
             event.preventDefault()
             event.stopPropagation()
             listenerManager.onPointerLeave(mouseEventToPointerEvent(event))
+            lastPoint = null
         }
         canvas.onWheel { event ->
             event.stopPropagation()
             event.preventDefault()
 
             val factor = when (event.deltaMode) {
-                DOM_DELTA_PIXEL -> 1.0
+                DOM_DELTA_PIXEL -> 1.5
                 DOM_DELTA_LINE -> {
-                    window.getComputedStyle(canvas.html).fontSize.replace("px", "").toDoubleOrNull()
+                    window.getComputedStyle(canvas.html).fontSize.replace("px", "").toDoubleOrNull()?.let { it * 1.2 }
                 }
                 DOM_DELTA_PAGE -> {
                     window.innerHeight.toDouble()
@@ -294,7 +319,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
 
             listenerManager.onScroll(
                 ScrollEvent(
-                    Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
+                    pointFromEvent(event),
                     Point(event.deltaX * factor * WHEEL_FACTOR, event.deltaY * factor * WHEEL_FACTOR),
                     dimension,
                     event.ctrlKey,
@@ -405,7 +430,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
             val delta = 1.0 - (lastScale - event.scale)
             listenerManager.onZoom(
                 ZoomEvent(
-                    Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
+                    pointFromEvent(event),
                     delta,
                     dimension,
                     event.ctrlKey,
@@ -431,7 +456,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
             val delta = (event.rotation - lastRotation) / 180.0 * PI
             listenerManager.onRotate(
                 RotateEvent(
-                    Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal),
+                    pointFromEvent(event),
                     delta,
                     dimension,
                     event.ctrlKey,
@@ -466,7 +491,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                 if (deltaScale != 1.0) {
                     listenerManager.onZoom(
                         ZoomEvent(
-                            Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
+                            pointFromEvent(event),
                             deltaScale,
                             dimension,
                             event.ctrlKey,
@@ -479,7 +504,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                 if (deltaRotate != 0.0) {
                     listenerManager.onRotate(
                         RotateEvent(
-                            Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal),
+                            pointFromEvent(event),
                             deltaRotate,
                             dimension,
                             event.ctrlKey,
@@ -491,6 +516,25 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
             }
             Document.onGestureEnd { event ->
                 event.preventDefault()
+            }
+        }
+
+        electron { electron ->
+            electron.ipcRenderer.on("rotate-gesture") { _, args ->
+                val rotation = -args.rotation.unsafeCast<Double>() / 180.0 * PI
+                val point = lastPoint
+                if (point != null && rotation != 0.0) {
+                    listenerManager.onRotate(
+                        RotateEvent(
+                            point,
+                            rotation,
+                            dimension,
+                            ctrlKey = false,
+                            altKey = false,
+                            shiftKey = false
+                        )
+                    )
+                }
             }
         }
 

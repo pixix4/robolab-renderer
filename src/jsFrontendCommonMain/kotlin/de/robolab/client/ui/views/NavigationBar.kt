@@ -9,6 +9,8 @@ import de.robolab.client.ui.lineSequence
 import de.robolab.client.ui.openFile
 import de.robolab.client.ui.pathOrName
 import de.robolab.client.ui.readText
+import de.robolab.client.utils.electron
+import de.robolab.client.utils.noElectron
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.not
@@ -164,7 +166,12 @@ class NavigationBarEntry(entry: INavigationBarEntry) :
 
             val menu = entry.generateContextMenuAt(Point(event.clientX, event.clientY))
             if (menu != null) {
-                ContextMenuView.open(menu)
+                electron { electron ->
+                    electron.menu(menu)
+                }
+                noElectron {
+                    ContextMenuView.open(menu)
+                }
             }
         }
     }
