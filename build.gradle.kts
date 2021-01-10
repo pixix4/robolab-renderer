@@ -9,7 +9,7 @@ val BACKEND_VERSION = "1.0.0"
 plugins {
     kotlin("multiplatform") version "1.4.21"
     kotlin("plugin.serialization") version "1.4.21"
-    id("com.gorylenko.gradle-git-properties") version "2.2.2"
+    id("com.gorylenko.gradle-git-properties") version "2.2.4"
 }
 
 repositories {
