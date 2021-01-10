@@ -5,13 +5,9 @@ import org.w3c.dom.events.Event
 
 class Electron private constructor() {
 
-    val module = js("require('electron')")
+    private val module = js("require('electron')")
 
     val ipcRenderer = module.ipcRenderer.unsafeCast<IpcRenderer>()
-
-    init {
-        console.log(module)
-    }
 
     private fun menuItem(entry: ContextMenuEntry): dynamic {
         val menu = js("{}")

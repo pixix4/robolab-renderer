@@ -7,6 +7,7 @@ import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.Event
+import org.w3c.dom.events.KeyboardEvent
 import org.w3c.files.File
 import org.w3c.files.FileReader
 import kotlin.coroutines.resume
@@ -142,3 +143,6 @@ fun watchSystemTheme() {
 
     update()
 }
+
+val KeyboardEvent.ctrlOrCommandKey
+    get() = ctrlKey || metaKey

@@ -37,6 +37,10 @@ class TabController(
         fullscreenProperty.value = !fullscreenProperty.value
     }
 
+    fun empty(): Boolean {
+        return tabList.size <= 1 && tabList.all { it.empty() }
+    }
+
     val tabList = observableListOf<Tab>()
 
     val visibleProperty =
@@ -146,6 +150,10 @@ class TabController(
 
         fun onAttach() {
             plotterManager.onAttach()
+        }
+
+        fun empty(): Boolean {
+            return plotterManager.windowList.all { it.plotter.planetDocument != null }
         }
     }
 }

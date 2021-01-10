@@ -150,7 +150,7 @@ class NavigationBarEntry(entry: INavigationBarEntry) :
         classList.bind("disabled", !entry.enabledProperty)
 
         onClick {
-            entry.open(it.ctrlKey)
+            entry.open(it.ctrlKey || it.metaKey)
         }
         onAuxClick { event ->
             val which = event.asDynamic().which as Int

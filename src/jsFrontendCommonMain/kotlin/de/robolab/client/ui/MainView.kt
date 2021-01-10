@@ -90,6 +90,26 @@ fun initMainView(
 
         mainController.finishSetup()
 
+        onKeyDown { event ->
+            if (event.ctrlOrCommandKey && event.key == "w") {
+                val tab = mainController.tabController.activeTabProperty.value
+
+                if (tab != null && !mainController.tabController.empty()) {
+                    event.stopPropagation()
+                    event.preventDefault()
+
+                    tab.close()
+                }
+            }
+
+            if (event.ctrlOrCommandKey && event.key == "t") {
+                event.stopPropagation()
+                event.preventDefault()
+
+                mainController.tabController.openNewTab()
+            }
+        }
+
         GlobalScope.launch {
             for ((filename, producer) in fileArgs) {
                 mainController.fileImportController.importFile(filename, producer)
@@ -98,7 +118,7 @@ fun initMainView(
 
         electron { electron ->
             electron.ipcRenderer.on("open-file") { _, args ->
-                val name  = args.name.unsafeCast<String>()
+                val name = args.name.unsafeCast<String>()
                 val content = args.content.unsafeCast<String>()
 
                 GlobalScope.launch(Dispatchers.Default) {

@@ -29,7 +29,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
         return PointerEvent(
             pointFromEvent(event),
             dimension,
-            event.ctrlKey,
+            event.ctrlKey || event.metaKey,
             event.altKey,
             event.shiftKey
         )
@@ -267,7 +267,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                         KeyEvent(
                             KeyCode.REDO,
                             "",
-                            event.ctrlKey,
+                            event.ctrlKey || event.metaKey,
                             event.altKey,
                             event.shiftKey
                         )
@@ -278,7 +278,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                         KeyEvent(
                             KeyCode.UNDO,
                             "",
-                            event.ctrlKey,
+                            event.ctrlKey || event.metaKey,
                             event.altKey,
                             event.shiftKey
                         )
@@ -322,7 +322,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                     pointFromEvent(event),
                     Point(event.deltaX * factor * WHEEL_FACTOR, event.deltaY * factor * WHEEL_FACTOR),
                     dimension,
-                    event.ctrlKey,
+                    event.ctrlKey || event.metaKey,
                     event.altKey,
                     event.shiftKey
                 )
@@ -337,7 +337,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
             val e = KeyEvent(
                 code,
                 event.key,
-                event.ctrlKey,
+                event.ctrlKey || event.metaKey,
                 event.altKey,
                 event.shiftKey
             )
@@ -355,7 +355,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
             val e = KeyEvent(
                 code,
                 event.key,
-                event.ctrlKey,
+                event.ctrlKey || event.metaKey,
                 event.altKey,
                 event.shiftKey
             )
@@ -373,7 +373,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
             val e = KeyEvent(
                 code,
                 event.key,
-                event.ctrlKey,
+                event.ctrlKey || event.metaKey,
                 event.altKey,
                 event.shiftKey
             )
@@ -494,7 +494,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                             pointFromEvent(event),
                             deltaScale,
                             dimension,
-                            event.ctrlKey,
+                            event.ctrlKey || event.metaKey,
                             event.altKey,
                             event.shiftKey
                         )
@@ -507,7 +507,7 @@ class WebCanvas(val canvas: Canvas) : ICanvas {
                             pointFromEvent(event),
                             deltaRotate,
                             dimension,
-                            event.ctrlKey,
+                            event.ctrlKey || event.metaKey,
                             event.altKey,
                             event.shiftKey
                         )

@@ -89,6 +89,7 @@ interface Request<Data> : IncomingServerMessage {
     val stale: Boolean
     val subdomains: JSArray<String>
     val xhr: Boolean
+    val files: dynamic
     var localData: Data
     var user: User
 

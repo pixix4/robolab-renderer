@@ -184,6 +184,8 @@ kotlin {
                 implementation(npm("jsonwebtoken", "8.5.1"))
                 implementation(npm("cookie-parser", "1.4.5"))
                 implementation(npm("pg", "8.5.0"))
+                implementation(npm("canvas", "2.6.1"))
+                implementation(npm("express-fileupload", "1.2.0"))
             }
         }
     }

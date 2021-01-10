@@ -36,6 +36,7 @@ object DefaultEnvironment {
         router.use(json())
         router.use(text())
         router.use(cookieParser())
+        router.use(fileUpload())
         router.use(AuthRouter::userLookupMiddleware)
         router.use("/tea", BeverageRouter.teaRouter)
         router.use("/coffee", BeverageRouter.coffeeRouter)
@@ -44,6 +45,7 @@ object DefaultEnvironment {
         router.use("/info", InfoRouter.router)
         router.use("/auth", AuthRouter.router)
         router.use("/mqtt", MQTTRouter.router)
+        router.use("/export", ExportRouter.router)
 
         router.get("/version") { _, res ->
             res.status(HttpStatusCode.Ok)

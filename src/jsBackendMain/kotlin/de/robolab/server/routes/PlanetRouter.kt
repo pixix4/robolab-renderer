@@ -81,6 +81,27 @@ object PlanetRouter {
                 res.sendPlanet(planet)
             }
 
+            planetRouter.getSuspend("/png") { req, res ->
+                var scale: Double? = null
+                if (req.query.scale) {
+                    val numberString = req.query.scale.toString()
+                    val number = numberString.toDoubleOrNull()
+                    if (number != null) {
+                        scale = number
+                    } else {
+                        throw IllegalArgumentException("'$numberString' is not a valid number!")
+                    }
+                }
+
+                val planet = req.localData.assertPlanetFound()
+                ExportRouter.exportPlanetAsPng(planet.planetFile, scale, res)
+            }
+
+            planetRouter.getSuspend("/svg") { req, res ->
+                val planet = req.localData.assertPlanetFound()
+                ExportRouter.exportPlanetAsSvg(planet.planetFile, res)
+            }
+
             planetRouter.putSuspend("/") { req, res ->
                 req.user.requireTutor()
                 val planet: SPlanet = req.localData.assertPlanetFound()

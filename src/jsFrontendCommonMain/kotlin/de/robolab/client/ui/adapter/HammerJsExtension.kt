@@ -102,12 +102,12 @@ val HammerEvent.ctrlKey: Boolean
 
         val mouseEvent = srcEvent as? MouseEvent
         if (mouseEvent != null) {
-            key = mouseEvent.ctrlKey
+            key = mouseEvent.ctrlKey || mouseEvent.metaKey
         }
         if (Document.isTouchSupported) {
             val touchEvent = srcEvent as? TouchEvent
             if (touchEvent != null) {
-                key = touchEvent.ctrlKey
+                key = touchEvent.ctrlKey || touchEvent.metaKey
             }
         }
 
