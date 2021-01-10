@@ -556,6 +556,8 @@ abstract external class Redis : IRedisCommandReceiver {
     fun duplicate(): Redis
     fun monitor(): Promise<EventEmitter>
     fun getBuiltinCommands(): JSArray<String>
+
+    fun on(event:String, handler: (event: dynamic) -> dynamic)
 }
 
 suspend inline fun IRedisCommandReceiver.transaction(

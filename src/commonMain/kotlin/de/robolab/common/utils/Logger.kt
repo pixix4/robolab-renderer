@@ -43,7 +43,7 @@ class Logger(val name: String) {
     }
 
     enum class Level(val index: Int) {
-        ERROR(1), WARN(2), INFO(3), DEBUG(4)
+        ERROR(1), WARN(2), INFO(3), DEBUG(4);
     }
 
     companion object {
@@ -51,7 +51,7 @@ class Logger(val name: String) {
 
         val output = LoggerOutput()
 
-        var level = Level.DEBUG
+        var level = Level.INFO
 
         private val loggerCache = mutableMapOf<String, Logger>()
         operator fun invoke(thisRef: Any?): Logger {

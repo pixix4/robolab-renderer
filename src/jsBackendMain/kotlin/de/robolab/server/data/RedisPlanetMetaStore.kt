@@ -6,6 +6,7 @@ import de.robolab.common.externaljs.dynamicOfDefined
 import de.robolab.server.externaljs.ioredis.*
 import de.robolab.common.externaljs.toList
 import de.robolab.common.jsutils.jsTruthy
+import de.robolab.common.utils.Logger
 import kotlinx.coroutines.await
 
 class RedisPlanetMetaStore(connectionString: String, connectionName: String = "") : IPlanetMetaStore {
@@ -15,11 +16,15 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
         private fun planetMTimeKey(id: String) = "planet:mtime@$id"
         private fun planetTagsKey(id: String) = "planet:tags@$id"
         private fun planetTagKey(id: String, tag: String) = "planet:tag:$tag@$id"
+
+        private const val TIMEOUT_THROTTLER = 30_000L
     }
 
     private val redis: Redis = createRedis(
         connectionString,
-        options = dynamicOfDefined("connectionName" to if (connectionName.isEmpty()) undefined else connectionName)
+        options = dynamicOfDefined(
+            "connectionName" to if (connectionName.isEmpty()) undefined else connectionName
+        )
     )
 
     private suspend fun setTag(id: String, tagName: String, tagValues: List<String>) {
@@ -163,5 +168,33 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
 
     protected fun finalize() {
         redis.disconnect()
+    }
+
+    private val logger = Logger("RedisPlanetMetaStore")
+
+    init {
+        var lastReconnectError = 0L
+        redis.on("error") { event ->
+            if (event.errno == "ECONNREFUSED") {
+                val time = DateTime.nowUnixLong()
+
+
+                if (time - lastReconnectError > TIMEOUT_THROTTLER) {
+                    logger.error {
+                        "Cannot connect to redis server at '${event.address}:${event.port}'!"
+                    }
+                    if (lastReconnectError == 0L && Logger.level.index < Logger.Level.DEBUG.index ) {
+                        logger.warn { "This error message is throttled and appears at a maximum interval of ${TIMEOUT_THROTTLER/1000}s. To see all messages enable debug logging." }
+                    }
+                    lastReconnectError = time
+                } else {
+                    logger.debug {
+                        "Cannot connect to redis server at '${event.address}:${event.port}'!"
+                    }
+                }
+            } else {
+                logger.error(event)
+            }
+        }
     }
 }

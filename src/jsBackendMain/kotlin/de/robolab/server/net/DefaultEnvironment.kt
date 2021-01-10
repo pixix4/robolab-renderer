@@ -6,6 +6,7 @@ import de.robolab.common.externaljs.http.createServer
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AccessControlAllowMethods
 import de.robolab.common.utils.BuildInformation
+import de.robolab.common.utils.Logger
 import de.robolab.server.config.Config
 import de.robolab.server.externaljs.body_parser.json
 import de.robolab.server.externaljs.body_parser.text
@@ -21,6 +22,8 @@ object DefaultEnvironment {
     val app: ExpressApp = createApp()
     val http: dynamic = createServer(app)
     val io: dynamic = createIO(http)
+
+    val logger = Logger("DefaultEnvironment")
 
     fun createApiRouter(): DefaultRouter {
         val router = createRouter()
@@ -41,7 +44,11 @@ object DefaultEnvironment {
         router.use("/tea", BeverageRouter.teaRouter)
         router.use("/coffee", BeverageRouter.coffeeRouter)
         router.use("/mate", BeverageRouter.mateRouter)
-        router.use("/planets", PlanetRouter.router)
+        if (fs.existsSync(path.resolve(Config.Planets.directory))) {
+            router.use("/planets", PlanetRouter.router)
+        } else {
+            logger.warn {"Cannot find planet directory '${path.resolve(Config.Planets.directory)}'" }
+        }
         router.use("/info", InfoRouter.router)
         router.use("/auth", AuthRouter.router)
         router.use("/mqtt", MQTTRouter.router)
@@ -81,7 +88,7 @@ object DefaultEnvironment {
         val directory = path.resolve(Config.Electron.directory)
         val router = createRouter()
 
-        router.get("/latest.json") { req, res ->
+        router.get("/latest.json") { _, res ->
             res.setHeader("content-type", "application/json")
 
             val content = readdirSync(directory).toList().filterNot {

@@ -20,15 +20,16 @@ import de.robolab.server.externaljs.express.*
 import de.robolab.server.jsutils.*
 import de.robolab.server.model.decodeID
 import de.robolab.server.model.toIDString
+import path.path
 import de.robolab.server.model.ServerPlanet as SPlanet
 
 object PlanetRouter {
     val router: DefaultRouter = createRouter()
     val planetStore: IPlanetStore = FilePlanetStore(
-        Config.Planets.directory,
+        path.resolve(Config.Planets.directory),
         RedisPlanetMetaStore(Config.Planets.database, Config.Planets.connectionName)
     )
-    val defaultIDRouter: PlanetIDRouter = PlanetIDRouter(planetStore)
+    private val defaultIDRouter: PlanetIDRouter = PlanetIDRouter(planetStore)
 
     init {
         router.use("/:id", defaultIDRouter.baseRouter)

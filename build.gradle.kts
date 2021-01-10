@@ -455,6 +455,8 @@ tasks.create<Delete>("cleanJsFrontendSync") {
         "${projectDir}/deploy/web/node_modules",
         "${projectDir}/deploy/distElectron",
         "${projectDir}/deploy/electron/dist",
+        "${projectDir}/webpack.config.d/build.js",
+        "${projectDir}/webpack.config.d/target.js",
         "${projectDir}/deploy/electron/node_modules"
     )
 }

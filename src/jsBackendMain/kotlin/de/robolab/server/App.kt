@@ -45,14 +45,16 @@ class App : CliktCommand() {
             logger.info {
                 buildString {
                     appendLine("Server successfully started!")
+                    append(" ".repeat(4))
                     appendLine("Endpoints:")
                     val length = endpoints.fold(0) { acc, (name, _) ->
                         kotlin.math.max(acc, name.length)
                     } + 1
                     for ((name, url) in endpoints) {
-                        appendLine("    ${"$name:".padEnd(length)} $url")
+                        append(" ".repeat(8))
+                        appendLine("${"$name:".padEnd(length)} $url")
                     }
-                }
+                }.trimEnd()
             }
         }
     }

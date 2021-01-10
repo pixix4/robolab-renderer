@@ -116,7 +116,7 @@ class RemoteFilePlanetLoader(
     companion object {
         fun create(uri: String): RemoteFilePlanetLoader {
             val host = uri.substringAfter("://").trimEnd('/')
-            val restRobolabServer = RESTRobolabServer(host, 0, true)
+            val restRobolabServer = RESTRobolabServer(host, 0, !uri.startsWith("http://"))
             return RemoteFilePlanetLoader(restRobolabServer)
         }
     }
