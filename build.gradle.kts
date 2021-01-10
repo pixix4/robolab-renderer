@@ -32,7 +32,7 @@ repositories {
 val serializationVersion = "1.0.1"
 val klockVersion = "1.12.0"
 val coroutineVersion = "1.4.2"
-val ktorVersion = "1.4.3"
+val ktorVersion = "1.5.0"
 
 kotlin {
     js("jsFrontendCommon") {
@@ -113,12 +113,12 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
 
-                implementation(npm("mqtt", "4.1.0"))
+                implementation(npm("mqtt", "4.2.6"))
                 implementation(npm("abort-controller", "3.0.0"))
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("hammerjs", "2.0.8"))
 
-                implementation(devNpm("sass", "1.26.10"))
+                implementation(devNpm("sass", "1.32.2"))
             }
         }
         val jsBackendCommonMain by getting {
@@ -135,12 +135,12 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
 
-                implementation(npm("mqtt", "4.1.0"))
+                implementation(npm("mqtt", "4.2.6"))
                 implementation(npm("abort-controller", "3.0.0"))
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("hammerjs", "2.0.8"))
 
-                implementation(devNpm("sass", "1.26.10"))
+                implementation(devNpm("sass", "1.32.2"))
             }
         }
 
@@ -156,12 +156,12 @@ kotlin {
 
                 implementation("com.github.ajalt.clikt:clikt:3.0.1")
 
-                implementation(npm("mqtt", "4.1.0"))
+                implementation(npm("mqtt", "4.2.6"))
                 implementation(npm("abort-controller", "3.0.0"))
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("hammerjs", "2.0.8"))
 
-                implementation(devNpm("sass", "1.26.10"))
+                implementation(devNpm("sass", "1.32.2"))
             }
         }
 
@@ -176,14 +176,14 @@ kotlin {
 
                 implementation("com.github.ajalt.clikt:clikt:3.0.1")
 
-                implementation(npm("ioredis", "4.17.3"))
+                implementation(npm("ioredis", "4.19.4"))
                 implementation(npm("express", "4.17.1"))
-                implementation(npm("socket.io", "2.3.0"))
+                implementation(npm("socket.io", "3.0.5"))
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("body-parser", "1.19.0"))
                 implementation(npm("jsonwebtoken", "8.5.1"))
                 implementation(npm("cookie-parser", "1.4.5"))
-                implementation(npm("pg", "8.5.0"))
+                implementation(npm("pg", "8.5.1"))
                 implementation(npm("canvas", "2.6.1"))
                 implementation(npm("express-fileupload", "1.2.0"))
             }

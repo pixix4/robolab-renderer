@@ -1,4 +1,4 @@
-@file:Suppress("UnsafeCastFromDynamic")
+@file:Suppress("UnsafeCastFromDynamic", "UNUSED_PARAMETER", "REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE", "unused")
 
 package de.robolab.server.externaljs.ioredis
 
