@@ -16,6 +16,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
 import path.path
+import kotlin.math.abs
 
 class LocalFilePlanetLoader(
     private val baseDirectory: File
@@ -266,6 +267,13 @@ class File(val absolutePath: String) {
         return File(path.join(dir, *paths))
     }
 
+    val parent: File
+        get() = File(dir)
+
+   suspend fun createDirectories() {
+        mkdir(absolutePath, true).await()
+    }
+
     fun exists(): Boolean {
         return existsSync(absolutePath)
     }
@@ -296,6 +304,14 @@ class File(val absolutePath: String) {
     suspend fun renameAbsolute(absoluteName: String): File {
         rename(absolutePath, absoluteName).await()
         return File(absoluteName)
+    }
+
+    fun readTextSync(): String {
+        return readFileSync(absolutePath, null).toString()
+    }
+
+    fun writeTextSync(text: String) {
+        writeFileSync(absolutePath, text)
     }
 
     override fun toString(): String {

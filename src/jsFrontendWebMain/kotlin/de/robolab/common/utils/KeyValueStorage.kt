@@ -1,8 +1,8 @@
 package de.robolab.common.utils
 
+import kotlinx.browser.window
 import org.w3c.dom.get
 import org.w3c.dom.set
-import kotlinx.browser.window
 
 actual class KeyValueStorage {
     actual operator fun get(key: String): String? {
@@ -24,10 +24,10 @@ actual class KeyValueStorage {
     actual fun clear() {
         window.localStorage.clear()
     }
-    
+
     actual fun keys(): Set<String> {
         val count = window.localStorage.length
-        
+
         return (0 until count).mapNotNull { window.localStorage.key(it) }.toSet()
     }
 }

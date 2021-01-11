@@ -74,11 +74,11 @@ actual class KeyValueStorage {
         try {
             var filePath = fileName
             while (true) {
-                if (loadFile(path.resolve(filePath))) {
+                if (loadFile(path.path.resolve(filePath))) {
                     break
                 }
-                filePath = path.join("..", filePath)
-                filePath = path.normalize(filePath)
+                filePath = path.path.join("..", filePath)
+                filePath = path.path.normalize(filePath)
             }
         } catch (_: Exception) {
             log.error("Cannot load config file $fileName")

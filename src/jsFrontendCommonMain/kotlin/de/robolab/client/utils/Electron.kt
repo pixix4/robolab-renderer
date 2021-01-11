@@ -9,6 +9,10 @@ class Electron private constructor() {
 
     val ipcRenderer = module.ipcRenderer.unsafeCast<IpcRenderer>()
 
+    fun appGetPath(name: PathName): String {
+        return module.remote.app.getPath(name.value).unsafeCast<String>()
+    }
+
     private fun menuItem(entry: ContextMenuEntry): dynamic {
         val menu = js("{}")
         menu.label = entry.label
@@ -43,6 +47,40 @@ class Electron private constructor() {
         menu.popup(opt)
     }
 
+    fun getOs(): OS {
+        val process = js("require(\"process\")")
+        val name = process.platform.unsafeCast<String>()
+        return when(name) {
+            "win32" -> OS.WINDOWS
+            "darwin" -> OS.MAC
+            "linux" -> OS.LINUX
+            else -> OS.OTHER
+        }
+    }
+
+    enum class PathName(val value: String) {
+        HOME("home"),
+        APP_DATA("appData"),
+        USER_DATA("userData"),
+        CACHE("cache"),
+        TEMP("temp"),
+        EXE("exe"),
+        MODULE("module"),
+        DESKTOP("desktop"),
+        DOCUMENTS("documents"),
+        DOWNLOADS("downloads"),
+        MUSIC("music"),
+        PICTURES("pictures"),
+        VIDEOS("videos"),
+        RECENT("recent"),
+        LOGS("logs"),
+        PEPPER_FLASH_SYSTEM_PLUGIN("pepperFlashSystemPlugin"),
+        CRASH_DUMPS("crashDumps")
+    }
+
+    enum class OS {
+        WINDOWS, LINUX, MAC, OTHER
+    }
 
     companion object {
         private fun isElectron(): Boolean {
