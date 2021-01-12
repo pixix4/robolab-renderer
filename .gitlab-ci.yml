@@ -13,7 +13,7 @@ build-docker-image:
   image: docker:latest
   stage: build
   script:
-    - docker build - -f docker/build.Dockerfile -t pixix4/robolab-renderer
+    - docker build . -f docker/build.Dockerfile -t pixix4/robolab-renderer
     - docker save -o robolab-renderer.tar pixix4/robolab-renderer
   artifacts:
     paths:
@@ -41,7 +41,7 @@ pack-electron:
   script:
     - cd deploy/electron
     - npm install
-    - npx electron-builder -wl --publish always
+    - npx electron-builder -wl
   needs:
     - job: build-electron
       artifacts: true
