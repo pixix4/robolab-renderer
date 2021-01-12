@@ -48,6 +48,8 @@ pack-electron:
   artifacts:
     paths:
       - deploy/electron/dist/
+  tags:
+    - docker
 
 deploy-docker-image:
   stage: deploy
