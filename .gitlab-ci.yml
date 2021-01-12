@@ -1,8 +1,76 @@
 stages:
   - build
+  - pack
   - deploy
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - .gradle/
+
+
+build-docker-image:
+  image: docker:latest
+  stage: build
+  script:
+    - docker build - -f docker/build.Dockerfile -t pixix4/robolab-renderer
+    - docker save -o robolab-renderer.tar pixix4/robolab-renderer
+  artifacts:
+    paths:
+      - robolab-renderer.tar
+    expire_in: 1 hrs
+  tags:
+    - docker
+
+build-electron:
+  image: openjdk:11
+  stage: build
+  script:
+    - chmod +x ./gradlew
+    - ./gradlew --no-daemon -g .gradle jsFrontendElectronSync
+  artifacts:
+    paths:
+      - deploy/distElectron/
+    expire_in: 1 hrs
+  tags:
+    - docker
+
+pack-electron:
+  image: electronuserland/builder:wine
+  stage: pack
+  script:
+    - cd deploy/electron
+    - npm install
+    - npx electron-builder -wl --publish always
+  needs:
+    - job: build-electron
+      artifacts: true
+  artifacts:
+    paths:
+      - deploy/electron/dist/
+
+deploy-docker-image:
+  stage: deploy
+  script:
+    - chmod 0600 $SSH_KEY_ROBOLAB
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c robolab-renderer.tar deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/robolab-renderer.tar
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c docker-compose.yml deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/docker-compose.yml
+    - ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB deploy@robolab.inf.tu-dresden.de "docker load -i web-projects/robolab-renderer/stable/robolab-renderer.tar"
+  needs:
+    - job: build-docker-image
+      artifacts: true
+  tags:
+    - shell
+    - robolab
+
+deploy-electron:
+  stage: deploy
+  script:
+    - chmod 0600 $SSH_KEY_ROBOLAB
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/electron/dist/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/download/
+  needs:
+    - job: pack-electron
+      artifacts: true
+  tags:
+    - shell
+    - robolab

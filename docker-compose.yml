@@ -4,10 +4,13 @@ services:
     build:
       context: .
       dockerfile: docker/build.Dockerfile
-    container_name: "robolab-renderer-backend"
+    container_name: "robolab-renderer"
     environment:
       - PLANETS_DIRECTORY=.
       - PLANETS_DATABASE=redis://redis:6379/4
+      - ELECTRON_DIRECTORY=/opt/robolab-render/download
+    volumes:
+      - ./download:/opt/robolab-render/download
     depends_on:
       - redis
     ports:

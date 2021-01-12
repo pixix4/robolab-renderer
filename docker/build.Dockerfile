@@ -10,15 +10,15 @@ RUN ./gradlew --no-daemon jsBackendSync
 FROM gradleBuilder as jsFrontendWebBuilder
 RUN ./gradlew --no-daemon jsFrontendWebSync
 
-#FROM openjdk:11 as jsFrontendElectronBuilder
-#RUN ./gradlew jsFrontendElectronSync
+# FROM openjdk:11 as jsFrontendElectronBuilder
+# RUN ./gradlew jsFrontendElectronSync
 
-#FROM electronuserland/builder:wine as electronBuilder
-#WORKDIR /usr/src/robolab-renderer/electron
-#COPY deploy/electron/ .
-#COPY --from=jsFrontendElectronBuilder /usr/src/robolab-renderer/deploy/distElectron/ ../distElectron/
-#RUN npm install
-#RUN npx electron-builder -l --publish always
+# FROM electronuserland/builder:wine as electronBuilder
+# WORKDIR /usr/src/robolab-renderer/electron
+# COPY deploy/electron/ .
+# COPY --from=jsFrontendElectronBuilder /usr/src/robolab-renderer/deploy/distElectron/ ../distElectron/
+# RUN npm install
+# RUN npx electron-builder -l --publish always
 
 FROM node:latest
 RUN mkdir /opt/robolab-renderer
@@ -29,9 +29,7 @@ COPY --from=jsFrontendWebBuilder /usr/src/robolab-renderer/deploy/distWeb/ /opt/
 ENV WEB_MOUNT /
 ENV WEB_DIRECTORY ./web/
 
-#COPY --from=electronBuilder /usr/src/robolab-renderer/electron/dist/ /opt/robolab-renderer/download/
-#ENV ELECTRON_MOUNT /download
-#ENV ELECTRON_DIRECTORY ./download/
+ENV ELECTRON_MOUNT /download
 
 WORKDIR /opt/robolab-renderer
 EXPOSE 8080
