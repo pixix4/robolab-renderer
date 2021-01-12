@@ -1,45 +1,53 @@
-# robolab renderer
+# RobolabRenderer
 
-Rewrite of the robolab rendering egnine. 
+Render engine, editor and tracker for planets and robots. 
+
+![UI Screenshot](images/screenshot.png)
 
 ## Features
 
-- [x] Visualise planets
-- [x] Planet editor
-- [x] Animation support **new**
-- [x] Multiplatform support (ui abstraction) **new** 
+- Render and animate planets
+- Support for textual and graphical editing of planets
+- Track single robots or all robot that currently use the same planet
+- Multiplatform and web support
 
-## Usage
+## Native client
 
-### JavaFX Version
-
-Build and execute app directly
+First you need to build the kotlin ui to javascript:
 ```shell script
-./gradlew jvmRun
+./gradlew jsFrontendElectronSync
 ```
 
-or
-
-Build cross platform jar and execute app manually
+After this you can start or pack the electron build:
 ```shell script
-./gradlew jvmJar
-java -jar build/libs/robolab-jvm.jar
-```
-
-### Web Version
-
-Build app and run dev server directly
-```shell script
-./gradlew jsClientRun
-```
-
-or
-
-Build app und run dev server as separate process (speeds up development)
-```shell script
-./gradlew jsClientSync
-
-cd web
+cd deploy/electron
 npm install
-node index.js
+
+# Run the development version
+npm run dev
+
+# Build release version for the current architecture and os
+npx electron-builder build
+```
+
+## Web client
+
+### Variant 1 - Run inside docker
+
+Use the provided Dockerfile and docker-compose file to build and and run the whole project in one step:
+```shell script
+docker-compose up
+```
+
+### Variant 2 - Run nativly
+
+Build the frontend:
+```shell script
+./gradlew jsFrontendWebSync
+```
+
+Build and run the backend. The default address is http://localhost:8080/.
+You will need a running redis instance:
+```shell script
+./gradlew jsBackendRun
 ```
