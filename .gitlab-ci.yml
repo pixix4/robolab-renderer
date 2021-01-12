@@ -41,7 +41,7 @@ pack-electron:
   script:
     - cd deploy/electron
     - npm install
-    - npx electron-builder -wl
+    - npx electron-builder build -wl -p never
   needs:
     - job: build-electron
       artifacts: true
