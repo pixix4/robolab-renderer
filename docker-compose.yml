@@ -8,10 +8,6 @@ services:
     environment:
       - PLANETS_DIRECTORY=.
       - PLANETS_DATABASE=redis://redis:6379/4
-      - WEB_MOUNT=/
-      - WEB_DIRECTORY=./web/
-      - ELECTRON_MOUNT=/download
-      - ELECTRON_DIRECTORY=./download/
     depends_on:
       - redis
     ports:
