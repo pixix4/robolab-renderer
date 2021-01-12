@@ -69,7 +69,7 @@ deploy-electron:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY_ROBOLAB
-    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/electron/dist/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/download/
+    - rsync -lptgoDvz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/electron/dist/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/download/
   needs:
     - job: pack-electron
       artifacts: true
