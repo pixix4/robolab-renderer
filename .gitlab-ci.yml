@@ -9,15 +9,28 @@ cache:
     - .gradle/
 
 
-build-docker-image:
-  image: docker:latest
+build-backend:
+  image: openjdk:11
   stage: build
   script:
-    - docker build . -f docker/build.Dockerfile -t pixix4/robolab-renderer
-    - docker save -o robolab-renderer.tar pixix4/robolab-renderer
+    - chmod +x ./gradlew
+    - ./gradlew --no-daemon -g .gradle jsBackendSync
   artifacts:
     paths:
-      - robolab-renderer.tar
+      - deploy/server/
+    expire_in: 1 hrs
+  tags:
+    - docker
+
+build-web:
+  image: openjdk:11
+  stage: build
+  script:
+    - chmod +x ./gradlew
+    - ./gradlew --no-daemon -g .gradle jsFrontendWebSync
+  artifacts:
+    paths:
+      - deploy/distWeb/
     expire_in: 1 hrs
   tags:
     - docker
@@ -51,15 +64,16 @@ pack-electron:
   tags:
     - docker
 
-deploy-docker-image:
+deploy-backend:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY_ROBOLAB
-    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c robolab-renderer.tar deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/robolab-renderer.tar
-    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c docker-compose.yml deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/docker-compose.yml
-    - ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB deploy@robolab.inf.tu-dresden.de "docker load -i web-projects/robolab-renderer/stable/robolab-renderer.tar"
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/server/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/server/
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/distWeb/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/web/
   needs:
-    - job: build-docker-image
+    - job: build-backend
+      artifacts: true
+    - job: build-web
       artifacts: true
   tags:
     - shell
@@ -69,7 +83,7 @@ deploy-electron:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY_ROBOLAB
-    - rsync -lptgoDvz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/electron/dist/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/download/
+    - rsync -lptgoDvz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/electron/dist/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/electron/
   needs:
     - job: pack-electron
       artifacts: true
