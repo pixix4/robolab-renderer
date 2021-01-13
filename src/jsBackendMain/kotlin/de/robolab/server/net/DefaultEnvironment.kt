@@ -80,12 +80,13 @@ object DefaultEnvironment {
         } else {
             Config.Web.mount + "/"
         }
-        router.get("") { _, res ->
-            res.redirect(redirectIndex)
-        }
 
-        router.get("/") { _, res ->
-            res.sendFile(path.join(directory, "index.html"))
+        router.get("/") { req, res ->
+            if (req.url.endsWith("/")) {
+                res.sendFile(path.join(directory, "index.html"))
+            } else {
+                res.redirect(301, redirectIndex)
+            }
         }
         router.use("", createStatic(directory))
 
