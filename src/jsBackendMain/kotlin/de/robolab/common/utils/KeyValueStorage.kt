@@ -72,13 +72,18 @@ actual class KeyValueStorage {
 
     init {
         try {
+            var maxDepth = 20
             var filePath = fileName
-            while (true) {
+            while (maxDepth > 0) {
                 if (loadFile(path.resolve(filePath))) {
                     break
                 }
-                filePath = path.join("..", filePath)
-                filePath = path.normalize(filePath)
+                val p = path.normalize(path.join("..", filePath))
+                if (p == filePath) {
+                    break
+                }
+                filePath = p
+                maxDepth -= 1
             }
         } catch (_: Exception) {
             log.error("Cannot load config file $fileName")
