@@ -1,11 +1,11 @@
 [Unit]
-Description=Robolab renderer backend (stable)
+Description=RobolabRenderer (stable)
 
 [Service]
 Type=exec
 Restart=always
 User=deploy
-ExecStart=nodemon packages/robolab-jsServer/kotlin/robolab-jsServer.js -c ../backend.ini
+ExecStart=nodemon packages/robolab-jsBackend/kotlin/robolab-jsBackend.js -c ../backend.ini
 WorkingDirectory=/home/deploy/web-projects/robolab-renderer/stable/backend
 StandardOutput=file:/home/deploy/web-projects/robolab-renderer/stable/logs/backend-output.log
 StandardError=file:/home/deploy/web-projects/robolab-renderer/stable/logs/backend-error.log

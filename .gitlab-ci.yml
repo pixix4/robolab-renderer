@@ -7,7 +7,7 @@ cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - .gradle/
-
+    - .npm/
 
 build-backend:
   image: openjdk:11
@@ -51,6 +51,8 @@ build-electron:
 pack-electron:
   image: electronuserland/builder:wine
   stage: pack
+  before_script:
+    - npm ci --cache .npm --prefer-offline
   script:
     - cd deploy/electron
     - npm install
@@ -68,8 +70,8 @@ deploy-backend:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY_ROBOLAB
-    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/server/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/server/
-    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/distWeb/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/web/
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/server/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/backend/
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/distWeb/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/frontend/
   needs:
     - job: build-backend
       artifacts: true
@@ -83,7 +85,7 @@ deploy-electron:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY_ROBOLAB
-    - rsync -lptgoDvz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/electron/dist/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/electron/
+    - rsync -lptgoDvz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/electron/dist/* deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/download/
   needs:
     - job: pack-electron
       artifacts: true
