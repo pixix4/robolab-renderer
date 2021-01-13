@@ -272,6 +272,19 @@ data class Artefact(
                 }
             }
 
+            if (n.endsWith(".exe")) {
+                n = n.removeSuffix(".exe")
+
+                return Artefact(
+                    url,
+                    name,
+                    "windows",
+                    "x86",
+                    "exe",
+                    n
+                )
+            }
+
             return null
         }
     }

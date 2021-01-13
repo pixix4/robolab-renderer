@@ -5,7 +5,6 @@ import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.base.ToolBarEntry
 import de.robolab.client.ui.dialog.DownloadDialog
 import de.robolab.client.ui.dialog.SettingsDialog
-import de.robolab.client.ui.triggerDownloadUrl
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.client.utils.buildContextMenu
 import de.robolab.client.utils.electron
@@ -18,8 +17,6 @@ import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
-import io.ktor.client.fetch.fetch
-import kotlinx.coroutines.await
 
 class ToolBar(private val toolBarController: ToolBarController) : ViewCollection<View>() {
 
@@ -104,12 +101,14 @@ class ToolBar(private val toolBarController: ToolBarController) : ViewCollection
                     }
                 }
                 noElectron {
-                    button {
-                        iconView(MaterialIcon.FILE_DOWNLOAD)
-                        title = "Download"
+                    DownloadDialog.init {
+                        button {
+                            iconView(MaterialIcon.FILE_DOWNLOAD)
+                            title = "Download RobolabRenderer client"
 
-                        onClick {
-                            DownloadDialog.open()
+                            onClick {
+                                DownloadDialog.open()
+                            }
                         }
                     }
                 }

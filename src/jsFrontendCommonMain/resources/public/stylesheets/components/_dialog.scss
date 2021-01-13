@@ -45,7 +45,7 @@
   width: 100%;
   border-bottom: solid 1px var(--border-color);
   white-space: nowrap;
-  padding: 0 0.5rem;
+  padding: 0 0.5rem 0 1rem;
   display: flex;
   overscroll-behavior: contain;
   align-items: center;
@@ -186,11 +186,49 @@
 
   & > .box-view {
     flex-grow: 1;
+    flex-basis: 0;
     padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    img {
+      max-height: 4rem;
+    }
 
     & > .text-view {
       display: block;
       text-align: center;
+    }
+
+    & > .box-view {
+      width: 100%;
+
+      & > .text-view {
+        display: block;
+        padding: 1rem 0.4rem 0.4rem;
+      }
+
+      & > .button-group {
+        width: 100%;
+        display: flex;
+
+        .button {
+          flex-grow: 1;
+        }
+      }
+    }
+  }
+}
+
+body[data-dark='true'] {
+  .download-overview {
+    .windows img {
+      filter: invert(1);
+    }
+
+    .mac img {
+      filter: invert(1);
     }
   }
 }

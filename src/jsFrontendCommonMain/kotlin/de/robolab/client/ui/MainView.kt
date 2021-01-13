@@ -31,6 +31,7 @@ fun initMainView(
 
         val uiController = mainController.uiController
         dataset.bind("theme", PreferenceStorage.selectedThemeProperty.mapBinding { it.name.toDashCase() })
+        dataset.bind("dark", PreferenceStorage.selectedThemeProperty.mapBinding { (it.isDarkMode == true).toString() })
 
         bindStyleProperty(
             "--navigation-bar-width",
