@@ -93,6 +93,8 @@ deploy-electron-stable:
   needs:
     - job: pack-electron
       artifacts: true
+  only:
+    - master
   environment:
     name: stable/robolab-renderer
     url: https://robolab.inf.tu-dresden.de/renderer/
