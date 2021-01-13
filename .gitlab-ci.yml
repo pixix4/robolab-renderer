@@ -65,7 +65,7 @@ pack-electron:
   tags:
     - docker
 
-deploy-backend:
+deploy-backend-stable:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY_ROBOLAB
@@ -76,11 +76,16 @@ deploy-backend:
       artifacts: true
     - job: build-web
       artifacts: true
+  only:
+    - master
+  environment:
+    name: stable/robolab-renderer
+    url: https://robolab.inf.tu-dresden.de/renderer/
   tags:
     - shell
     - robolab
 
-deploy-electron:
+deploy-electron-stable:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY_ROBOLAB
@@ -88,6 +93,29 @@ deploy-electron:
   needs:
     - job: pack-electron
       artifacts: true
+  environment:
+    name: stable/robolab-renderer
+    url: https://robolab.inf.tu-dresden.de/renderer/
+  tags:
+    - shell
+    - robolab
+
+deploy-backend-develop:
+  stage: deploy
+  script:
+    - chmod 0600 $SSH_KEY_ROBOLAB
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/server/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/backend/
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/distWeb/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/frontend/
+  needs:
+    - job: build-backend
+      artifacts: true
+    - job: build-web
+      artifacts: true
+  only:
+    - develop
+  environment:
+    name: develop/robolab-renderer
+    url: https://robolab.inf.tu-dresden.de/renderer-dev/
   tags:
     - shell
     - robolab
