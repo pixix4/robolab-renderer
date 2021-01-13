@@ -108,8 +108,8 @@ deploy-backend-develop:
   stage: deploy
   script:
     - chmod 0600 $SSH_KEY_ROBOLAB
-    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/server/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/backend/
-    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/distWeb/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/stable/frontend/
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/server/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/develop/backend/
+    - rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB" -c deploy/distWeb/ deploy@robolab.inf.tu-dresden.de:web-projects/robolab-renderer/develop/frontend/
   needs:
     - job: build-backend
       artifacts: true
