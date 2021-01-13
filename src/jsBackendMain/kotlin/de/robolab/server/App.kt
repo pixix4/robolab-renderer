@@ -14,11 +14,12 @@ import path.path
 
 class App : CliktCommand() {
 
-    val configFiles by option("-c", "--config")
+    private val configFiles by option("-c", "--config")
         .multiple()
 
     override fun run() {
         KeyValueStorage.overrideFiles = configFiles
+        Logger.level = Config.General.logLevel
 
         ConsoleGreeter.greetServer()
         val logger = Logger("MainApp")
@@ -41,6 +42,8 @@ class App : CliktCommand() {
         if (Config.Api.mount.isEmpty() || Config.Api.mount != "/") {
             DefaultEnvironment.app.get("/", logoResponse)
         }
+
+        Logger.level = Config.General.logLevel
         DefaultEnvironment.http.listen(Config.General.port) {
             logger.info {
                 buildString {

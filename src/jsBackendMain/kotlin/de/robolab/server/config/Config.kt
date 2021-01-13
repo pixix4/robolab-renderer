@@ -3,6 +3,7 @@ package de.robolab.server.config
 import com.soywiz.klock.DateTime
 import de.robolab.client.net.requests.PlanetJsonInfo
 import de.robolab.common.planet.ID
+import de.robolab.common.utils.Logger
 import de.robolab.common.utils.TypedStorage
 import de.robolab.server.data.IPlanetMetaStore
 import de.robolab.server.data.IPlanetStore
@@ -13,6 +14,7 @@ object Config : TypedStorage() {
     object General {
 
         val port by item("general.port", 8080)
+        val logLevel by item("general.logLevel", Logger.Level.INFO)
     }
 
     object Api {
