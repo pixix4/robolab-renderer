@@ -12,24 +12,20 @@ import de.robolab.server.model.asPlanetJsonInfo
 object Config : TypedStorage() {
 
     object General {
-
         val port by item("general.port", 8080)
         val logLevel by item("general.logLevel", Logger.Level.INFO)
     }
 
     object Api {
-
         val mount by item("api.mount", "/api")
     }
 
     object Web {
-
         val mount by item("web.mount", "")
         val directory by item("web.directory", "")
     }
 
     object Electron {
-
         val mount by item("electron.mount", "")
         val directory by item("electron.directory", "")
     }

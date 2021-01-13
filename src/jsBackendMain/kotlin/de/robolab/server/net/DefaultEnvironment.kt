@@ -47,7 +47,7 @@ object DefaultEnvironment {
         if (fs.existsSync(path.resolve(Config.Planets.directory))) {
             router.use("/planets", PlanetRouter.router)
         } else {
-            logger.warn {"Cannot find planet directory '${path.resolve(Config.Planets.directory)}'" }
+            logger.warn { "Cannot find planet directory '${path.resolve(Config.Planets.directory)}'" }
         }
         router.use("/info", InfoRouter.router)
         router.use("/auth", AuthRouter.router)
@@ -74,6 +74,15 @@ object DefaultEnvironment {
     fun createWebRouter(): DefaultRouter {
         val directory = path.resolve(Config.Web.directory)
         val router = createRouter()
+
+        val redirectIndex = if (Config.Web.mount.endsWith("/")) {
+            Config.Web.mount
+        } else {
+            Config.Web.mount + "/"
+        }
+        router.get("") { _, res ->
+            res.redirect(redirectIndex)
+        }
 
         router.get("/") { _, res ->
             res.sendFile(path.join(directory, "index.html"))
