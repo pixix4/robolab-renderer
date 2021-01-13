@@ -31,7 +31,7 @@ class CanvasController(
         virtualCanvas.canvas = canvas
     }
 
-    val pointerProperty = property<Pointer?>(null)
+    private val pointerProperty = property<Pointer?>(null)
     val pointerStringProperty = pointerProperty.mapBinding { pointer ->
         val list = mutableListOf<String>()
 
@@ -91,7 +91,7 @@ class CanvasController(
         activeTabProperty.value?.plotterManager?.render(msOffset)
     }
 
-    val timer = CommonTimer(60.0)
+    private val timer = CommonTimer(60.0)
 
     init {
         timer.onRender(this::render)

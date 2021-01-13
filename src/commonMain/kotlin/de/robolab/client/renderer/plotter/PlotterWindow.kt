@@ -3,9 +3,7 @@ package de.robolab.client.renderer.plotter
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.canvas.ICanvas
-import de.robolab.client.renderer.utils.Pointer
-import de.robolab.client.renderer.utils.Transformation
-import de.robolab.client.renderer.utils.TransformationInteraction
+import de.robolab.client.renderer.utils.*
 import de.robolab.client.renderer.view.base.Document
 import de.robolab.client.renderer.view.base.IView
 import de.robolab.client.theme.ITheme
@@ -36,7 +34,7 @@ class PlotterWindow(
             document?.requestRedraw()
         }
 
-    val transformation = Transformation()
+    val transformation: ITransformation = Transformation()
     val context = DrawContext(canvas, transformation, theme)
 
     private val interaction = TransformationInteraction(this)

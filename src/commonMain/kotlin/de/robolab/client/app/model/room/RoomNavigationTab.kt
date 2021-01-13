@@ -14,7 +14,7 @@ class RoomNavigationTab(
     private val messageRepository: MessageRepository,
     private val tabController: TabController,
     private val planetProvider: CachedFilePlanetProvider
-) : INavigationBarTab("All robots per planet", MaterialIcon.PUBLIC) {
+) : INavigationBarTab("Group tracked robots by planet name", MaterialIcon.PUBLIC) {
 
     override fun openEntry(entry: INavigationBarEntry, asNewTab: Boolean) {
         if (entry is RoomNavigationList.Entry) {

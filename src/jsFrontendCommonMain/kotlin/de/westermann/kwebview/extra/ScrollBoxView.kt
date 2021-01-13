@@ -40,13 +40,20 @@ class ScrollBoxView : ViewCollection<View>() {
 
     fun resizeBox(initPercentageSize: Double, autoResize: Boolean = false, init: BoxView.() -> Unit): BoxView {
         var view: BoxView? = null
+
+        var resizeHandler: (positionY: Double) -> Unit = {}
+
+        if (contentList.isNotEmpty()) {
+            +ResizeView("scroll-box-handler") { position, _ ->
+                resizeHandler(position.y)
+            }
+        }
+
         val pane = boxView("scroll-box-entry") {
             val boxPane = Pane(this, initPercentageSize, 0.0, autoResize)
 
-            if (contentList.isNotEmpty()) {
-                +ResizeView("scroll-box-handler") { position, _ ->
-                    updateBorder(boxPane.index - 1, position.y - this@ScrollBoxView.offsetTopTotal)
-                }
+            resizeHandler = { positionY ->
+                updateBorder(boxPane.index - 1, positionY - this@ScrollBoxView.offsetTopTotal)
             }
 
             view = boxView("scroll-box-content") {

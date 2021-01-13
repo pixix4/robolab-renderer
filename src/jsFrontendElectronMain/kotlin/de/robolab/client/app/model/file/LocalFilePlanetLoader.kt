@@ -187,8 +187,11 @@ class LocalFilePlanetLoader(
     }
 
     companion object : IFilePlanetLoaderFactory {
-        override fun create(uri: String): LocalFilePlanetLoader {
-            return LocalFilePlanetLoader(uri)
+        override fun create(uri: String): LocalFilePlanetLoader? {
+            if (uri.isNotBlank() && existsSync(uri)) {
+                return LocalFilePlanetLoader(uri)
+            }
+            return null
         }
 
         val del: String = path.sep

@@ -21,7 +21,7 @@ class Transformation(
     pixelPerUnitDimension: Dimension = PIXEL_PER_UNIT_DIMENSION
 ) : ITransformation {
 
-    val onViewChange = EventHandler<Unit>()
+    override val onViewChange = EventHandler<Unit>()
 
     override val translationProperty = ValueTransition(initTranslation)
     override val translation by translationProperty
@@ -34,8 +34,8 @@ class Transformation(
     override val scaleProperty = DoubleTransition(initScale)
     override val scale by scaleProperty
 
-    val flipViewProperty = property(false)
-    var flipView by flipViewProperty
+    override val flipViewProperty = property(false)
+    override var flipView by flipViewProperty
 
     private val internalPixelPerUnitDimension = pixelPerUnitDimension
 
@@ -48,45 +48,28 @@ class Transformation(
 
     private var hasChanges = false
 
-    override fun canvasToPlanet(canvasCoordinate: Point): Point {
-        return super.canvasToPlanet(
-            canvasCoordinate,
-            translationProperty.targetValue,
-            scaleProperty.targetValue,
-            rotationProperty.targetValue
-        )
-    }
-
-    override fun planetToCanvas(planetCoordinate: Point): Point {
-        return super.planetToCanvas(
-            planetCoordinate,
-            translationProperty.targetValue,
-            scaleProperty.targetValue,
-            rotationProperty.targetValue
-        )
-    }
-
-    fun translateBy(point: Point, duration: Double = 0.0) {
+    override fun translateBy(point: Point, duration: Double) {
         translateTo(translationProperty.targetValue + point, duration)
     }
 
-    fun translateTo(point: Point, duration: Double = 0.0) {
+    override fun translateTo(point: Point, duration: Double) {
         translationProperty.animate(point, duration)
         onViewChange.emit(Unit)
         hasChanges = true
     }
 
-    fun setTranslation(point: Point) {
+    override fun setTranslation(point: Point) {
+        if (point == translation && !translationProperty.isRunning) return
         translationProperty.resetValue(point)
         onViewChange.emit(Unit)
         hasChanges = true
     }
 
-    fun rotateBy(angle: Double, center: Point, duration: Double = 0.0) {
+    override fun rotateBy(angle: Double, center: Point, duration: Double) {
         rotateTo(rotationProperty.targetValue - angle, center, duration)
     }
 
-    fun rotateTo(angle: Double, center: Point, duration: Double = 0.0) {
+    override fun rotateTo(angle: Double, center: Point, duration: Double) {
         rotationCenter = center
 
         val planetPoint = canvasToPlanet(rotationCenter)
@@ -96,17 +79,18 @@ class Transformation(
         translateBy(rotationCenter - newCenter)
     }
 
-    fun setRotationAngle(angle: Double) {
+    override fun setRotationAngle(angle: Double) {
+        if (angle == rotation && !rotationProperty.isRunning) return
         rotationProperty.resetValue((angle - PI) % (2 * PI) + PI)
         onViewChange.emit(Unit)
         hasChanges = true
     }
 
-    fun scaleBy(factor: Double, center: Point, duration: Double = 0.0) {
+    override fun scaleBy(factor: Double, center: Point, duration: Double) {
         scaleTo(scaleProperty.targetValue * factor, center, duration)
     }
 
-    fun scaleTo(scale: Double, center: Point, duration: Double = 0.0) {
+    override fun scaleTo(scale: Double, center: Point, duration: Double) {
         scaleCenter = center
 
         val planetPoint = canvasToPlanet(scaleCenter)
@@ -136,21 +120,23 @@ class Transformation(
         }
     }
 
-    fun scaleIn(center: Point, duration: Double = 0.0) = scaleDirected(1, center, duration)
+    override fun scaleIn(center: Point, duration: Double) = scaleDirected(1, center, duration)
 
-    fun scaleOut(center: Point, duration: Double = 0.0) = scaleDirected(-1, center, duration)
+    override fun scaleOut(center: Point, duration: Double) = scaleDirected(-1, center, duration)
 
-    fun resetScale(center: Point, duration: Double = 0.0) {
+    override fun resetScale(center: Point, duration: Double) {
         scaleTo(1.0, center, duration)
     }
 
-    fun setScaleFactor(scale: Double) {
-        scaleProperty.resetValue(max(min(scale, 10.0), 0.1))
+    override fun setScaleFactor(scale: Double) {
+        val s = max(min(scale, 10.0), 0.1)
+        if (s == this.scale && !scaleProperty.isRunning) return
+        scaleProperty.resetValue(s)
         onViewChange.emit(Unit)
         hasChanges = true
     }
 
-    fun update(msOffset: Double): Boolean {
+    override fun update(msOffset: Double): Boolean {
         var changes = hasChanges
         hasChanges = false
 
@@ -176,9 +162,13 @@ class Transformation(
         return changes
     }
 
-    fun export() = State(translation, scale, rotation, flipViewProperty.value)
+    override fun flip(force: Boolean?) {
+        flipView = force ?: !flipView
+    }
 
-    fun import(state: State) {
+    override fun export() = State(translation, scale, rotation, flipViewProperty.value)
+
+    override fun import(state: State) {
         setTranslation(state.translation)
         setScaleFactor(state.scale)
         setRotationAngle(state.rotation)

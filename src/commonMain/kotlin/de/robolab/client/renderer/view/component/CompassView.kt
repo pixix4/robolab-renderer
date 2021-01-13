@@ -1,6 +1,7 @@
 package de.robolab.client.renderer.view.component
 
 import de.robolab.client.renderer.canvas.DrawContext
+import de.robolab.client.renderer.utils.ITransformation
 import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.common.utils.Point
@@ -8,7 +9,7 @@ import kotlin.math.PI
 
 class CompassView: BaseView() {
 
-    private val transformation = Transformation()
+    private val transformation: ITransformation = Transformation()
 
     private var compassCenter = Point.ZERO
     override fun onDraw(context: DrawContext) {

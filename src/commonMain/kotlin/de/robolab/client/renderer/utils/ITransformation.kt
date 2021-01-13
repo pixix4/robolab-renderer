@@ -3,8 +3,9 @@ package de.robolab.client.renderer.utils
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableValue
-import kotlin.math.cos
-import kotlin.math.sin
+import de.westermann.kobserve.event.EventHandler
+import de.westermann.kobserve.property.property
+import kotlin.math.*
 
 interface ITransformation {
 
@@ -37,10 +38,38 @@ interface ITransformation {
     val rotationProperty: ObservableValue<Double>
     val rotation: Double
 
+    val flipViewProperty: ObservableValue<Boolean>
+    val flipView: Boolean
+
     val gridWidth: Double
 
     val scaledGridWidth: Double
         get() = gridWidth * scale
 
     val pixelPerUnitDimension: Dimension
+
+    val onViewChange: EventHandler<Unit>
+
+    fun translateBy(point: Point, duration: Double = 0.0)
+    fun translateTo(point: Point, duration: Double = 0.0)
+    fun setTranslation(point: Point)
+
+    fun rotateBy(angle: Double, center: Point, duration: Double = 0.0)
+    fun rotateTo(angle: Double, center: Point, duration: Double = 0.0)
+    fun setRotationAngle(angle: Double)
+
+    fun scaleBy(factor: Double, center: Point, duration: Double = 0.0)
+    fun scaleTo(scale: Double, center: Point, duration: Double = 0.0)
+    fun scaleIn(center: Point, duration: Double = 0.0)
+    fun scaleOut(center: Point, duration: Double = 0.0)
+    fun resetScale(center: Point, duration: Double = 0.0)
+    fun setScaleFactor(scale: Double)
+
+    fun flip(force: Boolean? = null)
+
+    fun update(msOffset: Double): Boolean
+
+    fun export(): Transformation.State
+    fun import(state: Transformation.State)
+
 }

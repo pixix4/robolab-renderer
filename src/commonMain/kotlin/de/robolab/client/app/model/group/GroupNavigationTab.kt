@@ -18,7 +18,7 @@ class GroupNavigationTab(
     private val messageManager: MessageManager,
     private val tabController: TabController,
     val planetProvider: CachedFilePlanetProvider
-) : INavigationBarTab("MQTT Group list", MaterialIcon.GROUP) {
+) : INavigationBarTab("Track robots via mqtt", MaterialIcon.GROUP) {
 
     override fun submitSearch() {
         val value = searchProperty.value.trim()

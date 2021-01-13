@@ -1,5 +1,6 @@
 package de.robolab.client.renderer.canvas
 
+import de.robolab.client.renderer.utils.ITransformation
 import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.theme.ITheme
 import de.robolab.common.utils.Dimension
@@ -8,7 +9,7 @@ import de.robolab.common.utils.Rectangle
 
 class DrawContext(
     val canvas: ICanvas,
-    val transformation: Transformation,
+    val transformation: ITransformation,
     var theme: ITheme
 ) : ICanvas by TransformationCanvas(canvas, transformation) {
 

@@ -51,7 +51,7 @@ class SettingsDialog private constructor(
                         step = 0.1
                     }
                 }
-                dialogFormEntry("Animation time") {
+                dialogFormEntry("Animation time (in ms)") {
                     inputView(InputType.NUMBER, PreferenceStorage.animationTimeProperty.bindStringParsing()) {
                         min = 0.0
                         max = 100000.0
@@ -98,11 +98,13 @@ class SettingsDialog private constructor(
                     inputView(PreferenceStorage.remoteServerUrlProperty) {
                         type = InputType.URL
                     }
-                    button {
-                        iconView(MaterialIcon.SETTINGS_BACKUP_RESTORE)
-                        title = "Restore default uri"
-                        onClick {
-                            PreferenceStorage.remoteServerUrl = window.location.href
+                    if (!window.location.href.startsWith("file")) {
+                        button {
+                            iconView(MaterialIcon.SETTINGS_BACKUP_RESTORE)
+                            title = "Restore default uri"
+                            onClick {
+                                PreferenceStorage.remoteServerUrl = window.location.href
+                            }
                         }
                     }
                 }
@@ -163,7 +165,11 @@ class SettingsDialog private constructor(
                 dialogFormEntry("Log uri") {
                     classList += "button-group"
                     classList += "button-form-group"
-                    inputView(PreferenceStorage.logUriProperty)
+                    inputView(PreferenceStorage.logUriProperty) {
+                        style {
+                            width = "80%"
+                        }
+                    }
                     inputView(InputType.NUMBER, PreferenceStorage.logCountProperty.bindStringParsing()) {
                         min = 0.0
                         max = 100000.0

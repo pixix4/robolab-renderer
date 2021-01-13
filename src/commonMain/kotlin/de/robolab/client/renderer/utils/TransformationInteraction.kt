@@ -179,29 +179,33 @@ class TransformationInteraction(
 
         when (event.keyCode) {
             KeyCode.ARROW_UP -> {
-                transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION), ANIMATION_TIME)
+                val factor = if (event.shiftKey) -1.0 else 1.0
+                transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION * factor), ANIMATION_TIME)
                 plotter.document?.emitOnUserTransformation()
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.ARROW_DOWN -> {
-                transformation.translateBy(Point(0.0, -KEYBOARD_TRANSLATION), ANIMATION_TIME)
+                val factor = if (event.shiftKey) -1.0 else 1.0
+                transformation.translateBy(Point(0.0, -KEYBOARD_TRANSLATION * factor), ANIMATION_TIME)
                 plotter.document?.emitOnUserTransformation()
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.ARROW_LEFT -> {
+                val factor = if (event.shiftKey) -1.0 else 1.0
                 if (event.altKey) {
                     transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
-                    transformation.translateBy(Point(KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
+                    transformation.translateBy(Point(KEYBOARD_TRANSLATION * factor, 0.0), ANIMATION_TIME)
                     plotter.document?.emitOnUserTransformation()
                 }
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.ARROW_RIGHT -> {
+                val factor = if (event.shiftKey) -1.0 else 1.0
                 if (event.altKey) {
                     transformation.rotateBy(KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
-                    transformation.translateBy(Point(-KEYBOARD_TRANSLATION, 0.0), ANIMATION_TIME)
+                    transformation.translateBy(Point(-KEYBOARD_TRANSLATION * factor, 0.0), ANIMATION_TIME)
                     plotter.document?.emitOnUserTransformation()
                 }
                 plotter.updatePointer(lastPoint)

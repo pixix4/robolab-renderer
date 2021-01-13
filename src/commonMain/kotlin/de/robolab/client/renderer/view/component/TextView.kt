@@ -7,6 +7,7 @@ import de.robolab.client.renderer.canvas.MirrorPointCanvas
 import de.robolab.client.renderer.canvas.TransformationCanvas
 import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.events.KeyCode
+import de.robolab.client.renderer.utils.ITransformation
 import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
@@ -133,7 +134,7 @@ class TextView(
         val color = context.c(color)
         val cursorColor = context.theme.plotter.editColor
 
-        val transformation = Transformation(
+        val transformation: ITransformation = Transformation(
             gridWidth = 1.0,
             pixelPerUnitDimension = Dimension.ONE
         )
