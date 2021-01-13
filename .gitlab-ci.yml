@@ -59,6 +59,8 @@ pack-electron:
   needs:
     - job: build-electron
       artifacts: true
+  only:
+    - master
   artifacts:
     paths:
       - deploy/electron/dist/
