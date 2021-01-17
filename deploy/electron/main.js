@@ -47,8 +47,10 @@ const template = [
 
                     result.filePaths.forEach((file) => {
                         let text = fs.readFileSync(file).toString()
+                        let mtime = fs.statSync(file).mtime.getTime()
                         mainWindow.webContents.send("open-file", {
                             name: file,
+                            mtime: mtime,
                             content: text
                         })
                     })
@@ -66,8 +68,10 @@ const template = [
                     })
                     result.filePaths.forEach((file) => {
                         let text = fs.readFileSync(file).toString()
+                        let mtime = fs.statSync(file).mtime.getTime()
                         mainWindow.webContents.send("open-file", {
                             name: file,
+                            mtime: mtime,
                             content: text
                         })
                     })
@@ -178,8 +182,10 @@ app.on('will-finish-launching', () => {
     app.on("open-file", (event, file) => {
         if (mainWindow) {
             let text = fs.readFileSync(file).toString()
+            let mtime = fs.statSync(file).mtime.getTime()
             mainWindow.webContents.send("open-file", {
                 name: file,
+                mtime: mtime,
                 content: text
             })
         } else {

@@ -28,7 +28,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class FilePlanetDocument(
-    val filePlanet: FilePlanet<*>
+    val filePlanet: FilePlanet
 ) : IPlanetDocument {
 
     val planetFile = filePlanet.planetFile

@@ -1,8 +1,12 @@
 package de.robolab.client.app.controller
 
+import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.file.FilePlanetDocument
-import de.robolab.client.app.model.file.TempFilePlanetLoader
+import de.robolab.client.app.model.file.provider.FilePlanet
+import de.robolab.client.app.model.file.provider.RemoteMetadata
+import de.robolab.client.app.model.file.provider.TempFilePlanetLoader
 import de.robolab.client.communication.RobolabMessageProvider
+import de.robolab.common.parser.PlanetFile
 import de.robolab.common.utils.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,19 +34,27 @@ class FileImportController(
         return supportedFileTypes.any { fileName.endsWith(it) }
     }
 
-    suspend fun importFile(fileName: String, content: suspend () -> Sequence<String>) {
+    suspend fun importFile(fileName: String, lastModified: DateTime, contentProvider: suspend () -> Sequence<String>) {
         if (!isFileSupported(fileName)) return
 
         withContext(Dispatchers.Default) {
             try {
                 if (fileName.endsWith(".planet")) {
+                    val content = contentProvider().toList()
+                    val planet = PlanetFile(content).planet
+                    val metadata = RemoteMetadata.Planet(
+                        planet.name,
+                        lastModified,
+                        planet.getPointList().size
+                    )
+                    TempFilePlanetLoader.create(fileName, metadata, content)
                     tabController.open(
-                        FilePlanetDocument(TempFilePlanetLoader.create(fileName, content().toList())),
+                        FilePlanetDocument(FilePlanet(TempFilePlanetLoader, fileName)),
                         true
                     )
                     logger.info { "Import of *.planet files is currently not supported!" }
                 } else if (fileName.endsWith(".log")) {
-                    robolabMessageProvider.importMqttLog(content())
+                    robolabMessageProvider.importMqttLog(contentProvider())
                 }
             } catch (e: Exception) {
                 logger.warn { e }

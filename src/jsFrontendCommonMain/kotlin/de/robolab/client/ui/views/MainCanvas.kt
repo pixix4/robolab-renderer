@@ -15,7 +15,7 @@ class MainCanvas(
 ) : ViewCollection<View>() {
 
     private val canvas = Canvas()
-    private val webCanvas = WebCanvas(canvas)
+    private val webCanvas = InteractiveWebCanvas(canvas)
 
     private var lastSize = clientWidth to clientHeight
 

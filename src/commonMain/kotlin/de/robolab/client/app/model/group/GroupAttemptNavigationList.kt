@@ -8,6 +8,7 @@ import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.Group
 import de.robolab.client.app.repository.MessageRepository
+import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.utils.MenuBuilder
 import de.robolab.client.utils.runAsync
 import de.westermann.kobserve.list.observableListOf

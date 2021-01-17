@@ -2,112 +2,157 @@ package de.robolab.client.app.model.file
 
 import de.robolab.client.app.model.base.INavigationBarEntry
 import de.robolab.client.app.model.base.INavigationBarList
+import de.robolab.client.app.model.base.INavigationBarTab
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.provider.FilePlanet
-import de.robolab.client.app.model.file.provider.IFilePlanetIdentifier
 import de.robolab.client.app.model.file.provider.IFilePlanetLoader
+import de.robolab.client.app.model.file.provider.RemoteIdentifier
+import de.robolab.client.app.model.file.provider.RemoteMetadata
+import de.robolab.client.renderer.Exporter
+import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.utils.MenuBuilder
 import de.robolab.client.utils.runAsync
+import de.robolab.common.parser.PlanetFile
+import de.robolab.common.planet.Planet
+import de.robolab.common.utils.Dimension
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.constObservable
-import de.westermann.kobserve.property.mapBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class FileNavigationList<T : IFilePlanetIdentifier>(
-    private val tab: FileNavigationTab<T>,
-    override val loader: IFilePlanetLoader<T>,
-    private val entry: T?,
-    override val parent: INavigationBarList?
-) : FileNavigationTab.RepositoryList<T> {
+class FileNavigationList(
+    private val tab: FileNavigationTab,
+    override val loader: IFilePlanetLoader,
+    private val id: String = "",
+    metadata: RemoteMetadata.Directory? = null,
+    override val parent: INavigationBarList? = null
+) : FileNavigationTab.RepositoryList {
 
-    override val nameProperty = if (entry == null) {
-        loader.nameProperty.mapBinding { it.toLowerCase() + ":/" }
-    } else {
-        constObservable(entry.name)
-    }
+    override val nameProperty = constObservable(metadata?.name ?: loader.nameProperty.value)
 
-    override val childrenProperty = observableListOf<Entry>()
+    override val childrenProperty = observableListOf<INavigationBarEntry>()
 
-    override fun onChange(entry: T?) {
-        if (entry == this.entry) {
+    override fun onChange(entry: RemoteIdentifier) {
+        if (id == entry.id) {
             GlobalScope.launch {
-                val planets = loader.listPlanets(entry)
+                val planets = loader.listPlanets(id) ?: emptyList()
 
                 runAsync {
-                    childrenProperty.sync(planets.map { Entry(it) })
+                    childrenProperty.sync(planets.map {
+                        mapEntry(tab, id, loader, it)
+                    })
                 }
             }
+        }
+    }
+
+    companion object {
+        fun mapEntry(
+            tab: INavigationBarTab,
+            parentId: String?,
+            loader: IFilePlanetLoader,
+            entry: RemoteIdentifier
+        ) = when (entry.metadata) {
+            is RemoteMetadata.Planet -> EntryPlanet(tab, parentId, loader, entry.id, entry.metadata)
+            is RemoteMetadata.Directory -> EntryDirectory(tab, loader, entry.id, entry.metadata)
         }
     }
 
     init {
         GlobalScope.launch {
-            val planets = loader.listPlanets(entry)
+            val planets = loader.listPlanets(id) ?: emptyList()
 
             runAsync {
-                childrenProperty.addAll(planets.map { Entry(it) })
+                childrenProperty.sync(planets.map {
+                    mapEntry(tab, id, loader, it)
+                })
             }
         }
     }
 
-    inner class Entry(
-        val entry: T
+    class EntryPlanet(
+        override val tab: INavigationBarTab,
+        private val parentId: String?,
+        val loader: IFilePlanetLoader,
+        val id: String,
+        val metadata: RemoteMetadata.Planet
     ) : INavigationBarEntry {
 
-        override val nameProperty = constObservable(entry.name)
+        override val nameProperty = constObservable(metadata.name)
 
-        override val tab = this@FileNavigationList.tab
+        override val subtitleProperty = constObservable(metadata.lastModified.local.format("yyyy-MM-dd HH:mm"))
 
-        override val subtitleProperty = constObservable(if (entry.isDirectory) {
-            buildString {
-                append(entry.childrenCount)
-                append(" entr")
-                if (entry.childrenCount != 1) {
-                    append("ies")
-                } else {
-                    append('y')
+        override val enabledProperty = loader.availableProperty
+
+        override val statusIconProperty = constObservable(emptyList<MaterialIcon>())
+
+        override fun MenuBuilder.contextMenu() {
+            name = "Planet ${metadata.name}"
+            action("Open in new tab") {
+                open(true)
+            }
+            if (parentId != null) {
+                action("Copy") {
+                    GlobalScope.launch(Dispatchers.Main) {
+                        val filePlanet = FilePlanet(loader, id)
+                        filePlanet.load()
+                        filePlanet.copy(parentId)
+                    }
+                }
+                action("Delete") {
+                    GlobalScope.launch(Dispatchers.Main) {
+                        val filePlanet = FilePlanet(loader, id)
+                        filePlanet.load()
+                        filePlanet.delete()
+                    }
                 }
             }
-        } else {
-            entry.lastModified.format("yyyy-MM-dd HH:mm:ss z")
+        }
+
+        private var planet: Planet? = null
+        private suspend fun getPlanet(): Planet? {
+            if (planet == null) {
+                val (_, lines) = loader.loadPlanet(id) ?: return null
+                planet = PlanetFile(lines).planet
+            }
+            return planet
+        }
+
+        override suspend fun getDimension(): Dimension? {
+            val p = getPlanet() ?: return null
+            return Exporter.getDimension(p)
+        }
+
+        override suspend fun renderPreview(canvas: ICanvas): Boolean {
+            val p = getPlanet() ?: return true
+            Exporter.renderToCanvas(p, canvas, drawName = false, drawNumbers = false)
+            return true
+        }
+    }
+
+    class EntryDirectory(
+        override val tab: INavigationBarTab,
+        val loader: IFilePlanetLoader,
+        val id: String,
+        val metadata: RemoteMetadata.Directory
+    ) : INavigationBarEntry {
+
+        override val nameProperty = constObservable(metadata.name)
+
+        override val subtitleProperty = constObservable(buildString {
+            append(metadata.childrenCount)
+            append(" entr")
+            if (metadata.childrenCount != 1) {
+                append("ies")
+            } else {
+                append('y')
+            }
         })
 
         override val enabledProperty = loader.availableProperty
 
-        override val statusIconProperty = constObservable(
-            if (entry.isDirectory) {
-                listOf(MaterialIcon.FOLDER_OPEN)
-            } else {
-                emptyList()
-            }
-        )
-
-        override fun MenuBuilder.contextMenu() {
-            if (entry.isDirectory) {
-                return
-            }
-
-            name = "Planet ${entry.name}"
-            action("Open in new tab") {
-                open(true)
-            }
-            action("Copy") {
-                GlobalScope.launch(Dispatchers.Main) {
-                    val filePlanet = FilePlanet(loader, entry)
-                    filePlanet.load()
-                    filePlanet.copy(this@FileNavigationList.entry)
-                }
-            }
-            action("Delete") {
-                GlobalScope.launch(Dispatchers.Main) {
-                    val filePlanet = FilePlanet(loader, entry)
-                    filePlanet.load()
-                    filePlanet.delete()
-                }
-            }
-        }
+        override val statusIconProperty = constObservable(listOf(MaterialIcon.FOLDER_OPEN))
     }
 }

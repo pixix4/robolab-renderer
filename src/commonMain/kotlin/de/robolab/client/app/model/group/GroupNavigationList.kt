@@ -6,6 +6,7 @@ import de.robolab.client.app.model.base.INavigationBarTab
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.repository.Group
 import de.robolab.client.app.repository.MessageRepository
+import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.utils.runAsync
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sync

@@ -27,15 +27,18 @@ class App : CliktCommand() {
         )
 
         val f = files.map {
-            it to suspend {
-                File(it).readText().splitToSequence("\n")
-            }
+            val file = File(it)
+            Triple(
+                it,
+                file.lastModified,
+                suspend {
+                    file.readText().splitToSequence("\n")
+                }
+            )
         }
 
         initMainView(args, f)
     }
-
-
 }
 
 fun main() {

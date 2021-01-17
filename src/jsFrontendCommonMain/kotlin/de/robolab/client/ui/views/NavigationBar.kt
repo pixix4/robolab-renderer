@@ -1,16 +1,19 @@
 package de.robolab.client.ui.views
 
+import com.soywiz.klock.DateTime
 import de.robolab.client.app.controller.FileImportController
 import de.robolab.client.app.controller.NavigationBarController
 import de.robolab.client.app.controller.UiController
 import de.robolab.client.app.model.base.INavigationBarEntry
 import de.robolab.client.app.model.base.MaterialIcon
+import de.robolab.client.ui.adapter.WebCanvas
 import de.robolab.client.ui.lineSequence
 import de.robolab.client.ui.openFile
 import de.robolab.client.ui.pathOrName
 import de.robolab.client.ui.readText
 import de.robolab.client.utils.electron
 import de.robolab.client.utils.noElectron
+import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.not
@@ -19,9 +22,12 @@ import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
+import kotlinx.browser.window
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlin.math.max
+import kotlin.math.min
 
 class NavigationBar(
     private val navigationBarController: NavigationBarController,
@@ -29,7 +35,12 @@ class NavigationBar(
     private val uiController: UiController
 ) : ViewCollection<View>() {
 
-    private fun createEntry(entry: INavigationBarEntry) = NavigationBarEntry(entry)
+    private fun createEntry(entry: INavigationBarEntry) = NavigationBarEntry(entry, this)
+
+    private val previewBox = BoxView()
+    private val previewImage = ImageView("")
+    private var previewView: View? = null
+    private var previewDimension = Dimension.ZERO
 
     private fun BoxView.setupTabs() {
         clear()
@@ -47,6 +58,44 @@ class NavigationBar(
                     navigationBarController.tabIndexProperty.value = index
                 }
             }
+        }
+    }
+
+    private fun updatePreviewPosition() {
+        val rectangle = previewView?.dimension ?: return
+
+        val leftPx = rectangle.right - 10.0
+
+        val t0 = (rectangle.top + rectangle.bottom) / 2 - previewDimension.height / 2 - offsetTopTotal
+        val topPx = max(PREVIEW_PADDING, min(window.innerHeight - PREVIEW_PADDING, t0))
+        previewBox.style {
+            left = "${leftPx}px"
+            top = "${topPx}px"
+        }
+    }
+
+    fun renderPreview(src: String, dimension: Dimension, referenceView: View) {
+        previewView = referenceView
+        previewDimension= dimension
+        previewImage.source = src
+        previewBox.style {
+            width = "${dimension.width}px"
+            height = "${dimension.height}px"
+            display = "block"
+        }
+        updatePreviewPosition()
+    }
+
+    fun removePreview() {
+        previewView = null
+        previewDimension = Dimension.ZERO
+        previewImage.source = ""
+        previewBox.style {
+            removeProperty("left")
+            removeProperty("top")
+            removeProperty("width")
+            removeProperty("height")
+            display = "none"
         }
     }
 
@@ -75,6 +124,10 @@ class NavigationBar(
             }
             boxView("navigation-bar-list") {
                 listFactory(navigationBarController.entryListProperty, this@NavigationBar::createEntry)
+
+                onWheel {
+                    updatePreviewPosition()
+                }
             }
             boxView("navigation-bar-empty") {
                 textView("Nothing to show!")
@@ -111,7 +164,10 @@ class NavigationBar(
                         for (file in files) {
                             val content = file.readText()
                             if (content != null) {
-                                fileImportController.importFile(file.pathOrName()) {
+                                fileImportController.importFile(
+                                    file.pathOrName(),
+                                    DateTime(file.lastModified.toLong())
+                                ) {
                                     file.lineSequence()
                                 }
                             }
@@ -119,6 +175,12 @@ class NavigationBar(
                     }
                 }
             }
+        }
+
+        +previewBox
+        with(previewBox) {
+            classList += "navigation-bar-preview"
+            +previewImage
         }
 
         // Close navigation bar on mobile
@@ -130,10 +192,27 @@ class NavigationBar(
             }
         }
     }
+
+    companion object {
+        const val PREVIEW_PADDING = 20.0
+    }
 }
 
-class NavigationBarEntry(entry: INavigationBarEntry) :
+class NavigationBarEntry(entry: INavigationBarEntry, navigationBar: NavigationBar) :
     ViewCollection<View>() {
+
+    private fun calculatePreviewDimension(dimension: Dimension): Pair<Dimension, Double> {
+        val dpi = window.devicePixelRatio
+        val dpiDimension = dimension * dpi
+        val windowDimension = Dimension(window.innerWidth, window.innerHeight) - Dimension(NavigationBar.PREVIEW_PADDING * 2, NavigationBar.PREVIEW_PADDING * 2)
+        val maxDimension = Dimension(400.0 * dpi, 200.0 * dpi).min(windowDimension)
+
+        val widthScale = maxDimension.width / dpiDimension.width
+        val heightScale = maxDimension.height / dpiDimension.height
+        val minScale = min(widthScale, heightScale)
+
+        return dpiDimension * minScale to 1.0
+    }
 
     init {
         textView(entry.nameProperty)
@@ -173,6 +252,41 @@ class NavigationBarEntry(entry: INavigationBarEntry) :
                     ContextMenuView.open(menu)
                 }
             }
+        }
+
+        var firstHover = true
+        var isHovered: Boolean
+        var previewSrc = ""
+        var previewDimension = Dimension.ZERO
+        onMouseEnter {
+            isHovered = true
+            if (firstHover) {
+                firstHover = false
+
+                GlobalScope.launch {
+                    val dimension = entry.getDimension()
+
+                    if (dimension != null) {
+                        val (d, s) = calculatePreviewDimension(dimension)
+                        val webCanvas = WebCanvas(d, s)
+                        if (entry.renderPreview(webCanvas)) {
+                            previewDimension = d
+                            previewSrc = webCanvas.canvas.html.toDataURL("image/png")
+
+                            if (isHovered && previewSrc.isNotEmpty()) {
+                                navigationBar.renderPreview(previewSrc, previewDimension, this@NavigationBarEntry)
+                            }
+                        }
+                    }
+                }
+            } else if (previewSrc.isNotEmpty()) {
+                navigationBar.renderPreview(previewSrc, previewDimension, this)
+            }
+        }
+
+        onMouseLeave {
+            isHovered = false
+            navigationBar.removePreview()
         }
     }
 }

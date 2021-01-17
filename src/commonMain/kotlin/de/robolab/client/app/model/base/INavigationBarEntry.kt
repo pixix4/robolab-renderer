@@ -1,8 +1,10 @@
 package de.robolab.client.app.model.base
 
+import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.utils.ContextMenu
 import de.robolab.client.utils.MenuBuilder
 import de.robolab.client.utils.buildContextMenu
+import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableProperty
@@ -34,6 +36,9 @@ interface INavigationBarEntry {
     fun open(asNewTab: Boolean) {
         tab.openEntry(this, asNewTab)
     }
+
+    suspend fun getDimension(): Dimension? = null
+    suspend fun renderPreview(canvas: ICanvas): Boolean = false
 }
 
 interface INavigationBarList {

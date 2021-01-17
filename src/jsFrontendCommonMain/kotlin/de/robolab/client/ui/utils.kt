@@ -4,6 +4,7 @@ import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kwebview.components.Canvas
 import kotlinx.browser.document
 import kotlinx.browser.window
+import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.Event
@@ -42,8 +43,8 @@ fun triggerDownloadUrl(filename: String, url: String) {
     document.body?.removeChild(element)
 }
 
-fun triggerDownloadPNG(filename: String, canvas: Canvas) {
-    var img = canvas.html.toDataURL("image/png")
+fun triggerDownloadPNG(filename: String, canvas: HTMLCanvasElement) {
+    var img = canvas.toDataURL("image/png")
     img = img.replace("^data:image/[^;]*".toRegex(), "data:application/octet-stream")
 
     val element = document.createElement("a") as HTMLElement

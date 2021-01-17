@@ -1,7 +1,10 @@
 package de.robolab.client.app.model.file
 
 import de.robolab.client.app.controller.TabController
-import de.robolab.client.app.model.file.provider.*
+import de.robolab.client.app.model.file.provider.FilePlanet
+import de.robolab.client.app.model.file.provider.IFilePlanetLoader
+import de.robolab.client.app.model.file.provider.IFilePlanetLoaderFactory
+import de.robolab.client.app.model.file.provider.RemoteFilePlanetLoader
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.requests.getVersion
 import de.robolab.client.net.requests.info.getExamInfo
@@ -66,8 +69,8 @@ class FileNavigationManager(
             }
         }
 
-    fun <T : IFilePlanetIdentifier> openFileEntry(loader: IFilePlanetLoader<T>, entry: T, asNewTab: Boolean) {
-        tabController.open(FilePlanetDocument(FilePlanet(loader, entry)), asNewTab)
+    fun openFileEntry(loader: IFilePlanetLoader, id: String, asNewTab: Boolean) {
+        tabController.open(FilePlanetDocument(FilePlanet(loader, id)), asNewTab)
     }
 
     private fun loadRemoteExamState() {
@@ -167,12 +170,12 @@ expect fun getFilePlanetLoaderFactoryList(): List<IFilePlanetLoaderFactory>
  */
 expect suspend fun requestAuthToken(server: IRobolabServer, userConfirm: Boolean): Boolean
 
-suspend fun <T : IFilePlanetIdentifier> IFilePlanetLoader<T>.searchPlanet(name: String): FilePlanet<T>? {
-    val entry = searchPlanets(name, true).firstOrNull() ?: return null
-    return FilePlanet(this, entry)
+suspend fun IFilePlanetLoader.searchPlanet(name: String): FilePlanet? {
+    val entry = searchPlanets(name, true)?.firstOrNull() ?: return null
+    return FilePlanet(this, entry.id)
 }
 
-suspend fun FileNavigationManager.searchPlanet(name: String): FilePlanet<*>? {
+suspend fun FileNavigationManager.searchPlanet(name: String): FilePlanet? {
     if (name.isEmpty()) return null
 
     for (loader in fileLoaderProperty.value) {

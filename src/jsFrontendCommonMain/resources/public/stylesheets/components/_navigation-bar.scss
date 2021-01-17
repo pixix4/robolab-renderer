@@ -169,3 +169,15 @@
   }
 }
 
+
+.navigation-bar-preview {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 100%;
+
+  background: var(--primary-background);
+  overflow: hidden;
+  border: solid 1px var(--border-color);
+  border-radius: 1rem;
+}

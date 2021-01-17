@@ -1,5 +1,6 @@
 package de.robolab.client.ui
 
+import com.soywiz.klock.DateTime
 import de.robolab.client.app.controller.MainController
 import de.robolab.client.ui.views.*
 import de.robolab.client.utils.PreferenceStorage
@@ -19,7 +20,7 @@ import kotlinx.coroutines.launch
 
 fun initMainView(
     args: MainController.Args,
-    fileArgs: List<Pair<String, suspend () -> Sequence<String>>> = emptyList()
+    fileArgs: List<Triple<String, DateTime, suspend () -> Sequence<String>>> = emptyList()
 ) {
     val mainController = MainController(args)
 
@@ -83,7 +84,7 @@ fun initMainView(
                 for (file in files) {
                     val content = file.readText()
                     if (content != null) {
-                        mainController.fileImportController.importFile(file.pathOrName()) { file.lineSequence() }
+                        mainController.fileImportController.importFile(file.pathOrName(), DateTime.fromUnix(file.lastModified.toLong())) { file.lineSequence() }
                     }
                 }
             }
@@ -112,18 +113,19 @@ fun initMainView(
         }
 
         GlobalScope.launch {
-            for ((filename, producer) in fileArgs) {
-                mainController.fileImportController.importFile(filename, producer)
+            for ((filename, lastModified, producer) in fileArgs) {
+                mainController.fileImportController.importFile(filename, lastModified, producer)
             }
         }
 
         electron { electron ->
             electron.ipcRenderer.on("open-file") { _, args ->
                 val name = args.name.unsafeCast<String>()
+                val lastModified = args.mtime.unsafeCast<Double>()
                 val content = args.content.unsafeCast<String>()
 
                 GlobalScope.launch(Dispatchers.Default) {
-                    mainController.fileImportController.importFile(name) { content.splitToSequence("\n") }
+                    mainController.fileImportController.importFile(name, DateTime(lastModified)) { content.splitToSequence("\n") }
                 }
             }
         }

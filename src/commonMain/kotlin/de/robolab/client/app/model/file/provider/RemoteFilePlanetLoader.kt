@@ -3,9 +3,8 @@ package de.robolab.client.app.model.file.provider
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.RESTRobolabServer
-import de.robolab.client.net.requests.*
 import de.robolab.client.net.requests.planets.*
-import de.robolab.common.utils.Logger
+import de.robolab.common.planet.ID
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
@@ -14,11 +13,9 @@ import kotlinx.coroutines.withContext
 
 class RemoteFilePlanetLoader(
     val server: IRobolabServer
-) : IFilePlanetLoader<PlanetJsonInfo> {
+) : IFilePlanetLoader {
 
-    private val logger = Logger(this)
-
-    override val onRemoteChange = EventHandler<PlanetJsonInfo?>()
+    override val onRemoteChange = EventHandler<RemoteIdentifier>()
 
     override val planetCountProperty = constObservable(0)
 
@@ -31,84 +28,86 @@ class RemoteFilePlanetLoader(
     override val availableProperty = property(true)
     var available by availableProperty
 
-    override suspend fun loadPlanet(identifier: PlanetJsonInfo): Pair<PlanetJsonInfo, List<String>>? {
+    override suspend fun loadPlanet(id: String): Pair<RemoteMetadata.Planet, List<String>>? {
         return withContext(Dispatchers.Default) {
             try {
-                val result = server.getPlanet(identifier.id).okOrThrow()
+                val result = server.getPlanet(ID(id)).okOrThrow()
                 available = true
-                PlanetJsonInfo(identifier.id, identifier.name, result.lastModified, identifier.tags) to result.lines
+                RemoteMetadata.Planet(result.planet.name, result.lastModified) to result.lines
             } catch (e: Exception) {
-                logger.error("loadPlanet", e)
                 available = false
                 null
             }
         }
     }
 
-    override suspend fun savePlanet(identifier: PlanetJsonInfo, lines: List<String>): PlanetJsonInfo? {
+    override suspend fun savePlanet(id: String, lines: List<String>): RemoteIdentifier? {
         return withContext(Dispatchers.Default) {
             try {
-                server.putPlanet(identifier.id, lines.joinToString("\n")).okOrThrow()
+                server.putPlanet(ID(id), lines.joinToString("\n")).okOrThrow()
                 available = true
-                identifier
+                RemoteIdentifier(id, loadPlanet(id)?.first ?: return@withContext null)
             } catch (e: Exception) {
-                logger.error("savePlanet", e)
                 available = false
                 null
             }
         }
     }
 
-    override suspend fun createPlanet(identifier: PlanetJsonInfo?, lines: List<String>) {
+    override suspend fun createPlanet(parentId: String, lines: List<String>): RemoteIdentifier? {
         return withContext(Dispatchers.Default) {
             try {
                 available = true
-                server.postPlanet(lines.joinToString("\n")).okOrThrow()
+                val info = server.postPlanet(lines.joinToString("\n")).okOrThrow().info
+                RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified))
             } catch (e: Exception) {
-                logger.error("createPlanet", e)
                 available = false
+                null
             }
         }
     }
 
-    override suspend fun deletePlanet(identifier: PlanetJsonInfo) {
+    override suspend fun deletePlanet(id: String): Boolean {
         return withContext(Dispatchers.Default) {
             try {
                 available = true
-                server.deletePlanet(identifier.id).okOrThrow()
+                server.deletePlanet(ID(id)).okOrThrow()
+                true
             } catch (e: Exception) {
-                logger.error("deletePlanet", e)
                 available = false
+                false
             }
         }
     }
 
-    override suspend fun listPlanets(identifier: PlanetJsonInfo?): List<PlanetJsonInfo> {
+    override suspend fun listPlanets(id: String): List<RemoteIdentifier>? {
         return withContext(Dispatchers.Default) {
             try {
                 available = true
-                server.listPlanets().okOrThrow().planets
+                server.listPlanets().okOrThrow().planets.map { info ->
+                    RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified))
+                }
             } catch (e: Exception) {
-                logger.error("listPlanets", e)
                 available = false
-                emptyList()
+                null
             }
         }
     }
 
-    override suspend fun searchPlanets(search: String, matchExact: Boolean): List<PlanetJsonInfo> {
+    override suspend fun searchPlanets(search: String, matchExact: Boolean): List<RemoteIdentifier>? {
         return withContext(Dispatchers.Default) {
             try {
                 available = true
                 if (matchExact) {
                     server.listPlanets(nameExact = search).okOrThrow().planets
-                } else  {
+                } else {
                     server.listPlanets(nameContains = search).okOrThrow().planets
+                }.map { info ->
+                    RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified))
                 }
             } catch (e: Exception) {
-                logger.error("searchPlanets", e)
                 available = false
-                emptyList()
+                null
             }
         }
     }

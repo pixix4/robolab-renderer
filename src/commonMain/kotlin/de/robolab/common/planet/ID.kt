@@ -11,6 +11,19 @@ import kotlin.random.Random
 
 class ID(val id: String) : IPlanetValue {
     override fun toString(): String = id
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ID) return false
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
 }
 
 fun randomName(): String = "Planet-${Random.nextHexString(3)}-${Random.nextHexString(5)}"

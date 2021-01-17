@@ -15,7 +15,7 @@ class CachedFilePlanetProvider(
     private val map: MutableMap<String, Entry> = mutableMapOf()
 
     operator fun get(name: String): ObservableValue<Planet?> {
-        val entry = map.getOrPut(name) { Entry(name)}
+        val entry = map.getOrPut(name) { Entry(name) }
         entry.update()
         return entry.observable
     }
@@ -24,7 +24,7 @@ class CachedFilePlanetProvider(
 
         private var loading = false
         val observable = property<Planet>()
-        private var filePlanet :  FilePlanet<*>? = null
+        private var filePlanet: FilePlanet? = null
 
         fun update() {
             if (loading) return

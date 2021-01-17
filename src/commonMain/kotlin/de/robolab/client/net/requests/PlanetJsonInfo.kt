@@ -4,12 +4,9 @@ import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.format
 import com.soywiz.klock.parseUtc
-import de.robolab.client.app.model.base.SearchRequest
-import de.robolab.client.app.model.file.provider.IFilePlanetIdentifier
 import de.robolab.common.planet.ID
 import de.robolab.common.planet.IDSerializer
 import de.robolab.common.planet.IPlanetInfo
-import de.robolab.common.planet.Planet
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -23,7 +20,7 @@ class PlanetJsonInfo(
     val lastModifiedString: String,
     override val tags: Map<String, List<String>> = emptyMap()
 
-) : IFilePlanetIdentifier, IPlanetInfo<ID> {
+) : IPlanetInfo<ID> {
 
     constructor(id: ID, name: String, lastModified: DateTime, tags: Map<String, List<String>> = emptyMap()) :
             this(id, name, DateFormat.FORMAT1.format(lastModified), tags)
@@ -43,12 +40,6 @@ class PlanetJsonInfo(
 
             return dateTime0
         }
-
-    override val isDirectory = false
-
-    override val childrenCount = 0
-
-    override val path = emptyList<String>()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -70,6 +61,4 @@ class PlanetJsonInfo(
             lastModifiedString = DateFormat.FORMAT1.format(time)
         )
     }
-
-    override fun matchesSearch(request: SearchRequest, planet: Planet): Boolean = request.matches(this)
 }

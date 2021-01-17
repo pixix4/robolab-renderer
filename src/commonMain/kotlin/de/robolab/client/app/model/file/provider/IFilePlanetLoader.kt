@@ -2,26 +2,24 @@ package de.robolab.client.app.model.file.provider
 
 import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.client.app.model.base.SearchRequest
-import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
 
-interface IFilePlanetLoader<T: IFilePlanetIdentifier> {
+interface IFilePlanetLoader {
 
-    val onRemoteChange: EventHandler<T?>
+    val onRemoteChange: EventHandler<RemoteIdentifier>
 
-    suspend fun loadPlanet(identifier: T): Pair<T, List<String>>?
+    suspend fun loadPlanet(id: String): Pair<RemoteMetadata.Planet, List<String>>?
 
-    suspend fun savePlanet(identifier: T, lines: List<String>): T?
+    suspend fun savePlanet(id: String, lines: List<String>): RemoteIdentifier?
 
-    suspend fun createPlanet(identifier: T?, lines: List<String>)
+    suspend fun createPlanet(parentId: String, lines: List<String>): RemoteIdentifier?
 
-    suspend fun deletePlanet(identifier: T)
+    suspend fun deletePlanet(id: String): Boolean
 
-    suspend fun listPlanets(identifier: T? = null): List<T>
+    suspend fun listPlanets(id: String): List<RemoteIdentifier>?
 
-    suspend fun searchPlanets(search: String, matchExact: Boolean = false): List<T>
+    suspend fun searchPlanets(search: String, matchExact: Boolean = false): List<RemoteIdentifier>?
 
     val nameProperty: ObservableValue<String>
     val descProperty: ObservableValue<String>
@@ -33,21 +31,28 @@ interface IFilePlanetLoader<T: IFilePlanetIdentifier> {
     val availableProperty: ObservableValue<Boolean>
 }
 
-interface IFilePlanetIdentifier {
+data class RemoteIdentifier(
+    val id: String,
+    val metadata: RemoteMetadata
+)
 
-    val isDirectory: Boolean
+sealed class RemoteMetadata {
 
-    val childrenCount: Int
+    abstract val name: String
+    abstract val lastModified: DateTime
 
-    val name: String
-
-    val lastModified: DateTime
-
-    val path: List<String>
-
-    fun matchesSearch(request: SearchRequest, planet: Planet): Boolean = request.matches(planet)
+    data class Planet(
+        override val name: String,
+        override val lastModified: DateTime,
+        val pointCount: Int = -1
+    ): RemoteMetadata()
+    data class Directory(
+        override val name: String,
+        override val lastModified: DateTime,
+        val childrenCount: Int = -1
+    ): RemoteMetadata()
 }
 
 interface IFilePlanetLoaderFactory {
-    fun create(uri: String): IFilePlanetLoader<*>?
+    fun create(uri: String): IFilePlanetLoader?
 }
