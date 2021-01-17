@@ -20,6 +20,7 @@ import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
+import de.westermann.kwebview.clientPosition
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
 import kotlinx.browser.window
@@ -66,8 +67,12 @@ class NavigationBar(
 
         val leftPx = rectangle.right - 10.0
 
-        val t0 = (rectangle.top + rectangle.bottom) / 2 - previewDimension.height / 2 - offsetTopTotal
-        val topPx = max(PREVIEW_PADDING, min(window.innerHeight - PREVIEW_PADDING, t0))
+        val t0 = (rectangle.top + rectangle.bottom) / 2 - previewDimension.height / 2
+        val topPx = max(
+            PREVIEW_PADDING,
+            min(window.innerHeight - previewDimension.height - PREVIEW_PADDING, t0)
+        ) - offsetTopTotal
+
         previewBox.style {
             left = "${leftPx}px"
             top = "${topPx}px"
@@ -76,7 +81,7 @@ class NavigationBar(
 
     fun renderPreview(src: String, dimension: Dimension, referenceView: View) {
         previewView = referenceView
-        previewDimension= dimension
+        previewDimension = dimension
         previewImage.source = src
         previewBox.style {
             width = "${dimension.width}px"
@@ -177,10 +182,19 @@ class NavigationBar(
             }
         }
 
+        previewImage.html.draggable = false
         +previewBox
         with(previewBox) {
             classList += "navigation-bar-preview"
             +previewImage
+
+            onMouseLeave {
+                val rect = previewView?.dimension
+                if (rect != null && it.clientPosition !in rect.shrink(1.0)) {
+                    removePreview()
+                }
+                removePreview()
+            }
         }
 
         // Close navigation bar on mobile
@@ -204,14 +218,17 @@ class NavigationBarEntry(entry: INavigationBarEntry, navigationBar: NavigationBa
     private fun calculatePreviewDimension(dimension: Dimension): Pair<Dimension, Double> {
         val dpi = window.devicePixelRatio
         val dpiDimension = dimension * dpi
-        val windowDimension = Dimension(window.innerWidth, window.innerHeight) - Dimension(NavigationBar.PREVIEW_PADDING * 2, NavigationBar.PREVIEW_PADDING * 2)
-        val maxDimension = Dimension(400.0 * dpi, 200.0 * dpi).min(windowDimension)
+        val windowDimension = Dimension(window.innerWidth, window.innerHeight) - Dimension(
+            NavigationBar.PREVIEW_PADDING * 2,
+            NavigationBar.PREVIEW_PADDING * 2
+        )
+        val maxDimension = Dimension(400.0, 200.0).min(windowDimension)
 
         val widthScale = maxDimension.width / dpiDimension.width
         val heightScale = maxDimension.height / dpiDimension.height
         val minScale = min(widthScale, heightScale)
 
-        return dpiDimension * minScale to 1.0
+        return dpiDimension * minScale to dpi
     }
 
     init {
@@ -286,7 +303,9 @@ class NavigationBarEntry(entry: INavigationBarEntry, navigationBar: NavigationBa
 
         onMouseLeave {
             isHovered = false
-            navigationBar.removePreview()
+            if (it.clientPosition !in dimension.shrink(1.0)) {
+                navigationBar.removePreview()
+            }
         }
     }
 }
