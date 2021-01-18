@@ -232,6 +232,11 @@ abstract class AbsPlanetDrawable(
         }
     }
 
+    fun calcPlanetArea(): Rectangle? {
+        val planetList = planetLayers.map { it.planet }
+        return calcPlanetArea(planetList)
+    }
+
     companion object {
 
         fun calcPlanetArea(planet: Planet): Rectangle? {

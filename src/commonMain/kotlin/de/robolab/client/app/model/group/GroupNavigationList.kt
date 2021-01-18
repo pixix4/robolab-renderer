@@ -8,6 +8,7 @@ import de.robolab.client.app.repository.Group
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.utils.runAsync
+import de.robolab.common.utils.Dimension
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.constObservable
@@ -97,5 +98,13 @@ class GroupNavigationList(
         override val enabledProperty = constObservable(true)
 
         override val statusIconProperty = constObservable<List<MaterialIcon>>(emptyList())
+
+        override suspend fun getRenderDataTimestamp(): Long {
+            return group.lastMessageTime
+        }
+
+        override suspend fun <T : ICanvas> renderPreview(canvasCreator: (dimension: Dimension) -> T?): T? {
+            return this@GroupNavigationList.tab.renderGroupLiveAttemptPreview(group, canvasCreator)
+        }
     }
 }

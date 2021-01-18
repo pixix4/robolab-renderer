@@ -271,33 +271,38 @@ class NavigationBarEntry(entry: INavigationBarEntry, navigationBar: NavigationBa
             }
         }
 
-        var firstHover = true
         var isHovered: Boolean
         var previewSrc = ""
         var previewDimension = Dimension.ZERO
+        var previewTimestamp = -1L
         onMouseEnter {
             isHovered = true
-            if (firstHover) {
-                firstHover = false
 
-                GlobalScope.launch {
-                    val dimension = entry.getDimension()
+            GlobalScope.launch {
+                val currentTimestamp = entry.getRenderDataTimestamp()
+                if (currentTimestamp > previewTimestamp) {
+                    previewTimestamp = currentTimestamp
 
-                    if (dimension != null) {
+                    var dim = Dimension.ZERO
+                    val webCanvas = entry.renderPreview { dimension ->
                         val (d, s) = calculatePreviewDimension(dimension)
-                        val webCanvas = WebCanvas(d, s)
-                        if (entry.renderPreview(webCanvas)) {
-                            previewDimension = d
-                            previewSrc = webCanvas.canvas.html.toDataURL("image/png")
+                        dim = d
+                        WebCanvas(d, s)
+                    }
 
-                            if (isHovered && previewSrc.isNotEmpty()) {
-                                navigationBar.renderPreview(previewSrc, previewDimension, this@NavigationBarEntry)
-                            }
+                    if (webCanvas != null) {
+                        previewDimension = dim
+                        previewSrc = webCanvas.canvas.html.toDataURL("image/png")
+
+                        if (isHovered && previewSrc.isNotEmpty()) {
+                            navigationBar.renderPreview(previewSrc, previewDimension, this@NavigationBarEntry)
                         }
                     }
+                } else {
+                    if (previewSrc.isNotEmpty()) {
+                        navigationBar.renderPreview(previewSrc, previewDimension, this@NavigationBarEntry)
+                    }
                 }
-            } else if (previewSrc.isNotEmpty()) {
-                navigationBar.renderPreview(previewSrc, previewDimension, this)
             }
         }
 

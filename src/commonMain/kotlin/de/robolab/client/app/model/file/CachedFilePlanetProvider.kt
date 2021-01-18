@@ -7,6 +7,8 @@ import de.westermann.kobserve.property.property
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class CachedFilePlanetProvider(
     private val fileNavigationManager: FileNavigationManager
@@ -20,11 +22,19 @@ class CachedFilePlanetProvider(
         return entry.observable
     }
 
+    suspend fun loadPlanet(name: String): Planet? {
+        val entry = map.getOrPut(name) { Entry(name) }
+        entry.update()
+        return entry.get()
+    }
+
     inner class Entry(private val name: String) {
 
         private var loading = false
         val observable = property<Planet>()
         private var filePlanet: FilePlanet? = null
+
+        private val continuationListener = mutableListOf<() -> Unit>()
 
         fun update() {
             if (loading) return
@@ -36,13 +46,27 @@ class CachedFilePlanetProvider(
 
                     val entry = filePlanet
                     if (entry != null) {
+                        if (observable.isBound) observable.unbind()
                         observable.bind(entry.planetFile.planetProperty)
                     }
                 }
 
                 filePlanet?.load()
                 loading = false
+
+                for (l in continuationListener) l()
+                continuationListener.clear()
             }
+        }
+
+        suspend fun get(): Planet? {
+            return if (loading) {
+                suspendCoroutine { continuation ->
+                    continuationListener += {
+                        continuation.resume(observable.value)
+                    }
+                }
+            } else observable.value
         }
 
         init {

@@ -7,7 +7,15 @@ import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.Group
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.communication.MessageManager
+import de.robolab.client.communication.toMqttPlanet
+import de.robolab.client.communication.toRobot
+import de.robolab.client.communication.toServerPlanet
+import de.robolab.client.renderer.Exporter
+import de.robolab.client.renderer.canvas.ICanvas
+import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
 import de.robolab.client.utils.runAsync
+import de.robolab.common.planet.Planet
+import de.robolab.common.utils.Dimension
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -58,6 +66,39 @@ class GroupNavigationTab(
                 )
             }
         }
+    }
+
+    suspend fun<T: ICanvas> renderGroupLiveAttemptPreview(group: Group, canvasCreator: (Dimension) -> T?): T? {
+        val attempt = messageRepository.getLatestAttempt(group.groupId)
+        return renderGroupAttemptPreview(attempt, canvasCreator)
+    }
+
+    suspend fun<T: ICanvas> renderGroupAttemptPreview(attempt: Attempt, canvasCreator: (Dimension) -> T?): T? {
+        val m = messageRepository.getAttemptMessageList(attempt.attemptId)
+
+        val drawable = LivePlanetDrawable()
+
+        val (serverPlanet, visitedPoints) = m.toServerPlanet()
+        val backgroundPlanet = planetProvider.loadPlanet(serverPlanet.name)
+        val mqttPlanet = m.toMqttPlanet()
+
+        val planet = backgroundPlanet ?: Planet.EMPTY
+        drawable.importBackgroundPlanet(planet, true)
+        drawable.importServerPlanet(
+            serverPlanet.importSplines(planet).importSenderGroups(planet, visitedPoints),
+            true
+        )
+        drawable.importMqttPlanet(mqttPlanet.importSplines(planet))
+
+        drawable.importRobot(m.toRobot(attempt.groupName.toIntOrNull()))
+
+        val dimension = Exporter.getDimension(drawable)
+
+        val canvas = canvasCreator(dimension)
+        if (canvas != null) {
+            Exporter.renderToCanvas(drawable, canvas, drawName = false, drawNumbers = false)
+        }
+        return canvas
     }
 
     override fun openEntry(entry: INavigationBarEntry, asNewTab: Boolean) {

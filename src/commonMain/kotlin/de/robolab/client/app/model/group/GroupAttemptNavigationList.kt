@@ -11,6 +11,7 @@ import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.utils.MenuBuilder
 import de.robolab.client.utils.runAsync
+import de.robolab.common.utils.Dimension
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.*
@@ -106,6 +107,14 @@ class GroupAttemptNavigationList(
                 open(true)
             }
         }
+
+        override suspend fun getRenderDataTimestamp(): Long {
+            return attempt.lastMessageTime
+        }
+
+        override suspend fun <T : ICanvas> renderPreview(canvasCreator: (dimension: Dimension) -> T?): T? {
+            return this@GroupAttemptNavigationList.tab.renderGroupAttemptPreview(attempt, canvasCreator)
+        }
     }
 
     inner class LiveEntry : INavigationBarEntry {
@@ -128,6 +137,14 @@ class GroupAttemptNavigationList(
             action("Open in new tab") {
                 open(true)
             }
+        }
+
+        override suspend fun getRenderDataTimestamp(): Long {
+            return group.lastMessageTime
+        }
+
+        override suspend fun <T : ICanvas> renderPreview(canvasCreator: (dimension: Dimension) -> T?): T? {
+            return this@GroupAttemptNavigationList.tab.renderGroupLiveAttemptPreview(group, canvasCreator)
         }
     }
 

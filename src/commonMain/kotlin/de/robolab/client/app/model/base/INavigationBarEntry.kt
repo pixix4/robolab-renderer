@@ -37,8 +37,8 @@ interface INavigationBarEntry {
         tab.openEntry(this, asNewTab)
     }
 
-    suspend fun getDimension(): Dimension? = null
-    suspend fun renderPreview(canvas: ICanvas): Boolean = false
+    suspend fun getRenderDataTimestamp(): Long = -1
+    suspend fun<T: ICanvas> renderPreview(canvasCreator: (dimension: Dimension) -> T?): T? = null
 }
 
 interface INavigationBarList {

@@ -9,6 +9,12 @@ import de.robolab.client.app.model.file.CachedFilePlanetProvider
 import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.app.repository.Room
+import de.robolab.client.communication.toRobot
+import de.robolab.client.renderer.Exporter
+import de.robolab.client.renderer.canvas.ICanvas
+import de.robolab.client.renderer.drawable.planet.MultiRobotPlanetDrawable
+import de.robolab.common.planet.Planet
+import de.robolab.common.utils.Dimension
 
 class RoomNavigationTab(
     private val messageRepository: MessageRepository,
@@ -26,6 +32,33 @@ class RoomNavigationTab(
                 ), asNewTab
             )
         }
+    }
+
+    suspend fun <T : ICanvas> renderRoomPreview(room: Room, canvasCreator: (Dimension) -> T?): T? {
+        val attemptSet = messageRepository.getRoomAttemptList(room.roomId).toSet()
+
+        val drawable = MultiRobotPlanetDrawable()
+
+        val groupState = attemptSet.mapNotNull { attempt ->
+            val messages = messageRepository.getAttemptMessageList(attempt.attemptId)
+            RoomPlanetDocument.GroupState(
+                attempt,
+                messages,
+                messages.toRobot(attempt.groupName.toIntOrNull()) ?: return@mapNotNull null
+            )
+        }
+
+        val backgroundPlanet = planetProvider.loadPlanet(room.name) ?: Planet.EMPTY
+        drawable.importPlanet(backgroundPlanet)
+        drawable.importRobots(groupState.map { it.robot })
+
+        val dimension = Exporter.getDimension(drawable)
+
+        val canvas = canvasCreator(dimension)
+        if (canvas != null) {
+            Exporter.renderToCanvas(drawable, canvas, drawName = false, drawNumbers = false)
+        }
+        return canvas
     }
 
     init {

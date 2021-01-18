@@ -58,6 +58,13 @@ class FilePlanet(
         return true
     }
 
+    suspend fun loadAndGet(): PlanetFile {
+        if (hasRemoteChangesProperty.value) {
+            load()
+        }
+        return planetFile
+    }
+
     suspend fun update(metadata: RemoteMetadata.Planet): Boolean {
         val local = localMetadata
         val remote = remoteMetadata

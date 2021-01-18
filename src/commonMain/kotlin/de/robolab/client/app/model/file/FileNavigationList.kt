@@ -1,5 +1,6 @@
 package de.robolab.client.app.model.file
 
+import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.base.INavigationBarEntry
 import de.robolab.client.app.model.base.INavigationBarList
 import de.robolab.client.app.model.base.INavigationBarTab
@@ -112,23 +113,30 @@ class FileNavigationList(
         }
 
         private var planet: Planet? = null
+        private var timestamp = -1L
         private suspend fun getPlanet(): Planet? {
             if (planet == null) {
                 val (_, lines) = loader.loadPlanet(id) ?: return null
                 planet = PlanetFile(lines).planet
+                timestamp = DateTime.nowUnixLong()
             }
             return planet
         }
 
-        override suspend fun getDimension(): Dimension? {
-            val p = getPlanet() ?: return null
-            return Exporter.getDimension(p)
+        override suspend fun getRenderDataTimestamp(): Long {
+            getPlanet()
+            return timestamp
         }
 
-        override suspend fun renderPreview(canvas: ICanvas): Boolean {
-            val p = getPlanet() ?: return true
-            Exporter.renderToCanvas(p, canvas, drawName = false, drawNumbers = false)
-            return true
+        override suspend fun <T : ICanvas> renderPreview(canvasCreator: (dimension: Dimension) -> T?): T? {
+            val p = getPlanet() ?: return null
+            val dimension = Exporter.getDimension(p)
+
+            val canvas = canvasCreator(dimension)
+            if (canvas != null) {
+                Exporter.renderToCanvas(p, canvas, drawName = false, drawNumbers = false)
+            }
+            return canvas
         }
     }
 
