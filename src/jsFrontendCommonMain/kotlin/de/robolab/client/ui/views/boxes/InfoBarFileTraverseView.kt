@@ -5,6 +5,8 @@ import de.robolab.client.app.controller.UiController
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.traverser.CharacteristicItem
 import de.robolab.client.app.model.traverser.ITraverserStateEntry
+import de.robolab.client.renderer.events.KeyCode
+import de.robolab.client.ui.adapter.toCommon
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.client.utils.runAsync
 import de.westermann.kobserve.and
@@ -50,8 +52,37 @@ class InfoBarFileTraverseView(
                         @Suppress("USELESS_CAST")
                         it.entryList as ObservableList<ITraverserStateEntry>
                     }, factory = { entry ->
-                        TraverserEntryView(entry)
+                        TraverserEntryView(entry, this)
                     })
+
+
+                    allowFocus()
+                    onKeyDown { event ->
+                        when (event.toCommon()) {
+                            KeyCode.ARROW_UP -> {
+                                traverserProperty.value.keyUp()
+                                event.preventDefault()
+                                event.stopPropagation()
+                            }
+                            KeyCode.ARROW_DOWN -> {
+                                traverserProperty.value.keyDown()
+                                event.preventDefault()
+                                event.stopPropagation()
+                            }
+                            KeyCode.ARROW_LEFT -> {
+                                traverserProperty.value.keyLeft()
+                                event.preventDefault()
+                                event.stopPropagation()
+                            }
+                            KeyCode.ARROW_RIGHT -> {
+                                traverserProperty.value.keyRight()
+                                event.preventDefault()
+                                event.stopPropagation()
+                            }
+                            else -> {
+                            }
+                        }
+                    }
                 }
 
                 boxView("traverser-bar-footer") {
@@ -90,7 +121,8 @@ class InfoBarFileTraverseView(
                                 classList.bind("active", traverserProperty.flatMapBinding { it.autoExpandProperty })
 
                                 onClick {
-                                    traverserProperty.value.autoExpandProperty.value = !traverserProperty.value.autoExpandProperty.value
+                                    traverserProperty.value.autoExpandProperty.value =
+                                        !traverserProperty.value.autoExpandProperty.value
                                 }
                             }
                         }
@@ -105,9 +137,11 @@ class InfoBarFileTraverseView(
                         }
                     }
                     boxView {
-                        listFactory(traverserProperty.mapBinding { it.characteristicList }, factory = { characteristic ->
-                            TraverserCharacteristicView(characteristic)
-                        })
+                        listFactory(
+                            traverserProperty.mapBinding { it.characteristicList },
+                            factory = { characteristic ->
+                                TraverserCharacteristicView(characteristic)
+                            })
                     }
                 }
             }
@@ -115,7 +149,32 @@ class InfoBarFileTraverseView(
     }
 }
 
-class TraverserEntryView(private val entry: ITraverserStateEntry) : ViewCollection<View>() {
+class TraverserEntryView(
+    private val entry: ITraverserStateEntry,
+    private val scrollView: BoxView
+) : ViewCollection<View>() {
+
+
+    private fun scrollIntoView() {
+        val viewTop = offsetTopTotal(0)
+        val viewBottom = viewTop + clientHeight
+
+        val parentTop = scrollView.scrollTop.toInt()
+        val parentBottom = parentTop + scrollView.clientHeight
+
+        val padding = 40
+
+        if (viewTop - padding <= parentTop) {
+            scrollView.scrollTo(
+                top = viewTop - padding
+            )
+        } else if (viewBottom + padding >= parentBottom) {
+            scrollView.scrollTo(
+                top = viewBottom + padding - scrollView.clientHeight
+            )
+        }
+    }
+
 
     init {
         classList.bind("selected", entry.selected)
@@ -147,13 +206,26 @@ class TraverserEntryView(private val entry: ITraverserStateEntry) : ViewCollecti
         }
 
         bulletList {
-            listFactory(entry.visibleDetails.mapBinding { it.toMutableList().asObservable() }, factory = { str: String ->
-                ListItem(str)
-            })
+            listFactory(
+                entry.visibleDetails.mapBinding { it.toMutableList().asObservable() },
+                factory = { str: String ->
+                    ListItem(str)
+                })
         }
 
         onClick {
             entry.select()
+        }
+
+
+        entry.selected.onChange {
+            if (entry.selected.value) {
+                scrollIntoView()
+            }
+        }
+
+        if (entry.selected.value) {
+            runAsync { scrollIntoView() }
         }
     }
 }

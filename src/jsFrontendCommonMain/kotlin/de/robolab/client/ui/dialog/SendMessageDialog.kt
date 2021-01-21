@@ -18,7 +18,7 @@ class SendMessageDialog private constructor(
                     style {
                         width = "100%"
                     }
-                    buttonGroup {
+                    buttonGroup(true) {
                         button("Explorer") {
                             onClick {
                                 controller.topicExplorer()
@@ -43,19 +43,13 @@ class SendMessageDialog private constructor(
             dialogFormEntry("From") {
                 selectView(controller.fromProperty)
             }
-            dialogFormEntry("Type") {
-                buttonGroup {
-                    classList += "dialog-form-flex"
-                    style {
-                        width = "100%"
-                    }
+            dialogFormEntry("Type", true) {
                     selectView(controller.typeProperty)
                     button("Topic") {
                         onClick {
                             controller.topicByType()
                         }
                     }
-                }
             }
 
             boxView("dialog-hide-entry") {

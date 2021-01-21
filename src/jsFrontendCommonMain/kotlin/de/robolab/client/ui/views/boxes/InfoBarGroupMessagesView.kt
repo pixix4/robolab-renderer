@@ -2,13 +2,16 @@ package de.robolab.client.ui.views.boxes
 
 import com.soywiz.klock.format
 import de.robolab.client.app.controller.UiController
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.group.InfoBarGroupMessages
+import de.robolab.client.communication.From
 import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.utils.runAsync
 import de.robolab.client.ui.adapter.toCommon
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.client.utils.PreferenceStorage
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
@@ -67,7 +70,7 @@ class InfoBarGroupMessagesView(
                     }
                 }
 
-                buttonGroup {
+                buttonGroup(true) {
                     button("Send message") {
                         onClick {
                             content.openSendDialog()
@@ -136,14 +139,19 @@ class InfoBarGroupMessagesView(
                 }
             }
             resizeBox(0.3) {
-                textView(content.headerProperty)
-                table("info-bar-group-view-header") {
+                textView(content.headerProperty) {
+                    classList += "info-bar-group-view-header-text"
+                }
+                table("info-bar-group-view-header", "info-bar-group-view-message") {
                     row {
                         cell {
                             textView("From")
                         }
                         cell {
-                            textView(content.fromProperty)
+                            boxView("info-bar-group-view-message-from") {
+                                textView(content.fromProperty)
+                                +generateFromIcon(content.fromEnumProperty)
+                            }
                         }
                     }
 
@@ -184,9 +192,7 @@ class InfoBarGroupMessagesView(
 
                     row {
                         cell {
-                            textView("Message")
-                        }
-                        cell {
+                            colSpan = 2
                             textView(content.rawMessageProperty) {
                                 style {
                                     whiteSpace = "pre"
@@ -199,6 +205,47 @@ class InfoBarGroupMessagesView(
             }
         }
 
+    }
+
+    companion object {
+        private fun fromToIcon(from: From): MaterialIcon = when(from) {
+                From.CLIENT -> MaterialIcon.WEST
+                From.SERVER -> MaterialIcon.EAST
+                From.DEBUG -> MaterialIcon.DNS
+                From.UNKNOWN -> MaterialIcon.HELP_OUTLINE
+        }
+
+        private fun fromToClass(from: From): String = when(from) {
+                From.CLIENT ->  "info-bar-group-client"
+                From.SERVER ->  "info-bar-group-server"
+                From.DEBUG ->  "info-bar-group-debug"
+                From.UNKNOWN ->  "info-bar-group-unknown"
+        }
+        fun generateFromIcon(from: From): IconView {
+            val iconView = IconView(fromToIcon(from))
+
+            iconView.classList += "info-bar-group-icon"
+            iconView.classList += fromToClass(from)
+            iconView.title = from.name.toLowerCase().capitalize()
+
+            return iconView
+        }
+        fun generateFromIcon(from: ObservableValue<From>): IconView {
+            val iconView = generateFromIcon(from.value)
+
+            from.onChange {
+                iconView.icon = fromToIcon(from.value)
+                for (c in iconView.classList) {
+                    if (c !=  "info-bar-group-icon" && c != "icon-view") {
+                        iconView.classList -= c
+                    }
+                }
+                iconView.classList += fromToClass(from.value)
+                iconView.title = from.value.name.toLowerCase().capitalize()
+            }
+
+            return iconView
+        }
     }
 }
 
@@ -238,7 +285,7 @@ class InfoBarGroupViewCell(
             textView(InfoBarGroupMessages.TIME_FORMAT_DETAILED.format(message.metadata.time))
         }
         cell {
-            textView(message.metadata.from.name.toLowerCase().capitalize())
+            +InfoBarGroupMessagesView.generateFromIcon(message.metadata.from)
         }
         cell {
             textView(message.summary)

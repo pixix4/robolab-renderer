@@ -5,6 +5,7 @@ import de.robolab.client.app.model.traverser.ITraverserStateEntry
 import de.robolab.client.app.model.traverser.TraverserStateEntry
 import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.client.traverser.*
+import de.robolab.client.utils.runAsync
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableMutableList
@@ -57,12 +58,49 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
             if (autoExpandProperty.value) sliceViewer.fullExpandPreviousAlternative(isLeftExpand) { it.currentOption == state }
             else sliceViewer.previousAlternative { it.currentOption == state }
 
-    fun clickNextOption(entry: TraverserStateEntry<*>, isLeftExpand: Boolean = true): Boolean =
-            clickNextOption(entry.state.get(), isLeftExpand)
+    fun clickNextOption(entry: TraverserStateEntry<*>, isLeftExpand: Boolean = true): Boolean {
+        val index = entryList.indexOfFirst { it.selected.value }
 
-    fun clickPreviousOption(entry: TraverserStateEntry<*>, isLeftExpand: Boolean = false): Boolean =
-            clickPreviousOption(entry.state.get(), isLeftExpand)
+        val bool = clickNextOption(entry.state.get(), isLeftExpand)
 
+        runAsync {
+            entryList.getOrNull(index)?.select()
+        }
+
+        return bool
+    }
+
+    fun clickPreviousOption(entry: TraverserStateEntry<*>, isLeftExpand: Boolean = false): Boolean {
+        val index = entryList.indexOfFirst { it.selected.value }
+
+        val bool = clickPreviousOption(entry.state.get(), isLeftExpand)
+
+        runAsync {
+            entryList.getOrNull(index)?.select()
+        }
+
+        return bool
+    }
+
+    fun keyDown() {
+        val index = entryList.indexOfFirst { it.selected.value } + 1
+        entryList.getOrNull(index)?.select()
+    }
+
+    fun keyUp() {
+        val index = entryList.indexOfFirst { it.selected.value } - 1
+        entryList.getOrNull(index)?.select()
+    }
+
+    fun keyLeft() {
+        val index = entryList.indexOfFirst { it.selected.value }
+        entryList.getOrNull(index)?.clickPreviousOption()
+    }
+
+    fun keyRight() {
+        val index = entryList.indexOfFirst { it.selected.value }
+        entryList.getOrNull(index)?.clickNextOption()
+    }
 
     fun clickNextTrail() =
             if (autoExpandProperty.value) sliceViewer.fullExpandNext()

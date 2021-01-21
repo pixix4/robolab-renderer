@@ -33,8 +33,8 @@ sealed class RobolabMessage(
         metadata: Metadata,
         path: Path
     ) : PathMessage(metadata, path) {
-        override val summary by lazy { "${metadata.comTestString}Path: ${pathToString(path)}" }
-        override val details by lazy { pathToDetails(path) }
+        override val summary by lazy { "${metadata.comTestString}Path: ${pathToString(path, metadata.from)}" }
+        override val details by lazy { pathToDetails(path, metadata.from) }
     }
 
     class PathSelectMessageFromRobot(
@@ -67,9 +67,9 @@ sealed class RobolabMessage(
         metadata: Metadata,
         path: Path
     ) : PathMessage(metadata, path) {
-        override val summary by lazy { "${metadata.comTestString}Path unveiled: ${pathToString(path)}" }
+        override val summary by lazy { "${metadata.comTestString}Path unveiled: ${pathToString(path, metadata.from)}" }
         override val details by lazy {
-            pathToDetails(path)
+            pathToDetails(path, metadata.from)
         }
     }
 
@@ -248,21 +248,23 @@ sealed class RobolabMessage(
     }
 
     companion object {
-        fun pathToString(path: Path) = with(path) {
+        fun pathToString(path: Path, from: From) = with(path) {
             "(${source.x},${source.y},${sourceDirection.export()}) → " +
                     "(${target.x},${target.y},${targetDirection.export()})" +
                     (if (blocked) ", blocked" else "") +
-                    if (this.weight != null) ", weight: $weight" else ""
+                    if (from != From.CLIENT && this.weight != null) ", weight: $weight" else ""
         }
 
-        fun pathToDetails(path: Path): List<Pair<String, String>> = with(path) {
+        fun pathToDetails(path: Path, from: From): List<Pair<String, String>> = with(path) {
             val result = mutableListOf(
                     "Start" to "${source.x}, ${source.y}, ${sourceDirection.name}",
                     "End" to "${target.x}, ${target.y}, ${targetDirection.name}",
                     "Status" to if (this.blocked) "blocked" else "free"
             )
-            weight?.let {
-                result += "Weight" to it.toString()
+            if (from != From.CLIENT) {
+                weight?.let {
+                    result += "Weight" to it.toString()
+                }
             }
 
             return result

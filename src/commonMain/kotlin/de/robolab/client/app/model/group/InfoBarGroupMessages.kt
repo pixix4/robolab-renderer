@@ -6,6 +6,7 @@ import de.robolab.client.app.controller.SendMessageController
 import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.app.model.file.openSendMessageDialog
 import de.robolab.client.app.repository.Attempt
+import de.robolab.client.communication.From
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.utils.PreferenceStorage
@@ -39,11 +40,13 @@ class InfoBarGroupMessages(
     }
 
     fun openSendDialog() {
-        openSendMessageDialog(SendMessageController(
-            attemptProperty.value.groupName,
-            planetNameProperty.value,
-            messageManager::sendMessage
-        ))
+        openSendMessageDialog(
+            SendMessageController(
+                attemptProperty.value.groupName,
+                planetNameProperty.value,
+                messageManager::sendMessage
+            )
+        )
     }
 
     private fun openSendDialogExamPlanet(planetName: String) {
@@ -91,36 +94,39 @@ class InfoBarGroupMessages(
 
     val headerProperty = robolabMessageProperty.mapBinding {
         if (it == null) "" else
-        it::class.simpleName ?: "Information"
+            it::class.simpleName ?: "Information"
     }
 
     val fromProperty = robolabMessageProperty.mapBinding {
         if (it == null) "" else
-        it.metadata.from.name.toLowerCase().capitalize()
+            it.metadata.from.name.toLowerCase().capitalize()
+    }
+    val fromEnumProperty = robolabMessageProperty.mapBinding {
+        it?.metadata?.from ?: From.UNKNOWN
     }
     val groupProperty = robolabMessageProperty.mapBinding {
         if (it == null) "" else
-        it.metadata.groupId
+            it.metadata.groupId
     }
     val topicProperty = robolabMessageProperty.mapBinding {
         if (it == null) "" else
-        it.metadata.topic
+            it.metadata.topic
     }
     val timeProperty = robolabMessageProperty.mapBinding {
         if (it == null) "" else
-        TIME_FORMAT_DETAILED.format(it.metadata.time)
+            TIME_FORMAT_DETAILED.format(it.metadata.time)
     }
 
     val detailsProperty = robolabMessageProperty.mapBinding {
         if (it == null) "" else
-        it.details.joinToString("\n") { (key, value) ->
-            "$key: $value"
-        }
+            it.details.joinToString("\n") { (key, value) ->
+                "$key: $value"
+            }
     }
 
     val rawMessageProperty = robolabMessageProperty.mapBinding {
         if (it == null) "" else
-        formatRawMessage(it)
+            formatRawMessage(it)
     }
 
     companion object {
@@ -139,7 +145,7 @@ class InfoBarGroupMessages(
 
             fun appendNewLine() {
                 builder.append('\n')
-                builder.append(" ".repeat(4 * depth))
+                builder.append(" ".repeat(2 * depth))
             }
 
             for (char in rawMessage) {

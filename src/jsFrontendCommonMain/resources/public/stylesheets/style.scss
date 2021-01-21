@@ -48,6 +48,10 @@ body, html {
   background-color: var(--tertiary-background);
 }
 
+:focus {
+  outline: unset;
+}
+
 .noscript {
   text-align: center;
 }

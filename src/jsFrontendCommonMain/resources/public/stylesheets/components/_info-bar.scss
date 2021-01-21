@@ -158,9 +158,32 @@
 
 .info-bar-group-view-header {
   padding: 0.5rem;
+  min-width: 100%;
+
+  .text-view {
+    white-space: pre;
+  }
+}
+.info-bar-group-view-message-from {
+  display: flex;
+  line-height: 1.5rem;
+
+  .text-view {
+    padding-right: 0.5rem;
+  }
+}
+.info-bar-group-view-header-text {
+  padding: 1rem 0.5rem 0.2rem;
+  font-weight: bold;
+  display: block;
 }
 .info-bar-group-view > .box-view {
   padding: 0.5rem;
+}
+.info-bar-group-view-message {
+  td:first-child {
+    width: 4rem;
+  }
 }
 
 .info-bar-group-view-content {
@@ -173,6 +196,10 @@
   thead {
     line-height: 2rem;
     background-color: var(--tertiary-background);
+
+    th:last-child {
+      text-align: left;
+    }
   }
 
   tbody {
@@ -185,6 +212,7 @@
 
       &.selected {
         background-color: var(--primary-background);
+        color: var(--theme-color);
         font-weight: bold;
 
         &:hover {
@@ -309,5 +337,21 @@
     display: block;
     z-index: 1;
     position: absolute;
+  }
+}
+.info-bar-group-icon {
+  &.info-bar-group-client {
+    font-size: 1.5rem;
+    color: var(--editor-keyword-color) !important;
+  }
+  &.info-bar-group-server {
+    font-size: 1.5rem;
+    color: var(--editor-number-color) !important;
+  }
+  &.info-bar-group-debug {
+    color: var(--secondary-text-color) !important;
+  }
+  &.info-bar-group-unknown {
+    color: var(--error-color) !important;
   }
 }

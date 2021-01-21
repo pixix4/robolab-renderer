@@ -7,6 +7,10 @@ import de.westermann.kwebview.components.boxView
 
 
 @KWebViewDsl
-fun ViewCollection<in BoxView>.buttonGroup(init: BoxView.() -> Unit = {}): BoxView {
-    return boxView("button-group", init = init)
+fun ViewCollection<in BoxView>.buttonGroup(formGroup: Boolean = false, init: BoxView.() -> Unit = {}): BoxView {
+    val view = boxView("button-group", init = init)
+
+    if (formGroup) view.classList += "button-form-group"
+
+    return view
 }
