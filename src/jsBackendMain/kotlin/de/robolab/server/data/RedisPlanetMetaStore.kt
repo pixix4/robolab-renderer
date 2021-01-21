@@ -193,7 +193,7 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
                     }
                 }
             } else {
-                logger.error(event)
+                logger.error { event }
             }
         }
     }

@@ -3,10 +3,8 @@ package de.robolab.client.renderer.utils
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.ICanvasListener
 import de.robolab.client.utils.ContextMenu
-import de.robolab.common.utils.Color
-import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
-import de.robolab.common.utils.Rectangle
+import de.robolab.common.externaljs.fs.existsSync
+import de.robolab.common.utils.*
 import org.w3c.dom.*
 import kotlin.math.PI
 
@@ -214,8 +212,17 @@ class ServerCanvas(override val dimension: Dimension, private val scale: Double)
         )
 
         init {
-            for (font in fontList) {
-                registerFont(font.path, font.family, font.weight)
+            val logger = Logger("ServerCanvas")
+            try {
+                for (font in fontList) {
+                    if (existsSync(font.path)) {
+                        registerFont(font.path, font.family, font.weight)
+                    } else {
+                        logger.warn { "Cannot load font file ${font.path}!" }
+                    }
+                }
+            } catch (e: Exception) {
+                Logger("ServerCanvas").error { "Cannot load font files!" }
             }
         }
     }

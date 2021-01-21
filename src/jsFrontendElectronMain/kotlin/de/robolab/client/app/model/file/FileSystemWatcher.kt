@@ -12,7 +12,7 @@ class FileSystemWatcher(baseDirectory: File) {
             override var persistent: Boolean? = false
             override var recursive: Boolean? = true
         }) { _, filename: String ->
-            onFolderChange.emit(File(filename))
+            onFolderChange.emit(baseDirectory.resolveChildren(filename))
         }
     }
 }

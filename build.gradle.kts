@@ -442,10 +442,11 @@ tasks.create<Sync>("jsFrontendElectronSyncDev") {
 }
 
 tasks.create<Sync>("jsBackendSync") {
-    dependsOn("compileKotlinJsBackend", "jsBackendPackageJson", "kotlinNpmInstall", generateBuildInformation)
+    dependsOn("compileKotlinJsBackend", "jsBackendPackageJson", "kotlinNpmInstall", "jsBackendProcessResources", generateBuildInformation)
 
     from("$buildDir/js")
     from(generateBuildInformation)
+    from("$buildDir/processedResources/jsBackend/main")
     into("${projectDir}/deploy/server")
 }
 
