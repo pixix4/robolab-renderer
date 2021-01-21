@@ -45,12 +45,17 @@ class Canvas : View(createHtmlView<HTMLCanvasElement>()) {
     var fixedHeight = clientHeight
 
     fun updateSize(width: Int, height: Int, dpi: Double) {
+        if (width <= 0 || height <= 0) return
+
         // Copy image to prevent screen flickering
         val tempCanvas = document.createElement("canvas") as HTMLCanvasElement
-        tempCanvas.width = context.canvas.width
-        tempCanvas.height = context.canvas.height
-        val tempContext = tempCanvas.getContext("2d") as CanvasRenderingContext2D
-        tempContext.drawImage(context.canvas, 0.0, 0.0)
+        val useTempCanvas = context.canvas.width > 0.0 && context.canvas.height > 0.0
+        if (useTempCanvas) {
+            tempCanvas.width = context.canvas.width
+            tempCanvas.height = context.canvas.height
+            val tempContext = tempCanvas.getContext("2d") as CanvasRenderingContext2D
+            tempContext.drawImage(context.canvas, 0.0, 0.0)
+        }
 
         // Resize canvas
         html.width = ceil(width * dpi).toInt()
@@ -58,8 +63,10 @@ class Canvas : View(createHtmlView<HTMLCanvasElement>()) {
         html.style.width = "${width}px"
         html.style.height = "${height}px"
 
-        // Redraw cached image
-        context.drawImage(tempContext.canvas, 0.0, 0.0)
+        if (useTempCanvas) {
+            // Redraw cached image
+            context.drawImage(tempCanvas, 0.0, 0.0)
+        }
 
         // Apply transformations
         context.setTransform(dpi, 0.0, 0.0, dpi, 0.5, 0.5)

@@ -40,7 +40,7 @@ data class JsonMessage(
         payload::startDirection.parsed(),
         Coordinate(payload::endX.parsed(), payload::endY.parsed()),
         payload::endDirection.parsed(),
-        if (from == From.CLIENT) null else payload::pathWeight.parsed(),
+        if (from == From.CLIENT) (if (payload.pathStatus == PathStatus.BLOCKED) -1 else null) else payload::pathWeight.parsed(),
         emptySet(),
         emptyList(),
         hidden = false,

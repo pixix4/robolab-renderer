@@ -57,7 +57,12 @@ object ExportRouter {
 
         if (maxScale < s) {
             Logger("ExportRouter").info {
-                "Export scale of $s would exceed max image size of ${Dimension(CAIRO_MAX_IMAGE_SIZE, CAIRO_MAX_IMAGE_SIZE)} with size ${exportSize * s}. Fallback to export scale $maxScale with size ${exportSize * maxScale}"
+                "Export scale of $s would exceed max image size of ${
+                    Dimension(
+                        CAIRO_MAX_IMAGE_SIZE,
+                        CAIRO_MAX_IMAGE_SIZE
+                    )
+                } with size ${exportSize * s}. Fallback to export scale $maxScale with size ${exportSize * maxScale}"
             }
             s = maxScale
         }
