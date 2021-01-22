@@ -30,7 +30,7 @@ class App : CliktCommand() {
         endpoints += "api" to "http://localhost:${Config.General.port}${Config.Api.mount}"
 
         if (Config.Web.directory.isNotEmpty() && existsSync(Config.Web.directory)) {
-            DefaultEnvironment.app.use(Config.Web.mount, DefaultEnvironment.createWebRouter())
+            DefaultEnvironment.app.use(DefaultEnvironment.createWebRouter(Config.Web.mount))
             endpoints += "web" to "http://localhost:${Config.General.port}${Config.Web.mount} (${path.resolve(Config.Web.directory)})"
         }
 

@@ -72,24 +72,25 @@ object DefaultEnvironment {
         return router
     }
 
-    fun createWebRouter(): DefaultRouter {
+    fun createWebRouter(mount: String): DefaultRouter {
         val directory = path.resolve(Config.Web.directory)
-        val router = createRouter()
+        val router = createRouter(strict = true)
 
-        val redirectIndex = if (Config.Web.mount.endsWith("/")) {
-            Config.Web.mount
+        val rawMount: String
+        val slashMount: String
+
+        if (mount.endsWith("/")) {
+            slashMount = mount
+            rawMount = mount.substring(0, mount.length - 1)
         } else {
-            Config.Web.mount + "/"
+            rawMount = mount
+            slashMount = "$mount/"
         }
 
-        router.get("/") { req, res ->
-            if (req.url.endsWith("/")) {
-                res.sendFile(path.join(directory, "index.html"))
-            } else {
-                res.redirect(301, redirectIndex)
-            }
-        }
-        router.use("", createStatic(directory))
+        router.get(slashMount) { _, res -> res.sendFile(path.join(directory, "index.html")) }
+        router.get(rawMount) { _, res -> res.redirect(301, slashMount) }
+
+        router.use(rawMount, createStatic(directory))
 
         return router
     }
