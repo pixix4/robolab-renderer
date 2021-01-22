@@ -46,11 +46,17 @@ class PlotterWindow(
     val documentProperty = planetDocumentProperty.nullableFlatMapBinding { it?.documentProperty }
     val document by documentProperty
 
+    private var forceRedraw = false
     fun onUpdate(msOffset: Double): Boolean {
         var changes = false
 
         changes = document?.onUpdate(msOffset) == true || changes
         changes = transformation.update(msOffset) || changes
+
+        if (forceRedraw) {
+            forceRedraw = false
+            changes = true
+        }
 
         return changes
     }
@@ -147,6 +153,7 @@ class PlotterWindow(
             lastAttachedDocument?.onDetach(this)
             lastAttachedDocument = document
             lastAttachedDocument?.onAttach(this)
+            forceRedraw = true
         }
         this.planetDocument = planetDocument
 

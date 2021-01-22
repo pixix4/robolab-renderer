@@ -34,33 +34,40 @@ class FilePlanetDocument(
     val planetFile = filePlanet.planetFile
 
     private val transformationStateProperty = property(Transformation.State.DEFAULT)
-    val viewDrawable = SimplePlanetDrawable(transformationStateProperty)
-    val paperDrawable = PaperPlanetDrawable(transformationStateProperty)
+    private val viewDrawable = SimplePlanetDrawable(transformationStateProperty)
+    private val paperDrawable = PaperPlanetDrawable(transformationStateProperty)
     val editDrawable = EditPlanetDrawable(planetFile, transformationStateProperty)
-    val traverserDrawable = LivePlanetDrawable(transformationStateProperty)
+    private val traverserDrawable = LivePlanetDrawable(transformationStateProperty)
 
-    val VIEW = object : InfoBarController.Tab {
+    @Suppress("PrivatePropertyName")
+    private val VIEW = object : InfoBarController.Tab {
         override val icon = MaterialIcon.INFO_OUTLINE
         override val tooltip = "View"
         override fun open() {
             mode = this
         }
     }
-    val PAPER = object : InfoBarController.Tab {
+
+    @Suppress("PrivatePropertyName")
+    private val PAPER = object : InfoBarController.Tab {
         override val icon = MaterialIcon.SQUARE_FOOT
         override val tooltip = "Paper"
         override fun open() {
             mode = this
         }
     }
-    val EDIT = object : InfoBarController.Tab {
+
+    @Suppress("PrivatePropertyName")
+    private val EDIT = object : InfoBarController.Tab {
         override val icon = MaterialIcon.CODE
         override val tooltip = "Edit"
         override fun open() {
             mode = this
         }
     }
-    val TRAVERSE = object : InfoBarController.Tab {
+
+    @Suppress("PrivatePropertyName")
+    private val TRAVERSE = object : InfoBarController.Tab {
         override val icon = MaterialIcon.CALL_SPLIT
         override val tooltip = "Traverse"
         override fun open() {
@@ -68,7 +75,7 @@ class FilePlanetDocument(
         }
     }
 
-    val modeProperty = property(VIEW)
+    private val modeProperty = property<InfoBarController.Tab>(VIEW)
     var mode: InfoBarController.Tab by modeProperty
 
     override val documentProperty = modeProperty.mapBinding {

@@ -38,7 +38,7 @@ class PlanetTransformDialog private constructor(private val planetFile: PlanetFi
                         step = 1.0
                     }
                 }
-                dialogFormEntry("") {
+                dialogFormEntry("", true) {
                     button("Translate") {
                         onClick {
                             planetFile.translate(Coordinate(planetTranslateX.value, planetTranslateY.value))
@@ -62,7 +62,7 @@ class PlanetTransformDialog private constructor(private val planetFile: PlanetFi
                         step = 1.0
                     }
                 }
-                dialogFormEntry("") {
+                dialogFormEntry("", true) {
                     button("Clockwise") {
                         onClick {
                             planetFile.rotate(
@@ -97,7 +97,7 @@ class PlanetTransformDialog private constructor(private val planetFile: PlanetFi
                         step = 1.0
                     }
                 }
-                dialogFormEntry("") {
+                dialogFormEntry("", true) {
                     button("Scale") {
                         onClick {
                             planetFile.scaleWeights(planetScaleFactor.value, planetScaleOffset.value)

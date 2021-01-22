@@ -36,33 +36,39 @@ interface ITraverserTrail {
     val resultInfo: Any?
     val mothershipState: IMothershipState
     val navigatorState: INavigatorState
+
     fun createRenderState(
         original: Planet? = null,
         name: String = "${original?.name ?: "TrailPlanet"}-${Random.nextHexString()}"
-    ): TraverserRenderState =
-        TraverserRenderState(
-            Planet(
-                original?.version ?: PlanetVersion.CURRENT,
-                name,
-                original?.startPoint
-                    ?: (path.firstOrNull()?.first)?.let { StartPoint(it, Direction.NORTH, emptyList()) },
-                original?.bluePoint,
-                (original?.pathList?.intersect(mothershipState.sentPaths, Path::equalPath)
-                    ?: mothershipState.sentPaths).toList(),
-                (original?.targetList?.intersect(mothershipState.sentTargets)
-                    ?: mothershipState.sentTargets).toList(),
-                (original?.pathSelectList?.intersect(mothershipState.sentPathSelects)
-                    ?: mothershipState.sentPathSelects).toList(),
-                emptyList(),
-                emptyMap(),
-                emptyMap()
-            ), mothershipState.toDrawableRobot(), path.mapNotNull {
+    ): TraverserRenderState {
+        val planet = Planet(
+            original?.version ?: PlanetVersion.CURRENT,
+            name,
+            original?.startPoint
+                ?: (path.firstOrNull()?.first)?.let { StartPoint(it, Direction.NORTH, emptyList()) },
+            original?.bluePoint,
+            (original?.pathList?.intersect(mothershipState.sentPaths, Path::equalPath)
+                ?: mothershipState.sentPaths).toList(),
+            (original?.targetList?.intersect(mothershipState.sentTargets)
+                ?: mothershipState.sentTargets).toList(),
+            (original?.pathSelectList?.intersect(mothershipState.sentPathSelects)
+                ?: mothershipState.sentPathSelects).toList(),
+            emptyList(),
+            emptyMap(),
+            emptyMap()
+        )
+
+        return TraverserRenderState(
+            planet,
+            mothershipState.toDrawableRobot(),
+            path.mapNotNull {
                 it.first to (it.second ?: return@mapNotNull null)
             },
             mothershipState,
             navigatorState,
             this
         )
+    }
 }
 
 data class TraverserTrail(

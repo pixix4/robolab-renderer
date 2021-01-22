@@ -1,6 +1,6 @@
 {
   "name": "robolab-renderer",
-  "version": "3.9.9",
+  "version": "4.0.1",
   "description": "Render engine, editor and tracker for planets and robots.",
   "main": "main.js",
   "author": {
