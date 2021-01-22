@@ -15,10 +15,7 @@ import de.robolab.client.renderer.view.component.*
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.planet.IPlanetValue
 import de.robolab.common.planet.Planet
-import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
-import de.robolab.common.utils.Rectangle
-import de.robolab.common.utils.Vector
+import de.robolab.common.utils.*
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
@@ -140,8 +137,8 @@ abstract class AbsPlanetDrawable(
                 val rawDiffVector = (targetWindowCenter - windowCenter)
                 val multipliedDiffVector = rawDiffVector * (1.0 + (1.0 / (scaleByFactor - 1.0)))
                 val zoomPoint = multipliedDiffVector + windowCenter
-                transformation.scaleBy(
-                    scaleByFactor, zoomPoint, duration
+                transformation.scaleTo(
+                    scaleToFactor, zoomPoint, duration
                 )
             } else {
                 transformation.scaleBy(scaleByFactor, point, duration)

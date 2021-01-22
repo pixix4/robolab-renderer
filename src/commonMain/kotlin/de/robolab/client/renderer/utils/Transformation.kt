@@ -166,13 +166,17 @@ class Transformation(
         flipView = force ?: !flipView
     }
 
-    override fun export() = State(translation, scale, rotation, flipViewProperty.value)
+    override fun export() = State(translation, scale, rotation, flipView)
 
     override fun import(state: State) {
         setTranslation(state.translation)
         setScaleFactor(state.scale)
         setRotationAngle(state.rotation)
-        flipViewProperty.value = state.flipped
+        flipView = state.flipped
+    }
+
+    override fun toString(): String {
+        return "Transformation(translation=$translation, rotation=$rotation, scale=$scale, flipView=$flipView)"
     }
 
     init {
