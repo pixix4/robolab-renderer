@@ -3,6 +3,7 @@ package de.robolab.client.app.controller
 import de.robolab.client.app.model.traverser.CharacteristicItem
 import de.robolab.client.app.model.traverser.ITraverserStateEntry
 import de.robolab.client.app.model.traverser.TraverserStateEntry
+import de.robolab.client.net.RobolabScope
 import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.client.traverser.*
 import de.robolab.client.utils.runAsync
@@ -14,6 +15,9 @@ import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
+import io.ktor.util.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 
 class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: Boolean = true) {
     val autoExpandProperty: ObservableProperty<Boolean> = property(autoExpand)
@@ -38,52 +42,70 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
 
     val currentTraverserState: ObservableValue<ITraverserState<*>> = sliceViewer.currentNodeProperty
 
-    fun clickExpand(): Boolean = sliceViewer.expand()
+    private val _mutex: Mutex = Mutex()
+    private val _busy: ObservableProperty<Boolean> = property(false)
+    val busy: ObservableValue<Boolean> = _busy
 
-    fun clickFullExpand(): Boolean = sliceViewer.fullExpand(ITraverserState<*>::running)
-
-    fun clickNextOption(index: Int, isLeftExpand: Boolean = true): Boolean =
-            if (autoExpandProperty.value) sliceViewer.fullExpandNextAlternative(index, isLeftExpand)
-            else sliceViewer.nextAlternative(index)
-
-    fun clickPreviousOption(index: Int, isLeftExpand: Boolean = false): Boolean =
-            if (autoExpandProperty.value) sliceViewer.fullExpandPreviousAlternative(index, isLeftExpand)
-            else sliceViewer.previousAlternative(index)
-
-    fun clickNextOption(state: ITraverserState<*>, isLeftExpand: Boolean = true): Boolean =
-            if (autoExpandProperty.value) sliceViewer.fullExpandNextAlternative(isLeftExpand) { it.currentOption == state }
-            else sliceViewer.nextAlternative { it.currentOption == state }
-
-    fun clickPreviousOption(state: ITraverserState<*>, isLeftExpand: Boolean = false): Boolean =
-            if (autoExpandProperty.value) sliceViewer.fullExpandPreviousAlternative(isLeftExpand) { it.currentOption == state }
-            else sliceViewer.previousAlternative { it.currentOption == state }
-
-    fun clickNextOption(entry: TraverserStateEntry<*>, isLeftExpand: Boolean = true): Boolean {
-        val index = entryList.indexOfFirst { it.selected.value }
-
-        val bool = clickNextOption(entry.state.get(), isLeftExpand)
-
-        runAsync {
-            entryList.getOrNull(index)?.select()
+    private suspend fun <T> withBusy(block: suspend () -> T): T {
+        _mutex.lock()
+        try {
+            _busy.set(true)
+            return block()
+        } finally {
+            _busy.set(false)
+            _mutex.unlock()
         }
-
-        return bool
     }
 
-    fun clickPreviousOption(entry: TraverserStateEntry<*>, isLeftExpand: Boolean = false): Boolean {
-        val index = entryList.indexOfFirst { it.selected.value }
+    private fun <T> launchWithBusy(block: suspend () -> T) {
+        RobolabScope.launch { withBusy(block) }
+    }
 
-        val bool = clickPreviousOption(entry.state.get(), isLeftExpand)
+    fun clickExpand(): Boolean = sliceViewer.expand()
 
-        runAsync {
+    fun clickFullExpand() = launchWithBusy { sliceViewer.fullExpandAsync(ITraverserState<*>::running) }
+
+    suspend fun clickNextOption(index: Int, isLeftExpand: Boolean = true): Boolean = withBusy {
+        if (autoExpandProperty.value) sliceViewer.fullExpandNextAlternativeAsync(index, isLeftExpand)
+        else sliceViewer.nextAlternative(index)
+    }
+
+    suspend fun clickPreviousOption(index: Int, isLeftExpand: Boolean = false): Boolean = withBusy {
+        if (autoExpandProperty.value) sliceViewer.fullExpandPreviousAlternativeAsync(index, isLeftExpand)
+        else sliceViewer.previousAlternative(index)
+    }
+
+    suspend fun clickNextOption(state: ITraverserState<*>, isLeftExpand: Boolean = true): Boolean = withBusy {
+        if (autoExpandProperty.value) sliceViewer.fullExpandNextAlternativeAsync(isLeftExpand) { it.currentOption == state }
+        else sliceViewer.nextAlternative { it.currentOption == state }
+    }
+
+    suspend fun clickPreviousOption(state: ITraverserState<*>, isLeftExpand: Boolean = false): Boolean = withBusy {
+        if (autoExpandProperty.value) sliceViewer.fullExpandPreviousAlternativeAsync(isLeftExpand) { it.currentOption == state }
+        else sliceViewer.previousAlternative { it.currentOption == state }
+    }
+
+    suspend fun clickNextOption(entry: TraverserStateEntry<*>, isLeftExpand: Boolean = true): Boolean {
+        val selected = entry.selected.value
+        val index = if (selected) entryList.indexOf(entry) else -1
+        val result = clickNextOption(entry.state.get(), isLeftExpand)
+        if (selected)
             entryList.getOrNull(index)?.select()
-        }
+        return result
+    }
 
-        return bool
+    suspend fun clickPreviousOption(entry: TraverserStateEntry<*>, isLeftExpand: Boolean = false): Boolean {
+        val selected = entry.selected.value
+        val index = if (selected) entryList.indexOf(entry) else -1
+        val result = clickPreviousOption(entry.state.get(), isLeftExpand)
+        if (selected)
+            entryList.getOrNull(index)?.select()
+        return result
     }
 
     fun keyDown() {
         val index = entryList.indexOfFirst { it.selected.value } + 1
+        if (index >= entryList.size) clickExpand()
         entryList.getOrNull(index)?.select()
     }
 
@@ -92,55 +114,73 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
         entryList.getOrNull(index)?.select()
     }
 
-    fun keyLeft() {
-        val index = entryList.indexOfFirst { it.selected.value }
-        entryList.getOrNull(index)?.clickPreviousOption()
+    fun keyLeft() = launchWithBusy {
+        val entry = entryList.firstOrNull { it.selected.value }
+        if (entry != null && entry.isPreviousEnabled.value)
+            entry.clickPreviousOption()
     }
 
-    fun keyRight() {
-        val index = entryList.indexOfFirst { it.selected.value }
-        entryList.getOrNull(index)?.clickNextOption()
+    fun keyRight() = launchWithBusy {
+        val entry = entryList.firstOrNull { it.selected.value }
+        if (entry != null && entry.isNextEnabled.value)
+            entry.clickNextOption()
     }
 
-    fun clickNextTrail() =
-            if (autoExpandProperty.value) sliceViewer.fullExpandNext()
-            else sliceViewer.next()
+    fun clickNextTrail() = launchWithBusy {
+        if (autoExpandProperty.value) sliceViewer.fullExpandNextAsync()
+        else sliceViewer.next()
+    }
 
-    fun clickPreviousTrail() =
-            if (autoExpandProperty.value) sliceViewer.fullExpandPrevious()
-            else sliceViewer.previous()
+    fun clickPreviousTrail() = launchWithBusy {
+        if (autoExpandProperty.value) sliceViewer.fullExpandPreviousAsync()
+        else sliceViewer.previous()
+    }
 
     fun selectEntry(entry: TraverserStateEntry<*>, multiple: Boolean = false) {
         if (multiple)
             entry.selected.set(!entry.selected.value)
         else {
             var othersSelected: Boolean = false
-            _entryList.filter { it != entry }.forEach { othersSelected = othersSelected || it.selected.value; it.selected.set(false) }
+            _entryList.filter { it != entry }
+                .forEach { othersSelected = othersSelected || it.selected.value; it.selected.set(false) }
             if (othersSelected)
                 entry.selected.set(true)
             else
                 entry.selected.set(!entry.selected.value)
         }
         _renderState.set((_entryList.lastOrNull { it.selected.value }
-                ?: _entryList.last()).currentOption.value.createRenderState(traverser.planet.planet))
+            ?: _entryList.last()).currentOption.value.createRenderState(traverser.planet.planet))
     }
 
     init {
+        _entryList.onChange += {
+            _renderState.set((_entryList.lastOrNull { it.selected.value }
+                ?: _entryList.last()).currentOption.value.createRenderState(traverser.planet.planet))
+        }
+        sliceViewer.observableEntries.onAddIndex += {
+            _entryList.add(it.index, TraverserStateEntry(this, it.element))
+        }
+        sliceViewer.observableEntries.onRemoveIndex += {
+            _entryList.removeAt(it.index)
+        }
+        sliceViewer.observableEntries.onSetIndex += {
+            _entryList[it.index] = TraverserStateEntry(this, it.newElement)
+        }
         sliceViewer.onChange += {
             _characteristicList.clear()
-            _characteristicList.addAll(CharacteristicItem.generateCharacteristic(sliceViewer.currentNode))
-            _entryList.clear()
-            _entryList.addAll(sliceViewer.map { TraverserStateEntry(this, it) })
-            _renderState.set((_entryList.lastOrNull { it.selected.value }
-                    ?: _entryList.last()).currentOption.value.createRenderState(traverser.planet.planet))
+            _characteristicList.addAll(CharacteristicItem.createCharacteristicTrace(sliceViewer.currentNode))
         }
         autoExpandProperty.onChange += {
             if (autoExpandProperty.value)
-                clickFullExpand()
+                RobolabScope.launch {
+                    clickFullExpand()
+                }
         }
         _entryList.clear()
         _entryList.addAll(sliceViewer.map { TraverserStateEntry(this, it) })
         if (autoExpand)
-            clickFullExpand()
+            RobolabScope.launch {
+                clickFullExpand()
+            }
     }
 }

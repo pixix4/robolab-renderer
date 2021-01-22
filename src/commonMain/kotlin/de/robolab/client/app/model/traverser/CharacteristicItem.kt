@@ -14,27 +14,28 @@ val ITraverserState<*>.isCorrect: Boolean
 
 class CharacteristicItem(val color: Color) {
     companion object Generator {
-        fun generateCharacteristic(state: ITraverserState<*>): List<CharacteristicItem> {
-            val theme = PreferenceStorage.selectedTheme.theme
+        fun createCharacteristicTrace(state: ITraverserState<*>): List<CharacteristicItem> {
+            return state.traceUp().map(::createCharacteristic).filterNotNull().toList().asReversed()
+        }
 
-            return state.traceUp().map {
-                if (it.status == ITraverserState.Status.ExplorationComplete || it.status == ITraverserState.Status.TargetReached)
-                    return@map CharacteristicItem(
-                        if (it.isCorrect)
-                            theme.traverser.traverserCharacteristicCorrectColor
-                        else
-                            theme.traverser.traverserCharacteristicErrorColor
-                    )
-                if (!it.running)
-                    return@map CharacteristicItem(theme.traverser.traverserCharacteristicErrorColor)
-                return@map when (it.nextDirection) {
-                    Direction.NORTH -> theme.traverser.traverserCharacteristicNorthColor
-                    Direction.EAST -> theme.traverser.traverserCharacteristicEastColor
-                    Direction.SOUTH -> theme.traverser.traverserCharacteristicSouthColor
-                    Direction.WEST -> theme.traverser.traverserCharacteristicWestColor
-                    else -> null
-                }.let { color -> if (color != null) CharacteristicItem(color) else null }
-            }.filterNotNull().toList().asReversed()
+        fun createCharacteristic(state: ITraverserState<*>): CharacteristicItem? {
+            val theme = PreferenceStorage.selectedTheme.theme
+            if (state.status == ITraverserState.Status.ExplorationComplete || state.status == ITraverserState.Status.TargetReached)
+                return CharacteristicItem(
+                    if (state.isCorrect)
+                        theme.traverser.traverserCharacteristicCorrectColor
+                    else
+                        theme.traverser.traverserCharacteristicErrorColor
+                )
+            if (!state.running)
+                return CharacteristicItem(theme.traverser.traverserCharacteristicErrorColor)
+            return when (state.nextDirection) {
+                Direction.NORTH -> theme.traverser.traverserCharacteristicNorthColor
+                Direction.EAST -> theme.traverser.traverserCharacteristicEastColor
+                Direction.SOUTH -> theme.traverser.traverserCharacteristicSouthColor
+                Direction.WEST -> theme.traverser.traverserCharacteristicWestColor
+                else -> null
+            }.let { color -> if (color != null) CharacteristicItem(color) else null }
         }
     }
 }
