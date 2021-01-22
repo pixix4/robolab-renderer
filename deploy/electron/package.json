@@ -1,7 +1,7 @@
 {
   "name": "robolab-renderer",
-  "version": "4.0.0",
-  "description": "Rewrite of the robolab rendering egnine.",
+  "version": "3.9.9",
+  "description": "Render engine, editor and tracker for planets and robots.",
   "main": "main.js",
   "author": {
     "name": "Lars Westermann",
@@ -16,6 +16,10 @@
     "dev": "env NODE_ENV='development' electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
+  },
+  "dependencies": {
+    "electron-updater": "^4.3.5",
+    "electron-window-state": "^5.0.3"
   },
   "devDependencies": {
     "electron": "^11.1.1",
@@ -40,7 +44,7 @@
       "category": "public.app-category.education",
       "publish": {
         "provider": "generic",
-        "url": "https://robolab.inf.tu-dresden.de/renderer",
+        "url": "https://robolab.inf.tu-dresden.de/renderer/download",
         "useMultipleRangeRequest": false
       },
       "darkModeSupport": true
@@ -53,12 +57,16 @@
       ],
       "publish": {
         "provider": "generic",
-        "url": "https://robolab.inf.tu-dresden.de/renderer",
+        "url": "https://robolab.inf.tu-dresden.de/renderer/download",
+        "useMultipleRangeRequest": false
+      }
+    },
+    "win": {
+      "publish": {
+        "provider": "generic",
+        "url": "https://robolab.inf.tu-dresden.de/renderer/download",
         "useMultipleRangeRequest": false
       }
     }
-  },
-  "dependencies": {
-    "electron-window-state": "^5.0.3"
   }
 }

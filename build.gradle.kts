@@ -3,7 +3,7 @@
 import java.text.SimpleDateFormat
 import java.util.*
 
-val FRONTEND_VERSION = "4.0.0"
+val FRONTEND_VERSION = "4.0.1"
 val BACKEND_VERSION = "1.0.0"
 
 plugins {
@@ -401,8 +401,20 @@ tasks.named("jsFrontendElectronBrowserDistributeResources") {
     dependsOn("jsFrontendElectronCompileSass")
 }
 
+tasks.create("jsFrontendElectronNpmVersion") {
+    doLast {
+        val file = File("${projectDir}/deploy/electron/package.json")
+        val lines = file.readLines()
+        val newLines = lines.map { line ->
+            if ("\"version\":" in line) {
+                "  \"version\": \"$FRONTEND_VERSION\","
+            } else line
+        }
+        file.writeText(newLines.joinToString("\n"))
+    }
+}
 tasks.create<Sync>("jsFrontendElectronSync") {
-    dependsOn("jsFrontendElectronBrowserProductionWebpack", "jsFrontendElectronJar")
+    dependsOn("jsFrontendElectronBrowserProductionWebpack", "jsFrontendElectronJar", "jsFrontendElectronNpmVersion")
 
     val file = tasks.named("jsFrontendElectronBrowserProductionWebpack")
         .get().outputs.files.files.first { it.name == "robolab.js" }

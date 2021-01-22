@@ -2,6 +2,7 @@ const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron')
 const windowStateKeeper = require('electron-window-state');
 const fs = require("fs")
 const process = require("process")
+const { autoUpdater } = require("electron-updater")
 
 const isMac = process.platform === 'darwin'
 const isDev = process.env.NODE_ENV === 'development'
@@ -13,6 +14,19 @@ let initOpenFileQueue = [];
 if (app.isPackaged) {
     process.argv.unshift(null)
 }
+
+autoUpdater.on("error", (e) => {
+    console.log("error", e)
+});
+autoUpdater.on("update-available", (e) => {
+    console.log("update-available", e)
+});
+autoUpdater.on("download-progress", (e) => {
+    console.log("download-progress", e)
+});
+autoUpdater.on("update-downloaded", (e) => {
+    console.log("update-downloaded", e)
+});
 
 const template = [
     // { role: 'appMenu' }
@@ -162,6 +176,8 @@ function createWindow() {
             rotation: rotation
         })
     })
+
+    autoUpdater.checkForUpdatesAndNotify()
 }
 
 app.whenReady().then(createWindow)
@@ -191,7 +207,6 @@ app.on('will-finish-launching', () => {
         } else {
             initOpenFileQueue.push(file);
         }
-        ;
         event.preventDefault();
     });
 });
