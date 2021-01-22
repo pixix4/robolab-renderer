@@ -7,6 +7,7 @@ import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AccessControlAllowMethods
 import de.robolab.common.utils.BuildInformation
 import de.robolab.common.utils.Logger
+import de.robolab.common.utils.Version
 import de.robolab.server.config.Config
 import de.robolab.server.externaljs.body_parser.json
 import de.robolab.server.externaljs.body_parser.text
@@ -107,9 +108,13 @@ object DefaultEnvironment {
                 it.contains(".")
             }
 
-            val data = content.mapNotNull {
+            val artefacts = content.mapNotNull {
                 Artefact.parse(mount, it)
-            }.groupBy {
+            }.groupBy { Triple(it.os, it.arch, it.format) }.mapValues { (_, l) ->
+                l.sortedByDescending { Version.parse(it.version) }.take(1)
+            }.values.flatten()
+
+            val data = artefacts.groupBy {
                 it.os
             }.mapValues { (_, v) ->
                 v.groupBy { it.arch }
