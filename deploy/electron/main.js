@@ -1,11 +1,11 @@
-const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron')
-const windowStateKeeper = require('electron-window-state');
+const {app, BrowserWindow, ipcMain, dialog, Menu} = require("electron")
+const windowStateKeeper = require("electron-window-state");
 const fs = require("fs")
 const process = require("process")
 const { autoUpdater } = require("electron-updater")
 
-const isMac = process.platform === 'darwin'
-const isDev = process.env.NODE_ENV === 'development'
+const isMac = process.platform === "darwin"
+const isDev = process.env.NODE_ENV === "development"
 
 let mainWindow = null;
 
@@ -29,33 +29,33 @@ autoUpdater.on("update-downloaded", (e) => {
 });
 
 const template = [
-    // { role: 'appMenu' }
+    // { role: "appMenu" }
     ...(isMac ? [{
         label: "robolab-renderer",
         submenu: [
-            {role: 'about'},
-            {type: 'separator'},
-            {role: 'services'},
-            {type: 'separator'},
-            {role: 'hide'},
-            {role: 'hideothers'},
-            {role: 'unhide'},
-            {type: 'separator'},
-            {role: 'quit'}
+            {role: "about"},
+            {type: "separator"},
+            {role: "services"},
+            {type: "separator"},
+            {role: "hide"},
+            {role: "hideothers"},
+            {role: "unhide"},
+            {type: "separator"},
+            {role: "quit"}
         ]
     }] : []),
-    // { role: 'fileMenu' }
+    // { role: "fileMenu" }
     {
-        label: 'File',
+        label: "File",
         submenu: [
             {
                 label: "Open planet file",
                 click: async () => {
                     const result = await dialog.showOpenDialog(mainWindow, {
-                        properties: ['openFile', 'multiSelections'],
+                        properties: ["openFile", "multiSelections"],
                         filters: [
-                            {name: 'Planets', extensions: ['planet']},
-                            {name: 'All Files', extensions: ['*']}
+                            {name: "Planets", extensions: ["planet"]},
+                            {name: "All Files", extensions: ["*"]}
                         ]
                     })
 
@@ -74,10 +74,10 @@ const template = [
                 label: "Open mqtt log file",
                 click: async () => {
                     const result = await dialog.showOpenDialog(mainWindow, {
-                        properties: ['openFile'],
+                        properties: ["openFile"],
                         filters: [
-                            {name: 'Log file', extensions: ['log']},
-                            {name: 'All Files', extensions: ['*']}
+                            {name: "Log file", extensions: ["log"]},
+                            {name: "All Files", extensions: ["*"]}
                         ]
                     })
                     result.filePaths.forEach((file) => {
@@ -91,50 +91,50 @@ const template = [
                     })
                 }
             },
-            isMac ? {role: 'close'} : {role: 'quit'}
+            isMac ? {role: "close"} : {role: "quit"}
         ]
     },
-    // { role: 'editMenu' }
+    // { role: "editMenu" }
     {
-        label: 'Edit',
+        label: "Edit",
         submenu: [
-            {role: 'undo'},
-            {role: 'redo'},
-            {type: 'separator'},
-            {role: 'cut'},
-            {role: 'copy'},
-            {role: 'paste'},
+            {role: "undo"},
+            {role: "redo"},
+            {type: "separator"},
+            {role: "cut"},
+            {role: "copy"},
+            {role: "paste"},
             ...(isMac ? [
-                {role: 'pasteAndMatchStyle'},
-                {role: 'delete'},
-                {role: 'selectAll'},
-                {type: 'separator'},
+                {role: "pasteAndMatchStyle"},
+                {role: "delete"},
+                {role: "selectAll"},
+                {type: "separator"},
                 {
-                    label: 'Speech',
+                    label: "Speech",
                     submenu: [
-                        {role: 'startSpeaking'},
-                        {role: 'stopSpeaking'}
+                        {role: "startSpeaking"},
+                        {role: "stopSpeaking"}
                     ]
                 }
             ] : [
-                {role: 'delete'},
-                {type: 'separator'},
-                {role: 'selectAll'}
+                {role: "delete"},
+                {type: "separator"},
+                {role: "selectAll"}
             ])
         ]
     },
     ...(isDev ? [{
-        label: 'View',
+        label: "View",
         submenu: [
-            {role: 'reload'},
-            {role: 'forceReload'},
-            {role: 'toggleDevTools'},
-            {type: 'separator'},
-            {role: 'resetZoom'},
-            {role: 'zoomIn'},
-            {role: 'zoomOut'},
-            {type: 'separator'},
-            {role: 'togglefullscreen'}
+            {role: "reload"},
+            {role: "forceReload"},
+            {role: "toggleDevTools"},
+            {type: "separator"},
+            {role: "resetZoom"},
+            {role: "zoomIn"},
+            {role: "zoomOut"},
+            {type: "separator"},
+            {role: "togglefullscreen"}
         ]
     }] : [])
 ]
@@ -166,9 +166,9 @@ function createWindow() {
     initOpenFileQueue = [];
 
     if (isDev) {
-        mainWindow.loadFile('../distElectron/index.html')
+        mainWindow.loadFile("../distElectron/index.html")
     } else {
-        mainWindow.loadFile('../app/index.html')
+        mainWindow.loadFile("../app/index.html")
     }
 
     mainWindow.on("rotate-gesture", (event, rotation) => {
@@ -182,19 +182,19 @@ function createWindow() {
 
 app.whenReady().then(createWindow)
 
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
+app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
         app.quit()
     }
 })
 
-app.on('activate', () => {
+app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
         createWindow()
     }
 })
 
-app.on('will-finish-launching', () => {
+app.on("will-finish-launching", () => {
     app.on("open-file", (event, file) => {
         if (mainWindow) {
             let text = fs.readFileSync(file).toString()
@@ -213,7 +213,7 @@ app.on('will-finish-launching', () => {
 
 ipcMain.on("select-directory", async (event) => {
     const result = await dialog.showOpenDialog(mainWindow, {
-        properties: ['openDirectory']
+        properties: ["openDirectory"]
     })
     event.reply("select-directory", [
         result.filePaths[0]

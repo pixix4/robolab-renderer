@@ -38,7 +38,7 @@ object Exporter {
         val planetDocument = HeadlessPlanetDocument(drawable.view)
         val plotter = PlotterWindow(canvas, planetDocument, LightTheme, 0.0)
 
-        drawable.centerPlanet()
+        drawable.centerPlanet(forceAutoScale = true)
 
         plotter.render(0.0)
     }

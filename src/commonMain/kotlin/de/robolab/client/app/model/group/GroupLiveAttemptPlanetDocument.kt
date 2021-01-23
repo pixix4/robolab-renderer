@@ -161,7 +161,7 @@ class GroupLiveAttemptPlanetDocument(
             drawable.importServerPlanet(serverPlanet.importSplines(planet), true)
             drawable.importMqttPlanet(mqttPlanet.importSplines(planet))
             drawable.autoCentering = true
-            drawable.centerPlanet(TransformationInteraction.ANIMATION_TIME)
+            drawable.centerPlanet(duration = TransformationInteraction.ANIMATION_TIME)
         }
     }
 }

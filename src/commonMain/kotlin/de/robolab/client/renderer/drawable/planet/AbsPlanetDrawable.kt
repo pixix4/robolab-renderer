@@ -117,7 +117,7 @@ abstract class AbsPlanetDrawable(
     private var centerOfPlanets: Vector? = null
 
     override var autoCentering = true
-    override fun centerPlanet(duration: Double) {
+    override fun centerPlanet(forceAutoScale: Boolean, duration: Double) {
         val centerOfPlanets = centerOfPlanets ?: return
         val transformation = plotter?.transformation ?: return
         val targetCenter = centerOfPlanets.rotate(transformation.rotation)
@@ -125,7 +125,7 @@ abstract class AbsPlanetDrawable(
         val size = window / Point(2.0, -2.0) * Point(if (flipView) -1.0 else 1.0, 1.0)
         val point = (targetCenter * transformation.scaledGridWidth - size) * Point(if (flipView) 1.0 else -1.0, 1.0)
 
-        if (PreferenceStorage.renderAutoScaling && paper.width > 0 && paper.height > 0) {
+        if ((PreferenceStorage.renderAutoScaling || forceAutoScale) && paper.width > 0 && paper.height > 0) {
             val scaleToFactor = min(
                 window.width / (paper.width * transformation.gridWidth),
                 window.height / (paper.height * transformation.gridWidth),
@@ -163,7 +163,7 @@ abstract class AbsPlanetDrawable(
         paper = paperArea ?: Rectangle.ZERO
         centerOfPlanets = area?.center
         if (autoCentering) {
-            centerPlanet(if (isFirstImport) 0.0 else TransformationInteraction.ANIMATION_TIME)
+            centerPlanet(duration = if (isFirstImport) 0.0 else TransformationInteraction.ANIMATION_TIME)
         }
 
         plotter?.updatePointer()
@@ -213,7 +213,7 @@ abstract class AbsPlanetDrawable(
                 transformation.rotateTo(0.0, event.screen / 2, 250.0)
             } else {
                 autoCentering = true
-                centerPlanet(TransformationInteraction.ANIMATION_TIME)
+                centerPlanet(duration = TransformationInteraction.ANIMATION_TIME)
             }
         }
     }
