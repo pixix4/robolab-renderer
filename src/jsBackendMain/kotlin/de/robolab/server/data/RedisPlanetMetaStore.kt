@@ -16,6 +16,7 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
         private fun planetMTimeKey(id: String) = "planet:mtime@$id"
         private fun planetTagsKey(id: String) = "planet:tags@$id"
         private fun planetTagKey(id: String, tag: String) = "planet:tag:$tag@$id"
+        private fun planetPathKey(id: String) = "planet:file@$id"
 
         private const val TIMEOUT_THROTTLER = 30_000L
     }
@@ -58,7 +59,7 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
         data.forEach { (id, tags) -> setTags(id, tags) }
 
 
-    private suspend fun getTags(id:String): Map<String,List<String>>{
+    private suspend fun getTags(id: String): Map<String, List<String>> {
         return redis.smembers(planetTagsKey(id)).await().toList().filterNotNull().associateWith { tag ->
             redis.lrange(planetTagKey(id, tag), 0, -1).await().toList().mapNotNull {
                 it as? String
@@ -66,7 +67,22 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
         }
     }
 
-    private suspend fun getTags(ids:List<String>): Map<String,Map<String,List<String>>> = ids.associateWith { getTags(it) }
+    private suspend fun getTags(ids: List<String>): Map<String, Map<String, List<String>>> =
+        ids.associateWith { getTags(it) }
+
+    override suspend fun retrieveFilePath(id: String, verifier: suspend (String) -> Boolean): String? {
+        val response = redis.get(planetPathKey(id)).await()
+        if (response == null || response == undefined || !verifier(response)) return null
+        return response
+    }
+
+    override suspend fun setFilePath(id: String, path: String?) {
+        if (path == null) {
+            redis.del(planetPathKey(id))
+            return
+        }
+        redis.set(planetPathKey(id), path)
+    }
 
     override suspend fun retrieveInfo(id: String): ServerPlanetInfo? =
         redis.mget(planetNameKey(id), planetMTimeKey(id)).await().let { data ->
@@ -161,9 +177,9 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
         }).await()
     }
 
-    override suspend fun clear(): Pair<Boolean, String>{
+    override suspend fun clear(): Pair<Boolean, String> {
         val text = redis.flushdb().await()
-        return ("ok".equals(text,true) to text)
+        return ("ok".equals(text, true) to text)
     }
 
     protected fun finalize() {
@@ -183,8 +199,8 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
                     logger.error {
                         "Cannot connect to redis server at '${event.address}:${event.port}'!"
                     }
-                    if (lastReconnectError == 0L && Logger.level.index < Logger.Level.DEBUG.index ) {
-                        logger.warn { "This error message is throttled and appears at a maximum interval of ${TIMEOUT_THROTTLER/1000}s. To see all messages enable debug logging." }
+                    if (lastReconnectError == 0L && Logger.level.index < Logger.Level.DEBUG.index) {
+                        logger.warn { "This error message is throttled and appears at a maximum interval of ${TIMEOUT_THROTTLER / 1000}s. To see all messages enable debug logging." }
                     }
                     lastReconnectError = time
                 } else {

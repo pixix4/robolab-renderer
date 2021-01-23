@@ -1,26 +1,29 @@
 package de.robolab.client.net.requests.planets
 
-import de.robolab.client.net.*
-import de.robolab.client.net.requests.IRESTRequest
+import de.robolab.client.net.IRobolabServer
+import de.robolab.client.net.RequestBuilder
+import de.robolab.client.net.ServerResponse
+import de.robolab.client.net.request
 import de.robolab.client.net.requests.IUnboundRESTRequest
 import de.robolab.client.net.requests.JsonRestResponse
-import de.robolab.client.net.requests.PlanetJsonInfo
-import de.robolab.common.net.*
-import de.robolab.common.planet.ID
+import de.robolab.client.net.requests.RESTResult
+import de.robolab.common.net.HttpMethod
+import de.robolab.common.net.MIMEType
+import de.robolab.common.net.data.DirectoryInfo
+import de.robolab.common.net.headers.ContentTypeHeader
+import de.robolab.common.net.headers.mapOf
+import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.utils.filterValuesNotNull
-import kotlinx.serialization.builtins.ListSerializer
 
-open class ListPlanets(
+open class ListPlanetDirectory(
     path: String? = null,
     nameExact: String? = null,
     nameStartsWith: String? = null,
     nameContains: String? = null,
     nameEndsWith: String? = null,
     ignoreCase: Boolean = false,
-    liveOnly: Boolean = false,
-) : IUnboundRESTRequest<ListPlanets.ListPlanetsResponse> {
-    object Flat : ListPlanets(liveOnly = false)
-    object Live : ListPlanets(liveOnly = true)
+) : IUnboundRESTRequest<JsonRestResponse<DirectoryInfo>> {
+    object Simple : ListPlanetDirectory()
 
     override val requestMethod: HttpMethod = HttpMethod.GET
     override val requestPath: String = when {
@@ -30,7 +33,7 @@ open class ListPlanets(
     }
     override val requestBody: String? = null
     override val requestQuery: Map<String, String> = mapOf(
-        "source" to (if (liveOnly) "live" else "flat"),
+        "source" to "nested",
         "name" to nameExact,
         "nameStartsWith" to nameStartsWith,
         "nameContains" to nameContains,
@@ -39,70 +42,62 @@ open class ListPlanets(
             if (ignoreCase) "1" else "0"
         } else null)
     ).filterValuesNotNull()
-    override val requestHeader: Map<String, List<String>> = mapOf()
+    override val requestHeader: Map<String, List<String>> = mapOf(ContentTypeHeader(MIMEType.JSON))
 
     override fun parseResponse(serverResponse: ServerResponse) =
-        parseResponseCatchingWrapper(serverResponse, this, ::ListPlanetsResponse)
-
-    class ListPlanetsResponse(serverResponse: IServerResponse, triggeringRequest: IRESTRequest<ListPlanetsResponse>) :
-        JsonRestResponse<List<PlanetJsonInfo>>(
-            serverResponse,
-            triggeringRequest,
-            ListSerializer(PlanetJsonInfo.serializer())
-        ) {
-
-        val planets: List<PlanetJsonInfo> = decodedValue
-        val names: List<String> = planets.map(PlanetJsonInfo::name)
-        val ids: List<ID> = planets.map(PlanetJsonInfo::id)
-    }
+        parseResponseCatchingWrapper(serverResponse, this) { res, req ->
+            JsonRestResponse(
+                res,
+                req,
+                DirectoryInfo.serializer()
+            )
+        }
 }
 
-suspend fun IRobolabServer.listPlanets(liveOnly: Boolean = false) =
-    request(if (liveOnly) ListPlanets.Live else ListPlanets.Flat)
 
-suspend fun IRobolabServer.listPlanets(
-    liveOnly: Boolean = false,
-    block: RequestBuilder.() -> Unit
-) =
-    request(if (liveOnly) ListPlanets.Live else ListPlanets.Flat, block)
+suspend fun IRobolabServer.listPlanetDirectory() = request(ListPlanetDirectory.Simple)
 
-suspend fun IRobolabServer.listPlanets(
+suspend fun IRobolabServer.listPlanetDirectory(block: RequestBuilder.() -> Unit) =
+    request(ListPlanetDirectory.Simple, block)
+
+suspend fun IRobolabServer.listPlanetDirectory(path: String?) = request(ListPlanetDirectory(path))
+
+suspend fun IRobolabServer.listPlanetDirectory(path: String?, block: RequestBuilder.() -> Unit) =
+    request(ListPlanetDirectory(path), block)
+
+suspend fun IRobolabServer.listPlanetDirectory(
     path: String? = null,
     nameExact: String? = null,
     nameStartsWith: String? = null,
     nameContains: String? = null,
     nameEndsWith: String? = null,
     ignoreCase: Boolean = false,
-    liveOnly: Boolean = false,
 ) = request(
-    ListPlanets(
+    ListPlanetDirectory(
         path = path,
         nameExact = nameExact,
         nameStartsWith = nameStartsWith,
         nameContains = nameContains,
         nameEndsWith = nameEndsWith,
         ignoreCase = ignoreCase,
-        liveOnly = liveOnly,
     )
 )
 
-suspend fun IRobolabServer.listPlanets(
+suspend fun IRobolabServer.listPlanetDirectory(
     path: String? = null,
     nameExact: String? = null,
     nameStartsWith: String? = null,
     nameContains: String? = null,
     nameEndsWith: String? = null,
     ignoreCase: Boolean = false,
-    liveOnly: Boolean = false,
     block: RequestBuilder.() -> Unit
 ) = request(
-    ListPlanets(
-        path= path,
+    ListPlanetDirectory(
+        path = path,
         nameExact = nameExact,
         nameStartsWith = nameStartsWith,
         nameContains = nameContains,
         nameEndsWith = nameEndsWith,
         ignoreCase = ignoreCase,
-        liveOnly = liveOnly,
     ), block
 )

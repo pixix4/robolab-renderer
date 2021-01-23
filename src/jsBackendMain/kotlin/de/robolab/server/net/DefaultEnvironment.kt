@@ -46,7 +46,7 @@ object DefaultEnvironment {
         router.use("/coffee", BeverageRouter.coffeeRouter)
         router.use("/mate", BeverageRouter.mateRouter)
         if (fs.existsSync(path.resolve(Config.Planets.directory))) {
-            router.use("/planets", PlanetRouter.router)
+            PlanetRouter.mountOnRouter(router) // mounts "/planet" and "/planets"
         } else {
             logger.warn { "Cannot find planet directory '${path.resolve(Config.Planets.directory)}'" }
         }

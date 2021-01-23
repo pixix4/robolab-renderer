@@ -1,6 +1,7 @@
 package de.robolab.server.data
 
 import com.soywiz.klock.js.toDateTime
+import de.robolab.client.utils.removeCommon
 import de.robolab.common.externaljs.fs.*
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.parser.PlanetFile
@@ -10,19 +11,37 @@ import de.robolab.common.externaljs.os.EOL
 import de.robolab.common.externaljs.path.safeJoinPath
 import de.robolab.common.externaljs.toList
 import de.robolab.common.jsutils.jsTruthy
+import de.robolab.common.net.data.ServerDirectoryInfo
+import de.robolab.common.utils.Logger
+import de.robolab.server.config.Config
 import de.robolab.server.model.toIDString
 import kotlinx.coroutines.await
 import kotlin.js.Promise
 import de.robolab.server.model.ServerPlanet as SPlanet
+import path.path as ppath
 
 
 private suspend fun makeClosestFile(
     directory: String,
     name: String,
+    path: String? = null,
     postfix: String = ".planet"
-): Pair<String, FileHandle> {
+): Triple<String, FileHandle, String> {
+    val unslashedPath: String? = when {
+        path == null -> null
+        (path.startsWith('/') || path.startsWith('\\')) && (path.endsWith('/') || path.endsWith('\\'))
+        -> path.substring(1, path.length - 1)
+        (path.startsWith('/') || path.startsWith('\\')) && !(path.endsWith('/') || path.endsWith('\\'))
+        -> path.substring(1)
+        (!(path.startsWith('/') || path.startsWith('\\'))) && (path.endsWith('/') || path.endsWith('\\'))
+        -> path.substring(0, path.length - 1)
+        else -> path
+    }
     var currentFileBaseName = name
-    var currentFile = safeJoinPath(directory, currentFileBaseName + postfix)
+    var currentFile = if (!unslashedPath.isNullOrEmpty())
+        safeJoinPath(directory, unslashedPath, currentFileBaseName + postfix)
+    else
+        safeJoinPath(directory, currentFileBaseName + postfix)
     var counter = 0
 
     fun catchHandler(err: dynamic): Promise<Any?> {
@@ -30,25 +49,73 @@ private suspend fun makeClosestFile(
         if (err.code != "EEXIST") throw err
         counter++
         currentFileBaseName = "$name-$counter"
-        currentFile = safeJoinPath(directory, currentFileBaseName + postfix)
-        return de.robolab.common.externaljs.fs.open(currentFile, "wx").catch(::catchHandler)
+        currentFile = if (!unslashedPath.isNullOrEmpty())
+            safeJoinPath(directory, unslashedPath, currentFileBaseName + postfix)
+        else
+            safeJoinPath(directory, currentFileBaseName + postfix)
+        return open(currentFile, "wx").catch(::catchHandler)
     }
+    if (!unslashedPath.isNullOrEmpty())
+        mkdir(safeJoinPath(directory, unslashedPath), recursive = true)
 
     //prom: T where T:Union<FileHandle,Promise<T>>
-    var prom: Any? = de.robolab.common.externaljs.fs.open(currentFile, "wx").catch(::catchHandler)
+    var prom: Any? = open(currentFile, "wx").catch(::catchHandler)
 
     while (prom is Promise<*>) {
         prom = prom.await()
     }
-    return Pair(currentFileBaseName, prom.unsafeCast<FileHandle>())
+    return Triple(currentFileBaseName, prom.unsafeCast<FileHandle>(), currentFile)
 }
 
 class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : IPlanetStore {
 
-    private fun getPath(id: String): String = safeJoinPath(directory, "$id.planet")
+    private val liveFilePath: String = safeJoinPath(directory, "live")
 
-    override suspend fun add(planet: SPlanet.Template): SPlanet {
-        val (name: String, handle: FileHandle) = makeClosestFile(directory, planet.name)
+    private suspend fun basePathIsFile(basePath: String): Boolean {
+        return try {
+            stat(safeJoinPath(directory, basePath)).await().isFile()
+        } catch (ex: dynamic) {
+            if (ex.code != "ENOENT")
+                throw ex.unsafeCast<Throwable>()
+            false
+        }
+    }
+
+    override suspend fun isPlanetPath(path: String): Boolean {
+        return if (path.endsWith(".planet")) basePathIsFile(path) else basePathIsFile("$path.planet")
+    }
+
+    override suspend fun internalPlanetIDFromPath(path: String): String {
+        return (if (path.endsWith(".planet"))
+            (path.split('.').dropLast(1).joinToString(".")) else path)
+            .split('/', '\\').last()
+    }
+
+    private fun shortenPath(path: String): String =
+        path.removeCommon(directory).let { if (it.startsWith('/') || it.startsWith('\\')) it.substring(1) else it }
+
+    private suspend fun lookupPath(id: String): String? {
+        return lookupPaths(listOf(id))[0]
+    }
+
+    private suspend fun lookupPaths(ids: List<String>): List<String?> {
+        val pathMap: Map<String, String> = listPlanetFiles("./", true).associate {
+            it.split('.').dropLast(1).joinToString(".").split('/', '\\').last() to
+                    shortenPath(it)
+        }
+        return ids.map(pathMap::get)
+    }
+
+    private suspend fun getPath(id: String): String? {
+        val path = metaStore.retrieveFilePath(id, this::basePathIsFile, this::lookupPath)
+        return safeJoinPath(directory, path ?: return null)
+    }
+
+    override suspend fun add(planet: SPlanet.Template, path: String?): SPlanet {
+        if (path != null && !pathIsWhitelisted(path)) throw RESTResponseCodeException(
+            HttpStatusCode.NotFound
+        )
+        val (name: String, handle: FileHandle, filePath: String) = makeClosestFile(directory, planet.name, path)
         try {
             handle.writeFile(planet.lines.joinToString(EOL)).await()
         } finally {
@@ -56,6 +123,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         }
         val resultPlanet = planet.withID(name)
         metaStore.setInfo(resultPlanet.info)
+        metaStore.setFilePath(name, shortenPath(filePath))
         return resultPlanet
     }
 
@@ -71,7 +139,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
     override suspend fun removeBlind(id: String) {
         metaStore.removeInfoByID(id)
         try {
-            unlink(getPath(id)).await()
+            unlink(getPath(id) ?: return).await()
         } catch (ex: dynamic) {
             if (ex.code != "ENOENT")
                 throw ex.unsafeCast<Throwable>()
@@ -83,7 +151,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         metaStore.removeInfoByID(id)
         if (oldPlanet == null) return null
         try {
-            unlink(getPath(id)).await()
+            unlink(getPath(id) ?: return oldPlanet).await()
         } catch (ex: dynamic) {
             if (ex.code != "ENOENT")
                 throw ex.unsafeCast<Throwable>()
@@ -93,9 +161,11 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
 
     override suspend fun update(planet: SPlanet) {
         val path = getPath(planet.id)
-        val stat = stat(path).await()
-        if (stat.isFile()) {
-            val handle: FileHandle = de.robolab.common.externaljs.fs.open(path, "w").await()
+        val stat: Stats? = if (path == null) null
+        else stat(path).await()
+
+        if (stat?.isFile() == true) {
+            val handle: FileHandle = open(path!!, "w").await()
             try {
                 handle.writeFile(planet.planetFile.contentString).await()
             } finally {
@@ -113,7 +183,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
                 HttpStatusCode.UnprocessableEntity,
                 "Invalid id: \"${id.toIDString()}\""
             )
-        val path: String = getPath(id)
+        val path: String = getPath(id) ?: return null
         val metadata: ServerPlanetInfo? = metaStore.retrieveInfo(id) {
             val localPlanetFile: PlanetFile?
             try {
@@ -168,7 +238,11 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
                 "Invalid id: \"${id.toIDString()}\""
             )
         return try {
-            ServerPlanetInfo.fromPlanet(id, readPlanetFile(id)?.planet, stat(getPath(id)).await().mtime.toDateTime())
+            ServerPlanetInfo.fromPlanet(
+                id,
+                readPlanetFile(id)?.planet,
+                stat(getPath(id) ?: return null).await().mtime.toDateTime()
+            )
         } catch (ex: dynamic) {
             if (ex.code != "ENOENT")
                 throw ex.unsafeCast<Throwable>()
@@ -178,17 +252,100 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
     }
 
     private suspend fun readPlanetFile(id: String): PlanetFile? {
-        val content = readFile(getPath(id)).await()
+        val content = readFile(getPath(id) ?: return null).await()
         return PlanetFile(content)
     }
 
-    override suspend fun listPlanets(): List<ServerPlanetInfo> {
+    private suspend fun readSanitizedDir(
+        nestedPath: String,
+        returnPaths: Boolean,
+        checkFirstLevelWhitelist: Boolean
+    ): List<String> {
+        return readdirents(nestedPath).await().toList().flatMap {
+            when {
+                it.isDirectory() -> if ((!checkFirstLevelWhitelist) || it.name.matches(Config.Planets.firstSubdirectoryWhitelistRegex))
+                    readSanitizedDir(
+                        safeJoinPath(nestedPath, it.name),
+                        returnPaths,
+                        false
+                    ) else emptyList()
+                it.name.endsWith(".planet") -> listOf(
+                    if (returnPaths) safeJoinPath(
+                        nestedPath,
+                        it.name
+                    ) else it.name.split('.').dropLast(1).joinToString(".")
+                )
+                else -> emptyList()
+            }
+        }
+    }
+
+    companion object {
+        fun pathIsWhitelisted(path: String): Boolean {
+            val firstLevelPath = path.trimStart('.').trimStart('/', '\\').substringBefore('/').substringBefore('\\')
+            //println("Matching \"$firstLevelPath\" of \"$path\" against ${Config.Planets.firstSubdirectoryWhitelistRegex}")
+            if (!firstLevelPath.matches(Config.Planets.firstSubdirectoryWhitelistRegex)) return false
+            //println("Match success")
+            return true
+        }
+    }
+
+
+    private suspend fun listPlanetFiles(path: String, returnPaths: Boolean): List<String> {
+        if (!pathIsWhitelisted(path)) throw RESTResponseCodeException(
+            HttpStatusCode.NotFound
+        )
+        val targetPath = safeJoinPath(directory, path)
+        try {
+            return readSanitizedDir(targetPath, returnPaths, path == "./" || path == "/" || path == "." || path == "")
+        } catch (ex: dynamic) {
+            if (ex.code != "ENOENT" && ex.code != "ENOTDIR")
+                throw ex.unsafeCast<Throwable>()
+            else
+                throw RESTResponseCodeException(HttpStatusCode.NotFound)
+        }
+    }
+
+    override suspend fun listPlanets(path: String): List<ServerPlanetInfo> {
         return metaStore.retrieveInfo(
-            readdirents(directory).await().toList()
-                .filter { dirent -> dirent.isFile() and dirent.name.endsWith(".planet") }
-                .map { dirent -> dirent.name.split('.').dropLast(1).joinToString(".") },
+            listPlanetFiles(path, false),
             ::lookupInfo
         ).filterNotNull()
+    }
+
+    override suspend fun listFileEntries(path: String): ServerDirectoryInfo? {
+        if (!pathIsWhitelisted(path)) throw RESTResponseCodeException(
+            HttpStatusCode.NotFound
+        )
+        val safePath = safeJoinPath(directory, path)
+        return try {
+            if (!stat(safePath).await().isDirectory())
+                return null
+            val (directories, files) = readdirents(safePath).await().toList().partition(Dirent::isDirectory)
+            ServerDirectoryInfo(
+                safePath.removeCommon(directory).replace('\\', '/'),
+                directories.mapNotNull { if (pathIsWhitelisted(ppath.join(path, it.name))) it.name else null },
+                files.mapNotNull { getInfo(internalPlanetIDFromPath(ppath.join(safePath, it.name))) })
+        } catch (ex: dynamic) {
+            if (ex.code != "ENOENT")
+                throw ex.unsafeCast<Throwable>()
+            else
+                null
+        }
+    }
+
+    override suspend fun listLivePlanets(path: String): List<ServerPlanetInfo> {
+        val rawPaths: List<String> = try {
+            readFile(liveFilePath).await().lines()
+        } catch (ex: dynamic) {
+            if (ex.code != "ENOENT")
+                throw ex.unsafeCast<Throwable>()
+            else {
+                Logger.DEFAULT.warn { "Could not find the \"live\" file in \"$directory\", assuming it to be empty" }
+                emptyList()
+            }
+        }
+        return rawPaths.mapNotNull { getInfo(internalPlanetIDFromPath(it)) }
     }
 
     override suspend fun clearMeta(): Pair<Boolean, String> = metaStore.clear()

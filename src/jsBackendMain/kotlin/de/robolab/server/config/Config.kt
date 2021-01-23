@@ -51,6 +51,12 @@ object Config : TypedStorage() {
         //Directory to use for planet-storage
         val directory by item("planets.directory", "./planets/")
 
+        //Regex to determine which subdirectories of `planets.directory` can be viewed. This only affects direct children.
+        val firstSubdirectoryWhitelistRegex by item(
+            "planets.firstSubdirectoryWhitelistRegex",
+            "^(?:\\d+|archive|live)?\$"
+        )
+
         //Connection string used to connect to the redis database for planet information (ID to name, locations, etc.)
         val database by item("planets.database", "redis://127.0.0.1:6379/4")
 

@@ -9,7 +9,7 @@ import de.robolab.common.planet.ID
 
 class GetPlanet(val id: ID) : IUnboundRESTRequest<PlanetResponse> {
     override val requestMethod: HttpMethod = HttpMethod.GET
-    override val requestPath: String = "/api/planets/${id.id}"
+    override val requestPath: String = "/api/planet/${id.id}"
     override val requestBody: String? = null
     override val requestQuery: Map<String, String> = emptyMap()
     override val requestHeader: Map<String, List<String>> = mapOf()
