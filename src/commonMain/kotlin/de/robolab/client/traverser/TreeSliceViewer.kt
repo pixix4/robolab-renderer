@@ -1,11 +1,11 @@
 package de.robolab.client.traverser
 
+import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableMutableList
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.property
-import kotlinx.coroutines.Delay
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.time.Duration
@@ -98,7 +98,7 @@ open class TreeSliceViewer<N> protected constructor(
     @Suppress("ControlFlowWithEmptyBody")
     suspend fun fullExpandAsync(
         isLeftExpand: Boolean = true,
-        delay: Duration = Duration.ZERO
+        delay: Duration = PreferenceStorage.traverserDelay.toDuration(DurationUnit.MILLISECONDS)
     ): Boolean {
         if (!expand(isLeftExpand)) return false
         if (delay == Duration.ZERO) yield()
@@ -122,7 +122,7 @@ open class TreeSliceViewer<N> protected constructor(
     suspend fun fullExpandAsync(
         predicate: (N) -> Boolean,
         isLeftExpand: Boolean = true,
-        delay: Duration = Duration.ZERO
+        delay: Duration = PreferenceStorage.traverserDelay.toDuration(DurationUnit.MILLISECONDS)
     ): Boolean {
         if (!predicate(currentNode)) return false
         if (!expand(isLeftExpand)) return false

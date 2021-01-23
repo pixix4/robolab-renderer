@@ -37,7 +37,7 @@ abstract class AbsPlanetDrawable(
 
     val drawGridLinesProperty = property(true)
     var drawGridLines by drawGridLinesProperty
-
+ 
     val drawGridNumbersProperty = property(true)
     var drawGridNumbers by drawGridNumbersProperty
 

@@ -6,6 +6,7 @@ import de.robolab.client.app.model.traverser.TraverserStateEntry
 import de.robolab.client.net.RobolabScope
 import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.client.traverser.*
+import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAsync
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableList
@@ -19,7 +20,7 @@ import io.ktor.util.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 
-class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: Boolean = true) {
+class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: Boolean = PreferenceStorage.traverserAutoExpand) {
     val autoExpandProperty: ObservableProperty<Boolean> = property(autoExpand)
 
     val sliceViewer: ObservableTreeSliceViewer<out ITraverserState<*>> = traverser.observableTreeSliceViewer()

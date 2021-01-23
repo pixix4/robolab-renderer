@@ -87,19 +87,21 @@ class InfoBarFileTraverseView(
 
                 boxView("traverser-bar-footer") {
                     boxView("traverser-bar-trail") {
-                        button {
-                            disabledProperty.bind(!traverserProperty.flatMapBinding { it.isPreviousEnabled })
-                            iconView(MaterialIcon.CHEVRON_LEFT)
+                        buttonGroup(true) {
+                            button {
+                                disabledProperty.bind(!traverserProperty.flatMapBinding { it.isPreviousEnabled })
+                                iconView(MaterialIcon.CHEVRON_LEFT)
 
-                            onClick { event ->
-                                traverserProperty.value.clickPreviousTrail()
-                                event.stopPropagation()
+                                onClick { event ->
+                                    traverserProperty.value.clickPreviousTrail()
+                                    event.stopPropagation()
+                                }
                             }
                         }
 
                         textView(traverserProperty.flatMapBinding { it.traverserTitle })
 
-                        buttonGroup {
+                        buttonGroup(true) {
                             button {
                                 iconView(MaterialIcon.ARROW_DROP_DOWN)
                                 title = "Expand"
@@ -127,12 +129,14 @@ class InfoBarFileTraverseView(
                             }
                         }
 
-                        button {
-                            disabledProperty.bind(!traverserProperty.flatMapBinding { it.isNextEnabled })
-                            iconView(MaterialIcon.CHEVRON_RIGHT)
-                            onClick { event ->
-                                traverserProperty.value.clickNextTrail()
-                                event.stopPropagation()
+                        buttonGroup(true) {
+                            button {
+                                disabledProperty.bind(!traverserProperty.flatMapBinding { it.isNextEnabled })
+                                iconView(MaterialIcon.CHEVRON_RIGHT)
+                                onClick { event ->
+                                    traverserProperty.value.clickNextTrail()
+                                    event.stopPropagation()
+                                }
                             }
                         }
                     }

@@ -66,6 +66,19 @@ class SettingsDialog private constructor(
                 }
             }
 
+            dialogFormGroup("Traverser") {
+                dialogFormEntry("Auto expand") {
+                    label(checkbox(PreferenceStorage.traverserAutoExpandProperty))
+                }
+                dialogFormEntry("Delay calculation to improve ui responsiveness (in ms)") {
+                    inputView(InputType.NUMBER, PreferenceStorage.traverserDelayProperty.bindStringParsing()) {
+                        min = 0.0
+                        max = 100000.0
+                        step = 1.0
+                    }
+                }
+            }
+
             dialogFormGroup("Exam mode") {
                 dialogFormEntry("Use remote state") {
                     label(checkbox(PreferenceStorage.useRemoteExamStateProperty))

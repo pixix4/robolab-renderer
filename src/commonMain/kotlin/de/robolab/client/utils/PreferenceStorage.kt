@@ -39,6 +39,13 @@ object PreferenceStorage : TypedStorage() {
     var renderAutoScaling by renderAutoScalingProperty
 
 
+    val traverserAutoExpandProperty = item("traverser.autoExpand", false)
+    var traverserAutoExpand by traverserAutoExpandProperty
+
+    val traverserDelayProperty = item("traverser.delay", 1)
+    var traverserDelay by traverserDelayProperty
+
+
     val selectedThemeProperty = item("ui.theme", Theme.DEFAULT)
     var selectedTheme by selectedThemeProperty
 
