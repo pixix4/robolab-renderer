@@ -1,7 +1,7 @@
 package de.robolab.client.app.model.file.details
 
 import de.robolab.client.renderer.drawable.general.PathAnimatable
-import de.robolab.client.utils.PathClassifier
+import de.robolab.client.utils.PathClassification
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.parser.toFixed
@@ -28,8 +28,7 @@ class PathDetailBox(path: Path, planetFile: PlanetFile) {
 
     val length = getPathLengthString(planetFile.planet.version, path)
 
-    val classifier = PathClassifier.classify(path).desc
-
+    val classification = PathClassification.classify(planetFile.planet.version, path)
 
     val pathExposedAt = path.exposure.map {
         "${it.x}, ${it.y}"
@@ -42,7 +41,7 @@ class PathDetailBox(path: Path, planetFile: PlanetFile) {
         fun getPathLengthString(planetVersion: PlanetVersion, path: Path): String {
             val lengthGrid = getPathLengthInGridUnits(planetVersion, path)
             val lengthMeter = lengthGrid * PreferenceStorage.paperGridWidth
-            return  "${lengthMeter.toFixed(2)}m (${lengthGrid.toFixed(2)} grid units)"
+            return  "${lengthMeter.toFixed(2)} m\n${lengthGrid.toFixed(2)} units"
         }
     }
 }

@@ -1,6 +1,8 @@
 package de.robolab.client.ui.views.boxes
 
 import de.robolab.client.app.model.file.details.PlanetStatisticsDetailBox
+import de.westermann.kobserve.event.now
+import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
@@ -13,19 +15,34 @@ class DetailBoxPlanetStatistics(
     init {
         table("info-bar-group-view-header") {
             for ((label, block) in data.data) {
-                row {
-                    head(2) {
-                        textView(label)
-                    }
-                }
+                tbody {
+                    val refs = mutableListOf<TableRow>()
 
-                for ((key, value) in block) {
-                    row {
-                        cell {
-                            textView(key)
+                    block.onChange.now {
+                        clear()
+                        for (r in refs) {
+                            r.classList.unbind("empty")
                         }
-                        cell {
-                            textView(value)
+                        refs.clear()
+
+                        if (block.value.isNotEmpty()) {
+                            row {
+                                head(2) {
+                                    textView(label)
+                                }
+                            }
+
+                            for ((key, value) in block.value) {
+                                refs += row {
+                                    classList.bind("empty", value.mapBinding { it.isBlank() })
+                                    cell {
+                                        textView(key)
+                                    }
+                                    cell {
+                                        textView(value)
+                                    }
+                                }
+                            }
                         }
                     }
                 }

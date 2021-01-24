@@ -15,7 +15,7 @@ import de.robolab.common.utils.Point
 import de.westermann.kobserve.event.EventListener
 
 class CreatePathManager(
-        private val editCallback: IEditCallback
+    private val editCallback: IEditCallback
 ) {
 
     val view = GroupView("Create path manager")
@@ -42,12 +42,13 @@ class CreatePathManager(
         val startPoint = startCoordinate.toPoint() + startDirection.toVector(PlottingConstraints.POINT_SIZE)
 
         private val splineView = SplineView(
-                startPoint,
-                startPoint,
-                listOf(startPoint, startPoint),
-                PlottingConstraints.LINE_WIDTH,
-                ViewColor.LINE_COLOR,
-                false
+            startPoint,
+            startPoint,
+            listOf(startPoint, startPoint),
+            PlottingConstraints.LINE_WIDTH,
+            ViewColor.LINE_COLOR,
+            emptyList(),
+            false
         )
 
         private val controlPoints = mutableListOf<Point>()
@@ -88,7 +89,8 @@ class CreatePathManager(
                 }
 
                 if (hoveredCoordinate != null && hoveredDirection != null) {
-                    val endPoint = hoveredCoordinate.toPoint() + hoveredDirection.toVector(PlottingConstraints.POINT_SIZE)
+                    val endPoint =
+                        hoveredCoordinate.toPoint() + hoveredDirection.toVector(PlottingConstraints.POINT_SIZE)
 
                     val cp = if (drawMode) {
                         when (controlPoints.size) {
@@ -98,11 +100,11 @@ class CreatePathManager(
                         }
                     } else {
                         getControlPointsFromPath(
-                                PlanetVersion.CURRENT,
-                                startCoordinate.toPoint(),
-                                startDirection,
-                                hoveredCoordinate.toPoint(),
-                                hoveredDirection
+                            PlanetVersion.CURRENT,
+                            startCoordinate.toPoint(),
+                            startDirection,
+                            hoveredCoordinate.toPoint(),
+                            hoveredDirection
                         )
                     }
 

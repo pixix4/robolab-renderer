@@ -1,10 +1,12 @@
 package de.robolab.client.ui.views.boxes
 
 import de.robolab.client.app.model.file.details.PathDetailBox
+import de.robolab.client.renderer.drawable.utils.radiantToDegree
 import de.robolab.client.ui.dialog.bindStringParsing
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
+import kotlin.math.roundToInt
 
 
 class DetailBoxPath(
@@ -64,12 +66,49 @@ class DetailBoxPath(
                 }
             }
 
+
+            row {
+                head(2) {
+                    textView("Classification")
+                }
+            }
+
             row {
                 cell {
                     textView("Classifier")
                 }
                 cell {
-                    textView(data.classifier)
+                    textView(data.classification.classifier.desc)
+                }
+            }
+            row {
+                cell {
+                    textView("Difficulty")
+                }
+                cell {
+                    textView(data.classification.difficulty.name.toLowerCase().capitalize())
+                }
+            }
+            row {
+                cell {
+                    textView("Curviness")
+                }
+                cell {
+                    textView(data.classification.completeSegment.curviness.roundToInt().toString())
+                }
+            }
+
+            row {
+                cell {
+                    textView("Details")
+                }
+                cell {
+                    textView(data.classification.table) {
+                        style {
+                            whiteSpace = "pre"
+                            fontFamily = "\"Roboto Mono\""
+                        }
+                    }
                 }
             }
 

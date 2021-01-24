@@ -163,6 +163,10 @@
   .text-view {
     white-space: pre;
   }
+
+  tr.empty {
+    display: none;
+  }
 }
 .info-bar-group-view-message-from {
   display: flex;

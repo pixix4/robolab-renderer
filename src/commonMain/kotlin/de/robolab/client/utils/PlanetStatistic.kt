@@ -25,8 +25,18 @@ class PlanetStatistic(
     private val points = planet.getPointList()
 
     val pointCount = points.size
-    val pointRedCount = points.count { !PointAnimatableManager.isPointHidden(planet, it) && it.getColor(planet.bluePoint) == Coordinate.Color.RED }
-    val pointBlueCount = points.count { !PointAnimatableManager.isPointHidden(planet, it) && it.getColor(planet.bluePoint) == Coordinate.Color.BLUE }
+    val pointRedCount = points.count {
+        !PointAnimatableManager.isPointHidden(
+            planet,
+            it
+        ) && it.getColor(planet.bluePoint) == Coordinate.Color.RED
+    }
+    val pointBlueCount = points.count {
+        !PointAnimatableManager.isPointHidden(
+            planet,
+            it
+        ) && it.getColor(planet.bluePoint) == Coordinate.Color.BLUE
+    }
     val pointHiddenCount = points.count { PointAnimatableManager.isPointHidden(planet, it) }
 
     val startPoint = planet.startPoint
@@ -35,9 +45,18 @@ class PlanetStatistic(
     val targetCount = planet.targetList.groupBy { it.target }.size
     val senderCount = planet.senderGrouping.keys.flatten().distinct().size
 
-    val pathClassifier = planet.pathList
+    val classification = planet.pathList.map { PathClassification.classify(planet.version, it) }
+
+    val pathDifficulty = classification
         .groupBy {
-            PathClassifier.classify(it)
+            it.difficulty
+        }.mapValues { (_, list) ->
+            list.size
+        }
+
+    val pathClassifier = classification
+        .groupBy {
+            it.classifier
         }.mapValues { (_, list) ->
             list.size
         }

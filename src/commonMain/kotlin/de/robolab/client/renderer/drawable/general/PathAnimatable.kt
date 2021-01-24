@@ -11,10 +11,12 @@ import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.*
+import de.robolab.client.utils.PathClassification
 import de.robolab.common.planet.*
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.property.property
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 
@@ -24,12 +26,32 @@ class PathAnimatable(
     val editCallback: IEditCallback?
 ) : Animatable<Path>(reference) {
 
+    private fun generateHighlightColors(planet: Planet, reference: Path): List<SplineView.Color> {
+        val segments = PathClassification.classify(planet.version, reference).explicitSegments
+
+        return segments.map { segment ->
+            val percent = min(1.5, segment.curviness / 500.0) * 1.5
+
+            val highlight = if (percent < 0.5) {
+                ViewColor.HIGHLIGHT_COLOR.interpolate(ViewColor.PRIMARY_BACKGROUND_COLOR, 0.75 - percent * 1.5)
+            } else {
+                ViewColor.HIGHLIGHT_COLOR.interpolate(ViewColor.POINT_RED, percent - 0.75)
+            }
+
+            SplineView.Color(
+                highlight,
+                segment.endProgress
+            )
+        }
+    }
+
     override val view = SplineView(
         getSourcePointFromPath(reference),
         getTargetPointFromPath(planet.version, reference),
         getControlPointsFromPath(planet.version, reference),
         PlottingConstraints.LINE_WIDTH,
         getSenderGrouping(planet, reference)?.viewColor ?: ViewColor.LINE_COLOR,
+        generateHighlightColors(planet, reference),
         reference.hidden
     )
 
@@ -122,7 +144,8 @@ class PathAnimatable(
         view.setControlPoints(getControlPointsFromPath(planet.version, reference), 0.0)
         view.setSource(getSourcePointFromPath(reference), 0.0)
         view.setTarget(getTargetPointFromPath(planet.version, reference), 0.0)
-        view.setColor(grouping?.viewColor ?: ViewColor.LINE_COLOR)
+        view.setColor(getSenderGrouping(planet, reference)?.viewColor ?: ViewColor.LINE_COLOR)
+        view.setHighlightColor(generateHighlightColors(planet, reference))
         view.setIsDashed(reference.hidden)
 
         isWeightVisibleProperty.value = reference.weight?.let { it > 0.0 } ?: false
@@ -155,7 +178,11 @@ class PathAnimatable(
             val currentManager = pathEditManager
 
             return if (currentManager == null) {
-                val manager = PathEditManager(this, editCallback ?: throw IllegalStateException("PathEditManager cannot be created if not IEditCallback is present"))
+                val manager = PathEditManager(
+                    this,
+                    editCallback
+                        ?: throw IllegalStateException("PathEditManager cannot be created if not IEditCallback is present")
+                )
                 pathEditManager = manager
 
                 manager.onChangePath {
@@ -175,7 +202,7 @@ class PathAnimatable(
         view.focusable = true || editCallback != null
         weightView.focusable = editCallback != null
 
-        if (editCallback != null ) {
+        if (editCallback != null) {
             view.onFocus {
                 view += getOrCreateEditManager.view
             }
@@ -423,7 +450,7 @@ class PathAnimatable(
             val source = getSourcePointFromPath(path)
             val target = getTargetPointFromPath(planetVersion, path)
 
-            val eval = listOf(source) + SplineView.evalSpline(
+            val eval = listOf(source) + CurveEval.evalSpline(
                 evalCount,
                 controlPoints,
                 source,

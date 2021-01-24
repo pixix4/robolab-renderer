@@ -6,8 +6,8 @@ import de.robolab.common.planet.Coordinate
 import kotlin.math.*
 
 data class Vector(
-        val left: Double,
-        val top: Double
+    val left: Double,
+    val top: Double
 ) : IInterpolatable<Vector> {
 
     constructor(left: Number, top: Number) : this(left.toDouble(), top.toDouble())
@@ -34,9 +34,13 @@ data class Vector(
         return abs(left - other.left) + abs(top - other.top)
     }
 
+    fun angle(other: Vector): Double {
+        return atan2(other.top, other.left) - atan2(top, left)
+    }
+
     fun midpoint(other: Vector) = Vector(
-            (left + other.left) / 2,
-            (top + other.top) / 2
+        (left + other.left) / 2,
+        (top + other.top) / 2
     )
 
     fun magnitude() = sqrt(left * left + top * top)
@@ -54,10 +58,10 @@ data class Vector(
     override fun interpolate(toValue: Vector, progress: Double): Vector {
         if (progress == 1.0) return toValue
         if (progress == 0.0) return this
-        
+
         return Vector(
-                left * (1 - progress) + toValue.left * progress,
-                top * (1 - progress) + toValue.top * progress
+            left * (1 - progress) + toValue.left * progress,
+            top * (1 - progress) + toValue.top * progress
         )
     }
 
@@ -66,7 +70,7 @@ data class Vector(
     }
 
     fun orthogonal() = Vector(-y, x)
-    
+
     fun rotate(rotation: Double, origin: Vector = ZERO): Vector {
         return if (origin == ZERO) {
             Vector(
@@ -88,17 +92,18 @@ data class Vector(
     }
 
     fun max(other: Vector): Vector = Vector(
-            max(left, other.left),
-            max(top, other.top)
+        max(left, other.left),
+        max(top, other.top)
     )
 
     fun min(other: Vector): Vector = Vector(
-            min(left, other.left),
-            min(top, other.top)
+        min(left, other.left),
+        min(top, other.top)
     )
 
     fun rounded() = Vector(round(left), round(top))
-    fun roundedWithMultiplier(multiplier: Double = 1.0) = Vector(round(left * multiplier) / multiplier, round(top * multiplier) / multiplier)
+    fun roundedWithMultiplier(multiplier: Double = 1.0) =
+        Vector(round(left * multiplier) / multiplier, round(top * multiplier) / multiplier)
 
     override fun toString(): String {
         return "Vector(${left.toFixed(2)}, ${top.toFixed(2)})"

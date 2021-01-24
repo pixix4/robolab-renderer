@@ -1,15 +1,18 @@
 package de.robolab.client.renderer.view.component
 
-import de.robolab.client.renderer.canvas.DrawContext
-import de.robolab.client.renderer.drawable.utils.*
 import de.robolab.client.renderer.PlottingConstraints
+import de.robolab.client.renderer.canvas.DrawContext
+import de.robolab.client.renderer.drawable.utils.BSpline
+import de.robolab.client.renderer.drawable.utils.Curve
+import de.robolab.client.renderer.drawable.utils.CurveEval
+import de.robolab.client.renderer.drawable.utils.c
+import de.robolab.client.renderer.transition.IInterpolatable
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.unionNullable
 import de.westermann.kobserve.property.property
-import kotlin.math.max
 
 class SplineView(
     source: Point,
@@ -17,9 +20,28 @@ class SplineView(
     controlPoints: List<Point>,
     width: Double,
     color: ViewColor,
+    highlightColor: List<Color>,
     isDashed: Boolean
 ) : BaseView() {
 
+    class Color(
+        val color: ViewColor,
+        val t: Double = 1.0
+    ) : IInterpolatable<Color> {
+        override fun interpolate(toValue: Color, progress: Double): Color {
+            return Color(
+                color.interpolate(toValue.color, progress),
+                t + (toValue.t - t) * progress,
+            )
+        }
+
+        override fun interpolateToNull(progress: Double): Color {
+            return Color(
+                color.interpolateToNull(progress),
+                t,
+            )
+        }
+    }
 
     private val sourceTransition = transition(source)
     val source by sourceTransition
@@ -51,6 +73,12 @@ class SplineView(
         colorTransition.animate(color, duration, offset)
     }
 
+    private val highlightColorTransition = transition(highlightColor)
+    val highlightColor by highlightColorTransition
+    fun setHighlightColor(highlightColor: List<Color>, duration: Double = animationTime, offset: Double = 0.0) {
+        highlightColorTransition.animate(highlightColor, duration, offset)
+    }
+
     private val progressTransition = transition(0.0)
     val progress by progressTransition
     fun setProgress(progress: Double, duration: Double = animationTime, offset: Double = 0.0) {
@@ -64,7 +92,7 @@ class SplineView(
     }
 
 
-    private val pointHelperCache = mutableMapOf<Int, List<PointLengthHelper>>()
+    private val pointHelperCache = mutableMapOf<Int, List<CurveEval>>()
     private val distance by property(sourceTransition, targetTransition, controlPointsTransition) {
         pointHelperCache.clear()
         (listOf(this.source) + this.controlPoints + this.target).windowed(2, 1)
@@ -82,92 +110,102 @@ class SplineView(
     }
 
     private var stepCount: Int = 1
-    private fun calcLinePoints(): List<Point> {
+    private fun calcLineSegments(breaks: List<Double> = emptyList()): List<List<Point>> {
         if (progress == 0.0) return emptyList()
 
         val pointHelpers = pointHelperCache.getOrPut(stepCount) {
-            val pointHelpers = evalSpline(stepCount, controlPoints, source, target, curve).map {
-                PointLengthHelper(it)
-            }
-
-            var lastPoint = pointHelpers.first()
-            for (index in 1 until pointHelpers.size) {
-                val p = pointHelpers[index]
-                p.length = lastPoint.length + (p.point distanceTo lastPoint.point)
-                lastPoint = p
-            }
-
-            pointHelpers
+            CurveEval.evalSplineAttributed(stepCount, controlPoints, source, target, curve)
         }
 
-
-        return if (progress == 1.0 || progress == -1.0) {
-            // Draw full spline
-
-            pointHelpers.map { it.point }
+        val ranges = mutableListOf<Pair<Double, Double>>()
+        if (progress == 1.0 || progress == -1.0) {
+            var rangeStart = 0.0
+            for (b in breaks) {
+                ranges += rangeStart to b
+                rangeStart = b
+            }
+            ranges += rangeStart to 1.0
         } else if (progress > 0.0) {
-            // Draw partial spline from source
-
-            val curveLength = pointHelpers.last().length
-            val progressLength = curveLength * progress
-
-            val endIndex = pointHelpers.indexOfFirst { it.length >= progressLength }
-
-            if (endIndex < 0) {
-                return emptyList()
+            var rangeStart = 0.0
+            for (b in breaks) {
+                if (b >= progress) break
+                ranges += rangeStart to b
+                rangeStart = b
             }
-
-            val index = if (endIndex > 1) endIndex else 1
-            val p1 = pointHelpers[index - 1]
-            val p2 = pointHelpers[index]
-
-            val endPoint = p1.point.interpolate(p2.point, (progressLength - p1.length) / (p2.length - p1.length))
-
-            pointHelpers.take(index).map { it.point } + endPoint
+            ranges += rangeStart to progress
         } else {
-            // Draw partial spline from target
-
-            val curveLength = pointHelpers.last().length
-            val progressLength = curveLength * (1 + progress)
-
-            val endIndex = pointHelpers.indexOfLast { it.length <= progressLength }
-
-            if (endIndex < 0) {
-                pointHelpers.map { it.point }
-            } else {
-                val index = if (endIndex > 1) endIndex else 1
-                val p2 = pointHelpers[index - 1]
-                val p1 = pointHelpers[index]
-
-                val endPoint = p1.point.interpolate(p2.point, (progressLength - p1.length) / (p2.length - p1.length))
-
-                pointHelpers.take(index).map { it.point } + endPoint
+            var rangeStart = 1.0
+            for (b in breaks.reversed()) {
+                if (b <= -progress) break
+                ranges += b to rangeStart
+                rangeStart = b
             }
+            ranges += -progress to rangeStart
+            ranges.reverse()
         }
+
+        val result = ranges.map { mutableListOf<Point>() }
+        var rangeIndex = 0
+        var range = ranges[rangeIndex]
+        var current = result[rangeIndex]
+
+        var pi = 0
+        for (p in pointHelpers) {
+            if (p.curveProgress < range.first) continue
+            if (p.curveProgress < range.second) {
+                current.add(p.point)
+            } else {
+                val last = pointHelpers[pi - 1]
+                val interpolateProgress = (range.second - last.curveProgress) / (p.curveProgress - last.curveProgress)
+                val point = last.point.interpolate(p.point, interpolateProgress)
+
+                current.add(point)
+
+                rangeIndex += 1
+                if (rangeIndex >= ranges.size) break
+                range = ranges[rangeIndex]
+                current = result[rangeIndex]
+
+                current.add(point)
+            }
+            pi += 1
+        }
+
+        return result
     }
 
     override fun onDraw(context: DrawContext) {
         stepCount = ((distance * context.transformation.scaledGridWidth) / 5).toInt()
-        val points = calcLinePoints()
 
-        if (points.isEmpty()) return
+        val breaks = if (isHovered || isFocused) {
+            highlightColor.dropLast(1).map { it.t }
+        } else emptyList()
+        val segments = calcLineSegments(breaks) zip highlightColor
 
-        if (isHovered && !isFocused) {
-            context.strokeLine(points, context.theme.plotter.highlightColor, width * 3)
-        }
-        if (isFocused) {
-            context.strokeLine(points, context.theme.plotter.highlightColor, width * 5)
-        }
+        if (segments.isEmpty()) return
 
-        if (dashed > 0.0) {
-            val spacingLength = PlottingConstraints.DASH_SPACING * dashed
-            val dashes = listOf(
-                PlottingConstraints.DASH_SEGMENT_LENGTH - spacingLength,
-                spacingLength
-            )
-            context.dashLine(points, context.c(color), width, dashes, dashes.first() / 2)
-        } else {
-            context.strokeLine(points, context.c(color), width)
+        for ((points, colors) in segments) {
+            if (points.isEmpty()) continue
+
+            if (isHovered && !isFocused) {
+                val c = context.c(colors.color)
+                context.strokeLine(points, c, width * 3)
+            }
+            if (isFocused) {
+                val c = context.c(colors.color)
+                context.strokeLine(points, c, width * 5)
+            }
+
+            if (dashed > 0.0) {
+                val spacingLength = PlottingConstraints.DASH_SPACING * dashed
+                val dashes = listOf(
+                    PlottingConstraints.DASH_SEGMENT_LENGTH - spacingLength,
+                    spacingLength
+                )
+                context.dashLine(points, context.c(color), width, dashes, dashes.first() / 2)
+            } else {
+                context.strokeLine(points, context.c(color), width)
+            }
         }
 
         super.onDraw(context)
@@ -179,21 +217,20 @@ class SplineView(
     }
 
     override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
-        val points = calcLinePoints()
+        val segments = calcLineSegments()
 
-        if (points.isEmpty()) return false
+        if (segments.isEmpty()) return false
 
-        return points.any { it.distanceTo(planetPoint) - epsilon < width / 2 }
+        return segments.any { segment ->
+            segment.any {
+                it.distanceTo(planetPoint) - epsilon < width / 2
+            }
+        }
     }
 
     override fun debugStringParameter(): List<Any?> {
         return listOf(source, target)
     }
-
-    data class PointLengthHelper(
-        val point: Point,
-        var length: Double = 0.0
-    )
 
     override fun onCreate() {
         setProgress(1.0)
@@ -203,56 +240,5 @@ class SplineView(
         setProgress(0.0)
 
         animatableManager.onFinish(onFinish)
-    }
-
-    companion object {
-        fun evalSpline(
-            count: Int,
-            controlPoints: List<Point>,
-            source: Point,
-            target: Point,
-            curve: Curve,
-            improveCount: Boolean = true
-        ): List<Point> {
-            val realCount = if (improveCount) {
-                max(16, power2(log2(count - 1) + 1))
-            } else count
-
-            val points = arrayOfNulls<Point>(realCount + 1)
-
-            val step = 1.0 / realCount
-            var t = 2 * step
-
-            points[0] = controlPoints.first()
-
-            var index = 1
-            while (t < 1.0) {
-                points[index] = curve.eval(t - step, controlPoints)
-                t += step
-                index += 1
-            }
-
-            points[index] = (controlPoints.last())
-
-            val startPointEdge =
-                source + (controlPoints.first() - source).normalize() * PlottingConstraints.POINT_SIZE / 2
-            val endPointEdge = target + (controlPoints.last() - target).normalize() * PlottingConstraints.POINT_SIZE / 2
-
-            val pointList = points.take(index + 1).requireNoNulls()
-
-            return if (startPointEdge == pointList.firstOrNull()) {
-                if (endPointEdge == pointList.lastOrNull()) {
-                    pointList
-                } else {
-                    pointList + endPointEdge
-                }
-            } else {
-                if (endPointEdge == pointList.lastOrNull()) {
-                    listOf(startPointEdge) + pointList
-                } else {
-                    listOf(startPointEdge) + pointList + endPointEdge
-                }
-            }
-        }
     }
 }
