@@ -53,7 +53,20 @@ class RESTRobolabServer(
     ): ServerResponse {
         if (headers.keys.any { it.toLowerCase() == AuthorizationHeader.name }) {
             //Auth-Header overwritten, do not attempt multiple requests
-            return sendHttpRequest(method, protocol, hostURL, hostPort, path, body, query, headers)
+            logger.debug {
+                "|C==>S| $method:$path HED: {custom auth}"
+            }
+            return sendHttpRequest(
+                method,
+                protocol,
+                hostURL,
+                hostPort,
+                path,
+                body,
+                query,
+                headers,
+                throwOnNonOk = false
+            )
         }
         val owner: Any = Random.nextLong()
         var usedHeader: AuthorizationHeader?
@@ -78,7 +91,12 @@ class RESTRobolabServer(
             }
         }
         try {
+            var logAuthTokenProvided = false
             do {
+                if (logAuthTokenProvided)
+                    logger.debug {
+                        "|C<@-A| $method:$path AUTH Provided"
+                    }
                 if (enableWaitingRequestList)
                     removeWaitingRequest()
                 do {
@@ -101,7 +119,8 @@ class RESTRobolabServer(
                         body,
                         query,
                         if (usedHeader == null) headers
-                        else headers + (AuthorizationHeader.name to listOf(usedHeader.value))
+                        else headers + (AuthorizationHeader.name to listOf(usedHeader.value)),
+                        throwOnNonOk = false
                     )
                     logger.debug {
                         "|C<--S| $method:$path - ${response.metaInfoString()}; CNT:${response.bodyInfoString()}"
@@ -117,12 +136,20 @@ class RESTRobolabServer(
                         }
                     _requestAuthTokenMutex.lock(owner)
                 } while (usedHeader != authHeader)
+
+                logger.debug {
+                    "|C-@>A| $method:$path AUTH"
+                }
+                logAuthTokenProvided = true
             } while (requestAuthToken(this, true))
         } finally {
             if (_requestAuthTokenMutex.holdsLock(owner))
                 _requestAuthTokenMutex.unlock(owner)
             if (enableWaitingRequestList)
                 removeWaitingRequest()
+        }
+        logger.debug {
+            "|C-!-A| $method:$path AUTH Cancelled"
         }
         return response //user canceled the requestAuthToken-Call
     }

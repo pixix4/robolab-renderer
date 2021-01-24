@@ -5,6 +5,7 @@ import de.robolab.client.net.requests.IRESTResponse
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
 import io.ktor.client.*
+import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.client.utils.*
@@ -80,8 +81,27 @@ suspend fun sendHttpRequest(
     path: String,
     body: String?,
     query: Map<String, String>,
-    headers: Map<String, List<String>>
+    headers: Map<String, List<String>>,
+    throwOnNonOk: Boolean = true
 ): ServerResponse {
+    if (!throwOnNonOk) {
+        return try {
+            sendHttpRequest(
+                method = method,
+                scheme = scheme,
+                host = host,
+                port = port,
+                path = path,
+                body = body,
+                query = query,
+                headers = headers,
+                throwOnNonOk = true
+            )
+        } catch (ex: ClientRequestException) {
+            ex.response.toRobolabResponse()
+        }
+    }
+
     val p = if (port == 443 && scheme.startsWith("https") || port == 80 && scheme.startsWith("http")) 0 else port
 
     val builtApplicators = buildApplicators(query, headers)
@@ -174,7 +194,7 @@ fun sendHttpRequest(
     callback: (ServerResponse) -> Unit
 ) {
     RobolabScope.launch {
-        val response = sendHttpRequest(method, scheme, host, port, path, body, query, headers)
+        val response = sendHttpRequest(method, scheme, host, port, path, body, query, headers, throwOnNonOk = false)
         callback(response)
     }
 }
