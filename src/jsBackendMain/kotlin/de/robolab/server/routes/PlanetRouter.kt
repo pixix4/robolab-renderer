@@ -2,18 +2,15 @@
 
 package de.robolab.server.routes
 
-import NodeJS.NewListenerListener
-import com.soywiz.klock.Time
 import de.robolab.client.app.model.base.SearchRequest
 import de.robolab.common.auth.*
 import de.robolab.common.externaljs.JSArray
 import de.robolab.common.externaljs.isJSArray
-import de.robolab.common.externaljs.path.safeJoinPath
 import de.robolab.common.externaljs.toList
 import de.robolab.common.jsutils.jsTruthy
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
-import de.robolab.common.net.data.ServerDirectoryInfo
+import de.robolab.common.net.data.DirectoryInfo
 import de.robolab.server.config.Config
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.utils.Logger
@@ -129,7 +126,7 @@ object PlanetRouter {
                     res.sendClientInfos(infos)
                 }
                 "nested" -> {
-                    val info: ServerDirectoryInfo? = when {
+                    val info: DirectoryInfo.ServerContentInfo? = when {
                         jsTruthy(req.query["query"]) -> throw RESTResponseCodeException(
                             HttpStatusCode.BadRequest,
                             "Cannot use \"query\" together with \"nested\""

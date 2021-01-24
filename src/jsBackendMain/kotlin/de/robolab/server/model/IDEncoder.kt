@@ -6,7 +6,6 @@ import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.utils.decodeFromB64
 import de.robolab.common.externaljs.Buffer
 import de.robolab.common.net.data.DirectoryInfo
-import de.robolab.common.net.data.ServerDirectoryInfo
 
 const val IDEncoding: String = "utf8"
 
@@ -37,8 +36,8 @@ fun PlanetJsonInfo.asServerPlanetInfo(): ServerPlanetInfo = ServerPlanetInfo(
 
 fun ServerPlanetInfo.asPlanetJsonInfo(): PlanetJsonInfo = PlanetJsonInfo(id.toID(), name, lastModified, this.tags)
 
-fun DirectoryInfo.asServerDirectoryInfo(): ServerDirectoryInfo =
-    ServerDirectoryInfo(path, subdirectories, planets.map(PlanetJsonInfo::asServerPlanetInfo))
+fun DirectoryInfo.ContentInfo.asServerDirectoryContentInfo(): DirectoryInfo.ServerContentInfo =
+    DirectoryInfo.ServerContentInfo(path, lastModified, subdirectories, planets.map(PlanetJsonInfo::asServerPlanetInfo))
 
-fun ServerDirectoryInfo.asDirectoryInfo(): DirectoryInfo =
-    DirectoryInfo(path, subdirectories, planets.map(ServerPlanetInfo::asPlanetJsonInfo))
+fun DirectoryInfo.ServerContentInfo.asDirectoryContentInfo(): DirectoryInfo.ContentInfo =
+    DirectoryInfo.ContentInfo(path, lastModified, subdirectories, planets.map(ServerPlanetInfo::asPlanetJsonInfo))

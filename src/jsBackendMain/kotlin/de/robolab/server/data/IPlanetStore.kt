@@ -1,9 +1,8 @@
 package de.robolab.server.data
 
 import de.robolab.client.app.model.base.SearchRequest
-import de.robolab.common.net.data.ServerDirectoryInfo
+import de.robolab.common.net.data.DirectoryInfo
 import de.robolab.common.planet.ServerPlanetInfo
-import kotlin.contracts.Returns
 import de.robolab.server.model.ServerPlanet as SPlanet
 
 interface IPlanetStore {
@@ -19,7 +18,7 @@ interface IPlanetStore {
 
     suspend fun listPlanets(path: String): List<ServerPlanetInfo>
     suspend fun listLivePlanets(path: String): List<ServerPlanetInfo>
-    suspend fun listFileEntries(path: String): ServerDirectoryInfo?
+    suspend fun listFileEntries(path: String): DirectoryInfo.ServerContentInfo?
 
     suspend fun clearMeta(): Pair<Boolean, String>
     suspend fun isPlanetPath(path: String): Boolean
@@ -70,10 +69,10 @@ suspend fun IPlanetStore.listFileEntries(
     path: String,
     name: String,
     ignoreCase: Boolean
-): ServerDirectoryInfo? {
+): DirectoryInfo.ServerContentInfo? {
     val info = listFileEntries(path);
     return info?.copy(
-        subdirectories = info.subdirectories.filter { it.equals(name, ignoreCase) },
+        subdirectories = info.subdirectories.filter { it.name.equals(name, ignoreCase) },
         planets = info.planets.filter { it.name.equals(name, ignoreCase) })
 }
 
@@ -83,12 +82,12 @@ suspend fun IPlanetStore.listFileEntries(
     nameContains: String?,
     nameEndsWith: String?,
     ignoreCase: Boolean
-): ServerDirectoryInfo? {
+): DirectoryInfo.ServerContentInfo? {
     val info = listFileEntries(path)
     return info?.copy(subdirectories = info.subdirectories.filter {
-        (nameStartsWith == null || it.startsWith(nameStartsWith, ignoreCase)) &&
-                (nameContains == null || it.contains(nameContains, ignoreCase)) &&
-                (nameEndsWith == null || it.endsWith(nameEndsWith, ignoreCase))
+        (nameStartsWith == null || it.name.startsWith(nameStartsWith, ignoreCase)) &&
+                (nameContains == null || it.name.contains(nameContains, ignoreCase)) &&
+                (nameEndsWith == null || it.name.endsWith(nameEndsWith, ignoreCase))
     }, planets = info.planets.filter {
         (nameStartsWith == null || it.name.startsWith(nameStartsWith, ignoreCase)) &&
                 (nameContains == null || it.name.contains(nameContains, ignoreCase)) &&

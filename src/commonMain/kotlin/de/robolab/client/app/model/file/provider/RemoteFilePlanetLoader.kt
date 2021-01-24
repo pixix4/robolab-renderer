@@ -88,8 +88,11 @@ class RemoteFilePlanetLoader(
 
                 val value = server.listPlanetDirectory(if (id.isEmpty()) null else id).okOrThrow().decodedValue
 
-                value.subdirectories.map { name ->
-                    RemoteIdentifier("$id/$name", RemoteMetadata.Directory(name, DateTime.Companion.fromUnix(0L)))
+                value.subdirectories.map { info ->
+                    RemoteIdentifier(
+                        info.path,
+                        RemoteMetadata.Directory(info.name, info.lastModified, info.childrenCount)
+                    )
                 } + value.planets.map { info ->
                     RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified))
                 }

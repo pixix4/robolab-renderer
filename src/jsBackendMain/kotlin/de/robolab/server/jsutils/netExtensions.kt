@@ -1,5 +1,6 @@
 package de.robolab.server.jsutils
 
+import com.soywiz.klock.DateTime
 import de.robolab.client.net.requests.PlanetJsonInfo
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.IHeader
@@ -13,13 +14,10 @@ import de.robolab.common.externaljs.toJSArray
 import de.robolab.server.externaljs.express.status
 import de.robolab.common.externaljs.dynamicOf
 import de.robolab.common.net.data.DirectoryInfo
-import de.robolab.common.net.data.ServerDirectoryInfo
 import de.robolab.server.model.asPlanetJsonInfo
 import de.robolab.server.model.ServerPlanet
-import de.robolab.server.model.asDirectoryInfo
-import de.robolab.server.model.asServerPlanetInfo
+import de.robolab.server.model.asDirectoryContentInfo
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.serializer
 
 var ServerResponse.httpStatusCode: HttpStatusCode?
     get() = HttpStatusCode.get(this.statusCode)
@@ -41,17 +39,32 @@ fun Response<*>.sendClientInfo(info: ServerPlanetInfo) = sendClientInfo(info.asP
 fun Response<*>.sendClientInfos(infos: List<ServerPlanetInfo>) =
     sendClientInfos(infos.map(ServerPlanetInfo::asPlanetJsonInfo))
 
-fun Response<*>.sendDirectoryInfo(info: DirectoryInfo) = format(dynamicOf("json" to {
-    send(RobolabJson.encodeToString(DirectoryInfo.serializer(), info))
+fun Response<*>.sendDirectoryInfo(info: DirectoryInfo.ContentInfo) = format(dynamicOf("json" to {
+    send(RobolabJson.encodeToString(DirectoryInfo.ContentInfo.serializer(), info))
 }))
 
-fun Response<*>.sendDirectoryInfo(info: ServerDirectoryInfo) = sendDirectoryInfo(info.asDirectoryInfo())
+fun Response<*>.sendDirectoryInfo(info: DirectoryInfo.ServerContentInfo) = sendDirectoryInfo(info.asDirectoryContentInfo())
 
-fun Response<*>.sendDirectoryInfo(path: String, subDirectories: List<String>, planetInfos: List<PlanetJsonInfo>) =
-    sendDirectoryInfo(DirectoryInfo(path, subDirectories, planetInfos))
+fun Response<*>.sendDirectoryInfo(
+    path: String,
+    lastModified: DateTime,
+    subDirectories: List<DirectoryInfo.MetaInfo>,
+    planetInfos: List<PlanetJsonInfo>
+) = sendDirectoryInfo(DirectoryInfo.ContentInfo(path, lastModified, subDirectories, planetInfos))
 
-fun Response<*>.sendDirectoryInfo(path: String, subDirectories: List<String>, planetInfos: List<ServerPlanetInfo>) =
-    sendDirectoryInfo(DirectoryInfo(path, subDirectories, planetInfos.map(ServerPlanetInfo::asPlanetJsonInfo)))
+fun Response<*>.sendDirectoryInfo(
+    path: String,
+    lastModified: DateTime,
+    subDirectories: List<DirectoryInfo.MetaInfo>,
+    planetInfos: List<ServerPlanetInfo>
+) = sendDirectoryInfo(
+    DirectoryInfo.ContentInfo(
+        path,
+        lastModified,
+        subDirectories,
+        planetInfos.map(ServerPlanetInfo::asPlanetJsonInfo)
+    )
+)
 
 fun Response<*>.sendPlanet(planet: ServerPlanet) {
     setHeader(LastModifiedHeader(planet.lastModified))

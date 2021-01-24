@@ -11,7 +11,7 @@ import de.robolab.common.externaljs.os.EOL
 import de.robolab.common.externaljs.path.safeJoinPath
 import de.robolab.common.externaljs.toList
 import de.robolab.common.jsutils.jsTruthy
-import de.robolab.common.net.data.ServerDirectoryInfo
+import de.robolab.common.net.data.DirectoryInfo
 import de.robolab.common.utils.Logger
 import de.robolab.server.config.Config
 import de.robolab.server.model.toIDString
@@ -313,18 +313,34 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         ).filterNotNull()
     }
 
-    override suspend fun listFileEntries(path: String): ServerDirectoryInfo? {
+    override suspend fun listFileEntries(path: String): DirectoryInfo.ServerContentInfo? {
         if (!pathIsWhitelisted(path)) throw RESTResponseCodeException(
             HttpStatusCode.NotFound
         )
-        val safePath = safeJoinPath(directory, path)
+        val safePath = safeJoinPath(directory, path).trimEnd('\\', '/')
         return try {
-            if (!stat(safePath).await().isDirectory())
+            val stats: Stats = stat(safePath).await()
+            if (!stats.isDirectory())
                 return null
             val (directories, files) = readdirents(safePath).await().toList().partition(Dirent::isDirectory)
-            ServerDirectoryInfo(
-                safePath.removeCommon(directory).replace('\\', '/'),
-                directories.mapNotNull { if (pathIsWhitelisted(ppath.join(path, it.name))) it.name else null },
+            var relativeBasePath = safePath.removeCommon(directory).replace('\\', '/')
+            if (!relativeBasePath.startsWith('/')) relativeBasePath = "/$relativeBasePath"
+            DirectoryInfo.ServerContentInfo(
+                relativeBasePath,
+                stats.mtime.toDateTime(),
+                directories.mapNotNull {
+                    if (pathIsWhitelisted(ppath.join(path, it.name))) {
+                        DirectoryInfo.MetaInfo(
+                            if (relativeBasePath.endsWith("/")) relativeBasePath + it.name
+                            else relativeBasePath + "/" + it.name,
+                            stat(ppath.join(safePath, it.name)).await().mtime.toDateTime(),
+                            readdirents(ppath.join(safePath, it.name)).await().toList().count { subEnt ->
+                                //TODO: Cache count
+                                subEnt.isDirectory() || (subEnt.isFile() && subEnt.name.endsWith(".planet"))
+                            }
+                        )
+                    } else null
+                },
                 files.mapNotNull { getInfo(internalPlanetIDFromPath(ppath.join(safePath, it.name))) })
         } catch (ex: dynamic) {
             if (ex.code != "ENOENT")

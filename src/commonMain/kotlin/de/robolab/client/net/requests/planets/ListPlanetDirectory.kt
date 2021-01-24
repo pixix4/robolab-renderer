@@ -6,11 +6,8 @@ import de.robolab.client.net.ServerResponse
 import de.robolab.client.net.request
 import de.robolab.client.net.requests.IUnboundRESTRequest
 import de.robolab.client.net.requests.JsonRestResponse
-import de.robolab.client.net.requests.RESTResult
 import de.robolab.common.net.HttpMethod
-import de.robolab.common.net.MIMEType
 import de.robolab.common.net.data.DirectoryInfo
-import de.robolab.common.net.headers.ContentTypeHeader
 import de.robolab.common.net.headers.mapOf
 import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.utils.filterValuesNotNull
@@ -22,7 +19,7 @@ open class ListPlanetDirectory(
     nameContains: String? = null,
     nameEndsWith: String? = null,
     ignoreCase: Boolean = false,
-) : IUnboundRESTRequest<JsonRestResponse<DirectoryInfo>> {
+) : IUnboundRESTRequest<JsonRestResponse<DirectoryInfo.ContentInfo>> {
     object Simple : ListPlanetDirectory()
 
     override val requestMethod: HttpMethod = HttpMethod.GET
@@ -49,7 +46,7 @@ open class ListPlanetDirectory(
             JsonRestResponse(
                 res,
                 req,
-                DirectoryInfo.serializer()
+                DirectoryInfo.ContentInfo.serializer()
             )
         }
 }
