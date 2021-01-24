@@ -94,7 +94,7 @@ class RemoteFilePlanetLoader(
                         RemoteMetadata.Directory(info.name, info.lastModified, info.childrenCount)
                     )
                 } + value.planets.map { info ->
-                    RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified))
+                    RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified, info.tags))
                 }
             } catch (e: Exception) {
                 available = false

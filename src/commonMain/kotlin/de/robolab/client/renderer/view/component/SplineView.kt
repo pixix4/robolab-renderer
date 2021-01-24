@@ -177,24 +177,28 @@ class SplineView(
     override fun onDraw(context: DrawContext) {
         stepCount = ((distance * context.transformation.scaledGridWidth) / 5).toInt()
 
-        val breaks = if (isHovered || isFocused) {
-            highlightColor.dropLast(1).map { it.t }
-        } else emptyList()
-        val segments = calcLineSegments(breaks) zip highlightColor
+        if (isHovered || isFocused) {
+            val segments = calcLineSegments(highlightColor.dropLast(1).map { it.t }) zip highlightColor
 
+            for ((points, colors) in segments) {
+                if (points.isEmpty()) continue
+
+                if (isHovered && !isFocused) {
+                    val c = context.c(colors.color)
+                    context.strokeLine(points, c, width * 3)
+                }
+                if (isFocused) {
+                    val c = context.c(colors.color)
+                    context.strokeLine(points, c, width * 5)
+                }
+            }
+        }
+
+        val segments = calcLineSegments()
         if (segments.isEmpty()) return
 
-        for ((points, colors) in segments) {
+        for (points in segments) {
             if (points.isEmpty()) continue
-
-            if (isHovered && !isFocused) {
-                val c = context.c(colors.color)
-                context.strokeLine(points, c, width * 3)
-            }
-            if (isFocused) {
-                val c = context.c(colors.color)
-                context.strokeLine(points, c, width * 5)
-            }
 
             if (dashed > 0.0) {
                 val spacingLength = PlottingConstraints.DASH_SPACING * dashed
