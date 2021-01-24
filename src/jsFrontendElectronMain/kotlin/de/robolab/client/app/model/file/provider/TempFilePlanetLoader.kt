@@ -14,6 +14,7 @@ actual fun loadTempFile(id: String): Pair<RemoteMetadata.Planet, List<String>>? 
         val metadata = RemoteMetadata.Planet(
             planet.name,
             statSync(id).mtime.toDateTime(),
+            planet.tagMap,
             planet.getPointList().size
         )
         return metadata to content
@@ -30,6 +31,7 @@ actual fun saveTempFile(id: String, content: List<String>): RemoteMetadata.Plane
         return RemoteMetadata.Planet(
             planet.name,
             statSync(id).mtime.toDateTime(),
+            planet.tagMap,
             planet.getPointList().size
         )
     }

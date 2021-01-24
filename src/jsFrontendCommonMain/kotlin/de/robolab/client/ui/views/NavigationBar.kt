@@ -244,6 +244,7 @@ class NavigationBarEntry(entry: INavigationBarEntry, navigationBar: NavigationBa
         }
 
         classList.bind("disabled", !entry.enabledProperty)
+        classList.bind("one-line", entry.subtitleProperty.mapBinding { it.isBlank() })
 
         onClick {
             entry.open(it.ctrlKey || it.metaKey)

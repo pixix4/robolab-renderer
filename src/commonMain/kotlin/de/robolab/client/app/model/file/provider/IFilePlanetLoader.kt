@@ -44,12 +44,13 @@ sealed class RemoteMetadata {
     data class Planet(
         override val name: String,
         override val lastModified: DateTime,
-        val pointCount: Int = -1
+        val tags: Map<String, List<String>> = emptyMap(),
+        val pointCount: Int? = null
     ): RemoteMetadata()
     data class Directory(
         override val name: String,
         override val lastModified: DateTime,
-        val childrenCount: Int = -1
+        val childrenCount: Int? = null
     ): RemoteMetadata()
 }
 

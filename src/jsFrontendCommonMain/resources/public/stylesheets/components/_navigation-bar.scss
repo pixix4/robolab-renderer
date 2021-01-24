@@ -84,6 +84,12 @@
     font-size: 0.8rem;
   }
 
+  &.one-line {
+    .text-view:nth-child(2) {
+      display: none;
+    }
+  }
+
   .box-view {
     position: absolute;
     top: 50%;

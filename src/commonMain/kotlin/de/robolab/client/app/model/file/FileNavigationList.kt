@@ -150,12 +150,14 @@ class FileNavigationList(
         override val nameProperty = constObservable(metadata.name)
 
         override val subtitleProperty = constObservable(buildString {
-            append(metadata.childrenCount)
-            append(" entr")
-            if (metadata.childrenCount != 1) {
-                append("ies")
-            } else {
-                append('y')
+            if (metadata.childrenCount != null) {
+                append(metadata.childrenCount)
+                append(" entr")
+                if (metadata.childrenCount != 1) {
+                    append("ies")
+                } else {
+                    append('y')
+                }
             }
         })
 

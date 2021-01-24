@@ -60,6 +60,7 @@ class LocalFilePlanetLoader(
             RemoteMetadata.Planet(
                 planet.name,
                 file.lastModified,
+                planet.tagMap,
                 planet.getPointList().size
             ) to lines
         } catch (e: Exception) {
@@ -84,6 +85,7 @@ class LocalFilePlanetLoader(
             val metadata = RemoteMetadata.Planet(
                 planet.name,
                 file.lastModified,
+                planet.tagMap,
                 planet.getPointList().size
             )
 
@@ -108,6 +110,7 @@ class LocalFilePlanetLoader(
                 RemoteMetadata.Planet(
                     planet.name,
                     file.lastModified,
+                    planet.tagMap,
                     planet.getPointList().size
                 )
             )
@@ -153,6 +156,7 @@ class LocalFilePlanetLoader(
             RemoteMetadata.Planet(
                 planet.name,
                 file.lastModified,
+                planet.tagMap,
                 planet.getPointList().size
             )
         }

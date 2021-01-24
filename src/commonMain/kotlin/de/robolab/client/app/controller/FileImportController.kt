@@ -45,6 +45,7 @@ class FileImportController(
                     val metadata = RemoteMetadata.Planet(
                         planet.name,
                         lastModified,
+                        planet.tagMap,
                         planet.getPointList().size
                     )
                     TempFilePlanetLoader.create(fileName, metadata, content)
@@ -62,4 +63,3 @@ class FileImportController(
         }
     }
 }
-
