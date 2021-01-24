@@ -6,6 +6,7 @@ import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.RESTRobolabServer
 import de.robolab.client.net.requests.planets.*
 import de.robolab.common.planet.ID
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
@@ -28,6 +29,9 @@ class RemoteFilePlanetLoader(
 
     override val availableProperty = property(true)
     var available by availableProperty
+
+    override val supportedRemoteModes: List<RemoteMode> = listOf(RemoteMode.NESTED, RemoteMode.FLAT, RemoteMode.LIVE)
+    override val remoteModeProperty: ObservableProperty<RemoteMode> = property(RemoteMode.NESTED)
 
     override suspend fun loadPlanet(id: String): Pair<RemoteMetadata.Planet, List<String>>? {
         return withContext(Dispatchers.Default) {
@@ -86,15 +90,25 @@ class RemoteFilePlanetLoader(
             try {
                 available = true
 
-                val value = server.listPlanetDirectory(if (id.isEmpty()) null else id).okOrThrow().decodedValue
+                when (remoteModeProperty.value) {
+                    RemoteMode.NESTED ->  {
+                        val value = server.listPlanetDirectory(if (id.isEmpty()) null else id).okOrThrow().decodedValue
 
-                value.subdirectories.map { info ->
-                    RemoteIdentifier(
-                        info.path,
-                        RemoteMetadata.Directory(info.name, info.lastModified, info.childrenCount)
-                    )
-                } + value.planets.map { info ->
-                    RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified, info.tags))
+                        value.subdirectories.map { info ->
+                            RemoteIdentifier(
+                                info.path,
+                                RemoteMetadata.Directory(info.name, info.lastModified, info.childrenCount)
+                            )
+                        } + value.planets.map { info ->
+                            RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified, info.tags))
+                        }
+                    }
+                    RemoteMode.FLAT ->  server.listPlanets(liveOnly = false).okOrThrow().planets.map { info ->
+                        RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified, info.tags))
+                    }
+                    RemoteMode.LIVE ->  server.listPlanets(liveOnly = true).okOrThrow().planets.map { info ->
+                        RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified, info.tags))
+                    }
                 }
             } catch (e: Exception) {
                 available = false

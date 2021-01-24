@@ -1,13 +1,11 @@
 package de.robolab.client.app.model.file
 
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.client.app.model.file.provider.IFilePlanetLoader
-import de.robolab.client.app.model.file.provider.IFilePlanetLoaderFactory
-import de.robolab.client.app.model.file.provider.RemoteIdentifier
-import de.robolab.client.app.model.file.provider.RemoteMetadata
+import de.robolab.client.app.model.file.provider.*
 import de.robolab.common.externaljs.fs.existsSync
 import de.robolab.common.externaljs.fs.readdir
 import de.robolab.common.parser.PlanetFile
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
@@ -33,6 +31,10 @@ class LocalFilePlanetLoader(
     override val iconProperty = constObservable(MaterialIcon.FOLDER)
 
     override val availableProperty = constObservable(true)
+
+    override val supportedRemoteModes: List<RemoteMode> = listOf(RemoteMode.NESTED)
+    override val remoteModeProperty: ObservableProperty<RemoteMode> = property(RemoteMode.NESTED)
+
 
     private fun findUnusedFile(base: File, name: String, vararg exclude: File): File {
         var count = 0

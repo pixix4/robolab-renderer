@@ -11,6 +11,7 @@ import de.robolab.client.ui.lineSequence
 import de.robolab.client.ui.openFile
 import de.robolab.client.ui.pathOrName
 import de.robolab.client.ui.readText
+import de.robolab.client.utils.buildContextMenu
 import de.robolab.client.utils.electron
 import de.robolab.client.utils.noElectron
 import de.robolab.common.utils.Dimension
@@ -157,7 +158,26 @@ class NavigationBar(
                     searchView.focus()
                 }
             }
-
+            button(navigationBarController.modeProperty) {
+                classList.bind("hide", navigationBarController.supportedModes.mapBinding { it.size <= 1 })
+                onClick {
+                    val menu = buildContextMenu(Point(it.clientX, it.clientY), "Select mode") {
+                        for (mode in  navigationBarController.supportedModes.value) {
+                            action(mode) {
+                                navigationBarController.selectMode(mode)
+                            }
+                        }
+                    }
+                    if (menu != null) {
+                        electron { electron ->
+                            electron.menu(menu)
+                        }
+                        noElectron {
+                            ContextMenuView.open(menu)
+                        }
+                    }
+                }
+            }
             button {
                 iconView(MaterialIcon.PUBLISH)
 

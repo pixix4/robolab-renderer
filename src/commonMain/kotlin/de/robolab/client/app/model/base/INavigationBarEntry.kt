@@ -38,7 +38,7 @@ interface INavigationBarEntry {
     }
 
     suspend fun getRenderDataTimestamp(): Long = -1
-    suspend fun<T: ICanvas> renderPreview(canvasCreator: (dimension: Dimension) -> T?): T? = null
+    suspend fun <T : ICanvas> renderPreview(canvasCreator: (dimension: Dimension) -> T?): T? = null
 }
 
 interface INavigationBarList {
@@ -57,13 +57,18 @@ interface INavigationBarSearchList : INavigationBarList {
 
 abstract class INavigationBarTab(
     val nameProperty: ObservableValue<String>,
-    val iconProperty: ObservableValue<MaterialIcon>
+    val iconProperty: ObservableValue<MaterialIcon>,
+    val supportedModes: List<String>
 ) {
 
-    constructor(name: String, icon: MaterialIcon) : this(
+    constructor(name: String, icon: MaterialIcon, supportedModes: List<String>) : this(
         property(name),
-        property(icon)
+        property(icon),
+        supportedModes
     )
+
+    abstract fun selectMode(mode: String)
+    abstract val modeProperty: ObservableValue<String>
 
     val searchProperty = property("")
     open fun submitSearch() {}
@@ -130,8 +135,11 @@ object EmptyNavigationBarList : INavigationBarList {
 
 }
 
-object EmptyNavigationBarTab : INavigationBarTab("Empty", MaterialIcon.HOURGLASS_EMPTY) {
+object EmptyNavigationBarTab : INavigationBarTab("Empty", MaterialIcon.HOURGLASS_EMPTY, emptyList()) {
     override fun openEntry(entry: INavigationBarEntry, asNewTab: Boolean) {
         throw NotImplementedError()
     }
+
+    override fun selectMode(mode: String) {}
+    override val modeProperty = constObservable("")
 }

@@ -2,6 +2,7 @@ package de.robolab.client.app.model.file.provider
 
 import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.base.MaterialIcon
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
 
@@ -29,6 +30,13 @@ interface IFilePlanetLoader {
     val iconProperty: ObservableValue<MaterialIcon>
 
     val availableProperty: ObservableValue<Boolean>
+
+    val supportedRemoteModes: List<RemoteMode>
+    val remoteModeProperty: ObservableProperty<RemoteMode>
+}
+
+enum class RemoteMode {
+    NESTED, FLAT, LIVE
 }
 
 data class RemoteIdentifier(

@@ -152,6 +152,10 @@
   left: 0;
   width: 100%;
 
+  .button.hide {
+    display: none;
+  }
+
   .input-view {
     flex-grow: 1;
     padding-right: 2rem;
@@ -162,6 +166,7 @@
   }
 
   .input-view ~ .icon-view {
+    display: none;
     position: absolute;
     top: 0;
     right: 3.5rem;

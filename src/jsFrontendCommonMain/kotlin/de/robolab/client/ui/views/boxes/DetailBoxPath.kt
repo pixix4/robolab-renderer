@@ -78,7 +78,7 @@ class DetailBoxPath(
                     textView("Classifier")
                 }
                 cell {
-                    textView(data.classification.classifier.desc)
+                    textView(data.classification?.classifier?.desc ?: "")
                 }
             }
             row {
@@ -86,7 +86,7 @@ class DetailBoxPath(
                     textView("Difficulty")
                 }
                 cell {
-                    textView(data.classification.difficulty.name.toLowerCase().capitalize())
+                    textView(data.classification?.difficulty?.name?.toLowerCase()?.capitalize() ?: "")
                 }
             }
             row {
@@ -94,7 +94,7 @@ class DetailBoxPath(
                     textView("Curviness")
                 }
                 cell {
-                    textView(data.classification.completeSegment.curviness.roundToInt().toString())
+                    textView(data.classification?.completeSegment?.curviness?.roundToInt()?.toString() ?: "")
                 }
             }
 
@@ -103,7 +103,7 @@ class DetailBoxPath(
                     textView("Details")
                 }
                 cell {
-                    textView(data.classification.table) {
+                    textView(data.classification?.table ?: "") {
                         style {
                             whiteSpace = "pre"
                             fontFamily = "\"Roboto Mono\""

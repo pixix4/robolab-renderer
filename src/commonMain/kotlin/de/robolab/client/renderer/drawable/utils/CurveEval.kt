@@ -17,6 +17,7 @@ data class CurveEval(
             source: Point,
             target: Point,
             curve: Curve,
+            delta: Double = 1e-4,
             improveCount: Boolean = true
         ): List<Point> {
             val realCount = if (improveCount) {
@@ -58,7 +59,7 @@ data class CurveEval(
                     listOf(startPointEdge) + pointList + endPointEdge
                 }
             }).removeConsecutiveDuplicateIf { a, b ->
-                a.distanceTo(b) < 1e-4
+                a.distanceTo(b) < delta
             }
         }
 
@@ -69,9 +70,10 @@ data class CurveEval(
             source: Point,
             target: Point,
             curve: Curve,
+            delta: Double = 1e-4,
             improveCount: Boolean = true
         ): List<CurveEval> {
-            val points = evalSpline(count, controlPoints, source, target, curve, improveCount)
+            val points = evalSpline(count, controlPoints, source, target, curve, delta, improveCount)
 
             val lengthArray = Array(points.size) { 0.0 }
             for (i in 1 until points.size) {

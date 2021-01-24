@@ -8,10 +8,7 @@ import de.robolab.client.app.model.room.RoomNavigationTab
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.utils.PreferenceStorage
-import de.westermann.kobserve.property.flatMapBinding
-import de.westermann.kobserve.property.flatMapMutableBinding
-import de.westermann.kobserve.property.join
-import de.westermann.kobserve.property.property
+import de.westermann.kobserve.property.*
 
 class NavigationBarController(
     tabController: TabController,
@@ -34,7 +31,7 @@ class NavigationBarController(
     )
 
     val tabListProperty = property(
-        listOf<INavigationBarTab>(
+        listOf(
             groupPlanetProperty,
             roomPlanetProvider
         )
@@ -54,6 +51,10 @@ class NavigationBarController(
 
         tabListProperty.value = newList
     }
+
+    val supportedModes = tabProperty.mapBinding { it.supportedModes }
+    val modeProperty = tabProperty.flatMapBinding { it.modeProperty }
+    fun selectMode(mode: String) = tabProperty.value.selectMode(mode)
 
     val searchStringProperty = tabProperty.flatMapMutableBinding {
         it.searchProperty

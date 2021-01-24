@@ -15,12 +15,16 @@ import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.drawable.planet.MultiRobotPlanetDrawable
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
+import de.westermann.kobserve.property.constObservable
 
 class RoomNavigationTab(
     private val messageRepository: MessageRepository,
     private val tabController: TabController,
     private val planetProvider: CachedFilePlanetProvider
-) : INavigationBarTab("Group tracked robots by planet name", MaterialIcon.PUBLIC) {
+) : INavigationBarTab("Group tracked robots by planet name", MaterialIcon.PUBLIC, emptyList()) {
+
+    override fun selectMode(mode: String) {}
+    override val modeProperty = constObservable("")
 
     override fun openEntry(entry: INavigationBarEntry, asNewTab: Boolean) {
         if (entry is RoomNavigationList.Entry) {

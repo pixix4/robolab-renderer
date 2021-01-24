@@ -6,7 +6,9 @@ import de.robolab.client.app.model.base.INavigationBarSearchList
 import de.robolab.client.app.model.base.INavigationBarTab
 import de.robolab.client.app.model.file.provider.IFilePlanetLoader
 import de.robolab.client.app.model.file.provider.RemoteIdentifier
+import de.robolab.client.app.model.file.provider.RemoteMode
 import de.westermann.kobserve.property.join
+import de.westermann.kobserve.property.mapBinding
 
 class FileNavigationTab(
     private val manager: FileNavigationManager,
@@ -15,8 +17,18 @@ class FileNavigationTab(
     loader.nameProperty.join(loader.descProperty) { name, desc ->
         "$name: $desc"
     },
-    loader.iconProperty
+    loader.iconProperty,
+    loader.supportedRemoteModes.map { it.name.toLowerCase().capitalize() }
 ) {
+
+    override fun selectMode(mode: String) {
+        val m = RemoteMode.values().find { mode.equals(it.name, true) } ?: return
+        loader.remoteModeProperty.value = m
+    }
+
+    override val modeProperty = loader.remoteModeProperty.mapBinding {
+        it.name.toLowerCase().capitalize()
+    }
 
     override fun createSearchList(parent: INavigationBarList): INavigationBarSearchList {
         return FileNavigationSearchList(this, loader, activeProperty.value)
@@ -40,6 +52,10 @@ class FileNavigationTab(
         loader.onRemoteChange {
             @Suppress("UNCHECKED_CAST")
             (activeProperty.value as? RepositoryList)?.onChange(it)
+        }
+
+        loader.remoteModeProperty.onChange {
+            activeProperty.value = FileNavigationList(this, loader)
         }
     }
 

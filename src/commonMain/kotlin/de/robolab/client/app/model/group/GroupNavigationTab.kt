@@ -16,6 +16,7 @@ import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
 import de.robolab.client.utils.runAsync
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
+import de.westermann.kobserve.property.constObservable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -26,7 +27,10 @@ class GroupNavigationTab(
     private val messageManager: MessageManager,
     private val tabController: TabController,
     val planetProvider: CachedFilePlanetProvider
-) : INavigationBarTab("Track robots via mqtt", MaterialIcon.GROUP) {
+) : INavigationBarTab("Track robots via mqtt", MaterialIcon.GROUP, emptyList()) {
+
+    override fun selectMode(mode: String) {}
+    override val modeProperty = constObservable("")
 
     override fun submitSearch() {
         val value = searchProperty.value.trim()

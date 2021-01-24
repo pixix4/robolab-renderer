@@ -1,9 +1,11 @@
 package de.robolab.client.app.model.file.provider
 
 import de.robolab.client.app.model.base.MaterialIcon
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
+import de.westermann.kobserve.property.property
 
 object TempFilePlanetLoader : IFilePlanetLoader {
 
@@ -72,6 +74,9 @@ object TempFilePlanetLoader : IFilePlanetLoader {
     override val planetCountProperty: ObservableValue<Int> = constObservable(1)
     override val iconProperty: ObservableValue<MaterialIcon> = constObservable(MaterialIcon.HOURGLASS_EMPTY)
     override val availableProperty: ObservableValue<Boolean> = constObservable(true)
+
+    override val supportedRemoteModes: List<RemoteMode> = listOf(RemoteMode.FLAT)
+    override val remoteModeProperty: ObservableProperty<RemoteMode> = property(RemoteMode.FLAT)
 }
 
 expect fun loadTempFile(id: String): Pair<RemoteMetadata.Planet, List<String>>?

@@ -3,13 +3,11 @@ package de.robolab.client.utils
 import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.renderer.drawable.utils.BSpline
 import de.robolab.client.renderer.drawable.utils.CurveEval
-import de.robolab.client.renderer.drawable.utils.degreeToRadiant
 import de.robolab.client.renderer.drawable.utils.radiantToDegree
 import de.robolab.common.parser.toFixed
 import de.robolab.common.planet.Direction
 import de.robolab.common.planet.Path
 import de.robolab.common.planet.PlanetVersion
-import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Vector
 import kotlin.math.*
 
@@ -124,17 +122,35 @@ data class PathClassification(
         }
 
         companion object {
-            fun create(v0: Vector, v1: Vector, startProgress: Double, endProgress: Double): Segment {
-                var angle = v0.angle(v1)
+            fun create(
+                v0: Vector?,
+                v1: Vector,
+                v2: Vector?,
+                startProgress: Double,
+                endProgress: Double
+            ): Segment {
+                val distance = v1.magnitude()
+                var angle = if (v0 == null) {
+                    if (v2 == null) {
+                        0.0
+                    } else {
+                        v1.angle(v2)
+                    }
+                } else {
+                    if (v2 == null) {
+                        0.0
+                    } else {
+                        v1.angle(v2)
+                    }
+                }
 
-                while (angle > PI) {
+                while (angle >= PI) {
                     angle -= 2 * PI
                 }
                 while (angle < -PI) {
                     angle += 2 * PI
                 }
 
-                val distance = v0.magnitude()
                 return Segment(angle, distance, startProgress, endProgress)
             }
         }
@@ -223,7 +239,7 @@ data class PathClassification(
     }
 
     companion object {
-        fun classify(planetVersion: PlanetVersion, path: Path): PathClassification {
+        fun classify(planetVersion: PlanetVersion, path: Path): PathClassification? {
             val controlPoints = PathAnimatable.getControlPointsFromPath(planetVersion, path)
             val lengthEstimate = path.length(controlPoints)
             val evalCount = (lengthEstimate * 10).roundToInt()
@@ -236,7 +252,8 @@ data class PathClassification(
                 controlPoints,
                 source,
                 target,
-                BSpline
+                BSpline,
+                1e-2
             )
 
             val linePoints = if (path.isOneWayPath && planetVersion < PlanetVersion.V2020_SPRING) eval.subList(
@@ -244,14 +261,35 @@ data class PathClassification(
                 eval.size / 2
             ) else eval
 
-            val explicitSegments = linePoints
-                .windowed(2, 1)
+            val vectorList = linePoints
+                .windowed(3, 1)
                 .map { (p0, p1) -> p1.point - p0.point to Pair(p0.curveProgress, p1.curveProgress) }
-                .let {
-                    it + it.last()
-                }
-                .windowed(2, 1)
-                .map { (v0, v1) -> Segment.create(v0.first, v1.first, v0.second.first, v1.second.second) }
+
+            if (vectorList.size < 3) return null
+            val explicitSegments = listOf(
+                Segment.create(
+                    null,
+                    vectorList[0].first,
+                    vectorList[1].first,
+                    vectorList[0].second.first,
+                    vectorList[0].second.second
+                )
+            ) + vectorList.windowed(3, 1)
+                .map { (v0, v1, v2) ->
+                    Segment.create(
+                        v0.first,
+                        v1.first,
+                        v2.first,
+                        v1.second.first,
+                        v1.second.second
+                    )
+                } + Segment.create(
+                vectorList[vectorList.lastIndex - 1].first,
+                vectorList[vectorList.lastIndex].first,
+                null,
+                vectorList[vectorList.lastIndex].second.first,
+                vectorList[vectorList.lastIndex].second.second
+            )
 
             val segments = explicitSegments.fold(emptyList<Segment>()) { acc, s -> s.fold(acc) }
 

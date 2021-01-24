@@ -49,14 +49,14 @@ class PlanetStatistic(
 
     val pathDifficulty = classification
         .groupBy {
-            it.difficulty
+            it?.difficulty
         }.mapValues { (_, list) ->
             list.size
         }
 
     val pathClassifier = classification
         .groupBy {
-            it.classifier
+            it?.classifier
         }.mapValues { (_, list) ->
             list.size
         }

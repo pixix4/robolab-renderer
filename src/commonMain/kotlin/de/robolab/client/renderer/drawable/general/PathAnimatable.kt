@@ -27,7 +27,7 @@ class PathAnimatable(
 ) : Animatable<Path>(reference) {
 
     private fun generateHighlightColors(planet: Planet, reference: Path): List<SplineView.Color> {
-        val segments = PathClassification.classify(planet.version, reference).explicitSegments
+        val segments = PathClassification.classify(planet.version, reference)?.explicitSegments ?: emptyList()
 
         return segments.map { segment ->
             val percent = min(1.5, segment.curviness / 500.0) * 1.5
