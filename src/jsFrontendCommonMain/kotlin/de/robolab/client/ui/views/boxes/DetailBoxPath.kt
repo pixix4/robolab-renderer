@@ -91,6 +91,14 @@ class DetailBoxPath(
             }
             row {
                 cell {
+                    textView("Score")
+                }
+                cell {
+                    textView(data.classification?.score?.toString() ?: "")
+                }
+            }
+            row {
+                cell {
                     textView("Curviness")
                 }
                 cell {

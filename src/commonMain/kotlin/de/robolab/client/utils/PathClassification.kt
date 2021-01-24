@@ -13,6 +13,7 @@ import kotlin.math.*
 
 data class PathClassification(
     val path: Path,
+    val score: Int,
     val classifier: Classifier,
     val difficulty: Difficulty,
     val segments: List<Segment>,
@@ -138,17 +139,20 @@ data class PathClassification(
                     }
                 } else {
                     if (v2 == null) {
-                        0.0
+                        v0.angle(v1)
                     } else {
-                        v1.angle(v2)
+                        v0.angle(v2)
                     }
                 }
 
-                while (angle >= PI) {
-                    angle -= 2 * PI
+                if (angle >= PI) {
+                    angle -= (2.0 * PI)
+                } else if (angle < -PI) {
+                    angle += (2.0 * PI)
                 }
-                while (angle < -PI) {
-                    angle += 2 * PI
+
+                if (v0 != null && v2 != null) {
+                    angle /= 2.0
                 }
 
                 return Segment(angle, distance, startProgress, endProgress)
@@ -296,11 +300,12 @@ data class PathClassification(
             val sum = segments.reduce { a, b ->
                 a.merge(b)
             }
-
+            val score = sum.curviness + segments.map { it.curviness }.average()
             val difficulty = Difficulty.create(segments)
 
             return PathClassification(
                 path,
+                score.roundToInt(),
                 Classifier.create(path),
                 difficulty,
                 segments,
