@@ -44,10 +44,11 @@ object PlanetRouter {
             val ignoreCase = jsTruthy(req.query["ignoreCase"])
             val sourceMode: String = (req.query["source"] as String?) ?: "flat"
 
-            if (sourceMode != "live")
+            if (sourceMode != "live") {
                 req.user.requireTutor()
-            else
+            } else {
                 req.user.requireGroupMember()
+            }
 
             val path = ".${req.path}"
 

@@ -200,6 +200,7 @@ class UserAccessLevelPermissionException : UserPermissionException {
 }
 
 fun User.requireAccess(accessLevel: AccessLevel) {
+    if (!requireAccessEnabled) return
     if (!canAccess(accessLevel)) {
         if (this == User.Anonymous)
             throw UserUnauthorizedException()
@@ -230,3 +231,5 @@ val User.hasManagerAccess: Boolean
 
 val User.hasAdminAccess: Boolean
     get() = canAccess(AccessLevel.Admin)
+
+expect val requireAccessEnabled: Boolean

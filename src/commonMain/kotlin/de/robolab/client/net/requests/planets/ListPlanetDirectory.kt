@@ -42,7 +42,7 @@ open class ListPlanetDirectory(
             if (ignoreCase) "1" else "0"
         } else null)
     ).filterValuesNotNull()
-    override val requestHeader: Map<String, List<String>> = mapOf(ContentTypeHeader(MIMEType.JSON))
+    override val requestHeader: Map<String, List<String>> = mapOf()
 
     override fun parseResponse(serverResponse: ServerResponse) =
         parseResponseCatchingWrapper(serverResponse, this) { res, req ->

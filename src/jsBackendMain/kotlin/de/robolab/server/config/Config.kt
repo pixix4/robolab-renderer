@@ -106,6 +106,9 @@ object Config : TypedStorage() {
     //--------AUTH--------
 
     object Auth {
+        // Set to `false` to disable authentication for development propose
+        val enabled by item("auth.enabled", true)
+
         //Base URL to use for gitlab
         val gitlabURL by item("auth.gitlabURL", "https://se-gitlab.inf.tu-dresden.de")
 

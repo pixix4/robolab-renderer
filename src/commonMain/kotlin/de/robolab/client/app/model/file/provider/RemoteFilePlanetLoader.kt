@@ -1,5 +1,6 @@
 package de.robolab.client.app.model.file.provider
 
+import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.RESTRobolabServer
@@ -84,7 +85,12 @@ class RemoteFilePlanetLoader(
         return withContext(Dispatchers.Default) {
             try {
                 available = true
-                server.listPlanets().okOrThrow().planets.map { info ->
+
+                val value = server.listPlanetDirectory(if (id.isEmpty()) null else id).okOrThrow().decodedValue
+
+                value.subdirectories.map { name ->
+                    RemoteIdentifier("$id/$name", RemoteMetadata.Directory(name, DateTime.Companion.fromUnix(0L)))
+                } + value.planets.map { info ->
                     RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified))
                 }
             } catch (e: Exception) {
