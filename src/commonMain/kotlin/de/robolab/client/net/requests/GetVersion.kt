@@ -2,9 +2,10 @@ package de.robolab.client.net.requests
 
 
 import de.robolab.client.net.*
-import de.robolab.common.net.*
+import de.robolab.common.net.HttpMethod
+import de.robolab.common.net.MIMEType
+import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.utils.Version
-import de.robolab.common.utils.decode
 import kotlinx.serialization.Serializable
 
 object GetVersion : IUnboundRESTRequest<GetVersion.VersionResponse> {

@@ -18,7 +18,8 @@ class FileNavigationTab(
         "$name: $desc"
     },
     loader.iconProperty,
-    loader.supportedRemoteModes.map { it.name.toLowerCase().capitalize() }
+    loader.supportedRemoteModes.map { it.name.toLowerCase().capitalize() },
+    loader.availableProperty
 ) {
 
     override fun selectMode(mode: String) {

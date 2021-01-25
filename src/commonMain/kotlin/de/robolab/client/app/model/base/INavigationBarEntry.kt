@@ -58,13 +58,20 @@ interface INavigationBarSearchList : INavigationBarList {
 abstract class INavigationBarTab(
     val nameProperty: ObservableValue<String>,
     val iconProperty: ObservableValue<MaterialIcon>,
-    val supportedModes: List<String>
+    val supportedModes: List<String>,
+    val availableProperty: ObservableValue<Boolean> = constObservable(true)
 ) {
 
-    constructor(name: String, icon: MaterialIcon, supportedModes: List<String>) : this(
+    constructor(
+        name: String,
+        icon: MaterialIcon,
+        supportedModes: List<String>,
+        availableProperty: ObservableValue<Boolean> = constObservable(true)
+    ) : this(
         property(name),
         property(icon),
-        supportedModes
+        supportedModes,
+        availableProperty
     )
 
     abstract fun selectMode(mode: String)

@@ -21,6 +21,13 @@ import io.ktor.http.HttpStatusCode as KtorHttpStatusCode
 
 expect val client: HttpClient
 
+expect suspend fun pingRemote(
+    scheme: String,
+    host: String,
+    port: Int,
+    path: String,
+): Boolean
+
 //some headers are blacklisted by the engine and require custom applicators
 private val specialHeaderApplicators: Map<String, (HttpRequestBuilder, List<String>) -> Unit> =
     mapOf(
@@ -106,6 +113,7 @@ suspend fun sendHttpRequest(
 
     val builtApplicators = buildApplicators(query, headers)
     @Suppress("REDUNDANT_ELSE_IN_WHEN") val response: HttpResponse = when (method) {
+        HttpMethod.HEAD -> client.head(scheme, host, p, path, body ?: EmptyContent, builtApplicators)
         HttpMethod.GET -> client.get(scheme, host, p, path, body ?: EmptyContent, builtApplicators)
         HttpMethod.PUT -> client.put(scheme, host, p, path, body ?: EmptyContent, builtApplicators)
         HttpMethod.POST -> client.post(scheme, host, p, path, body ?: EmptyContent, builtApplicators)
@@ -147,6 +155,7 @@ private fun buildApplicators(
 
 @Suppress("REDUNDANT_ELSE_IN_WHEN")
 fun HttpMethod.toKtorMethod(): KtorHttpMethod = when (this) {
+    HttpMethod.HEAD -> KtorHttpMethod.Head
     HttpMethod.GET -> KtorHttpMethod.Get
     HttpMethod.DELETE -> KtorHttpMethod.Delete
     HttpMethod.POST -> KtorHttpMethod.Post
@@ -155,6 +164,7 @@ fun HttpMethod.toKtorMethod(): KtorHttpMethod = when (this) {
 }
 
 fun KtorHttpMethod.toRobolabMethod(): HttpMethod = when (this) {
+    KtorHttpMethod.Head -> HttpMethod.HEAD
     KtorHttpMethod.Get -> HttpMethod.GET
     KtorHttpMethod.Delete -> HttpMethod.DELETE
     KtorHttpMethod.Post -> HttpMethod.POST

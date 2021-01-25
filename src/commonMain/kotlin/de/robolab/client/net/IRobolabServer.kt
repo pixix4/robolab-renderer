@@ -42,3 +42,12 @@ suspend fun <R> IRobolabServer.request(
     builder.block()
     return request(builder.buildRequest(request))
 }
+
+suspend fun IRobolabServer.ping(path: String): Boolean {
+    return pingRemote(
+        protocol,
+        hostURL,
+        hostPort,
+        path
+    )
+}

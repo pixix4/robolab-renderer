@@ -1,6 +1,7 @@
 package de.robolab.common.net
 
 enum class HttpMethod {
+    HEAD,
     GET,
     POST,
     PUT,
