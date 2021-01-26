@@ -13,6 +13,7 @@ data class Planet(
     val commentList: List<Comment>,
     val tagMap: Map<String, List<String>>,
     val senderGrouping: Map<Set<Coordinate>, Char>,
+    val testSuite: TestSuite,
 ): IPlanetValue {
 
     fun importSplines(reference: Planet): Planet {
@@ -47,7 +48,8 @@ data class Planet(
             pathSelectList,
             commentList,
             tagMap,
-            senderGrouping
+            senderGrouping,
+            testSuite
         )
     }
 
@@ -70,7 +72,8 @@ data class Planet(
             pathSelectList,
             commentList,
             tagMap,
-            grouping
+            grouping,
+            testSuite
         ).generateMissingSenderGroupings()
     }
 
@@ -87,6 +90,7 @@ data class Planet(
         senderGrouping.map { (key, value) ->
             key.map { it.translate(delta) }.toSet() to value
         }.toMap(),
+        testSuite.translate(delta),
     )
 
     fun rotate(direction: RotateDirection, origin: Coordinate = startPoint?.point ?: Coordinate(0, 0)) = Planet(
@@ -102,6 +106,7 @@ data class Planet(
         senderGrouping.map { (key, value) ->
             key.map { it.rotate(direction, origin) }.toSet() to value
         }.toMap(),
+        testSuite.rotate(direction, origin),
     )
 
     private fun getDrawableSenderGrouping(): List<Set<Coordinate>> {
@@ -180,6 +185,7 @@ data class Planet(
             emptyList(),
             emptyMap(),
             emptyMap(),
+            TestSuite.EMPTY
         )
     }
 }

@@ -8,7 +8,19 @@ fun Planet.getStartPath(): Path? =
                 -1, emptySet(), emptyList(), hidden = false, showDirectionArrow = true
         )
 
-fun Planet.asUnexplored(name: String = this.name): Planet = Planet(PlanetVersion.CURRENT, name, startPoint, bluePoint, emptyList(), emptyList(), emptyList(), emptyList(), tagMap, emptyMap())
+fun Planet.asUnexplored(name: String = this.name): Planet = Planet(
+    PlanetVersion.CURRENT,
+    name,
+    startPoint,
+    bluePoint,
+    emptyList(),
+    emptyList(),
+    emptyList(),
+    emptyList(),
+    tagMap,
+    emptyMap(),
+    TestSuite.EMPTY
+)
 
 class LookupPlanet(val planet: Planet) {
     private val visitFeatures: Map<Coordinate, Pair<List<Path>, List<TargetPoint>>>

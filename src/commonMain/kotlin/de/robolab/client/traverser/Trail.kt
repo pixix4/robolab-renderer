@@ -55,7 +55,8 @@ interface ITraverserTrail {
                 ?: mothershipState.sentPathSelects).toList(),
             emptyList(),
             emptyMap(),
-            emptyMap()
+            emptyMap(),
+            TestSuite.EMPTY
         )
 
         return TraverserRenderState(

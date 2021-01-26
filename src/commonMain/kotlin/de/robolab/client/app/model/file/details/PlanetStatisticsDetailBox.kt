@@ -6,6 +6,7 @@ import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.parser.toFixed
 import de.robolab.common.planet.StartPoint
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.observeConst
 
@@ -17,7 +18,7 @@ class PlanetStatisticsDetailBox(planetFile: PlanetFile) {
         return "${point.x}, ${point.y}, $orientation"
     }
 
-    val data = listOf(
+    val data: List<Pair<String, ObservableValue<List<Pair<String, ObservableValue<String>>>>>> = listOf(
         "General" to listOf(
             "Name" to planetFile.planetProperty.mapBinding { it.name },
             "Version" to planetFile.planetProperty.mapBinding { it.version.toString() },
@@ -63,6 +64,12 @@ class PlanetStatisticsDetailBox(planetFile: PlanetFile) {
                 val count = it.pathClassifier[classifier] ?: 0
                 if (count <= 0) "" else count.toString()
             }
-        }.toList().observeConst()
+        }.toList().observeConst(),
+        "Test suite" to listOf(
+            "Goal" to planetFile.planetProperty.mapBinding { it.testSuite.goal?.toString() ?: "" },
+            "Tasks" to planetFile.planetProperty.mapBinding { it.testSuite.taskList.size.toString() },
+            "Triggers" to planetFile.planetProperty.mapBinding { it.testSuite.triggerList.size.toString() },
+            "Modifiers" to planetFile.planetProperty.mapBinding { it.testSuite.modifierList.size.toString() },
+        ).observeConst()
     )
 }

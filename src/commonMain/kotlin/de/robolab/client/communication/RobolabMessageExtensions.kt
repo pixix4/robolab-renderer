@@ -79,7 +79,8 @@ fun List<RobolabMessage>.toServerPlanet(): Pair<Planet, List<Coordinate>> {
         pathSelectList,
         emptyList(),
         emptyMap(),
-        emptyMap()
+        emptyMap(),
+        TestSuite.EMPTY
     ).generateMissingSenderGroupings() to visitedPointList
 }
 
@@ -143,7 +144,8 @@ fun List<RobolabMessage>.toMqttPlanet(): Planet {
         pathSelectList,
         emptyList(),
         emptyMap(),
-        emptyMap()
+        emptyMap(),
+        TestSuite.EMPTY
     ).generateMissingSenderGroupings()
 }
 

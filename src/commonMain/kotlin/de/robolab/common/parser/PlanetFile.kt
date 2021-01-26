@@ -4,6 +4,7 @@ import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.renderer.drawable.utils.toPoint
 import de.robolab.client.renderer.utils.History
+import de.robolab.common.parser.lines.*
 import de.robolab.common.planet.*
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
@@ -11,7 +12,7 @@ import de.westermann.kobserve.property.mapBinding
 
 class PlanetFile(lines: List<String>) : IEditCallback {
 
-    constructor(content: String): this(content.split('\n'))
+    constructor(content: String) : this(content.split('\n'))
 
     private val logger = Logger(this)
     val history = History(parseFileContent(lines))
@@ -78,7 +79,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
         controlPoints: List<Point>,
         groupHistory: Boolean
     ) {
-        var newLines = lines + FileLine.PathLine.create(
+        var newLines = lines + PathLine.create(
             Path(
                 startPoint, startDirection,
                 endPoint, endDirection,
@@ -91,7 +92,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
         )
 
         if (controlPoints.isNotEmpty()) {
-            newLines = newLines + FileLine.SplineLine.create(controlPoints)
+            newLines = newLines + SplineLine.create(controlPoints)
         }
 
         if (groupHistory) {
@@ -116,17 +117,17 @@ class PlanetFile(lines: List<String>) : IEditCallback {
     override fun updatePathControlPoints(path: Path, controlPoints: List<Point>, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
-        val index = newLines.indexOfFirst { it is FileLine.SplineLine && it.associatedPath?.equalPath(path) == true }
+        val index = newLines.indexOfFirst { it is SplineLine && it.associatedPath?.equalPath(path) == true }
         if (controlPoints.isEmpty()) {
             if (index >= 0) {
                 newLines.removeAt(index)
             }
         } else {
-            val newLine = FileLine.SplineLine.create(controlPoints)
+            val newLine = SplineLine.create(controlPoints)
 
             if (index < 0) {
                 val pathIndex = newLines.indexOfFirst {
-                    it is FileLine.PathLine && it.data.equalPath(path) || it is FileLine.StartPointLine && it.data.path.equalPath(
+                    it is PathLine && it.data.equalPath(path) || it is StartPointLine && it.data.path.equalPath(
                         path
                     )
                 }
@@ -148,7 +149,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
         val senderLines = lines.filter { it.isAssociatedTo(targetPoint) }
 
         val newLines = if (senderLines.isEmpty()) {
-            lines + FileLine.TargetLine.create(targetPoint)
+            lines + TargetLine.create(targetPoint)
         } else {
             lines - senderLines
         }
@@ -163,14 +164,14 @@ class PlanetFile(lines: List<String>) : IEditCallback {
     override fun togglePathExposure(path: Path, exposure: Coordinate, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
-        val index = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) }
+        val index = newLines.indexOfFirst { it is PathLine && it.data.equalPath(path) }
         if (index < 0) {
             return
         }
 
         val p = newLines[index].data as? Path ?: return
 
-        newLines[index] = FileLine.PathLine.create(
+        newLines[index] = PathLine.create(
             if (exposure in p.exposure) {
                 p.copy(exposure = p.exposure - exposure)
             } else {
@@ -190,7 +191,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
         val pathSelectLine = lines.filter { it.isAssociatedTo(pathSelect) }
 
         val newLines = if (pathSelectLine.isEmpty()) {
-            lines + FileLine.PathSelectLine.create(pathSelect)
+            lines + PathSelectLine.create(pathSelect)
         } else {
             lines - pathSelectLine
         }
@@ -205,17 +206,17 @@ class PlanetFile(lines: List<String>) : IEditCallback {
     override fun setStartPoint(point: Coordinate, orientation: Direction, groupHistory: Boolean) {
         val startPoint = StartPoint(point, orientation, emptyList())
 
-        val index = lines.indexOfFirst { it is FileLine.StartPointLine }
+        val index = lines.indexOfFirst { it is StartPointLine }
 
         val newLines = if (index < 0) {
-            listOf(FileLine.StartPointLine.create(startPoint)) + lines
+            listOf(StartPointLine.create(startPoint)) + lines
         } else {
             val list = lines.toMutableList()
             val old = planet.startPoint
             if (old != null) {
                 list.retainAll { !it.isAssociatedTo(old) }
             }
-            list.add(index, FileLine.StartPointLine.create(startPoint))
+            list.add(index, StartPointLine.create(startPoint))
             list
         }
 
@@ -239,13 +240,13 @@ class PlanetFile(lines: List<String>) : IEditCallback {
     }
 
     override fun setBluePoint(point: Coordinate, groupHistory: Boolean) {
-        val index = lines.indexOfFirst { it is FileLine.BluePointLine }
+        val index = lines.indexOfFirst { it is BluePointLine }
 
         val newLines = lines.toMutableList()
         if (index < 0) {
-            newLines.add(FileLine.BluePointLine.create(point))
+            newLines.add(BluePointLine.create(point))
         } else {
-            newLines[index] = FileLine.BluePointLine.create(point)
+            newLines[index] = BluePointLine.create(point)
         }
 
         if (groupHistory) {
@@ -258,16 +259,16 @@ class PlanetFile(lines: List<String>) : IEditCallback {
     override fun togglePathHiddenState(path: Path, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
-        val index = newLines.indexOfFirst { it is FileLine.HiddenLine && it.associatedPath?.equalPath(path) == true }
+        val index = newLines.indexOfFirst { it is HiddenLine && it.associatedPath?.equalPath(path) == true }
         if (path.hidden) {
             if (index >= 0) {
                 newLines.removeAt(index)
             }
         } else {
-            val newLine = FileLine.HiddenLine.create()
+            val newLine = HiddenLine.create()
 
             if (index < 0) {
-                val pathIndex = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) }
+                val pathIndex = newLines.indexOfFirst { it is PathLine && it.data.equalPath(path) }
                 newLines.add(pathIndex + 1, newLine)
             } else {
                 newLines[index] = newLine
@@ -284,14 +285,14 @@ class PlanetFile(lines: List<String>) : IEditCallback {
     override fun setPathWeight(path: Path, weight: Int, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
-        val index = newLines.indexOfFirst { it is FileLine.PathLine && it.data.equalPath(path) }
+        val index = newLines.indexOfFirst { it is PathLine && it.data.equalPath(path) }
         if (index < 0) {
             return
         }
 
         val p = newLines[index].data as? Path ?: return
 
-        newLines[index] = FileLine.PathLine.create(p.copy(weight = weight))
+        newLines[index] = PathLine.create(p.copy(weight = weight))
 
         if (groupHistory) {
             history.replace(newLines)
@@ -303,7 +304,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
     override fun createComment(value: List<String>, position: Point, groupHistory: Boolean) {
         val comment = Comment(position, Comment.Alignment.CENTER, value)
 
-        val newLines = lines + FileLine.CommentLine.createAll(comment)
+        val newLines = lines + CommentLine.createAll(comment)
 
         if (groupHistory) {
             history.replace(newLines)
@@ -315,7 +316,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
     override fun setCommentValue(comment: Comment, value: List<String>, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
-        val index = newLines.indexOfFirst { it is FileLine.CommentLine && it.isAssociatedTo(comment) }
+        val index = newLines.indexOfFirst { it is CommentLine && it.isAssociatedTo(comment) }
         if (index < 0) {
             return
         }
@@ -323,7 +324,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
         newLines.removeAll {
             it.isAssociatedTo(comment)
         }
-        newLines.addAll(index, FileLine.CommentLine.createAll(comment.copy(lines = value)))
+        newLines.addAll(index, CommentLine.createAll(comment.copy(lines = value)))
 
         if (groupHistory) {
             history.replace(newLines)
@@ -335,7 +336,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
     override fun setCommentPosition(comment: Comment, position: Point, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
-        val index = newLines.indexOfFirst { it is FileLine.CommentLine && it.isAssociatedTo(comment) }
+        val index = newLines.indexOfFirst { it is CommentLine && it.isAssociatedTo(comment) }
         if (index < 0) {
             return
         }
@@ -343,7 +344,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
         newLines.removeAll {
             it.isAssociatedTo(comment)
         }
-        newLines.addAll(index, FileLine.CommentLine.createAll(comment.copy(point = position)))
+        newLines.addAll(index, CommentLine.createAll(comment.copy(point = position)))
 
         if (groupHistory) {
             history.replace(newLines)
@@ -355,7 +356,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
     override fun setCommentAlignment(comment: Comment, alignment: Comment.Alignment, groupHistory: Boolean) {
         val newLines = lines.toMutableList()
 
-        val index = newLines.indexOfFirst { it is FileLine.CommentLine && it.isAssociatedTo(comment) }
+        val index = newLines.indexOfFirst { it is CommentLine && it.isAssociatedTo(comment) }
         if (index < 0) {
             return
         }
@@ -363,7 +364,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
         newLines.removeAll {
             it.isAssociatedTo(comment)
         }
-        newLines.addAll(index, FileLine.CommentLine.createAll(comment.copy(alignment = alignment)))
+        newLines.addAll(index, CommentLine.createAll(comment.copy(alignment = alignment)))
 
         if (groupHistory) {
             history.replace(newLines)
@@ -399,36 +400,36 @@ class PlanetFile(lines: List<String>) : IEditCallback {
 
         for (i in 0 until newLines.size) {
             when (val line = newLines[i]) {
-                is FileLine.StartPointLine -> {
+                is StartPointLine -> {
                     val obj = line.data.translate(delta)
-                    newLines[i] = FileLine.StartPointLine.create(obj)
+                    newLines[i] = StartPointLine.create(obj)
                 }
-                is FileLine.BluePointLine -> {
+                is BluePointLine -> {
                     val obj = line.data.translate(delta)
-                    newLines[i] = FileLine.BluePointLine.create(obj)
+                    newLines[i] = BluePointLine.create(obj)
                 }
-                is FileLine.PathLine -> {
+                is PathLine -> {
                     val obj = line.data.translate(delta)
-                    newLines[i] = FileLine.PathLine.create(obj)
+                    newLines[i] = PathLine.create(obj)
                 }
-                is FileLine.SplineLine -> {
+                is SplineLine -> {
                     val obj = line.data.map { it + delta.toPoint() }
-                    newLines[i] = FileLine.SplineLine.create(obj)
+                    newLines[i] = SplineLine.create(obj)
                 }
-                is FileLine.TargetLine -> {
+                is TargetLine -> {
                     val obj = line.data.translate(delta)
-                    newLines[i] = FileLine.TargetLine.create(obj)
+                    newLines[i] = TargetLine.create(obj)
                 }
-                is FileLine.PathSelectLine -> {
+                is PathSelectLine -> {
                     val obj = line.data.translate(delta)
-                    newLines[i] = FileLine.PathSelectLine.create(obj)
+                    newLines[i] = PathSelectLine.create(obj)
                 }
-                is FileLine.CommentLine -> {
+                is CommentLine -> {
                     val obj = line.data.translate(delta)
-                    newLines[i] = FileLine.CommentLine.create(obj)
+                    newLines[i] = CommentLine.create(obj)
                 }
-                is FileLine.GroupingLine -> {
-                    newLines[i] = FileLine.GroupingLine.create(
+                is GroupingLine -> {
+                    newLines[i] = GroupingLine.create(
                         line.data.second.map { it.translate(delta) }.toSet(),
                         line.data.first
                     )
@@ -448,36 +449,36 @@ class PlanetFile(lines: List<String>) : IEditCallback {
 
         for (i in 0 until newLines.size) {
             when (val line = newLines[i]) {
-                is FileLine.StartPointLine -> {
+                is StartPointLine -> {
                     val obj = line.data.rotate(direction, origin)
-                    newLines[i] = FileLine.StartPointLine.create(obj)
+                    newLines[i] = StartPointLine.create(obj)
                 }
-                is FileLine.BluePointLine -> {
+                is BluePointLine -> {
                     val obj = line.data.rotate(direction, origin)
-                    newLines[i] = FileLine.BluePointLine.create(obj)
+                    newLines[i] = BluePointLine.create(obj)
                 }
-                is FileLine.PathLine -> {
+                is PathLine -> {
                     val obj = line.data.rotate(direction, origin)
-                    newLines[i] = FileLine.PathLine.create(obj)
+                    newLines[i] = PathLine.create(obj)
                 }
-                is FileLine.SplineLine -> {
+                is SplineLine -> {
                     val obj = line.data.map { it.rotate(direction.angle, origin.toPoint()) }
-                    newLines[i] = FileLine.SplineLine.create(obj)
+                    newLines[i] = SplineLine.create(obj)
                 }
-                is FileLine.TargetLine -> {
+                is TargetLine -> {
                     val obj = line.data.rotate(direction, origin)
-                    newLines[i] = FileLine.TargetLine.create(obj)
+                    newLines[i] = TargetLine.create(obj)
                 }
-                is FileLine.PathSelectLine -> {
+                is PathSelectLine -> {
                     val obj = line.data.rotate(direction, origin)
-                    newLines[i] = FileLine.PathSelectLine.create(obj)
+                    newLines[i] = PathSelectLine.create(obj)
                 }
-                is FileLine.CommentLine -> {
+                is CommentLine -> {
                     val obj = line.data.rotate(direction, origin)
-                    newLines[i] = FileLine.CommentLine.create(obj)
+                    newLines[i] = CommentLine.create(obj)
                 }
-                is FileLine.GroupingLine -> {
-                    newLines[i] = FileLine.GroupingLine.create(
+                is GroupingLine -> {
+                    newLines[i] = GroupingLine.create(
                         line.data.second.map { it.rotate(direction, origin) }.toSet(),
                         line.data.first
                     )
@@ -497,9 +498,9 @@ class PlanetFile(lines: List<String>) : IEditCallback {
 
         for (i in 0 until newLines.size) {
             when (val line = newLines[i]) {
-                is FileLine.PathLine -> {
+                is PathLine -> {
                     val obj = line.data.scaleWeights(factor, offset)
-                    newLines[i] = FileLine.PathLine.create(obj)
+                    newLines[i] = PathLine.create(obj)
                 }
             }
         }
@@ -512,13 +513,13 @@ class PlanetFile(lines: List<String>) : IEditCallback {
     }
 
     override fun setName(name: String, groupHistory: Boolean) {
-        val index = lines.indexOfFirst { it is FileLine.NameLine }
+        val index = lines.indexOfFirst { it is NameLine }
 
         val newLines = lines.toMutableList()
         if (index < 0) {
-            newLines.add(FileLine.NameLine.create(name))
+            newLines.add(NameLine.create(name))
         } else {
-            newLines[index] = FileLine.NameLine.create(name)
+            newLines[index] = NameLine.create(name)
         }
 
         if (groupHistory) {
@@ -546,7 +547,7 @@ class PlanetFile(lines: List<String>) : IEditCallback {
             for (line in lines) {
                 val l = parseLine(line)
 
-                if (l is FileLine.NameLine) {
+                if (l is NameLine) {
                     return l.data
                 }
             }
@@ -554,29 +555,34 @@ class PlanetFile(lines: List<String>) : IEditCallback {
             return null
         }
 
-        fun createFromPlanet(planet: Planet, includeEmptySplines: Boolean = false, includeComments: PlanetFile? = null): PlanetFile {
+        fun createFromPlanet(
+            planet: Planet,
+            includeEmptySplines: Boolean = false,
+            includeComments: PlanetFile? = null,
+            includeTests: Boolean = true,
+        ): PlanetFile {
             val lines = mutableListOf<FileLine<*>>()
 
             if (planet.name.isNotBlank()) {
-                lines += FileLine.NameLine.create(planet.name)
+                lines += NameLine.create(planet.name)
             }
-            lines += FileLine.VersionLine.create(planet.version)
+            lines += VersionLine.create(planet.version)
 
-            lines += FileLine.BlankLine.create()
+            lines += BlankLine.create()
             for ((key, value) in planet.tagMap) {
-                lines += FileLine.TagLine.create(Tag(key, value))
+                lines += TagLine.create(Tag(key, value))
             }
 
-            lines += FileLine.BlankLine.create()
+            lines += BlankLine.create()
             if (planet.startPoint != null) {
-                lines += FileLine.StartPointLine.create(planet.startPoint)
+                lines += StartPointLine.create(planet.startPoint)
                 if (includeEmptySplines) {
                     val points = PathAnimatable
                         .getControlPointsFromPath(planet.version, planet.startPoint.path)
                         .drop(1)
                         .dropLast(if (planet.startPoint.path.isOneWayPath && planet.version >= PlanetVersion.V2020_SPRING) 0 else 1)
                     if (points.isNotEmpty()) {
-                        lines += FileLine.SplineLine.create(points)
+                        lines += SplineLine.create(points)
                     }
                 } else {
                     if (planet.startPoint.controlPoints.isNotEmpty()) {
@@ -588,25 +594,25 @@ class PlanetFile(lines: List<String>) : IEditCallback {
                             .drop(1)
                             .dropLast(if (planet.startPoint.path.isOneWayPath && planet.version >= PlanetVersion.V2020_SPRING) 0 else 1)
                         if (planet.startPoint.controlPoints != points) {
-                            lines += FileLine.SplineLine.create(planet.startPoint.controlPoints)
+                            lines += SplineLine.create(planet.startPoint.controlPoints)
                         }
                     }
                 }
             }
             if (planet.bluePoint != null) {
-                lines += FileLine.BluePointLine.create(planet.bluePoint)
+                lines += BluePointLine.create(planet.bluePoint)
             }
 
-            lines += FileLine.BlankLine.create()
+            lines += BlankLine.create()
             for (path in planet.pathList) {
-                lines += FileLine.PathLine.create(path)
+                lines += PathLine.create(path)
                 if (includeEmptySplines) {
                     val points = PathAnimatable
                         .getControlPointsFromPath(planet.version, path)
                         .drop(1)
                         .dropLast(if (path.isOneWayPath && planet.version >= PlanetVersion.V2020_SPRING) 0 else 1)
                     if (points.isNotEmpty()) {
-                        lines += FileLine.SplineLine.create(points)
+                        lines += SplineLine.create(points)
                     }
                 } else {
                     if (path.controlPoints.isNotEmpty()) {
@@ -615,26 +621,26 @@ class PlanetFile(lines: List<String>) : IEditCallback {
                             .drop(1)
                             .dropLast(if (path.isOneWayPath && planet.version >= PlanetVersion.V2020_SPRING) 0 else 1)
                         if (path.controlPoints != points) {
-                            lines += FileLine.SplineLine.create(path.controlPoints)
+                            lines += SplineLine.create(path.controlPoints)
                         }
                     }
                 }
                 if (path.hidden) {
-                    lines += FileLine.HiddenLine.create()
+                    lines += HiddenLine.create()
                 }
             }
 
-            lines += FileLine.BlankLine.create()
+            lines += BlankLine.create()
             for (pathSelect in planet.pathSelectList) {
-                lines += FileLine.PathSelectLine.create(pathSelect)
+                lines += PathSelectLine.create(pathSelect)
             }
 
-            lines += FileLine.BlankLine.create()
+            lines += BlankLine.create()
             for (target in planet.targetList) {
-                lines += FileLine.TargetLine.create(target)
+                lines += TargetLine.create(target)
             }
 
-            lines += FileLine.BlankLine.create()
+            lines += BlankLine.create()
             val grouping = if (includeEmptySplines) {
                 planet.senderGrouping
             } else {
@@ -645,20 +651,20 @@ class PlanetFile(lines: List<String>) : IEditCallback {
                 planet.senderGrouping - keysToRemove
             }
             for ((set, char) in grouping) {
-                lines += FileLine.GroupingLine.create(set, char)
+                lines += GroupingLine.create(set, char)
             }
 
-            lines += FileLine.BlankLine.create()
+            lines += BlankLine.create()
             for (comment in planet.commentList) {
-                lines += FileLine.CommentLine.createAll(comment)
+                lines += CommentLine.createAll(comment)
             }
 
             val filteredLines = lines.fold(emptyList<FileLine<*>>()) { acc, line ->
-                if (line is FileLine.BlankLine && acc.lastOrNull() is FileLine.BlankLine) acc else acc + line
+                if (line is BlankLine && acc.lastOrNull() is BlankLine) acc else acc + line
             }
 
             val withComments = if (includeComments == null) filteredLines else {
-                filteredLines.fold(emptyList<FileLine<*>>()) { acc, line ->
+                filteredLines.fold(emptyList()) { acc, line ->
                     val h = includeComments.lines.find { it == line }
 
                     val extra = if (h != null && h.blockMode is FileLine.BlockMode.Head) {
@@ -666,9 +672,9 @@ class PlanetFile(lines: List<String>) : IEditCallback {
                             val blockMode = it.blockMode
                             blockMode is FileLine.BlockMode.Append &&
                                     blockMode.blockHead == h &&
-                                    it !is FileLine.SplineLine &&
-                                    it !is FileLine.HiddenLine &&
-                                    it !is FileLine.CommentSubLine
+                                    it !is SplineLine &&
+                                    it !is HiddenLine &&
+                                    it !is CommentSubLine
                         }
                     } else emptyList()
 
@@ -676,7 +682,27 @@ class PlanetFile(lines: List<String>) : IEditCallback {
                 }
             }
 
-            return PlanetFile(withComments.map { it.line })
+            val withTests = if (!includeTests || planet.testSuite == TestSuite.EMPTY) withComments else {
+                val tests = mutableListOf<FileLine<*>>()
+                tests += BlankLine.create()
+
+                if (planet.testSuite.goal != null) {
+                    tests += TestGoalLine.create(planet.testSuite.goal)
+                }
+                for (t in planet.testSuite.taskList) {
+                    tests += TestTaskLine.create(t)
+                }
+                for (t in planet.testSuite.triggerList) {
+                    tests += TestTriggerLine.create(t)
+                }
+                for (t in planet.testSuite.modifierList) {
+                    tests += TestModifierLine.create(t)
+                }
+
+                withComments + tests
+            }
+
+            return PlanetFile(withTests.map { it.line })
         }
     }
 }
