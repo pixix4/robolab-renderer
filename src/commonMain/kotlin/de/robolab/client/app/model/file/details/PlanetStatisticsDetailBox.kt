@@ -66,10 +66,13 @@ class PlanetStatisticsDetailBox(planetFile: PlanetFile) {
             }
         }.toList().observeConst(),
         "Test suite" to listOf(
-            "Goal" to planetFile.planetProperty.mapBinding { it.testSuite.goal?.toString() ?: "" },
+            "Goals" to planetFile.planetProperty.mapBinding {
+                if (it.testSuite.goals.size <= 3) it.testSuite.goals.joinToString()
+                else it.testSuite.goals.size.toString()
+            },
             "Tasks" to planetFile.planetProperty.mapBinding { it.testSuite.taskList.size.toString() },
             "Triggers" to planetFile.planetProperty.mapBinding { it.testSuite.triggerList.size.toString() },
-            "Modifiers" to planetFile.planetProperty.mapBinding { it.testSuite.modifierList.size.toString() },
+            "Flag setters" to planetFile.planetProperty.mapBinding { it.testSuite.flagSetterList.size.toString() },
         ).observeConst()
     )
 }

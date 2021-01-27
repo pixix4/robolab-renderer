@@ -6,6 +6,7 @@ import de.robolab.client.renderer.drawable.utils.toPoint
 import de.robolab.client.renderer.utils.History
 import de.robolab.common.parser.lines.*
 import de.robolab.common.planet.*
+import de.robolab.common.testing.TestSuite
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.property.mapBinding
@@ -686,8 +687,8 @@ class PlanetFile(lines: List<String>) : IEditCallback {
                 val tests = mutableListOf<FileLine<*>>()
                 tests += BlankLine.create()
 
-                if (planet.testSuite.goal != null) {
-                    tests += TestGoalLine.create(planet.testSuite.goal)
+                for (t in planet.testSuite.goals) {
+                    tests += TestGoalLine.create(t)
                 }
                 for (t in planet.testSuite.taskList) {
                     tests += TestTaskLine.create(t)
@@ -695,8 +696,8 @@ class PlanetFile(lines: List<String>) : IEditCallback {
                 for (t in planet.testSuite.triggerList) {
                     tests += TestTriggerLine.create(t)
                 }
-                for (t in planet.testSuite.modifierList) {
-                    tests += TestModifierLine.create(t)
+                for (t in planet.testSuite.flagSetterList) {
+                    tests += TestFlagSetterLine.create(t)
                 }
 
                 withComments + tests

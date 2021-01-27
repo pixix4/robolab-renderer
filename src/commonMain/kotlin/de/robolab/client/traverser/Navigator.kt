@@ -4,7 +4,6 @@ import de.robolab.client.traverser.navigation.Dijkstra
 import de.robolab.client.traverser.navigation.Route
 import de.robolab.client.traverser.navigation.getNeighbours
 import de.robolab.common.planet.*
-import kotlin.math.min
 
 interface INavigator<NS> where NS : INavigatorState {
     val planet: LookupPlanet

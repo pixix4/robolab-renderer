@@ -1,8 +1,6 @@
 package de.robolab.client.traverser.navigation
 
-import com.soywiz.klock.wrapped.min
-import de.robolab.client.traverser.INavigatorState
-import de.robolab.client.traverser.LookupPlanet
+import de.robolab.common.planet.LookupPlanet
 import de.robolab.client.traverser.NavigatorState
 import de.robolab.client.traverser.PriorityQueue
 import de.robolab.client.traverser.navigation.Route.Companion.toStartStep

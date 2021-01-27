@@ -2,6 +2,7 @@ package de.robolab.common.parser
 
 import de.robolab.common.parser.lines.*
 import de.robolab.common.planet.*
+import de.robolab.common.testing.TestSignal
 import kotlin.math.absoluteValue
 import kotlin.math.pow
 import kotlin.math.round
@@ -59,6 +60,23 @@ fun parseTestCoordinate(str: String): Pair<Coordinate, Direction?> {
     return Coordinate(values[0], values[1]) to split.getOrNull(2)?.let { parseDirection(it) }
 }
 
+fun parseSubscribableIdentifier(str: String): SubscribableIdentifier<*> {
+    val (coordinate, direction) = parseTestCoordinate(str)
+    return if (direction == null) SubscribableIdentifier.Node(coordinate)
+    else SubscribableIdentifier.Path(coordinate, direction)
+}
+
+fun parsePathIdentifier(str: String): SubscribableIdentifier.Path {
+    val (coordinate, direction) = parseTestCoordinate(str)
+    return SubscribableIdentifier.Path(
+        coordinate,
+        direction ?: error("Missing direction for path identifier $coordinate")
+    )
+}
+
+fun parseNodeIdentifier(str: String): SubscribableIdentifier.Node =
+    SubscribableIdentifier.Node(parseCoordinate(str))
+
 fun parseTestSignal(str: String): TestSignal? {
     if (str.isBlank()) return null
 
@@ -104,7 +122,7 @@ private val parserList = listOf(
     TestGoalLine,
     TestTaskLine,
     TestTriggerLine,
-    TestModifierLine,
+    TestFlagSetterLine,
     BlankLine
 )
 

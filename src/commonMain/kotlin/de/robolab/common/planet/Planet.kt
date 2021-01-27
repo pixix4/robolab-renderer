@@ -1,5 +1,6 @@
 package de.robolab.common.planet
 
+import de.robolab.common.testing.TestSuite
 import kotlin.math.PI
 
 data class Planet(

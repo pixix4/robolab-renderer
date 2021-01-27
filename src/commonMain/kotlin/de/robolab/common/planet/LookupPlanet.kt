@@ -1,12 +1,14 @@
-package de.robolab.client.traverser
+package de.robolab.common.planet
 
-import de.robolab.common.planet.*
+import de.robolab.common.testing.TestSuite
+import de.robolab.common.testing.buildTestPlanet
 
 fun Planet.getStartPath(): Path? =
-        if (startPoint == null) null
-        else Path(startPoint.point, startPoint.orientation.opposite(), startPoint.point, startPoint.orientation.opposite(),
-                -1, emptySet(), emptyList(), hidden = false, showDirectionArrow = true
-        )
+    if (startPoint == null) null
+    else Path(
+        startPoint.point, startPoint.orientation.opposite(), startPoint.point, startPoint.orientation.opposite(),
+        -1, emptySet(), emptyList(), hidden = false, showDirectionArrow = true
+    )
 
 fun Planet.asUnexplored(name: String = this.name): Planet = Planet(
     PlanetVersion.CURRENT,
@@ -27,21 +29,21 @@ class LookupPlanet(val planet: Planet) {
 
     init {
         val pathsByPoint = planet.pathList
-                .flatMap { path -> path.exposure.map { it to path } }
-                .groupBy(Pair<Coordinate, Path>::first, Pair<Coordinate, Path>::second)
+            .flatMap { path -> path.exposure.map { it to path } }
+            .groupBy(Pair<Coordinate, Path>::first, Pair<Coordinate, Path>::second)
         val targetsByPoint: Map<Coordinate, List<TargetPoint>> = planet.targetList
-                .map { target -> target.exposure to target }
-                .groupBy(Pair<Coordinate, TargetPoint>::first, Pair<Coordinate, TargetPoint>::second)
+            .map { target -> target.exposure to target }
+            .groupBy(Pair<Coordinate, TargetPoint>::first, Pair<Coordinate, TargetPoint>::second)
         visitFeatures = (pathsByPoint.keys + targetsByPoint.keys)
-                .associateWith { Pair(pathsByPoint.getOrElse(it, ::emptyList), targetsByPoint.getOrElse(it, ::emptyList)) }
+            .associateWith { Pair(pathsByPoint.getOrElse(it, ::emptyList), targetsByPoint.getOrElse(it, ::emptyList)) }
     }
 
     private val leaveFeatures: Map<Coordinate, PathSelect> = planet.pathSelectList.associateBy { it.point }
 
     private val paths: Map<Coordinate, Map<Direction, Path>> = planet.pathList
-            .flatMap { listOf(it, it.reversed()) }
-            .groupBy(Path::source)
-            .mapValues { it.value.distinct().associateBy(Path::sourceDirection) }
+        .flatMap { listOf(it, it.reversed()) }
+        .groupBy(Path::source)
+        .mapValues { it.value.distinct().associateBy(Path::sourceDirection) }
 
     val reachablePaths: Set<Path>
     val reachablePoints: Set<Coordinate>

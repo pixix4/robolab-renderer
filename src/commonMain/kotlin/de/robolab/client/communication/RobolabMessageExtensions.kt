@@ -2,6 +2,7 @@ package de.robolab.client.communication
 
 import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.common.planet.*
+import de.robolab.common.testing.TestSuite
 
 
 fun List<RobolabMessage>.toServerPlanet(): Pair<Planet, List<Coordinate>> {

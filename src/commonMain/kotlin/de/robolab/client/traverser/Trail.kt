@@ -1,6 +1,7 @@
 package de.robolab.client.traverser
 
 import de.robolab.common.planet.*
+import de.robolab.common.testing.TestSuite
 import de.robolab.common.utils.intersect
 import kotlin.random.Random
 

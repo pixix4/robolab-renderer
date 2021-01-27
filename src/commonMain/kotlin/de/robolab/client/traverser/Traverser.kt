@@ -1,6 +1,7 @@
 package de.robolab.client.traverser
 
 import de.robolab.common.planet.Direction
+import de.robolab.common.planet.LookupPlanet
 import de.robolab.common.planet.Path
 import de.robolab.common.planet.Planet
 

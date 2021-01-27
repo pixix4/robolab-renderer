@@ -3,7 +3,7 @@ package de.robolab.common.parser.lines
 import de.robolab.common.parser.FileLine
 import de.robolab.common.parser.parseCoordinate
 import de.robolab.common.parser.serializeCoordinate
-import de.robolab.common.planet.TestGoal
+import de.robolab.common.testing.TestGoal
 
 class TestGoalLine(override val line: String) : FileLine<TestGoal> {
 
@@ -31,7 +31,7 @@ class TestGoalLine(override val line: String) : FileLine<TestGoal> {
         builder.previousBlockHead = this
         builder.planet = builder.planet.copy(
             testSuite = builder.planet.testSuite.copy(
-                goal = data
+                goals = builder.planet.testSuite.goals + data
             )
         )
     }

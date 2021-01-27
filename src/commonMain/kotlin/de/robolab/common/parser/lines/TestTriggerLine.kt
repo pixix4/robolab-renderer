@@ -1,21 +1,16 @@
 package de.robolab.common.parser.lines
 
 import de.robolab.common.parser.*
-import de.robolab.common.planet.TestGoal
-import de.robolab.common.planet.TestTrigger
-import de.robolab.common.planet.serialize
+import de.robolab.common.testing.TestTrigger
+import de.robolab.common.testing.serialize
 
 class TestTriggerLine(override val line: String) : FileLine<TestTrigger> {
 
     override val data = REGEX.matchEntire(line.trim())!!.let { match ->
         val signal = parseTestSignal(match.groupValues[2])!!
-        val (coordinate, direction) = parseTestCoordinate(match.groupValues[3])
+        val subscribable = parseSubscribableIdentifier(match.groupValues[3])
 
-        if (direction == null) {
-            TestTrigger.Coordinate(coordinate, signal)
-        } else {
-            TestTrigger.Path(coordinate, direction, signal)
-        }
+        TestTrigger(subscribable, signal)
     }
 
     override var blockMode: FileLine.BlockMode = FileLine.BlockMode.Unknown
@@ -65,12 +60,7 @@ class TestTriggerLine(override val line: String) : FileLine<TestTrigger> {
         }
 
         fun serialize(trigger: TestTrigger): String {
-            return when (trigger) {
-                is TestTrigger.Coordinate ->
-                    "# trigger${trigger.signal.serialize()}: ${serializeCoordinate(trigger.coordinate)}"
-                is TestTrigger.Path ->
-                    "# trigger${trigger.signal.serialize()}: ${serializeCoordinate(trigger.coordinate)},${serializeDirection(trigger.direction)}"
-            }
+            return "# trigger${trigger.signal.serialize()}: ${trigger.subscribable.serialize()}"
         }
 
         fun create(goal: TestTrigger) = createInstance(serialize(goal))

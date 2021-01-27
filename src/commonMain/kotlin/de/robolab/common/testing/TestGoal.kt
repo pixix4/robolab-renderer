@@ -1,13 +1,18 @@
-package de.robolab.common.planet
+package de.robolab.common.testing
+
+import de.robolab.common.planet.Coordinate
+import de.robolab.common.planet.Planet
 
 sealed class TestGoal {
 
     abstract fun translate(delta: Coordinate): TestGoal
     abstract fun rotate(direction: Planet.RotateDirection, origin: Coordinate): TestGoal
 
+    abstract val coordinate: Coordinate?
+
     data class Target(
-        val coordinate: Coordinate
-    ): TestGoal() {
+        override val coordinate: Coordinate
+    ) : TestGoal() {
         override fun translate(delta: Coordinate): TestGoal {
             return Target(coordinate.translate(delta))
         }
@@ -21,7 +26,8 @@ sealed class TestGoal {
         }
     }
 
-    object Explore: TestGoal() {
+    object Explore : TestGoal() {
+        override val coordinate: Coordinate? = null
         override fun translate(delta: Coordinate): TestGoal {
             return this
         }
@@ -36,8 +42,8 @@ sealed class TestGoal {
     }
 
     data class ExploreCoordinate(
-        val coordinate: Coordinate
-    ): TestGoal() {
+        override val coordinate: Coordinate
+    ) : TestGoal() {
         override fun translate(delta: Coordinate): TestGoal {
             return ExploreCoordinate(coordinate.translate(delta))
         }
