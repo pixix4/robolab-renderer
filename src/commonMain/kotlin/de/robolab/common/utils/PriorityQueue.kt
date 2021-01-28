@@ -1,4 +1,4 @@
-package de.robolab.client.traverser
+package de.robolab.common.utils
 
 import kotlin.math.max
 

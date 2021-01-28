@@ -1,4 +1,6 @@
-package de.robolab.client.traverser
+package de.robolab.common.utils.tree
+
+import de.robolab.common.utils.PoolManager
 
 interface ITreeIterator<N> : Iterator<N>, ISeededBranchProvider<N> {
     fun tryAdvance(): N?
@@ -8,8 +10,8 @@ open class TreeIterator<N>(
     final override val branchFunction: (N) -> List<N>,
     final override val seed: N,
     lifoPool: Boolean = true
-) :
-    ITreeIterator<N> {
+) : ITreeIterator<N>
+        where N : Any {
 
     protected open val manager: PoolManager<N> =
         if (lifoPool) PoolManager.LIFO(seed)
@@ -29,7 +31,7 @@ open class TreeIterator<N>(
 
     override fun hasNext(): Boolean = !manager.isEmpty()
 
-    override fun next(): N = tryAdvance()!!
+    override fun next(): N = tryAdvance() ?: throw NoSuchElementException()
 
     override fun tryAdvance(): N? {
         val workingNode: N? = manager.tryRemove()
@@ -45,7 +47,7 @@ interface ITreeSkiperator<N> : ITreeIterator<N> {
 }
 
 open class TreeSkiperator<N>(branchFunction: (N) -> List<N>, seed: N, lifoPool: Boolean = true) :
-    TreeIterator<N>(branchFunction, seed, lifoPool) {
+    TreeIterator<N>(branchFunction, seed, lifoPool) where N : Any {
 
     private var current: N? = seed
     private var currentBranches: List<N>? = null

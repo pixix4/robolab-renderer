@@ -2,22 +2,22 @@ package de.robolab.common.testing
 
 import de.robolab.common.planet.SubscribableIdentifier
 
-interface ITestBehaviour {
+interface ITestPlanetBehaviour
 
-}
-
-interface ITestableSubscriber : ITestBehaviour {
+interface ITestableSubscriber : ITestPlanetBehaviour {
     val subscribable: SubscribableIdentifier<*>
     fun ITestRun.onTestableEntered()
 }
 
-interface ISignalTrigger : ITestableSubscriber {
-    val signal: TestSignal?
+interface ITestSignalBehaviour
+
+interface ISignalTrigger : ITestableSubscriber, ITestSignalBehaviour {
+    val triggered: TestSignal?
     override fun ITestRun.onTestableEntered() {
-        if (signal == null)
+        if (triggered == null)
             onTestableEntered(null)
         else
-            onTestableEntered(planet.signals.getValue(signal!!))
+            onTestableEntered(planet.signals.getValue(triggered!!))
     }
 
     fun ITestRun.onTestableEntered(signal: TestSignalGroup?) {
@@ -25,11 +25,7 @@ interface ISignalTrigger : ITestableSubscriber {
     }
 }
 
-interface ISignalActor : ITestBehaviour {
-    val signalGroups: List<TestSignal>
+interface ISignalActor : ITestSignalBehaviour {
+    val actsOn: List<TestSignal>
     fun ITestRun.onSignalTriggered(group: TestSignalGroup)
-}
-
-interface ITestInit {
-    fun ITestRun.init()
 }

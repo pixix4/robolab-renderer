@@ -75,3 +75,16 @@ fun String.toDuration(): Duration {
         }
     )
 }
+
+inline fun <T> copyToCount(seed: T, count: Int, copy: (T) -> T): List<T> =
+    when {
+        count < 0 -> throw IllegalArgumentException("Cannot clone to a negative count ($count)")
+        count == 0 -> emptyList()
+        count == 1 -> listOf(seed)
+        else -> {
+            listOf(seed) + ((2..count).map { copy(seed) })
+        }
+    }
+
+inline fun <T, R, V> List<T>.zipWithCopies(seed: R, copy: (R) -> R, transform: (a: T, b: R) -> V): List<V> =
+    zip(copyToCount(seed, size, copy), transform)

@@ -9,6 +9,7 @@ sealed class SubscribableIdentifier<T> {
     abstract fun rotate(direction: Planet.RotateDirection, origin: Coordinate): SubscribableIdentifier<T>
     abstract fun lookup(planet: LookupPlanet, unify: Boolean = false): T
     abstract fun serialize(): String
+    override fun toString(): String = "${this::class.simpleName}(\"${serialize()}\")"
 
     data class Path(
         val coordinate: Coordinate,

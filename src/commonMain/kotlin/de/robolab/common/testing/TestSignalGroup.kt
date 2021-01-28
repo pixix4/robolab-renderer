@@ -20,15 +20,24 @@ class TestSignalGroup(
 
 
     fun activate(test: ITestRun, allowMultipleUnordered: Boolean = false) {
-        if (test.markSignal(this, Phase.Started)) {
+        if (test.markSignal(this)) {
             subscribers.forEach(test::run)
             test.queueAssert {
                 if (previousSignal != null && test.signalPhase(previousSignal) != Phase.Complete)
-                    test.fail()
+                    test.fail(
+                        "Cannot trigger signal $signal until previous signal (${previousSignal.signal}) is complete; current phase: ${
+                            test.signalPhase(previousSignal)
+                        }"
+                    )
                 if ((!allowMultipleUnordered) && (signal is TestSignal.Unordered)) {
-                    if (test.signalsByPhase[Phase.Started]?.minus(this)
-                            ?.any { it.signal is TestSignal.Unordered } == true
-                    ) test.fail()
+                    val otherUnorderedSignals = test.signalsByPhase[Phase.Started]?.minus(this)?.map {
+                        it.signal
+                    }?.filterIsInstance<TestSignal.Unordered>()
+                    if (otherUnorderedSignals?.any() == true) test.fail(
+                        "Cannot trigger $signal until all started unordered signals are completed: ${
+                            otherUnorderedSignals.joinToString { "\"${it.label}\"" }
+                        }"
+                    )
                 }
             }
         }

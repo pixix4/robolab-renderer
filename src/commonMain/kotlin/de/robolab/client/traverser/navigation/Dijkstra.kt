@@ -2,7 +2,7 @@ package de.robolab.client.traverser.navigation
 
 import de.robolab.common.planet.LookupPlanet
 import de.robolab.client.traverser.NavigatorState
-import de.robolab.client.traverser.PriorityQueue
+import de.robolab.common.utils.PriorityQueue
 import de.robolab.client.traverser.navigation.Route.Companion.toStartStep
 import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Direction

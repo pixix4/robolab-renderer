@@ -1,4 +1,4 @@
-package de.robolab.client.traverser
+package de.robolab.common.utils.tree
 
 import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.base.ObservableList
@@ -12,7 +12,7 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-fun <N> ISeededBranchProvider<N>.treeSliceViewer(): TreeSliceViewer<N> = ObservableTreeSliceViewer(this)
+fun <N> ISeededBranchProvider<N>.treeSliceViewer(): TreeSliceViewer<N> = TreeSliceViewer(this)
 
 fun <N> ISeededBranchProvider<N>.observableTreeSliceViewer(): ObservableTreeSliceViewer<N> =
     ObservableTreeSliceViewer(this)

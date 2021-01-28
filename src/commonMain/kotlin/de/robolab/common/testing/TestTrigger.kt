@@ -5,7 +5,7 @@ import de.robolab.common.planet.SubscribableIdentifier
 
 data class TestTrigger(
     override val subscribable: SubscribableIdentifier<*>,
-    override val signal: TestSignal
+    override val triggered: TestSignal
 ) : ISignalTrigger {
 
     fun translate(delta: de.robolab.common.planet.Coordinate): TestTrigger =
@@ -15,7 +15,7 @@ data class TestTrigger(
         copy(subscribable = subscribable.rotate(direction, origin))
     
     override fun ITestRun.onTestableEntered() {
-        planet.signals.getValue(signal).activate(this, allowMultipleUnordered = true)
+        planet.signals.getValue(triggered).activate(this, allowMultipleUnordered = true)
     }
 
     override fun ITestRun.onTestableEntered(signal: TestSignalGroup?) {

@@ -1,4 +1,4 @@
-package de.robolab.client.traverser
+package de.robolab.common.utils
 
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableMutableList
@@ -10,10 +10,12 @@ interface PoolManager<T> : ObservableList<T> {
     fun add(elements: Collection<T>) = elements.forEach {
         add(it)
     }
+
     fun add(vararg elements: T) = elements.forEach {
         add(it)
     }
-    fun add(elements: Sequence<T>)= elements.forEach {
+
+    fun add(elements: Sequence<T>) = elements.forEach {
         add(it)
     }
 
@@ -46,7 +48,8 @@ interface PoolManager<T> : ObservableList<T> {
         override val onRemove: EventHandler<T> = pool.onRemove
         override val onClear: EventHandler<Collection<T>> = pool.onClear
         override val onChange: EventHandler<Unit> = pool.onChange
-        override val size: Int = pool.size
+        override val size: Int
+            get() = pool.size
 
         override fun contains(element: T): Boolean = pool.contains(element)
 
@@ -59,9 +62,14 @@ interface PoolManager<T> : ObservableList<T> {
         override fun lastIndexOf(element: T): Int = pool.lastIndexOf(element)
     }
 
+    companion object {
+        fun <T> create(vararg elements: T, lifo: Boolean): PoolManager<T> =
+            if (lifo) LIFO(*elements) else FIFO(*elements)
+    }
+
     class FIFO<T>(vararg elements: T) : PoolManagerBase<T>(*elements) {
 
-        override fun tryRemove(): T?  {
+        override fun tryRemove(): T? {
             return if (pool.isEmpty())
                 null
             else
@@ -72,7 +80,7 @@ interface PoolManager<T> : ObservableList<T> {
 
     class LIFO<T>(vararg elements: T) : PoolManagerBase<T>(*elements) {
 
-        override fun tryRemove(): T?  {
+        override fun tryRemove(): T? {
             return if (pool.isEmpty())
                 null
             else

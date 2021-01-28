@@ -1,7 +1,6 @@
 package de.robolab.common.testing
 
 import de.robolab.common.planet.LookupPlanet
-import de.robolab.common.planet.SubscribableIdentifier
 
 fun LookupPlanet.buildTestPlanet() = planet.testSuite.buildPlanet(this)
 
@@ -17,10 +16,9 @@ fun TestSuite.buildPlanet(planet: LookupPlanet): TestPlanet {
     )
 
     return TestPlanet(
-        planet,
         explorationGoals.map(TestGoal::coordinate).toSet(),
         targetGoals.map(TestGoal::coordinate).toSet(),
-        taskList,
+        taskList.groupBy { it.triggered }.mapValues { it.value.toSet() },
         triggerList,
         flagList,
         signalGroups
@@ -58,17 +56,17 @@ fun createSignalGroups(
     flags: List<TestSignalFlag>,
 ): Map<TestSignal, TestSignalGroup> {
 
-    val tasksBySignal = tasks.groupBy(TestTask::signal)
-    val triggersBySignal = triggers.groupBy(TestTrigger::signal)
+    val tasksBySignal = tasks.groupBy(TestTask::triggered)
+    val triggersBySignal = triggers.groupBy(TestTrigger::triggered)
     val flagsBySignal = flags.flatMap { flag ->
-        flag.signalGroups.map {
+        flag.actsOn.map {
             it to flag
         }
     }.groupBy(Pair<TestSignal, TestSignalFlag>::first, Pair<TestSignal, TestSignalFlag>::second)
 
-    val signalSet: Set<TestSignal> = (tasks.mapNotNull { it.signal }.toSet()
-            + triggers.map { it.signal }
-            + flags.flatMap { it.signalGroups })
+    val signalSet: Set<TestSignal> = (tasks.mapNotNull { it.triggered }.toSet()
+            + triggers.map { it.triggered }
+            + flags.flatMap { it.actsOn })
 
     val unorderedSignals: List<TestSignal.Unordered> = signalSet.filterIsInstance<TestSignal.Unordered>()
     val orderedSignals: List<TestSignal.Ordered> = signalSet.filterIsInstance<TestSignal.Ordered>().sorted()

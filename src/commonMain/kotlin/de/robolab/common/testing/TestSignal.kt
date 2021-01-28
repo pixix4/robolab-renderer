@@ -5,9 +5,13 @@ sealed class TestSignal {
         override fun compareTo(other: Ordered): Int {
             return order.compareTo(other.order)
         }
+
+        override fun toString(): String = "O:$order"
     }
 
-    data class Unordered(val label: String) : TestSignal()
+    data class Unordered(val label: String) : TestSignal() {
+        override fun toString() = "U:\"$label\""
+    }
 }
 
 fun TestSignal?.serialize(): String {

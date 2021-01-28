@@ -60,7 +60,7 @@ class TestTaskLine(override val line: String) : FileLine<TestTask> {
         }
 
         fun serialize(task: TestTask): String {
-            return "# task${task.signal.serialize()}: ${task.subscribable.serialize()}"
+            return "# task${task.triggered.serialize()}: ${task.subscribable.serialize()}"
         }
 
         fun create(goal: TestTask) = createInstance(serialize(goal))

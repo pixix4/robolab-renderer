@@ -3,7 +3,7 @@ package de.robolab.client.app.model.traverser
 import de.robolab.client.app.controller.TraverserBarController
 import de.robolab.client.net.RobolabScope
 import de.robolab.client.traverser.ITraverserState
-import de.robolab.client.traverser.TreeSliceViewer
+import de.robolab.common.utils.tree.TreeSliceViewer
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.or

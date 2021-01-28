@@ -51,7 +51,7 @@ class NavigationField(
 
     fun findRoutesToMatched(onlyClosest: Boolean = false, equalityRange: Float = 0.01f): List<Route> {
         val routes = matchedLocations.flatMap(::findRoutes)
-        return if (onlyClosest) {
+        return if (onlyClosest && routes.isNotEmpty()) {
             val minCost = routes.minOf(Route::cost) + equalityRange
             routes.filter { it.cost <= minCost }
         } else routes

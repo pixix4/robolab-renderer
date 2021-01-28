@@ -5,7 +5,7 @@ import de.robolab.common.planet.SubscribableIdentifier
 
 data class TestTask(
     override val subscribable: SubscribableIdentifier<*>,
-    override val signal: TestSignal?
+    override val triggered: TestSignal?
 ) : ISignalTrigger {
 
     fun translate(delta: de.robolab.common.planet.Coordinate): TestTask =

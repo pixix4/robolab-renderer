@@ -60,7 +60,7 @@ class TestTriggerLine(override val line: String) : FileLine<TestTrigger> {
         }
 
         fun serialize(trigger: TestTrigger): String {
-            return "# trigger${trigger.signal.serialize()}: ${trigger.subscribable.serialize()}"
+            return "# trigger${trigger.triggered.serialize()}: ${trigger.subscribable.serialize()}"
         }
 
         fun create(goal: TestTrigger) = createInstance(serialize(goal))

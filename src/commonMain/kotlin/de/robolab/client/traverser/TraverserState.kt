@@ -2,6 +2,7 @@ package de.robolab.client.traverser
 
 import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Direction
+import de.robolab.common.planet.Path
 
 interface ITraverserState<out TS> where TS : ITraverserState<TS> {
     val mothershipState: IMothershipState
@@ -11,6 +12,8 @@ interface ITraverserState<out TS> where TS : ITraverserState<TS> {
     val parent: TS?
     val beforePoint: Boolean
         get() = mothershipState.beforePoint
+    val lastDrivenPath: Path
+        get() = mothershipState.drivenPath
 
     fun traceUp(): Sequence<ITraverserState<TS>> = generateSequence(this, ITraverserState<TS>::parent)
     fun getTrail(): ITraverserTrail = TraverserTrail(traceUp()

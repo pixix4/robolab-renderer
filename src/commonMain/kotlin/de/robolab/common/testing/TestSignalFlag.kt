@@ -7,19 +7,15 @@ abstract class TestSignalFlag(
     override val subscribable: SubscribableIdentifier<*>,
     private val activateSignals: Set<TestSignal>,
     deactivateSignals: Set<TestSignal>,
-    private val defaultActive: Boolean
-) : ISignalActor, ITestableSubscriber, ITestInit {
-    override val signalGroups: List<TestSignal> = (activateSignals + deactivateSignals).toList()
+    val defaultActive: Boolean
+) : ISignalActor, ITestableSubscriber {
+    override val actsOn: List<TestSignal> = (activateSignals + deactivateSignals).toList()
     override fun ITestRun.onSignalTriggered(group: TestSignalGroup) {
         setActive(group.signal in activateSignals)
     }
 
     final override fun ITestRun.onTestableEntered() {
         if (isActive()) onTestableEnteredActive()
-    }
-
-    override fun ITestRun.init() {
-        setActive(defaultActive)
     }
 
     protected abstract fun ITestRun.onTestableEnteredActive()
@@ -56,7 +52,7 @@ abstract class TestSignalFlag(
         defaultActive: Boolean,
     ) : TestSignalFlag(subscribable, disallowSignals, allowSignals, defaultActive) {
         override fun ITestRun.onTestableEnteredActive() {
-            fail()
+            fail("Tried to enter disallowed object on $subscribable")
         }
     }
 
@@ -67,7 +63,7 @@ abstract class TestSignalFlag(
         defaultActive: Boolean,
     ) : TestSignalFlag(subscribable, disallowSignals, allowSignals, defaultActive) {
         override fun ITestRun.onTestableEnteredActive() {
-            skip()
+            skip("Skipped because of the Skip-Instruction on $subscribable")
         }
     }
 }
