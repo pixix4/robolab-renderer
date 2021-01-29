@@ -2,24 +2,20 @@ package de.robolab.client.app.model.file
 
 import de.robolab.client.app.controller.InfoBarController
 import de.robolab.client.app.controller.SendMessageController
+import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.base.ToolBarEntry
-import de.robolab.client.app.model.file.details.InfoBarFileEdit
-import de.robolab.client.app.model.file.details.InfoBarFilePaper
-import de.robolab.client.app.model.file.details.InfoBarFileTraverse
-import de.robolab.client.app.model.file.details.InfoBarFileView
+import de.robolab.client.app.model.file.details.*
 import de.robolab.client.app.model.file.provider.FilePlanet
+import de.robolab.client.renderer.Exporter
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.SvgCanvas
 import de.robolab.client.renderer.drawable.planet.*
-import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.client.renderer.utils.Transformation
-import de.robolab.client.theme.LightTheme
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -34,58 +30,84 @@ class FilePlanetDocument(
     val planetFile = filePlanet.planetFile
 
     private val transformationStateProperty = property(Transformation.State.DEFAULT)
+
     private val viewDrawable = SimplePlanetDrawable(transformationStateProperty)
     private val paperDrawable = PaperPlanetDrawable(transformationStateProperty)
-    val editDrawable = EditPlanetDrawable(planetFile, transformationStateProperty)
+    private val editDrawable = EditPlanetDrawable(planetFile, transformationStateProperty)
     private val traverserDrawable = LivePlanetDrawable(transformationStateProperty)
+    private val testDrawable = SimplePlanetDrawable(transformationStateProperty)
 
-    @Suppress("PrivatePropertyName")
-    private val VIEW = object : InfoBarController.Tab {
-        override val icon = MaterialIcon.INFO_OUTLINE
-        override val tooltip = "View"
+    private val infoBarFileView = InfoBarFileView(this, viewDrawable)
+    private val infoBarFilePaper = InfoBarFilePaper(this, paperDrawable)
+    private val infoBarFileEdit = InfoBarFileEdit(this, editDrawable)
+    private val infoBarFileTraverse = InfoBarFileTraverse(this)
+    private val infoBarFileTest = InfoBarFileTest(this, testDrawable)
+
+    inner class FilePlanetTab<T : AbsPlanetDrawable>(
+        override val icon: MaterialIcon,
+        override val tooltip: String,
+        val drawable: T,
+        val infoBarContent: IInfoBarContent,
+        private val importer: FilePlanetTab<T>.(planet: Planet) -> Unit
+    ) : InfoBarController.Tab {
         override fun open() {
             mode = this
         }
-    }
 
-    @Suppress("PrivatePropertyName")
-    private val PAPER = object : InfoBarController.Tab {
-        override val icon = MaterialIcon.SQUARE_FOOT
-        override val tooltip = "Paper"
-        override fun open() {
-            mode = this
+        fun importPlanet(planet: Planet) {
+            importer(planet)
         }
     }
 
-    @Suppress("PrivatePropertyName")
-    private val EDIT = object : InfoBarController.Tab {
-        override val icon = MaterialIcon.CODE
-        override val tooltip = "Edit"
-        override fun open() {
-            mode = this
+    override val infoBarTabsProperty = constObservable(listOf(
+        FilePlanetTab(
+            MaterialIcon.INFO_OUTLINE,
+            "View",
+            viewDrawable,
+            infoBarFileView
+        ) { planet ->
+            drawable.importPlanet(planet)
+        },
+        FilePlanetTab(
+            MaterialIcon.SQUARE_FOOT,
+            "Paper",
+            paperDrawable,
+            infoBarFilePaper
+        ) { planet ->
+            drawable.importPlanet(planet)
+        },
+        FilePlanetTab(
+            MaterialIcon.CODE,
+            "Edit",
+            editDrawable,
+            infoBarFileEdit
+        ) { planet ->
+            drawable.importPlanet(planet)
+        },
+        FilePlanetTab(
+            MaterialIcon.CALL_SPLIT,
+            "Traverse",
+            traverserDrawable,
+            infoBarFileTraverse
+        ) { planet ->
+            drawable.importBackgroundPlanet(planet)
+        },
+        FilePlanetTab(
+            MaterialIcon.BUG_REPORT,
+            "Test suite",
+            testDrawable,
+            infoBarFileTest
+        ) { planet ->
+            drawable.importPlanet(planet)
         }
-    }
+    ))
+    private val infoBarTabs by infoBarTabsProperty
 
-    @Suppress("PrivatePropertyName")
-    private val TRAVERSE = object : InfoBarController.Tab {
-        override val icon = MaterialIcon.CALL_SPLIT
-        override val tooltip = "Traverse"
-        override fun open() {
-            mode = this
-        }
-    }
-
-    private val modeProperty = property<InfoBarController.Tab>(VIEW)
-    var mode: InfoBarController.Tab by modeProperty
+    private val modeProperty = property(infoBarTabs.first())
+    var mode by modeProperty
 
     override val documentProperty = modeProperty.mapBinding {
-        when (mode) {
-            VIEW -> viewDrawable.view
-            PAPER -> paperDrawable.view
-            EDIT -> editDrawable.view
-            TRAVERSE -> traverserDrawable.view
-            else -> throw IllegalStateException()
-        }
+        it.drawable.view
     }
 
     private val flippedProperty = property(false)
@@ -136,29 +158,9 @@ class FilePlanetDocument(
         planetFile.history.redo()
     }
 
-    private val infoBarFileView = InfoBarFileView(this)
-    private val infoBarFilePaper = InfoBarFilePaper(this)
-    private val infoBarFileEdit = InfoBarFileEdit(this)
-    private val infoBarFileTraverse = InfoBarFileTraverse(this)
-
     override val infoBarProperty = modeProperty.mapBinding {
-        when (mode) {
-            VIEW -> infoBarFileView
-            PAPER -> infoBarFilePaper
-            EDIT -> infoBarFileEdit
-            TRAVERSE -> infoBarFileTraverse
-            else -> null
-        }
+        it.infoBarContent
     }
-
-    override val infoBarTabsProperty = constObservable(
-        listOf(
-            VIEW,
-            PAPER,
-            EDIT,
-            TRAVERSE
-        )
-    )
 
     override val infoBarActiveTabProperty = modeProperty
 
@@ -173,68 +175,42 @@ class FilePlanetDocument(
         filePlanet.load()
     }
 
-    fun exportAsSVG(name: String = ""): Boolean {
-        var fileName = name
-        if (fileName.isEmpty()) {
-            fileName = planetFile.planet.name.trim()
-        }
-        if (fileName.isEmpty()) {
-            fileName = "export"
-        }
-        return saveExportSVG(fileName, writeToSVGString())
+    fun exportAsSVG(filename: String? = null): Boolean {
+        return saveExportSVG(
+            filename ?: Exporter.getExportName(planetFile.planet, "svg"),
+            writeToSVGString()
+        )
     }
 
-    fun exportAsPNG(name: String = ""): Boolean {
-        var fileName = name
-        if (fileName.isEmpty()) {
-            fileName = planetFile.planet.name.trim()
-        }
-        if (fileName.isEmpty()) {
-            fileName = "export"
-        }
-        return saveExportPNG(fileName, drawToPNGCanvas())
+    fun exportAsPNG(filename: String? = null): Boolean {
+        return saveExportPNG(
+            filename ?: Exporter.getExportName(planetFile.planet, "png"),
+            drawToPNGCanvas()
+        )
     }
 
-    fun exportAsExtendedPlanetFile(name: String = ""): Boolean {
-        var fileName = name
-        if (fileName.isEmpty()) {
-            fileName = planetFile.planet.name.trim()
-        }
-        if (fileName.isEmpty()) {
-            fileName = "export"
-        }
-        return saveExportExtendedPlanetFile(fileName, planetFile.extendedContentString())
+    fun exportAsExtendedPlanetFile(filename: String? = null): Boolean {
+        return saveExportExtendedPlanetFile(
+            filename ?: Exporter.getExportName(planetFile.planet, "planet"),
+            planetFile.extendedContentString()
+        )
     }
 
     private fun writeToSVGString(): String {
-        val dimension = getExportSize()
+        val dimension = Exporter.getDimension(planetFile.planet)
         val canvas = SvgCanvas(dimension)
 
-        exportRender(canvas)
+        Exporter.renderToCanvas(planetFile.planet, canvas)
 
         return canvas.buildFile()
     }
 
     private fun drawToPNGCanvas(): ICanvas {
-        val canvas = createPNGExportCanvas(getExportSize())
+        val canvas = createPNGExportCanvas(Exporter.getDimension(planetFile.planet))
 
-        exportRender(canvas)
+        Exporter.renderToCanvas(planetFile.planet, canvas)
 
         return canvas
-    }
-
-    private fun getExportSize(): Dimension {
-        val rect = AbsPlanetDrawable.calcPlanetArea(planetFile.planet)?.expand(0.99) ?: Rectangle.ZERO
-        return Dimension(rect.width * Transformation.PIXEL_PER_UNIT, rect.height * Transformation.PIXEL_PER_UNIT)
-    }
-
-    private fun exportRender(canvas: ICanvas) {
-        val exportDocument = FileExportDocument(planetFile)
-        val plotter = PlotterWindow(canvas, exportDocument, LightTheme, 0.0)
-
-        exportDocument.center()
-
-        plotter.render(0.0)
     }
 
     override val nameProperty = planetFile.planetProperty.mapBinding { planet ->
@@ -280,17 +256,15 @@ class FilePlanetDocument(
 
     init {
         planetFile.history.onChange {
-            viewDrawable.importPlanet(planetFile.planet)
-            paperDrawable.importPlanet(planetFile.planet)
-            editDrawable.importPlanet(planetFile.planet)
-            traverserDrawable.importBackgroundPlanet(planetFile.planet)
+            for (tab in infoBarTabs) {
+                tab.importPlanet(planetFile.planet)
+            }
         }
 
         flippedProperty.onChange {
-            viewDrawable.flip(flippedProperty.value)
-            paperDrawable.flip(flippedProperty.value)
-            editDrawable.flip(flippedProperty.value)
-            traverserDrawable.flip(flippedProperty.value)
+            for (tab in infoBarTabs) {
+                tab.drawable.flip(flippedProperty.value)
+            }
         }
 
         infoBarFileTraverse.traverserRenderStateProperty.onChange {

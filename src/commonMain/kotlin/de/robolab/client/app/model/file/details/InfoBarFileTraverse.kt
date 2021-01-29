@@ -3,6 +3,7 @@ package de.robolab.client.app.model.file.details
 import de.robolab.client.app.controller.TraverserBarController
 import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.app.model.file.FilePlanetDocument
+import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
 import de.robolab.client.traverser.DefaultTraverser
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.property.nullableFlatMapBinding

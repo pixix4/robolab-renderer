@@ -3,10 +3,7 @@ package de.robolab.client.ui.views
 import de.robolab.client.app.controller.InfoBarController
 import de.robolab.client.app.controller.TraverserBarController
 import de.robolab.client.app.controller.UiController
-import de.robolab.client.app.model.file.details.InfoBarFileEdit
-import de.robolab.client.app.model.file.details.InfoBarFilePaper
-import de.robolab.client.app.model.file.details.InfoBarFileTraverse
-import de.robolab.client.app.model.file.details.InfoBarFileView
+import de.robolab.client.app.model.file.details.*
 import de.robolab.client.app.model.group.InfoBarGroupMessages
 import de.robolab.client.app.model.room.InfoBarRoomRobots
 import de.robolab.client.ui.views.boxes.*
@@ -72,6 +69,9 @@ class InfoBar(
                     content.traverse()
                 }
                 contentView.add(NullableViewContainer(content.traverserProperty, uiController))
+            }
+            is InfoBarFileTest -> {
+                contentView.add(InfoBarFileTestView(content, uiController))
             }
             is InfoBarGroupMessages -> {
                 contentView.add(InfoBarGroupMessagesView(content, uiController))

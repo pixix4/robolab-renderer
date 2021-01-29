@@ -3,6 +3,7 @@ package de.robolab.client.app.model.file.details
 import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.app.model.file.FilePlanetDocument
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
+import de.robolab.client.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.common.planet.IPlanetValue
 import de.robolab.common.planet.Path
 import de.westermann.kobserve.base.ObservableValue
@@ -14,7 +15,7 @@ import de.westermann.kobserve.property.property
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class InfoBarFileEdit(private val planetEntry: FilePlanetDocument) :
+class InfoBarFileEdit(private val planetEntry: FilePlanetDocument, private val editDrawable: EditPlanetDrawable) :
     IInfoBarContent {
 
     private var lastChange: Change = Change.LineCountModified(-1, 0)
@@ -83,7 +84,7 @@ class InfoBarFileEdit(private val planetEntry: FilePlanetDocument) :
     fun selectLine(line: Int) {
         val obj = planetEntry.planetFile.lineNumberToValue(line) ?: return
         ignoreSetLine = true
-        planetEntry.editDrawable.focus(obj)
+        editDrawable.focus(obj)
         ignoreSetLine = false
     }
 
@@ -109,9 +110,7 @@ class InfoBarFileEdit(private val planetEntry: FilePlanetDocument) :
     }
 
     private val statisticsDetailBox = PlanetStatisticsDetailBox(planetEntry.planetFile)
-    val detailBoxProperty: ObservableValue<Any> = planetEntry.documentProperty.flatMapBinding {
-        it.drawable.focusedElementsProperty
-    }.mapBinding { list ->
+    val detailBoxProperty: ObservableValue<Any> = editDrawable.focusedElementsProperty.mapBinding { list ->
         when (val first = list.firstOrNull()) {
             is PointAnimatableManager.AttributePoint -> PointDetailBox(first, planetEntry.planetFile)
             is Path -> PathDetailBox(first, planetEntry.planetFile)
@@ -120,8 +119,8 @@ class InfoBarFileEdit(private val planetEntry: FilePlanetDocument) :
     }
 
     init {
-        planetEntry.editDrawable.focusedElementsProperty.onChange {
-            val first = planetEntry.editDrawable.focusedElementsProperty.value.firstOrNull()
+        editDrawable.focusedElementsProperty.onChange {
+            val first = editDrawable.focusedElementsProperty.value.firstOrNull()
             if (!ignoreSetLine && first != null) {
                 val obj = if (first is PointAnimatableManager.AttributePoint) {
                     findObjForPoint(first)
@@ -135,7 +134,7 @@ class InfoBarFileEdit(private val planetEntry: FilePlanetDocument) :
         }
     }
 
-    val actionHintList = planetEntry.documentProperty.flatMapBinding { it.actionHintList }
+    val actionHintList = editDrawable.view.actionHintList
 
     sealed class Change {
         data class LineModified(val line: List<Int>) : Change()
