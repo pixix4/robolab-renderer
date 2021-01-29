@@ -73,6 +73,7 @@ class NavigationBarController(
     }
 
     fun onBackButtonClick() {
+        searchStringProperty.value = ""
         tabProperty.value.goBack()
     }
 

@@ -97,6 +97,7 @@ class GroupNavigationTab(
         drawable.importRobot(m.toRobot(attempt.groupName.toIntOrNull()))
 
         val dimension = Exporter.getDimension(drawable)
+        if (dimension < Dimension.ONE) return null
 
         val canvas = canvasCreator(dimension)
         if (canvas != null) {

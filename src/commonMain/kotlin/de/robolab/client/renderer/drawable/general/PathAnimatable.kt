@@ -71,7 +71,7 @@ class PathAnimatable(
         var source = position + vec * 0.1
         var target = position - vec * 0.1
 
-        if (source > target && swap) {
+        if (source.left + source.top > target.left + target.top && swap) {
             val h = target
             target = source
             source = h

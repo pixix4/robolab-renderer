@@ -22,7 +22,7 @@ data class Vector(
     operator fun div(other: Vector) = Vector(left / other.left, top / other.top)
     operator fun unaryMinus() = Vector(-left, -top)
     operator fun unaryPlus() = this
-    operator fun compareTo(other: Vector) = (left + top).compareTo(other.left + other.top)
+    operator fun compareTo(other: Vector): Int = magnitude().compareTo(other.magnitude())
 
     infix fun distanceTo(other: Vector): Double {
         val l = left - other.left
