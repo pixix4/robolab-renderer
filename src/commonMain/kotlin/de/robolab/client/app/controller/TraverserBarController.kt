@@ -19,7 +19,10 @@ import io.ktor.util.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 
-class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: Boolean = PreferenceStorage.traverserAutoExpand) {
+class TraverserBarController(
+    val traverser: Traverser<*, *, *, *>,
+    autoExpand: Boolean = PreferenceStorage.traverserAutoExpand
+) {
     val autoExpandProperty: ObservableProperty<Boolean> = property(autoExpand)
 
     val sliceViewer: ObservableTreeSliceViewer<out ITraverserState<*>> = traverser.observableTreeSliceViewer()
@@ -148,14 +151,22 @@ class TraverserBarController(val traverser: Traverser<*, *, *, *>, autoExpand: B
             else
                 entry.selected.set(!entry.selected.value)
         }
-        _renderState.set((_entryList.lastOrNull { it.selected.value }
-            ?: _entryList.last()).currentOption.value.createRenderState(traverser.planet.planet))
+
+        updateRenderState()
+    }
+
+    private var lastSelectedIndex: Int = -1
+    private fun updateRenderState() {
+        val index = _entryList.indexOfLast { it.selected.value }.let { if (it < 0) _entryList.lastIndex else it }
+        val isBackward = index < lastSelectedIndex
+        lastSelectedIndex = index
+        val selectedEntry = _entryList[index]
+        _renderState.set(selectedEntry.currentOption.value.createRenderState(traverser.planet.planet, isBackward))
     }
 
     init {
         _entryList.onChange += {
-            _renderState.set((_entryList.lastOrNull { it.selected.value }
-                ?: _entryList.last()).currentOption.value.createRenderState(traverser.planet.planet))
+            updateRenderState()
         }
         sliceViewer.observableEntries.onAddIndex += {
             _entryList.add(it.index, TraverserStateEntry(this, it.element))

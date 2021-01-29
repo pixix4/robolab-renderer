@@ -10,8 +10,9 @@ fun Random.nextHexString(length: Int = 8): String =
 
 fun ITraverserState<*>.createRenderState(
     original: Planet? = null,
+    isBackward: Boolean = false,
     name: String = "${original?.name ?: "TrailPlanet"}-${Random.nextHexString()}"
-): TraverserRenderState = getTrail().createRenderState(original, name)
+): TraverserRenderState = getTrail().createRenderState(original, isBackward, name)
 
 interface ITraverserTrail {
     val summary: String
@@ -40,6 +41,7 @@ interface ITraverserTrail {
 
     fun createRenderState(
         original: Planet? = null,
+        isBackward: Boolean = false,
         name: String = "${original?.name ?: "TrailPlanet"}-${Random.nextHexString()}"
     ): TraverserRenderState {
         val planet = Planet(
@@ -62,7 +64,7 @@ interface ITraverserTrail {
 
         return TraverserRenderState(
             planet,
-            mothershipState.toDrawableRobot(),
+            mothershipState.toDrawableRobot(isBackward),
             path.mapNotNull {
                 it.first to (it.second ?: return@mapNotNull null)
             },

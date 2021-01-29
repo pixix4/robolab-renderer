@@ -19,12 +19,12 @@ interface IMothershipState {
     val withAfterPoint: IMothershipState
 }
 
-fun IMothershipState.toDrawableRobot(groupNumber: Int? = null): RobotDrawable.Robot = RobotDrawable.Robot(
+fun IMothershipState.toDrawableRobot(isBackward: Boolean = false, groupNumber: Int? = null): RobotDrawable.Robot = RobotDrawable.Robot(
     currentLocation,
     forcedDirection ?: selectedDirection ?: drivenPath.targetDirection,
     beforePoint,
     groupNumber,
-    false
+    isBackward
 )
 
 data class MothershipState(
