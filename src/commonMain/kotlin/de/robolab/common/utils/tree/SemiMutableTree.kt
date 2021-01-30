@@ -36,12 +36,10 @@ abstract class SemiMutableTreeProvider<I, M> : ISeededBranchProvider<I>, ISeeded
 
 class SemiMutableTreeIterator<I, M>(
     val provider: SemiMutableTreeProvider<I, M>,
-    override val seed: I = provider.seed,
+    seed: I = provider.seed,
     lifoPool: Boolean = true
 ) : ITreeIterator<I> where M : Any {
     private val manager: PoolManager<M> = PoolManager.create(provider.createMutable(seed), lifo = lifoPool)
-
-    override val branchFunction: (I) -> List<I> = provider.branchFunction
 
     override fun hasNext(): Boolean = !manager.isEmpty()
 

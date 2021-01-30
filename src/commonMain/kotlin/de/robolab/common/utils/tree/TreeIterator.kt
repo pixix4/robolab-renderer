@@ -2,13 +2,30 @@ package de.robolab.common.utils.tree
 
 import de.robolab.common.utils.PoolManager
 
-interface ITreeIterator<N> : Iterator<N>, ISeededBranchProvider<N> {
+interface ITreeIterable<N> : Iterable<N> {
+    override fun iterator(): ITreeIterator<N>
+}
+
+interface ITreeIterator<N> : Iterator<N> {
     fun tryAdvance(): N?
 }
 
+private data class MappedTreeIterator<N, R>(val source: ITreeIterator<N>, val transform: (N) -> R) : ITreeIterator<R> {
+    override fun tryAdvance(): R? = source.tryAdvance()?.let(transform)
+
+    override fun hasNext(): Boolean = source.hasNext()
+
+    override fun next(): R = transform(source.next())
+}
+
+fun <N, R> ITreeIterable<N>.mapTree(transform: (N) -> R): ITreeIterable<R> = object : ITreeIterable<R> {
+    override fun iterator(): ITreeIterator<R> = MappedTreeIterator(this@mapTree.iterator(), transform)
+
+}
+
 open class TreeIterator<N>(
-    final override val branchFunction: (N) -> List<N>,
-    final override val seed: N,
+    val branchFunction: (N) -> List<N>,
+    val seed: N,
     lifoPool: Boolean = true
 ) : ITreeIterator<N>
         where N : Any {
