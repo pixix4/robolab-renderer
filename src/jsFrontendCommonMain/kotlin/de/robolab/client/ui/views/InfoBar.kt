@@ -1,17 +1,13 @@
 package de.robolab.client.ui.views
 
 import de.robolab.client.app.controller.InfoBarController
-import de.robolab.client.app.controller.TraverserBarController
 import de.robolab.client.app.controller.UiController
 import de.robolab.client.app.model.file.details.*
 import de.robolab.client.app.model.group.InfoBarGroupMessages
 import de.robolab.client.app.model.room.InfoBarRoomRobots
 import de.robolab.client.ui.views.boxes.*
 import de.robolab.common.utils.Point
-import de.westermann.kobserve.base.ObservableProperty
-import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
-import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.clientPosition
@@ -68,10 +64,17 @@ class InfoBar(
                 if (content.traverserProperty.value == null) {
                     content.traverse()
                 }
-                contentView.add(NullableViewContainer(content.traverserProperty, uiController))
+                contentView.add(NullableViewContainer(content.traverserProperty) {
+                    InfoBarFileTraverseView(it, uiController)
+                })
             }
             is InfoBarFileTest -> {
-                contentView.add(InfoBarFileTestView(content, uiController))
+                if (content.testProperty.value == null) {
+                    content.test()
+                }
+                contentView.add(NullableViewContainer(content.testProperty) {
+                    InfoBarFileTestView(it, uiController)
+                })
             }
             is InfoBarGroupMessages -> {
                 contentView.add(InfoBarGroupMessagesView(content, uiController))
@@ -109,41 +112,4 @@ class InfoBar(
             }
         }
     }
-}
-
-class NullableViewContainer(
-    private val traverserProperty: ObservableValue<TraverserBarController?>,
-    private val uiController: UiController
-) : ViewCollection<View>() {
-
-    private var prop: ObservableProperty<TraverserBarController>? = null
-    private var view: InfoBarFileTraverseView? = null
-
-    private fun updateView() {
-        val traverser = traverserProperty.value
-
-        if (traverser == null) {
-            clear()
-            return
-        }
-
-        if (prop == null) {
-            prop = property(traverser)
-        } else {
-            prop?.value = traverser
-        }
-        if (view == null) {
-            view = InfoBarFileTraverseView(prop!!, uiController)
-        }
-
-        add(view!!)
-    }
-
-    init {
-        traverserProperty.onChange {
-            updateView()
-        }
-        updateView()
-    }
-
 }

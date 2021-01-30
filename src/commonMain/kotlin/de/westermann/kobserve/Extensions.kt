@@ -3,6 +3,7 @@
 package de.westermann.kobserve
 
 import de.westermann.kobserve.base.ObservableCollection
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
@@ -29,6 +30,10 @@ infix fun ObservableValue<Boolean>.implies(property: ObservableValue<Boolean>) =
 @JvmName("propertyBooleanNot")
 operator fun ObservableValue<Boolean>.not(): ObservableValue<Boolean> =
         mapBinding(Boolean::not)
+
+fun ObservableProperty<Boolean>.toggle() {
+        set(!get())
+}
 
 /* The following part is auto generated. Do NOT edit it manually! */
 

@@ -49,6 +49,10 @@
     height: 100%;
   }
 
+  & > .nullable-view-container > div {
+    height: 100%;
+  }
+
   textarea {
     width: 100%;
     height: 100%;
@@ -357,5 +361,48 @@
   }
   &.info-bar-group-unknown {
     color: var(--error-color) !important;
+  }
+}
+
+.info-bar-file-test-view {
+
+  table {
+    white-space: pre;
+  }
+}
+.info-bar-test-filter-list {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.5rem;
+
+  .box-view {
+    border: 1px solid var(--border-color);
+    @include utils.radius();
+    display: flex;
+    flex-grow: 1;
+    flex-basis: 0;
+    justify-content: space-between;
+    padding: 0.5rem;
+
+    &:hover {
+      background: var(--secondary-hover-background);
+    }
+
+    &.active {
+      background: var(--primary-background);
+
+      &:hover {
+        background: var(--primary-hover-background);
+      }
+    }
+
+    .text-view:last-child {
+      &::before {
+        content: '(';
+      }
+      &::after {
+        content: ')';
+      }
+    }
   }
 }

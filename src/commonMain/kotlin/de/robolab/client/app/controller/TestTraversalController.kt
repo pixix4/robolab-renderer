@@ -14,7 +14,6 @@ import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.property
-import kotlinx.coroutines.Delay
 import kotlin.time.Duration
 
 class TestTraversalController(
@@ -30,14 +29,21 @@ class TestTraversalController(
     private var nextRunNumber: Int = 1
 
     init {
-        _currentTestRuns.onAddIndex += {
+        _currentTestRuns.onAddIndex {
             currentTestRuns.add(it.index, TestRunEntry(nextRunNumber++, it.element, traversal.planet))
         }
-        _currentTestRuns.onRemoveIndex += {
+        _currentTestRuns.onRemoveIndex {
             currentTestRuns.removeAt(it.index)
         }
-        _currentTestRuns.onSetIndex += {
+        _currentTestRuns.onSetIndex {
             currentTestRuns[it.index].updateFromState(it.newElement)
+        }
+        _currentTestRuns.onClear {
+            currentTestRuns.clear()
+        }
+
+        for (element in _currentTestRuns) {
+            currentTestRuns.add(TestRunEntry(nextRunNumber++, element, traversal.planet))
         }
     }
 
