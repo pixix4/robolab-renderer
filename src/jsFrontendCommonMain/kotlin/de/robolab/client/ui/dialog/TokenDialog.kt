@@ -3,6 +3,8 @@ package de.robolab.client.ui.dialog
 import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.requests.auth.getTokenLinkPair
 import de.robolab.client.net.sendHttpRequest
+import de.robolab.client.ui.views.utils.buttonGroup
+import de.robolab.client.utils.electron
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.RESTRequestCodeException
 import de.robolab.common.utils.Logger
@@ -24,9 +26,20 @@ class TokenDialog private constructor(
 
     private val logger = Logger(this)
 
+    private fun open(url: String): Boolean {
+        val electron = electron
+
+        return if (electron == null) {
+            window.open(url) != null
+        } else {
+            electron.openExternal(url)
+            true
+        }
+    }
+
     init {
         val contentTab = tab {
-
+            textView("Please wait...")
         }
 
         onClose {
@@ -39,12 +52,14 @@ class TokenDialog private constructor(
             success = false
 
             if (tokenLinkPair != null) {
-                if (window.open(tokenLinkPair.loginURL) == null) {
+                if (!open(tokenLinkPair.loginURL)) {
                     contentTab.apply {
                         classList += "token-popup"
                         textView("The browser has blocked the OAuth page. Please open the OAuth page manually or allow this popup in your browsers settings.")
                         link(tokenLinkPair.loginURL) {
-                            button("Open OAuth page")
+                            buttonGroup(true) {
+                                button("Open OAuth page")
+                            }
                             this.html.target = "_blank"
                         }
                     }

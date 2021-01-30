@@ -47,6 +47,10 @@ class Electron private constructor() {
         menu.popup(opt)
     }
 
+    fun openExternal(url: String) {
+        module.shell.openExternal(url)
+    }
+
     fun getOs(): OS {
         val process = js("require(\"process\")")
         val name = process.platform.unsafeCast<String>()
