@@ -80,6 +80,7 @@ class TokenDialog private constructor(
                     if (r != null) {
                         withContext(Dispatchers.Main) {
                             server.authHeader = r.tokenHeader
+                            success = true
                             onClose.emit()
                         }
                         break
