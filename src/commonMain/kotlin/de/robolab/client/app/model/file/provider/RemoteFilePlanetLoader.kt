@@ -134,10 +134,15 @@ class RemoteFilePlanetLoader(
     }
 
     companion object {
+        private var lastLoader: RemoteFilePlanetLoader? = null
         fun create(uri: String): RemoteFilePlanetLoader {
             val host = uri.substringAfter("://").trimEnd('/')
+            lastLoader?.server?.stopPing()
             val restRobolabServer = RESTRobolabServer(host, 0, !uri.startsWith("http://"))
-            return RemoteFilePlanetLoader(restRobolabServer)
+            val loader = RemoteFilePlanetLoader(restRobolabServer)
+            loader.server.startPing()
+            lastLoader = loader
+            return loader
         }
     }
 }

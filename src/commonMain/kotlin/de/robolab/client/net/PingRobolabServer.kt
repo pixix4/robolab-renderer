@@ -1,5 +1,6 @@
 package de.robolab.client.net
 
+import de.robolab.client.utils.TimeoutReference
 import de.robolab.client.utils.runAfterTimeoutInterval
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
@@ -23,8 +24,18 @@ class PingRobolabServer(
         }
     }
 
+    var timeoutReference: TimeoutReference? = null
+    fun startPing() {
+        timeoutReference?.cancel()
+        timeoutReference = runAfterTimeoutInterval(1000L, this::update)
+    }
+
+    fun stopPing() {
+        timeoutReference?.cancel()
+        timeoutReference = null
+    }
+
     init {
-        runAfterTimeoutInterval(1000L, this::update)
         update()
     }
 }
