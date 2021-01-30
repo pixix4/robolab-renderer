@@ -13,18 +13,30 @@ Render engine, editor and tracker for planets and robots.
 
 ## Native client
 
-First you need to build the kotlin ui to javascript:
+Run electron:
 ```shell script
-./gradlew jsFrontendElectronSync
+./gradlew runElectron
 ```
 
-After this you can start or pack the electron build:
+Update ui without restart:
 ```shell script
-cd deploy/electron
-npm install
+./gradlew deployElectron
+```
+
+Package electron to executable:
+```shell script
+./gradlew packElectron
+```
+
+To customize the electron build process change to the electron directory:
+```shell script
+./gradlew deployElectron
+
+cd electron
+yarn install
 
 # Run the development version
-npm run dev
+yarn dev
 
 # Build release version for the current architecture and os
 npx electron-builder build
@@ -43,11 +55,11 @@ docker-compose up
 
 Build the frontend:
 ```shell script
-./gradlew jsFrontendWebSync
+./gradlew deployWeb
 ```
 
 Build and run the backend. The default address is http://localhost:8080/.
 You will need a running redis instance:
 ```shell script
-./gradlew jsBackendRun
+./gradlew runBackend
 ```

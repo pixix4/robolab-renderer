@@ -5,14 +5,14 @@ RUN chmod +x ./gradlew
 RUN ./gradlew --no-daemon kotlinNpmInstall
 
 FROM gradleBuilder as jsBackendBuilder
-RUN ./gradlew --no-daemon jsBackendSync
+RUN ./gradlew --no-daemon deployBackend
 
 FROM gradleBuilder as jsFrontendWebBuilder
-RUN ./gradlew --no-daemon jsFrontendWebSync
+RUN ./gradlew --no-daemon deployWeb
 
 FROM node:latest
 RUN mkdir /opt/robolab-renderer
-COPY --from=jsBackendBuilder /usr/src/robolab-renderer/deploy/server/ /opt/robolab-renderer/
+COPY --from=jsBackendBuilder /usr/src/robolab-renderer/deploy/distServer/ /opt/robolab-renderer/
 COPY server.ini /opt/robolab-renderer/
 
 COPY --from=jsFrontendWebBuilder /usr/src/robolab-renderer/deploy/distWeb/ /opt/robolab-renderer/web/

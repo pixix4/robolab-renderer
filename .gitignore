@@ -1,11 +1,10 @@
 .idea/*
 *.iml
 *.log
-/*.svg
-/*.png
 **/target/*
 **/out/*
-**/build/*
+build/
+!electron/build/
 magic_draw/*
 .gradle/*
 robolab.conf
@@ -16,6 +15,7 @@ planet/*.exam
 planet/*.exam.*
 npm-debug.log
 *.db
+deploy/
 deploy.sh
 redis-data/
 .DS_Store
@@ -25,3 +25,5 @@ webpack.config.d/target.js
 
 # It makes the project dirty
 .npmignore
+package-lock.json
+yarn.lock

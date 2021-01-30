@@ -22,6 +22,8 @@ actual class KeyValueStorage {
 
             configCache += IniConverter.fromString(string)
             return true
+        } else {
+            println("Config file '$filename' (${path.resolve(filename)}) does not exist!")
         }
 
         return false
@@ -72,7 +74,7 @@ actual class KeyValueStorage {
 
     init {
         try {
-            var maxDepth = 20
+            var maxDepth = 0
             var filePath = fileName
             while (maxDepth > 0) {
                 if (loadFile(path.resolve(filePath))) {

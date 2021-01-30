@@ -15,7 +15,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV='development' electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder -p never"
   },
   "dependencies": {
     "electron-updater": "^4.3.5",

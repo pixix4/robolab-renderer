@@ -166,7 +166,7 @@ function createWindow() {
     initOpenFileQueue = [];
 
     if (isDev) {
-        mainWindow.loadFile("../distElectron/index.html")
+        mainWindow.loadFile("../deploy/distElectron/index.html")
     } else {
         mainWindow.loadFile("../app/index.html")
     }

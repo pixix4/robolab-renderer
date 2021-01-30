@@ -1,5 +1,8 @@
 @file:Suppress("UNUSED_VARIABLE", "SuspiciousCollectionReassignment", "PropertyName")
 
+import org.jetbrains.kotlin.gradle.targets.js.yarn.yarn
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -33,6 +36,62 @@ val serializationVersion = "1.0.1"
 val klockVersion = "1.12.0"
 val coroutineVersion = "1.4.2"
 val ktorVersion = "1.5.0"
+
+@Suppress("LeakingThis")
+open class NodeExec : AbstractExecTask<NodeExec>(NodeExec::class.java) {
+
+    private val nodeJs = org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin.apply(project.rootProject)
+
+    private val e by lazy {
+        nodeJs.requireConfigured().nodeExecutable
+    }
+
+    override fun exec() {
+        executable = e
+
+        // println("${executable} ${args?.joinToString(" ")}")
+
+        super.exec()
+    }
+
+    init {
+        dependsOn(nodeJs.npmInstallTaskProvider, "kotlinNpmInstall", "kotlinNodeJsSetup")
+    }
+}
+
+@Suppress("LeakingThis")
+open class YarnExec : AbstractExecTask<YarnExec>(YarnExec::class.java) {
+
+    private val nodeJs = org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin.apply(project.rootProject)
+
+    private val e by lazy {
+        nodeJs.requireConfigured().nodeExecutable
+    }
+
+    private val yarnPath by lazy {
+        project.yarn.installationDir
+            .resolve("yarn-v${project.yarn.version}")
+            .resolve("bin/yarn.js")
+            .absolutePath
+    }
+
+    override fun exec() {
+        executable = e
+
+        val oldArgs = args?.toList() ?: emptyList()
+        if (oldArgs.firstOrNull() != yarnPath) {
+            setArgs(listOf(yarnPath) + oldArgs)
+        }
+
+        println("$executable ${args?.joinToString(" ")}")
+
+        super.exec()
+    }
+
+    init {
+        dependsOn(nodeJs.npmInstallTaskProvider, "kotlinNpmInstall", "kotlinNodeJsSetup", "kotlinYarnSetup")
+    }
+}
 
 kotlin {
     js("jsFrontendCommon") {
@@ -277,27 +336,8 @@ val generateBuildInformation = tasks.create("generateBuildInformation") {
 }
 
 @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-tasks.create<Exec>("jsFrontendWebCompileSass") {
-    dependsOn("kotlinNpmInstall", "jsFrontendWebProcessResources")
-
-    doFirst {
-        val nodeJs =
-            rootProject.extensions.getByName(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension.Companion.EXTENSION_NAME) as org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
-
-        if (nodeJs.installationDir.list() == null) {
-            return@doFirst
-        }
-
-        val nodeJsDir =
-            nodeJs.installationDir
-                .resolve(nodeJs.installationDir.list().first())
-
-        val executableFile = nodeJsDir.listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
-            ?: nodeJsDir.resolve("bin").listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
-            ?: nodeJsDir.resolve("bin").resolve(nodeJs.nodeCommand)
-
-        executable(executableFile)
-    }
+tasks.create<NodeExec>("jsFrontendWebCompileSass") {
+    dependsOn("jsFrontendWebProcessResources")
 
     args(
         "$buildDir/js/node_modules/sass/sass.js",
@@ -315,27 +355,8 @@ tasks.create<Exec>("jsFrontendWebCompileSass") {
 }
 
 @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-tasks.create<Exec>("jsFrontendElectronCompileSass") {
-    dependsOn("kotlinNpmInstall", "jsFrontendElectronProcessResources")
-
-    doFirst {
-        val nodeJs =
-            rootProject.extensions.getByName(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension.Companion.EXTENSION_NAME) as org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
-
-        if (nodeJs.installationDir.list() == null) {
-            return@doFirst
-        }
-
-        val nodeJsDir =
-            nodeJs.installationDir
-                .resolve(nodeJs.installationDir.list().first())
-
-        val executableFile = nodeJsDir.listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
-            ?: nodeJsDir.resolve("bin").listFiles().find { it.nameWithoutExtension == nodeJs.nodeCommand }
-            ?: nodeJsDir.resolve("bin").resolve(nodeJs.nodeCommand)
-
-        executable(executableFile)
-    }
+tasks.create<NodeExec>("jsFrontendElectronCompileSass") {
+    dependsOn("jsFrontendElectronProcessResources")
 
     args(
         "$buildDir/js/node_modules/sass/sass.js",
@@ -356,54 +377,13 @@ tasks.named("jsFrontendWebBrowserDistributeResources") {
     dependsOn("jsFrontendWebCompileSass")
 }
 
-tasks.create<Sync>("jsFrontendWebSync") {
-    dependsOn("jsFrontendWebBrowserProductionWebpack", "jsFrontendWebJar")
-
-    val file =
-        tasks.named("jsFrontendWebBrowserProductionWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
-    val sourceMap = file.resolveSibling("robolab.js.map")
-    from(
-        file,
-        sourceMap,
-        Callable { zipTree(tasks.get("jsFrontendWebJar").outputs.files.first()) }
-    )
-
-    exclude(
-        "robolab-jsFrontendWeb/**",
-        "robolab-jsFrontendWeb.js",
-        "robolab-jsFrontendWeb.js.map",
-        "robolab-jsFrontendWeb.meta.js",
-        "package.json",
-        "META-INF/**",
-        "**/*.scss"
-    )
-
-    into("${projectDir}/deploy/distWeb/")
-}
-
-tasks.create<Sync>("jsFrontendWebSyncDev") {
-    dependsOn("jsFrontendWebBrowserDevelopmentWebpack", "jsFrontendWebJar")
-
-    val file = tasks.named("jsFrontendWebBrowserDevelopmentWebpack")
-        .get().outputs.files.files.first { it.name == "robolab.js" }
-    val sourceMap = file.resolveSibling("robolab.js.map")
-    from(
-        file,
-        sourceMap,
-        Callable { zipTree(tasks.get("jsFrontendWebJar").outputs.files.first()) }
-    )
-
-    into("${projectDir}/deploy/distWeb/")
-}
-
-
 tasks.named("jsFrontendElectronBrowserDistributeResources") {
     dependsOn("jsFrontendElectronCompileSass")
 }
 
 tasks.create("jsFrontendElectronNpmVersion") {
     doLast {
-        val file = File("${projectDir}/deploy/electron/package.json")
+        val file = File("${projectDir}/electron/package.json")
         val lines = file.readLines()
         val newLines = lines.map { line ->
             if ("\"version\":" in line) {
@@ -413,69 +393,29 @@ tasks.create("jsFrontendElectronNpmVersion") {
         file.writeText(newLines.joinToString("\n"))
     }
 }
-tasks.create<Sync>("jsFrontendElectronSync") {
-    dependsOn("jsFrontendElectronBrowserProductionWebpack", "jsFrontendElectronJar", "jsFrontendElectronNpmVersion")
 
-    val file = tasks.named("jsFrontendElectronBrowserProductionWebpack")
-        .get().outputs.files.files.first { it.name == "robolab.js" }
-    val sourceMap = file.resolveSibling("robolab.js.map")
-    from(
-        file,
-        sourceMap,
-        Callable { zipTree(tasks.get("jsFrontendElectronJar").outputs.files.first()) }
-    )
 
-    exclude(
-        "robolab-jsFrontendElectron/**",
-        "robolab-jsFrontendElectron.js",
-        "robolab-jsFrontendElectron.js.map",
-        "robolab-jsFrontendElectron.meta.js",
-        "package.json",
-        "META-INF/**",
-        "*.scss"
-    )
+tasks.create<YarnExec>("jsFrontendElectronNpmInstall") {
+    dependsOn("jsFrontendElectronNpmVersion")
 
-    into("${projectDir}/deploy/distElectron/")
+    workingDir = file("electron")
+    args("install")
 }
 
-tasks.create<Sync>("jsFrontendElectronSyncDev") {
-    dependsOn("jsFrontendElectronBrowserDevelopmentWebpack", "jsFrontendElectronJar")
-
-    val file = tasks.named("jsFrontendElectronBrowserDevelopmentWebpack")
-        .get().outputs.files.files.first { it.name == "robolab.js" }
-    val sourceMap = file.resolveSibling("robolab.js.map")
-    from(
-        file,
-        sourceMap,
-        Callable { zipTree(tasks.get("jsFrontendElectronJar").outputs.files.first()) }
-    )
-
-    into("${projectDir}/deploy/distElectron/")
-}
-
-tasks.create<Sync>("jsBackendSync") {
-    dependsOn("compileKotlinJsBackend", "jsBackendPackageJson", "kotlinNpmInstall", "jsBackendProcessResources", generateBuildInformation)
-
-    from("$buildDir/js")
-    from(generateBuildInformation)
-    from("$buildDir/processedResources/jsBackend/main")
-    into("${projectDir}/deploy/server")
-}
 
 tasks.create<Delete>("cleanJsFrontendSync") {
     delete(
         "${projectDir}/deploy/distWeb",
-        "${projectDir}/deploy/web/node_modules",
         "${projectDir}/deploy/distElectron",
-        "${projectDir}/deploy/electron/dist",
         "${projectDir}/webpack.config.d/build.js",
         "${projectDir}/webpack.config.d/target.js",
-        "${projectDir}/deploy/electron/node_modules"
+        "${projectDir}/electron/dist",
+        "${projectDir}/electron/node_modules"
     )
 }
 
 tasks.create<Delete>("cleanJsBackendSync") {
-    delete("${projectDir}/deploy/server")
+    delete("${projectDir}/deploy/distServer")
 }
 
 tasks.named("clean") {
@@ -536,4 +476,108 @@ tasks.named("jsFrontendElectronBrowserDevelopmentWebpack") {
 
 tasks.named("jsFrontendElectronBrowserProductionWebpack") {
     dependsOn(generateBuildInformation, jsFrontendElectronTargetFile)
+}
+
+val deployFrontend = tasks.create<Sync>("deployWeb") {
+    dependsOn("jsFrontendWebBrowserProductionWebpack", "jsFrontendWebJar")
+
+    val file =
+        tasks.named("jsFrontendWebBrowserProductionWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
+    val sourceMap = file.resolveSibling("robolab.js.map")
+    from(
+        file,
+        sourceMap,
+        Callable { zipTree(tasks.get("jsFrontendWebJar").outputs.files.first()) }
+    )
+
+    exclude(
+        "robolab-jsFrontendWeb/**",
+        "robolab-jsFrontendWeb.js",
+        "robolab-jsFrontendWeb.js.map",
+        "robolab-jsFrontendWeb.meta.js",
+        "package.json",
+        "META-INF/**",
+        "**/*.scss"
+    )
+
+    into("${projectDir}/deploy/distWeb/")
+}
+val deployBackend = tasks.create<Sync>("deployBackend") {
+    dependsOn(
+        "compileKotlinJsBackend",
+        "jsBackendPackageJson",
+        "kotlinNpmInstall",
+        "jsBackendProcessResources",
+        generateBuildInformation
+    )
+
+    from("$buildDir/js") {
+        exclude {
+            it.name.contains("jsFrontend") || it.name.contains("-test") || it.name.contains(".bin") || Files.isSymbolicLink(
+                Paths.get(it.path)
+            )
+        }
+
+    }
+    from(generateBuildInformation)
+    from("$buildDir/processedResources/jsBackend/main")
+
+    into("${projectDir}/deploy/distServer")
+}
+
+tasks.create<NodeExec>("runBackend") {
+    dependsOn(deployBackend)
+
+    workingDir = file("deploy/distServer")
+
+    args(
+        "packages/robolab-jsBackend/kotlin/robolab-jsBackend.js",
+        "-c",
+        "${projectDir}/server.ini"
+    )
+}
+
+val deployElectron = tasks.create<Sync>("deployElectron") {
+    dependsOn("jsFrontendElectronBrowserProductionWebpack", "jsFrontendElectronJar", "jsFrontendElectronNpmVersion")
+
+    val file = tasks.named("jsFrontendElectronBrowserProductionWebpack")
+        .get().outputs.files.files.first { it.name == "robolab.js" }
+    val sourceMap = file.resolveSibling("robolab.js.map")
+    from(
+        file,
+        sourceMap,
+        Callable { zipTree(tasks.get("jsFrontendElectronJar").outputs.files.first()) }
+    )
+
+    exclude(
+        "robolab-jsFrontendElectron/**",
+        "robolab-jsFrontendElectron.js",
+        "robolab-jsFrontendElectron.js.map",
+        "robolab-jsFrontendElectron.meta.js",
+        "package.json",
+        "META-INF/**",
+        "*.scss"
+    )
+
+    into("${projectDir}/deploy/distElectron/")
+}
+
+tasks.create<YarnExec>("runElectron") {
+    dependsOn(deployElectron, "jsFrontendElectronNpmInstall")
+
+    workingDir = file("electron")
+
+    args(
+        "dev"
+    )
+}
+
+tasks.create<YarnExec>("packElectron") {
+    dependsOn(deployElectron, "jsFrontendElectronNpmInstall")
+
+    workingDir = file("electron")
+
+    args(
+        "pack"
+    )
 }
