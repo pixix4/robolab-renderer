@@ -478,7 +478,7 @@ tasks.named("jsFrontendElectronBrowserProductionWebpack") {
     dependsOn(generateBuildInformation, jsFrontendElectronTargetFile)
 }
 
-val deployFrontend = tasks.create<Sync>("deployWeb") {
+val deployWeb = tasks.create<Sync>("deployWeb") {
     dependsOn("jsFrontendWebBrowserProductionWebpack", "jsFrontendWebJar")
 
     val file =
@@ -527,6 +527,18 @@ val deployBackend = tasks.create<Sync>("deployBackend") {
 
 tasks.create<NodeExec>("runBackend") {
     dependsOn(deployBackend)
+
+    workingDir = file("deploy/distServer")
+
+    args(
+        "packages/robolab-jsBackend/kotlin/robolab-jsBackend.js",
+        "-c",
+        "${projectDir}/server.ini"
+    )
+}
+
+tasks.create<NodeExec>("runWeb") {
+    dependsOn(deployBackend, deployWeb)
 
     workingDir = file("deploy/distServer")
 
