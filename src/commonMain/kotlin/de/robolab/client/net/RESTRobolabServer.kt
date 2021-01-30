@@ -6,6 +6,8 @@ import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AuthorizationHeader
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.property.property
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.random.Random
@@ -40,6 +42,17 @@ class RESTRobolabServer(
         authHeaderProperty.onChange {
             if (authHeader == null) {
                 resetAuthSession()
+            }
+
+            GlobalScope.launch {
+                storeAuthorizationHeader(authHeader)
+            }
+        }
+
+        GlobalScope.launch {
+            val header = loadAuthorizationHeader()
+            if (header != null) {
+                authHeader = header
             }
         }
     }
@@ -154,3 +167,6 @@ class RESTRobolabServer(
         return response //user canceled the requestAuthToken-Call
     }
 }
+
+expect suspend fun loadAuthorizationHeader(): AuthorizationHeader?
+expect suspend fun storeAuthorizationHeader(header: AuthorizationHeader?)
