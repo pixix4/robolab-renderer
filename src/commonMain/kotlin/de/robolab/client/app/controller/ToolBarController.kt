@@ -10,6 +10,7 @@ import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
+import de.westermann.kobserve.toggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -27,7 +28,7 @@ class ToolBarController(
     val fullscreenProperty = uiController.fullscreenProperty
 
     fun toggleFullscreen() {
-        fullscreenProperty.value = !fullscreenProperty.value
+        fullscreenProperty.toggle()
     }
 
     fun requestAuthToken() {

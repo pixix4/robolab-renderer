@@ -159,7 +159,7 @@ class TraverserEntryView(
 ) : ViewCollection<View>() {
 
 
-    private fun scrollIntoView() {
+    private fun scrollIntoView2() {
         val viewTop = offsetTopTotal(0)
         val viewBottom = viewTop + clientHeight
 
@@ -224,12 +224,12 @@ class TraverserEntryView(
 
         entry.selected.onChange {
             if (entry.selected.value) {
-                scrollIntoView()
+                scrollIntoView2()
             }
         }
 
         if (entry.selected.value) {
-            runAsync { scrollIntoView() }
+            runAsync { scrollIntoView2() }
         }
     }
 }

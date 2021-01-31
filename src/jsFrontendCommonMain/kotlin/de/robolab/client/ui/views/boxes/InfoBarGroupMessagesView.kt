@@ -258,7 +258,7 @@ class InfoBarGroupViewCell(
     private val index = content.messages.indexOf(message)
     private val selectedProperty = content.selectedIndexProperty.mapBinding { it == index }
 
-    private fun scrollIntoView() {
+    private fun scrollIntoView2() {
         val viewTop = offsetTopTotal(1)
         val viewBottom = viewTop + clientHeight
 
@@ -297,12 +297,12 @@ class InfoBarGroupViewCell(
 
         selectedProperty.onChange {
             if (selectedProperty.value) {
-                scrollIntoView()
+                scrollIntoView2()
             }
         }
 
         if (selectedProperty.value) {
-            runAsync { scrollIntoView() }
+            runAsync { scrollIntoView2() }
         }
     }
 }

@@ -66,6 +66,7 @@ input::placeholder {
 
 .button-group {
   white-space: nowrap;
+  display: flex;
 
   .button:not(:last-child), .input-view:not(:last-child), .select-view:not(:last-child) {
     margin-right: 0;

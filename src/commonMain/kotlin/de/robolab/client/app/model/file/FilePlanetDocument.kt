@@ -19,6 +19,7 @@ import de.robolab.common.utils.Dimension
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import de.westermann.kobserve.toggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -127,7 +128,7 @@ class FilePlanetDocument(
                 toolTipProperty = constObservable("Flip planet view horizontally"),
                 selectedProperty = flippedProperty
             ) {
-                flippedProperty.value = !flippedProperty.value
+                flippedProperty.toggle()
             }
         )
     ))

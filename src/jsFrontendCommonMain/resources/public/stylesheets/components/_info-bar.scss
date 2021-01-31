@@ -406,3 +406,11 @@
     }
   }
 }
+.info-bar-test-table-box {
+  .button-form-group {
+    margin: 0.5rem;
+    position: sticky;
+    top: 0.5rem;
+    z-index: 2;
+  }
+}

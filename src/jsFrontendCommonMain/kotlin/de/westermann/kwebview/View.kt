@@ -67,6 +67,10 @@ abstract class View(view: HTMLElement = createHtmlView()) {
         })
     }
 
+    fun scrollIntoView() {
+        html.scrollIntoView()
+    }
+
     fun offsetLeftTotal(maxDepth: Int = Int.MAX_VALUE): Int {
         var element: HTMLElement? = html
         var offset = 0

@@ -76,6 +76,7 @@ class TestTraversalController(
         }
 
     val filtersCollapsed: ObservableProperty<Boolean> = property(false)
+    val stickToTableBottom: ObservableProperty<Boolean> = property(true)
 
     val title: ObservableValue<String> = property("Test of ${traversal.traverser.planet.planet.name}")
 

@@ -2,6 +2,7 @@ package de.robolab.client.ui.views.boxes
 
 import de.robolab.client.app.controller.testing.TestTraversalController
 import de.robolab.client.app.controller.UiController
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAsync
@@ -32,7 +33,7 @@ class InfoBarFileTestView(
                     updateScrollBox()
                 }
             }
-            resizeBox(0.5) {
+            resizeBox(0.3) {
                 textView(testProperty.flatMapBinding { it.title })
 
                 boxView {
@@ -75,58 +76,72 @@ class InfoBarFileTestView(
                         })
                     }
                 }
-
-                buttonGroup(true) {
-                    button("Expand all") {
-                        onClick {
-                            testProperty.value.expandAllOnce()
-                        }
-                    }
-                    button("Expand next async") {
-                        onClick {
-                            GlobalScope.launch {
-                                testProperty.value.expandNextFullyAsync(
-                                    true,
-                                    PreferenceStorage.traverserDelay.toDuration(DurationUnit.MILLISECONDS)
-                                )
-                            }
-                        }
-                    }
-                    button("Expand all async") {
-                        onClick {
-                            GlobalScope.launch {
-                                testProperty.value.expandAllFullyAsync(
-                                    true,
-                                    PreferenceStorage.traverserDelay.toDuration(DurationUnit.MILLISECONDS)
-                                )
-                            }
-                        }
+            }
+            resizeBox(0.7) {
+                onWheel {
+                    if (it.deltaY < 0) {
+                        testProperty.value.stickToTableBottom.value = false
                     }
                 }
-            }
-            resizeBox(0.5) {
-                boxView {
-                    table {
+                boxView("info-bar-test-table-box") {
+                    buttonGroup(true) {
+                        button {
+                            iconView(MaterialIcon.VERTICAL_ALIGN_BOTTOM)
+                            classList.bind("active", testProperty.flatMapBinding { it.stickToTableBottom })
+                            onClick {
+                                testProperty.value.stickToTableBottom.toggle()
+                            }
+                        }
+                        button("Expand next") {
+                            onClick {
+                                GlobalScope.launch {
+                                    testProperty.value.expandNextFullyAsync(
+                                        true,
+                                        PreferenceStorage.traverserDelay.toDuration(DurationUnit.MILLISECONDS)
+                                    )
+                                }
+                            }
+                        }
+                        button("Expand all") {
+                            onClick {
+                                GlobalScope.launch {
+                                    testProperty.value.expandAllFullyAsync(
+                                        true,
+                                        PreferenceStorage.traverserDelay.toDuration(DurationUnit.MILLISECONDS)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    table("info-bar-group-view-content") {
                         thead {
-                            head {
-                                textView("ID")
-                            }
-                            head {
-                                textView("Location")
-                            }
-                            head {
-                                textView("Status")
-                            }
-                            head {
-                                textView("Tasks")
-                            }
-                            head {
-                                textView("Goal")
+                            row {
+                                head {
+                                    textView("ID")
+                                }
+                                head {
+                                    textView("Location")
+                                }
+                                head {
+                                    textView("Status")
+                                }
+                                head {
+                                    textView("Tasks")
+                                }
+                                head {
+                                    textView("Goal")
+                                }
                             }
                         }
                         tbody {
                             listFactory(testProperty.mapBinding { it.currentTestRuns }, { entry ->
                                 TableRow().apply {
+                                    if (testProperty.value.stickToTableBottom.value) {
+                                        runAsync {
+                                            scrollIntoView()
+                                        }
+                                    }
+
                                     cell {
                                         textView(entry.number)
                                     }
