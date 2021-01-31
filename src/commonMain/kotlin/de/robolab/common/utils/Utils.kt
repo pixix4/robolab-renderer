@@ -17,6 +17,14 @@ fun <K, V : Any> Map<K, V?>.filterValuesNotNull(): Map<K, V> {
     return result
 }
 
+fun <K : Any, V> Map<K?, V>.filterKeysNotNull(): Map<K, V> {
+    val result = mutableMapOf<K, V>()
+    for ((key, value) in this) {
+        if (key != null) result[key] = value
+    }
+    return result
+}
+
 fun <K, V> Map<K, V>.withEntry(entry: Pair<K, V>): Map<K, V> =
     withEntry(entry) { key, oldValue, newValue -> throw IllegalArgumentException("No merger specified, map already contains an entry with key $key and value $oldValue when adding $newValue") }
 

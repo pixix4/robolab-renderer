@@ -5,9 +5,10 @@ import de.robolab.common.planet.SubscribableIdentifier
 
 abstract class TestSignalFlag(
     override val subscribable: SubscribableIdentifier<*>,
-    private val activateSignals: Set<TestSignal>,
-    deactivateSignals: Set<TestSignal>,
-    val defaultActive: Boolean
+    val activateSignals: Set<TestSignal>,
+    val deactivateSignals: Set<TestSignal>,
+    val defaultActive: Boolean,
+    val type: TestFlagSetter.Type
 ) : ISignalActor, ITestableSubscriber {
     override val actsOn: List<TestSignal> = (activateSignals + deactivateSignals).toList()
     override fun ITestRun.onSignalTriggered(group: TestSignalGroup) {
@@ -50,7 +51,7 @@ abstract class TestSignalFlag(
         allowSignals: Set<TestSignal>,
         subscribable: SubscribableIdentifier<*>,
         defaultActive: Boolean,
-    ) : TestSignalFlag(subscribable, disallowSignals, allowSignals, defaultActive) {
+    ) : TestSignalFlag(subscribable, disallowSignals, allowSignals, defaultActive, TestFlagSetter.Type.DISALLOW) {
         override fun ITestRun.onTestableEnteredActive() {
             fail("Tried to enter disallowed object on $subscribable")
         }
@@ -61,7 +62,7 @@ abstract class TestSignalFlag(
         allowSignals: Set<TestSignal>,
         subscribable: SubscribableIdentifier<*>,
         defaultActive: Boolean,
-    ) : TestSignalFlag(subscribable, disallowSignals, allowSignals, defaultActive) {
+    ) : TestSignalFlag(subscribable, disallowSignals, allowSignals, defaultActive, TestFlagSetter.Type.SKIP) {
         override fun ITestRun.onTestableEnteredActive() {
             skip("Skipped because of the Skip-Instruction on $subscribable")
         }

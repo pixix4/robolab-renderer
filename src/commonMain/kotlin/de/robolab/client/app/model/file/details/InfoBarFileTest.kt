@@ -1,6 +1,6 @@
 package de.robolab.client.app.model.file.details
 
-import de.robolab.client.app.controller.TestTraversalController
+import de.robolab.client.app.controller.testing.TestTraversalController
 import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.app.model.file.FilePlanetDocument
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable

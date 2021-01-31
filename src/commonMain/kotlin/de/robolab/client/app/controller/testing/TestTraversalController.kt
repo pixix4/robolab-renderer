@@ -1,4 +1,4 @@
-package de.robolab.client.app.controller
+package de.robolab.client.app.controller.testing
 
 import de.robolab.client.app.model.testing.FilterEntry
 import de.robolab.client.app.model.testing.TestRunEntry

@@ -6,6 +6,8 @@ import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Direction
 import de.robolab.common.planet.Path
 import de.robolab.common.planet.SubscribableIdentifier
+import de.robolab.common.utils.filterKeysNotNull
+import de.robolab.common.utils.filterValuesNotNull
 
 class TestPlanet(
     val explorationGoals: Set<Coordinate?>,
@@ -15,6 +17,13 @@ class TestPlanet(
     val flags: List<TestSignalFlag>,
     val signals: Map<TestSignal, TestSignalGroup>,
 ) {
+
+    val totalTaskCount: Int = tasks.flatMap { it.value }.size
+    val orderedTasks: Map<TestSignal.Ordered, Set<TestTask>> =
+        tasks.mapKeys { it.key as? TestSignal.Ordered }.filterKeysNotNull()
+    val unorderedTasks: Map<TestSignal.Unordered, Set<TestTask>> =
+        tasks.mapKeys { it.key as? TestSignal.Unordered }.filterKeysNotNull()
+    val globalTasks: Set<TestTask> = tasks.getOrElse(null, ::emptySet)
 
     val subscribersByIdentifier: Map<SubscribableIdentifier<*>, List<ITestableSubscriber>> =
         (tasks.values.flatten() + triggers + flags + signals)

@@ -26,7 +26,7 @@ data class TestRunEntry(
         property(state.traverserState.nextDirection),
         property(state.status),
         property(state.completedTasks.size),
-        planet.tasks.flatMap { it.value }.count().observeConst(),
+        planet.totalTaskCount.observeConst(),
         property(state.achievedGoalType)
     )
 

@@ -1,6 +1,6 @@
 package de.robolab.client.ui.views.boxes
 
-import de.robolab.client.app.controller.TestTraversalController
+import de.robolab.client.app.controller.testing.TestTraversalController
 import de.robolab.client.app.controller.UiController
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.client.utils.PreferenceStorage
