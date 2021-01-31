@@ -22,7 +22,7 @@ class TestTraversalController(
 ) {
     @Suppress("UNCHECKED_CAST")
     private val _currentTestRuns: ObservableTreeFrontViewer<TestState<*>> =
-        ObservableTreeFrontViewer.fromBranchProvider(traversal as ISeededBranchProvider<TestState<*>>, localExpand)
+        ObservableTreeFrontViewer.fromBranchProvider(traversal as ISeededBranchProvider<TestState<*>>, !localExpand)
 
     val currentTestRuns: ObservableMutableList<TestRunEntry> = observableListOf()
 
