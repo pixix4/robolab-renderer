@@ -58,5 +58,9 @@ class StatusBar(
                 updateStatusBar()
             }
         }
+
+        boxView {
+            textView(statusBarController.memoryUsageProperty)
+        }
     }
 }

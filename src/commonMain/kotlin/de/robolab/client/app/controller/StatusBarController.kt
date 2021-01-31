@@ -2,11 +2,14 @@ package de.robolab.client.app.controller
 
 import de.robolab.client.app.model.file.FileNavigationManager
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
+import de.robolab.client.utils.runAfterTimeoutInterval
+import de.robolab.client.utils.runAsync
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
+import de.westermann.kobserve.property.property
 
 class StatusBarController(
     canvasController: CanvasController,
@@ -50,6 +53,8 @@ class StatusBarController(
 
     val entryListProperty = canvasController.pointerStringProperty
 
+    val memoryUsageProperty = property("")
+
     enum class StatusColor {
         SUCCESS,
         WARN,
@@ -71,4 +76,19 @@ class StatusBarController(
         val current: ObservableValue<String>,
         val total: ObservableValue<String?>,
     )
+
+    init {
+        runAsync {
+            val string = getMemoryUsageString()
+            memoryUsageProperty.value = string
+            
+            if (string.isNotBlank()) {
+                runAfterTimeoutInterval(1000L) {
+                    memoryUsageProperty.value = getMemoryUsageString()
+                }
+            }
+        }
+    }
 }
+
+expect fun getMemoryUsageString(): String

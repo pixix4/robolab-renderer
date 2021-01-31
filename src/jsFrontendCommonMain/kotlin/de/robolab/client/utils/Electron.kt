@@ -62,6 +62,11 @@ class Electron private constructor() {
         }
     }
 
+    fun getMemoryInfo(): BlinkMemoryInfo {
+        val process = js("require(\"process\")")
+        return process.getBlinkMemoryInfo().unsafeCast<BlinkMemoryInfo>()
+    }
+
     enum class PathName(val value: String) {
         HOME("home"),
         APP_DATA("appData"),
@@ -133,4 +138,10 @@ inline fun noElectron(block: () -> Unit) {
     if (e == null) {
         block()
     }
+}
+
+external interface BlinkMemoryInfo {
+    val allocated: Int
+    val marked: Int
+    val total: Int
 }
