@@ -24,6 +24,8 @@ class TestTraversalController(
     private val _currentTestRuns: ObservableTreeFrontViewer<TestState<*>> =
         ObservableTreeFrontViewer.fromBranchProvider(traversal as ISeededBranchProvider<TestState<*>>, !localExpand)
 
+    private val _observableStates: MutableMap<Int, ObservableProperty<TestState<*>>> = mutableMapOf()
+
     val currentTestRuns: ObservableMutableList<TestRunEntry> = observableListOf()
 
     private var nextRunNumber: Int = 1
@@ -36,10 +38,14 @@ class TestTraversalController(
             currentTestRuns.removeAt(it.index)
         }
         _currentTestRuns.onSetIndex {
-            currentTestRuns[it.index].updateFromState(it.newElement)
+            val entry = currentTestRuns[it.index]
+            entry.updateFromState(it.newElement)
+            _observableStates[entry.number.value]?.set(it.newElement)
         }
         _currentTestRuns.onClear {
             currentTestRuns.clear()
+            _observableStates.clear()
+            nextRunNumber = 1
         }
 
         for (element in _currentTestRuns) {
@@ -72,6 +78,23 @@ class TestTraversalController(
     val filtersCollapsed: ObservableProperty<Boolean> = property(false)
 
     val title: ObservableValue<String> = property("Test of ${traversal.traverser.planet.planet.name}")
+
+    private fun getObservableState(runNumber: Int): ObservableProperty<TestState<*>> {
+        val prevState = _observableStates[runNumber]
+        if (prevState != null) return prevState
+        val index = currentTestRuns.indexOfFirst { it.number.value == runNumber }
+        if (index < 0) throw NoSuchElementException("Run with Number $runNumber could not be found")
+        val newState = property(_currentTestRuns.front[index])
+        return _observableStates.getOrPut(runNumber) { newState }
+    }
+
+    fun createRunController(runNumber: Int) = TestRunController(
+        this,
+        runNumber,
+        getObservableState(runNumber)
+    )
+
+    fun createRunController(entry: TestRunEntry): TestRunController = createRunController(entry.number.get())
 
     fun expandAllOnce() = _currentTestRuns.expandAll()
 
