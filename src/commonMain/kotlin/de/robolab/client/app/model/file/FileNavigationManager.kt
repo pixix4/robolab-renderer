@@ -32,7 +32,7 @@ class FileNavigationManager(
             return remotePlanetLoader.value?.server
         }
 
-    private val remotePlanetLoader: ObservableValue<RemoteFilePlanetLoader?> =
+    val remotePlanetLoader: ObservableValue<RemoteFilePlanetLoader?> =
         PreferenceStorage.remoteServerUrlProperty.mapBinding {
             val loader = if (it.isBlank() || it.contains("file://")) {
                 null

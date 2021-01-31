@@ -159,7 +159,7 @@ class SettingsDialog private constructor(
             }
 
             dialogFormGroup("MQTT") {
-                dialogFormEntry("") {
+                dialogFormEntry("", true) {
                     button("Load remote config") {
                         onClick {
                             loadMqttSettings()
@@ -222,9 +222,11 @@ class SettingsDialog private constructor(
                     label(checkbox(PreferenceStorage.debugHierarchyProperty))
                 }
 
-                button("Reset all settings") {
-                    onClick {
-                        PreferenceStorage.clear()
+                dialogFormEntry("", true) {
+                    button("Reset all settings") {
+                        onClick {
+                            PreferenceStorage.clear()
+                        }
                     }
                 }
             }

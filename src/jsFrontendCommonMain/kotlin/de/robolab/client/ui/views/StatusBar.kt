@@ -7,6 +7,7 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.boxView
 import de.westermann.kwebview.components.textView
+import de.westermann.kwebview.extra.listFactory
 
 class StatusBar(
     private val statusBarController: StatusBarController
@@ -20,24 +21,35 @@ class StatusBar(
     }
 
     init {
+        boxView {
+            listFactory(statusBarController.connectionIndicatorList, { connection ->
+                BoxView().apply {
+                    classList += "connection-indicator"
 
-        boxView("connection-indicator") {
-            classList.bind(
-                "success",
-                statusBarController.statusColor.mapBinding { it == StatusBarController.StatusColor.SUCCESS })
-            classList.bind(
-                "warn",
-                statusBarController.statusColor.mapBinding { it == StatusBarController.StatusColor.WARN })
-            classList.bind(
-                "error",
-                statusBarController.statusColor.mapBinding { it == StatusBarController.StatusColor.ERROR })
+                    classList.bind(
+                        "success",
+                        connection.statusColor.mapBinding { it == StatusBarController.StatusColor.SUCCESS })
+                    classList.bind(
+                        "warn",
+                        connection.statusColor.mapBinding { it == StatusBarController.StatusColor.WARN })
+                    classList.bind(
+                        "error",
+                        connection.statusColor.mapBinding { it == StatusBarController.StatusColor.ERROR })
+                    classList.bind(
+                        "other",
+                        connection.statusColor.mapBinding { it == StatusBarController.StatusColor.OTHER })
 
-            textView(statusBarController.statusMessage)
-            textView(statusBarController.statusActionLabel) {
-                onClick {
-                    statusBarController.onStatusAction()
+                    textView(connection.name)
+
+                    textView(connection.statusLabel)
+
+                    textView(connection.actionLabel) {
+                        onClick {
+                            connection.actionHandler()
+                        }
+                    }
                 }
-            }
+            })
         }
 
         boxView {

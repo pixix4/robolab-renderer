@@ -18,12 +18,16 @@
     margin-left: 0.5rem;
   }
 
+  & > .box-view {
+    display: flex;
+    align-items: center;
+  }
+
   .connection-indicator {
     @include utils.prevent-user-select();
 
     height: 100%;
     border-right: solid 1px var(--border-color);
-    width: var(--navigation-bar-width);
     min-width: 14rem;
     z-index: 1;
     overflow: hidden;
@@ -32,30 +36,49 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 
-    &.success {
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      border-radius: 100%;
+      border: solid 1px var(--border-color);
+      left: 0.6rem;
+      top: 50%;
+      margin-top: -.3rem;
+      width: .6rem;
+      height: .6rem;
+    }
+
+    &.success::before {
       background-color: var(--success-color);
-      color: var(--success-text-color);
     }
-
-    &.warn {
+    &.warn::before {
       background-color: var(--warn-color);
-      color: var(--warn-text-color);
     }
-
-    &.error {
+    &.error::before {
       background-color: var(--error-color);
-      color: var(--error-text-color);
+    }
+    &.other::before {
+      background-color: var(--tertiary-background);
     }
 
+    .text-view:nth-child(1) {
+      &:after {
+        content: ": ";
+      }
+    }
     .text-view:nth-child(2) {
-      text-decoration: underline;
+      padding: 0;
+      margin: 0;
     }
-  }
-}
+    .text-view:nth-child(3) {
+      text-decoration: underline;
 
-@include utils.desktop {
-  .status-bar.navigation-bar-active {
-    left: var(--navigation-bar-width);
+      &:empty {
+        display: none;
+      }
+    }
   }
 }

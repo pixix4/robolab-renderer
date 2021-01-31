@@ -58,6 +58,7 @@ class TabBar(private val tabController: TabController) : ViewCollection<View>() 
                     StatusBarController.StatusColor.SUCCESS -> MaterialIcon.LINK
                     StatusBarController.StatusColor.WARN -> MaterialIcon.LINK_OFF
                     StatusBarController.StatusColor.ERROR -> MaterialIcon.LINK_OFF
+                    StatusBarController.StatusColor.OTHER -> MaterialIcon.LINK_OFF
                 }
             })
 
@@ -69,6 +70,9 @@ class TabBar(private val tabController: TabController) : ViewCollection<View>() 
                 tabController.statusColor.mapBinding { it == StatusBarController.StatusColor.WARN })
             classList.bind(
                 "error",
+                tabController.statusColor.mapBinding { it == StatusBarController.StatusColor.ERROR })
+            classList.bind(
+                "other",
                 tabController.statusColor.mapBinding { it == StatusBarController.StatusColor.ERROR })
 
             onClick {

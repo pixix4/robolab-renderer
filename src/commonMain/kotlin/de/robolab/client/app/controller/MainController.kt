@@ -54,7 +54,7 @@ class MainController(private val args: Args) {
         uiController,
         navigationBarController.filePlanetProvider
     )
-    val statusBarController = StatusBarController(canvasController, connection)
+    val statusBarController = StatusBarController(canvasController, connection, navigationBarController.filePlanetProvider)
     val infoBarController = InfoBarController(tabController.activeDocumentProperty)
 
     init {
