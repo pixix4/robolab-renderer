@@ -18,9 +18,11 @@ class TestSignalGroup(
             }
         } + otherSubscribers
 
+    private val phaseOnActivate: Phase = if(tasks.isEmpty()) Phase.Complete else Phase.Started
+
 
     fun activate(test: ITestRun, allowMultipleUnordered: Boolean = false) {
-        if (test.markSignal(this)) {
+        if (test.markSignal(this, phaseOnActivate)) {
             subscribers.forEach(test::run)
             test.queueAssert {
                 if (previousSignal != null && test.signalPhase(previousSignal) != Phase.Complete)

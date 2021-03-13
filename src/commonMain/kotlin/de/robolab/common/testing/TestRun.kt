@@ -139,6 +139,12 @@ open class TestRun<TS> protected constructor(
 
     override fun completeGoal(exploration: Boolean) {
         if (status != TestStatus.Running) throw IllegalStateException("Cannot enter goalAchieved-State from $status")
+        if (!_completedTasks.containsAll(planet.tasks.values.flatten()))
+            fail(
+                "Attempted to complete goal with missing tasks: ${
+                    planet.tasks.values.flatten().minus(_completedTasks).joinToString(prefix = "[", postfix = "]")
+                }"
+            )
         pAchievedGoalType = if (planet.explorationGoals.isEmpty() && planet.targetGoals.isEmpty()) {
             if (exploration) TestGoal.GoalType.Explore
             else TestGoal.GoalType.Target
@@ -148,7 +154,7 @@ open class TestRun<TS> protected constructor(
                 planet.explorationGoals.contains(null) -> TestGoal.GoalType.Explore
                 else -> fail("Completed exploration at location ${traverserState.location} which has no exploration-goal associated with it")
             }
-        } else when{
+        } else when {
             planet.targetGoals.contains(traverserState.location) -> TestGoal.GoalType.Target
             planet.targetGoals.contains(null) -> TestGoal.GoalType.Target
             else -> fail("Reached target at location ${traverserState.location} which has no target-goal associated with it")

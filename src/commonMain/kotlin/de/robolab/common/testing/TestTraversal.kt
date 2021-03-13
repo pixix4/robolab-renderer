@@ -43,7 +43,9 @@ class TestTraversal<TS>(val planet: TestPlanet, val traverser: ITraverser<TS>) :
                         ITraverserState.Status.RobotCrashed -> test.fail(test.traverserState.statusInfo?.toString())
                     }
                 } catch (_: TestRunSkippedException) {
-                } catch (_: TestRunFailedException) {
+                } catch (ex: TestRunFailedException) {
+                    if (ex.message != null)
+                        Logger.DEFAULT.debug { "Run failed at ${test.traverserState.location}, ${test.traverserState.nextDirection.letter()}: ${ex.message}" }
                 }
                 test
             }.drop(1) //drop 1 because the 'mutable' input will be added to the front anyway
