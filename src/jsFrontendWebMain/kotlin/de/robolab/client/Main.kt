@@ -15,6 +15,7 @@ fun main() {
         argMap["groups"],
         argMap["fullscreen"]?.let { "true" },
         argMap["connect"]?.let { "true" },
+        emptyList()
     )
 
     initMainView(args)
