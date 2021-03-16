@@ -1,0 +1,71 @@
+@use '../utils';
+
+.side-bar-navigation-entry-view {
+  padding: 0.8rem 1rem;
+  border-bottom: solid 1px var(--border-color);
+  position: relative;
+  white-space: nowrap;
+
+  .text-view:nth-child(1) {
+    font-weight: bold;
+    display: block;
+  }
+
+  .text-view:nth-child(2) {
+    display: block;
+    font-size: 0.8rem;
+  }
+
+  &.one-line {
+    .text-view:nth-child(2) {
+      display: none;
+    }
+  }
+
+  .box-view {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    line-height: 2rem;
+    margin-top: -1rem;
+
+    .icon-view {
+      display: inline-block;
+    }
+  }
+
+  &:hover {
+    background-color: var(--secondary-hover-background);
+  }
+
+  &.active {
+    background-color: var(--primary-background);
+    color: var(--theme-color);
+
+    &:hover {
+      background-color: var(--primary-hover-background);
+    }
+  }
+
+  &.disabled {
+    color: var(--secondary-text-color)
+  }
+}
+
+.navigation-bar-preview {
+  position: absolute;
+  z-index: 1000;
+  top: 0;
+  left: 100%;
+  display: none;
+
+  background: var(--primary-background);
+  overflow: hidden;
+  border: solid 1px var(--border-color);
+  border-radius: 1rem;
+
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}

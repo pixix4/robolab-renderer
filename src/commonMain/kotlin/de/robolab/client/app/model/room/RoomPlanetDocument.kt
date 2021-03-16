@@ -1,20 +1,24 @@
 package de.robolab.client.app.model.room
 
-import de.robolab.client.app.controller.InfoBarController
+import de.robolab.client.app.controller.FilePlanetController
+import de.robolab.client.app.controller.ui.InfoBarController
+import de.robolab.client.app.controller.ui.UiController
 import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.base.ToolBarEntry
-import de.robolab.client.app.model.file.CachedFilePlanetProvider
 import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.app.repository.Room
+import de.robolab.client.app.viewmodel.FormContentViewModel
+import de.robolab.client.app.viewmodel.SideBarTabViewModel
 import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.communication.toRobot
 import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.client.renderer.drawable.planet.MultiRobotPlanetDrawable
 import de.robolab.client.utils.runAsync
 import de.robolab.common.planet.Planet
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.event.now
@@ -28,15 +32,16 @@ import kotlinx.coroutines.launch
 class RoomPlanetDocument(
     val room: Room,
     private val messageRepository: MessageRepository,
-    planetProvider: CachedFilePlanetProvider
+    planetProvider: FilePlanetController,
+    private val uiController: UiController
 ) : IPlanetDocument {
 
     val messages = observableListOf<RobolabMessage>()
 
     override val nameProperty = constObservable("Room: ${room.name}")
 
-    override val toolBarLeft = constObservable(emptyList<List<ToolBarEntry>>())
-    override val toolBarRight = constObservable(emptyList<List<ToolBarEntry>>())
+    override val toolBarLeft = constObservable<List<FormContentViewModel>>(emptyList())
+    override val toolBarRight = constObservable<List<FormContentViewModel>>(emptyList())
 
 
     val drawable = MultiRobotPlanetDrawable()
@@ -108,19 +113,10 @@ class RoomPlanetDocument(
     }
 
 
-    val infoBarTab = object : InfoBarController.Tab {
-        override val icon = MaterialIcon.INFO_OUTLINE
-        override val tooltip = ""
-        override fun open() {
-        }
-    }
+    val infoBarTab = InfoBarRoomRobots(groupStateList, uiController)
 
-    override val infoBarTabsProperty = constObservable(listOf(infoBarTab))
-    override val infoBarActiveTabProperty = constObservable(infoBarTab)
-
-    override val infoBarProperty: ObservableValue<IInfoBarContent> = constObservable(
-        InfoBarRoomRobots(groupStateList)
-    )
+    override val infoBarTabs: List<SideBarTabViewModel> = listOf(infoBarTab)
+    override val activeTabProperty: ObservableProperty<SideBarTabViewModel?> = property(infoBarTab)
 
     private var isAttached = false
 
@@ -169,9 +165,9 @@ class RoomPlanetDocument(
     }
 
     init {
-        val observable = planetProvider[room.name]
+        val observable = planetProvider.getPlanetObservable(room.name)
         observable.onChange.now {
-            val planet = observable.value ?: Planet.EMPTY
+            val planet = observable.value
             drawable.importPlanet(planet)
         }
     }

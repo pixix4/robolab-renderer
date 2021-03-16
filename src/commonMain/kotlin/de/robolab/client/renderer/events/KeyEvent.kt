@@ -319,6 +319,9 @@ enum class KeyCode(val char: Char?) {
     F11(null),
 
     // Key: 'F12'
-    F12(null);
+    F12(null),
+
+    // Unsupported keys
+    UNSUPPORTED(null);
     
 }

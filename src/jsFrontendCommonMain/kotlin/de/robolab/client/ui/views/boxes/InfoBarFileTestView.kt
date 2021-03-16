@@ -1,13 +1,12 @@
 package de.robolab.client.ui.views.boxes
 
-import de.robolab.client.app.controller.testing.TestTraversalController
-import de.robolab.client.app.controller.UiController
 import de.robolab.client.app.model.base.MaterialIcon
+import de.robolab.client.app.model.file.details.InfoBarFileTest
+import de.robolab.client.app.viewmodel.ViewModel
+import de.robolab.client.ui.ViewFactory
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAsync
-import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.toggle
@@ -22,26 +21,27 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 class InfoBarFileTestView(
-    private val testProperty: ObservableValue<TestTraversalController>,
-    private val uiController: UiController
+    private val viewModel: InfoBarFileTest,
 ) : ViewCollection<View>() {
 
     init {
+        viewModel.test()
+
         scrollBoxView {
-            uiController.infoBarVisibleProperty.onChange {
+            viewModel.uiController.infoBarVisibleProperty.onChange {
                 runAsync {
                     updateScrollBox()
                 }
             }
             resizeBox(0.3) {
-                textView(testProperty.flatMapBinding { it.title })
+                textView(viewModel.titleProperty)
 
                 boxView {
                     textView("Goals")
 
                     boxView {
                         classList += "info-bar-test-filter-list"
-                        listFactory(testProperty.mapBinding { it.goalFilters }, { entry ->
+                        listFactory(viewModel.goalFilters, { entry ->
                             BoxView().apply {
                                 classList.bind("active", entry.active)
                                 textView(entry.content)
@@ -60,7 +60,7 @@ class InfoBarFileTestView(
 
                     boxView {
                         classList += "info-bar-test-filter-list"
-                        listFactory(testProperty.mapBinding { it.statusFilters }, { entry ->
+                        listFactory(viewModel.statusFilters, { entry ->
                             runAsync {
                                 updateScrollBox()
                             }
@@ -80,22 +80,22 @@ class InfoBarFileTestView(
             resizeBox(0.7) {
                 onWheel {
                     if (it.deltaY < 0) {
-                        testProperty.value.stickToTableBottom.value = false
+                        viewModel.testProperty.value?.stickToTableBottom?.value = false
                     }
                 }
                 boxView("info-bar-test-table-box") {
                     buttonGroup(true) {
                         button {
                             iconView(MaterialIcon.VERTICAL_ALIGN_BOTTOM)
-                            classList.bind("active", testProperty.flatMapBinding { it.stickToTableBottom })
+                            classList.bind("active", viewModel.stickToTableBottom)
                             onClick {
-                                testProperty.value.stickToTableBottom.toggle()
+                                viewModel.testProperty.value?.stickToTableBottom?.toggle()
                             }
                         }
                         button("Expand next") {
                             onClick {
                                 GlobalScope.launch {
-                                    testProperty.value.expandNextFullyAsync(
+                                    viewModel.testProperty.value?.expandNextFullyAsync(
                                         true,
                                         PreferenceStorage.traverserDelay.toDuration(DurationUnit.MILLISECONDS)
                                     )
@@ -105,7 +105,7 @@ class InfoBarFileTestView(
                         button("Expand all") {
                             onClick {
                                 GlobalScope.launch {
-                                    testProperty.value.expandAllFullyAsync(
+                                    viewModel.testProperty.value?.expandAllFullyAsync(
                                         true,
                                         PreferenceStorage.traverserDelay.toDuration(DurationUnit.MILLISECONDS)
                                     )
@@ -134,9 +134,9 @@ class InfoBarFileTestView(
                             }
                         }
                         tbody {
-                            listFactory(testProperty.mapBinding { it.currentTestRuns }, { entry ->
+                            listFactory(viewModel.currentTestRuns, { entry ->
                                 TableRow().apply {
-                                    if (testProperty.value.stickToTableBottom.value) {
+                                    if (viewModel.stickToTableBottom.value) {
                                         runAsync {
                                             scrollIntoView()
                                         }
@@ -175,6 +175,16 @@ class InfoBarFileTestView(
                     }
                 }
             }
+        }
+    }
+
+    companion object : ViewFactory {
+        override fun matches(viewModel: ViewModel): Boolean {
+            return viewModel is InfoBarFileTest
+        }
+
+        override fun create(viewModel: ViewModel): View {
+            return InfoBarFileTestView(viewModel as InfoBarFileTest)
         }
     }
 }

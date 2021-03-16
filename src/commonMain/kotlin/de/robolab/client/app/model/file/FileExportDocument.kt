@@ -1,17 +1,21 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.controller.InfoBarController
+import de.robolab.client.app.controller.ui.InfoBarController
 import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.app.model.base.ToolBarEntry
+import de.robolab.client.app.viewmodel.FormContentViewModel
+import de.robolab.client.app.viewmodel.SideBarTabViewModel
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.common.parser.PlanetFile
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.constObservable
+import de.westermann.kobserve.property.property
 
 class FileExportDocument(planetFile: PlanetFile) : IPlanetDocument {
     override val nameProperty = constObservable("")
-    override val toolBarLeft = constObservable<List<List<ToolBarEntry>>>(emptyList())
-    override val toolBarRight = constObservable<List<List<ToolBarEntry>>>(emptyList())
+    override val toolBarLeft = constObservable<List<FormContentViewModel>>(emptyList())
+    override val toolBarRight = constObservable<List<FormContentViewModel>>(emptyList())
 
     override val canUndoProperty = constObservable(false)
     override fun undo() {
@@ -21,9 +25,8 @@ class FileExportDocument(planetFile: PlanetFile) : IPlanetDocument {
     override fun redo() {
     }
 
-    override val infoBarProperty = constObservable<IInfoBarContent>()
-    override val infoBarTabsProperty = constObservable<List<InfoBarController.Tab>>()
-    override val infoBarActiveTabProperty = constObservable<InfoBarController.Tab>()
+    override val infoBarTabs: List<SideBarTabViewModel> = emptyList()
+    override val activeTabProperty: ObservableProperty<SideBarTabViewModel?> = property()
 
     val drawable = SimplePlanetDrawable()
     override val documentProperty = constObservable(drawable.view)

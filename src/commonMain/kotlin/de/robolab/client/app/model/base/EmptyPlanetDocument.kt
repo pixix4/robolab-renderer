@@ -1,17 +1,16 @@
 package de.robolab.client.app.model.base
 
-import de.robolab.client.app.controller.InfoBarController
-import de.robolab.client.app.model.base.IInfoBarContent
-import de.robolab.client.app.model.base.IPlanetDocument
-import de.robolab.client.app.model.base.ToolBarEntry
+import de.robolab.client.app.viewmodel.FormContentViewModel
+import de.robolab.client.app.viewmodel.SideBarTabViewModel
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
-import de.robolab.common.parser.PlanetFile
+import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.constObservable
+import de.westermann.kobserve.property.property
 
 class EmptyPlanetDocument() : IPlanetDocument {
     override val nameProperty = constObservable("")
-    override val toolBarLeft = constObservable<List<List<ToolBarEntry>>>(emptyList())
-    override val toolBarRight = constObservable<List<List<ToolBarEntry>>>(emptyList())
+    override val toolBarLeft = constObservable<List<FormContentViewModel>>(emptyList())
+    override val toolBarRight = constObservable<List<FormContentViewModel>>(emptyList())
 
     override val canUndoProperty = constObservable(false)
     override fun undo() {
@@ -21,9 +20,8 @@ class EmptyPlanetDocument() : IPlanetDocument {
     override fun redo() {
     }
 
-    override val infoBarProperty = constObservable<IInfoBarContent>()
-    override val infoBarTabsProperty = constObservable<List<InfoBarController.Tab>>()
-    override val infoBarActiveTabProperty = constObservable<InfoBarController.Tab>()
+    override val infoBarTabs: List<SideBarTabViewModel> = emptyList()
+    override val activeTabProperty: ObservableProperty<SideBarTabViewModel?> = property()
 
     override val documentProperty = constObservable(SimplePlanetDrawable().view)
 
@@ -37,5 +35,9 @@ class EmptyPlanetDocument() : IPlanetDocument {
     }
 
     override fun onDestroy() {
+    }
+
+    init {
+        documentProperty.value.drawPlaceholder = true
     }
 }

@@ -1,10 +1,11 @@
 package de.robolab.client.ui.views.boxes
 
-import de.robolab.client.app.controller.UiController
 import de.robolab.client.app.model.file.details.InfoBarFilePaper
 import de.robolab.client.app.model.file.details.PathDetailBox
 import de.robolab.client.app.model.file.details.PlanetStatisticsDetailBox
 import de.robolab.client.app.model.file.details.PointDetailBox
+import de.robolab.client.app.viewmodel.ViewModel
+import de.robolab.client.ui.ViewFactory
 import de.robolab.client.ui.dialog.bindStringParsing
 import de.robolab.client.ui.dialog.dialogFormEntry
 import de.robolab.client.utils.PreferenceStorage
@@ -18,14 +19,13 @@ import de.westermann.kwebview.components.selectView
 import de.westermann.kwebview.extra.scrollBoxView
 
 class InfoBarFilePaperView(
-    private val content: InfoBarFilePaper,
-    private val uiController: UiController
+    private val viewModel: InfoBarFilePaper,
 ) : ViewCollection<View>() {
 
     private fun updateContent(box: BoxView) {
         box.clear()
 
-        when (val content = content.detailBoxProperty.value) {
+        when (val content = viewModel.detailBoxProperty.value) {
             is PlanetStatisticsDetailBox -> {
                 box.add(DetailBoxPlanetStatistics(content))
             }
@@ -40,7 +40,7 @@ class InfoBarFilePaperView(
 
     init {
         scrollBoxView {
-            uiController.infoBarVisibleProperty.onChange {
+            viewModel.uiController.infoBarVisibleProperty.onChange {
                 runAsync {
                     updateScrollBox()
                 }
@@ -80,11 +80,21 @@ class InfoBarFilePaperView(
                 }
             }
             resizeBox(0.5) {
-                content.detailBoxProperty.onChange {
+                viewModel.detailBoxProperty.onChange {
                     updateContent(this)
                 }
                 updateContent(this)
             }
+        }
+    }
+
+    companion object : ViewFactory {
+        override fun matches(viewModel: ViewModel): Boolean {
+            return viewModel is InfoBarFilePaper
+        }
+
+        override fun create(viewModel: ViewModel): View {
+            return InfoBarFilePaperView(viewModel as InfoBarFilePaper)
         }
     }
 }

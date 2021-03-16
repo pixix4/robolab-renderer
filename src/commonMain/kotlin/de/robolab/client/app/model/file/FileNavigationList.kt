@@ -1,17 +1,18 @@
 package de.robolab.client.app.model.file
 
 import com.soywiz.klock.DateTime
+import de.robolab.client.app.controller.FilePlanetController
 import de.robolab.client.app.model.base.INavigationBarEntry
-import de.robolab.client.app.model.base.INavigationBarList
 import de.robolab.client.app.model.base.INavigationBarTab
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.client.app.model.file.provider.FilePlanet
 import de.robolab.client.app.model.file.provider.IFilePlanetLoader
 import de.robolab.client.app.model.file.provider.RemoteIdentifier
 import de.robolab.client.app.model.file.provider.RemoteMetadata
+import de.robolab.client.app.viewmodel.SideBarContentViewModel
 import de.robolab.client.renderer.Exporter
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.utils.MenuBuilder
+import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAsync
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.Planet
@@ -26,9 +27,10 @@ import kotlinx.coroutines.launch
 class FileNavigationList(
     private val tab: FileNavigationTab,
     override val loader: IFilePlanetLoader,
+    private val filePlanetController: FilePlanetController,
     private val id: String = "",
     metadata: RemoteMetadata.Directory? = null,
-    override val parent: INavigationBarList? = null
+    override val parent: SideBarContentViewModel? = null
 ) : FileNavigationTab.RepositoryList {
 
     override val nameProperty = constObservable(metadata?.name ?: loader.nameProperty.value)
@@ -42,7 +44,7 @@ class FileNavigationList(
 
                 runAsync {
                     childrenProperty.sync(planets.map {
-                        mapEntry(tab, id, loader, it)
+                        mapEntry(tab, id, loader, it, filePlanetController)
                     })
                 }
             }
@@ -54,9 +56,17 @@ class FileNavigationList(
             tab: INavigationBarTab,
             parentId: String?,
             loader: IFilePlanetLoader,
-            entry: RemoteIdentifier
+            entry: RemoteIdentifier,
+            filePlanetController: FilePlanetController,
         ) = when (entry.metadata) {
-            is RemoteMetadata.Planet -> EntryPlanet(tab, parentId, loader, entry.id, entry.metadata)
+            is RemoteMetadata.Planet -> EntryPlanet(
+                tab,
+                parentId,
+                loader,
+                entry.id,
+                entry.metadata,
+                filePlanetController
+            )
             is RemoteMetadata.Directory -> EntryDirectory(tab, loader, entry.id, entry.metadata)
         }
     }
@@ -67,7 +77,7 @@ class FileNavigationList(
 
             runAsync {
                 childrenProperty.sync(planets.map {
-                    mapEntry(tab, id, loader, it)
+                    mapEntry(tab, id, loader, it, filePlanetController)
                 })
             }
         }
@@ -78,7 +88,8 @@ class FileNavigationList(
         private val parentId: String?,
         val loader: IFilePlanetLoader,
         val id: String,
-        val metadata: RemoteMetadata.Planet
+        val metadata: RemoteMetadata.Planet,
+        private val filePlanetController: FilePlanetController,
     ) : INavigationBarEntry {
 
         override val nameProperty = constObservable(metadata.name)
@@ -97,15 +108,13 @@ class FileNavigationList(
             if (parentId != null) {
                 action("Copy") {
                     GlobalScope.launch(Dispatchers.Main) {
-                        val filePlanet = FilePlanet(loader, id)
-                        filePlanet.load()
+                        val filePlanet = filePlanetController.getFilePlanet(loader, id)
                         filePlanet.copy(parentId)
                     }
                 }
                 action("Delete") {
                     GlobalScope.launch(Dispatchers.Main) {
-                        val filePlanet = FilePlanet(loader, id)
-                        filePlanet.load()
+                        val filePlanet = filePlanetController.getFilePlanet(loader, id)
                         filePlanet.delete()
                     }
                 }
@@ -134,7 +143,13 @@ class FileNavigationList(
 
             val canvas = canvasCreator(dimension)
             if (canvas != null) {
-                Exporter.renderToCanvas(p, canvas, drawName = false, drawNumbers = false)
+                Exporter.renderToCanvas(
+                    p,
+                    canvas,
+                    drawName = false,
+                    drawNumbers = false,
+                    theme = PreferenceStorage.selectedTheme.theme
+                )
             }
             return canvas
         }

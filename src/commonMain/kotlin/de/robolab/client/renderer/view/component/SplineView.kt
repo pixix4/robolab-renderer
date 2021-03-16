@@ -149,7 +149,7 @@ class SplineView(
         var range = ranges[rangeIndex]
         var current = result[rangeIndex]
 
-        var pi = 0
+        var pi = 1
         for (p in pointHelpers) {
             if (p.curveProgress < range.first) continue
             if (p.curveProgress < range.second) {

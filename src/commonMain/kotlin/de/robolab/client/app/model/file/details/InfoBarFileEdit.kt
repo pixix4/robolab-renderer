@@ -1,26 +1,44 @@
 package de.robolab.client.app.model.file.details
 
-import de.robolab.client.app.model.base.IInfoBarContent
+import de.robolab.client.app.controller.ui.UiController
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.FilePlanetDocument
+import de.robolab.client.app.viewmodel.SideBarContentViewModel
+import de.robolab.client.app.viewmodel.buildFormContent
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
 import de.robolab.client.renderer.drawable.planet.EditPlanetDrawable
 import de.robolab.common.planet.IPlanetValue
 import de.robolab.common.planet.Path
+import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
-import de.westermann.kobserve.property.DelegatePropertyAccessor
-import de.westermann.kobserve.property.flatMapBinding
-import de.westermann.kobserve.property.mapBinding
-import de.westermann.kobserve.property.property
+import de.westermann.kobserve.property.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class InfoBarFileEdit(private val planetEntry: FilePlanetDocument, private val editDrawable: EditPlanetDrawable) :
-    IInfoBarContent {
+class InfoBarFileEdit(
+    private val planetEntry: FilePlanetDocument,
+    val uiController: UiController,
+)  : FilePlanetDocument.FilePlanetSideBarTab<EditPlanetDrawable>(
+    "Edit",
+    MaterialIcon.CODE
+), SideBarContentViewModel {
+
+    override val drawable = EditPlanetDrawable(planetEntry.planetFile, planetEntry.transformationStateProperty)
+
+    override fun importPlanet(planet: Planet) {
+        drawable.importPlanet(planet)
+    }
+
+    override val parent: SideBarContentViewModel? = null
+    override val contentProperty: ObservableValue<SideBarContentViewModel> = constObservable(this)
+
+    override val topToolBar = buildFormContent { }
+    override val bottomToolBar = buildFormContent { }
 
     private var lastChange: Change = Change.LineCountModified(-1, 0)
 
-    val contentProperty = property(object : DelegatePropertyAccessor<String> {
+    val stringContentProperty = property(object : DelegatePropertyAccessor<String> {
         override fun set(value: String) {
             val lastLines = planetEntry.content.split('\n')
             val lines = value.split('\n')
@@ -53,7 +71,7 @@ class InfoBarFileEdit(private val planetEntry: FilePlanetDocument, private val e
         }
 
     }, planetEntry.planetFile.history)
-    var content by contentProperty
+    var content by stringContentProperty
 
     fun undo() {
         planetEntry.planetFile.history.undo()
@@ -84,7 +102,7 @@ class InfoBarFileEdit(private val planetEntry: FilePlanetDocument, private val e
     fun selectLine(line: Int) {
         val obj = planetEntry.planetFile.lineNumberToValue(line) ?: return
         ignoreSetLine = true
-        editDrawable.focus(obj)
+        drawable.focus(obj)
         ignoreSetLine = false
     }
 
@@ -110,7 +128,7 @@ class InfoBarFileEdit(private val planetEntry: FilePlanetDocument, private val e
     }
 
     private val statisticsDetailBox = PlanetStatisticsDetailBox(planetEntry.planetFile)
-    val detailBoxProperty: ObservableValue<Any> = editDrawable.focusedElementsProperty.mapBinding { list ->
+    val detailBoxProperty: ObservableValue<Any> = drawable.focusedElementsProperty.mapBinding { list ->
         when (val first = list.firstOrNull()) {
             is PointAnimatableManager.AttributePoint -> PointDetailBox(first, planetEntry.planetFile)
             is Path -> PathDetailBox(first, planetEntry.planetFile)
@@ -119,8 +137,8 @@ class InfoBarFileEdit(private val planetEntry: FilePlanetDocument, private val e
     }
 
     init {
-        editDrawable.focusedElementsProperty.onChange {
-            val first = editDrawable.focusedElementsProperty.value.firstOrNull()
+        drawable.focusedElementsProperty.onChange {
+            val first = drawable.focusedElementsProperty.value.firstOrNull()
             if (!ignoreSetLine && first != null) {
                 val obj = if (first is PointAnimatableManager.AttributePoint) {
                     findObjForPoint(first)
@@ -134,7 +152,7 @@ class InfoBarFileEdit(private val planetEntry: FilePlanetDocument, private val e
         }
     }
 
-    val actionHintList = editDrawable.view.actionHintList
+    val actionHintList = drawable.view.actionHintList
 
     sealed class Change {
         data class LineModified(val line: List<Int>) : Change()

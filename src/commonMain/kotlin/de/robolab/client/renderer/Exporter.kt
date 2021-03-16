@@ -5,6 +5,7 @@ import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.client.renderer.utils.Transformation
+import de.robolab.client.theme.ITheme
 import de.robolab.client.theme.LightTheme
 import de.robolab.client.utils.HeadlessPlanetDocument
 import de.robolab.common.planet.Planet
@@ -17,30 +18,32 @@ object Exporter {
         planet: Planet,
         canvas: ICanvas,
         drawName: Boolean = true,
-        drawNumbers: Boolean = true
+        drawNumbers: Boolean = true,
+        theme: ITheme = LightTheme
     ) {
         val drawable = SimplePlanetDrawable()
         drawable.importPlanet(planet)
 
-        renderToCanvas(drawable, canvas, drawName, drawNumbers)
+        renderToCanvas(drawable, canvas, drawName, drawNumbers, theme)
     }
 
     fun renderToCanvas(
         drawable: AbsPlanetDrawable,
         canvas: ICanvas,
         drawName: Boolean = true,
-        drawNumbers: Boolean = true
+        drawNumbers: Boolean = true,
+        theme: ITheme = LightTheme
     ) {
         drawable.drawCompass = false
         drawable.drawName = drawName
         drawable.drawGridNumbers = drawNumbers
 
         val planetDocument = HeadlessPlanetDocument(drawable.view)
-        val plotter = PlotterWindow(canvas, planetDocument, LightTheme, 0.0)
+        val plotter = PlotterWindow(canvas, planetDocument, theme, 0.0)
 
         drawable.centerPlanet(forceAutoScale = true)
 
-        plotter.render(0.0)
+        plotter.onRender(0.0)
     }
 
     fun getDimension(planet: Planet): Dimension {

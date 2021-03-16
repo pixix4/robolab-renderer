@@ -18,6 +18,8 @@ class LocalFilePlanetLoader(
     private val baseDirectory: File
 ) : IFilePlanetLoader {
 
+    override val id = "local-file-loader-${baseDirectory.absolutePath}"
+
     constructor(baseDirectoryName: String) : this(File(path.resolve(baseDirectoryName)))
 
     override val onRemoteChange = EventHandler<RemoteIdentifier>()

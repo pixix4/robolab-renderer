@@ -1,16 +1,17 @@
 package de.robolab.client.ui.views.boxes
 
 import com.soywiz.klock.format
-import de.robolab.client.app.controller.UiController
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.group.InfoBarGroupMessages
+import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.communication.From
 import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.renderer.events.KeyCode
-import de.robolab.client.utils.runAsync
-import de.robolab.client.ui.adapter.toCommon
+import de.robolab.client.ui.ViewFactory
+import de.robolab.client.ui.adapter.getKeyCode
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.client.utils.runAsync
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.View
@@ -20,13 +21,12 @@ import de.westermann.kwebview.extra.listFactory
 import de.westermann.kwebview.extra.scrollBoxView
 
 class InfoBarGroupMessagesView(
-    private val content: InfoBarGroupMessages,
-    private val uiController: UiController
+    private val viewModel: InfoBarGroupMessages,
 ) : ViewCollection<View>() {
 
     init {
         scrollBoxView {
-            uiController.infoBarVisibleProperty.onChange {
+            viewModel.uiController.infoBarVisibleProperty.onChange {
                 runAsync {
                     updateScrollBox()
                 }
@@ -38,7 +38,7 @@ class InfoBarGroupMessagesView(
                             textView("Messages")
                         }
                         cell {
-                            textView(content.messageCountStringProperty)
+                            textView(viewModel.messageCountStringProperty)
                         }
                     }
 
@@ -47,7 +47,7 @@ class InfoBarGroupMessagesView(
                             textView("First message")
                         }
                         cell {
-                            textView(content.firstMessageTimeStringProperty)
+                            textView(viewModel.firstMessageTimeStringProperty)
                         }
                     }
 
@@ -56,7 +56,7 @@ class InfoBarGroupMessagesView(
                             textView("Last message")
                         }
                         cell {
-                            textView(content.lastMessageTimeStringProperty)
+                            textView(viewModel.lastMessageTimeStringProperty)
                         }
                     }
 
@@ -65,7 +65,7 @@ class InfoBarGroupMessagesView(
                             textView("Attempt duration")
                         }
                         cell {
-                            textView(content.attemptDurationStringProperty)
+                            textView(viewModel.attemptDurationStringProperty)
                         }
                     }
                 }
@@ -73,7 +73,7 @@ class InfoBarGroupMessagesView(
                 buttonGroup(true) {
                     button("Send message") {
                         onClick {
-                            content.openSendDialog()
+                            viewModel.openSendDialog()
                         }
                     }
                 }
@@ -85,13 +85,13 @@ class InfoBarGroupMessagesView(
                     buttonGroup {
                         button("Small Planet") {
                             onClick {
-                                content.openSendDialogSmallExamPlanet()
+                                viewModel.openSendDialogSmallExamPlanet()
                             }
                         }
 
                         button("Large Planet") {
                             onClick {
-                                content.openSendDialogLargeExamPlanet()
+                                viewModel.openSendDialogLargeExamPlanet()
                             }
                         }
                     }
@@ -114,21 +114,21 @@ class InfoBarGroupMessagesView(
                         }
                     }
                     tbody {
-                        listFactory(content.messages, factory = {
-                            InfoBarGroupViewCell(it, content, this@resizeBox)
+                        listFactory(viewModel.messages, factory = {
+                            InfoBarGroupViewCell(it, viewModel, this@resizeBox)
                         })
                     }
 
                     allowFocus()
                     onKeyDown { event ->
-                        when (event.toCommon()) {
+                        when (event.getKeyCode()) {
                             KeyCode.ARROW_UP -> {
-                                content.undo()
+                                viewModel.undo()
                                 event.preventDefault()
                                 event.stopPropagation()
                             }
                             KeyCode.ARROW_DOWN -> {
-                                content.redo()
+                                viewModel.redo()
                                 event.preventDefault()
                                 event.stopPropagation()
                             }
@@ -139,7 +139,7 @@ class InfoBarGroupMessagesView(
                 }
             }
             resizeBox(0.3) {
-                textView(content.headerProperty) {
+                textView(viewModel.headerProperty) {
                     classList += "info-bar-group-view-header-text"
                 }
                 table("info-bar-group-view-header", "info-bar-group-view-message") {
@@ -149,8 +149,8 @@ class InfoBarGroupMessagesView(
                         }
                         cell {
                             boxView("info-bar-group-view-message-from") {
-                                textView(content.fromProperty)
-                                +generateFromIcon(content.fromEnumProperty)
+                                textView(viewModel.fromProperty)
+                                +generateFromIcon(viewModel.fromEnumProperty)
                             }
                         }
                     }
@@ -160,7 +160,7 @@ class InfoBarGroupMessagesView(
                             textView("Group")
                         }
                         cell {
-                            textView(content.groupProperty)
+                            textView(viewModel.groupProperty)
                         }
                     }
 
@@ -169,7 +169,7 @@ class InfoBarGroupMessagesView(
                             textView("Topic")
                         }
                         cell {
-                            textView(content.topicProperty)
+                            textView(viewModel.topicProperty)
                         }
                     }
 
@@ -178,7 +178,7 @@ class InfoBarGroupMessagesView(
                             textView("Time")
                         }
                         cell {
-                            textView(content.timeProperty)
+                            textView(viewModel.timeProperty)
                         }
                     }
                     row {
@@ -186,14 +186,14 @@ class InfoBarGroupMessagesView(
                             textView("Details")
                         }
                         cell {
-                            textView(content.detailsProperty)
+                            textView(viewModel.detailsProperty)
                         }
                     }
 
                     row {
                         cell {
                             colSpan = 2
-                            textView(content.rawMessageProperty) {
+                            textView(viewModel.rawMessageProperty) {
                                 style {
                                     whiteSpace = "pre"
                                     fontFamily = "\"Roboto Mono\""
@@ -207,20 +207,29 @@ class InfoBarGroupMessagesView(
 
     }
 
-    companion object {
-        private fun fromToIcon(from: From): MaterialIcon = when(from) {
-                From.CLIENT -> MaterialIcon.WEST
-                From.SERVER -> MaterialIcon.EAST
-                From.DEBUG -> MaterialIcon.DNS
-                From.UNKNOWN -> MaterialIcon.HELP_OUTLINE
+    companion object : ViewFactory {
+        override fun matches(viewModel: ViewModel): Boolean {
+            return viewModel is InfoBarGroupMessages
         }
 
-        private fun fromToClass(from: From): String = when(from) {
-                From.CLIENT ->  "info-bar-group-client"
-                From.SERVER ->  "info-bar-group-server"
-                From.DEBUG ->  "info-bar-group-debug"
-                From.UNKNOWN ->  "info-bar-group-unknown"
+        override fun create(viewModel: ViewModel): View {
+            return InfoBarGroupMessagesView(viewModel as InfoBarGroupMessages)
         }
+
+        private fun fromToIcon(from: From): MaterialIcon = when (from) {
+            From.CLIENT -> MaterialIcon.WEST
+            From.SERVER -> MaterialIcon.EAST
+            From.DEBUG -> MaterialIcon.DNS
+            From.UNKNOWN -> MaterialIcon.HELP_OUTLINE
+        }
+
+        private fun fromToClass(from: From): String = when (from) {
+            From.CLIENT -> "info-bar-group-client"
+            From.SERVER -> "info-bar-group-server"
+            From.DEBUG -> "info-bar-group-debug"
+            From.UNKNOWN -> "info-bar-group-unknown"
+        }
+
         fun generateFromIcon(from: From): IconView {
             val iconView = IconView(fromToIcon(from))
 
@@ -230,13 +239,14 @@ class InfoBarGroupMessagesView(
 
             return iconView
         }
+
         fun generateFromIcon(from: ObservableValue<From>): IconView {
             val iconView = generateFromIcon(from.value)
 
             from.onChange {
                 iconView.icon = fromToIcon(from.value)
                 for (c in iconView.classList) {
-                    if (c !=  "info-bar-group-icon" && c != "icon-view") {
+                    if (c != "info-bar-group-icon" && c != "icon-view") {
                         iconView.classList -= c
                     }
                 }
@@ -247,62 +257,62 @@ class InfoBarGroupMessagesView(
             return iconView
         }
     }
-}
 
-class InfoBarGroupViewCell(
-    private val message: RobolabMessage,
-    private val content: InfoBarGroupMessages,
-    private val scrollView: BoxView
-) : TableRow() {
+    class InfoBarGroupViewCell(
+        private val message: RobolabMessage,
+        private val content: InfoBarGroupMessages,
+        private val scrollView: BoxView
+    ) : TableRow() {
 
-    private val index = content.messages.indexOf(message)
-    private val selectedProperty = content.selectedIndexProperty.mapBinding { it == index }
+        private val index = content.messages.indexOf(message)
+        private val selectedProperty = content.selectedIndexProperty.mapBinding { it == index }
 
-    private fun scrollIntoView2() {
-        val viewTop = offsetTopTotal(1)
-        val viewBottom = viewTop + clientHeight
+        private fun scrollIntoView2() {
+            val viewTop = offsetTopTotal(1)
+            val viewBottom = viewTop + clientHeight
 
-        val parentTop = scrollView.scrollTop.toInt()
-        val parentBottom = parentTop + scrollView.clientHeight
+            val parentTop = scrollView.scrollTop.toInt()
+            val parentBottom = parentTop + scrollView.clientHeight
 
-        val padding = clientHeight * 2
+            val padding = clientHeight * 2
 
-        if (viewTop - padding <= parentTop) {
-            scrollView.scrollTo(
-                top = viewTop - padding
-            )
-        } else if (viewBottom + padding >= parentBottom) {
-            scrollView.scrollTo(
-                top = viewBottom + padding - scrollView.clientHeight
-            )
-        }
-    }
-
-    init {
-        classList.bind("selected", selectedProperty)
-
-        cell {
-            textView(InfoBarGroupMessages.TIME_FORMAT_DETAILED.format(message.metadata.time))
-        }
-        cell {
-            +InfoBarGroupMessagesView.generateFromIcon(message.metadata.from)
-        }
-        cell {
-            textView(message.summary)
-        }
-
-        onClick {
-            content.selectedIndexProperty.value = index
-        }
-
-        selectedProperty.onChange {
-            if (selectedProperty.value) {
-                scrollIntoView2()
+            if (viewTop - padding <= parentTop) {
+                scrollView.scrollTo(
+                    top = viewTop - padding
+                )
+            } else if (viewBottom + padding >= parentBottom) {
+                scrollView.scrollTo(
+                    top = viewBottom + padding - scrollView.clientHeight
+                )
             }
         }
 
-        if (selectedProperty.value) {
-            runAsync { scrollIntoView2() }
+        init {
+            classList.bind("selected", selectedProperty)
+
+            cell {
+                textView(InfoBarGroupMessages.TIME_FORMAT_DETAILED.format(message.metadata.time))
+            }
+            cell {
+                +InfoBarGroupMessagesView.generateFromIcon(message.metadata.from)
+            }
+            cell {
+                textView(message.summary)
+            }
+
+            onClick {
+                content.selectedIndexProperty.value = index
+            }
+
+            selectedProperty.onChange {
+                if (selectedProperty.value) {
+                    scrollIntoView2()
+                }
+            }
+
+            if (selectedProperty.value) {
+                runAsync { scrollIntoView2() }
+            }
         }
     }
 }

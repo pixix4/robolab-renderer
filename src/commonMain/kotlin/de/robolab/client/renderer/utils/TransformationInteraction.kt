@@ -8,7 +8,7 @@ import de.robolab.common.utils.Point
 import kotlin.math.PI
 
 class TransformationInteraction(
-        private val plotter: PlotterWindow
+    private val plotter: PlotterWindow
 ) : ICanvasListener {
     private val transformation = plotter.transformation
 
@@ -18,7 +18,7 @@ class TransformationInteraction(
 
     init {
         transformation.onViewChange {
-            plotter.document?.emitOnViewChange()
+            plotter.document.emitOnViewChange()
         }
     }
 
@@ -30,7 +30,7 @@ class TransformationInteraction(
             event.planetPoint = position
         }
 
-        plotter.document?.emitOnPointerDown(event)
+        plotter.document.emitOnPointerDown(event)
         if (position != null && !event.bubbles) {
             return
         }
@@ -50,7 +50,7 @@ class TransformationInteraction(
         event.hasMoved = hasMovedSinceDown
         hasMovedSinceDown = false
 
-        plotter.document?.emitOnPointerUp(event)
+        plotter.document.emitOnPointerUp(event)
 
         lastPoint = event.mousePoint
     }
@@ -61,8 +61,8 @@ class TransformationInteraction(
         if (position != null) {
             event.planetPoint = position
         }
-        
-        plotter.document?.emitOnPointerMove(event)
+
+        plotter.document.emitOnPointerMove(event)
         if (position != null && !event.bubbles) {
             return
         }
@@ -79,13 +79,13 @@ class TransformationInteraction(
         event.hasMoved = hasMovedSinceDown
         hasMovedSinceDown = true
 
-        plotter.document?.emitOnPointerDrag(event)
+        plotter.document.emitOnPointerDrag(event)
         if (position != null && !event.bubbles) {
             return
         }
 
         transformation.translateBy(event.mousePoint - lastPoint)
-        plotter.document?.emitOnUserTransformation()
+        plotter.document.emitOnUserTransformation()
 
         lastPoint = event.mousePoint
     }
@@ -96,7 +96,7 @@ class TransformationInteraction(
             event.planetPoint = position
         }
 
-        plotter.document?.emitOnPointerSecondaryAction(event)
+        plotter.document.emitOnPointerSecondaryAction(event)
         if (position != null && !event.bubbles) {
             return
         }
@@ -135,7 +135,7 @@ class TransformationInteraction(
                 transformation.translateBy(delta, ANIMATION_TIME)
             }
         }
-        plotter.document?.emitOnUserTransformation()
+        plotter.document.emitOnUserTransformation()
 
         plotter.updatePointer(event.mousePoint)
         lastPoint = event.mousePoint
@@ -143,7 +143,7 @@ class TransformationInteraction(
 
     override fun onZoom(event: ZoomEvent) {
         transformation.scaleBy(event.zoomFactor, event.mousePoint)
-        plotter.document?.emitOnUserTransformation()
+        plotter.document.emitOnUserTransformation()
 
         plotter.updatePointer(event.mousePoint)
         lastPoint = event.mousePoint
@@ -151,7 +151,7 @@ class TransformationInteraction(
 
     override fun onRotate(event: RotateEvent) {
         transformation.rotateBy(event.angle, event.mousePoint)
-        plotter.document?.emitOnUserTransformation()
+        plotter.document.emitOnUserTransformation()
 
         plotter.updatePointer(event.mousePoint)
         lastPoint = event.mousePoint
@@ -162,17 +162,20 @@ class TransformationInteraction(
 
         val oldCenter = transformation.canvasToPlanet(lastDimension / 2)
         val newCenter = transformation.canvasToPlanet(size / 2)
-        val diff = (oldCenter - newCenter) * transformation.scaledGridWidth * Point(if (transformation.flipViewProperty.value) 1.0 else -1.0, 1.0)
+        val diff = (oldCenter - newCenter) * transformation.scaledGridWidth * Point(
+            if (transformation.flipViewProperty.value) 1.0 else -1.0,
+            1.0
+        )
         transformation.translateBy(diff.rotate(-transformation.rotation))
 
         lastDimension = size
 
-        plotter.document?.emitOnCanvasResize(size)
-        plotter.document?.requestRedraw()
+        plotter.document.emitOnCanvasResize(size)
+        plotter.document.requestRedraw()
     }
 
     override fun onKeyPress(event: KeyEvent) {
-        plotter.document?.emitOnKeyPress(event)
+        plotter.document.emitOnKeyPress(event)
         if (!event.bubbles) {
             return
         }
@@ -181,13 +184,13 @@ class TransformationInteraction(
             KeyCode.ARROW_UP -> {
                 val factor = if (event.shiftKey) -1.0 else 1.0
                 transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION * factor), ANIMATION_TIME)
-                plotter.document?.emitOnUserTransformation()
+                plotter.document.emitOnUserTransformation()
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.ARROW_DOWN -> {
                 val factor = if (event.shiftKey) -1.0 else 1.0
                 transformation.translateBy(Point(0.0, -KEYBOARD_TRANSLATION * factor), ANIMATION_TIME)
-                plotter.document?.emitOnUserTransformation()
+                plotter.document.emitOnUserTransformation()
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.ARROW_LEFT -> {
@@ -196,7 +199,7 @@ class TransformationInteraction(
                     transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
                     transformation.translateBy(Point(KEYBOARD_TRANSLATION * factor, 0.0), ANIMATION_TIME)
-                    plotter.document?.emitOnUserTransformation()
+                    plotter.document.emitOnUserTransformation()
                 }
                 plotter.updatePointer(lastPoint)
             }
@@ -206,7 +209,7 @@ class TransformationInteraction(
                     transformation.rotateBy(KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
                     transformation.translateBy(Point(-KEYBOARD_TRANSLATION * factor, 0.0), ANIMATION_TIME)
-                    plotter.document?.emitOnUserTransformation()
+                    plotter.document.emitOnUserTransformation()
                 }
                 plotter.updatePointer(lastPoint)
             }
@@ -227,7 +230,7 @@ class TransformationInteraction(
     }
 
     override fun onKeyRelease(event: KeyEvent) {
-        plotter.document?.emitOnKeyRelease(event)
+        plotter.document.emitOnKeyRelease(event)
     }
 
     companion object {

@@ -1,9 +1,7 @@
 package de.robolab.client.app.model.file.provider
 
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.PingRobolabServer
-import de.robolab.client.net.RESTRobolabServer
 import de.robolab.client.net.requests.planets.*
 import de.robolab.common.planet.ID
 import de.westermann.kobserve.base.ObservableProperty
@@ -15,10 +13,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class RemoteFilePlanetLoader(
-    s: IRobolabServer
+    val server: PingRobolabServer
 ) : IFilePlanetLoader {
 
-    val server = PingRobolabServer(s)
+    override val id: String = "remote-loader-${server.hostURL}"
 
     override val onRemoteChange = EventHandler<RemoteIdentifier>()
 
@@ -130,19 +128,6 @@ class RemoteFilePlanetLoader(
             } catch (e: Exception) {
                 null
             }
-        }
-    }
-
-    companion object {
-        private var lastLoader: RemoteFilePlanetLoader? = null
-        fun create(uri: String): RemoteFilePlanetLoader {
-            val host = uri.substringAfter("://").trimEnd('/')
-            lastLoader?.server?.stopPing()
-            val restRobolabServer = RESTRobolabServer(host, 0, !uri.startsWith("http://"))
-            val loader = RemoteFilePlanetLoader(restRobolabServer)
-            loader.server.startPing()
-            lastLoader = loader
-            return loader
         }
     }
 }

@@ -1,0 +1,97 @@
+@use '../utils';
+
+.content-view {
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+  touch-action: manipulation;
+
+  & > .box-view {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+    outline: none;
+
+    image-rendering: optimizeSpeed;             /* Legal fallback */
+    image-rendering: -moz-crisp-edges;          /* Firefox        */
+    image-rendering: -o-crisp-edges;            /* Opera          */
+    image-rendering: -webkit-optimize-contrast; /* Safari         */
+    image-rendering: optimize-contrast;         /* CSS3 Proposed  */
+    image-rendering: crisp-edges;               /* CSS4 Proposed  */
+    image-rendering: pixelated;                 /* CSS4 Proposed  */
+    -ms-interpolation-mode: nearest-neighbor;   /* IE8+           */
+  }
+
+  .resize-view {
+    position: absolute;
+    width: 0.8rem;
+    height: 100%;
+    top: 0;
+    cursor: col-resize;
+    opacity: 0.5;
+    z-index: 2;
+  }
+}
+
+.content-view-root {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  .box-view.horizontal, .box-view.vertical {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+
+    & > * {
+      overflow: hidden;
+    }
+  }
+
+  .box-view.horizontal {
+    flex-direction: column;
+  }
+
+  .box-view.vertical {
+    flex-direction: row;
+  }
+}
+
+.content-tab-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: solid 1px var(--border-color);
+
+  &.active {
+    border: solid 1px var(--theme-color);
+  }
+
+  & > .box-view:first-child {
+    position: relative;
+    width: 100%;
+    height: calc(2.2rem - 1px);
+    border-bottom: solid 1px var(--border-color);
+  }
+  & > .box-view:last-child {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 2.2rem);
+  }
+}
+
+.navigation-bar-resize {
+  left: 0;
+}
+
+.info-bar-resize {
+  right: 0;
+}

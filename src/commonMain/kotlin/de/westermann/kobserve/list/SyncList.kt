@@ -31,3 +31,14 @@ fun<T> ObservableValue<ObservableList<T>>.flattenListBinding(): ObservableList<T
 
     return list
 }
+
+fun <T> ObservableValue<List<T>>.flatten() : ObservableList<T> {
+    val list = observableListOf<T>()
+
+    list.addAll(value)
+    onChange {
+        list.sync(value)
+    }
+
+    return list
+}

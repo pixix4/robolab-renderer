@@ -3,6 +3,7 @@ package de.westermann.kwebview
 import de.robolab.client.utils.buildJsInterface
 import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.event.EventHandler
+import kotlinx.browser.document
 import org.w3c.dom.*
 import org.w3c.dom.css.CSSStyleDeclaration
 import org.w3c.dom.events.FocusEvent
@@ -20,6 +21,18 @@ abstract class View(view: HTMLElement = createHtmlView()) {
 
     val classList = ClassList(view.classList)
     val dataset = DataSet(view.dataset)
+
+    val isAttached: Boolean
+        get() {
+            var parent = html.parentNode
+            while (parent != null) {
+                if (parent == document) {
+                    return true
+                }
+                parent = parent.parentNode
+            }
+            return false
+        }
 
     var id by AttributeDelegate()
 
@@ -102,7 +115,9 @@ abstract class View(view: HTMLElement = createHtmlView()) {
     val dimension: Rectangle
         get() = html.getBoundingClientRect().toRectangle()
 
-    var title by AttributeDelegate()
+    @Suppress("LeakingThis")
+    val titleProperty = AttributeProperty(this, "title")
+    var title by titleProperty
 
     val style = view.style
     fun style(block: CSSStyleDeclaration.() -> Unit) {

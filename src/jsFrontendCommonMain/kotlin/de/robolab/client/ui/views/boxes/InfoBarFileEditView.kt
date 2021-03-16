@@ -1,12 +1,13 @@
 package de.robolab.client.ui.views.boxes
 
-import de.robolab.client.app.controller.UiController
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.details.InfoBarFileEdit
 import de.robolab.client.app.model.file.details.PathDetailBox
 import de.robolab.client.app.model.file.details.PlanetStatisticsDetailBox
 import de.robolab.client.app.model.file.details.PointDetailBox
+import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.renderer.view.base.ActionHint
+import de.robolab.client.ui.ViewFactory
 import de.robolab.client.utils.runAsync
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
@@ -15,14 +16,13 @@ import de.westermann.kwebview.extra.scrollBoxView
 import org.w3c.dom.HTMLElement
 
 class InfoBarFileEditView(
-    private val content: InfoBarFileEdit,
-    private val uiController: UiController
+    private val viewModel: InfoBarFileEdit,
 ) : ViewCollection<View>() {
 
     private fun updateContent(box: BoxView) {
         box.clear()
 
-        when (val content = content.detailBoxProperty.value) {
+        when (val content = viewModel.detailBoxProperty.value) {
             is PlanetStatisticsDetailBox -> {
                 box.add(DetailBoxPlanetStatistics(content))
             }
@@ -38,7 +38,7 @@ class InfoBarFileEditView(
     private fun updateActionList(box: BoxView) {
         box.clear()
 
-        for (hint in content.actionHintList.value) {
+        for (hint in viewModel.actionHintList.value) {
             box.boxView {
                 style {
                     padding = "0.3rem 0.4rem"
@@ -49,10 +49,12 @@ class InfoBarFileEditView(
                     style {
                         display = "inline-block"
                     }
-                    iconView(when (hint.action) {
-                        is ActionHint.Action.KeyboardAction -> MaterialIcon.KEYBOARD
-                        is ActionHint.Action.PointerAction -> MaterialIcon.MOUSE
-                    })
+                    iconView(
+                        when (hint.action) {
+                            is ActionHint.Action.KeyboardAction -> MaterialIcon.KEYBOARD
+                            is ActionHint.Action.PointerAction -> MaterialIcon.MOUSE
+                        }
+                    )
                 }
                 boxView {
                     style {
@@ -78,7 +80,7 @@ class InfoBarFileEditView(
 
     init {
         scrollBoxView {
-            uiController.infoBarVisibleProperty.onChange {
+            viewModel.uiController.infoBarVisibleProperty.onChange {
                 runAsync {
                     updateScrollBox()
                 }
@@ -88,17 +90,17 @@ class InfoBarFileEditView(
                 boxView("text-editor-header") {
                     button("Transform") {
                         onClick {
-                            content.transform()
+                            viewModel.transform()
                         }
                     }
                     button("Format") {
                         onClick {
-                            content.format()
+                            viewModel.format()
                         }
                     }
                     button("Format explicit") {
                         onClick {
-                            content.formatExplicit()
+                            viewModel.formatExplicit()
                         }
                     }
                 }
@@ -108,35 +110,35 @@ class InfoBarFileEditView(
                 val editor = TextEditor(editorContainer.html)
 
                 var ignoreUpdate = true
-                editor.value = content.content
-                content.contentProperty.onChange {
+                editor.value = viewModel.content
+                viewModel.stringContentProperty.onChange {
                     ignoreUpdate = true
-                    editor.value = content.content
+                    editor.value = viewModel.content
                     ignoreUpdate = false
                 }
 
                 editor.addOnChangeListener {
                     ignoreUpdate = true
-                    content.contentProperty.value = editor.value
+                    viewModel.stringContentProperty.value = editor.value
                     ignoreUpdate = false
                 }
                 editor.addOnCursorListener { line, _ ->
                     if (!ignoreUpdate) {
-                        content.selectLine(line)
+                        viewModel.selectLine(line)
                     }
                 }
 
-                uiController.infoBarVisibleProperty.onChange {
+                viewModel.uiController.infoBarVisibleProperty.onChange {
                     editor.refresh()
                 }
-                uiController.infoBarWidthProperty.onChange {
+                viewModel.uiController.infoBarWidthProperty.onChange {
                     editor.refresh()
                 }
                 onResize {
                     editor.refresh()
                 }
 
-                content.onSetLine { line ->
+                viewModel.onSetLine { line ->
                     if (!ignoreUpdate) {
                         editor.setCursor(line, 0)
                     }
@@ -144,17 +146,27 @@ class InfoBarFileEditView(
                 ignoreUpdate = false
             }
             resizeBox(0.3) {
-                content.detailBoxProperty.onChange {
+                viewModel.detailBoxProperty.onChange {
                     updateContent(this)
                 }
                 updateContent(this)
             }
             resizeBox(0.2) {
-                content.actionHintList.onChange {
+                viewModel.actionHintList.onChange {
                     updateActionList(this)
                 }
                 updateActionList(this)
             }
+        }
+    }
+
+    companion object : ViewFactory {
+        override fun matches(viewModel: ViewModel): Boolean {
+            return viewModel is InfoBarFileEdit
+        }
+
+        override fun create(viewModel: ViewModel): View {
+            return InfoBarFileEditView(viewModel as InfoBarFileEdit)
         }
     }
 }

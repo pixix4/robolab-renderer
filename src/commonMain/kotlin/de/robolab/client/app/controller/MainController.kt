@@ -1,6 +1,7 @@
 package de.robolab.client.app.controller
 
-import de.robolab.client.app.model.group.GroupLiveAttemptPlanetDocument
+import com.soywiz.klock.DateTime
+import de.robolab.client.app.controller.ui.*
 import de.robolab.client.app.repository.DatabaseMessageStorage
 import de.robolab.client.app.repository.MemoryMessageStorage
 import de.robolab.client.app.repository.MessageRepository
@@ -9,8 +10,10 @@ import de.robolab.client.communication.RobolabMessageProvider
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
 import de.robolab.client.utils.MqttStorage
 import de.robolab.client.utils.PreferenceStorage
-import de.robolab.client.utils.runAfterTimeout
+import de.robolab.client.utils.cache.MemoryCacheStorage
+import de.robolab.client.utils.cache.PersistentCacheStorage
 import de.robolab.common.utils.ConsoleGreeter
+import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
 import kotlinx.coroutines.Dispatchers
@@ -20,42 +23,72 @@ import kotlinx.coroutines.withContext
 
 class MainController(private val args: Args) {
 
-    private val connection = RobolabMqttConnection()
-
-    val tabController = TabController(connection)
-    val uiController = UiController(tabController)
-
-    val robolabMessageProvider = RobolabMessageProvider(connection)
-    private val messageManager = MessageManager(robolabMessageProvider)
-
-    val applicationTitleProperty =
-        tabController.activeTabProperty.nullableFlatMapBinding { it?.nameProperty }.mapBinding { name ->
-            if (name == null || name.isBlank()) APPLICATION_NAME else "$APPLICATION_NAME - $name"
-        }
-
-    val fileImportController = FileImportController(robolabMessageProvider, tabController)
-
-    val mqttStorage = when (PreferenceStorage.mqttStorage) {
+    // Initialize utility classes
+    val uiController = UiController()
+    val progressController = ProgressController()
+    private val mqttStorage = when (PreferenceStorage.mqttStorage) {
         MqttStorage.IN_MEMORY -> MemoryMessageStorage()
         MqttStorage.DATABASE -> DatabaseMessageStorage()
     }
-    val messageRepository = MessageRepository(mqttStorage)
+    private val cacheStorage = try {
+        PersistentCacheStorage()
+    } catch (e: Exception) {
+        MemoryCacheStorage()
+    }
 
-    val canvasController = CanvasController(tabController.activeTabProperty)
+
+    // Initialize mqtt/group connect
+    private val robolabMqttConnection = RobolabMqttConnection()
+    private val robolabMessageProvider = RobolabMessageProvider(robolabMqttConnection)
+    private val messageManager = MessageManager(robolabMessageProvider)
+    private val messageRepository = MessageRepository(mqttStorage)
+
+    // Initialize server/file connect
+    private val remoteServerController = RemoteServerController()
+    private val localServerController = LocalServerController()
+    private val filePlanetController = FilePlanetController(
+        remoteServerController,
+        localServerController,
+        cacheStorage,
+    )
+
+    private val connectionController = ConnectionController(
+        robolabMqttConnection,
+        remoteServerController
+    )
+
+    // Initialize ui controller
+    val contentController = ContentController()
+
+    val applicationTitleProperty =
+        contentController.activeTabProperty.flatMapBinding {
+            it.documentProperty
+        }.nullableFlatMapBinding {
+            it.nameProperty
+        }.mapBinding { name ->
+            if (name == null || name.isBlank()) APPLICATION_NAME else "$APPLICATION_NAME - $name"
+        }
+
+    val fileImportController = FileImportController(robolabMessageProvider, filePlanetController, contentController, uiController)
+
     val navigationBarController = NavigationBarController(
-        tabController,
+        contentController,
         messageRepository,
         messageManager,
+        filePlanetController,
+        uiController,
     )
     val toolBarController = ToolBarController(
-        tabController.activeTabProperty,
-        tabController.activeDocumentProperty,
-        canvasController,
+        contentController,
+        remoteServerController,
         uiController,
-        navigationBarController.filePlanetProvider
     )
-    val statusBarController = StatusBarController(canvasController, connection, navigationBarController.filePlanetProvider)
-    val infoBarController = InfoBarController(tabController.activeDocumentProperty)
+
+    val infoBarController = InfoBarController(
+        contentController,
+        uiController,
+    )
+    val statusBarController = StatusBarController(connectionController, contentController, progressController)
 
     init {
         ConsoleGreeter.greetClient()
@@ -66,23 +99,15 @@ class MainController(private val args: Args) {
         messageManager.onMessageList {
             messageRepository.addMessageList(it)
         }
-
-        tabController.fullscreenProperty.onChange {
-            if (tabController.fullscreenProperty.value) {
-                tabController.activeTabProperty.value?.plotterManager?.hideHighlight()
-            }
-        }
     }
 
     fun finishSetup() {
-        tabController.openNewTab()
-
         if (args.layout != null) {
             val split = args.layout.split("x")
             val rowCount = split.getOrNull(0)?.toIntOrNull()
             val colCount = split.getOrNull(1)?.toIntOrNull()
             if (rowCount != null && colCount != null) {
-                tabController.activeTabProperty.value?.plotterManager?.setGridLayout(rowCount, colCount)
+                contentController.content.setGridLayout(rowCount, colCount)
             }
         }
         if (args.groups != null) {
@@ -94,33 +119,22 @@ class MainController(private val args: Args) {
                     val attempt = messageRepository.getLatestAttempt(group.groupId)
 
                     withContext(Dispatchers.Main) {
-                        tabController.activeTabProperty.value?.plotterManager?.setActive(index)
-
-                        tabController.open(
-                            GroupLiveAttemptPlanetDocument(
-                                group,
-                                attempt,
-                                messageRepository,
-                                messageManager,
-                                navigationBarController.groupPlanetProperty.planetProvider
-                            ), false
-                        )
+                        TODO()
                     }
-                }
-                withContext(Dispatchers.Main) {
-                    tabController.activeTabProperty.value?.plotterManager?.hideHighlight()
                 }
             }
         }
         if (args.fullscreen != null && args.fullscreen.toBoolean()) {
-            tabController.fullscreenProperty.value = true
+            uiController.fullscreenProperty.value = true
         }
         if (args.connect != null && args.connect.toBoolean()) {
-            connection.connectionState.onAction()
+            robolabMqttConnection.connectionState.onAction()
         }
 
-        runAfterTimeout(1000) {
-            tabController.activeTabProperty.value?.plotterManager?.requestRedraw = true
+        GlobalScope.launch {
+            for ((filename, lastModified, producer) in args.files) {
+                fileImportController.importFile(filename, lastModified, producer)
+            }
         }
     }
 
@@ -133,5 +147,12 @@ class MainController(private val args: Args) {
         val groups: String? = null,
         val fullscreen: String? = null,
         val connect: String? = null,
+        val files: List<ArgFile>
+    )
+
+    data class ArgFile(
+        val name: String,
+        val dateTime: DateTime,
+        val content: suspend () -> Sequence<String>
     )
 }

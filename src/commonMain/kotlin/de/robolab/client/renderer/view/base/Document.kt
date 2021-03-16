@@ -23,6 +23,8 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
         }
     }
 
+    var drawPlaceholder = false
+
     override var animationTime: Double
         get() = plotter?.animationTime ?: 0.0
         set(value) {

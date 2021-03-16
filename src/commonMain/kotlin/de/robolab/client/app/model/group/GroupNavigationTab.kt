@@ -1,11 +1,15 @@
 package de.robolab.client.app.model.group
 
-import de.robolab.client.app.controller.TabController
+import de.robolab.client.app.controller.FilePlanetController
+import de.robolab.client.app.controller.ui.ContentController
+import de.robolab.client.app.controller.ui.UiController
 import de.robolab.client.app.model.base.*
-import de.robolab.client.app.model.file.CachedFilePlanetProvider
 import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.Group
 import de.robolab.client.app.repository.MessageRepository
+import de.robolab.client.app.viewmodel.FormContentViewModel
+import de.robolab.client.app.viewmodel.SideBarContentViewModel
+import de.robolab.client.app.viewmodel.buildFormContent
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.toMqttPlanet
 import de.robolab.client.communication.toRobot
@@ -13,44 +17,53 @@ import de.robolab.client.communication.toServerPlanet
 import de.robolab.client.renderer.Exporter
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
+import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAsync
-import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
-import de.westermann.kobserve.property.constObservable
-import kotlinx.coroutines.Dispatchers
+import de.westermann.kobserve.property.property
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class GroupNavigationTab(
     private val messageRepository: MessageRepository,
     private val messageManager: MessageManager,
-    private val tabController: TabController,
-    val planetProvider: CachedFilePlanetProvider
-) : INavigationBarTab("Track robots via mqtt", MaterialIcon.GROUP, emptyList()) {
+    private val contentController: ContentController,
+    private val planetProvider: FilePlanetController,
+    private val uiController: UiController
+) : INavigationBarTab("Track robots via mqtt", MaterialIcon.GROUP) {
 
-    override fun selectMode(mode: String) {}
-    override val modeProperty = constObservable("")
+    override val contentProperty = property<SideBarContentViewModel>(
+        GroupNavigationList(messageRepository, this)
+    )
 
-    override fun submitSearch() {
-        val value = searchProperty.value.trim()
-        if (childrenProperty.value.isEmpty() && value.isNotEmpty()) {
-            GlobalScope.launch {
-                messageRepository.createEmptyGroup(value)
-                withContext(Dispatchers.Main) {
+    private val searchProperty = property("")
+
+    override val topToolBar = buildFormContent { }
+    override val bottomToolBar = buildFormContent {
+        input(searchProperty, typeHint = FormContentViewModel.InputTypeHint.SEARCH) {
+            onSubmit { searchValue ->
+                val value = searchValue.trim()
+                if (children.isEmpty() && value.isNotEmpty()) {
                     searchProperty.value = ""
+                    GlobalScope.launch {
+                        messageRepository.createEmptyGroup(value)
+                    }
                 }
             }
+        }
+        button(MaterialIcon.ADD, description = "Open log file") {
+            // TODO
         }
     }
 
     private fun openGroupAttempt(attempt: Attempt, asNewTab: Boolean) {
-        tabController.open(
+        contentController.openDocument(
             GroupAttemptPlanetDocument(
                 attempt,
                 messageRepository,
                 messageManager,
-                planetProvider
+                planetProvider,
+                uiController
             ), asNewTab
         )
     }
@@ -59,40 +72,40 @@ class GroupNavigationTab(
         GlobalScope.launch {
             val attempt = messageRepository.getLatestAttempt(group.groupId)
             runAsync {
-                tabController.open(
+                contentController.openDocument(
                     GroupLiveAttemptPlanetDocument(
                         group,
                         attempt,
                         messageRepository,
                         messageManager,
-                        planetProvider
+                        planetProvider,
+                        uiController
                     ), asNewTab
                 )
             }
         }
     }
 
-    suspend fun<T: ICanvas> renderGroupLiveAttemptPreview(group: Group, canvasCreator: (Dimension) -> T?): T? {
+    suspend fun <T : ICanvas> renderGroupLiveAttemptPreview(group: Group, canvasCreator: (Dimension) -> T?): T? {
         val attempt = messageRepository.getLatestAttempt(group.groupId)
         return renderGroupAttemptPreview(attempt, canvasCreator)
     }
 
-    suspend fun<T: ICanvas> renderGroupAttemptPreview(attempt: Attempt, canvasCreator: (Dimension) -> T?): T? {
+    suspend fun <T : ICanvas> renderGroupAttemptPreview(attempt: Attempt, canvasCreator: (Dimension) -> T?): T? {
         val m = messageRepository.getAttemptMessageList(attempt.attemptId)
 
         val drawable = LivePlanetDrawable()
 
         val (serverPlanet, visitedPoints) = m.toServerPlanet()
-        val backgroundPlanet = planetProvider.loadPlanet(serverPlanet.name)
+        val backgroundPlanet = planetProvider.getPlanet(serverPlanet.name)
         val mqttPlanet = m.toMqttPlanet()
 
-        val planet = backgroundPlanet ?: Planet.EMPTY
-        drawable.importBackgroundPlanet(planet, true)
+        drawable.importBackgroundPlanet(backgroundPlanet, true)
         drawable.importServerPlanet(
-            serverPlanet.importSplines(planet).importSenderGroups(planet, visitedPoints),
+            serverPlanet.importSplines(backgroundPlanet).importSenderGroups(backgroundPlanet, visitedPoints),
             true
         )
-        drawable.importMqttPlanet(mqttPlanet.importSplines(planet))
+        drawable.importMqttPlanet(mqttPlanet.importSplines(backgroundPlanet))
 
         drawable.importRobot(m.toRobot(attempt.groupName.toIntOrNull()))
 
@@ -101,9 +114,21 @@ class GroupNavigationTab(
 
         val canvas = canvasCreator(dimension)
         if (canvas != null) {
-            Exporter.renderToCanvas(drawable, canvas, drawName = false, drawNumbers = false)
+            Exporter.renderToCanvas(
+                drawable,
+                canvas,
+                drawName = false,
+                drawNumbers = false,
+                theme = PreferenceStorage.selectedTheme.theme
+            )
         }
         return canvas
+    }
+
+    override fun onNavigateBack() {
+        val content = contentProperty.value
+        if (content is INavigationBarSearchList)
+            super.onNavigateBack()
     }
 
     override fun openEntry(entry: INavigationBarEntry, asNewTab: Boolean) {
@@ -113,7 +138,13 @@ class GroupNavigationTab(
                     openGroupLiveAttempt(entry.group, false)
                 } else {
                     searchProperty.value = ""
-                    activeProperty.value = GroupAttemptNavigationList(entry.group, messageRepository, this, activeProperty.value)
+                    contentProperty.value =
+                        GroupAttemptNavigationList(
+                            entry.group,
+                            messageRepository,
+                            this,
+                            contentProperty.value as? INavigationBarList ?: return
+                        )
                 }
             }
             is GroupAttemptNavigationList.Entry -> {
@@ -127,19 +158,16 @@ class GroupNavigationTab(
     }
 
     init {
-        activeProperty.value = GroupNavigationList(messageRepository, this)
-
         messageRepository.onGroupListChange {
-            val active = activeProperty.value as? RepositoryEventListener
+            val active = contentProperty.value as? RepositoryEventListener
             active?.onGroupListChange()
         }
         messageRepository.onGroupAttemptListChange { id ->
-            val active = activeProperty.value as? RepositoryEventListener
+            val active = contentProperty.value as? RepositoryEventListener
             active?.onGroupAttemptListChange(id)
         }
-
         messageRepository.onAttemptMessageListChange { id ->
-            val active = activeProperty.value as? RepositoryEventListener
+            val active = contentProperty.value as? RepositoryEventListener
             active?.onAttemptMessageListChange(id)
         }
     }

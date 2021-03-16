@@ -1,0 +1,56 @@
+@use '../utils';
+
+.tab-bar-view {
+  @include utils.prevent-user-select();
+
+  line-height: 2.2rem;
+  z-index: 1;
+  border-bottom: solid 1px var(--border-color);
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  overscroll-behavior: contain;
+  display: flex;
+}
+
+.tab-bar-view-item {
+  padding: 0 1rem;
+  text-align: center;
+  position: relative;
+  height: 100%;
+
+  &.active {
+    color: var(--theme-color);
+  }
+}
+.tab-bar-view-item-labeled {
+  flex-grow: 1;
+
+  &.active {
+    background: var(--primary-background);
+  }
+
+  &:not(:last-child) {
+    border-right: solid 1px var(--border-color);
+  }
+
+  .tab-bar-view-label {
+    padding-right: 2rem;
+  }
+}
+
+.tab-bar-view-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2rem;
+  height: 100%;
+  text-align: center;
+  opacity: 0.3 !important;
+  padding-right: 0.6rem;
+  color: var(--primary-text-color);
+
+  &:hover {
+    opacity: 1.0 !important;
+  }
+}

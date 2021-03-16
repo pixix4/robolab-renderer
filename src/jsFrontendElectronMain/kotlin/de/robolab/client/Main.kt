@@ -19,16 +19,9 @@ class App : CliktCommand() {
     private val files by argument(help = "Import files").multiple()
 
     override fun run() {
-        val args = MainController.Args(
-            layout,
-            groups,
-            fullscreen.toString(),
-            connect.toString()
-        )
-
         val f = files.map {
             val file = File(it)
-            Triple(
+            MainController.ArgFile(
                 it,
                 file.lastModified,
                 suspend {
@@ -37,7 +30,16 @@ class App : CliktCommand() {
             )
         }
 
-        initMainView(args, f)
+        val args = MainController.Args(
+            layout,
+            groups,
+            fullscreen.toString(),
+            connect.toString(),
+            f
+        )
+
+
+        initMainView(args)
     }
 }
 

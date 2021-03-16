@@ -1,62 +1,85 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.model.base.INavigationBarEntry
-import de.robolab.client.app.model.base.INavigationBarList
-import de.robolab.client.app.model.base.INavigationBarSearchList
-import de.robolab.client.app.model.base.INavigationBarTab
+import de.robolab.client.app.controller.FilePlanetController
+import de.robolab.client.app.controller.ui.ContentController
+import de.robolab.client.app.controller.ui.UiController
+import de.robolab.client.app.model.base.*
 import de.robolab.client.app.model.file.provider.IFilePlanetLoader
 import de.robolab.client.app.model.file.provider.RemoteIdentifier
 import de.robolab.client.app.model.file.provider.RemoteMode
+import de.robolab.client.app.model.group.GroupNavigationList
+import de.robolab.client.app.viewmodel.FormContentViewModel
+import de.robolab.client.app.viewmodel.SideBarContentViewModel
+import de.robolab.client.app.viewmodel.buildFormContent
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
+import de.westermann.kobserve.property.property
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class FileNavigationTab(
-    private val manager: FileNavigationManager,
+    private val contentController: ContentController,
+    private val filePlanetController: FilePlanetController,
     private val loader: IFilePlanetLoader,
+    private val uiController: UiController
 ) : INavigationBarTab(
     loader.nameProperty.join(loader.descProperty) { name, desc ->
         "$name: $desc"
     },
     loader.iconProperty,
-    loader.supportedRemoteModes.map { it.name.toLowerCase().capitalize() },
-    loader.availableProperty
 ) {
 
-    override fun selectMode(mode: String) {
-        val m = RemoteMode.values().find { mode.equals(it.name, true) } ?: return
-        loader.remoteModeProperty.value = m
+
+    override val contentProperty = property<SideBarContentViewModel>(
+        FileNavigationList(this, loader, filePlanetController)
+    )
+
+    private val searchProperty = property("")
+
+    override val topToolBar = buildFormContent { }
+    override val bottomToolBar = buildFormContent {
+        input(searchProperty, typeHint = FormContentViewModel.InputTypeHint.SEARCH)
+        button(MaterialIcon.ADD, description = "Open planet file") {
+            // TODO
+        }
     }
 
-    override val modeProperty = loader.remoteModeProperty.mapBinding {
-        it.name.toLowerCase().capitalize()
-    }
 
-    override fun createSearchList(parent: INavigationBarList): INavigationBarSearchList {
-        return FileNavigationSearchList(this, loader, activeProperty.value)
+    fun createSearchList(parent: INavigationBarList): INavigationBarSearchList {
+        return FileNavigationSearchList(
+            this,
+            loader,
+            contentProperty.value,
+            filePlanetController
+        )
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun openEntry(entry: INavigationBarEntry, asNewTab: Boolean) {
         when (entry) {
             is FileNavigationList.EntryPlanet -> {
-                manager.openFileEntry(loader, entry.id, asNewTab)
+                contentController.openDocument(
+                    FilePlanetDocument(
+                        filePlanetController.getFilePlanet(loader, entry.id),
+                        uiController
+                    ),
+                    asNewTab
+                )
             }
             is FileNavigationList.EntryDirectory -> {
-                activeProperty.value = FileNavigationList(this, loader, entry.id, entry.metadata, activeProperty.value)
+                contentProperty.value = FileNavigationList(this, loader, filePlanetController, entry.id, entry.metadata, contentProperty.value)
             }
         }
     }
 
     init {
-        activeProperty.value = FileNavigationList(this, loader)
-
         loader.onRemoteChange {
             @Suppress("UNCHECKED_CAST")
-            (activeProperty.value as? RepositoryList)?.onChange(it)
+            (contentProperty.value as? RepositoryList)?.onChange(it)
         }
 
         loader.remoteModeProperty.onChange {
-            activeProperty.value = FileNavigationList(this, loader)
+            contentProperty.value = FileNavigationList(this, loader, filePlanetController)
         }
     }
 

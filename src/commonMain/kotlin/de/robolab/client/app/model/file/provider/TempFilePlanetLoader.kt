@@ -9,6 +9,8 @@ import de.westermann.kobserve.property.property
 
 object TempFilePlanetLoader : IFilePlanetLoader {
 
+    override val id = "temp-file-loader"
+
     private val map: MutableMap<String, Identifier> = mutableMapOf()
 
     data class Identifier(

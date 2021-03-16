@@ -2,7 +2,7 @@ package de.westermann.kwebview.extra
 
 import de.robolab.client.app.model.base.adjustBoxList
 import de.robolab.client.app.model.base.resizeBoxListBox
-import de.robolab.client.ui.views.ResizeView
+import de.robolab.client.ui.views.utils.ResizeView
 import de.robolab.client.utils.runAsync
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit

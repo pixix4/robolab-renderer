@@ -1,150 +1,97 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.controller.InfoBarController
-import de.robolab.client.app.controller.SendMessageController
-import de.robolab.client.app.model.base.IInfoBarContent
+import de.robolab.client.app.controller.DialogController
+import de.robolab.client.app.controller.ui.UiController
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.client.app.model.base.ToolBarEntry
 import de.robolab.client.app.model.file.details.*
 import de.robolab.client.app.model.file.provider.FilePlanet
+import de.robolab.client.app.viewmodel.FormContentViewModel
+import de.robolab.client.app.viewmodel.SideBarTabViewModel
+import de.robolab.client.app.viewmodel.dialog.ExportPlanetDialogViewModel
+import de.robolab.client.app.viewmodel.dialog.TransformPlanetDialogViewModel
 import de.robolab.client.renderer.Exporter
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.SvgCanvas
-import de.robolab.client.renderer.drawable.planet.*
+import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
+import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.client.renderer.utils.Transformation
-import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
-import de.westermann.kobserve.toggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class FilePlanetDocument(
-    val filePlanet: FilePlanet
+    val filePlanet: FilePlanet,
+    uiController: UiController
 ) : IPlanetDocument {
 
     val planetFile = filePlanet.planetFile
 
-    private val transformationStateProperty = property(Transformation.State.DEFAULT)
+    val transformationStateProperty = property(Transformation.State.DEFAULT)
 
-    private val viewDrawable = SimplePlanetDrawable(transformationStateProperty)
-    private val paperDrawable = PaperPlanetDrawable(transformationStateProperty)
-    private val editDrawable = EditPlanetDrawable(planetFile, transformationStateProperty)
-    private val traverserDrawable = LivePlanetDrawable(transformationStateProperty)
-    private val testDrawable = SimplePlanetDrawable(transformationStateProperty)
+    abstract class FilePlanetSideBarTab<T : AbsPlanetDrawable>(
+        name: String,
+        icon: MaterialIcon
+    ) : SideBarTabViewModel(name, icon) {
 
-    private val infoBarFileView = InfoBarFileView(this, viewDrawable)
-    private val infoBarFilePaper = InfoBarFilePaper(this, paperDrawable)
-    private val infoBarFileEdit = InfoBarFileEdit(this, editDrawable)
-    private val infoBarFileTraverse = InfoBarFileTraverse(this)
-    private val infoBarFileTest = InfoBarFileTest(this, testDrawable)
+        abstract val drawable: T
 
-    inner class FilePlanetTab<T : AbsPlanetDrawable>(
-        override val icon: MaterialIcon,
-        override val tooltip: String,
-        val drawable: T,
-        val infoBarContent: IInfoBarContent,
-        private val importer: FilePlanetTab<T>.(planet: Planet) -> Unit
-    ) : InfoBarController.Tab {
-        override fun open() {
-            mode = this
-        }
-
-        fun importPlanet(planet: Planet) {
-            importer(planet)
-        }
+        abstract fun importPlanet(planet: Planet)
     }
 
-    override val infoBarTabsProperty = constObservable(listOf(
-        FilePlanetTab(
-            MaterialIcon.INFO_OUTLINE,
-            "View",
-            viewDrawable,
-            infoBarFileView
-        ) { planet ->
-            drawable.importPlanet(planet)
-        },
-        FilePlanetTab(
-            MaterialIcon.SQUARE_FOOT,
-            "Paper",
-            paperDrawable,
-            infoBarFilePaper
-        ) { planet ->
-            drawable.importPlanet(planet)
-        },
-        FilePlanetTab(
-            MaterialIcon.CODE,
-            "Edit",
-            editDrawable,
-            infoBarFileEdit
-        ) { planet ->
-            drawable.importPlanet(planet)
-        },
-        FilePlanetTab(
-            MaterialIcon.CALL_SPLIT,
-            "Traverse",
-            traverserDrawable,
-            infoBarFileTraverse
-        ) { planet ->
-            drawable.importBackgroundPlanet(planet)
-        },
-        FilePlanetTab(
-            MaterialIcon.BUG_REPORT,
-            "Test suite",
-            testDrawable,
-            infoBarFileTest
-        ) { planet ->
-            drawable.importPlanet(planet)
-        }
-    ))
-    private val infoBarTabs by infoBarTabsProperty
+    override val infoBarTabs = listOf<FilePlanetSideBarTab<*>>(
+        InfoBarFileView(this, uiController),
+        InfoBarFilePaper(this, uiController),
+        InfoBarFileEdit(this, uiController),
+        InfoBarFileTraverse(this, uiController),
+        InfoBarFileTest(this, uiController)
 
-    private val modeProperty = property(infoBarTabs.first())
-    var mode by modeProperty
+    )
 
-    override val documentProperty = modeProperty.mapBinding {
-        it.drawable.view
+    override val activeTabProperty = property<SideBarTabViewModel?>(infoBarTabs.first())
+
+    override val documentProperty = activeTabProperty.mapBinding {
+        val tab = it as? FilePlanetSideBarTab<*>
+        tab?.drawable?.view ?: SimplePlanetDrawable().view
     }
 
     private val flippedProperty = property(false)
 
     override val toolBarLeft = constObservable(listOf(
-        listOf(
-            ToolBarEntry(
-                iconProperty = constObservable(MaterialIcon.CAMERA_ALT),
-                toolTipProperty = constObservable("Export dialog as …")
+        FormContentViewModel.Group(
+            FormContentViewModel.Button(
+                MaterialIcon.CAMERA_ALT,
+                description = "Export dialog as …"
             ) {
-                openExportDialog(this)
-            },
-        ),
-        listOf(
-            ToolBarEntry(
-                iconProperty = constObservable(MaterialIcon.FLIP_CAMERA_ANDROID),
-                toolTipProperty = constObservable("Flip planet view horizontally"),
-                selectedProperty = flippedProperty
-            ) {
-                flippedProperty.toggle()
+                DialogController.open(ExportPlanetDialogViewModel(this))
             }
-        )
+        ),
+        FormContentViewModel.Group(
+            FormContentViewModel.ToggleButton(
+                flippedProperty,
+                MaterialIcon.FLIP_CAMERA_ANDROID,
+                description = "Flip planet view horizontally"
+            )
+        ),
     ))
 
     override val toolBarRight = constObservable(listOf(
-        listOf(
-            ToolBarEntry(
-                iconProperty = constObservable(MaterialIcon.SAVE),
-                toolTipProperty = constObservable("Save changes"),
+        FormContentViewModel.Group(
+            FormContentViewModel.Button(
+                MaterialIcon.SAVE,
+                description = "Save changes",
                 enabledProperty = planetFile.history.canUndoProperty
             ) {
                 GlobalScope.launch(Dispatchers.Main) {
                     save()
                 }
             }
-        )
+        ),
     ))
 
     override val canUndoProperty = planetFile.history.canUndoProperty
@@ -159,12 +106,6 @@ class FilePlanetDocument(
         planetFile.history.redo()
     }
 
-    override val infoBarProperty = modeProperty.mapBinding {
-        it.infoBarContent
-    }
-
-    override val infoBarActiveTabProperty = modeProperty
-
     val content: String
         get() = planetFile.contentString
 
@@ -173,7 +114,7 @@ class FilePlanetDocument(
     }
 
     suspend fun load() {
-        filePlanet.load()
+        filePlanet.update()
     }
 
     fun exportAsSVG(filename: String? = null): Boolean {
@@ -248,7 +189,7 @@ class FilePlanetDocument(
     }
 
     fun transform() {
-        openPlanetTransformDialog(planetFile)
+        DialogController.open(TransformPlanetDialogViewModel(planetFile))
     }
 
     fun format(explicit: Boolean) {
@@ -267,17 +208,6 @@ class FilePlanetDocument(
                 tab.drawable.flip(flippedProperty.value)
             }
         }
-
-        infoBarFileTraverse.traverserRenderStateProperty.onChange {
-            val state = infoBarFileTraverse.traverserRenderStateProperty.value
-
-            traverserDrawable.importRobot(state?.robotDrawable)
-            traverserDrawable.importServerPlanet(
-                state?.planet?.importSenderGroups(
-                    planetFile.planet, state.trail.locations
-                )?.generateMissingSenderGroupings() ?: Planet.EMPTY
-            )
-        }
     }
 }
 
@@ -285,6 +215,3 @@ expect fun createPNGExportCanvas(dimension: Dimension): ICanvas
 expect fun saveExportPNG(name: String, canvas: ICanvas): Boolean
 expect fun saveExportSVG(name: String, content: String): Boolean
 expect fun saveExportExtendedPlanetFile(name: String, content: String): Boolean
-expect fun openExportDialog(planetDocument: FilePlanetDocument)
-expect fun openPlanetTransformDialog(planetFile: PlanetFile)
-expect fun openSendMessageDialog(controller: SendMessageController)

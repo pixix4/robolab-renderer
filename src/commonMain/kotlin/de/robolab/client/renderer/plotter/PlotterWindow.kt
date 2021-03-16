@@ -1,5 +1,6 @@
 package de.robolab.client.renderer.plotter
 
+import de.robolab.client.app.model.base.EmptyPlanetDocument
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.canvas.ICanvas
@@ -12,17 +13,17 @@ import de.robolab.common.utils.Logger
 import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.event.emit
-import de.westermann.kobserve.property.nullableFlatMapBinding
+import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.property
 import kotlin.math.PI
 import kotlin.math.tan
 
 class PlotterWindow(
     private val canvas: ICanvas,
-    planetDocument: IPlanetDocument?,
+    planetDocument: IPlanetDocument,
     theme: ITheme,
     var animationTime: Double
-) {
+) : IRenderInstance {
 
     val dimension: Dimension
         get() = canvas.dimension
@@ -31,7 +32,7 @@ class PlotterWindow(
         get() = context.theme
         set(value) {
             context.theme = value
-            document?.requestRedraw()
+            document.requestRedraw()
         }
 
     val transformation: ITransformation = Transformation()
@@ -39,18 +40,19 @@ class PlotterWindow(
 
     private val interaction = TransformationInteraction(this)
 
-    private var lastAttachedDocument: Document? = null
-    val planetDocumentProperty = property<IPlanetDocument>()
+    val planetDocumentProperty = property<IPlanetDocument>(EmptyPlanetDocument())
     var planetDocument by planetDocumentProperty
 
-    val documentProperty = planetDocumentProperty.nullableFlatMapBinding { it?.documentProperty }
+    val documentProperty = planetDocumentProperty.flatMapBinding { it.documentProperty }
     val document by documentProperty
+
+    private var lastAttachedDocument: Document = document
 
     private var forceRedraw = false
     fun onUpdate(msOffset: Double): Boolean {
         var changes = false
 
-        changes = document?.onUpdate(msOffset) == true || changes
+        changes = document.onUpdate(msOffset) || changes
         changes = transformation.update(msOffset) || changes
 
         if (forceRedraw) {
@@ -95,17 +97,17 @@ class PlotterWindow(
             context.theme.plotter.secondaryBackgroundColor
         )
         val d = document
-        if (d != null) {
-            d.onDraw(context)
-        } else {
+        if (d.drawPlaceholder) {
             drawPlaceholder()
+        } else {
+            d.onDraw(context)
         }
-        document?.onDraw(context)
+        document.onDraw(context)
     }
 
     fun onDebugDraw() {
         context.renderedViewCount = 0
-        document?.onDebugDraw(context)
+        document.onDebugDraw(context)
 
         //context.canvas.fillText("Active: $isActive", Point(16.0, 16.0), Color.RED)
         //context.canvas.fillText("FPS: ${fps.toInt()}", Point(16.0, 32.0), Color.RED)
@@ -116,11 +118,12 @@ class PlotterWindow(
         // )
     }
 
-    fun render(msOffset: Double) {
+    override fun onRender(msOffset: Double): Boolean {
         val isActive = onUpdate(msOffset)
         if (isActive) {
             onDraw()
         }
+        return isActive
     }
 
     val updateHover: Boolean
@@ -141,7 +144,7 @@ class PlotterWindow(
         val canvasPosition = transformation.canvasToPlanet(mousePosition)
         if (updateHover) {
             val epsilon = 1.0 / transformation.scaledGridWidth * 10.0
-            document?.updateHoveredView(canvasPosition, mousePosition, epsilon)
+            document.updateHoveredView(canvasPosition, mousePosition, epsilon)
         }
 
         pointerProperty.value = Pointer(canvasPosition, mousePosition)
@@ -150,9 +153,9 @@ class PlotterWindow(
 
     init {
         documentProperty.onChange {
-            lastAttachedDocument?.onDetach(this)
+            lastAttachedDocument.onDetach(this)
             lastAttachedDocument = document
-            lastAttachedDocument?.onAttach(this)
+            lastAttachedDocument.onAttach(this)
             forceRedraw = true
         }
         this.planetDocument = planetDocument
@@ -165,7 +168,7 @@ class PlotterWindow(
 
     fun debug() {
         val logger = Logger("DefaultPlotter")
-        val document = document ?: return
+        val document = document
 
         val result = mutableListOf("")
         fun log(view: IView, depth: Int) {

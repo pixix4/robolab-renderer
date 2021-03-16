@@ -3,7 +3,7 @@ package de.robolab.client.ui.adapter
 import de.robolab.client.renderer.canvas.CanvasListenerManager
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.canvas.ICanvasListener
-import de.robolab.client.ui.views.ContextMenuView
+import de.robolab.client.ui.views.utils.ContextMenuView
 import de.robolab.client.utils.ContextMenu
 import de.robolab.client.utils.electron
 import de.robolab.client.utils.noElectron

@@ -58,23 +58,17 @@ fun delete(thing: dynamic, key: String) {
     delete(thing[key])
 }
 
-fun <V : View> ViewCollection<V>.bindView(vararg properties: ObservableValue<*>, block: () -> V): ObservableValue<V> {
-    val viewProperty = property(block())
-    var view by viewProperty
+fun <T, V : View> ViewCollection<V>.bindView(property: ObservableValue<T>, block: (T) -> V) {
+    var view = block(property.value)
     +view
 
-    fun change() {
-        val new = block()
+    property.onChange {
+        val new = block(property.value)
         if (new != view) {
             replace(view, new)
             view = new
         }
     }
-    for (p in properties) {
-        p.onChange { change() }
-    }
-
-    return viewProperty
 }
 
 val KeyboardEvent.modifierKey: Boolean

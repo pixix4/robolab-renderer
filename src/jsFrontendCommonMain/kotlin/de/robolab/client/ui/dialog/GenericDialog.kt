@@ -3,10 +3,13 @@ package de.robolab.client.ui.dialog
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.common.utils.Point
 import de.westermann.kobserve.base.ObservableProperty
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.property.DelegatePropertyAccessor
+import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import de.westermann.kobserve.property.readOnly
 import de.westermann.kwebview.View
 import de.westermann.kwebview.clientPosition
 import de.westermann.kwebview.components.*
@@ -58,7 +61,7 @@ abstract class Dialog(title: String) {
         dialogContainer.boxView("dialog-window") window@{
 
             boxView("dialog-header") {
-                textView(titleProperty)
+                textView(titleProperty.mapBinding { it ?: "" })
 
                 boxView {
                     button {
@@ -183,9 +186,11 @@ abstract class Dialog(title: String) {
     }
 }
 
-fun ObservableProperty<Double>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
+fun ObservableValue<Double>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
     override fun set(value: String) {
-        this@bindStringParsing.value = value.toDoubleOrNull() ?: return
+        if(this@bindStringParsing is ObservableProperty<Double>) {
+            this@bindStringParsing.value = value.toDoubleOrNull() ?: return
+        }
     }
 
     override fun get(): String {
@@ -194,9 +199,11 @@ fun ObservableProperty<Double>.bindStringParsing() = property(object : DelegateP
 
 }, this)
 
-fun ObservableProperty<Int>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
+fun ObservableValue<Int>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
     override fun set(value: String) {
-        this@bindStringParsing.value = value.toIntOrNull() ?: return
+        if(this@bindStringParsing is ObservableProperty<Int>) {
+            this@bindStringParsing.value = value.toIntOrNull() ?: return
+        }
     }
 
     override fun get(): String {

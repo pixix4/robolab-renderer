@@ -1,5 +1,7 @@
 package de.robolab.client.utils
 
+import de.robolab.client.app.controller.SystemController
+import de.robolab.client.app.viewmodel.FormContentViewModel
 import de.robolab.common.utils.Point
 
 
@@ -65,4 +67,10 @@ fun buildContextMenu(position: Point, name: String = "", init: MenuBuilder.() ->
             menuBuilder.entries
         )
     )
+}
+
+fun FormContentViewModel.ClickEvent.contextMenu(name:String = "", init: MenuBuilder.() -> Unit) {
+    val menu = buildContextMenu(position, name, init) ?: return
+
+    SystemController.openContextMenu(menu)
 }

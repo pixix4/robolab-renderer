@@ -5,8 +5,7 @@ import de.westermann.kobserve.event.SuspendEventHandler
 /**
  * @author leon
  */
-class
-MessageManager(private val messageProvider: RobolabMessageProvider) {
+class MessageManager(private val messageProvider: RobolabMessageProvider) {
 
     val onMessage = SuspendEventHandler<RobolabMessage>()
     val onMessageList = SuspendEventHandler<List<RobolabMessage>>()

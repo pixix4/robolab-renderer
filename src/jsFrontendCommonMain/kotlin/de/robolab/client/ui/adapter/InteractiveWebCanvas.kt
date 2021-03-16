@@ -152,36 +152,16 @@ class InteractiveWebCanvas(canvas: Canvas) : WebCanvas(canvas) {
         }
 
         canvas.onKeyDown { event ->
-            val code = event.toCommon() ?: return@onKeyDown
             event.stopPropagation()
             event.preventDefault()
 
-            val e = KeyEvent(
-                code,
-                event.key,
-                event.ctrlKey || event.metaKey,
-                event.altKey,
-                event.shiftKey
-            )
-
+            val e = event.toEvent()
             listenerManager.onKeyPress(e)
-
-            if (!e.bubbles) {
-                event.stopPropagation()
-            }
         }
         canvas.onKeyPress { event ->
-            val code = event.toCommon() ?: return@onKeyPress
             event.preventDefault()
 
-            val e = KeyEvent(
-                code,
-                event.key,
-                event.ctrlKey || event.metaKey,
-                event.altKey,
-                event.shiftKey
-            )
-
+            val e = event.toEvent()
             listenerManager.onKeyPress(e)
 
             if (!e.bubbles) {
@@ -189,17 +169,9 @@ class InteractiveWebCanvas(canvas: Canvas) : WebCanvas(canvas) {
             }
         }
         canvas.onKeyUp { event ->
-            val code = event.toCommon() ?: return@onKeyUp
             event.preventDefault()
 
-            val e = KeyEvent(
-                code,
-                event.key,
-                event.ctrlKey || event.metaKey,
-                event.altKey,
-                event.shiftKey
-            )
-
+            val e = event.toEvent()
             listenerManager.onKeyRelease(e)
 
             if (!e.bubbles) {
@@ -377,7 +349,17 @@ class InteractiveWebCanvas(canvas: Canvas) : WebCanvas(canvas) {
     }
 }
 
-fun KeyboardEvent.toCommon() = when (key.toLowerCase()) {
+fun KeyboardEvent.toEvent(): KeyEvent {
+    return KeyEvent(
+        getKeyCode(),
+        key,
+        ctrlKey || metaKey,
+        altKey,
+        shiftKey
+    )
+}
+
+fun KeyboardEvent.getKeyCode() = when (key.toLowerCase()) {
     "," -> KeyCode.COMMA
     "<" -> KeyCode.ANGLE_BRACKET_LEFT
     "." -> KeyCode.PERIOD
@@ -484,6 +466,6 @@ fun KeyboardEvent.toCommon() = when (key.toLowerCase()) {
     // "f12" -> KeyCode.F12
     else -> {
         Logger("KeyMapper").info { "Unsupported keyCode: $key" }
-        null
+        KeyCode.UNSUPPORTED
     }
 }

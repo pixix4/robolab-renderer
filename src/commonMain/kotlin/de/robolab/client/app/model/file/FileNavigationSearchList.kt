@@ -1,9 +1,10 @@
 package de.robolab.client.app.model.file
 
+import de.robolab.client.app.controller.FilePlanetController
 import de.robolab.client.app.model.base.INavigationBarEntry
-import de.robolab.client.app.model.base.INavigationBarList
 import de.robolab.client.app.model.base.INavigationBarSearchList
 import de.robolab.client.app.model.file.provider.IFilePlanetLoader
+import de.robolab.client.app.viewmodel.SideBarContentViewModel
 import de.robolab.client.utils.runAsync
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sync
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 class FileNavigationSearchList(
     private val tab: FileNavigationTab,
     val loader: IFilePlanetLoader,
-    override val parent: INavigationBarList?
+    override val parent: SideBarContentViewModel,
+    private val filePlanetController: FilePlanetController,
 ) : INavigationBarSearchList {
 
     override val nameProperty = constObservable("Search")
@@ -31,11 +33,10 @@ class FileNavigationSearchList(
 
                 runAsync {
                     childrenProperty.sync(planets.map {
-                        FileNavigationList.mapEntry(tab, null, loader, it)
+                        FileNavigationList.mapEntry(tab, null, loader, it, filePlanetController)
                     })
                 }
             }
         }
     }
-
 }
