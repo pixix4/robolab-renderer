@@ -2,9 +2,14 @@ package de.robolab.client.communication
 
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
+import de.robolab.client.utils.Flags
+import de.robolab.client.utils.emptyFlags
+import de.robolab.common.net.data.OdometryData
+import de.robolab.common.net.data.OdometryPayloadFlags
 import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Direction
 import de.robolab.common.planet.Path
+import io.ktor.utils.io.core.*
 
 /**
  * @author leon
@@ -194,6 +199,24 @@ sealed class RobolabMessage(
                 "Message" to message,
             ) + errors.map {
                 "Error" to it
+            }
+        }
+    }
+
+    class OdometryMessage(
+        metadata: Metadata,
+        val odometry: OdometryData,
+        val payloadFlags: Flags<OdometryPayloadFlags> = emptyFlags()
+    ) : RobolabMessage(metadata) {
+        override val summary: String by lazy {
+            "Odometry (${odometry.size})"
+        }
+        override val details: List<Pair<String, String>> by lazy {
+            listOf(
+                "Start" to odometry.start.toString(),
+                "End" to odometry.end.toString(),
+            ) + OdometryPayloadFlags.values().map {
+                it.name to (it in payloadFlags).toString()
             }
         }
     }

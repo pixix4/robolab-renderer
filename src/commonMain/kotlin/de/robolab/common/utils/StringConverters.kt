@@ -6,6 +6,8 @@ expect fun String.encodeAsB64(url: Boolean = false): String
 
 expect fun String.decodeFromB64(url: Boolean = false): String
 
+expect fun String.decodeBytesFromB64(url: Boolean = false): ByteArray
+
 internal fun String.B64ToURLB64(): String = this
     .replace('+', '-')
     .replace('/', '_')

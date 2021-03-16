@@ -116,40 +116,60 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
         private val logger = Logger("RobolabMessageParser")
 
         fun parseMessage(metadata: RobolabMessage.Metadata): RobolabMessage? {
-            val jsonMessage = try {
-                RobolabJson.decodeFromString(JsonMessage.serializer(), metadata.rawMessage)
-            } catch (e: Exception) {
-                logger.warn { "Group ${metadata.groupId} " + e.message }
-                return RobolabMessage.IllegalMessage(
-                    metadata,
-                    RobolabMessage.IllegalMessage.Reason.NotParsable,
-                    e.message
-                )
-            }
+            var parsedMetadata: RobolabMessage.Metadata = metadata
 
-            val metadataWithFrom = metadata.copy(from = jsonMessage.from)
+            return try {
+                when {
+                    metadata.topic.startsWith("stats/") -> {
+                        val (statsMessage, readChannel) = try {
+                            StatsMessage.decode(metadata.rawMessage)
+                        } catch(e: Exception){
+                            logger.warn { "Group ${metadata.groupId} " + e.message }
+                            return RobolabMessage.IllegalMessage(
+                                metadata,
+                                RobolabMessage.IllegalMessage.Reason.NotParsable,
+                                e.message
+                            )
+                        }
 
-            val robolabMessage = try {
-                jsonMessage.type.parseMessage(
-                    metadataWithFrom,
-                    jsonMessage
-                )
-            } catch (e: IllegalFromException) {
-                logger.warn { "Group ${metadataWithFrom.groupId}: " + "Illegal \"from\" value (${e.actualFrom}) for message type ${e.messageType} in message ${metadataWithFrom.rawMessage}" }
-                RobolabMessage.IllegalMessage(metadataWithFrom, RobolabMessage.IllegalMessage.Reason.IllegalFromValue)
-            } catch (e: MissingJsonArgumentException) {
-                logger.warn { "Group ${metadataWithFrom.groupId}: " + "Missing argument \"${e.argumentName}\" in message ${metadataWithFrom.rawMessage}" }
-                RobolabMessage.IllegalMessage(
-                    metadataWithFrom,
-                    RobolabMessage.IllegalMessage.Reason.MissingArgument(e.argumentName)
-                )
+                        statsMessage.type.parseMessage(parsedMetadata, statsMessage, readChannel)
+                    }
+                    else -> {
+                        val jsonMessage = try {
+                            RobolabJson.decodeFromString(JsonMessage.serializer(), metadata.rawMessage)
+                        } catch (e: Exception) {
+                            logger.warn { "Group ${metadata.groupId} " + e.message }
+                            return RobolabMessage.IllegalMessage(
+                                metadata,
+                                RobolabMessage.IllegalMessage.Reason.NotParsable,
+                                e.message
+                            )
+                        }
+
+                        parsedMetadata = metadata.copy(from = jsonMessage.from)
+
+                        try {
+                            jsonMessage.type.parseMessage(parsedMetadata, jsonMessage)
+                        } catch (e: IllegalFromException) {
+                            logger.warn { "Group ${parsedMetadata.groupId}: " + "Illegal \"from\" value (${e.actualFrom}) for message type ${e.messageType} in message ${parsedMetadata.rawMessage}" }
+                            RobolabMessage.IllegalMessage(
+                                parsedMetadata,
+                                RobolabMessage.IllegalMessage.Reason.IllegalFromValue
+                            )
+                        } catch (e: MissingJsonArgumentException) {
+                            logger.warn { "Group ${parsedMetadata.groupId}: " + "Missing argument \"${e.argumentName}\" in message ${parsedMetadata.rawMessage}" }
+                            RobolabMessage.IllegalMessage(
+                                parsedMetadata,
+                                RobolabMessage.IllegalMessage.Reason.MissingArgument(e.argumentName)
+                            )
+                        }
+                    }
+                }
             } catch (e: IgnoreMessageException) {
                 return null
             } catch (e: WrongTopicException) {
-                RobolabMessage.IllegalMessage(metadataWithFrom, RobolabMessage.IllegalMessage.Reason.WrongTopic)
+                RobolabMessage.IllegalMessage(parsedMetadata, RobolabMessage.IllegalMessage.Reason.WrongTopic)
             }
-
-            return robolabMessage
         }
 
         fun parseMqttMessage(message: MqttMessage): RobolabMessage? {
