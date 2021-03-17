@@ -6,20 +6,24 @@ import de.robolab.common.auth.User
 import de.robolab.common.auth.UserID
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AuthorizationHeader
-import de.robolab.server.net.RESTResponseCodeException
 import de.robolab.server.config.Config
 import de.robolab.server.externaljs.jsonwebtoken.JSONWebToken
 import de.robolab.server.externaljs.jsonwebtoken.parseJWT
+import de.robolab.server.net.RESTResponseCodeException
 import kotlin.random.Random
 import kotlin.random.nextUInt
 
 
 typealias ShareCode = UInt
 
-class AuthService(val random: Random = Random, val shareCodeTimeout: TimeSpan = TimeSpan(15.0 * 60 * 1000)) {
+class AuthService(
+    val allowedRedirectURLs: Set<String>,
+    val random: Random = Random,
+    val shareCodeTimeout: TimeSpan = TimeSpan(15.0 * 60 * 1000),
+) {
 
     private val activeShareCodes: MutableSet<ShareCode> = mutableSetOf()
-    private val nonSharingCodes: MutableSet<ShareCode> = mutableSetOf()
+    private val redirectingCodes: MutableMap<ShareCode, String?> = mutableMapOf()
     private val providedShares: MutableMap<ShareCode, Pair<UserID?, JSONWebToken?>> = mutableMapOf()
     private val codeTimeouts: MutableList<Pair<DateTime, ShareCode>> = mutableListOf()
 
@@ -51,14 +55,24 @@ class AuthService(val random: Random = Random, val shareCodeTimeout: TimeSpan = 
         return obtainUser(token)
     }
 
-    fun createShareCode(sharing: Boolean): ShareCode {
+    fun createSharingCode(): ShareCode {
         var code: ShareCode
         runCodeTimeouts()
         do {
             code = random.nextUInt()
         } while (!activeShareCodes.add(code))
-        if (!sharing)
-            nonSharingCodes.add(code)
+        codeTimeouts.add(DateTime.now() + shareCodeTimeout to code)
+        return code
+    }
+
+    fun createRedirectingCode(redirectTarget: String? = null): ShareCode {
+        var code: ShareCode
+        assertValidRedirect(redirectTarget)
+        runCodeTimeouts()
+        do {
+            code = random.nextUInt()
+        } while (!activeShareCodes.add(code))
+        redirectingCodes.put(code, redirectTarget)
         codeTimeouts.add(DateTime.now() + shareCodeTimeout to code)
         return code
     }
@@ -74,8 +88,18 @@ class AuthService(val random: Random = Random, val shareCodeTimeout: TimeSpan = 
 
     private fun timeoutCode(code: ShareCode) {
         providedShares.remove(code)
-        nonSharingCodes.remove(code)
+        redirectingCodes.remove(code)
         activeShareCodes.remove(code)
+    }
+
+    fun isValidRedirect(redirectTarget: String?): Boolean{
+        if(redirectTarget == null) return true
+        return redirectTarget.substringBefore('?') in allowedRedirectURLs
+    }
+
+    fun assertValidRedirect(redirectTarget: String?): Unit {
+        if(!isValidRedirect(redirectTarget))
+            throw RESTResponseCodeException(HttpStatusCode.BadRequest, "Redirect target is not whitelisted")
     }
 
     fun assertCodeExists(code: ShareCode): Unit {
@@ -85,31 +109,31 @@ class AuthService(val random: Random = Random, val shareCodeTimeout: TimeSpan = 
 
     fun assertCanProvide(code: ShareCode): Unit {
         assertCodeExists(code)
-        if (code in nonSharingCodes) return
+        if (redirectingCodes.containsKey(code)) return
         if (code !in providedShares)
             return
         else
             throw RESTResponseCodeException(HttpStatusCode.BadRequest, "Code is already providing a Token")
     }
 
-    // Returns true if the ShareCode is used in a share-process, false otherwise
-    fun provideSharedToken(code: ShareCode, token: JSONWebToken, userID: UserID? = null): Boolean =
+    // Returns null if the ShareCode is used in a share-process, the target redirect-url otherwise
+    fun provideSharedToken(code: ShareCode, token: JSONWebToken, userID: UserID? = null): String? =
         _provideSharedToken(code, token, userID)
 
-    private fun _provideSharedToken(code: ShareCode, token: JSONWebToken?, userID: UserID?): Boolean {
+    private fun _provideSharedToken(code: ShareCode, token: JSONWebToken?, userID: UserID?): String? {
         assertCodeExists(code)
-        if (code in nonSharingCodes) {
-            nonSharingCodes.remove(code)
+        if (redirectingCodes.containsKey(code)) {
+            val redirectTarget = redirectingCodes.remove(code)
             val index = codeTimeouts.indexOfFirst { it.second == code }
             if (index >= 0)
                 codeTimeouts.removeAt(index)
             activeShareCodes.remove(code)
-            return false
+            return redirectTarget ?: Config.Auth.redirectURL
         }
         if (providedShares.containsKey(code))
             throw RESTResponseCodeException(HttpStatusCode.BadRequest, "Code is already providing a Token")
         providedShares[code] = userID to token
-        return true
+        return null
     }
 
     fun getSharedToken(code: ShareCode, userID: UserID? = null): JSONWebToken? {

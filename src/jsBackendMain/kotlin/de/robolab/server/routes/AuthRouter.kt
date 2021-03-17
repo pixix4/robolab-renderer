@@ -2,22 +2,37 @@ package de.robolab.server.routes
 
 import de.robolab.client.net.requests.auth.TokenLinkPair
 import de.robolab.common.auth.User
+import de.robolab.common.externaljs.NodeError
+import de.robolab.common.externaljs.dynamicOf
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.AuthorizationHeader
-import de.robolab.server.net.RESTResponseCodeException
 import de.robolab.server.auth.AuthService
 import de.robolab.server.auth.GitLabAuthProvider
 import de.robolab.server.auth.ShareCode
 import de.robolab.server.config.Config
-import de.robolab.common.externaljs.NodeError
-import de.robolab.common.externaljs.dynamicOf
 import de.robolab.server.externaljs.express.*
+import de.robolab.server.net.RESTResponseCodeException
 
 object AuthRouter {
     val router: DefaultRouter = createRouter()
     val authProvider: GitLabAuthProvider = GitLabAuthProvider("${Config.Auth.hostURL}/api/auth/gitlab/redirect")
-    val authService: AuthService = AuthService()
+    val authService: AuthService = AuthService(
+        setOf(
+            "http://localhost/queue",
+            "http://localhost/queue-dev",
+            "http://localhost:8080/queue",
+            "http://localhost:8080/queue-dev",
+            "https://localhost/queue",
+            "https://localhost/queue-dev",
+            "https://localhost:8080/queue",
+            "https://localhost:8080/queue-dev",
+            "https://robolab.inf.tu-dresden.de/renderer",
+            "https://robolab.inf.tu-dresden.de/renderer-dev",
+            "https://robolab.inf.tu-dresden.de/queue",
+            "https://robolab.inf.tu-dresden.de/queue-dev",
+        )
+    )
     val allowedInvalidTokenRoutes: Set<String> = setOf(
         "/version",
         "/info/status",
@@ -29,8 +44,10 @@ object AuthRouter {
     )
 
     init {
-        router.getSuspend("/gitlab") { _, res ->
-            val shareCode = authService.createShareCode(false)
+        router.getSuspend("/gitlab") { req, res ->
+            val dynRedirectURL: dynamic = req.query.redirect
+            val redirectURL: String? = dynRedirectURL as? String
+            val shareCode = authService.createRedirectingCode(redirectURL)
             val targetURL: String = authProvider.startAuthURL(shareCode)
             res.redirect(targetURL)
         }
@@ -55,7 +72,8 @@ object AuthRouter {
                 val user = authProvider.performAuth(code, stateString, shareCode)
                 val token = authService.obtainToken(user)
                 res.cookie("robolab_auth", token.rawToken, dynamicOf("httpOnly" to true))
-                if (authService.provideSharedToken(shareCode, token, user.userID)) {
+                val redirectTarget: String? = authService.provideSharedToken(shareCode, token, user.userID)
+                if (redirectTarget == null) {
                     //Code is used in a share-process, JWT has already been passed on
                     res.status(HttpStatusCode.Ok).type(MIMEType.HTML).send(
                         """<!DOCTYPE html>
@@ -70,7 +88,7 @@ window.close();
                     )
                 } else {
                     //Code is not used in a share-process, return JWT
-                    res.redirect(Config.Auth.redirectURL)
+                    res.redirect(redirectTarget)
                 }
             }
             return@getSuspend
@@ -80,7 +98,7 @@ window.close();
             res.sendStatus(HttpStatusCode.NoContent)
         }
         router.getSuspend("/gitlab/relay") { _, res ->
-            val shareCode = authService.createShareCode(true)
+            val shareCode = authService.createSharingCode()
             res.sendSerializable(
                 TokenLinkPair(
                     login = authProvider.startAuthURL(shareCode),
@@ -88,8 +106,8 @@ window.close();
                 )
             )
         }
-        router.getSuspend("/gitlab/relay/html"){ _, res ->
-            val shareCode = authService.createShareCode(true)
+        router.getSuspend("/gitlab/relay/html") { _, res ->
+            val shareCode = authService.createSharingCode()
             res.sendSerializable(
                 TokenLinkPair(
                     login = authProvider.startAuthURL(shareCode),
