@@ -56,23 +56,19 @@ class FilePlanet(
     }
 
     suspend fun update() {
-        println("Update $id")
         val (metadata, content) = loader.loadPlanet(id) ?: return
         val s = state
 
-        println("S1: $s")
         val newState = s?.copy(
             metadata = metadata,
             remoteLines = content
         )?.simplify() ?: State(metadata, content)
 
-        println("S2: $newState")
         if (!newState.hasLocalChanges) {
             planetFile.history.clear()
         }
 
         if (newState != s) {
-            println("S3: $s")
             state = newState
         }
     }
