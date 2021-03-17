@@ -102,7 +102,6 @@ class PlotterWindow(
         } else {
             d.onDraw(context)
         }
-        document.onDraw(context)
     }
 
     fun onDebugDraw() {

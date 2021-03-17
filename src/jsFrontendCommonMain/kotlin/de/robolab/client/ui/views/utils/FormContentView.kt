@@ -8,7 +8,6 @@ import de.robolab.client.ui.ViewFactory
 import de.robolab.client.ui.adapter.toEvent
 import de.robolab.client.ui.dialog.bindStringParsing
 import de.robolab.common.utils.Dimension
-import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.not
@@ -37,8 +36,6 @@ sealed class FormContentView(
                 disabledProperty.bind(!viewModel.enabledProperty)
                 titleProperty.bind(viewModel.descriptionProperty)
 
-                readonly = viewModel.valueProperty !is ObservableProperty
-
                 onKeyDown {
                     val keyCode = it.toEvent().keyCode
                     if (keyCode == KeyCode.ENTER) {
@@ -62,8 +59,6 @@ sealed class FormContentView(
                     max = range.last.toDouble()
                     step = range.step.toDouble()
                 }
-
-                readonly = viewModel.valueProperty !is ObservableProperty
             }
         }
     }
@@ -84,8 +79,6 @@ sealed class FormContentView(
                 viewModel.stepProperty.onChange.now {
                     step = viewModel.stepProperty.value
                 }
-
-                readonly = viewModel.valueProperty !is ObservableProperty
             }
         }
     }
@@ -104,8 +97,6 @@ sealed class FormContentView(
                 viewModel.optionListProperty.onChange {
                     dataSet = viewModel.optionListProperty.toList()
                 }
-
-                readonly = viewModel.valueProperty !is ObservableProperty
             }
         }
     }
@@ -120,8 +111,6 @@ sealed class FormContentView(
             ) {
                 titleProperty.bind(viewModel.descriptionProperty)
                 disabledProperty.bind(!viewModel.enabledProperty)
-
-                readonly = viewModel.valueProperty !is ObservableProperty
             }
         }
     }
@@ -133,8 +122,6 @@ sealed class FormContentView(
             label(
                 checkbox(viewModel.valueProperty) {
                     disabledProperty.bind(!viewModel.enabledProperty)
-
-                    readonly = viewModel.valueProperty !is ObservableProperty
                 }
             ) {
                 titleProperty.bind(viewModel.descriptionProperty)

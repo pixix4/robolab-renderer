@@ -14,12 +14,12 @@ class Checkbox(
 ) : ViewForLabel() {
 
     fun bind(property: ObservableValue<Boolean>) {
-        checkedProperty.bind(property)
-        readonly = true
-    }
-
-    fun bind(property: ObservableProperty<Boolean>) {
-        checkedProperty.bindBidirectional(property)
+        if (property is ObservableProperty) {
+            checkedProperty.bindBidirectional(property)
+        } else {
+            checkedProperty.bind(property)
+            readonly = true
+        }
     }
 
     fun unbind() {
@@ -64,8 +64,4 @@ fun ViewCollection<in Checkbox>.checkbox(value: Boolean = false, init: Checkbox.
 
 @KWebViewDsl
 fun ViewCollection<in Checkbox>.checkbox(value: ObservableValue<Boolean>, init: Checkbox.() -> Unit = {}) =
-        Checkbox(value.value).also(this::append).also { it.bind(value) }.also(init)
-
-@KWebViewDsl
-fun ViewCollection<in Checkbox>.checkbox(value: ObservableProperty<Boolean>, init: Checkbox.() -> Unit = {}) =
         Checkbox(value.value).also(this::append).also { it.bind(value) }.also(init)

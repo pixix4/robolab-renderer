@@ -183,6 +183,10 @@ select {
     @include utils.radius();
     border: solid 1px var(--border-color);
   }
+
+  .checkbox:disabled ~ .label {
+    opacity: 0.5;
+  }
 }
 
 .form-content-button-view, .form-content-toggle-button-view {

@@ -20,12 +20,12 @@ class SelectView<T>(
     override val html = super.html as HTMLSelectElement
 
     fun bind(property: ObservableValue<T>) {
-        valueProperty.bind(property)
-        readonly = true
-    }
-
-    fun bind(property: ObservableProperty<T>) {
-        valueProperty.bindBidirectional(property)
+        if (property is ObservableProperty) {
+            valueProperty.bindBidirectional(property)
+        } else {
+            valueProperty.bind(property)
+            readonly = true
+        }
     }
 
     fun unbind() {
@@ -97,10 +97,6 @@ fun <T : Any> ViewCollection<in SelectView<T>>.selectView(dataSet: List<T>, init
 fun <T : Any> ViewCollection<in SelectView<T>>.selectView(dataSet: List<T>, property: ObservableValue<T>, transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
         SelectView(dataSet, property.value, transform).apply { bind(property) }.also(this::append).also(init)
 
-@KWebViewDsl
-fun <T : Any> ViewCollection<in SelectView<T>>.selectView(dataSet: List<T>, property: ObservableProperty<T>, transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
-        SelectView(dataSet, property.value, transform).apply { bind(property) }.also(this::append).also(init)
-
 
 @KWebViewDsl
 inline fun <reified T : Enum<T>> ViewCollection<in SelectView<T>>.selectView(initValue: T, noinline transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
@@ -108,10 +104,6 @@ inline fun <reified T : Enum<T>> ViewCollection<in SelectView<T>>.selectView(ini
 
 @KWebViewDsl
 inline fun <reified T : Enum<T>> ViewCollection<in SelectView<T>>.selectView(property: ObservableValue<T>, noinline transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
-        SelectView(enumValues<T>().toList(), property.value, transform).apply { bind(property) }.also(this::append).also(init)
-
-@KWebViewDsl
-inline fun <reified T : Enum<T>> ViewCollection<in SelectView<T>>.selectView(property: ObservableProperty<T>, noinline transform: (T) -> String = { it.toString() }, init: SelectView<T>.() -> Unit = {}) =
         SelectView(enumValues<T>().toList(), property.value, transform).apply { bind(property) }.also(this::append).also(init)
 
 @KWebViewDsl

@@ -14,12 +14,12 @@ class InputView(
 ) : ViewForLabel() {
 
     fun bind(property: ObservableValue<String>) {
-        valueProperty.bind(property)
-        readonly = true
-    }
-
-    fun bind(property: ObservableProperty<String>) {
-        valueProperty.bindBidirectional(property)
+        if (property is ObservableProperty) {
+            valueProperty.bindBidirectional(property)
+        } else {
+            valueProperty.bind(property)
+            readonly = true
+        }
     }
 
     fun unbind() {
@@ -138,18 +138,9 @@ fun ViewCollection<in InputView>.inputView(text: ObservableValue<String>, init: 
         InputView(InputType.TEXT, text.value).also(this::append).also { it.bind(text) }.also(init)
 
 @KWebViewDsl
-fun ViewCollection<in InputView>.inputView(text: ObservableProperty<String>, init: InputView.() -> Unit = {}) =
-        InputView(InputType.TEXT, text.value).also(this::append).also { it.bind(text) }.also(init)
-
-
-@KWebViewDsl
 fun ViewCollection<in InputView>.inputView(type: InputType = InputType.TEXT, text: String = "", init: InputView.() -> Unit = {}) =
         InputView(type, text).also(this::append).also(init)
 
 @KWebViewDsl
 fun ViewCollection<in InputView>.inputView(type: InputType = InputType.TEXT, text: ObservableValue<String>, init: InputView.() -> Unit = {}) =
-        InputView(type, text.value).also(this::append).also { it.bind(text) }.also(init)
-
-@KWebViewDsl
-fun ViewCollection<in InputView>.inputView(type: InputType = InputType.TEXT, text: ObservableProperty<String>, init: InputView.() -> Unit = {}) =
         InputView(type, text.value).also(this::append).also { it.bind(text) }.also(init)

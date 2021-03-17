@@ -9,9 +9,7 @@ import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.transition.IInterpolatable
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
-import de.robolab.common.utils.Point
-import de.robolab.common.utils.Rectangle
-import de.robolab.common.utils.unionNullable
+import de.robolab.common.utils.*
 import de.westermann.kobserve.property.property
 
 class SplineView(
@@ -149,13 +147,13 @@ class SplineView(
         var range = ranges[rangeIndex]
         var current = result[rangeIndex]
 
-        var pi = 1
+        var pi = 0
         for (p in pointHelpers) {
             if (p.curveProgress < range.first) continue
             if (p.curveProgress < range.second) {
                 current.add(p.point)
             } else {
-                val last = pointHelpers[pi - 1]
+                val last = pointHelpers.getOrNull(pi - 1) ?: pointHelpers.first()
                 val interpolateProgress = (range.second - last.curveProgress) / (p.curveProgress - last.curveProgress)
                 val point = last.point.interpolate(p.point, interpolateProgress)
 
