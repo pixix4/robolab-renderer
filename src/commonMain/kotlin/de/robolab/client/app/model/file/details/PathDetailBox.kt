@@ -13,7 +13,7 @@ import de.robolab.common.planet.letter
 import de.westermann.kobserve.property.property
 import kotlin.math.roundToInt
 
-class PathDetailBox(path: Path, planetFile: PlanetFile): ViewModel {
+class PathDetailBox(path: Path, planetFile: PlanetFile) : ViewModel {
 
     val source = "${path.source.x}, ${path.source.y}, ${path.sourceDirection.letter()}"
     val target = "${path.target.x}, ${path.target.y}, ${path.targetDirection.letter()}"
@@ -68,8 +68,12 @@ class PathDetailBox(path: Path, planetFile: PlanetFile): ViewModel {
             labeledEntry("Curviness") {
                 input(classification?.completeSegment?.curviness?.roundToInt()?.toString() ?: "")
             }
-            labeledEntry("Details") {
-                input(classification?.table ?: "")
+            labeledGroup("Segments") {
+                for (i in classification?.segments ?: emptyList()) {
+                    entry {
+                        input(i.toString())
+                    }
+                }
             }
         }
         labeledGroup("Path exposed at") {
@@ -85,10 +89,11 @@ class PathDetailBox(path: Path, planetFile: PlanetFile): ViewModel {
         fun getPathLengthInGridUnits(planetVersion: PlanetVersion, path: Path): Double {
             return PathAnimatable.evalLength(planetVersion, path)
         }
+
         fun getPathLengthString(planetVersion: PlanetVersion, path: Path): String {
             val lengthGrid = getPathLengthInGridUnits(planetVersion, path)
             val lengthMeter = lengthGrid * PreferenceStorage.paperGridWidth
-            return  "${lengthMeter.toFixed(2)} m\n${lengthGrid.toFixed(2)} units"
+            return "${lengthMeter.toFixed(2)} m\n${lengthGrid.toFixed(2)} units"
         }
     }
 }
