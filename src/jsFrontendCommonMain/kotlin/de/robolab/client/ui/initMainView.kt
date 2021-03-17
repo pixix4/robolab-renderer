@@ -50,6 +50,10 @@ fun initMainView(
     ViewFactoryRegistry.register(InfoBarGroupMessagesView)
     ViewFactoryRegistry.register(InfoBarRoomRobotsView)
 
+    ViewFactoryRegistry.register(DetailBoxPlanetStatisticsView)
+    ViewFactoryRegistry.register(DetailBoxPathView)
+    ViewFactoryRegistry.register(DetailBoxPointView)
+
     val mainController = MainController(args)
 
     watchSystemTheme()

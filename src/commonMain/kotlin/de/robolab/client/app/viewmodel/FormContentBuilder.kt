@@ -4,6 +4,7 @@ import de.robolab.client.app.model.base.MaterialIcon
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.asObservable
 import de.westermann.kobserve.property.constObservable
+import de.westermann.kobserve.property.observeConst
 
 @FormBuilderAnnotation
 class FormContentBuilder {
@@ -18,6 +19,19 @@ class FormContentBuilder {
         initBlock: FormContentViewModel.StringInput.() -> Unit = {}
     ): FormContentViewModel.StringInput {
         val result = FormContentViewModel.StringInput(valueProperty, description, typeHint, enabledProperty)
+        initBlock(result)
+        content += result
+        return result
+    }
+
+    fun input(
+        value: String,
+        description: String = "",
+        typeHint: FormContentViewModel.InputTypeHint = FormContentViewModel.InputTypeHint.TEXT,
+        enabledProperty: ObservableValue<Boolean> = constObservable(true),
+        initBlock: FormContentViewModel.StringInput.() -> Unit = {}
+    ): FormContentViewModel.StringInput {
+        val result = FormContentViewModel.StringInput(value.observeConst(), description, typeHint, enabledProperty)
         initBlock(result)
         content += result
         return result

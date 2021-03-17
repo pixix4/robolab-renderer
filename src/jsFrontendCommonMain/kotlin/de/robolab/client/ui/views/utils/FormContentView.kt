@@ -193,9 +193,8 @@ sealed class FormContentView(
     class FormContentLabelView(override val viewModel: FormContentViewModel.Label) : FormContentView(viewModel) {
 
         init {
-            textView(viewModel.contentProperty) {
-                titleProperty.bind(viewModel.descriptionProperty)
-            }
+            bindFormContent(viewModel.contentProperty)
+            titleProperty.bind(viewModel.descriptionProperty)
         }
     }
 

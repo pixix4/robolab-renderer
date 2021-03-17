@@ -4,6 +4,7 @@ import de.robolab.client.app.controller.ui.UiController
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.FilePlanetDocument
 import de.robolab.client.app.viewmodel.SideBarContentViewModel
+import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.app.viewmodel.buildFormContent
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
@@ -34,7 +35,7 @@ class InfoBarFileView(
     override val bottomToolBar = buildFormContent { }
 
     private val statisticsDetailBox = PlanetStatisticsDetailBox(planetEntry.planetFile)
-    val detailBoxProperty: ObservableValue<Any> = drawable.focusedElementsProperty.mapBinding { list ->
+    val detailBoxProperty: ObservableValue<ViewModel> = drawable.focusedElementsProperty.mapBinding { list ->
         when (val first = list.firstOrNull()) {
             is PointAnimatableManager.AttributePoint -> PointDetailBox(first, planetEntry.planetFile)
             is Path -> PathDetailBox(first, planetEntry.planetFile)

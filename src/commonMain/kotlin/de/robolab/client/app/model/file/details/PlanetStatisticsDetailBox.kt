@@ -1,5 +1,7 @@
 package de.robolab.client.app.model.file.details
 
+import de.robolab.client.app.viewmodel.ViewModel
+import de.robolab.client.app.viewmodel.buildForm
 import de.robolab.client.utils.PathClassification
 import de.robolab.client.utils.PlanetStatistic
 import de.robolab.client.utils.PreferenceStorage
@@ -10,7 +12,7 @@ import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.observeConst
 
-class PlanetStatisticsDetailBox(planetFile: PlanetFile) {
+class PlanetStatisticsDetailBox(planetFile: PlanetFile) : ViewModel {
 
     private val statisticsProperty = planetFile.planetProperty.mapBinding { PlanetStatistic(it) }
 
@@ -75,4 +77,18 @@ class PlanetStatisticsDetailBox(planetFile: PlanetFile) {
             "Flag setters" to planetFile.planetProperty.mapBinding { it.testSuite.flagSetterList.size.toString() },
         ).observeConst()
     )
+
+    val content = buildForm {
+        for ((label, block) in data) {
+            if (block.value.isNotEmpty()) {
+                labeledGroup(label) {
+                    for ((key, value) in block.value) {
+                        labeledEntry(key) {
+                            input(value)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

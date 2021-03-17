@@ -2,15 +2,14 @@ package de.robolab.client.ui.views.boxes
 
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.details.InfoBarFileEdit
-import de.robolab.client.app.model.file.details.PathDetailBox
-import de.robolab.client.app.model.file.details.PlanetStatisticsDetailBox
-import de.robolab.client.app.model.file.details.PointDetailBox
 import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.renderer.view.base.ActionHint
 import de.robolab.client.ui.ViewFactory
+import de.robolab.client.ui.ViewFactoryRegistry
 import de.robolab.client.utils.runAsync
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
+import de.westermann.kwebview.bindView
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.scrollBoxView
 import org.w3c.dom.HTMLElement
@@ -18,22 +17,6 @@ import org.w3c.dom.HTMLElement
 class InfoBarFileEditView(
     private val viewModel: InfoBarFileEdit,
 ) : ViewCollection<View>() {
-
-    private fun updateContent(box: BoxView) {
-        box.clear()
-
-        when (val content = viewModel.detailBoxProperty.value) {
-            is PlanetStatisticsDetailBox -> {
-                box.add(DetailBoxPlanetStatistics(content))
-            }
-            is PathDetailBox -> {
-                box.add(DetailBoxPath(content))
-            }
-            is PointDetailBox -> {
-                box.add(DetailBoxPoint(content))
-            }
-        }
-    }
 
     private fun updateActionList(box: BoxView) {
         box.clear()
@@ -87,23 +70,6 @@ class InfoBarFileEditView(
             }
             resizeBox(0.5) {
                 classList += "text-editor-box"
-                boxView("text-editor-header") {
-                    button("Transform") {
-                        onClick {
-                            viewModel.transform()
-                        }
-                    }
-                    button("Format") {
-                        onClick {
-                            viewModel.format()
-                        }
-                    }
-                    button("Format explicit") {
-                        onClick {
-                            viewModel.formatExplicit()
-                        }
-                    }
-                }
 
                 val editorContainer = boxView("text-editor-container")
 
@@ -146,10 +112,9 @@ class InfoBarFileEditView(
                 ignoreUpdate = false
             }
             resizeBox(0.3) {
-                viewModel.detailBoxProperty.onChange {
-                    updateContent(this)
+                bindView(viewModel.detailBoxProperty) {
+                    ViewFactoryRegistry.create(it)
                 }
-                updateContent(this)
             }
             resizeBox(0.2) {
                 viewModel.actionHintList.onChange {
