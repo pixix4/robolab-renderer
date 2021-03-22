@@ -176,8 +176,16 @@ window.close();
             res.sendStatus(HttpStatusCode.Unauthorized)
             return
         }
-        val headerUser = authService.obtainUser(authHeader)
-            ?: if (req.path in allowedInvalidTokenRoutes) User.Anonymous else null
+        var headerUser = authService.obtainUser(authHeader)
+        if (headerUser == null) {
+            if (req.path in allowedInvalidTokenRoutes) {
+                headerUser = User.Anonymous
+            } else if (req.path.startsWith("/api/")
+                && req.path.subSequence(4, req.path.length) in allowedInvalidTokenRoutes
+            ) {
+                headerUser = User.Anonymous
+            }
+        }
         if (headerUser == null) {
             res.setHeader("robolab-error", "Invalid/Expired Bearer-Token")
             res.sendStatus(HttpStatusCode.Unauthorized)
