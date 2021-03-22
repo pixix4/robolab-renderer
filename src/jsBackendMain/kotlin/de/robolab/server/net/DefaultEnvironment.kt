@@ -1,5 +1,7 @@
 package de.robolab.server.net
 
+import de.robolab.common.auth.AccessLevel
+import de.robolab.common.auth.User
 import de.robolab.common.externaljs.emptyDynamic
 import de.robolab.common.externaljs.fs.readdirSync
 import de.robolab.common.externaljs.http.createServer
@@ -11,7 +13,6 @@ import de.robolab.common.utils.Version
 import de.robolab.server.config.Config
 import de.robolab.server.externaljs.body_parser.json
 import de.robolab.server.externaljs.body_parser.text
-import de.robolab.server.externaljs.cookie_parser.cookieParser
 import de.robolab.server.externaljs.createIO
 import de.robolab.server.externaljs.express.*
 import de.robolab.server.jsutils.setHeader
@@ -39,9 +40,11 @@ object DefaultEnvironment {
         }
         router.use(json())
         router.use(text())
-        router.use(cookieParser())
+        //router.use(cookieParser())
+        //moved to App.kt
         router.use(fileUpload())
-        router.use(AuthRouter::userLookupMiddleware)
+        //router.use(AuthRouter::userLookupMiddleware)
+        //moved to App.kt
         router.use("/tea", BeverageRouter.teaRouter)
         router.use("/coffee", BeverageRouter.coffeeRouter)
         router.use("/mate", BeverageRouter.mateRouter)
@@ -72,7 +75,7 @@ object DefaultEnvironment {
         return router
     }
 
-    fun createWebRouter(mount: String): DefaultRouter {
+    fun createWebRouter(mount: String, minAccessLevel: AccessLevel = AccessLevel.Anonymous): DefaultRouter {
         val directory = path.resolve(Config.Web.directory)
         val router = createRouter(strict = true)
 
@@ -86,7 +89,24 @@ object DefaultEnvironment {
             rawMount = mount
             slashMount = "$mount/"
         }
-
+        if (minAccessLevel != AccessLevel.Anonymous) {
+            router.use(slashMount) { req, res, next ->
+                if ((req.path != "/") && (req.path != "index.html") && (req.path != "/index.html")) {
+                    next(null)
+                    return@use
+                }
+                if (req.user == User.Anonymous) {
+                    if (Config.Web.mount.endsWith("/"))
+                        res.redirect(Config.Web.mount + "api/auth/gitlab")
+                    else
+                        res.redirect(Config.Web.mount + "/api/auth/gitlab")
+                } else if (req.user.canAccess(minAccessLevel)) {
+                    next(null)
+                } else {
+                    res.sendStatus(HttpStatusCode.Forbidden)
+                }
+            }
+        }
         router.get(slashMount) { _, res -> res.sendFile(path.join(directory, "index.html")) }
         router.get(rawMount) { _, res -> res.redirect(301, slashMount) }
 
