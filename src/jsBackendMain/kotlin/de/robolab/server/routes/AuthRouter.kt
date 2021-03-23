@@ -179,17 +179,23 @@ window.close();
         var headerUser = authService.obtainUser(authHeader)
         if (headerUser == null) {
             println("${req.method} ${req.path}")
-            println("User not found")
             if (req.path in allowedInvalidTokenRoutes) {
-                println("Path in invalidTokenRoutes")
                 headerUser = User.Anonymous
             } else if (req.path.startsWith("/api/")
                 && req.path.subSequence(4, req.path.length) in allowedInvalidTokenRoutes
             ) {
-                println("Path without /api in invalidTokenRoutes")
                 headerUser = User.Anonymous
-            } else {
-                println("Path not in invalidTokenRoutes")
+            } else if (req.path.startsWith(Config.Web.mount)) {
+                var unmountedPath = req.path.subSequence(Config.Web.mount.length,req.path.length)
+                if(!unmountedPath.startsWith('/'))
+                    unmountedPath = "/$unmountedPath"
+                if (unmountedPath in allowedInvalidTokenRoutes) {
+                    headerUser = User.Anonymous
+                } else if (unmountedPath.startsWith("/api/")
+                    && unmountedPath.subSequence(4, unmountedPath.length) in allowedInvalidTokenRoutes
+                ) {
+                    headerUser = User.Anonymous
+                }
             }
         }
         if (headerUser == null) {
