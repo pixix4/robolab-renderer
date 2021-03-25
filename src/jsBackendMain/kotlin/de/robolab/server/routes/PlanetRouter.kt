@@ -3,6 +3,9 @@
 package de.robolab.server.routes
 
 import de.robolab.client.app.model.base.SearchRequest
+import de.robolab.client.theme.DarkTheme
+import de.robolab.client.theme.ITheme
+import de.robolab.client.theme.LightTheme
 import de.robolab.common.auth.*
 import de.robolab.common.externaljs.JSArray
 import de.robolab.common.externaljs.isJSArray
@@ -11,17 +14,17 @@ import de.robolab.common.jsutils.jsTruthy
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.data.DirectoryInfo
-import de.robolab.server.config.Config
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.map
-import de.robolab.server.net.RESTResponseCodeException
+import de.robolab.server.config.Config
 import de.robolab.server.data.*
 import de.robolab.server.externaljs.*
 import de.robolab.server.externaljs.express.*
 import de.robolab.server.jsutils.*
 import de.robolab.server.model.decodeID
 import de.robolab.server.model.toIDString
+import de.robolab.server.net.RESTResponseCodeException
 import io.ktor.util.*
 import io.ktor.util.date.*
 import path.path
@@ -222,13 +225,31 @@ object PlanetRouter {
                     }
                 }
 
+                var drawName = true
+                if (req.query.name && req.query.name == "false") {
+                    drawName = false
+                }
+                var theme: ITheme = LightTheme
+                if (req.query.theme && req.query.theme == "dark") {
+                    theme = DarkTheme
+                }
+
                 val planet = req.localData.assertPlanetFound()
-                ExportRouter.exportPlanetAsPng(planet.planetFile, scale, res)
+                ExportRouter.exportPlanetAsPng(planet.planetFile, scale, drawName, theme, res)
             }
 
             planetRouter.getSuspend("/svg") { req, res ->
+                var drawName = true
+                if (req.query.name && req.query.name == "false") {
+                    drawName = false
+                }
+                var theme: ITheme = LightTheme
+                if (req.query.theme && req.query.theme == "dark") {
+                    theme = DarkTheme
+                }
+
                 val planet = req.localData.assertPlanetFound()
-                ExportRouter.exportPlanetAsSvg(planet.planetFile, res)
+                ExportRouter.exportPlanetAsSvg(planet.planetFile, drawName, theme, res)
             }
 
             planetRouter.putSuspend("/") { req, res ->

@@ -5,6 +5,9 @@ package de.robolab.server.routes
 import de.robolab.client.renderer.Exporter
 import de.robolab.client.renderer.canvas.SvgCanvas
 import de.robolab.client.renderer.utils.ServerCanvas
+import de.robolab.client.theme.DarkTheme
+import de.robolab.client.theme.ITheme
+import de.robolab.client.theme.LightTheme
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Logger
@@ -29,20 +32,43 @@ object ExportRouter {
                     throw IllegalArgumentException("'$numberString' is not a valid number!")
                 }
             }
+            var drawName = true
+            if (req.query.name && req.query.name == "false") {
+                drawName = false
+            }
+            var theme: ITheme = LightTheme
+            if (req.query.theme && req.query.theme == "dark") {
+                theme = DarkTheme
+            }
 
             val fileContent = req.files.planet.data.toString().unsafeCast<String>()
 
-            exportPlanetAsPng(PlanetFile(fileContent), scale, res)
+            exportPlanetAsPng(PlanetFile(fileContent), scale, drawName, theme, res)
         }
 
         router.postSuspend("/svg") { req, res ->
+            var drawName = true
+            if (req.query.name && req.query.name == "false") {
+                drawName = false
+            }
+            var theme: ITheme = LightTheme
+            if (req.query.theme && req.query.theme == "dark") {
+                theme = DarkTheme
+            }
+
             val fileContent = req.files.planet.data.toString().unsafeCast<String>()
 
-            exportPlanetAsSvg(PlanetFile(fileContent), res)
+            exportPlanetAsSvg(PlanetFile(fileContent), drawName, theme, res)
         }
     }
 
-    fun exportPlanetAsPng(planetFile: PlanetFile, scale: Double?, res: Response<*>) {
+    fun exportPlanetAsPng(
+        planetFile: PlanetFile,
+        scale: Double?,
+        drawName: Boolean,
+        theme: ITheme,
+        res: Response<*>
+    ) {
         val exportSize = Exporter.getDimension(planetFile.planet)
 
         var s = scale ?: 4.0
@@ -68,7 +94,12 @@ object ExportRouter {
         }
 
         val canvas = ServerCanvas(exportSize, s)
-        Exporter.renderToCanvas(planetFile.planet, canvas)
+        Exporter.renderToCanvas(
+            planetFile.planet,
+            canvas,
+            drawName = drawName,
+            theme = theme
+        )
         val stream = canvas.canvas.createPNGStream()
 
         res.set("Content-Type", "image/png")
@@ -77,11 +108,21 @@ object ExportRouter {
         stream.pipe(res.asDynamic())
     }
 
-    fun exportPlanetAsSvg(planetFile: PlanetFile, res: Response<*>) {
+    fun exportPlanetAsSvg(
+        planetFile: PlanetFile,
+        drawName: Boolean,
+        theme: ITheme,
+        res: Response<*>
+    ) {
         val exportSize = Exporter.getDimension(planetFile.planet)
 
         val canvas = SvgCanvas(exportSize)
-        Exporter.renderToCanvas(planetFile.planet, canvas)
+        Exporter.renderToCanvas(
+            planetFile.planet,
+            canvas,
+            drawName = drawName,
+            theme = theme
+        )
         val stream = canvas.buildFile()
 
         res.set("Content-Type", "image/svg+xml")
