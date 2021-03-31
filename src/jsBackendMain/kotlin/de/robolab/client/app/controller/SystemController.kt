@@ -10,4 +10,5 @@ actual object SystemController {
     actual fun openContextMenu(menu: ContextMenu) {
     }
 
+    actual val fixedRemoteUrl: String? = null
 }

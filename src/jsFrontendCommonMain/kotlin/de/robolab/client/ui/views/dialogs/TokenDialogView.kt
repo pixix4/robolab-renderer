@@ -1,25 +1,25 @@
-package de.robolab.client.ui.dialog
+package de.robolab.client.ui.views.dialogs
 
-import de.robolab.client.net.IRobolabServer
+import de.robolab.client.app.viewmodel.ViewModel
+import de.robolab.client.app.viewmodel.dialog.TokenDialogViewModel
 import de.robolab.client.net.requests.auth.getTokenLinkPair
 import de.robolab.client.net.sendHttpRequest
+import de.robolab.client.ui.ViewFactory
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.client.utils.electron
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.RESTRequestCodeException
 import de.robolab.common.utils.Logger
-import de.westermann.kobserve.event.emit
+import de.westermann.kwebview.View
+import de.westermann.kwebview.ViewCollection
+import de.westermann.kwebview.components.boxView
 import de.westermann.kwebview.components.button
 import de.westermann.kwebview.components.link
 import de.westermann.kwebview.components.textView
 import kotlinx.browser.window
 import kotlinx.coroutines.*
 
-class TokenDialog private constructor(
-    private val server: IRobolabServer,
-    private val userConfirm: Boolean,
-    private val onFinish: (Boolean) -> Unit
-) : Dialog("Token") {
+class TokenDialogView(viewModel: TokenDialogViewModel) : ViewCollection<View>() {
 
     private var success = false
     private var isOpen = true
@@ -38,22 +38,23 @@ class TokenDialog private constructor(
     }
 
     init {
-        val contentTab = tab {
+        val contentTab = boxView {
             textView("Please wait...")
         }
 
-        onClose {
+        viewModel.onClose {
             isOpen = false
-            onFinish(success)
+            viewModel.onFinish(success)
         }
 
         GlobalScope.launch {
-            val tokenLinkPair = server.getTokenLinkPair().okOrNull()
+            val tokenLinkPair = viewModel.server.getTokenLinkPair().okOrNull()
             success = false
 
             if (tokenLinkPair != null) {
                 if (!open(tokenLinkPair.loginURL)) {
                     contentTab.apply {
+                        contentTab.clear()
                         classList += "token-popup"
                         textView("The browser has blocked the OAuth page. Please open the OAuth page manually or allow this popup in your browsers settings.")
                         link(tokenLinkPair.loginURL) {
@@ -79,9 +80,9 @@ class TokenDialog private constructor(
                     }.okOrNull()
                     if (r != null) {
                         withContext(Dispatchers.Main) {
-                            server.authHeader = r.tokenHeader
+                            viewModel.server.authHeader = r.tokenHeader
                             success = true
-                            onClose.emit()
+                            viewModel.close()
                         }
                         break
                     } else {
@@ -92,9 +93,13 @@ class TokenDialog private constructor(
         }
     }
 
-    companion object {
-        fun open(server: IRobolabServer, userConfirm: Boolean, onFinish: (Boolean) -> Unit) {
-            open(TokenDialog(server, userConfirm, onFinish))
+    companion object : ViewFactory {
+        override fun matches(viewModel: ViewModel): Boolean {
+            return viewModel is TokenDialogViewModel
+        }
+
+        override fun create(viewModel: ViewModel): View {
+            return TokenDialogView(viewModel as TokenDialogViewModel)
         }
     }
 }

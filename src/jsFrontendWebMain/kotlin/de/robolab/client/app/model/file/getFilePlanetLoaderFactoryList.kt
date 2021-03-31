@@ -1,8 +1,10 @@
 package de.robolab.client.app.model.file
 
+import de.robolab.client.app.controller.DialogController
 import de.robolab.client.app.model.file.provider.IFilePlanetLoaderFactory
+import de.robolab.client.app.viewmodel.MainViewModel
+import de.robolab.client.app.viewmodel.dialog.TokenDialogViewModel
 import de.robolab.client.net.IRobolabServer
-import de.robolab.client.ui.dialog.TokenDialog
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -25,9 +27,11 @@ actual suspend fun requestAuthToken(
 ): Boolean {
     val deferred = CompletableDeferred<Boolean>()
     withContext(Dispatchers.Main) {
-        TokenDialog.open(server, userConfirm) {
-            deferred.complete(it)
-        }
+        DialogController.open(
+            TokenDialogViewModel(server, userConfirm) {
+                deferred.complete(it)
+            }
+        )
     }
     return deferred.await()
 }

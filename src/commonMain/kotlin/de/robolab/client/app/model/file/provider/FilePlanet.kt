@@ -2,7 +2,6 @@ package de.robolab.client.app.model.file.provider
 
 import de.robolab.client.utils.cache.ICacheStorage
 import de.robolab.common.parser.PlanetFile
-import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.GlobalScope

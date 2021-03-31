@@ -15,6 +15,7 @@ actual object SystemController {
         electron?.menu(menu)
     }
 
+    actual val fixedRemoteUrl: String? = null
 
     private fun getMemoryUsageString(): String {
         val info = electron?.getMemoryInfo() ?: return ""

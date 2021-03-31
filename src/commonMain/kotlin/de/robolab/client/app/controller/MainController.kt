@@ -81,7 +81,7 @@ class MainController(private val args: Args) {
     val toolBarController = ToolBarController(
         contentController,
         remoteServerController,
-        uiController,
+        uiController
     )
 
     val infoBarController = InfoBarController(

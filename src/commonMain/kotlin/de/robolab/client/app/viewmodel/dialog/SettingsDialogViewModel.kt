@@ -1,11 +1,13 @@
 package de.robolab.client.app.viewmodel.dialog
 
+import de.robolab.client.app.controller.SystemController
 import de.robolab.client.app.controller.dialog.SettingsDialogController
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.viewmodel.DialogViewModel
 import de.robolab.client.app.viewmodel.FormContentViewModel
 import de.robolab.client.app.viewmodel.buildForm
 import de.robolab.client.theme.ThemePropertySelectorMapper
+import de.robolab.client.utils.PlatformDefaultPreferences
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.BuildInformation
 import de.westermann.kobserve.not
@@ -104,18 +106,20 @@ class SettingsDialogViewModel(
 
         labeledGroup("Connection") {
             labeledGroup("Remote server") {
-                labeledEntry("Server uri") {
-                    input(
-                        PreferenceStorage.remoteServerUrlProperty,
-                        typeHint = FormContentViewModel.InputTypeHint.URL
-                    )
+                if (SystemController.fixedRemoteUrl == null) {
+                    labeledEntry("Server uri") {
+                        input(
+                            PreferenceStorage.remoteServerUrlProperty,
+                            typeHint = FormContentViewModel.InputTypeHint.URL
+                        )
 
-                    if (!controller.isDesktop) {
-                        button(
-                            MaterialIcon.SETTINGS_BACKUP_RESTORE,
-                            description = "Load default uri"
-                        ) {
-                            TODO()
+                        if (!controller.isDesktop) {
+                            button(
+                                MaterialIcon.SETTINGS_BACKUP_RESTORE,
+                                description = "Load default uri"
+                            ) {
+                                PreferenceStorage.remoteServerUrl = PlatformDefaultPreferences.remoteServerUri
+                            }
                         }
                     }
                 }
@@ -125,7 +129,7 @@ class SettingsDialogViewModel(
                 }
                 labeledEntry("Server authentication") {
                     input(controller.serverAuthenticationProperty)
-                    button("Authenticate") {
+                    button("(Re)authenticate") {
                         controller.requestAuthToken()
                     }
                 }

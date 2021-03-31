@@ -5,10 +5,7 @@ import de.robolab.client.app.controller.MainController
 import de.robolab.client.app.viewmodel.MainViewModel
 import de.robolab.client.ui.views.*
 import de.robolab.client.ui.views.boxes.*
-import de.robolab.client.ui.views.dialogs.ExportPlanetDialogView
-import de.robolab.client.ui.views.dialogs.SendMessageDialogView
-import de.robolab.client.ui.views.dialogs.SettingsDialogView
-import de.robolab.client.ui.views.dialogs.TransformPlanetDialogView
+import de.robolab.client.ui.views.dialogs.*
 import de.robolab.client.ui.views.utils.FormContentView
 import de.robolab.client.ui.views.utils.FormView
 import de.robolab.client.utils.PreferenceStorage
@@ -39,6 +36,7 @@ fun initMainView(
     ViewFactoryRegistry.register(SendMessageDialogView)
     ViewFactoryRegistry.register(SettingsDialogView)
     ViewFactoryRegistry.register(TransformPlanetDialogView)
+    ViewFactoryRegistry.register(TokenDialogView)
 
     ViewFactoryRegistry.register(SideBarView)
     ViewFactoryRegistry.register(SideBarNavigationView)

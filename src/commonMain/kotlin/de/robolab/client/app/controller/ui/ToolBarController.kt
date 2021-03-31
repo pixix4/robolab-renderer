@@ -3,6 +3,7 @@ package de.robolab.client.app.controller.ui
 import de.robolab.client.app.controller.DialogController
 import de.robolab.client.app.controller.RemoteServerController
 import de.robolab.client.app.controller.dialog.SettingsDialogController
+import de.robolab.client.app.viewmodel.MainViewModel
 import de.robolab.client.app.viewmodel.dialog.SettingsDialogViewModel
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.flatMapBinding
@@ -13,7 +14,7 @@ import kotlin.math.roundToInt
 class ToolBarController(
     private val contentController: ContentController,
     private val remoteServerController: RemoteServerController,
-    val uiController: UiController,
+    val uiController: UiController
 ) {
 
     private val activeDocumentProperty = contentController.activeTabProperty.flatMapBinding { it.documentProperty }

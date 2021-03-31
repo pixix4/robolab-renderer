@@ -1,5 +1,6 @@
 package de.robolab.client.utils
 
+import de.robolab.client.app.controller.SystemController
 import de.robolab.client.app.model.file.LoadRemoteExamStateEvent
 import de.robolab.client.renderer.drawable.edit.PaperBackgroundDrawable
 import de.robolab.client.theme.Theme
@@ -134,6 +135,14 @@ object PreferenceStorage : TypedStorage() {
     init {
         logLevelProperty.onChange.now {
             Logger.level = logLevel
+        }
+
+        val fixedRemoteUrl = SystemController.fixedRemoteUrl
+        if (fixedRemoteUrl != null) {
+            remoteServerUrl = fixedRemoteUrl
+            remoteServerUrlProperty.onChange {
+                throw IllegalStateException("Cannot change remoteServerUrl cause client was started with fixedRemoteUrl!")
+            }
         }
 
         useRemoteExamStateProperty.onChange {

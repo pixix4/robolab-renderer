@@ -9,4 +9,6 @@ expect object SystemController {
     val memoryUsageProperty: ObservableValue<String>
 
     fun openContextMenu(menu: ContextMenu)
+
+    val fixedRemoteUrl: String?
 }
