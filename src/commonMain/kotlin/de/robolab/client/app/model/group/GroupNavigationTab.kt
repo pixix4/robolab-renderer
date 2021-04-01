@@ -126,9 +126,9 @@ class GroupNavigationTab(
     }
 
     override fun onNavigateBack() {
-        val content = contentProperty.value
-        if (content is INavigationBarSearchList)
-            super.onNavigateBack()
+        // val content = contentProperty.value
+        // if (content is INavigationBarSearchList)
+        //     super.onNavigateBack()
     }
 
     override fun openEntry(entry: INavigationBarEntry, asNewTab: Boolean) {

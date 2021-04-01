@@ -85,7 +85,7 @@ class ContentTabController(
         parent.select()
 
         val newTab = openNewTab()
-        newTab.document = oldTab.document
+        newTab.open(oldTab.document)
     }
 
     override fun onRender(msOffset: Double): Boolean {
@@ -98,7 +98,7 @@ class ContentTabController(
 
     fun openDocument(document: IPlanetDocument, newTab: Boolean) {
         val tab = if (newTab) openNewTab() else activeProperty.value
-        tab.document = document
+        tab.open(document)
     }
 
     inner class Tab : IRenderInstance {
@@ -107,7 +107,7 @@ class ContentTabController(
         val plotterManager = SimplePlotterManager(canvas, PreferenceStorage.animationTime)
 
         val documentProperty = plotterManager.activePlotter.planetDocumentProperty
-        var document by documentProperty
+        val document by documentProperty
 
         val nameProperty = documentProperty.flatMapBinding { it.nameProperty }
 
@@ -121,6 +121,10 @@ class ContentTabController(
 
         fun close() {
             closeTab(this)
+        }
+
+        fun open(document: IPlanetDocument) {
+            plotterManager.open(document)
         }
 
         override fun onRender(msOffset: Double): Boolean {

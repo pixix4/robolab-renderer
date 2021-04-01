@@ -3,10 +3,7 @@ package de.robolab.client.app.model.group
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
 import de.robolab.client.app.controller.FilePlanetController
-import de.robolab.client.app.controller.ui.InfoBarController
 import de.robolab.client.app.controller.ui.UiController
-import de.robolab.client.app.model.base.IInfoBarContent
-import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.app.viewmodel.FormContentViewModel
@@ -16,8 +13,8 @@ import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.client.utils.runAsync
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableProperty
-import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventListener
+import de.westermann.kobserve.event.now
 import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
@@ -106,14 +103,14 @@ class GroupAttemptPlanetDocument(
     }
 
     init {
-        selectedIndexProperty.onChange { update() }
-        messages.onChange {
+        selectedIndexProperty.onChange.now { update() }
+        messages.onChange.now {
             if (messages.lastIndex - 1 <= selectedIndexProperty.value) {
                 selectedIndexProperty.value = messages.lastIndex
             }
         }
 
-        planetNameProperty.onChange {
+        planetNameProperty.onChange.now {
             val observable = planetProvider.getPlanetObservable(planetNameProperty.value)
             if (backgroundPlanet.isBound) {
                 backgroundPlanet.unbind()
@@ -121,7 +118,7 @@ class GroupAttemptPlanetDocument(
             backgroundPlanet.bind(observable)
         }
 
-        backgroundPlanet.onChange {
+        backgroundPlanet.onChange.now {
             val planet = backgroundPlanet.value ?: Planet.EMPTY
             drawable.importBackgroundPlanet(planet, true)
             drawable.importServerPlanet(serverPlanet.importSplines(planet), true)

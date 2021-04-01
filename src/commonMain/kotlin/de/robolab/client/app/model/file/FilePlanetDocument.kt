@@ -197,6 +197,10 @@ class FilePlanetDocument(
     }
 
     init {
+        for (tab in infoBarTabs) {
+            tab.importPlanet(planetFile.planet)
+        }
+
         planetFile.history.onChange {
             for (tab in infoBarTabs) {
                 tab.importPlanet(planetFile.planet)

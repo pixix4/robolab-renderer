@@ -5,6 +5,7 @@ import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.utils.IRenderInstance
 import de.robolab.client.theme.ITheme
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.common.utils.Logger
 import de.westermann.kobserve.base.ObservableValue
 
 abstract class IPlotterManager(
