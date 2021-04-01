@@ -3,7 +3,10 @@ package de.robolab.client.app.model.group
 import de.robolab.client.app.controller.FilePlanetController
 import de.robolab.client.app.controller.ui.ContentController
 import de.robolab.client.app.controller.ui.UiController
-import de.robolab.client.app.model.base.*
+import de.robolab.client.app.model.base.INavigationBarEntry
+import de.robolab.client.app.model.base.INavigationBarList
+import de.robolab.client.app.model.base.INavigationBarTab
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.repository.Attempt
 import de.robolab.client.app.repository.Group
 import de.robolab.client.app.repository.MessageRepository
@@ -123,12 +126,6 @@ class GroupNavigationTab(
             )
         }
         return canvas
-    }
-
-    override fun onNavigateBack() {
-        // val content = contentProperty.value
-        // if (content is INavigationBarSearchList)
-        //     super.onNavigateBack()
     }
 
     override fun openEntry(entry: INavigationBarEntry, asNewTab: Boolean) {
