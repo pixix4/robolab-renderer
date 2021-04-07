@@ -2,6 +2,7 @@ package de.robolab.server.net
 
 import de.robolab.common.auth.AccessLevel
 import de.robolab.common.auth.User
+import de.robolab.common.auth.requireAccessEnabled
 import de.robolab.common.externaljs.emptyDynamic
 import de.robolab.common.externaljs.fs.readdirSync
 import de.robolab.common.externaljs.http.createServer
@@ -89,7 +90,7 @@ object DefaultEnvironment {
             rawMount = mount
             slashMount = "$mount/"
         }
-        if (minAccessLevel != AccessLevel.Anonymous) {
+        if (minAccessLevel != AccessLevel.Anonymous && requireAccessEnabled) {
             router.use(slashMount) { req, res, next ->
                 if ((req.path != "/") && (req.path != "index.html") && (req.path != "/index.html")) {
                     next(null)
