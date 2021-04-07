@@ -15,6 +15,7 @@ import de.robolab.common.utils.Logger
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.*
+import de.westermann.kobserve.toggle
 
 class InfoBarFileTest(
     private val planetEntry: FilePlanetDocument,

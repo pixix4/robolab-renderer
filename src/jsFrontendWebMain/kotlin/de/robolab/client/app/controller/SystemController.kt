@@ -15,4 +15,6 @@ actual object SystemController {
 
     @Suppress("RedundantNullableReturnType")
     actual val fixedRemoteUrl: String? = window.location.href
+
+    actual val isDesktop: Boolean = false
 }

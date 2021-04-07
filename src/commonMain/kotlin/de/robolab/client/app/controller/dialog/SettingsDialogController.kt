@@ -1,6 +1,7 @@
 package de.robolab.client.app.controller.dialog
 
 import de.robolab.client.app.controller.RemoteServerController
+import de.robolab.client.app.controller.SystemController
 import de.robolab.client.net.requests.mqtt.GetMQTTURLs
 import de.robolab.client.net.requests.mqtt.getMQTTCredentials
 import de.robolab.client.net.requests.mqtt.getMQTTURLs
@@ -16,7 +17,7 @@ class SettingsDialogController(
     private val remoteServerController: RemoteServerController
 ) {
 
-    val isDesktop: Boolean = false
+    val isDesktop: Boolean = SystemController.isDesktop
     val serverAuthenticationProperty: ObservableValue<String> =
         remoteServerController.remoteServerAuthenticationProperty.readOnly()
     val serverVersionProperty: ObservableValue<String> = remoteServerController.remoteServerVersionProperty.readOnly()

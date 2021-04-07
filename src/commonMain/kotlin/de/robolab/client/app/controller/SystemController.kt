@@ -11,4 +11,6 @@ expect object SystemController {
     fun openContextMenu(menu: ContextMenu)
 
     val fixedRemoteUrl: String?
+
+    val isDesktop: Boolean
 }

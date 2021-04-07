@@ -175,38 +175,38 @@ class SettingsDialogViewModel(
                     }
                 }
             }
+        }
 
-            labeledGroup("Information") {
-                for ((topic, content) in BuildInformation.dataMap) {
-                    labeledGroup(topic) {
-                        for ((key, value) in content) {
-                            labeledEntry(key) {
-                                input(value.mapBinding { it.toString() })
-                            }
+        labeledGroup("Information") {
+            for ((topic, content) in BuildInformation.dataMap) {
+                labeledGroup(topic) {
+                    for ((key, value) in content) {
+                        labeledEntry(key) {
+                            input(value.mapBinding { it.toString() })
                         }
                     }
                 }
             }
+        }
 
-            labeledGroup("Advanced") {
-                labeledGroup("Debugging") {
-                    labeledEntry("Log level") {
-                        select(PreferenceStorage.logLevelProperty) {
-                            it.name.toLowerCase().capitalize()
-                        }
+        labeledGroup("Advanced") {
+            labeledGroup("Debugging") {
+                labeledEntry("Log level") {
+                    select(PreferenceStorage.logLevelProperty) {
+                        it.name.toLowerCase().capitalize()
                     }
+                }
 
-                    labeledEntry("Debug render status") {
-                        input(PreferenceStorage.debugStatusProperty)
-                    }
-                    labeledEntry("Debug render hierarchy") {
-                        input(PreferenceStorage.debugHierarchyProperty)
-                    }
+                labeledEntry("Debug render status") {
+                    input(PreferenceStorage.debugStatusProperty)
+                }
+                labeledEntry("Debug render hierarchy") {
+                    input(PreferenceStorage.debugHierarchyProperty)
+                }
 
-                    labeledEntry("") {
-                        button("Reset all settings") {
-                            PreferenceStorage.clear()
-                        }
+                labeledEntry("") {
+                    button("Reset all settings") {
+                        PreferenceStorage.clear()
                     }
                 }
             }

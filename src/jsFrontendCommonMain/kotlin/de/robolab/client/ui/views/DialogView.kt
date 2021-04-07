@@ -2,6 +2,7 @@ package de.robolab.client.ui.views
 
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.viewmodel.DialogViewModel
+import de.robolab.client.app.viewmodel.buildFormContent
 import de.robolab.client.ui.ViewFactoryRegistry
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
@@ -16,12 +17,11 @@ class DialogView(private val viewModel: DialogViewModel) : ViewCollection<View>(
         boxView("dialog-header") {
             textView(viewModel.title)
 
-            button {
-                iconView(MaterialIcon.CLOSE)
-                onClick {
+            +ViewFactoryRegistry.create(buildFormContent {
+                button(MaterialIcon.CLOSE) {
                     viewModel.close()
                 }
-            }
+            })
         }
 
         boxView("dialog-body") {

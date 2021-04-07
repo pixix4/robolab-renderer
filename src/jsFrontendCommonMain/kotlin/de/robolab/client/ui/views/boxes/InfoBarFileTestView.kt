@@ -3,7 +3,10 @@ package de.robolab.client.ui.views.boxes
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.details.InfoBarFileTest
 import de.robolab.client.app.viewmodel.ViewModel
+import de.robolab.client.app.viewmodel.buildForm
+import de.robolab.client.app.viewmodel.buildFormContent
 import de.robolab.client.ui.ViewFactory
+import de.robolab.client.ui.ViewFactoryRegistry
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAsync
@@ -84,16 +87,12 @@ class InfoBarFileTestView(
                     }
                 }
                 boxView("info-bar-test-table-box") {
-                    buttonGroup(true) {
-                        button {
-                            iconView(MaterialIcon.VERTICAL_ALIGN_BOTTOM)
-                            classList.bind("active", viewModel.stickToTableBottom)
-                            onClick {
+                    +ViewFactoryRegistry.create(buildFormContent {
+                        group {
+                            toggleButton(viewModel.stickToTableBottom, MaterialIcon.VERTICAL_ALIGN_BOTTOM) {
                                 viewModel.testProperty.value?.stickToTableBottom?.toggle()
                             }
-                        }
-                        button("Expand next") {
-                            onClick {
+                            button("Expand next") {
                                 GlobalScope.launch {
                                     viewModel.testProperty.value?.expandNextFullyAsync(
                                         true,
@@ -101,9 +100,7 @@ class InfoBarFileTestView(
                                     )
                                 }
                             }
-                        }
-                        button("Expand all") {
-                            onClick {
+                            button("Expand all") {
                                 GlobalScope.launch {
                                     viewModel.testProperty.value?.expandAllFullyAsync(
                                         true,
@@ -112,7 +109,8 @@ class InfoBarFileTestView(
                                 }
                             }
                         }
-                    }
+                    })
+
                     table("info-bar-group-view-content") {
                         thead {
                             row {

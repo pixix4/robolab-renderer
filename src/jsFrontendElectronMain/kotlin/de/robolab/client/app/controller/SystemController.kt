@@ -17,6 +17,8 @@ actual object SystemController {
 
     actual val fixedRemoteUrl: String? = null
 
+    actual val isDesktop: Boolean = true
+
     private fun getMemoryUsageString(): String {
         val info = electron?.getMemoryInfo() ?: return ""
 

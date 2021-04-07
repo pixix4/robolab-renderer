@@ -4,10 +4,12 @@ import com.soywiz.klock.format
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.group.InfoBarGroupMessages
 import de.robolab.client.app.viewmodel.ViewModel
+import de.robolab.client.app.viewmodel.buildFormContent
 import de.robolab.client.communication.From
 import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.ui.ViewFactory
+import de.robolab.client.ui.ViewFactoryRegistry
 import de.robolab.client.ui.adapter.getKeyCode
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.client.utils.PreferenceStorage
@@ -70,13 +72,11 @@ class InfoBarGroupMessagesView(
                     }
                 }
 
-                buttonGroup(true) {
+                +ViewFactoryRegistry.create(buildFormContent {
                     button("Send message") {
-                        onClick {
-                            viewModel.openSendDialog()
-                        }
+                        viewModel.openSendDialog()
                     }
-                }
+                })
 
                 boxView("exam-mode-buttons") {
                     textView("Exam")
