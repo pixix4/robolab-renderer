@@ -1,6 +1,7 @@
 package de.robolab.client.ui.views
 
 import de.robolab.client.app.controller.ConnectionController
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.viewmodel.StatusBarViewModel
 import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.ui.ViewFactory
@@ -8,8 +9,10 @@ import de.westermann.kobserve.event.now
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
+import de.westermann.kwebview.bindView
 import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.boxView
+import de.westermann.kwebview.components.iconView
 import de.westermann.kwebview.components.textView
 import de.westermann.kwebview.extra.listFactory
 
@@ -68,9 +71,25 @@ class StatusBarView(
                 }
             })
         }
+
+        boxView("status-bar-spacer")
+
+        boxView("status-bar-fullscreen-close") {
+            bindView(viewModel.fullscreenProperty) {
+                if (it) {
+                    iconView(MaterialIcon.FULLSCREEN_EXIT) {
+                        onClick {
+                            viewModel.fullscreenProperty.value = false
+                        }
+                    }
+                } else {
+                    BoxView()
+                }
+            }
+        }
     }
 
-    companion object: ViewFactory {
+    companion object : ViewFactory {
 
         override fun matches(viewModel: ViewModel): Boolean {
             return viewModel is StatusBarViewModel

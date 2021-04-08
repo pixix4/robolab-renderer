@@ -46,16 +46,13 @@ class GroupNavigationTab(
         input(searchProperty, typeHint = FormContentViewModel.InputTypeHint.SEARCH) {
             onSubmit { searchValue ->
                 val value = searchValue.trim()
-                if (children.isEmpty() && value.isNotEmpty()) {
+                if (value.isNotEmpty()) {
                     searchProperty.value = ""
                     GlobalScope.launch {
                         messageRepository.createEmptyGroup(value)
                     }
                 }
             }
-        }
-        button(MaterialIcon.ADD, description = "Open log file") {
-            // TODO
         }
     }
 

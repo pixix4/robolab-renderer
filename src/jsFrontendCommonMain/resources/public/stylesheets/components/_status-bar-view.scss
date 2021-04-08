@@ -18,9 +18,17 @@
     margin-left: 0.5rem;
   }
 
+  .status-bar-spacer {
+    flex-grow: 1;
+  }
+
   & > .box-view {
     display: flex;
     align-items: center;
+  }
+
+  .status-bar-fullscreen-close {
+    padding: 0 0.5rem;
   }
 
   .connection-indicator {

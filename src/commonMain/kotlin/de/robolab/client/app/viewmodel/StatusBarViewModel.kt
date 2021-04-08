@@ -9,4 +9,5 @@ class StatusBarViewModel(
     val connectionList = controller.connectionList
     val contentList = controller.contentList
     val progressList = controller.progressList
+    val fullscreenProperty = controller.fullscreenProperty
 }

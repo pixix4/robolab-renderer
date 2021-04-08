@@ -18,11 +18,11 @@
     "status";
 
   &.fullscreen {
-    grid-template-rows: 2.2rem auto !important;
+    grid-template-rows: auto 2rem !important;
     grid-template-columns: auto !important;
     grid-template-areas:
-      "tab"
-      "canvas" !important;
+      "canvas"
+      "status" !important;
 
     .left-side-bar-view {
       display: none;
@@ -33,7 +33,7 @@
     }
 
     .status-bar-view {
-      display: none;
+      // display: none;
     }
 
     .tool-bar-view {

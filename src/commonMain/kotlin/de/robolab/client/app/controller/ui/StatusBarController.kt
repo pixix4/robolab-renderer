@@ -15,6 +15,7 @@ class StatusBarController(
     private val connectionController: ConnectionController,
     private val contentController: ContentController,
     private val progressController: ProgressController,
+    uiController: UiController,
 ) {
     val connectionList = connectionController.connectionIndicatorList
 
@@ -47,4 +48,6 @@ class StatusBarController(
         is Point -> "${obj.left.toFixed(2)},${obj.top.toFixed(2)}"
         else -> obj.toString()
     }
+
+    val fullscreenProperty = uiController.fullscreenProperty
 }

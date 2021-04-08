@@ -88,7 +88,12 @@ class MainController(private val args: Args) {
         contentController,
         uiController,
     )
-    val statusBarController = StatusBarController(connectionController, contentController, progressController)
+    val statusBarController = StatusBarController(
+        connectionController,
+        contentController,
+        progressController,
+        uiController
+    )
 
     init {
         ConsoleGreeter.greetClient()
