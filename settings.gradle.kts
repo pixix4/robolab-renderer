@@ -1,1 +1,1 @@
-rootProject.name = "robolab"
+rootProject.name = "robolab-service-renderer"
