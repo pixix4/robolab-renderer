@@ -4,36 +4,24 @@ import org.jetbrains.kotlin.gradle.targets.js.yarn.yarn
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.TimeZone
+import java.util.Date
 
 val FRONTEND_VERSION = "4.0.1"
 val BACKEND_VERSION = "1.0.0"
 
 plugins {
-    kotlin("multiplatform") version "1.4.31"
-    kotlin("plugin.serialization") version "1.4.31"
+    kotlin("multiplatform") version "1.4.32"
+    kotlin("plugin.serialization") version "1.4.32"
     id("com.gorylenko.gradle-git-properties") version "2.2.4"
 }
 
 repositories {
     mavenCentral()
-    jcenter()
-    maven {
-        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
-    }
-    maven {
-        url = uri("https://dl.bintray.com/kotlin/ktor")
-    }
-    maven {
-        url = uri("https://dl.bintray.com/kotlin/kotlinx")
-    }
-    maven {
-        url = uri("https://kotlin.bintray.com/kotlinx")
-    }
 }
 
 val serializationVersion = "1.0.1"
-val klockVersion = "1.12.0"
+val klockVersion = "2.0.7"
 val coroutineVersion = "1.4.2"
 val ktorVersion = "1.5.0"
 
@@ -48,9 +36,6 @@ open class NodeExec : AbstractExecTask<NodeExec>(NodeExec::class.java) {
 
     override fun exec() {
         executable = e
-
-        // println("${executable} ${args?.joinToString(" ")}")
-
         super.exec()
     }
 
@@ -160,7 +145,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
                 implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
 
-                implementation("dev.gitlive:kotlin-diff-utils:4.1.6")
+                implementation("dev.gitlive:kotlin-diff-utils:5.0.7")
 
                 api("io.ktor:ktor-client-core:$ktorVersion")
             }
@@ -182,7 +167,6 @@ kotlin {
         }
         val jsBackendCommonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-nodejs:0.0.7")
             }
         }
 
@@ -211,9 +195,8 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-nodejs:0.0.7")
 
-                implementation("com.github.ajalt.clikt:clikt:3.0.1")
+                implementation("com.github.ajalt.clikt:clikt:3.1.0")
 
                 implementation(npm("mqtt", "4.2.6"))
                 implementation(npm("abort-controller", "3.0.0"))
@@ -231,9 +214,8 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-nodejs:0.0.7")
 
-                implementation("com.github.ajalt.clikt:clikt:3.0.1")
+                implementation("com.github.ajalt.clikt:clikt:3.1.0")
 
                 implementation(npm("ioredis", "4.19.4"))
                 implementation(npm("express", "4.17.1"))
@@ -481,9 +463,11 @@ tasks.named("jsFrontendElectronBrowserProductionWebpack") {
 val deployWeb = tasks.create<Sync>("deployWeb") {
     dependsOn("jsFrontendWebBrowserProductionWebpack", "jsFrontendWebJar")
 
+    project.name
+
     val file =
-        tasks.named("jsFrontendWebBrowserProductionWebpack").get().outputs.files.files.first { it.name == "robolab.js" }
-    val sourceMap = file.resolveSibling("robolab.js.map")
+        tasks.named("jsFrontendWebBrowserProductionWebpack").get().outputs.files.files.first { it.name == "${project.name}.js" }
+    val sourceMap = file.resolveSibling("${project.name}.js.map")
     from(
         file,
         sourceMap,
@@ -491,10 +475,10 @@ val deployWeb = tasks.create<Sync>("deployWeb") {
     )
 
     exclude(
-        "robolab-jsFrontendWeb/**",
-        "robolab-jsFrontendWeb.js",
-        "robolab-jsFrontendWeb.js.map",
-        "robolab-jsFrontendWeb.meta.js",
+        "${project.name}-jsFrontendWeb/**",
+        "${project.name}-jsFrontendWeb.js",
+        "${project.name}-jsFrontendWeb.js.map",
+        "${project.name}-jsFrontendWeb.meta.js",
         "package.json",
         "META-INF/**",
         "**/*.scss"
@@ -531,7 +515,7 @@ tasks.create<NodeExec>("runBackend") {
     workingDir = file("deploy/distServer")
 
     args(
-        "packages/robolab-jsBackend/kotlin/robolab-jsBackend.js",
+        "packages/${project.name}-jsBackend/kotlin/${project.name}-jsBackend.js",
         "-c",
         "${projectDir}/server.ini"
     )
@@ -543,7 +527,7 @@ tasks.create<NodeExec>("runWeb") {
     workingDir = file("deploy/distServer")
 
     args(
-        "packages/robolab-jsBackend/kotlin/robolab-jsBackend.js",
+        "packages/${project.name}-jsBackend/kotlin/${project.name}-jsBackend.js",
         "-c",
         "${projectDir}/server.ini"
     )
@@ -553,8 +537,8 @@ val deployElectron = tasks.create<Sync>("deployElectron") {
     dependsOn("jsFrontendElectronBrowserProductionWebpack", "jsFrontendElectronJar", "jsFrontendElectronNpmVersion")
 
     val file = tasks.named("jsFrontendElectronBrowserProductionWebpack")
-        .get().outputs.files.files.first { it.name == "robolab.js" }
-    val sourceMap = file.resolveSibling("robolab.js.map")
+        .get().outputs.files.files.first { it.name == "${project.name}.js" }
+    val sourceMap = file.resolveSibling("${project.name}.js.map")
     from(
         file,
         sourceMap,
@@ -562,10 +546,10 @@ val deployElectron = tasks.create<Sync>("deployElectron") {
     )
 
     exclude(
-        "robolab-jsFrontendElectron/**",
-        "robolab-jsFrontendElectron.js",
-        "robolab-jsFrontendElectron.js.map",
-        "robolab-jsFrontendElectron.meta.js",
+        "${project.name}-jsFrontendElectron/**",
+        "${project.name}-jsFrontendElectron.js",
+        "${project.name}-jsFrontendElectron.js.map",
+        "${project.name}-jsFrontendElectron.meta.js",
         "package.json",
         "META-INF/**",
         "*.scss"

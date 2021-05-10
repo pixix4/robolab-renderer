@@ -13,7 +13,7 @@ RUN ./gradlew --no-daemon deployWeb
 FROM node:latest
 WORKDIR /opt/robolab-renderer
 EXPOSE 8080
-ENTRYPOINT node /opt/robolab-renderer/packages/robolab-jsBackend/kotlin/robolab-jsBackend.js
+ENTRYPOINT node /opt/robolab-renderer/packages/robolab-service-renderer-jsBackend/kotlin/robolab-service-renderer-jsBackend.js
 
 ENV WEB_DIRECTORY ./web/
 
