@@ -28,7 +28,7 @@ deploy-docker-image-stable:
     - chmod 0600 $SSH_KEY_ROBOLAB
     - ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB deploy@robolab.inf.tu-dresden.de docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB deploy@robolab.inf.tu-dresden.de docker pull $IMAGE_TAG
-    - ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB deploy@robolab.inf.tu-dresden.de docker-compose -f /home/deploy/web-projects/robolab-docker up -d
+    - ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB deploy@robolab.inf.tu-dresden.de docker-compose -f /home/deploy/web-projects/robolab-docker/docker-compose.yml up -d
   only:
     - master
   tags:
@@ -61,7 +61,7 @@ deploy-docker-image-latest:
     - chmod 0600 $SSH_KEY_ROBOLAB
     - ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB deploy@robolab.inf.tu-dresden.de docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB deploy@robolab.inf.tu-dresden.de docker pull $IMAGE_TAG
-    - ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB deploy@robolab.inf.tu-dresden.de docker-compose -f /home/deploy/web-projects/robolab-docker up -d
+    - ssh -o StrictHostKeyChecking=no -i $SSH_KEY_ROBOLAB deploy@robolab.inf.tu-dresden.de docker-compose -f /home/deploy/web-projects/robolab-docker/docker-compose.yml up -d
   only:
     - develop
   tags:
