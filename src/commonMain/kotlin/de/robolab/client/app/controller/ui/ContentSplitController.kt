@@ -55,7 +55,9 @@ class ContentSplitController : IRenderInstance {
     fun setGridLayout(rowCount: Int, colCount: Int) {
         if (rowCount <= 0 || colCount <= 0) return
 
-        val oldNodes = serialize()
+        val oldNodes = serialize().filterNot {
+            it.isEmpty
+        }
         val newNodes = (0 until rowCount * colCount).map { oldNodes.getOrNull(it) ?: Node() }
 
         val root = Container(Orientation.HORIZONTAL)
@@ -178,6 +180,8 @@ class ContentSplitController : IRenderInstance {
 
         fun splitHorizontal() = split(Orientation.HORIZONTAL)
 
+        val isEmpty
+            get() = content.isEmpty
 
         override fun onRender(msOffset: Double): Boolean {
             return content.onRender(msOffset)

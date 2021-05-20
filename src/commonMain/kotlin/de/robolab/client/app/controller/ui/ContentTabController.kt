@@ -1,5 +1,6 @@
 package de.robolab.client.app.controller.ui
 
+import de.robolab.client.app.model.base.EmptyPlanetDocument
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.renderer.canvas.VirtualCanvas
 import de.robolab.client.renderer.plotter.SimplePlotterManager
@@ -101,6 +102,9 @@ class ContentTabController(
         tab.open(document)
     }
 
+    val isEmpty: Boolean
+        get() = tabList.all { it.isEmpty }
+
     inner class Tab : IRenderInstance {
 
         val canvas = VirtualCanvas()
@@ -114,6 +118,8 @@ class ContentTabController(
         val activeProperty by lazy {
             this@ContentTabController.activeProperty.mapBinding { it == this }
         }
+
+        val isEmpty: Boolean = document is EmptyPlanetDocument
 
         fun select() {
             selectTab(this)
