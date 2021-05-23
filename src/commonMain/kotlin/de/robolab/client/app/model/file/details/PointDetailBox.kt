@@ -17,7 +17,7 @@ class PointDetailBox(point: PointAnimatableManager.AttributePoint, planetFile: P
     val pathSelect = planetFile.planet.pathSelectList.filter {
         it.point == coordinate
     }.map {
-        it.direction.name.toLowerCase().capitalize()
+        it.direction.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
     }
 
     private val targetsSend = planetFile.planet.targetList.filter {

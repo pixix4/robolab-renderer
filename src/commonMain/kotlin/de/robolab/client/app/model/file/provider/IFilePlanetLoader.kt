@@ -1,11 +1,10 @@
 package de.robolab.client.app.model.file.provider
 
-import com.soywiz.klock.DateTime
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.common.net.externalserializers.DateSerializer
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 interface IFilePlanetLoader {
@@ -51,20 +50,19 @@ data class RemoteIdentifier(
 sealed class RemoteMetadata {
 
     abstract val name: String
-    abstract val lastModified: DateTime
+    abstract val lastModified: Instant
 
     @Serializable
     data class Planet(
         override val name: String,
-        @Serializable(with = DateSerializer::class)
-        override val lastModified: DateTime,
+        override val lastModified: Instant,
         val tags: Map<String, List<String>> = emptyMap(),
         val pointCount: Int? = null
     ) : RemoteMetadata()
 
     data class Directory(
         override val name: String,
-        override val lastModified: DateTime,
+        override val lastModified: Instant,
         val childrenCount: Int? = null
     ) : RemoteMetadata()
 }

@@ -1,7 +1,8 @@
 package de.robolab.client.utils.cache
 
-import com.soywiz.klock.DateTime
+import kotlinx.datetime.Instant
 import de.robolab.client.traverser.nextHexString
+import kotlinx.datetime.Clock
 import kotlin.random.Random
 
 class MemoryCacheStorage : ICacheStorage {
@@ -35,7 +36,7 @@ class MemoryCacheStorage : ICacheStorage {
         fun generateCacheStorageId(): CacheStorageId {
             return CacheStorageId(
                 "temp",
-                DateTime.nowUnixLong().toString(),
+                Clock.System.now().toEpochMilliseconds().toString(),
                 Random.nextHexString(8),
                 Random.nextHexString(8),
                 Random.nextHexString(8),

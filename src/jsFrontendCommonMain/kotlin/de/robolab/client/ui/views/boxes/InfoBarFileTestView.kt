@@ -151,7 +151,7 @@ class InfoBarFileTestView(
                                                 append(location.y.toString().padStart(4))
                                                 if (direction != null) {
                                                     append(", ")
-                                                    append(direction.name.first().toUpperCase())
+                                                    append(direction.name.first().uppercase())
                                                 }
                                             }
                                         })

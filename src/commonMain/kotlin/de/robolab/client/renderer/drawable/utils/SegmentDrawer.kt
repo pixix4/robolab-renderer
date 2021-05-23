@@ -140,17 +140,17 @@ object SegmentDrawer {
     }
 
     fun drawCharacter(canvas: ICanvas, character: Char, color: Color, transformation: (Point) -> Point = { it }) {
-        val segments = when (character.toInt()) {
-            '0'.toInt() -> NUMBER_ZERO
-            '1'.toInt() -> NUMBER_ONE
-            '2'.toInt() -> NUMBER_TWO
-            '3'.toInt() -> NUMBER_THREE
-            '4'.toInt() -> NUMBER_FOUR
-            '5'.toInt() -> NUMBER_FIVE
-            '6'.toInt() -> NUMBER_SIX
-            '7'.toInt() -> NUMBER_SEVEN
-            '8'.toInt() -> NUMBER_EIGHT
-            '9'.toInt() -> NUMBER_NINE
+        val segments = when (character.code) {
+            '0'.code -> NUMBER_ZERO
+            '1'.code -> NUMBER_ONE
+            '2'.code -> NUMBER_TWO
+            '3'.code -> NUMBER_THREE
+            '4'.code -> NUMBER_FOUR
+            '5'.code -> NUMBER_FIVE
+            '6'.code -> NUMBER_SIX
+            '7'.code -> NUMBER_SEVEN
+            '8'.code -> NUMBER_EIGHT
+            '9'.code -> NUMBER_NINE
             else -> emptyList()
         }
         drawSegments(canvas, segments, color, transformation)

@@ -33,7 +33,7 @@ class ParsedITermColors: ITermColors {
             val outerRegex = """<key>([a-zA-Z0-9 ]*)</key>\s*<dict>((?:.*?\s)*?)</dict>""".toRegex()
             val innerRegex = """<key>([a-zA-Z0-9 ]*)</key>\s*<[a-z]+>(.*)</[a-z]+>""".toRegex()
 
-            val map = outerRegex.findAll(content.toLowerCase()).map { outerResult ->
+            val map = outerRegex.findAll(content.lowercase()).map { outerResult ->
                 val colorKey = outerResult.groupValues[1]
                 val innerDict = outerResult.groupValues[2]
 

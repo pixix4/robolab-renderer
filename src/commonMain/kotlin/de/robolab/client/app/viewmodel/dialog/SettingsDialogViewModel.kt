@@ -193,7 +193,7 @@ class SettingsDialogViewModel(
             labeledGroup("Debugging") {
                 labeledEntry("Log level") {
                     select(PreferenceStorage.logLevelProperty) {
-                        it.name.toLowerCase().capitalize()
+                        it.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
                     }
                 }
 

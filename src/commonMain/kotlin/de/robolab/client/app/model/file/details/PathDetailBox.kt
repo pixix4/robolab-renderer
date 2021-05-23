@@ -60,7 +60,9 @@ class PathDetailBox(path: Path, planetFile: PlanetFile) : ViewModel {
                 input(classification?.classifier?.desc ?: "")
             }
             labeledEntry("Difficulty") {
-                input(classification?.difficulty?.name?.toLowerCase()?.capitalize() ?: "")
+                input(classification?.difficulty?.name?.lowercase()
+                    ?.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                    ?: "")
             }
             labeledEntry("Score") {
                 input(classification?.score?.toString() ?: "")

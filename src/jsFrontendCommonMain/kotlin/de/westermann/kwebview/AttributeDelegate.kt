@@ -11,7 +11,7 @@ class AttributeDelegate(
         private val paramName: String? = null
 ) {
 
-    private fun getParamName(property: KProperty<*>): String = paramName ?: property.name.toLowerCase()
+    private fun getParamName(property: KProperty<*>): String = paramName ?: property.name.lowercase()
 
     operator fun getValue(container: View, property: KProperty<*>) = container.html.getAttribute(getParamName(property))
 

@@ -36,7 +36,7 @@ open class TypedStorage {
 
         private val envKey = key.replace("([a-z])([A-Z])".toRegex(), "$1_$2")
             .replace("([a-z])\\.([a-z])".toRegex(), "$1_$2")
-            .toUpperCase()
+            .uppercase()
 
         override fun get(): T {
             val value = environment[envKey] ?: storage[key] ?: return default
@@ -108,7 +108,7 @@ open class TypedStorage {
         }
 
         override fun deserialize(value: String): Boolean {
-            return value.toLowerCase() == "true"
+            return value.lowercase() == "true"
         }
     }
 

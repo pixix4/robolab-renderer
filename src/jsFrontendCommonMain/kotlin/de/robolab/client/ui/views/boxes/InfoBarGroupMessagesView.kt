@@ -1,6 +1,5 @@
 package de.robolab.client.ui.views.boxes
 
-import com.soywiz.klock.format
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.group.InfoBarGroupMessages
 import de.robolab.client.app.viewmodel.ViewModel
@@ -14,6 +13,7 @@ import de.robolab.client.ui.adapter.getKeyCode
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAsync
+import de.robolab.common.utils.formatDateTime
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kwebview.View
@@ -21,6 +21,7 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
 import de.westermann.kwebview.extra.scrollBoxView
+import kotlinx.datetime.Instant
 
 class InfoBarGroupMessagesView(
     private val viewModel: InfoBarGroupMessages,
@@ -235,7 +236,7 @@ class InfoBarGroupMessagesView(
 
             iconView.classList += "info-bar-group-icon"
             iconView.classList += fromToClass(from)
-            iconView.title = from.name.toLowerCase().capitalize()
+            iconView.title = from.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
 
             return iconView
         }
@@ -251,7 +252,7 @@ class InfoBarGroupMessagesView(
                     }
                 }
                 iconView.classList += fromToClass(from.value)
-                iconView.title = from.value.name.toLowerCase().capitalize()
+                iconView.title = from.value.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
             }
 
             return iconView
@@ -291,7 +292,7 @@ class InfoBarGroupMessagesView(
             classList.bind("selected", selectedProperty)
 
             cell {
-                textView(InfoBarGroupMessages.TIME_FORMAT_DETAILED.format(message.metadata.time))
+                textView(formatDateTime(Instant.fromEpochMilliseconds(message.metadata.time), InfoBarGroupMessages.TIME_FORMAT_DETAILED))
             }
             cell {
                 +InfoBarGroupMessagesView.generateFromIcon(message.metadata.from)

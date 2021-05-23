@@ -1,6 +1,5 @@
 package de.robolab.server.jsutils
 
-import com.soywiz.klock.DateTime
 import de.robolab.client.net.requests.PlanetJsonInfo
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.IHeader
@@ -17,6 +16,7 @@ import de.robolab.common.net.data.DirectoryInfo
 import de.robolab.server.model.asPlanetJsonInfo
 import de.robolab.server.model.ServerPlanet
 import de.robolab.server.model.asDirectoryContentInfo
+import kotlinx.datetime.Instant
 import kotlinx.serialization.builtins.ListSerializer
 
 var ServerResponse.httpStatusCode: HttpStatusCode?
@@ -47,14 +47,14 @@ fun Response<*>.sendDirectoryInfo(info: DirectoryInfo.ServerContentInfo) = sendD
 
 fun Response<*>.sendDirectoryInfo(
     path: String,
-    lastModified: DateTime,
+    lastModified: Instant,
     subDirectories: List<DirectoryInfo.MetaInfo>,
     planetInfos: List<PlanetJsonInfo>
 ) = sendDirectoryInfo(DirectoryInfo.ContentInfo(path, lastModified, subDirectories, planetInfos))
 
 fun Response<*>.sendDirectoryInfo(
     path: String,
-    lastModified: DateTime,
+    lastModified: Instant,
     subDirectories: List<DirectoryInfo.MetaInfo>,
     planetInfos: List<ServerPlanetInfo>
 ) = sendDirectoryInfo(

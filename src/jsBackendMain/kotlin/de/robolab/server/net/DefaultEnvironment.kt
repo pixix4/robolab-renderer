@@ -4,8 +4,11 @@ import de.robolab.common.auth.AccessLevel
 import de.robolab.common.auth.User
 import de.robolab.common.auth.requireAccessEnabled
 import de.robolab.common.externaljs.emptyDynamic
+import de.robolab.common.externaljs.fs.existsSync
 import de.robolab.common.externaljs.fs.readdirSync
 import de.robolab.common.externaljs.http.createServer
+import de.robolab.common.externaljs.path.pathJoin
+import de.robolab.common.externaljs.path.pathResolve
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AccessControlAllowMethods
 import de.robolab.common.utils.BuildInformation
@@ -19,7 +22,6 @@ import de.robolab.server.externaljs.express.*
 import de.robolab.server.jsutils.setHeader
 import de.robolab.server.routes.*
 import kotlinx.serialization.Serializable
-import path.path
 
 object DefaultEnvironment {
     val app: ExpressApp = createApp()
@@ -49,13 +51,12 @@ object DefaultEnvironment {
         router.use("/tea", BeverageRouter.teaRouter)
         router.use("/coffee", BeverageRouter.coffeeRouter)
         router.use("/mate", BeverageRouter.mateRouter)
-        if (fs.existsSync(path.resolve(Config.Planets.directory))) {
+        if (existsSync(pathResolve(Config.Planets.directory))) {
             PlanetRouter.mountOnRouter(router) // mounts "/planet" and "/planets"
         } else {
-            logger.warn { "Cannot find planet directory '${path.resolve(Config.Planets.directory)}'" }
+            logger.warn { "Cannot find planet directory '${pathResolve(Config.Planets.directory)}'" }
         }
         router.use("/info", InfoRouter.router)
-        router.use("/auth", AuthRouter.router)
         router.use("/mqtt", MQTTRouter.router)
         router.use("/export", ExportRouter.router)
 
@@ -77,7 +78,7 @@ object DefaultEnvironment {
     }
 
     fun createWebRouter(mount: String, minAccessLevel: AccessLevel = AccessLevel.Anonymous): DefaultRouter {
-        val directory = path.resolve(Config.Web.directory)
+        val directory = pathResolve(Config.Web.directory)
         val router = createRouter(strict = true)
 
         val rawMount: String
@@ -108,7 +109,7 @@ object DefaultEnvironment {
                 }
             }
         }
-        router.get(slashMount) { _, res -> res.sendFile(path.join(directory, "index.html")) }
+        router.get(slashMount) { _, res -> res.sendFile(pathJoin(directory, "index.html")) }
         router.get(rawMount) { _, res -> res.redirect(301, slashMount) }
 
         router.use(rawMount, createStatic(directory))
@@ -118,7 +119,7 @@ object DefaultEnvironment {
 
     fun createElectronRouter(): DefaultRouter {
         val mount = Config.Electron.mount
-        val directory = path.resolve(Config.Electron.directory)
+        val directory = pathResolve(Config.Electron.directory)
         val router = createRouter()
 
         router.get("/latest.json") { _, res ->

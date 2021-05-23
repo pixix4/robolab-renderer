@@ -1,6 +1,5 @@
 package de.robolab.client.app.model.file
 
-import com.soywiz.klock.DateTime
 import de.robolab.client.app.controller.FilePlanetController
 import de.robolab.client.app.model.base.INavigationBarEntry
 import de.robolab.client.app.model.base.INavigationBarTab
@@ -17,12 +16,16 @@ import de.robolab.client.utils.runAsync
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
+import de.robolab.common.utils.formatDateTime
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.constObservable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 
 class FileNavigationList(
     private val tab: FileNavigationTab,
@@ -94,7 +97,7 @@ class FileNavigationList(
 
         override val nameProperty = constObservable(metadata.name)
 
-        override val subtitleProperty = constObservable(metadata.lastModified.local.format("yyyy-MM-dd HH:mm"))
+        override val subtitleProperty = constObservable(formatDateTime(metadata.lastModified,"YYYY-MM-DD HH:mm"))
 
         override val enabledProperty = loader.availableProperty
 
@@ -127,7 +130,7 @@ class FileNavigationList(
             if (planet == null) {
                 val (_, lines) = loader.loadPlanet(id) ?: return null
                 planet = PlanetFile(lines).planet
-                timestamp = DateTime.nowUnixLong()
+                timestamp = Clock.System.now().toEpochMilliseconds()
             }
             return planet
         }

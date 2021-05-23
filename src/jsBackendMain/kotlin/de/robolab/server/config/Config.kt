@@ -1,6 +1,5 @@
 package de.robolab.server.config
 
-import com.soywiz.klock.DateTime
 import de.robolab.client.net.requests.PlanetJsonInfo
 import de.robolab.common.planet.ID
 import de.robolab.common.utils.Logger
@@ -8,6 +7,7 @@ import de.robolab.common.utils.TypedStorage
 import de.robolab.server.data.IPlanetMetaStore
 import de.robolab.server.data.IPlanetStore
 import de.robolab.server.model.asPlanetJsonInfo
+import kotlinx.datetime.Instant
 
 object Config : TypedStorage() {
 
@@ -166,7 +166,7 @@ suspend fun IPlanetMetaStore.getSmallExamPlanetInfo(): PlanetJsonInfo =
     this.retrieveInfo(Config.Info.examPlanetSmallID)?.asPlanetJsonInfo() ?: PlanetJsonInfo(
         ID(Config.Info.examPlanetSmallID),
         Config.Info.examPlanetSmallName,
-        DateTime.EPOCH
+        Instant.DISTANT_PAST
     )
 
 
@@ -174,14 +174,14 @@ suspend fun IPlanetStore.getSmallExamPlanetInfo(): PlanetJsonInfo =
     this.getInfo(Config.Info.examPlanetSmallID)?.asPlanetJsonInfo() ?: PlanetJsonInfo(
         ID(Config.Info.examPlanetSmallID),
         Config.Info.examPlanetSmallName,
-        DateTime.EPOCH
+        Instant.DISTANT_PAST
     )
 
 suspend fun IPlanetMetaStore.getLargeExamPlanetInfo(): PlanetJsonInfo =
     this.retrieveInfo(Config.Info.examPlanetLargeID)?.asPlanetJsonInfo() ?: PlanetJsonInfo(
         ID(Config.Info.examPlanetLargeID),
         Config.Info.examPlanetLargeName,
-        DateTime.EPOCH
+        Instant.DISTANT_PAST
     )
 
 
@@ -189,5 +189,5 @@ suspend fun IPlanetStore.getLargeExamPlanetInfo(): PlanetJsonInfo =
     this.getInfo(Config.Info.examPlanetLargeID)?.asPlanetJsonInfo() ?: PlanetJsonInfo(
         ID(Config.Info.examPlanetSmallID),
         Config.Info.examPlanetLargeName,
-        DateTime.EPOCH
+        Instant.DISTANT_PAST
     )

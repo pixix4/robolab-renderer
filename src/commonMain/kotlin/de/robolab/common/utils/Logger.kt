@@ -1,7 +1,6 @@
 package de.robolab.common.utils
 
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTimeTz
+import kotlinx.datetime.Clock
 
 class Logger(val name: String) {
 
@@ -22,7 +21,7 @@ class Logger(val name: String) {
     }
 
     fun getCurrentDate(): String {
-        return LOG_DATE_FORMAT.format(DateTimeTz.nowLocal())
+        return formatDateTime(Clock.System.now(), LOG_DATE_FORMAT)
     }
 
     fun error(msg: () -> Any?) = log(Level.ERROR, msg)
@@ -67,7 +66,7 @@ class Logger(val name: String) {
             return msg
         }
 
-        val LOG_DATE_FORMAT = DateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+        const val LOG_DATE_FORMAT = "YYYY-MM-DD HH:mm:ss.SSS"
     }
 }
 

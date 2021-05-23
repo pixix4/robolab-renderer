@@ -1,6 +1,5 @@
 package de.robolab.server.data
 
-import com.soywiz.klock.DateTime
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.externaljs.dynamicOfDefined
 import de.robolab.server.externaljs.ioredis.*
@@ -8,6 +7,8 @@ import de.robolab.common.externaljs.toList
 import de.robolab.common.jsutils.jsTruthy
 import de.robolab.common.utils.Logger
 import kotlinx.coroutines.await
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 class RedisPlanetMetaStore(connectionString: String, connectionName: String = "") : IPlanetMetaStore {
 
@@ -91,7 +92,7 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
             if (name != null && mtime != null) ServerPlanetInfo(
                 id,
                 name,
-                DateTime.Companion.fromUnix(mtime.toLong()),
+                Instant.fromEpochMilliseconds(mtime.toLong()),
                 tags
             ) else null
         }
@@ -108,7 +109,7 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
             if (name != null && mtime != null) ServerPlanetInfo(
                 id,
                 name,
-                DateTime.fromUnix(mtime.toLong()),
+                Instant.fromEpochMilliseconds(mtime.toLong()),
                 tags = tags[id].orEmpty()
             ) else null
         }.toList()
@@ -117,18 +118,18 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
     override suspend fun setInfo(info: ServerPlanetInfo, onlyIfExist: Boolean) {
         if (onlyIfExist) {
             redis.setxx(planetNameKey(info.id), info.name).await()
-            if (redis.setxx(planetMTimeKey(info.id), info.lastModified.unixMillisLong.toString()).await().jsTruthy())
+            if (redis.setxx(planetMTimeKey(info.id), info.lastModified.toEpochMilliseconds().toString()).await().jsTruthy())
                 setTags(info.id, info.tags)
         } else {
             redis.set(planetNameKey(info.id), info.name).await()
-            redis.set(planetMTimeKey(info.id), info.lastModified.unixMillisLong.toString()).await()
+            redis.set(planetMTimeKey(info.id), info.lastModified.toEpochMilliseconds().toString()).await()
             setTags(info.id, info.tags)
         }
     }
 
     override suspend fun addInfo(info: ServerPlanetInfo) {
         redis.setnx(planetNameKey(info.id), info.name).await()
-        if (redis.setnx(planetMTimeKey(info.id), info.lastModified.unixMillisLong.toString()).await() > 0)
+        if (redis.setnx(planetMTimeKey(info.id), info.lastModified.toEpochMilliseconds().toString()).await() > 0)
             setTags(info.id, info.tags)
     }
 
@@ -148,7 +149,7 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
         return if (storedName == null || storedName == undefined || storedMtime == null || storedMtime == undefined)
             null
         else
-            ServerPlanetInfo(id, storedName, DateTime.Companion.fromUnix(storedMtime.toLong()))
+            ServerPlanetInfo(id, storedName, Instant.fromEpochMilliseconds(storedMtime.toLong()))
     }
 
     override suspend fun setInfo(infos: List<ServerPlanetInfo>, onlyIfExist: Boolean) {
@@ -161,7 +162,7 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
             redis.mset(infos.flatMap {
                 listOf(
                     planetNameKey(it.id) to it.name,
-                    planetMTimeKey(it.id) to it.lastModified.unixMillisLong.toString()
+                    planetMTimeKey(it.id) to it.lastModified.toEpochMilliseconds().toString()
                 )
             }).await()
         }
@@ -172,7 +173,7 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
         redis.msetnx(infos.flatMap {
             listOf(
                 planetNameKey(it.id) to it.name,
-                planetMTimeKey(it.id) to it.lastModified.unixMillisLong.toString()
+                planetMTimeKey(it.id) to it.lastModified.toEpochMilliseconds().toString()
             )
         }).await()
     }
@@ -192,7 +193,7 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
         var lastReconnectError = 0L
         redis.on("error") { event ->
             if (event.errno == "ECONNREFUSED") {
-                val time = DateTime.nowUnixLong()
+                val time = Clock.System.now().toEpochMilliseconds()
 
 
                 if (time - lastReconnectError > TIMEOUT_THROTTLER) {

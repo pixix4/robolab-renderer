@@ -1,6 +1,5 @@
 package de.robolab.client.app.controller
 
-import com.soywiz.klock.DateTime
 import de.robolab.client.app.controller.ui.ContentController
 import de.robolab.client.app.controller.ui.UiController
 import de.robolab.client.app.model.file.FilePlanetDocument
@@ -12,6 +11,8 @@ import de.robolab.common.parser.PlanetFile
 import de.robolab.common.utils.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 
 class FileImportController(
     private val robolabMessageProvider: RobolabMessageProvider,
@@ -38,7 +39,7 @@ class FileImportController(
         return supportedFileTypes.any { fileName.endsWith(it) }
     }
 
-    suspend fun importFile(fileName: String, lastModified: DateTime, contentProvider: suspend () -> Sequence<String>) {
+    suspend fun importFile(fileName: String, lastModified: Instant, contentProvider: suspend () -> Sequence<String>) {
         if (!isFileSupported(fileName)) return
 
         withContext(Dispatchers.Default) {

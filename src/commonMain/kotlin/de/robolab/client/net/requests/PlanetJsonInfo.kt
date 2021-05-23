@@ -1,9 +1,6 @@
 package de.robolab.client.net.requests
 
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.format
-import com.soywiz.klock.parseUtc
+import kotlinx.datetime.Instant
 import de.robolab.common.planet.ID
 import de.robolab.common.planet.IDSerializer
 import de.robolab.common.planet.IPlanetInfo
@@ -22,18 +19,18 @@ class PlanetJsonInfo(
 
 ) : IPlanetInfo<ID> {
 
-    constructor(id: ID, name: String, lastModified: DateTime, tags: Map<String, List<String>> = emptyMap()) :
-            this(id, name, DateFormat.FORMAT1.format(lastModified), tags)
+    constructor(id: ID, name: String, lastModified: Instant, tags: Map<String, List<String>> = emptyMap()) :
+            this(id, name, lastModified.toString(), tags)
 
     @Transient
-    private var _dateTime: DateTime? = null
+    private var _dateTime: Instant? = null
 
-    override val lastModified: DateTime
+    override val lastModified: Instant
         get() {
             val dateTime0 = _dateTime
 
             if (dateTime0 == null) {
-                val dateTime1 = DateFormat.FORMAT1.parseUtc(lastModifiedString)
+                val dateTime1 = Instant.parse(lastModifiedString)
                 _dateTime = dateTime1
                 return dateTime1
             }
@@ -54,11 +51,11 @@ class PlanetJsonInfo(
         return id.hashCode()
     }
 
-    override fun withMTime(time: DateTime): PlanetJsonInfo {
+    override fun withMTime(time: Instant): PlanetJsonInfo {
         return PlanetJsonInfo(
             id = id,
             name = name,
-            lastModifiedString = DateFormat.FORMAT1.format(time)
+            lastModifiedString = time.toString()
         )
     }
 }

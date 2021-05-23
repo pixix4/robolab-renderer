@@ -3,7 +3,9 @@ package de.robolab.common.utils
 import de.robolab.common.externaljs.fs.existsSync
 import de.robolab.common.externaljs.fs.readFileSync
 import de.robolab.common.externaljs.fs.writeFileSync
-import path.path
+import de.robolab.common.externaljs.path.pathJoin
+import de.robolab.common.externaljs.path.pathNormalize
+import de.robolab.common.externaljs.path.pathResolve
 
 actual class KeyValueStorage {
 
@@ -20,10 +22,10 @@ actual class KeyValueStorage {
             println("Loading config file '$filename'!")
             val string = readFileSync(filename, "utf8") as String
 
-            configCache += IniConverter.fromString(string)
+            configCache = configCache + IniConverter.fromString(string)
             return true
         } else {
-            println("Config file '$filename' (${path.resolve(filename)}) does not exist!")
+            println("Config file '$filename' (${pathResolve(filename)}) does not exist!")
         }
 
         return false
@@ -77,10 +79,10 @@ actual class KeyValueStorage {
             var maxDepth = 0
             var filePath = fileName
             while (maxDepth > 0) {
-                if (loadFile(path.resolve(filePath))) {
+                if (loadFile(pathResolve(filePath))) {
                     break
                 }
-                val p = path.normalize(path.join("..", filePath))
+                val p = pathNormalize(pathJoin("..", filePath))
                 if (p == filePath) {
                     break
                 }

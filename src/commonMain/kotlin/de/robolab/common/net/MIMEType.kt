@@ -12,7 +12,7 @@ enum class MIMESuperType(typeKey:String){
     Text("text"),
     Video("video");
 
-    val typeKey:String = typeKey.toLowerCase()
+    val typeKey:String = typeKey.lowercase()
     val subTypes: List<MIMEType> by lazy { MIMEType.lowercaseLookup.filterKeys { it.startsWith("${this.typeKey}/") }.values.toList() }
 
     companion object{
@@ -28,8 +28,8 @@ enum class MIMEType(primaryName: String, vararg alsoKnownAs:String) {
     JWT("application/jwt"),
     ;
 
-    val primaryName = primaryName.toLowerCase()
-    val knownAs: List<String> = listOf(this.primaryName) + alsoKnownAs.map(String::toLowerCase)
+    val primaryName = primaryName.lowercase()
+    val knownAs: List<String> = listOf(this.primaryName) + alsoKnownAs.map(String::lowercase)
 
     companion object{
         val lowercaseLookup: Map<String, MIMEType> = values().flatMap { type-> type.knownAs.map { value->Pair(value, type) } }.toMap()

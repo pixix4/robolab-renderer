@@ -10,7 +10,7 @@ class AccessControlAllowMethods : Header {
 
     constructor(methods: List<HttpMethod>) : super(
         AccessControlAllowMethods.name,
-        methods.joinToString { it.name.toUpperCase() }) {
+        methods.joinToString { it.name.uppercase() }) {
         this.methods = methods
         this.wildcard = false
     }

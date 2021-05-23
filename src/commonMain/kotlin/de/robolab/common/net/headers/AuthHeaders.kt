@@ -82,8 +82,8 @@ enum class AuthenticationSchema {
 
     companion object {
 
-        private val lowerCaseValues: Map<String, AuthenticationSchema> = values().associateBy { it.name.toLowerCase() }
+        private val lowerCaseValues: Map<String, AuthenticationSchema> = values().associateBy { it.name.lowercase() }
 
-        fun parse(value: String): AuthenticationSchema? = lowerCaseValues[value.toLowerCase()]
+        fun parse(value: String): AuthenticationSchema? = lowerCaseValues[value.lowercase()]
     }
 }

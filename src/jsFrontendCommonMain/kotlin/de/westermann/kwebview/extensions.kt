@@ -16,7 +16,7 @@ inline fun <reified V : HTMLElement> createHtmlView(tag: String? = null): V {
     if (tag != null) {
         tagName = tag
     } else {
-        tagName = V::class.js.name.toLowerCase().replace("html([a-z]*)element".toRegex(), "$1")
+        tagName = V::class.js.name.lowercase().replace("html([a-z]*)element".toRegex(), "$1")
         if (tagName.isBlank()) {
             tagName = "div"
         }
@@ -24,7 +24,7 @@ inline fun <reified V : HTMLElement> createHtmlView(tag: String? = null): V {
     return document.createElement(tagName) as V
 }
 
-fun String.toDashCase() = replace("([a-z])([A-Z])".toRegex(), "$1-$2").toLowerCase()
+fun String.toDashCase() = replace("([a-z])([A-Z])".toRegex(), "$1-$2").lowercase()
 
 inline fun <reified T> EventHandler<T>.bind(element: EventTarget, event: String) {
     val listener = object : EventListener {

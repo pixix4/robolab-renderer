@@ -21,7 +21,7 @@ data class Path(
 
     fun length(controlPoints: List<Point> = this.controlPoints): Double {
         return (listOf(Point(source.x, source.y)) + controlPoints + Point(target.x, target.y)).windowed(2, 1)
-            .sumByDouble { (p0, p1) -> p0.distanceTo(p1) }
+            .sumOf { (p0, p1) -> p0.distanceTo(p1) }
     }
 
     val isOneWayPath: Boolean

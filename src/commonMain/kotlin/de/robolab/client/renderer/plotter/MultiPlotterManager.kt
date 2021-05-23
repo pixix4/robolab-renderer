@@ -283,7 +283,7 @@ class MultiPlotterManager(
 
         if (left == leftMax) {
             val width = lane.first().layout.width
-            val height = lane.sumByDouble { it.layout.height } / lane.size
+            val height = lane.sumOf { it.layout.height } / lane.size
 
             for ((index, window) in lane.withIndex()) {
                 window.resize(
@@ -296,7 +296,7 @@ class MultiPlotterManager(
                 )
             }
         } else if (top == topMax) {
-            val width = lane.sumByDouble { it.layout.width } / lane.size
+            val width = lane.sumOf { it.layout.width } / lane.size
             val height = lane.first().layout.height
 
             for ((index, window) in lane.withIndex()) {

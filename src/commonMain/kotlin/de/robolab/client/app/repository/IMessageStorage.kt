@@ -33,19 +33,19 @@ interface IMessageStorage {
     fun clear()
 }
 
-inline class GroupId(val id: Long) {
+value class GroupId(val id: Long) {
     companion object {
         val NEW = GroupId(-1L)
     }
 }
 
-inline class AttemptId(val id: Long) {
+value class AttemptId(val id: Long) {
     companion object {
         val NEW = AttemptId(-1L)
     }
 }
 
-inline class RoomId(val id: Long) {
+value class RoomId(val id: Long) {
     companion object {
         val NEW = RoomId(-1L)
     }

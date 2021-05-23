@@ -4,15 +4,14 @@ import org.jetbrains.kotlin.gradle.targets.js.yarn.yarn
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-import java.util.TimeZone
-import java.util.Date
+import java.util.*
 
 val FRONTEND_VERSION = "4.0.1"
 val BACKEND_VERSION = "1.0.0"
 
 plugins {
-    kotlin("multiplatform") version "1.4.32"
-    kotlin("plugin.serialization") version "1.4.32"
+    kotlin("multiplatform") version "1.5.0"
+    kotlin("plugin.serialization") version "1.5.0"
     id("com.gorylenko.gradle-git-properties") version "2.2.4"
 }
 
@@ -20,9 +19,9 @@ repositories {
     mavenCentral()
 }
 
-val serializationVersion = "1.0.1"
-val klockVersion = "2.0.7"
-val coroutineVersion = "1.4.2"
+val serializationVersion = "1.2.1"
+val datetimeVersion = "0.2.0"
+val coroutineVersion = "1.4.3"
 val ktorVersion = "1.5.0"
 
 @Suppress("LeakingThis")
@@ -79,18 +78,12 @@ open class YarnExec : AbstractExecTask<YarnExec>(YarnExec::class.java) {
 }
 
 kotlin {
-    js("jsFrontendCommon") {
+    js("jsFrontendCommon", IR) {
         browser()
     }
-    js("jsFrontendWeb") {
+    js("jsFrontendWeb", IR) {
         browser {
             binaries.executable()
-            @Suppress("EXPERIMENTAL_API_USAGE")
-            dceTask {
-                keep(
-                    "ktor-ktor-io.\$\$importsForInline\$\$.ktor-ktor-io.io.ktor.utils.io"
-                )
-            }
         }
         compilations.all {
             kotlinOptions {
@@ -98,15 +91,9 @@ kotlin {
             }
         }
     }
-    js("jsFrontendElectron") {
+    js("jsFrontendElectron", IR) {
         browser {
             binaries.executable()
-            @Suppress("EXPERIMENTAL_API_USAGE")
-            dceTask {
-                keep(
-                    "ktor-ktor-io.\$\$importsForInline\$\$.ktor-ktor-io.io.ktor.utils.io"
-                )
-            }
         }
         compilations.all {
             kotlinOptions {
@@ -116,11 +103,10 @@ kotlin {
     }
 
 
-    js("jsBackendCommon") {
-        browser()
+    js("jsBackendCommon", IR) {
         nodejs()
     }
-    js("jsBackend") {
+    js("jsBackend", IR) {
         nodejs {
             binaries.executable()
         }
@@ -133,7 +119,6 @@ kotlin {
 
     sourceSets {
         all {
-            languageSettings.enableLanguageFeature("InlineClasses")
             languageSettings.useExperimentalAnnotation("kotlin.contracts.ExperimentalContracts")
             languageSettings.useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
             languageSettings.useExperimentalAnnotation("kotlin.time.ExperimentalTime")
@@ -143,7 +128,7 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
-                implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:$datetimeVersion")
 
                 implementation("dev.gitlive:kotlin-diff-utils:5.0.7")
 
@@ -161,6 +146,7 @@ kotlin {
                 implementation(npm("abort-controller", "3.0.0"))
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("hammerjs", "2.0.8"))
+                implementation(npm("moment", "2.29.1"))
 
                 implementation(devNpm("sass", "1.32.2"))
             }
@@ -182,6 +168,9 @@ kotlin {
                 implementation(npm("abort-controller", "3.0.0"))
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("hammerjs", "2.0.8"))
+                implementation(npm("moment", "2.29.1"))
+                implementation(npm("buffer", "6.0.3"))
+                implementation(npm("process", "0.11.10"))
 
                 implementation(devNpm("sass", "1.32.2"))
             }
@@ -196,12 +185,11 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
 
-                implementation("com.github.ajalt.clikt:clikt:3.1.0")
-
                 implementation(npm("mqtt", "4.2.6"))
                 implementation(npm("abort-controller", "3.0.0"))
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("hammerjs", "2.0.8"))
+                implementation(npm("moment", "2.29.1"))
 
                 implementation(devNpm("sass", "1.32.2"))
             }
@@ -215,8 +203,6 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
 
-                implementation("com.github.ajalt.clikt:clikt:3.1.0")
-
                 implementation(npm("ioredis", "4.19.4"))
                 implementation(npm("express", "4.17.1"))
                 implementation(npm("socket.io", "3.0.5"))
@@ -225,8 +211,9 @@ kotlin {
                 implementation(npm("jsonwebtoken", "8.5.1"))
                 implementation(npm("cookie-parser", "1.4.5"))
                 implementation(npm("pg", "8.5.1"))
-                implementation(npm("canvas", "2.6.1"))
+                implementation(npm("canvas", "2.8.0"))
                 implementation(npm("express-fileupload", "1.2.0"))
+                implementation(npm("moment", "2.29.1"))
             }
         }
     }
@@ -314,6 +301,7 @@ val generateBuildInformation = tasks.create("generateBuildInformation") {
         )
     }
 
+    outputs.upToDateWhen { false }
     outputs.files(webpackFile, iniFile)
 }
 
@@ -355,11 +343,27 @@ tasks.create<NodeExec>("jsFrontendElectronCompileSass") {
         .withPropertyName("style")
 }
 
-tasks.named("jsFrontendWebBrowserDistributeResources") {
+tasks.named("jsFrontendWebBrowserProductionExecutableDistributeResources") {
     dependsOn("jsFrontendWebCompileSass")
 }
 
-tasks.named("jsFrontendElectronBrowserDistributeResources") {
+tasks.named("jsFrontendElectronBrowserProductionExecutableDistributeResources") {
+    dependsOn("jsFrontendElectronCompileSass")
+}
+
+tasks.named("jsFrontendWebProductionExecutableCompileSync") {
+    dependsOn("jsFrontendWebCompileSass")
+}
+
+tasks.named("jsFrontendElectronProductionExecutableCompileSync") {
+    dependsOn("jsFrontendElectronCompileSass")
+}
+
+tasks.named("jsFrontendWebDevelopmentExecutableCompileSync") {
+    dependsOn("jsFrontendWebCompileSass")
+}
+
+tasks.named("jsFrontendElectronDevelopmentExecutableCompileSync") {
     dependsOn("jsFrontendElectronCompileSass")
 }
 
@@ -418,7 +422,7 @@ val jsFrontendWebTargetFile = tasks.create("jsFrontendWebTargetFile") {
                     var IGNORES = [
                         'electron'
                     ];
-                    return function (context, request, callback) {
+                    return function ({context, request}, callback) {
                         if (IGNORES.indexOf(request) >= 0) {
                             return callback(null, "require('" + request + "')");
                         }
@@ -463,10 +467,9 @@ tasks.named("jsFrontendElectronBrowserProductionWebpack") {
 val deployWeb = tasks.create<Sync>("deployWeb") {
     dependsOn("jsFrontendWebBrowserProductionWebpack", "jsFrontendWebJar")
 
-    project.name
-
     val file =
-        tasks.named("jsFrontendWebBrowserProductionWebpack").get().outputs.files.files.first { it.name == "${project.name}.js" }
+        tasks.named("jsFrontendWebBrowserProductionWebpack")
+            .get().outputs.files.files.first { it.name == "${project.name}.js" }
     val sourceMap = file.resolveSibling("${project.name}.js.map")
     from(
         file,
@@ -475,13 +478,14 @@ val deployWeb = tasks.create<Sync>("deployWeb") {
     )
 
     exclude(
-        "${project.name}-jsFrontendWeb/**",
-        "${project.name}-jsFrontendWeb.js",
-        "${project.name}-jsFrontendWeb.js.map",
-        "${project.name}-jsFrontendWeb.meta.js",
+        "${project.name}-js-frontend-web/**",
+        "${project.name}-js-frontend-web.js",
+        "${project.name}-js-frontend-web.js.map",
+        "${project.name}-js-frontend-web.meta.js",
         "package.json",
         "META-INF/**",
-        "**/*.scss"
+        "**/*.scss",
+        "default"
     )
 
     into("${projectDir}/deploy/distWeb/")
@@ -489,6 +493,7 @@ val deployWeb = tasks.create<Sync>("deployWeb") {
 val deployBackend = tasks.create<Sync>("deployBackend") {
     dependsOn(
         "compileKotlinJsBackend",
+        "jsBackendProductionExecutableCompileSync",
         "jsBackendPackageJson",
         "kotlinNpmInstall",
         "jsBackendProcessResources",
@@ -497,7 +502,7 @@ val deployBackend = tasks.create<Sync>("deployBackend") {
 
     from("$buildDir/js") {
         exclude {
-            it.name.contains("jsFrontend") || it.name.contains("-test") || it.name.contains(".bin") || Files.isSymbolicLink(
+            it.name.contains("js-frontend") || it.name.contains("-test") || it.name.contains(".bin") || Files.isSymbolicLink(
                 Paths.get(it.path)
             )
         }
@@ -515,8 +520,7 @@ tasks.create<NodeExec>("runBackend") {
     workingDir = file("deploy/distServer")
 
     args(
-        "packages/${project.name}-jsBackend/kotlin/${project.name}-jsBackend.js",
-        "-c",
+        "packages/${project.name}-js-backend/kotlin/${project.name}-js-backend.js",
         "${projectDir}/server.ini"
     )
 }
@@ -527,8 +531,7 @@ tasks.create<NodeExec>("runWeb") {
     workingDir = file("deploy/distServer")
 
     args(
-        "packages/${project.name}-jsBackend/kotlin/${project.name}-jsBackend.js",
-        "-c",
+        "packages/${project.name}-js-backend/kotlin/${project.name}-js-backend.js",
         "${projectDir}/server.ini"
     )
 }
@@ -546,10 +549,10 @@ val deployElectron = tasks.create<Sync>("deployElectron") {
     )
 
     exclude(
-        "${project.name}-jsFrontendElectron/**",
-        "${project.name}-jsFrontendElectron.js",
-        "${project.name}-jsFrontendElectron.js.map",
-        "${project.name}-jsFrontendElectron.meta.js",
+        "${project.name}-js-frontend-electron/**",
+        "${project.name}-js-frontend-electron.js",
+        "${project.name}-js-frontend-electron.js.map",
+        "${project.name}-js-frontend-electron.meta.js",
         "package.json",
         "META-INF/**",
         "*.scss"

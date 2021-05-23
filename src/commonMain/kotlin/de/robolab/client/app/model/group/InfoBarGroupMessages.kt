@@ -1,7 +1,5 @@
 package de.robolab.client.app.model.group
 
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.format
 import de.robolab.client.app.controller.DialogController
 import de.robolab.client.app.controller.dialog.SendMessageDialogController
 import de.robolab.client.app.controller.ui.UiController
@@ -17,12 +15,14 @@ import de.robolab.client.communication.From
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.common.utils.formatDateTime
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
+import kotlinx.datetime.Instant
 import kotlin.math.roundToInt
 
 class InfoBarGroupMessages(
@@ -95,13 +95,13 @@ class InfoBarGroupMessages(
 
     val firstMessageTimeStringProperty = messages.mapBinding { list ->
         list.firstOrNull()?.metadata?.time?.let {
-            TIME_FORMAT.format(it)
+            formatDateTime(Instant.fromEpochMilliseconds(it), TIME_FORMAT)
         } ?: ""
     }
 
     val lastMessageTimeStringProperty = messages.mapBinding { list ->
         list.lastOrNull()?.metadata?.time?.let {
-            TIME_FORMAT.format(it)
+            formatDateTime(Instant.fromEpochMilliseconds(it), TIME_FORMAT)
         } ?: ""
     }
 
@@ -116,7 +116,8 @@ class InfoBarGroupMessages(
 
     val fromProperty = robolabMessageProperty.mapBinding {
         if (it == null) "" else
-            it.metadata.from.name.toLowerCase().capitalize()
+            it.metadata.from.name.lowercase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
     }
     val fromEnumProperty = robolabMessageProperty.mapBinding {
         it?.metadata?.from ?: From.UNKNOWN
@@ -130,8 +131,7 @@ class InfoBarGroupMessages(
             it.metadata.topic
     }
     val timeProperty = robolabMessageProperty.mapBinding {
-        if (it == null) "" else
-            TIME_FORMAT_DETAILED.format(it.metadata.time)
+        if (it == null) "" else formatDateTime(Instant.fromEpochMilliseconds(it.metadata.time), TIME_FORMAT_DETAILED)
     }
 
     val detailsProperty = robolabMessageProperty.mapBinding {
@@ -147,8 +147,8 @@ class InfoBarGroupMessages(
     }
 
     companion object {
-        val TIME_FORMAT = DateFormat("HH:mm:ss")
-        val TIME_FORMAT_DETAILED = DateFormat("HH:mm:ss.SSS")
+        const val TIME_FORMAT = "HH:mm:ss"
+        const val TIME_FORMAT_DETAILED = "HH:mm:ss.SSS"
 
         private fun formatRawMessage(message: RobolabMessage): String {
             val rawMessage = message.metadata.rawMessage

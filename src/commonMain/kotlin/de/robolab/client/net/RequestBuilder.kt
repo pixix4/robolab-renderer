@@ -15,7 +15,7 @@ class RequestBuilder {
         set(value) {
             field = value
 
-            when (value.toLowerCase()) {
+            when (value.lowercase()) {
                 "http" -> port = 80
                 "https" -> port = 443
             }

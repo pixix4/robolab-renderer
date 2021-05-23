@@ -461,7 +461,7 @@ class PathAnimatable(
             val factor = if (path.isOneWayPath && planetVersion < PlanetVersion.V2020_SPRING) 0.5 else 1.0
 
             return eval.windowed(2, 1)
-                .sumByDouble { (p0, p1) -> p0.distanceTo(p1) } * factor
+                .sumOf { (p0, p1) -> p0.distanceTo(p1) } * factor
         }
     }
 }

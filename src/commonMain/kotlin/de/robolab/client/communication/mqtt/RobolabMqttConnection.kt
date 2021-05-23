@@ -1,12 +1,12 @@
 package de.robolab.client.communication.mqtt
 
-import com.soywiz.klock.DateTime
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAfterTimeout
 import de.robolab.client.utils.runAsync
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.property
+import kotlinx.datetime.Clock
 
 class RobolabMqttConnection {
 
@@ -72,7 +72,7 @@ class RobolabMqttConnection {
                 }
 
                 override fun onMessage(topic: String, message: String) {
-                    val time = DateTime.nowLocal().local.unixMillisLong
+                    val time = Clock.System.now().toEpochMilliseconds()
                     onMessage.emit(MqttMessage(time, topic, message.replace("\\n", "\n")))
                 }
             })

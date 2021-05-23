@@ -9,6 +9,7 @@ import de.robolab.client.theme.LightTheme
 import de.robolab.common.auth.*
 import de.robolab.common.externaljs.JSArray
 import de.robolab.common.externaljs.isJSArray
+import de.robolab.common.externaljs.path.pathResolve
 import de.robolab.common.externaljs.toList
 import de.robolab.common.jsutils.jsTruthy
 import de.robolab.common.net.HttpStatusCode
@@ -27,13 +28,12 @@ import de.robolab.server.model.toIDString
 import de.robolab.server.net.RESTResponseCodeException
 import io.ktor.util.*
 import io.ktor.util.date.*
-import path.path
 import de.robolab.server.model.ServerPlanet as SPlanet
 
 object PlanetRouter {
     val planetsRouter: DefaultRouter = createRouter()
     val planetStore: IPlanetStore = FilePlanetStore(
-        path.resolve(Config.Planets.directory),
+        pathResolve(Config.Planets.directory),
         RedisPlanetMetaStore(Config.Planets.database, Config.Planets.connectionName)
     )
     val idRouter: PlanetIDRouter = PlanetIDRouter(planetStore)

@@ -85,7 +85,8 @@ class CommentAnimatable(
             view.menu(event, "Comment") {
                 menu("Alignment") {
                     for (alignment in Comment.Alignment.values()) {
-                        action(alignment.name.toLowerCase().capitalize(), comment.alignment == alignment) {
+                        action(alignment.name.lowercase()
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }, comment.alignment == alignment) {
                             callback.setCommentAlignment(comment, alignment)
                         }
                     }

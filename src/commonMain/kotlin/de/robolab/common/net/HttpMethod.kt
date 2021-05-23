@@ -9,10 +9,10 @@ enum class HttpMethod {
 
     companion object {
 
-        private val nameMapping: Map<String, HttpMethod> = HttpMethod.values().associateBy { it.name.toUpperCase() }
+        private val nameMapping: Map<String, HttpMethod> = HttpMethod.values().associateBy { it.name.uppercase() }
 
         fun parse(name: String): HttpMethod? {
-            return nameMapping[name.toUpperCase()]
+            return nameMapping[name.uppercase()]
         }
     }
 }

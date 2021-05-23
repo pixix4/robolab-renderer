@@ -29,7 +29,7 @@ class ContentView(
 
     private fun createContainer(container: ContentSplitController.Container): View {
         return BoxView().apply {
-            classList += container.orientation.name.toLowerCase()
+            classList += container.orientation.name.lowercase()
 
             listFactory(container.entryList, {
                 createEntry(it)

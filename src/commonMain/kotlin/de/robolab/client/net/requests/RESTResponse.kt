@@ -1,6 +1,6 @@
 package de.robolab.client.net.requests
 
-import com.soywiz.klock.DateTime
+import kotlinx.datetime.Instant
 import de.robolab.client.net.IServerResponse
 import de.robolab.client.net.mimeType
 import de.robolab.common.net.*
@@ -93,7 +93,7 @@ open class PlanetResponse(serverResponse: IServerResponse, triggeringRequest: IR
     RESTResponse(serverResponse) {
 
     val lines: List<String>
-    val lastModified: DateTime
+    val lastModified: Instant
 
     init {
         serverResponse.requireOk(triggeringRequest)
@@ -103,7 +103,7 @@ open class PlanetResponse(serverResponse: IServerResponse, triggeringRequest: IR
         }, MIMEType.PlainText to {
             body?.split('\n') ?: emptyList()
         }, triggeringRequest = triggeringRequest)
-        lastModified = serverResponse.typedHeaders.lastModifiedHeader?.dateTime ?: DateTime.Companion.fromUnix(0)
+        lastModified = serverResponse.typedHeaders.lastModifiedHeader?.dateTime ?: Instant.fromEpochMilliseconds(0)
     }
 
     val planet: Planet by lazy {

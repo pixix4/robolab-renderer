@@ -1,13 +1,12 @@
 package de.robolab.client.communication
 
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.parse
 import de.robolab.client.communication.mqtt.MqttMessage
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
 import de.robolab.client.net.http
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.RobolabJson
+import de.robolab.common.utils.parseDateTime
 import de.westermann.kobserve.event.SuspendEventHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -55,12 +54,12 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
         val rawTopicStr = match.groupValues.getOrNull(2) ?: return null
         val rawContentStr = match.groupValues.getOrNull(3) ?: return null
 
-        val date = MQTT_LOG_DATE_FORMAT.parse(rawDateStr)
+        val date = parseDateTime(rawDateStr, MQTT_LOG_DATE_FORMAT)
         val topic = rawTopicStr.split(',').joinToString("/") { it.drop(3).dropLast(3) }
         val content = rawContentStr.replace("\\\"", "\"").replace("\\\\", "\\")
 
         return RobolabMessage.Metadata(
-            date.utc.unixMillis.toLong(),
+            date.toEpochMilliseconds(),
             topic.substringAfterLast('/').substringAfterLast('-'),
             From.UNKNOWN,
             topic,
@@ -110,8 +109,9 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
     }
 
     companion object {
-        private val MQTT_LOG_LINE = """^([0-9:. -]*) \[info].*\[on_publish].*\[((?:<<.*>>)*)].*<<"(.*)">>$""".toRegex()
-        private val MQTT_LOG_DATE_FORMAT = DateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+        @Suppress("RegExpRedundantEscape")
+        private val MQTT_LOG_LINE = """^([0-9:. -]*) \[info\].*\[on_publish\].*\[((?:<<.*>>)*)\].*<<"(.*)">>$""".toRegex()
+        private const val MQTT_LOG_DATE_FORMAT = "YYYY-MM-DD HH:mm:ss.SSS"
 
         private val logger = Logger("RobolabMessageParser")
 

@@ -219,7 +219,7 @@ data class Color(
                 "Invalid color specification"
             }
 
-            var color: String = colorString.toLowerCase()
+            var color: String = colorString.lowercase()
 
             try {
                 if (color.startsWith("#")) {

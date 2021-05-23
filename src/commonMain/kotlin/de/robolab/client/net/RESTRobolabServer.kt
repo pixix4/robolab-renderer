@@ -64,7 +64,7 @@ class RESTRobolabServer(
         query: Map<String, String>,
         headers: Map<String, List<String>>
     ): ServerResponse {
-        if (headers.keys.any { it.toLowerCase() == AuthorizationHeader.name }) {
+        if (headers.keys.any { it.lowercase() == AuthorizationHeader.name }) {
             //Auth-Header overwritten, do not attempt multiple requests
             logger.debug {
                 "|C==>S| $method:$path HED: {custom auth}"

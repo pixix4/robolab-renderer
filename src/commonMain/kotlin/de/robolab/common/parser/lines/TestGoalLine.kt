@@ -8,7 +8,7 @@ import de.robolab.common.testing.TestGoal
 class TestGoalLine(override val line: String) : FileLine<TestGoal> {
 
     override val data = REGEX.matchEntire(line.trim())!!.let { match ->
-        val type = match.groupValues[2].toLowerCase()
+        val type = match.groupValues[2].lowercase()
         val coordinate = match.groupValues[3]
 
         when {

@@ -506,7 +506,7 @@ fun IRedisCommandReceiver.msetnx(vararg args: Pair<String, String>): RedisIntRes
             //)
             promise {
                 val proms = args.map { setnx(it.first, it.second) }
-                return@promise proms.sumBy { it.await() }
+                return@promise proms.sumOf { it.await() }
             }
         }
     }
@@ -524,7 +524,7 @@ fun IRedisCommandReceiver.msetnx(args: List<Pair<String, String>>): RedisIntResp
             //)
             promise {
                 val proms = args.map { setnx(it.first, it.second) }
-                return@promise proms.sumBy { it.await() }
+                return@promise proms.sumOf { it.await() }
             }
         }
     }

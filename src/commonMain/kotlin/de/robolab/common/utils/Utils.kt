@@ -7,7 +7,7 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.toDuration
 
 
-fun String.toDashCase() = replace("([a-z])([A-Z])".toRegex(), "$1-$2").toLowerCase()
+fun String.toDashCase() = replace("([a-z])([A-Z])".toRegex(), "$1-$2").lowercase()
 
 fun <K, V : Any> Map<K, V?>.filterValuesNotNull(): Map<K, V> {
     val result = mutableMapOf<K, V>()
@@ -73,7 +73,7 @@ fun String.toDuration(): Duration {
     val (count, unit) = (durationRegex.matchEntire(this)
         ?: throw IllegalArgumentException("Could not parse duration-string \"$this\"")).destructured
     return count.toLong().toDuration(
-        when (unit.toLowerCase()) {
+        when (unit.lowercase()) {
             "d" -> DurationUnit.DAYS
             "h" -> DurationUnit.HOURS
             "m" -> DurationUnit.MINUTES

@@ -1,7 +1,5 @@
 package de.robolab.client.app.model.group
 
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTimeTz
 import de.robolab.client.app.controller.FilePlanetController
 import de.robolab.client.app.controller.ui.UiController
 import de.robolab.client.app.repository.Attempt
@@ -12,6 +10,7 @@ import de.robolab.client.communication.MessageManager
 import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.client.utils.runAsync
 import de.robolab.common.planet.Planet
+import de.robolab.common.utils.formatDateTime
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.event.now
@@ -20,6 +19,7 @@ import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 
 class GroupAttemptPlanetDocument(
     override val attempt: Attempt,
@@ -30,7 +30,7 @@ class GroupAttemptPlanetDocument(
 ) : AbstractGroupAttemptPlanetDocument() {
 
     override val nameProperty = constObservable(
-        "Group ${attempt.groupName}: ${dateFormat.format(DateTimeTz.Companion.fromUnixLocal(attempt.startMessageTime))}"
+        "Group ${attempt.groupName}: ${formatDateTime(Instant.fromEpochMilliseconds(attempt.startMessageTime), DATE_FORMAT)}"
     )
 
     override val toolBarLeft = constObservable<List<FormContentViewModel>>(emptyList())
@@ -129,6 +129,6 @@ class GroupAttemptPlanetDocument(
     }
 
     companion object {
-        private val dateFormat = DateFormat("HH:mm:ss")
+        private const val DATE_FORMAT = "HH:mm:ss"
     }
 }

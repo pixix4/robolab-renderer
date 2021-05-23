@@ -68,10 +68,10 @@ class StringFilter(
         private val dataSet: List<String>
 ) : Filter<String, TextView> {
     override fun filter(partial: String): List<String> {
-        val lower = partial.trim().toLowerCase()
+        val lower = partial.trim().lowercase()
         return dataSet.filter {
-            it.toLowerCase().contains(lower)
-        }.sortedBy { it.length + it.toLowerCase().indexOf(partial) * 2 }
+            it.lowercase().contains(lower)
+        }.sortedBy { it.length + it.lowercase().indexOf(partial) * 2 }
     }
 
     override fun render(element: String) = TextView(element)

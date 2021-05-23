@@ -48,7 +48,7 @@ class PlanetStatisticsDetailBox(planetFile: PlanetFile) : ViewModel {
             "Blocked path count" to statisticsProperty.mapBinding { it.pathBlockedCount.toString() },
             "Hidden path count" to statisticsProperty.mapBinding { it.pathHiddenCount.toString() },
             "Length" to planetFile.planetProperty.mapBinding { planet ->
-                val lengthGrid = planet.pathList.sumByDouble {
+                val lengthGrid = planet.pathList.sumOf {
                     PathDetailBox.getPathLengthInGridUnits(planet.version, it)
                 }
                 val lengthMeter = lengthGrid * PreferenceStorage.paperGridWidth
@@ -56,7 +56,7 @@ class PlanetStatisticsDetailBox(planetFile: PlanetFile) : ViewModel {
             },
         ).observeConst(),
         "Path difficulty" to PathClassification.Difficulty.values().map { difficulty ->
-            difficulty.name.toLowerCase().capitalize() to statisticsProperty.mapBinding {
+            difficulty.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() } to statisticsProperty.mapBinding {
                 val count = it.pathDifficulty[difficulty] ?: 0
                 if (count <= 0) "" else count.toString()
             }

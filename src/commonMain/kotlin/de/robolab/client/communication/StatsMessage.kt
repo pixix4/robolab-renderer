@@ -44,7 +44,7 @@ data class StatsMessage(
                 readPacket: ByteReadPacket
             ): RobolabMessage {
                 readPacket.discardExact(2)
-                val formatChar = readPacket.readByte().toChar()
+                val formatChar = readPacket.readByte().toInt().toChar()
                 val entryCount: Int = readPacket.readInt()
                 //println(">>> FC:'$formatChar'; EC:$entryCount; R:${readPacket.remaining}")
                 //println(">>> Bytes:")

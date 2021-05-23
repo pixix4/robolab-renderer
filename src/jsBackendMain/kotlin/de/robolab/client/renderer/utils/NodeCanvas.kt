@@ -2,13 +2,12 @@
 
 package de.robolab.client.renderer.utils
 
-import NodeJS.ReadableStream
 import org.w3c.dom.*
 
 external interface Canvas {
     fun getContext(type: String): CanvasRenderingContext2D
 
-    fun createPNGStream(): ReadableStream
+    fun createPNGStream(): dynamic
 }
 
 external interface CanvasRenderingContext2D : CanvasState, CanvasTransform, CanvasCompositing,

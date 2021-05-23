@@ -70,7 +70,7 @@ fun createStatic(
     path: String
 ): Middleware<DefaultRequestData, DefaultResponseData> = Express.static(path)
 
-interface Request<Data> : IncomingServerMessage {
+external interface Request<Data> : IncomingServerMessage {
     val app: ExpressApp
     val baseUrl: String
     val body: dynamic
@@ -135,7 +135,7 @@ fun AnyRequest.queryProp(default: String): ReadOnlyProperty<Nothing?, String> =
 val isMimeTypeProto = Express.request["is"]
 
 fun AnyRequest.isMimeType(type: String): Any? {
-    return isMimeTypeProto(this, type) as Any
+    return isMimeTypeProto(this, type).unsafeCast<Any?>()
 }
 
 fun AnyRequest.isMimeType(type: MIMEType): Any? {

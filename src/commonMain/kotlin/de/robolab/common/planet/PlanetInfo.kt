@@ -1,17 +1,17 @@
 package de.robolab.common.planet
 
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.format
-import com.soywiz.klock.parseUtc
+import de.robolab.common.utils.DateFormat
+import de.robolab.common.utils.formatDateTime
+import de.robolab.common.utils.parseDateTime
+import kotlinx.datetime.Instant
 
 interface IPlanetInfo<IDType> {
     val id: IDType
     val name: String
-    val lastModified: DateTime
+    val lastModified: Instant
     val tags: Map<String, List<String>>
 
-    fun withMTime(time: DateTime): IPlanetInfo<IDType>
+    fun withMTime(time: Instant): IPlanetInfo<IDType>
 }
 
 
@@ -22,22 +22,22 @@ data class ServerPlanetInfo(
     override val tags: Map<String, List<String>> = emptyMap()
 ) : IPlanetInfo<String> {
 
-    override val lastModified: DateTime by lazy {
-        DateFormat.FORMAT1.parseUtc(lastModifiedString)
+    override val lastModified: Instant by lazy {
+        parseDateTime(lastModifiedString, DateFormat.FORMAT1)
     }
 
-    constructor(id: String, name: String, lastModified: DateTime, tags: Map<String, List<String>> = emptyMap()) :
-            this(id, name, DateFormat.FORMAT1.format(lastModified), tags)
+    constructor(id: String, name: String, lastModified: Instant, tags: Map<String, List<String>> = emptyMap()) :
+            this(id, name, formatDateTime(lastModified, DateFormat.FORMAT1), tags)
 
     companion object {
-        fun fromPlanet(id: String, planet: Planet?, lastModified: DateTime, nameOverride: String?=null) =
+        fun fromPlanet(id: String, planet: Planet?, lastModified: Instant, nameOverride: String?=null) =
             ServerPlanetInfo(
                 id,
                 nameOverride?:planet?.name ?: randomName(),
                 lastModified,
                 planet?.tagMap.orEmpty()
             )
-        fun fromPlanet(id: String, planet: Planet, lastModified: DateTime, nameOverride: String?=null) =
+        fun fromPlanet(id: String, planet: Planet, lastModified: Instant, nameOverride: String?=null) =
             ServerPlanetInfo(
                 id,
                 nameOverride?:planet.name,
@@ -46,7 +46,7 @@ data class ServerPlanetInfo(
             )
     }
 
-    override fun withMTime(time: DateTime): ServerPlanetInfo {
-        return copy(lastModifiedString = DateFormat.FORMAT1.format(time))
+    override fun withMTime(time: Instant): ServerPlanetInfo {
+        return copy(lastModifiedString = formatDateTime(time, DateFormat.FORMAT1))
     }
 }

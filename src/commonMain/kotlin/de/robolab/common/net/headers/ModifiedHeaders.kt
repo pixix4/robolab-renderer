@@ -1,15 +1,16 @@
 package de.robolab.common.net.headers
 
-import com.soywiz.klock.*
+import de.robolab.common.utils.formatDateTime
+import de.robolab.common.utils.parseDateTime
+import kotlinx.datetime.Instant
 
 class LastModifiedHeader(value: String) : Header(name, value) {
-    constructor(value: DateTime) : this(format.format(value.toOffset(offset)).replace("UTC", "GMT"))
+    constructor(value: Instant) : this(formatDateTime(value, FORMAT).replace("UTC", "GMT"))
 
-    val dateTime: DateTime = format.parseUtc(value)
+    val dateTime: Instant = parseDateTime(value, FORMAT)
 
     companion object {
-        val format: DateFormat = DateFormat.DEFAULT_FORMAT
-        val offset: TimezoneOffset = TimezoneOffset(TimezoneNames.DEFAULT.namesToOffsets["GMT"]!!)
+        const val FORMAT = "ddd, DD MMM YYYY HH:mm:ss z"
         const val name: String = "last-modified"
     }
 }

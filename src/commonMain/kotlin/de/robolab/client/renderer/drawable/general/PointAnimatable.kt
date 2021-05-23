@@ -114,7 +114,8 @@ class PointAnimatable(
                     if (openDirections.isNotEmpty()) {
                         menu("Add start edge") {
                             for (direction in openDirections) {
-                                action(direction.name.toLowerCase().capitalize()) {
+                                action(direction.name.lowercase()
+                                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }) {
                                     callback.setStartPoint(coordinate, direction)
                                 }
                             }
@@ -125,7 +126,8 @@ class PointAnimatable(
                 menu("Toggle path select") {
                     for (direction in Direction.values()) {
                         val isChecked = pathSelectList.find { it.direction == direction } != null
-                        action(direction.name.toLowerCase().capitalize(), isChecked) {
+                        action(direction.name.lowercase()
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }, isChecked) {
                             callback.togglePathSelect(coordinate, direction)
                         }
                     }

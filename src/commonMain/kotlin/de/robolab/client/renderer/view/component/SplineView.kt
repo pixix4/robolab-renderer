@@ -94,7 +94,7 @@ class SplineView(
     private val distance by property(sourceTransition, targetTransition, controlPointsTransition) {
         pointHelperCache.clear()
         (listOf(this.source) + this.controlPoints + this.target).windowed(2, 1)
-            .sumByDouble { (p0, p1) -> p0.distanceTo(p1) }
+            .sumOf { (p0, p1) -> p0.distanceTo(p1) }
     }
 
     private val curve: Curve = BSpline

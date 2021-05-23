@@ -1,6 +1,5 @@
 package de.robolab.client.ui
 
-import com.soywiz.klock.DateTime
 import de.robolab.client.app.controller.MainController
 import de.robolab.client.app.viewmodel.MainViewModel
 import de.robolab.client.ui.views.*
@@ -20,6 +19,7 @@ import kotlinx.browser.document
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 
 fun initMainView(
     args: MainController.Args
@@ -101,7 +101,7 @@ fun initMainView(
                     if (content != null) {
                         mainController.fileImportController.importFile(
                             file.pathOrName(),
-                            DateTime.fromUnix(file.lastModified.toLong())
+                            Instant.fromEpochMilliseconds(file.lastModified.toLong())
                         ) { file.lineSequence() }
                     }
                 }
@@ -139,7 +139,7 @@ fun initMainView(
                 GlobalScope.launch(Dispatchers.Default) {
                     mainController.fileImportController.importFile(
                         name,
-                        DateTime(lastModified)
+                        Instant.fromEpochMilliseconds(lastModified.toLong())
                     ) { content.splitToSequence("\n") }
                 }
             }

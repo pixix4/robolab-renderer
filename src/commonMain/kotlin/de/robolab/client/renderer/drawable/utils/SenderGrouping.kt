@@ -10,7 +10,7 @@ data class SenderGrouping(
     val char: Char
 ) {
 
-    val color = getColorByIndex(char.toInt() - 65)
+    val color = getColorByIndex(char.code - 65)
 
     companion object {
         private fun getColorByIndex(index: Int): Color {

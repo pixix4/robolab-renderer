@@ -46,7 +46,7 @@ class LineView(
     }
 
     private val length by pointsTransition.mapBinding {
-        it.windowed(2, 1).sumByDouble { (p1, p2) -> p1 distanceTo p2 }
+        it.windowed(2, 1).sumOf { (p1, p2) -> p1 distanceTo p2 }
     }
 
     private fun calcLinePoints(): List<Point> {

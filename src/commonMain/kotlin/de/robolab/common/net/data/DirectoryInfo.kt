@@ -1,12 +1,12 @@
 package de.robolab.common.net.data
 
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.format
-import com.soywiz.klock.parseUtc
+import kotlinx.datetime.Instant
 import de.robolab.client.app.model.file.provider.RemoteMetadata
 import de.robolab.client.net.requests.PlanetJsonInfo
 import de.robolab.common.planet.ServerPlanetInfo
+import de.robolab.common.utils.DateFormat
+import de.robolab.common.utils.formatDateTime
+import de.robolab.common.utils.parseDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -18,7 +18,7 @@ sealed class DirectoryInfo {
     open val name: String
         get() = path.trimEnd('/').substringAfterLast('/')
 
-    abstract val lastModified: DateTime
+    abstract val lastModified: Instant
     abstract val childrenCount: Int
 
     fun asDirectoryRemoteMetadata() = RemoteMetadata.Directory(
@@ -34,18 +34,18 @@ sealed class DirectoryInfo {
         val lastModifiedString: String,
         override val childrenCount: Int,
     ) : DirectoryInfo() {
-        constructor(path: String, lastModified: DateTime, childrenCount: Int) :
-                this(path, DateFormat.FORMAT1.format(lastModified), childrenCount)
+        constructor(path: String, lastModified: Instant, childrenCount: Int) :
+                this(path, formatDateTime(lastModified, DateFormat.FORMAT1), childrenCount)
 
         @Transient
-        private var _dateTime: DateTime? = null
+        private var _dateTime: Instant? = null
 
-        override val lastModified: DateTime
+        override val lastModified: Instant
             get() {
                 val dateTime0 = _dateTime
 
                 if (dateTime0 == null) {
-                    val dateTime1 = DateFormat.FORMAT1.parseUtc(lastModifiedString)
+                    val dateTime1 = parseDateTime(lastModifiedString, DateFormat.FORMAT1)
                     _dateTime = dateTime1
                     return dateTime1
                 }
@@ -63,21 +63,21 @@ sealed class DirectoryInfo {
         val planets: List<PlanetJsonInfo>,
     ) : DirectoryInfo() {
 
-        constructor(path: String, lastModified: DateTime, subdirectories: List<MetaInfo>, planets: List<PlanetJsonInfo>)
-                : this(path, DateFormat.FORMAT1.format(lastModified), subdirectories, planets)
+        constructor(path: String, lastModified: Instant, subdirectories: List<MetaInfo>, planets: List<PlanetJsonInfo>)
+                : this(path, formatDateTime(lastModified, DateFormat.FORMAT1), subdirectories, planets)
 
         @Transient
         override val childrenCount: Int = subdirectories.size + planets.size
 
         @Transient
-        private var _dateTime: DateTime? = null
+        private var _dateTime: Instant? = null
 
-        override val lastModified: DateTime
+        override val lastModified: Instant
             get() {
                 val dateTime0 = _dateTime
 
                 if (dateTime0 == null) {
-                    val dateTime1 = DateFormat.FORMAT1.parseUtc(lastModifiedString)
+                    val dateTime1 = parseDateTime(lastModifiedString, DateFormat.FORMAT1)
                     _dateTime = dateTime1
                     return dateTime1
                 }
@@ -88,7 +88,7 @@ sealed class DirectoryInfo {
 
     data class ServerContentInfo(
         val path: String,
-        val lastModified: DateTime,
+        val lastModified: Instant,
         val subdirectories: List<MetaInfo>,
         val planets: List<ServerPlanetInfo>,
     )

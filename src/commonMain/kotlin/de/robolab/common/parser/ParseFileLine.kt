@@ -88,7 +88,7 @@ fun parseTestSignal(str: String): TestSignal? {
     return TestSignal.Unordered(str.trim())
 }
 
-fun parseDirection(str: String) = when (str.toLowerCase()) {
+fun parseDirection(str: String) = when (str.lowercase()) {
     "n", "north" -> Direction.NORTH
     "e", "east" -> Direction.EAST
     "s", "south" -> Direction.SOUTH

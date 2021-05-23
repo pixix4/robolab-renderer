@@ -23,11 +23,11 @@ data class TypedHeaders(
 
 fun Map<String, List<String>>.toLowerCaseKeys(simplified: Boolean = false): Map<String, List<String>> {
     return if (simplified)
-        this.mapKeys { it.key.toLowerCase() }
+        this.mapKeys { it.key.lowercase() }
     else {
         val mutMap: MutableMap<String, List<String>> = mutableMapOf()
         for ((key: String, value: List<String>) in this) {
-            val newKey = key.toLowerCase()
+            val newKey = key.lowercase()
             val oldValue = mutMap.put(newKey, value)
             if (oldValue != null)
                 mutMap[newKey] = oldValue + value

@@ -1,6 +1,5 @@
 package de.robolab.server.data
 
-import com.soywiz.klock.js.toDateTime
 import de.robolab.client.utils.removeCommon
 import de.robolab.common.externaljs.fs.*
 import de.robolab.common.net.HttpStatusCode
@@ -8,9 +7,11 @@ import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.server.net.RESTResponseCodeException
 import de.robolab.common.externaljs.os.EOL
+import de.robolab.common.externaljs.path.pathJoin
 import de.robolab.common.externaljs.path.safeJoinPath
 import de.robolab.common.externaljs.toList
 import de.robolab.common.jsutils.jsTruthy
+import de.robolab.common.jsutils.toDateTime
 import de.robolab.common.net.data.DirectoryInfo
 import de.robolab.common.utils.Logger
 import de.robolab.server.config.Config
@@ -18,8 +19,6 @@ import de.robolab.server.model.toIDString
 import kotlinx.coroutines.await
 import kotlin.js.Promise
 import de.robolab.server.model.ServerPlanet as SPlanet
-import path.path as ppath
-
 
 private suspend fun makeClosestFile(
     directory: String,
@@ -329,19 +328,19 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
                 relativeBasePath,
                 stats.mtime.toDateTime(),
                 directories.mapNotNull {
-                    if (pathIsWhitelisted(ppath.join(path, it.name))) {
+                    if (pathIsWhitelisted(pathJoin(path, it.name))) {
                         DirectoryInfo.MetaInfo(
                             if (relativeBasePath.endsWith("/")) relativeBasePath + it.name
                             else relativeBasePath + "/" + it.name,
-                            stat(ppath.join(safePath, it.name)).await().mtime.toDateTime(),
-                            readdirents(ppath.join(safePath, it.name)).await().toList().count { subEnt ->
+                            stat(pathJoin(safePath, it.name)).await().mtime.toDateTime(),
+                            readdirents(pathJoin(safePath, it.name)).await().toList().count { subEnt ->
                                 //TODO: Cache count
                                 subEnt.isDirectory() || (subEnt.isFile() && subEnt.name.endsWith(".planet"))
                             }
                         )
                     } else null
                 },
-                files.mapNotNull { getInfo(internalPlanetIDFromPath(ppath.join(safePath, it.name))) })
+                files.mapNotNull { getInfo(internalPlanetIDFromPath(pathJoin(safePath, it.name))) })
         } catch (ex: dynamic) {
             if (ex.code != "ENOENT")
                 throw ex.unsafeCast<Throwable>()

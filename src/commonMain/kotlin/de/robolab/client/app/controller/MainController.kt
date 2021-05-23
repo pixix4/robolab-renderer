@@ -1,6 +1,5 @@
 package de.robolab.client.app.controller
 
-import com.soywiz.klock.DateTime
 import de.robolab.client.app.controller.ui.*
 import de.robolab.client.app.repository.DatabaseMessageStorage
 import de.robolab.client.app.repository.MemoryMessageStorage
@@ -20,6 +19,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 
 class MainController(private val args: Args) {
 
@@ -157,7 +158,7 @@ class MainController(private val args: Args) {
 
     data class ArgFile(
         val name: String,
-        val dateTime: DateTime,
+        val dateTime: Instant,
         val content: suspend () -> Sequence<String>
     )
 }

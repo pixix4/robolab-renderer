@@ -44,13 +44,13 @@ data class TestFlagSetter(
             override fun getDefault(subscribable: SubscribableIdentifier<*>, planet: LookupPlanet): Boolean = false
         };
 
-        fun nameWithValue(value: Boolean): String = (if (value) name else negatedName).toLowerCase()
+        fun nameWithValue(value: Boolean): String = (if (value) name else negatedName).lowercase()
 
         abstract fun getDefault(subscribable: SubscribableIdentifier<*>, planet: LookupPlanet): Boolean
 
         companion object {
             fun fromString(name: String): Pair<Type, Boolean> {
-                val canonicalName = name.trim().toUpperCase()
+                val canonicalName = name.trim().uppercase()
                 return values().mapNotNull {
                     when (canonicalName) {
                         it.name -> it to true

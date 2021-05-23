@@ -1,7 +1,5 @@
 package de.robolab.client.communication
 
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTimeTz
 import de.robolab.client.utils.Flags
 import de.robolab.client.utils.emptyFlags
 import de.robolab.common.net.data.OdometryData
@@ -9,6 +7,7 @@ import de.robolab.common.net.data.OdometryPayloadFlags
 import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Direction
 import de.robolab.common.planet.Path
+import de.robolab.common.utils.formatDateTime
 import io.ktor.utils.io.core.*
 
 /**
@@ -258,7 +257,7 @@ sealed class RobolabMessage(
         }
     }
 
-    override fun toString() = "${DateFormat("HH:mm:ss").format(DateTimeTz.fromUnixLocal(metadata.time))}: ${metadata.rawMessage}"
+    override fun toString() = "${formatDateTime(kotlinx.datetime.Instant.fromEpochMilliseconds(metadata.time), "HH:mm:ss")}: ${metadata.rawMessage}"
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RobolabMessage) return false

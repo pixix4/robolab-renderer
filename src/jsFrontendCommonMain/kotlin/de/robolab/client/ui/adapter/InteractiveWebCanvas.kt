@@ -359,7 +359,7 @@ fun KeyboardEvent.toEvent(): KeyEvent {
     )
 }
 
-fun KeyboardEvent.getKeyCode() = when (key.toLowerCase()) {
+fun KeyboardEvent.getKeyCode() = when (key.lowercase()) {
     "," -> KeyCode.COMMA
     "<" -> KeyCode.ANGLE_BRACKET_LEFT
     "." -> KeyCode.PERIOD

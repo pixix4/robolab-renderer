@@ -311,7 +311,7 @@ class TextView(
                     var c = event.keyCode.char ?: return@onKeyPress
 
                     if (!event.shiftKey) {
-                        c = c.toLowerCase()
+                        c = c.lowercaseChar()
                     }
 
                     val newText = text.substring(0, index) + c + text.substring(index, text.length)

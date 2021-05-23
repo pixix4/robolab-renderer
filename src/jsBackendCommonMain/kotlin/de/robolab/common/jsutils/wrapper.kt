@@ -3,6 +3,8 @@
 package de.robolab.common.jsutils
 
 import de.robolab.common.externaljs.*
+import kotlinx.datetime.Instant
+import kotlin.js.Date
 
 typealias JSBiCallback<E, T> = (err: E, res: T) -> Unit
 typealias JSErrorCallback<E> = (err: E) -> Unit
@@ -114,3 +116,7 @@ fun <T> T.jsCreateDelegate(vararg except: String): T = jsCreateDelegateCall(this
 fun <V> Map<String,V>.toDynamic():dynamic = dynamicOf(this.map { it.key to it.value })
 
 fun <V> Map<String,V>.toDynamicWhereDefined():dynamic = dynamicOfDefined(this.map { it.key to it.value })
+
+fun Date.toDateTime(): Instant {
+    return Instant.fromEpochMilliseconds(this.getTime().toLong())
+}

@@ -1,7 +1,5 @@
 package de.robolab.client.app.model.group
 
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTimeTz
 import de.robolab.client.app.model.base.INavigationBarEntry
 import de.robolab.client.app.model.base.INavigationBarList
 import de.robolab.client.app.model.base.MaterialIcon
@@ -12,11 +10,13 @@ import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.utils.MenuBuilder
 import de.robolab.client.utils.runAsync
 import de.robolab.common.utils.Dimension
+import de.robolab.common.utils.formatDateTime
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 
 class GroupAttemptNavigationList(
     private val group: Group,
@@ -79,7 +79,7 @@ class GroupAttemptNavigationList(
         override val tab = this@GroupAttemptNavigationList.tab
 
         override val nameProperty = attemptProperty.mapBinding { attempt ->
-            dateFormat.format(DateTimeTz.Companion.fromUnixLocal(attempt.startMessageTime))
+            formatDateTime(Instant.fromEpochMilliseconds(attempt.startMessageTime), DATE_FORMAT)
         }
 
         override val subtitleProperty = attemptProperty.mapBinding { attempt ->
@@ -149,6 +149,6 @@ class GroupAttemptNavigationList(
     }
 
     companion object {
-        private val dateFormat = DateFormat("HH:mm:ss")
+        private const val DATE_FORMAT = "HH:mm:ss"
     }
 }

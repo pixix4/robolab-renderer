@@ -1,6 +1,5 @@
 package de.robolab.client.app.repository
 
-import com.soywiz.klock.DateTime
 import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.utils.runAfterTimeoutInterval
 import de.robolab.common.utils.Logger
@@ -8,6 +7,7 @@ import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.subscribe
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 
 class MessageRepository(
     private val storage: IMessageStorage
@@ -138,7 +138,7 @@ class MessageRepository(
     private fun processCleanupRoomAttemptList(threshold: Long, storage: EventMessageStorage) {
         val roomList = storage.listAllRooms()
 
-        val thresholdTime = DateTime.nowUnixLong() - threshold
+        val thresholdTime = Clock.System.now().toEpochMilliseconds() - threshold
         for (room in roomList) {
             val outdatedAttempts = storage.listRoomAttempts(room.roomId).filter {
                 it.lastMessageTime < thresholdTime

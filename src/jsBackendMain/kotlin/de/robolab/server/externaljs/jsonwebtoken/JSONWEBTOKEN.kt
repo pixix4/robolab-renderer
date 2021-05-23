@@ -1,11 +1,11 @@
 package de.robolab.server.externaljs.jsonwebtoken
 
-import com.soywiz.klock.DateTime
 import de.robolab.common.net.headers.AuthorizationHeader
 import de.robolab.server.config.Config
 import de.robolab.common.externaljs.JSArray
 import de.robolab.common.externaljs.dynamicOfDefined
 import de.robolab.common.externaljs.toJSArray
+import kotlinx.datetime.Instant
 
 private val jwt: dynamic = js("require(\"jsonwebtoken\")")
 
@@ -82,11 +82,11 @@ class JSONWebToken internal constructor(val dynamic: dynamic, val rawToken: Stri
     val subject: String? = dynamic.sub as? String
     val audience: String? = dynamic.aud as? String
     val expirationTimeRaw: Long? = dynamic.exp as? Long
-    val expirationTime: DateTime? = if (expirationTimeRaw != null) DateTime.fromUnix(expirationTimeRaw) else null
+    val expirationTime: Instant? = if (expirationTimeRaw != null) Instant.fromEpochMilliseconds(expirationTimeRaw) else null
     val notBeforeTimeRaw: Long? = dynamic.nbf as? Long
-    val notBeforeTime: DateTime? = if (notBeforeTimeRaw != null) DateTime.fromUnix(notBeforeTimeRaw) else null
+    val notBeforeTime: Instant? = if (notBeforeTimeRaw != null) Instant.fromEpochMilliseconds(notBeforeTimeRaw) else null
     val issuedAtTimeRaw: Long? = dynamic.iat as? Long
-    val issuedAtTime: DateTime? = if (issuedAtTimeRaw != null) DateTime.fromUnix(issuedAtTimeRaw) else null
+    val issuedAtTime: Instant? = if (issuedAtTimeRaw != null) Instant.fromEpochMilliseconds(issuedAtTimeRaw) else null
     val jwtID: String? = dynamic.jti as? String
 
     fun asHeader(): AuthorizationHeader.Bearer = AuthorizationHeader.Bearer(rawToken)

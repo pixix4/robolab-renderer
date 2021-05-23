@@ -1,6 +1,5 @@
 package de.robolab.server.model
 
-import com.soywiz.klock.DateTime
 import de.robolab.common.parser.PlanetFile
 import de.robolab.common.planet.ServerPlanetInfo
 import de.robolab.common.planet.randomName
@@ -8,6 +7,8 @@ import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.observe
 import de.westermann.kobserve.property.property
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: ${info.name}")) {
 
@@ -36,9 +37,9 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
 
     val id: String = info.id
 
-    val _lastModified: ObservableProperty<DateTime> = info.lastModified.observe()
-    val lastModifiedProp: ObservableValue<DateTime> = _lastModified
-    val lastModified: DateTime by lastModifiedProp
+    val _lastModified: ObservableProperty<Instant> = info.lastModified.observe()
+    val lastModifiedProp: ObservableValue<Instant> = _lastModified
+    val lastModified: Instant by lastModifiedProp
     val _tagMapProp: ObservableProperty<Map<String,List<String>>> = info.tags.observe()
     val tagMapProp: ObservableValue<Map<String,List<String>>> = _tagMapProp
     val tagMap: Map<String, List<String>> by tagMapProp
@@ -51,14 +52,14 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
 
     init {
         this.planetFile.planetProperty.onChange.addListener {
-            _lastModified.set(DateTime.now())
+            _lastModified.set(Clock.System.now())
         }
         var previousModifiedInfo = this.info
         this.infoProp.onChange.addListener {
             val newValue = this.info
             if (previousModifiedInfo.withMTime(newValue.lastModified) != newValue) {
                 previousModifiedInfo = newValue
-                _lastModified.set(DateTime.now())
+                _lastModified.set(Clock.System.now())
             }
         }
         this.nameProp.onChange.addListener {
@@ -76,7 +77,7 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
     class Template(val name: String, lines: List<String> = listOf("#name: $name"), val tags: Map<String,List<String>> = emptyMap()) {
         val lines: MutableList<String> = lines.toMutableList()
 
-        fun withID(id: String): ServerPlanet = ServerPlanet(ServerPlanetInfo(id, name, DateTime.now(), tags), lines = lines)
+        fun withID(id: String): ServerPlanet = ServerPlanet(ServerPlanetInfo(id, name, Clock.System.now(), tags), lines = lines)
 
         fun reparsed(): Template = fromLines(lines, name)
 
