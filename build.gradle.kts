@@ -367,6 +367,14 @@ tasks.named("jsFrontendElectronDevelopmentExecutableCompileSync") {
     dependsOn("jsFrontendElectronCompileSass")
 }
 
+tasks.named("jsFrontendWebJar") {
+    dependsOn("jsFrontendWebCompileSass")
+}
+
+tasks.named("jsFrontendElectronJar") {
+    dependsOn("jsFrontendElectronCompileSass")
+}
+
 tasks.create("jsFrontendElectronNpmVersion") {
     doLast {
         val file = File("${projectDir}/electron/package.json")
