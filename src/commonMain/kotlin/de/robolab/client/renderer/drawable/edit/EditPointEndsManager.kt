@@ -1,14 +1,13 @@
 package de.robolab.client.renderer.drawable.edit
 
 import de.robolab.client.renderer.PlottingConstraints
-import de.robolab.client.renderer.drawable.utils.toPoint
 import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.extraPut
 import de.robolab.client.renderer.view.component.GroupView
 import de.robolab.client.renderer.view.component.SquareView
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
+import de.robolab.common.planet.PlanetPoint
+import de.robolab.common.planet.PlanetDirection
 import de.robolab.common.planet.Planet
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -19,7 +18,7 @@ class EditPointEndsManager(
 ) {
 
     val view = GroupView("Edit point ends manager")
-    private val map = mutableMapOf<Coordinate, GroupView>()
+    private val map = mutableMapOf<PlanetPoint, GroupView>()
 
     private var planet = Planet.EMPTY
     fun importPlanet(planet: Planet) {
@@ -28,8 +27,8 @@ class EditPointEndsManager(
         updateViews()
     }
 
-    private fun setupViewEvents(coordinate: Coordinate, view: GroupView) {
-        for (direction in Direction.values()) {
+    private fun setupViewEvents(coordinate: PlanetPoint, view: GroupView) {
+        for (direction in PlanetDirection.values()) {
             view += setupPointEnd(coordinate, direction, editCallback, createPath)
         }
     }
@@ -38,9 +37,9 @@ class EditPointEndsManager(
         val area = view.document?.plotter?.context?.area ?: return
 
         val coordinatesToRemove = map.keys.toMutableSet()
-        for (x in floor(area.left).toInt()..ceil(area.right).toInt()) {
-            for (y in floor(area.top).toInt()..ceil(area.bottom).toInt()) {
-                val coordinate = Coordinate(x, y)
+        for (x in floor(area.left).toInt()..ceil(area.right).toLong()) {
+            for (y in floor(area.top).toInt()..ceil(area.bottom).toLong()) {
+                val coordinate = PlanetPoint(x, y)
 
                 if (coordinate in map) {
                     coordinatesToRemove -= coordinate
@@ -73,13 +72,13 @@ class EditPointEndsManager(
 
     companion object {
         fun setupPointEnd(
-            coordinate: Coordinate,
-            direction: Direction,
+            coordinate: PlanetPoint,
+            direction: PlanetDirection,
             editCallback: IEditCallback?,
             createPath: CreatePathManager?
         ): SquareView {
             val squareView = SquareView(
-                coordinate.toPoint() + direction.toVector(PlottingConstraints.POINT_SIZE),
+                coordinate.point + direction.toVector(PlottingConstraints.POINT_SIZE),
                 PlottingConstraints.POINT_SIZE,
                 PlottingConstraints.LINE_WIDTH * 0.65,
                 ViewColor.TRANSPARENT

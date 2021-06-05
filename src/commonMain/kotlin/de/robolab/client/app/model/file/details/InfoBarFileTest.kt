@@ -8,14 +8,13 @@ import de.robolab.client.app.viewmodel.SideBarContentViewModel
 import de.robolab.client.app.viewmodel.buildFormContent
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.client.traverser.DefaultTraverser
-import de.robolab.common.planet.LookupPlanet
+import de.robolab.common.planet.utils.LookupPlanet
 import de.robolab.common.planet.Planet
 import de.robolab.common.testing.testWith
 import de.robolab.common.utils.Logger
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.*
-import de.westermann.kobserve.toggle
 
 class InfoBarFileTest(
     private val planetEntry: FilePlanetDocument,

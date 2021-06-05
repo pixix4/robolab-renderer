@@ -13,7 +13,7 @@ import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.extraGet
 import de.robolab.client.renderer.view.component.*
 import de.robolab.client.utils.PreferenceStorage
-import de.robolab.common.planet.IPlanetValue
+import de.robolab.common.planet.utils.IPlanetValue
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.*
 import de.westermann.kobserve.base.ObservableProperty
@@ -63,7 +63,7 @@ abstract class AbsPlanetDrawable(
     private val backgroundView = RectangleView(null, ViewColor.PRIMARY_BACKGROUND_COLOR)
     private val gridLinesView = GridLineView()
     private val nameView = TextView(
-        Point.ZERO,
+        Vector.ZERO,
         40.0,
         "",
         ViewColor.LINE_COLOR.interpolate(ViewColor.GRID_TEXT_COLOR, 0.5),
@@ -103,10 +103,10 @@ abstract class AbsPlanetDrawable(
     )
 
     var focusedElementsProperty = view.focusedStack.mapBinding { list ->
-        list.mapNotNull { it.extraGet<IPlanetValue>() }
+        list.mapNotNull { it.extraGet<IPlanetValue<*>>() }
     }
 
-    fun focus(value: IPlanetValue) {
+    fun focus(value: IPlanetValue<*>) {
         for (layer in planetLayers) {
             layer.focus(value)
         }
@@ -122,8 +122,8 @@ abstract class AbsPlanetDrawable(
         val transformation = plotter?.transformation ?: return
         val targetCenter = centerOfPlanets.rotate(transformation.rotation)
         val window = plotter?.dimension ?: Dimension.ZERO
-        val size = window / Point(2.0, -2.0) * Point(if (flipView) -1.0 else 1.0, 1.0)
-        val point = (targetCenter * transformation.scaledGridWidth - size) * Point(if (flipView) 1.0 else -1.0, 1.0)
+        val size = window / Vector(2.0, -2.0) * Vector(if (flipView) -1.0 else 1.0, 1.0)
+        val point = (targetCenter * transformation.scaledGridWidth - size) * Vector(if (flipView) 1.0 else -1.0, 1.0)
 
         if ((PreferenceStorage.renderAutoScaling || forceAutoScale) && paper.width > 0 && paper.height > 0) {
             val scaleToFactor = min(
@@ -157,8 +157,8 @@ abstract class AbsPlanetDrawable(
         val paperArea = area?.expand(1.0)
         backgroundView.setRectangle(paperArea)
         nameView.text = planetList.asReversed().firstOrNull { it.name.isNotEmpty() }?.name ?: ""
-        val edge = paperArea?.bottomRight ?: Point.ZERO
-        nameView.setSource(edge - Point(0.3, 0.4))
+        val edge = paperArea?.bottomRight ?: Vector.ZERO
+        nameView.setSource(edge - Vector(0.3, 0.4))
 
         paper = paperArea ?: Rectangle.ZERO
         centerOfPlanets = area?.center
@@ -251,7 +251,7 @@ abstract class AbsPlanetDrawable(
                 found = true
             }
 
-            for (p in planet.pathList) {
+            for (p in planet.paths) {
                 if (p.hidden) continue
 
                 update(p.source.x.toDouble(), p.source.y.toDouble())
@@ -262,7 +262,7 @@ abstract class AbsPlanetDrawable(
                 }
 
                 val controlPoints = PathAnimatable.getControlPointsFromPath(planet.version, p)
-                val points = PathAnimatable.multiEval(16, controlPoints, Point(p.source), Point(p.target)) {
+                val points = PathAnimatable.multiEval(16, controlPoints, p.source.point, p.target.point) {
                     BSpline.eval(it, controlPoints)
                 }
                 for (c in points) {
@@ -270,18 +270,16 @@ abstract class AbsPlanetDrawable(
                 }
             }
 
-            if (planet.startPoint != null) {
-                update(planet.startPoint.point.x.toDouble(), planet.startPoint.point.y.toDouble())
+            update(planet.startPoint.point.x.toDouble(), planet.startPoint.point.y.toDouble())
 
-                if (planet.startPoint.controlPoints.isNotEmpty()) {
-                    val p = planet.startPoint.path
-                    val controlPoints = PathAnimatable.getControlPointsFromPath(planet.version, p)
-                    val points = PathAnimatable.multiEval(16, controlPoints, Point(p.source), Point(p.target)) {
-                        BSpline.eval(it, controlPoints)
-                    }
-                    for (c in points) {
-                        update(c.left, c.top)
-                    }
+            if (planet.startPoint.spline != null) {
+                val p = planet.startPoint.path
+                val controlPoints = PathAnimatable.getControlPointsFromPath(planet.version, p)
+                val points = PathAnimatable.multiEval(16, controlPoints, p.source.point, p.target.point) {
+                    BSpline.eval(it, controlPoints)
+                }
+                for (c in points) {
+                    update(c.left, c.top)
                 }
             }
 

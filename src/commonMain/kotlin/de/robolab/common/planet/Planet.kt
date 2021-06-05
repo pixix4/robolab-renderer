@@ -1,174 +1,145 @@
 package de.robolab.common.planet
 
-import de.robolab.common.testing.TestSuite
+import de.robolab.common.planet.test.PlanetTestSuite
+import de.robolab.common.planet.utils.IPlanetValue
+import de.robolab.common.planet.utils.rotate
+import de.robolab.common.planet.utils.scaleWeights
+import de.robolab.common.planet.utils.translate
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlin.math.PI
 
+
+@Serializable
 data class Planet(
-    val version: PlanetVersion,
+    val bluePoint: PlanetPoint? = null,
+    val comments: List<PlanetComment> = emptyList(),
     val name: String,
-    val startPoint: StartPoint?,
-    val bluePoint: Coordinate?,
-    val pathList: List<Path>,
-    val targetList: List<TargetPoint>,
-    val pathSelectList: List<PathSelect>,
-    val commentList: List<Comment>,
-    val tagMap: Map<String, List<String>>,
-    val senderGrouping: Map<Set<Coordinate>, Char>,
-    val testSuite: TestSuite,
-): IPlanetValue {
+    val paths: List<PlanetPath>,
+    val pathSelects: List<PlanetPathSelect>,
+    val senderGroupings: List<PlanetSenderGrouping> = emptyList(),
+    val startPoint: PlanetStartPoint,
+    val tags: Map<String, List<String>> = emptyMap(),
+    val targets: List<PlanetTarget>,
+    val testSuite: PlanetTestSuite? = null,
+    val version: Long
+) : IPlanetValue<Planet> {
+
+    @Transient
+    val senderGroupingsMap = senderGroupings.associate { it.sender to it.name }
 
     fun importSplines(reference: Planet): Planet {
-        var startPoint = this.startPoint
-        var pathList = this.pathList
+        return copy(
+            name = reference.name,
+            version = reference.version,
+            bluePoint = reference.bluePoint,
+            startPoint = startPoint.copy(
+                spline = reference.startPoint.spline
+            ),
+            paths = paths.map {
+                for (p in reference.paths) {
+                    if (it.equalPath(p, false)) {
+                        return@map it.copy(spline = p.spline)
+                    } else if (it.equalPath(p.reversed(), false)) {
+                        return@map it.copy(spline = p.spline?.reversed())
+                    }
+                }
 
-        if (reference.startPoint != null && reference.startPoint.point == startPoint?.point && reference.startPoint.orientation == startPoint.orientation) {
-            startPoint = startPoint.copy(controlPoints = reference.startPoint.controlPoints)
-        }
-
-        pathList = pathList.map { path ->
-            val backgroundPath = reference.pathList.find { it.equalPath(path) } ?: return@map path
-
-            if (backgroundPath.source == path.source && backgroundPath.sourceDirection == path.sourceDirection) {
-                path.copy(
-                    controlPoints = backgroundPath.controlPoints
-                )
-            } else {
-                path.copy(
-                    controlPoints = backgroundPath.controlPoints.reversed()
-                )
+                it
             }
-        }
-
-        return Planet(
-            reference.version,
-            reference.name,
-            startPoint,
-            reference.bluePoint,
-            pathList,
-            targetList,
-            pathSelectList,
-            commentList,
-            tagMap,
-            senderGrouping,
-            testSuite
         )
     }
 
-    fun importSenderGroups(reference: Planet, visitedPoints: List<Coordinate>): Planet {
-        val grouping = reference.senderGrouping.filterKeys { set ->
-            set.all { it in visitedPoints }
-        }.toMutableMap()
-
-        grouping += senderGrouping.filter { (key, value) ->
-            key !in grouping && value !in grouping.values
-        }
-
-        return Planet(
-            version,
-            name,
-            startPoint,
-            bluePoint,
-            pathList,
-            targetList,
-            pathSelectList,
-            commentList,
-            tagMap,
-            grouping,
-            testSuite
+    fun importSenderGroups(reference: Planet, visitedPoints: List<PlanetPoint>): Planet {
+        return copy(
+            senderGroupings = reference.senderGroupings
         ).generateMissingSenderGroupings()
     }
 
-    fun translate(delta: Coordinate) = Planet(
-        version,
-        name,
-        startPoint?.translate(delta),
-        bluePoint?.translate(delta),
-        pathList.map { it.translate(delta) },
-        targetList.map { it.translate(delta) },
-        pathSelectList.map { it.translate(delta) },
-        commentList.map { it.translate(delta) },
-        tagMap,
-        senderGrouping.map { (key, value) ->
-            key.map { it.translate(delta) }.toSet() to value
-        }.toMap(),
-        testSuite.translate(delta),
-    )
-
-    fun rotate(direction: RotateDirection, origin: Coordinate = startPoint?.point ?: Coordinate(0, 0)) = Planet(
-        version,
-        name,
-        startPoint?.rotate(direction, origin),
-        bluePoint?.rotate(direction, origin),
-        pathList.map { it.rotate(direction, origin) },
-        targetList.map { it.rotate(direction, origin) },
-        pathSelectList.map { it.rotate(direction, origin) },
-        commentList.map { it.rotate(direction, origin) },
-        tagMap,
-        senderGrouping.map { (key, value) ->
-            key.map { it.rotate(direction, origin) }.toSet() to value
-        }.toMap(),
-        testSuite.rotate(direction, origin),
-    )
-
-    private fun getDrawableSenderGrouping(): List<Set<Coordinate>> {
-        return (targetList.map {
-            targetList.filter { i -> it.target == i.target }.map { it.exposure }.toSet()
-        } + pathList.map { it.exposure })
+    private fun getDrawableSenderGrouping(): List<Set<PlanetPoint>> {
+        return (targets.map {
+            it.exposure
+        } + paths.map { it.exposure })
             .filterNot { it.isEmpty() }
             .distinct()
     }
 
     fun generateMissingSenderGroupings(): Planet {
-        val missing = getDrawableSenderGrouping() - senderGrouping.keys
+        val missing = getDrawableSenderGrouping() - senderGroupings.map { it.sender }
 
-        val groupings = senderGrouping.toMutableMap()
+        val groupings = senderGroupings.toMutableList()
 
         var lastChar = 'A'
         for (set in missing) {
-            while (lastChar in groupings.values) {
+            while (groupings.any { it.name == lastChar.toString() }) {
                 lastChar += 1
             }
-            groupings += set to lastChar
+            groupings += PlanetSenderGrouping(lastChar.toString(), set)
             lastChar += 1
         }
 
         return copy(
-            senderGrouping = groupings
+            senderGroupings = groupings
         )
     }
 
-    fun getDefaultSenderGroupings(): Map<Set<Coordinate>, Char> {
+    fun getDefaultSenderGroupings(): List<PlanetSenderGrouping> {
         val missing = getDrawableSenderGrouping()
 
-        val groupings = mutableMapOf<Set<Coordinate>, Char>()
+        val groupings = mutableListOf<PlanetSenderGrouping>()
 
         var lastChar = 'A'
         for (set in missing) {
-            while (lastChar in groupings.values) {
+            while (groupings.any { it.name == lastChar.toString() }) {
                 lastChar += 1
             }
-            groupings += set to lastChar
+            groupings += PlanetSenderGrouping(lastChar.toString(), set)
             lastChar += 1
         }
 
         return groupings
     }
 
-    fun scaleWeights(factor: Double = 1.0, offset: Int = 0): Planet {
-        return copy(
-            pathList = pathList.map { path ->
-                path.scaleWeights(factor, offset)
-            }
-        )
-    }
-
-    fun getPointList(): List<Coordinate> {
-        return (pathList.flatMap { listOf(it.source, it.target) + it.exposure } +
-                targetList.flatMap { listOf(it.exposure, it.target) } +
-                pathSelectList.map { it.point } +
-                listOfNotNull(startPoint?.point)
+    fun getPointList(): List<PlanetPoint> {
+        return (
+                paths.flatMap {
+                    listOf(
+                        PlanetPoint(it.sourceX, it.sourceY),
+                        PlanetPoint(it.targetX, it.targetY)
+                    ) + it.exposure
+                } + targets.flatMap {
+                    listOf(
+                        PlanetPoint(it.x, it.y)
+                    ) + it.exposure
+                } + pathSelects.map { PlanetPoint(it.x, it.y) } + PlanetPoint(startPoint.x, startPoint.y)
                 ).distinct()
     }
+
+    override fun translate(delta: PlanetPoint) = copy(
+        bluePoint = bluePoint.translate(delta),
+        comments = comments.translate(delta),
+        paths = paths.translate(delta),
+        pathSelects = pathSelects.translate(delta),
+        senderGroupings = senderGroupings.translate(delta),
+        startPoint = startPoint.translate(delta),
+        targets = targets.translate(delta),
+        testSuite = testSuite.translate(delta),
+    )
+
+    override fun rotate(direction: Planet.RotateDirection, origin: PlanetPoint) = copy(
+        bluePoint = bluePoint.rotate(direction, origin),
+        comments = comments.rotate(direction, origin),
+        paths = paths.rotate(direction, origin),
+        pathSelects = pathSelects.rotate(direction, origin),
+        senderGroupings = senderGroupings.rotate(direction, origin),
+        startPoint = startPoint.rotate(direction, origin),
+        targets = targets.rotate(direction, origin),
+        testSuite = testSuite.rotate(direction, origin),
+    )
+
+    override fun scaleWeights(factor: Double, offset: Long) = copy(
+        paths = paths.scaleWeights(factor, offset)
+    )
 
     enum class RotateDirection(val angle: Double) {
         CLOCKWISE(3 * PI / 2), COUNTER_CLOCKWISE(PI / 2)
@@ -176,17 +147,22 @@ data class Planet(
 
     companion object {
         val EMPTY = Planet(
-            PlanetVersion.CURRENT,
-            "",
-            null,
-            null,
-            emptyList(),
-            emptyList(),
-            emptyList(),
-            emptyList(),
-            emptyMap(),
-            emptyMap(),
-            TestSuite.EMPTY
+            bluePoint = null,
+            comments = emptyList(),
+            name = "",
+            paths = emptyList(),
+            pathSelects = emptyList(),
+            senderGroupings = emptyList(),
+            startPoint = PlanetStartPoint(
+                x = 0L,
+                y = 0L,
+                orientation = PlanetDirection.North,
+                spline = null,
+            ),
+            tags = emptyMap(),
+            targets = emptyList(),
+            testSuite = null,
+            version = 0L,
         )
     }
 }

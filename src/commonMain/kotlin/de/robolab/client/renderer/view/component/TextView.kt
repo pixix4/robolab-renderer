@@ -12,7 +12,7 @@ import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.unionNullable
 import de.westermann.kobserve.property.property
@@ -21,7 +21,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 class TextView(
-    initSource: Point,
+    initSource: Vector,
     private val fontSize: Double,
     initText: String,
     color: ViewColor,
@@ -32,7 +32,7 @@ class TextView(
 
     val sourceTransition = transition(initSource)
     val source by sourceTransition
-    fun setSource(source: Point, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setSource(source: Vector, duration: Double = animationTime, offset: Double = 0.0) {
         sourceTransition.animate(source, duration, offset)
     }
 
@@ -154,7 +154,7 @@ class TextView(
 
         val charWidth = fontSize / CHAR_WIDTH
         val charHeight = fontSize / CHAR_HEIGHT
-        val charIterator = Point(charWidth, 0.0)
+        val charIterator = Vector(charWidth, 0.0)
 
         for ((line, index, box) in lineBoxes) {
             if (isFocused && index == cursor.line) {
@@ -163,13 +163,13 @@ class TextView(
 
                 canvas.strokeLine(
                     listOf(
-                        Point(cursorPosition.left, box.top),
-                        Point(cursorPosition.left, box.bottom)
+                        Vector(cursorPosition.left, box.top),
+                        Vector(cursorPosition.left, box.bottom)
                     ), cursorColor, PlottingConstraints.LINE_WIDTH / 2
                 )
             }
 
-            var iterator = box.topLeft + Point(charWidth / 2, charHeight / 2)
+            var iterator = box.topLeft + Vector(charWidth / 2, charHeight / 2)
             for (char in line) {
                 canvas.fillText(char.toString(), iterator, color, fontSize, ICanvas.FontAlignment.CENTER, fontWeight)
                 iterator += charIterator
@@ -194,7 +194,7 @@ class TextView(
         return outerBox unionNullable parentBox
     }
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         return planetPoint in outerBox
     }
 

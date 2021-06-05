@@ -29,7 +29,7 @@ class TestRunController(
     val status: ObservableValue<TestStatus> = state.mapBinding(TestState<*>::status)
     val goal: ObservableValue<TestGoal.GoalType?> = state.mapBinding(TestState<*>::achievedGoalType)
     val route: ObservableValue<Route> = Route.empty(
-        traversal.traverser.planet.planet.startPoint?.point ?: state.get().traverserState.location
+        traversal.traverser.planet.planet.startPoint.point
     ).observeConst()
 
     fun createRouteRepresentation(): String = "Hier könnte ihre Route stehen"

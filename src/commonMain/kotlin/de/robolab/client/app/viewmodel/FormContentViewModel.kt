@@ -2,7 +2,7 @@ package de.robolab.client.app.viewmodel
 
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
@@ -44,6 +44,25 @@ sealed class FormContentViewModel: ViewModel {
         constructor(
             valueProperty: ObservableValue<Int>,
             range: IntRange,
+            description: String = "",
+            enabledProperty: ObservableValue<Boolean> = constObservable(true),
+        ) : this(
+            valueProperty,
+            range.observeConst(),
+            description.observeConst(),
+            enabledProperty,
+        )
+    }
+
+    class LongInput(
+        val valueProperty: ObservableValue<Long>,
+        val rangeProperty: ObservableValue<LongRange>,
+        val descriptionProperty: ObservableValue<String>,
+        val enabledProperty: ObservableValue<Boolean>,
+    ) : FormContentViewModel() {
+        constructor(
+            valueProperty: ObservableValue<Long>,
+            range: LongRange,
             description: String = "",
             enabledProperty: ObservableValue<Boolean> = constObservable(true),
         ) : this(
@@ -389,7 +408,7 @@ sealed class FormContentViewModel: ViewModel {
     }
 
     data class ClickEvent(
-        val position: Point,
+        val position: Vector,
         val screen: Dimension,
         val ctrlKey: Boolean = false,
         val altKey: Boolean = false,

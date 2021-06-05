@@ -6,7 +6,7 @@ import de.robolab.client.net.requests.IUnboundRESTRequest
 import de.robolab.client.net.requests.JsonRestResponse
 import de.robolab.client.net.requests.PlanetJsonInfo
 import de.robolab.common.net.*
-import de.robolab.common.planet.ID
+import de.robolab.common.planet.utils.ID
 import de.robolab.common.utils.filterValuesNotNull
 import kotlinx.serialization.builtins.ListSerializer
 

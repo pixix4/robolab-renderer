@@ -275,26 +275,26 @@ abstract class BaseView(
             val s = 0.02
             context.strokeLine(
                 listOf(
-                    Point(box.left + s, box.top),
-                    Point(box.left, box.top + s)
+                    Vector(box.left + s, box.top),
+                    Vector(box.left, box.top + s)
                 ), color, width
             )
             context.strokeLine(
                 listOf(
-                    Point(box.left + s, box.bottom),
-                    Point(box.left, box.bottom - s)
+                    Vector(box.left + s, box.bottom),
+                    Vector(box.left, box.bottom - s)
                 ), color, width
             )
             context.strokeLine(
                 listOf(
-                    Point(box.right - s, box.top),
-                    Point(box.right, box.top + s)
+                    Vector(box.right - s, box.top),
+                    Vector(box.right, box.top + s)
                 ), color, width
             )
             context.strokeLine(
                 listOf(
-                    Point(box.right - s, box.bottom),
-                    Point(box.right, box.bottom - s)
+                    Vector(box.right - s, box.bottom),
+                    Vector(box.right, box.bottom - s)
                 ), color, width
             )
         }

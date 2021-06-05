@@ -1,50 +1,68 @@
 package de.robolab.client
 
-import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.arguments.argument
-import com.github.ajalt.clikt.parameters.arguments.multiple
-import com.github.ajalt.clikt.parameters.options.flag
-import com.github.ajalt.clikt.parameters.options.option
 import de.robolab.client.app.controller.MainController
 import de.robolab.client.app.model.file.File
 import de.robolab.client.ui.initMainView
-
-class App : CliktCommand() {
-
-    private val layout by option("--layout", help = "Layout of the plotter (row x col)")
-    private val groups by option("--groups", help = "Init loaded groups (Separated with '+')")
-    private val connect by option("--connect").flag(default = false)
-    private val fullscreen by option("--fullscreen").flag(default = false)
-
-    private val files by argument(help = "Import files").multiple()
-
-    override fun run() {
-        val f = files.map {
-            val file = File(it)
-            MainController.ArgFile(
-                it,
-                file.lastModified,
-                suspend {
-                    file.readText().splitToSequence("\n")
-                }
-            )
-        }
-
-        val args = MainController.Args(
-            layout,
-            groups,
-            fullscreen.toString(),
-            connect.toString(),
-            f
-        )
-
-
-        initMainView(args)
-    }
-}
+import de.robolab.common.utils.ConsoleGreeter
 
 fun main() {
     val electronArgs = js("window.process.argv") as Array<String>
     val args = electronArgs.dropWhile { it != "--##--" }.drop(1)
-    App().main(args)
+
+    var layout = ""
+    var groups = ""
+    var connect = false
+    var fullscreen = false
+    val files = mutableListOf<String>()
+
+    val argIterator = args.iterator()
+
+    while (argIterator.hasNext()) {
+        when (val option = argIterator.next()) {
+            "--layout" -> layout = argIterator.next()
+            "--groups" -> groups = argIterator.next()
+            "--connect" -> connect = true
+            "--fullscreen" -> fullscreen = true
+            "--help" -> {
+                ConsoleGreeter.greetClient()
+                console.log("""
+                    Usage
+                        ./robolab-renderer OPTIONS ARGUMENTS
+                    
+                    Options:
+                        --layout "3x3"       Layout of the plotter (row x col)
+                        --groups "13+17+42"  Init loaded groups (Separated with '+')
+                        --connect            Auto connect to mqtt server
+                        --fullscreen         Start in fullscreen mode
+                        
+                    Arguments:
+                        [files...]           Import planet or log files
+                """.trimIndent())
+                return
+            }
+            else -> files += option
+        }
+    }
+
+    val f = files.map {
+        val file = File(it)
+        MainController.ArgFile(
+            it,
+            file.lastModified,
+            suspend {
+                file.readText().splitToSequence("\n")
+            }
+        )
+    }
+
+    val mainArgs = MainController.Args(
+        layout,
+        groups,
+        fullscreen.toString(),
+        connect.toString(),
+        f
+    )
+
+
+    initMainView(mainArgs)
 }

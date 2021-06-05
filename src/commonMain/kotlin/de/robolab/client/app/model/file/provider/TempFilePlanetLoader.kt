@@ -1,6 +1,7 @@
 package de.robolab.client.app.model.file.provider
 
 import de.robolab.client.app.model.base.MaterialIcon
+import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
@@ -15,11 +16,11 @@ object TempFilePlanetLoader : IFilePlanetLoader {
 
     data class Identifier(
         val id: String,
-        var content: List<String>,
+        var content: Planet,
         var metadata: RemoteMetadata.Planet
     )
 
-    fun create(id: String, metadata: RemoteMetadata.Planet, content: List<String>) {
+    fun create(id: String, metadata: RemoteMetadata.Planet, content: Planet) {
         if (id !in map) {
             map += id to Identifier(
                 id,
@@ -31,7 +32,7 @@ object TempFilePlanetLoader : IFilePlanetLoader {
 
     override val onRemoteChange: EventHandler<RemoteIdentifier> = EventHandler()
 
-    override suspend fun loadPlanet(id: String): Pair<RemoteMetadata.Planet, List<String>>? {
+    override suspend fun loadPlanet(id: String): Pair<RemoteMetadata.Planet, Planet>? {
         val identifier = map[id] ?: return null
         val tmp = loadTempFile(id)
         if (tmp != null) {
@@ -41,16 +42,16 @@ object TempFilePlanetLoader : IFilePlanetLoader {
         return identifier.metadata to identifier.content
     }
 
-    override suspend fun savePlanet(id: String, lines: List<String>): RemoteIdentifier? {
+    override suspend fun savePlanet(id: String, planet: Planet): RemoteIdentifier? {
         val identifier = map[id] ?: return null
-        val tmp = saveTempFile(identifier.id, lines) ?: return null
+        val tmp = saveTempFile(identifier.id, planet) ?: return null
 
         identifier.metadata = tmp
 
         return RemoteIdentifier(id, identifier.metadata)
     }
 
-    override suspend fun createPlanet(parentId: String, lines: List<String>): RemoteIdentifier? {
+    override suspend fun createPlanet(parentId: String, planet: Planet): RemoteIdentifier? {
         return null
     }
 
@@ -81,5 +82,5 @@ object TempFilePlanetLoader : IFilePlanetLoader {
     override val remoteModeProperty: ObservableProperty<RemoteMode> = property(RemoteMode.FLAT)
 }
 
-expect fun loadTempFile(id: String): Pair<RemoteMetadata.Planet, List<String>>?
-expect fun saveTempFile(id: String, content: List<String>): RemoteMetadata.Planet?
+expect fun loadTempFile(id: String): Pair<RemoteMetadata.Planet, Planet>?
+expect fun saveTempFile(id: String, content: Planet): RemoteMetadata.Planet?

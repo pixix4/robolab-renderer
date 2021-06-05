@@ -6,12 +6,11 @@ import de.robolab.client.renderer.events.KeyEvent
 import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.list.observableListOf
-import de.westermann.kobserve.list.sync
 import de.westermann.kobserve.property.property
 import kotlin.math.max
 
@@ -54,14 +53,14 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
         return null
     }
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         return true
     }
 
     val hoveredStack = mutableListOf<IView>()
 
     fun isViewHovered(view: IView) = view in hoveredStack
-    fun updateHoveredView(canvasPosition: Point, mousePosition: Point, epsilon: Double) {
+    fun updateHoveredView(canvasPosition: Vector, mousePosition: Vector, epsilon: Double) {
         val newHoverView: IView? = findHoveredView(canvasPosition, mousePosition, epsilon)
 
         val oldStack = hoveredStack.toList()

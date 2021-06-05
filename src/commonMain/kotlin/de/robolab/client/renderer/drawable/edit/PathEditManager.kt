@@ -10,16 +10,19 @@ import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.CircleView
 import de.robolab.client.renderer.view.component.GroupView
 import de.robolab.client.renderer.view.component.LineView
-import de.robolab.common.planet.Direction
-import de.robolab.common.utils.Point
+import de.robolab.common.planet.PlanetDirection
+import de.robolab.common.planet.PlanetSpline
+import de.robolab.common.planet.PlanetSplineType
+import de.robolab.common.planet.planetCoordinate
+import de.robolab.common.utils.Vector
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
 import kotlin.math.max
 import kotlin.math.round
 
 class PathEditManager(
-        private val animatable: PathAnimatable,
-        private val editCallback: IEditCallback
+    private val animatable: PathAnimatable,
+    private val editCallback: IEditCallback,
 ) {
 
     private val controlPoints
@@ -37,9 +40,9 @@ class PathEditManager(
     val onChangePath = EventHandler<Unit>()
 
     val view = GroupView(
-            "Path edit manager",
-            lineView,
-            controlPointView
+        "Path edit manager",
+        lineView,
+        controlPointView
     ).also {
         it.animationTime = 0.0
     }
@@ -47,21 +50,21 @@ class PathEditManager(
     fun onUpdate() {
         updateViews()
     }
-    
+
     private fun updateViews() {
         updateControlPoints()
         updateLines()
     }
-    
+
     private fun focusViewInDirection(view: IView, direction: Int) {
         val index = if (view is CircleView) {
             controlPointView.indexOf(view) * 2 + 1
         } else lineView.indexOf(view) * 2
-        
+
         if (index < 0) return
-        
+
         val size = controlPointView.size + lineView.size
-        val newIndex =  (index + direction + size) % size
+        val newIndex = (index + direction + size) % size
 
         if (newIndex % 2 == 0) {
             lineView[newIndex / 2].focus()
@@ -69,8 +72,8 @@ class PathEditManager(
             controlPointView[(newIndex - 1) / 2].focus()
         }
     }
-    
-    private fun updateControlPoint(index: Int, position: Point, disableSnapping: Boolean = false): Point {
+
+    private fun updateControlPoint(index: Int, position: Vector, disableSnapping: Boolean = false): Vector {
         return when {
             index == 0 -> {
                 val basisVector = animatable.reference.sourceDirection.toVector()
@@ -101,7 +104,7 @@ class PathEditManager(
             if (disableSnapping) {
                 it
             } else {
-                Point(
+                Vector(
                     round(it.left * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR,
                     round(it.top * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
                 )
@@ -112,7 +115,7 @@ class PathEditManager(
     private fun setupControlPointView(view: CircleView) {
         view.focusable = true
         var groupChanges = true
-        
+
         fun updateSize() {
             if (view.isFocused || view.isHovered) {
                 view.setRadius(PlottingConstraints.LINE_WIDTH * 3)
@@ -125,13 +128,13 @@ class PathEditManager(
         view.onHoverEnter {
             updateSize()
         }
-        view.onHoverLeave  {
+        view.onHoverLeave {
             updateSize()
         }
         view.onFocus {
             updateSize()
         }
-        view.onBlur  {
+        view.onBlur {
             updateSize()
         }
 
@@ -162,10 +165,13 @@ class PathEditManager(
             cp[index] = updateControlPoint(index, event.planetPoint, event.shiftKey)
 
             if (cp != editableControlPoints) {
-                editCallback.updatePathControlPoints(
-                        animatable.reference,
-                        cp,
-                        groupChanges
+                editCallback.updatePathSpline(
+                    animatable.reference,
+                    PlanetSpline(
+                        PlanetSplineType.BSpline,
+                        cp.map { it.planetCoordinate }
+                    ),
+                    groupChanges
                 )
                 onChangePath.emit()
                 groupChanges = true
@@ -181,16 +187,19 @@ class PathEditManager(
 
             val index = controlPointView.indexOf(view)
             val cp = editableControlPoints.toMutableList()
-            
+
             view.menu(event, "Control point ${cp[index]}") {
                 action("Delete") {
 
                     cp.removeAt(index)
 
                     focusViewInDirection(view, -1)
-                    editCallback.updatePathControlPoints(
-                            animatable.reference,
-                            cp
+                    editCallback.updatePathSpline(
+                        animatable.reference,
+                        PlanetSpline(
+                            PlanetSplineType.BSpline,
+                            cp.map { it.planetCoordinate }
+                        )
                     )
                     onChangePath.emit()
                 }
@@ -226,30 +235,36 @@ class PathEditManager(
             KeyCode.TAB,
             shiftKey = true
         )
-        view.onKeyPress {event ->
+        view.onKeyPress { event ->
             val index = controlPointView.indexOf(view)
             val cp = editableControlPoints.toMutableList()
-            
+
             when (event.keyCode) {
                 KeyCode.DELETE -> {
                     cp.removeAt(index)
 
                     focusViewInDirection(view, -1)
-                    editCallback.updatePathControlPoints(
-                            animatable.reference,
-                            cp
+                    editCallback.updatePathSpline(
+                        animatable.reference,
+                        PlanetSpline(
+                            PlanetSplineType.BSpline,
+                            cp.map { it.planetCoordinate }
+                        )
                     )
                     onChangePath.emit()
                     groupChanges = false
                 }
                 KeyCode.ARROW_LEFT -> {
                     cp[index] = updateControlPoint(
-                            index,
-                            cp[index] + Direction.WEST.toVector(PlottingConstraints.PRECISION)
+                        index,
+                        cp[index] + PlanetDirection.West.toVector(PlottingConstraints.PRECISION)
                     )
 
                     if (cp != editableControlPoints) {
-                        editCallback.updatePathControlPoints(animatable.reference, cp, groupChanges)
+                        editCallback.updatePathSpline(animatable.reference, PlanetSpline(
+                            PlanetSplineType.BSpline,
+                            cp.map { it.planetCoordinate }
+                        ), groupChanges)
                         groupChanges = true
                         onChangePath.emit()
                         view.focus()
@@ -257,12 +272,15 @@ class PathEditManager(
                 }
                 KeyCode.ARROW_RIGHT -> {
                     cp[index] = updateControlPoint(
-                            index,
-                            cp[index] + Direction.EAST.toVector(PlottingConstraints.PRECISION)
+                        index,
+                        cp[index] + PlanetDirection.East.toVector(PlottingConstraints.PRECISION)
                     )
 
                     if (cp != editableControlPoints) {
-                        editCallback.updatePathControlPoints(animatable.reference, cp, groupChanges)
+                        editCallback.updatePathSpline(animatable.reference, PlanetSpline(
+                            PlanetSplineType.BSpline,
+                            cp.map { it.planetCoordinate }
+                        ), groupChanges)
                         groupChanges = true
                         onChangePath.emit()
                         view.focus()
@@ -270,12 +288,15 @@ class PathEditManager(
                 }
                 KeyCode.ARROW_UP -> {
                     cp[index] = updateControlPoint(
-                            index,
-                            cp[index] + Direction.NORTH.toVector(PlottingConstraints.PRECISION)
+                        index,
+                        cp[index] + PlanetDirection.North.toVector(PlottingConstraints.PRECISION)
                     )
 
                     if (cp != editableControlPoints) {
-                        editCallback.updatePathControlPoints(animatable.reference, cp, groupChanges)
+                        editCallback.updatePathSpline(animatable.reference, PlanetSpline(
+                            PlanetSplineType.BSpline,
+                            cp.map { it.planetCoordinate }
+                        ), groupChanges)
                         groupChanges = true
                         onChangePath.emit()
                         view.focus()
@@ -283,12 +304,15 @@ class PathEditManager(
                 }
                 KeyCode.ARROW_DOWN -> {
                     cp[index] = updateControlPoint(
-                            index,
-                            cp[index] + Direction.SOUTH.toVector(PlottingConstraints.PRECISION)
+                        index,
+                        cp[index] + PlanetDirection.South.toVector(PlottingConstraints.PRECISION)
                     )
 
                     if (cp != editableControlPoints) {
-                        editCallback.updatePathControlPoints(animatable.reference, cp, groupChanges)
+                        editCallback.updatePathSpline(animatable.reference, PlanetSpline(
+                            PlanetSplineType.BSpline,
+                            cp.map { it.planetCoordinate }
+                        ), groupChanges)
                         groupChanges = true
                         onChangePath.emit()
                         view.focus()
@@ -322,9 +346,9 @@ class PathEditManager(
                 v.setCenter(cp)
             } else if (cp != null) {
                 val newView = CircleView(
-                        cp,
-                        PlottingConstraints.LINE_WIDTH * 2,
-                        ViewColor.EDIT_COLOR
+                    cp,
+                    PlottingConstraints.LINE_WIDTH * 2,
+                    ViewColor.EDIT_COLOR
                 )
                 controlPointView.add(newView)
 
@@ -336,7 +360,7 @@ class PathEditManager(
             controlPointView.removeAt(i)
         }
     }
-    
+
     private fun setupLineView(view: LineView) {
         view.focusable = true
 
@@ -351,13 +375,13 @@ class PathEditManager(
         view.onHoverEnter {
             updateSize()
         }
-        view.onHoverLeave  {
+        view.onHoverLeave {
             updateSize()
         }
         view.onFocus {
             updateSize()
         }
-        view.onBlur  {
+        view.onBlur {
             updateSize()
         }
 
@@ -372,9 +396,12 @@ class PathEditManager(
             val position = view.getNearestPointOnLine(event.planetPoint)
             cp.add(index, position)
 
-            editCallback.updatePathControlPoints(
-                    animatable.reference,
-                    cp
+            editCallback.updatePathSpline(
+                animatable.reference,
+                PlanetSpline(
+                    PlanetSplineType.BSpline,
+                    cp.map { it.planetCoordinate }
+                )
             )
 
             focusViewInDirection(view, 1)
@@ -394,7 +421,7 @@ class PathEditManager(
             KeyCode.TAB,
             shiftKey = true
         )
-        view.onKeyPress {event ->
+        view.onKeyPress { event ->
             val index = lineView.indexOf(view)
             val cp = editableControlPoints.toMutableList()
 
@@ -403,9 +430,12 @@ class PathEditManager(
                     val position = view.source.interpolate(view.target, 0.5)
                     cp.add(index, position)
 
-                    editCallback.updatePathControlPoints(
-                            animatable.reference,
-                            cp
+                    editCallback.updatePathSpline(
+                        animatable.reference,
+                        PlanetSpline(
+                            PlanetSplineType.BSpline,
+                            cp.map { it.planetCoordinate }
+                        )
                     )
 
                     focusViewInDirection(view, 1)
@@ -437,9 +467,9 @@ class PathEditManager(
                 v.setPoints(cp)
             } else if (cp != null) {
                 val newView = LineView(
-                        cp,
-                        PlottingConstraints.LINE_WIDTH / 2.0,
-                        ViewColor.EDIT_COLOR
+                    cp,
+                    PlottingConstraints.LINE_WIDTH / 2.0,
+                    ViewColor.EDIT_COLOR
                 )
                 lineView.add(newView)
 

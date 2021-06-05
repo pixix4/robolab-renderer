@@ -24,9 +24,6 @@ class ExportPlanetDialogViewModel(private val filePlanetDocument: FilePlanetDocu
             button("PNG") {
                 filePlanetDocument.exportAsPNG(fileNameProperty.value)
             }
-            button("Extended planet file") {
-                filePlanetDocument.exportAsExtendedPlanetFile(fileNameProperty.value)
-            }
         }
     }
 }

@@ -3,7 +3,8 @@ package de.robolab.client.app.model.file.provider
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.net.PingRobolabServer
 import de.robolab.client.net.requests.planets.*
-import de.robolab.common.planet.ID
+import de.robolab.common.planet.Planet
+import de.robolab.common.planet.utils.ID
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
@@ -33,21 +34,21 @@ class RemoteFilePlanetLoader(
     override val supportedRemoteModes: List<RemoteMode> = listOf(RemoteMode.NESTED, RemoteMode.FLAT, RemoteMode.LIVE)
     override val remoteModeProperty: ObservableProperty<RemoteMode> = property(RemoteMode.NESTED)
 
-    override suspend fun loadPlanet(id: String): Pair<RemoteMetadata.Planet, List<String>>? {
+    override suspend fun loadPlanet(id: String): Pair<RemoteMetadata.Planet, Planet>? {
         return withContext(Dispatchers.Default) {
             try {
                 val result = server.getPlanet(ID(id)).okOrThrow()
-                RemoteMetadata.Planet(result.planet.name, result.lastModified) to result.lines
+                RemoteMetadata.Planet(result.planet.name, result.lastModified) to result.planet
             } catch (e: Exception) {
                 null
             }
         }
     }
 
-    override suspend fun savePlanet(id: String, lines: List<String>): RemoteIdentifier? {
+    override suspend fun savePlanet(id: String, planet: Planet): RemoteIdentifier? {
         return withContext(Dispatchers.Default) {
             try {
-                server.putPlanet(ID(id), lines.joinToString("\n")).okOrThrow()
+                server.putPlanet(ID(id), planet).okOrThrow()
                 RemoteIdentifier(id, loadPlanet(id)?.first ?: return@withContext null)
             } catch (e: Exception) {
                 null
@@ -55,10 +56,10 @@ class RemoteFilePlanetLoader(
         }
     }
 
-    override suspend fun createPlanet(parentId: String, lines: List<String>): RemoteIdentifier? {
+    override suspend fun createPlanet(parentId: String, planet: Planet): RemoteIdentifier? {
         return withContext(Dispatchers.Default) {
             try {
-                val info = server.postPlanet(lines.joinToString("\n")).okOrThrow().info
+                val info = server.postPlanet(planet).okOrThrow().info
                 RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified))
             } catch (e: Exception) {
                 null

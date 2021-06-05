@@ -1,8 +1,8 @@
 package de.robolab.server.model
 
-import de.robolab.common.parser.PlanetFile
-import de.robolab.common.planet.ServerPlanetInfo
-import de.robolab.common.planet.randomName
+import de.robolab.common.planet.PlanetFile
+import de.robolab.common.planet.utils.ServerPlanetInfo
+import de.robolab.common.planet.utils.randomName
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.observe
@@ -10,14 +10,14 @@ import de.westermann.kobserve.property.property
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
-class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: ${info.name}")) {
+class ServerPlanet(info: ServerPlanetInfo, lines: String) {
 
 
     companion object {
         fun random(): ServerPlanet = Template.random().let { it.withID(it.name) }
     }
 
-    val planetFile: PlanetFile = PlanetFile(lines.joinToString("\n"))
+    val planetFile: PlanetFile = PlanetFile(lines)
 
     private val _fallbackName: ObservableProperty<String> = info.name.observe()
 
@@ -26,14 +26,11 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
     }
     val name: String by nameProp
 
-    val linesProp: ObservableValue<List<String>> =
+    val linesProp: ObservableValue<String> =
         property(planetFile.planetProperty) {
-            if (planetFile.content.isEmpty())
-                emptyList()
-            else
-                planetFile.content
+                planetFile.stringify()
         }
-    val lines: List<String> by linesProp
+    val lines: String by linesProp
 
     val id: String = info.id
 
@@ -68,14 +65,13 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
         }
     }
 
-    fun asTemplate(): Template = Template(name, planetFile.content, planetFile.planet.tagMap)
+    fun asTemplate(): Template = Template(name, planetFile.stringify(), planetFile.planet.tags)
 
     suspend fun lockLines(): Unit {}
     suspend fun lockLines(timeout: Int) {}
     fun unlockLines(): Unit {}
 
-    class Template(val name: String, lines: List<String> = listOf("#name: $name"), val tags: Map<String,List<String>> = emptyMap()) {
-        val lines: MutableList<String> = lines.toMutableList()
+    class Template(val name: String, var lines: String = "", val tags: Map<String,List<String>> = emptyMap()) {
 
         fun withID(id: String): ServerPlanet = ServerPlanet(ServerPlanetInfo(id, name, Clock.System.now(), tags), lines = lines)
 
@@ -86,8 +82,8 @@ class ServerPlanet(info: ServerPlanetInfo, lines: List<String> = listOf("#name: 
                 val file = PlanetFile(lines)
                 return Template(
                     file.planet.name.let { if (it.isEmpty()) fallbackName else it },
-                    file.content,
-                    file.planet.tagMap
+                    file.stringify(),
+                    file.planet.tags
                 )
             }
 

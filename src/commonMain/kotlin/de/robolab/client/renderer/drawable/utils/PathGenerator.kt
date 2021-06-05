@@ -1,10 +1,9 @@
 package de.robolab.client.renderer.drawable.utils
 
 import de.robolab.client.renderer.drawable.live.toAngle
-import de.robolab.common.planet.Direction
-import de.robolab.common.planet.PlanetVersion
+import de.robolab.common.planet.PlanetDirection
+import de.robolab.common.planet.utils.PlanetVersion
 import de.robolab.common.utils.Line
-import de.robolab.common.utils.Point
 import de.robolab.common.utils.Vector
 import kotlin.math.*
 
@@ -17,12 +16,12 @@ object PathGenerator {
     )
 
     fun generateControlPoints(
-        version: PlanetVersion,
-        startPoint: Point,
-        startDirection: Direction,
-        endPoint: Point,
-        endDirection: Direction
-    ): List<Point> {
+        version: Long,
+        startPoint: Vector,
+        startDirection: PlanetDirection,
+        endPoint: Vector,
+        endDirection: PlanetDirection
+    ): List<Vector> {
         val source = Line(startPoint, startDirection)
         val target = Line(endPoint, endDirection)
 
@@ -37,20 +36,20 @@ object PathGenerator {
 
     interface Generator {
 
-        val requiredVersion: PlanetVersion
+        val requiredVersion: Long
 
         fun testGenerator(source: Line, target: Line): Boolean
 
-        fun generate(source: Line, target: Line): List<Point>?
+        fun generate(source: Line, target: Line): List<Vector>?
     }
 
     private fun interpolateRotation(
-        center: Point,
-        startPoint: Point,
-        endPoint: Point,
+        center: Vector,
+        startPoint: Vector,
+        endPoint: Vector,
         progress: Double,
         isLarge: Boolean
-    ): Point {
+    ): Vector {
         val v = (startPoint - center)
 
         val start = v.toAngle()
@@ -70,7 +69,7 @@ object PathGenerator {
         return center + v.rotate(rotation)
     }
 
-    fun interpolateRotation(start: Line, radius: Double, extend: Double): Pair<Line, List<Point>> {
+    fun interpolateRotation(start: Line, radius: Double, extend: Double): Pair<Line, List<Vector>> {
         val center = start.rotate(PI / 2).moveOriginBy(radius).origin
 
         val stepCount = (extend.absoluteValue / PI * 8.0).roundToInt()
@@ -107,7 +106,7 @@ object PathGenerator {
             return source.origin == target.origin
         }
 
-        override fun generate(source: Line, target: Line): List<Point>? {
+        override fun generate(source: Line, target: Line): List<Vector>? {
             val radius = 0.35
             val l1 = source.moveOriginBy(radius)
             val l2 = target.moveOriginBy(radius)
@@ -140,7 +139,7 @@ object PathGenerator {
             return f1 > 0 && f2 > 0
         }
 
-        override fun generate(source: Line, target: Line): List<Point>? {
+        override fun generate(source: Line, target: Line): List<Vector>? {
 
             val intersection = source.intersection(target).point ?: return null
             val radius = min(
@@ -180,7 +179,7 @@ object PathGenerator {
                     source.sameDirection(target)
         }
 
-        override fun generate(source: Line, target: Line): List<Point>? {
+        override fun generate(source: Line, target: Line): List<Vector>? {
             val (h, _) = source.projectOnto(target.origin)
 
             var front: Line
@@ -235,7 +234,7 @@ object PathGenerator {
             return true
         }
 
-        override fun generate(source: Line, target: Line): List<Point> {
+        override fun generate(source: Line, target: Line): List<Vector> {
             val firstList = generateControlPointsPart(
                 PointVector(source.origin, source.direction, Vector::turnHigh, Vector::turnLow),
                 PointVector(target.origin, target.direction, Vector::turnHigh, Vector::turnLow)
@@ -249,9 +248,9 @@ object PathGenerator {
             }
         }
 
-        private fun generateControlPointsPart(start: PointVector, end: PointVector): List<Point> {
-            val startList = mutableListOf<Point>()
-            val endList = mutableListOf<Point>()
+        private fun generateControlPointsPart(start: PointVector, end: PointVector): List<Vector> {
+            val startList = mutableListOf<Vector>()
+            val endList = mutableListOf<Vector>()
 
             start.adder = startList::add
             end.adder = endList::add
@@ -282,14 +281,14 @@ object PathGenerator {
         }
 
         class PointVector(
-            var point: Point,
+            var point: Vector,
             var direction: Vector,
             val turnHigh: (Vector) -> Vector,
             val turnLow: (Vector) -> Vector
         ) {
-            lateinit var adder: (Point) -> Boolean
+            lateinit var adder: (Vector) -> Boolean
 
-            private fun Point.move(vector: Vector): Point {
+            private fun Vector.move(vector: Vector): Vector {
                 return this + vector * STEP_WIDTH
             }
 
@@ -297,7 +296,7 @@ object PathGenerator {
                 point = point.move(direction)
             }
 
-            fun moveTo(other: Point) {
+            fun moveTo(other: Vector) {
                 val forward = point.move(direction)
 
                 val firstDirection = turnHigh(direction)
@@ -325,7 +324,7 @@ object PathGenerator {
                 point = next ?: return
             }
 
-            private infix fun Point.squareDistance(other: Point): Double {
+            private infix fun Vector.squareDistance(other: Vector): Double {
                 val x = x - other.x
                 val y = y - other.y
                 return x * x + y * y
@@ -359,32 +358,32 @@ object PathGenerator {
     }
 }
 
-fun Point.shift(direction: Direction, length: Double): Point {
+fun Vector.shift(direction: PlanetDirection, length: Double): Vector {
     return when (direction) {
-        Direction.NORTH -> Point(left, top + length)
-        Direction.EAST -> Point(left + length, top)
-        Direction.SOUTH -> Point(left, top - length)
-        Direction.WEST -> Point(left - length, top)
+        PlanetDirection.North -> Vector(left, top + length)
+        PlanetDirection.East -> Vector(left + length, top)
+        PlanetDirection.South -> Vector(left, top - length)
+        PlanetDirection.West -> Vector(left - length, top)
     }
 }
 
-fun Direction.turnHigh() = when (this) {
-    Direction.NORTH -> Direction.EAST
-    Direction.EAST -> Direction.NORTH
-    Direction.SOUTH -> Direction.WEST
-    Direction.WEST -> Direction.SOUTH
+fun PlanetDirection.turnHigh() = when (this) {
+    PlanetDirection.North -> PlanetDirection.East
+    PlanetDirection.East -> PlanetDirection.North
+    PlanetDirection.South -> PlanetDirection.West
+    PlanetDirection.West -> PlanetDirection.South
 }
 
-fun Direction.turnLow() = when (this) {
-    Direction.NORTH -> Direction.WEST
-    Direction.EAST -> Direction.SOUTH
-    Direction.SOUTH -> Direction.EAST
-    Direction.WEST -> Direction.NORTH
+fun PlanetDirection.turnLow() = when (this) {
+    PlanetDirection.North -> PlanetDirection.West
+    PlanetDirection.East -> PlanetDirection.South
+    PlanetDirection.South -> PlanetDirection.East
+    PlanetDirection.West -> PlanetDirection.North
 }
 
-fun Vector.turnHigh() = Direction.fromVector(this).turnHigh().toVector()
+fun Vector.turnHigh() = PlanetDirection.fromVector(this).turnHigh().toVector()
 
-fun Vector.turnLow() = Direction.fromVector(this).turnLow().toVector()
+fun Vector.turnLow() = PlanetDirection.fromVector(this).turnLow().toVector()
 
 fun List<Vector>.removeDuplicates(): List<Vector> {
     if (isEmpty()) return this

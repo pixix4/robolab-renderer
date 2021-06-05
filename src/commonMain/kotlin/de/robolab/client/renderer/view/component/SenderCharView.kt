@@ -9,18 +9,18 @@ import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.Color
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import kotlin.math.PI
 import kotlin.math.abs
 
 class SenderCharView(
-    center: Point,
+    center: Vector,
     initGrouping: SenderGrouping?
 ) : BaseView() {
 
     private val centerTransition = transition(center)
     val center by centerTransition
-    fun setCenter(center: Point, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setCenter(center: Vector, duration: Double = animationTime, offset: Double = 0.0) {
         centerTransition.animate(center, duration, offset)
     }
 
@@ -89,7 +89,7 @@ class SenderCharView(
         super.onDraw(context)
     }
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         return false
     }
 
@@ -98,7 +98,7 @@ class SenderCharView(
     }
 
     companion object {
-        fun draw(context: DrawContext, position: Point, color: ViewColor, char: Char) {
+        fun draw(context: DrawContext, position: Vector, color: ViewColor, char: Char) {
             if (PreferenceStorage.renderSenderGrouping) {
                 val c = context.c(color)
                 val b1 = context.theme.plotter.primaryBackgroundColor

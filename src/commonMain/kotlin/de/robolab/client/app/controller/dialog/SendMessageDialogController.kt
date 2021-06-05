@@ -1,7 +1,7 @@
 package de.robolab.client.app.controller.dialog
 
 import de.robolab.client.communication.*
-import de.robolab.common.planet.Direction
+import de.robolab.common.planet.PlanetDirection
 import de.robolab.common.utils.RobolabJson
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -117,55 +117,55 @@ class SendMessageDialogController(
         it == Type.PlanetMessage || it == Type.SetPlanetMessage || it == Type.TestPlanetMessage
     }
 
-    val startXProperty = property(0)
+    val startXProperty = property(0L)
     var startX by startXProperty
     val startXVisibleProperty = typeProperty.mapBinding {
         it == Type.PathSelectMessage || it == Type.PathMessage || it == Type.PlanetMessage || it == Type.PathUnveilMessage
     }
 
-    val startYProperty = property(0)
+    val startYProperty = property(0L)
     var startY by startYProperty
     val startYVisibleProperty = typeProperty.mapBinding {
         it == Type.PathSelectMessage || it == Type.PathMessage || it == Type.PlanetMessage || it == Type.PathUnveilMessage
     }
 
-    val startDirectionProperty = property(Direction.NORTH)
+    val startDirectionProperty = property(PlanetDirection.North)
     var startDirection by startDirectionProperty
     val startDirectionVisibleProperty = typeProperty.mapBinding {
         it == Type.PathSelectMessage || it == Type.PathMessage || it == Type.PathUnveilMessage
     }
 
-    val startOrientationProperty = property(Direction.NORTH)
+    val startOrientationProperty = property(PlanetDirection.North)
     var startOrientation by startOrientationProperty
     val startOrientationVisibleProperty = typeProperty.mapBinding {
         it == Type.PlanetMessage
     }
 
-    val endXProperty = property(0)
+    val endXProperty = property(0L)
     var endX by endXProperty
     val endXVisibleProperty = typeProperty.mapBinding {
         it == Type.PathMessage || it == Type.PathUnveilMessage
     }
 
-    val endYProperty = property(0)
+    val endYProperty = property(0L)
     var endY by endYProperty
     val endYVisibleProperty = typeProperty.mapBinding {
         it == Type.PathMessage || it == Type.PathUnveilMessage
     }
 
-    val endDirectionProperty = property(Direction.NORTH)
+    val endDirectionProperty = property(PlanetDirection.North)
     var endDirection by endDirectionProperty
     val endDirectionVisibleProperty = typeProperty.mapBinding {
         it == Type.PathMessage || it == Type.PathUnveilMessage
     }
 
-    val targetXProperty = property(0)
+    val targetXProperty = property(0L)
     var targetX by targetXProperty
     val targetXVisibleProperty = typeProperty.mapBinding {
         it == Type.TargetMessage
     }
 
-    val targetYProperty = property(0)
+    val targetYProperty = property(0L)
     var targetY by targetYProperty
     val targetYVisibleProperty = typeProperty.mapBinding {
         it == Type.TargetMessage
@@ -177,7 +177,7 @@ class SendMessageDialogController(
         it == Type.PathMessage || it == Type.PathUnveilMessage
     }
 
-    val pathWeightProperty = property(1)
+    val pathWeightProperty = property(1L)
     var pathWeight by pathWeightProperty
     val pathWeightVisibleProperty = typeProperty.mapBinding {
         it == Type.PathMessage || it == Type.PathUnveilMessage

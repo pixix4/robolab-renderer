@@ -13,9 +13,9 @@ import de.robolab.common.utils.*
 import de.westermann.kobserve.property.property
 
 class SplineView(
-    source: Point,
-    target: Point,
-    controlPoints: List<Point>,
+    source: Vector,
+    target: Vector,
+    controlPoints: List<Vector>,
     width: Double,
     color: ViewColor,
     highlightColor: List<Color>,
@@ -43,19 +43,19 @@ class SplineView(
 
     private val sourceTransition = transition(source)
     val source by sourceTransition
-    fun setSource(source: Point, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setSource(source: Vector, duration: Double = animationTime, offset: Double = 0.0) {
         sourceTransition.animate(source, duration, offset)
     }
 
     private val targetTransition = transition(target)
     val target by targetTransition
-    fun setTarget(target: Point, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setTarget(target: Vector, duration: Double = animationTime, offset: Double = 0.0) {
         targetTransition.animate(target, duration, offset)
     }
 
     private val controlPointsTransition = transition(controlPoints)
     val controlPoints by controlPointsTransition
-    fun setControlPoints(controlPoints: List<Point>, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setControlPoints(controlPoints: List<Vector>, duration: Double = animationTime, offset: Double = 0.0) {
         controlPointsTransition.animate(controlPoints, duration, offset)
     }
 
@@ -99,16 +99,16 @@ class SplineView(
 
     private val curve: Curve = BSpline
 
-    fun eval(t: Double): Point {
+    fun eval(t: Double): Vector {
         return curve.eval(t, controlPoints)
     }
 
-    fun evalGradient(t: Double): Point {
+    fun evalGradient(t: Double): Vector {
         return curve.evalGradient(t, controlPoints)
     }
 
     private var stepCount: Int = 1
-    private fun calcLineSegments(breaks: List<Double> = emptyList()): List<List<Point>> {
+    private fun calcLineSegments(breaks: List<Double> = emptyList()): List<List<Vector>> {
         if (progress == 0.0) return emptyList()
 
         val pointHelpers = pointHelperCache.getOrPut(stepCount) {
@@ -142,7 +142,7 @@ class SplineView(
             ranges.reverse()
         }
 
-        val result = ranges.map { mutableListOf<Point>() }
+        val result = ranges.map { mutableListOf<Vector>() }
         var rangeIndex = 0
         var range = ranges[rangeIndex]
         var current = result[rangeIndex]
@@ -218,7 +218,7 @@ class SplineView(
         return Rectangle.fromEdges(listOf(source) + controlPoints + target).expand(width / 2) unionNullable parentBox
     }
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         val segments = calcLineSegments()
 
         if (segments.isEmpty()) return false

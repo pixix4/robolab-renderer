@@ -1,8 +1,8 @@
 package de.robolab.client.app.model.base
 
-import de.robolab.common.planet.IPlanetInfo
+import de.robolab.common.planet.utils.IPlanetInfo
 import de.robolab.common.planet.Planet
-import de.robolab.common.planet.TagQuery
+import de.robolab.common.planet.utils.TagQuery
 
 data class SearchRequest(val rawText: String, val tagQueries: List<TagQuery>, val literalQueries: List<String>) {
 
@@ -17,9 +17,9 @@ data class SearchRequest(val rawText: String, val tagQueries: List<TagQuery>, va
 
     fun matches(planet: Planet, ignoreCase: Boolean = true): Boolean{
         return literalQueries.all{
-            planet.name.contains(it, ignoreCase) || planet.tagMap.containsKey(it)
+            planet.name.contains(it, ignoreCase) || planet.tags.containsKey(it)
         } && tagQueries.all {
-            val tagEntry: List<String> = planet.tagMap[it.tagName] ?: return@all it.matchMissing
+            val tagEntry: List<String> = planet.tags[it.tagName] ?: return@all it.matchMissing
             return@all it.matches(tagEntry)
         }
     }

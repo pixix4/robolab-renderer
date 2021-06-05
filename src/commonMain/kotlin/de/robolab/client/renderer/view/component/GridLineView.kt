@@ -2,7 +2,7 @@ package de.robolab.client.renderer.view.component
 
 import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.view.base.BaseView
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import kotlin.math.ceil
 import kotlin.math.floor
 
@@ -17,8 +17,8 @@ class GridLineView : BaseView() {
             val alpha = GridNumberView.alphaOfLine(top, context.transformation.scaledGridWidth)
             if (alpha == 0.0) continue
 
-            val p1 = context.transformation.planetToCanvas(Point(rectangle.left, top.toDouble()))
-            val p2 = context.transformation.planetToCanvas(Point(rectangle.right, top.toDouble()))
+            val p1 = context.transformation.planetToCanvas(Vector(rectangle.left, top.toDouble()))
+            val p2 = context.transformation.planetToCanvas(Vector(rectangle.right, top.toDouble()))
 
             context.canvas.strokeLine(
                     listOf(
@@ -37,8 +37,8 @@ class GridLineView : BaseView() {
             val alpha = GridNumberView.alphaOfLine(left, context.transformation.scaledGridWidth)
             if (alpha == 0.0) continue
 
-            val p1 = context.transformation.planetToCanvas(Point(left.toDouble(), rectangle.top))
-            val p2 = context.transformation.planetToCanvas(Point(left.toDouble(), rectangle.bottom))
+            val p1 = context.transformation.planetToCanvas(Vector(left.toDouble(), rectangle.top))
+            val p2 = context.transformation.planetToCanvas(Vector(left.toDouble(), rectangle.bottom))
 
             context.canvas.strokeLine(
                     listOf(
@@ -51,7 +51,7 @@ class GridLineView : BaseView() {
         }
     }
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         return false
     }
 }

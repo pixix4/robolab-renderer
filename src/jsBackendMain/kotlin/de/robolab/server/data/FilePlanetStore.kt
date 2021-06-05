@@ -2,20 +2,19 @@ package de.robolab.server.data
 
 import de.robolab.client.utils.removeCommon
 import de.robolab.common.externaljs.fs.*
-import de.robolab.common.net.HttpStatusCode
-import de.robolab.common.parser.PlanetFile
-import de.robolab.common.planet.ServerPlanetInfo
-import de.robolab.server.net.RESTResponseCodeException
-import de.robolab.common.externaljs.os.EOL
 import de.robolab.common.externaljs.path.pathJoin
 import de.robolab.common.externaljs.path.safeJoinPath
 import de.robolab.common.externaljs.toList
 import de.robolab.common.jsutils.jsTruthy
 import de.robolab.common.jsutils.toDateTime
+import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.data.DirectoryInfo
+import de.robolab.common.planet.PlanetFile
+import de.robolab.common.planet.utils.ServerPlanetInfo
 import de.robolab.common.utils.Logger
 import de.robolab.server.config.Config
 import de.robolab.server.model.toIDString
+import de.robolab.server.net.RESTResponseCodeException
 import kotlinx.coroutines.await
 import kotlin.js.Promise
 import de.robolab.server.model.ServerPlanet as SPlanet
@@ -24,7 +23,7 @@ private suspend fun makeClosestFile(
     directory: String,
     name: String,
     path: String? = null,
-    postfix: String = ".planet"
+    postfix: String = ".json",
 ): Triple<String, FileHandle, String> {
     val unslashedPath: String? = when {
         path == null -> null
@@ -81,11 +80,11 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
     }
 
     override suspend fun isPlanetPath(path: String): Boolean {
-        return if (path.endsWith(".planet")) basePathIsFile(path) else basePathIsFile("$path.planet")
+        return if (path.endsWith(".json")) basePathIsFile(path) else basePathIsFile("$path.json")
     }
 
     override suspend fun internalPlanetIDFromPath(path: String): String {
-        return (if (path.endsWith(".planet"))
+        return (if (path.endsWith(".json"))
             (path.split('.').dropLast(1).joinToString(".")) else path)
             .split('/', '\\').last()
     }
@@ -116,7 +115,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         )
         val (name: String, handle: FileHandle, filePath: String) = makeClosestFile(directory, planet.name, path)
         try {
-            handle.writeFile(planet.lines.joinToString(EOL)).await()
+            handle.writeFile(planet.lines).await()
         } finally {
             handle.close()
         }
@@ -166,7 +165,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
         if (stat?.isFile() == true) {
             val handle: FileHandle = open(path!!, "w").await()
             try {
-                handle.writeFile(planet.planetFile.contentString).await()
+                handle.writeFile(planet.planetFile.stringify()).await()
             } finally {
                 handle.close()
             }
@@ -213,6 +212,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
             }
             planetFile = PlanetFile(content)
         }
+
         val name = if (planetFile!!.planet.name.isEmpty() && metadata != null)
             metadata.name
         else
@@ -223,7 +223,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
             stat(path).await().mtime.toDateTime(),
             nameOverride = name
         )
-        return SPlanet(info, lines = planetFile!!.contentString.split("""\r?\n""".toRegex()))
+        return SPlanet(info, lines = planetFile!!.stringify())
     }
 
     override suspend fun getInfo(id: String): ServerPlanetInfo? {
@@ -258,7 +258,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
     private suspend fun readSanitizedDir(
         nestedPath: String,
         returnPaths: Boolean,
-        checkFirstLevelWhitelist: Boolean
+        checkFirstLevelWhitelist: Boolean,
     ): List<String> {
         return readdirents(nestedPath).await().toList().flatMap {
             when {
@@ -268,7 +268,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
                         returnPaths,
                         false
                     ) else emptyList()
-                it.name.endsWith(".planet") -> listOf(
+                it.name.endsWith(".json") -> listOf(
                     if (returnPaths) safeJoinPath(
                         nestedPath,
                         it.name
@@ -288,7 +288,6 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
             return true
         }
     }
-
 
     private suspend fun listPlanetFiles(path: String, returnPaths: Boolean): List<String> {
         if (!pathIsWhitelisted(path)) throw RESTResponseCodeException(
@@ -335,7 +334,7 @@ class FilePlanetStore(val directory: String, val metaStore: IPlanetMetaStore) : 
                             stat(pathJoin(safePath, it.name)).await().mtime.toDateTime(),
                             readdirents(pathJoin(safePath, it.name)).await().toList().count { subEnt ->
                                 //TODO: Cache count
-                                subEnt.isDirectory() || (subEnt.isFile() && subEnt.name.endsWith(".planet"))
+                                subEnt.isDirectory() || (subEnt.isFile() && subEnt.name.endsWith(".json"))
                             }
                         )
                     } else null

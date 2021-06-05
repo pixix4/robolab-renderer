@@ -15,7 +15,7 @@ class InteractiveWebCanvas(canvas: Canvas) : WebCanvas(canvas) {
 
     private val hammer = Hammer(canvas.html, js("{}"))
 
-    private var lastPoint: Point? = null
+    private var lastPoint: Vector? = null
 
     private fun mouseEventToPointerEvent(event: MouseEvent): PointerEvent {
         return PointerEvent(
@@ -37,23 +37,23 @@ class InteractiveWebCanvas(canvas: Canvas) : WebCanvas(canvas) {
         )
     }
 
-    private fun pointFromEvent(event: MouseEvent): Point {
+    private fun pointFromEvent(event: MouseEvent): Vector {
         val point =
-            Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal)
+            Vector(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal)
         lastPoint = point
         return point
     }
 
-    private fun pointFromEvent(event: HammerEvent): Point {
+    private fun pointFromEvent(event: HammerEvent): Vector {
         val point =
-            Point(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal)
+            Vector(event.center.x - canvas.offsetLeftTotal, event.center.y - canvas.offsetTopTotal)
         lastPoint = point
         return point
     }
 
-    private fun pointFromEvent(event: GestureEvent): Point {
+    private fun pointFromEvent(event: GestureEvent): Vector {
         val point =
-            Point(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal)
+            Vector(event.clientX - canvas.offsetLeftTotal, event.clientY - canvas.offsetTopTotal)
         lastPoint = point
         return point
     }
@@ -142,7 +142,7 @@ class InteractiveWebCanvas(canvas: Canvas) : WebCanvas(canvas) {
             listenerManager.onScroll(
                 ScrollEvent(
                     pointFromEvent(event),
-                    Point(event.deltaX * factor * WHEEL_FACTOR, event.deltaY * factor * WHEEL_FACTOR),
+                    Vector(event.deltaX * factor * WHEEL_FACTOR, event.deltaY * factor * WHEEL_FACTOR),
                     dimension,
                     event.ctrlKey || event.metaKey,
                     event.altKey,

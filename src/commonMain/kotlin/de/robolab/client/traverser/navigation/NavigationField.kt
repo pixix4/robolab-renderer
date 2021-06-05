@@ -1,38 +1,38 @@
 package de.robolab.client.traverser.navigation
 
-import de.robolab.common.planet.Coordinate
+import de.robolab.common.planet.PlanetPoint
 
 class NavigationField(
-    val start: Coordinate
+    val start: PlanetPoint
 ) {
-    private val _predecessors: MutableMap<Coordinate, Pair<List<Route.StartStep>, Float>> =
+    private val _predecessors: MutableMap<PlanetPoint, Pair<List<Route.StartStep>, Float>> =
         mutableMapOf(start to (emptyList<Route.StartStep>() to 0f))
-    val predecessors: Map<Coordinate, Pair<List<Route.StartStep>, Float>> = _predecessors
-    private val _matchedLocations = mutableSetOf<Coordinate>()
-    val matchedLocations: Set<Coordinate> = _matchedLocations
+    val predecessors: Map<PlanetPoint, Pair<List<Route.StartStep>, Float>> = _predecessors
+    private val _matchedLocations = mutableSetOf<PlanetPoint>()
+    val matchedLocations: Set<PlanetPoint> = _matchedLocations
 
 
-    fun setPredecessor(location: Coordinate, predecessor: Route.StartStep, totalCost: Float) {
+    fun setPredecessor(location: PlanetPoint, predecessor: Route.StartStep, totalCost: Float) {
         _predecessors[location] = listOf(predecessor) to totalCost
     }
 
-    fun setPredecessor(location: Coordinate, predecessor: List<Route.StartStep>, totalCost: Float) {
+    fun setPredecessor(location: PlanetPoint, predecessor: List<Route.StartStep>, totalCost: Float) {
         _predecessors[location] = predecessor to totalCost
     }
 
-    fun addPredecessor(location: Coordinate, predecessor: Route.StartStep) {
+    fun addPredecessor(location: PlanetPoint, predecessor: Route.StartStep) {
         val oldValue =
             _predecessors[location] ?: throw IllegalStateException("Cannot add predecessor to non-existing list")
         _predecessors[location] = oldValue.copy(first = oldValue.first + predecessor)
     }
 
-    fun getCost(location: Coordinate): Float = _predecessors[location]?.second ?: Float.POSITIVE_INFINITY
+    fun getCost(location: PlanetPoint): Float = _predecessors[location]?.second ?: Float.POSITIVE_INFINITY
 
-    fun addMatched(location: Coordinate): Boolean = _matchedLocations.add(location)
-    fun removeMatched(location: Coordinate): Boolean = _matchedLocations.remove(location)
-    fun filterMatched(predicate: (Coordinate) -> Boolean) = _matchedLocations.retainAll(predicate)
+    fun addMatched(location: PlanetPoint): Boolean = _matchedLocations.add(location)
+    fun removeMatched(location: PlanetPoint): Boolean = _matchedLocations.remove(location)
+    fun filterMatched(predicate: (PlanetPoint) -> Boolean) = _matchedLocations.retainAll(predicate)
 
-    fun isMatched(location: Coordinate): Boolean = location in _matchedLocations
+    fun isMatched(location: PlanetPoint): Boolean = location in _matchedLocations
 
     private fun buildRoutes(builder: Route.Builder): List<Route> {
         val predecessors = this._predecessors[builder.start]?.first ?: return emptyList()
@@ -47,7 +47,7 @@ class NavigationField(
         }
     }
 
-    fun findRoutes(target: Coordinate): List<Route> = buildRoutes(Route.Builder(target))
+    fun findRoutes(target: PlanetPoint): List<Route> = buildRoutes(Route.Builder(target))
 
     fun findRoutesToMatched(onlyClosest: Boolean = false, equalityRange: Float = 0.01f): List<Route> {
         val routes = matchedLocations.flatMap(::findRoutes)

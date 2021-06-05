@@ -6,29 +6,29 @@ import de.robolab.client.renderer.drawable.utils.SenderGrouping
 import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import kotlin.math.PI
 import kotlin.math.max
 import kotlin.math.sin
 
 class SenderView(
-    center: Point,
-    private val initColors: List<Pair<SenderGrouping, List<Point>>>,
+    center: Vector,
+    private val initColors: List<Pair<SenderGrouping, List<Vector>>>,
 ) : BaseView() {
 
     private val centerTransition = transition(center)
     val center by centerTransition
-    fun setCenter(center: Point, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setCenter(center: Vector, duration: Double = animationTime, offset: Double = 0.0) {
         centerTransition.animate(center, duration, offset)
     }
 
-    private var oldColors: List<Pair<SenderGrouping, List<Point>>> = emptyList()
-    private var newColors: List<Pair<SenderGrouping, List<Point>>> = emptyList()
+    private var oldColors: List<Pair<SenderGrouping, List<Vector>>> = emptyList()
+    private var newColors: List<Pair<SenderGrouping, List<Vector>>> = emptyList()
 
     private val progressTransition = transition(0.0)
     val progress by progressTransition
     fun setColors(
-        colors: List<Pair<SenderGrouping, List<Point>>>,
+        colors: List<Pair<SenderGrouping, List<Vector>>>,
         duration: Double = animationTime,
         offset: Double = 0.0
     ) {
@@ -42,12 +42,12 @@ class SenderView(
 
     private fun satellite(
         context: DrawContext,
-        position: Point,
+        position: Vector,
         start: Double,
         extend: Double = 90.0,
         color: ViewColor,
         char: Char?,
-        directions: List<Point>,
+        directions: List<Vector>,
         alpha: Double
     ) {
         val c = context.c(color)
@@ -77,7 +77,7 @@ class SenderView(
         )
 
         if (char != null) {
-            val center = position + Point(PlottingConstraints.TARGET_RADIUS * 1.4, 0.0).rotate(start + extend / 2)
+            val center = position + Vector(PlottingConstraints.TARGET_RADIUS * 1.4, 0.0).rotate(start + extend / 2)
             val cc = if (alpha < 1.0) ViewColor.TRANSPARENT.interpolate(color, alpha) else color
 
             val r = 0.07
@@ -117,11 +117,11 @@ class SenderView(
 
         for (index in 0..length) {
             val p = when (index % 4) {
-                0 -> Point(PlottingConstraints.POINT_SIZE / 2.5, PlottingConstraints.POINT_SIZE / 2.5)
-                1 -> Point(-PlottingConstraints.POINT_SIZE / 2.5, PlottingConstraints.POINT_SIZE / 2.5)
-                2 -> Point(-PlottingConstraints.POINT_SIZE / 2.5, -PlottingConstraints.POINT_SIZE / 2.5)
-                3 -> Point(PlottingConstraints.POINT_SIZE / 2.5, -PlottingConstraints.POINT_SIZE / 2.5)
-                else -> Point(0.0, 0.0)
+                0 -> Vector(PlottingConstraints.POINT_SIZE / 2.5, PlottingConstraints.POINT_SIZE / 2.5)
+                1 -> Vector(-PlottingConstraints.POINT_SIZE / 2.5, PlottingConstraints.POINT_SIZE / 2.5)
+                2 -> Vector(-PlottingConstraints.POINT_SIZE / 2.5, -PlottingConstraints.POINT_SIZE / 2.5)
+                3 -> Vector(PlottingConstraints.POINT_SIZE / 2.5, -PlottingConstraints.POINT_SIZE / 2.5)
+                else -> Vector(0.0, 0.0)
             }
 
             val newGroup = newColors.getOrNull(index)
@@ -176,7 +176,7 @@ class SenderView(
         super.onDraw(context)
     }
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         return false
     }
 

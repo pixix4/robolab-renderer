@@ -13,20 +13,22 @@ import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.*
 import de.robolab.client.utils.PathClassification
 import de.robolab.common.planet.*
-import de.robolab.common.utils.Point
+import de.robolab.common.planet.utils.PlanetVersion
+import de.robolab.common.utils.Vector
 import de.westermann.kobserve.property.property
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 
 class PathAnimatable(
-    reference: Path,
+    reference: PlanetPath,
     planet: Planet,
     val editCallback: IEditCallback?
-) : Animatable<Path>(reference) {
+) : Animatable<PlanetPath>(reference) {
 
-    private fun generateHighlightColors(planet: Planet, reference: Path): List<SplineView.Color> {
+    private fun generateHighlightColors(planet: Planet, reference: PlanetPath): List<SplineView.Color> {
         val segments = PathClassification.classify(planet.version, reference)?.explicitSegments ?: emptyList()
 
         return segments.map { segment ->
@@ -55,14 +57,14 @@ class PathAnimatable(
         reference.hidden
     )
 
-    private val isWeightVisibleProperty = property(reference.weight?.let { it > 0.0 } ?: false)
-    private val isBlockedProperty = property(reference.weight?.let { it < 0.0 } ?: false)
-    private val isArrowVisibleProperty = property(reference.showDirectionArrow)
+    private val isWeightVisibleProperty = property(reference.weight > 0.0)
+    private val isBlockedProperty = property(reference.weight < 0.0)
+    private val isArrowVisibleProperty = property(reference.arrow)
 
     val isOneWayPath
         get() = reference.source == reference.target && reference.sourceDirection == reference.targetDirection
 
-    private fun getOrthogonal(t: Double, swap: Boolean): Pair<Point, Point> {
+    private fun getOrthogonal(t: Double, swap: Boolean): Pair<Vector, Vector> {
         val position = view.eval(t)
         val gradient = view.evalGradient(t)
 
@@ -83,14 +85,14 @@ class PathAnimatable(
     private val weightView = TextView(
         getOrthogonal(0.5, true).first,
         12.0,
-        reference.weight?.toString() ?: "0",
+        reference.weight.toString(),
         ViewColor.LINE_COLOR,
         ICanvas.FontAlignment.CENTER,
         ICanvas.FontWeight.NORMAL
     ) { newValue ->
         val callback = editCallback ?: return@TextView false
 
-        val number = if (newValue.isEmpty()) 1 else newValue.toIntOrNull() ?: return@TextView false
+        val number = if (newValue.isEmpty()) 1 else newValue.toLongOrNull() ?: return@TextView false
 
         callback.setPathWeight(reference, number)
 
@@ -112,7 +114,7 @@ class PathAnimatable(
         it.animationTime = 0.0
     }
 
-    private fun getArrowPosition(): Pair<Point, Point> {
+    private fun getArrowPosition(): Pair<Vector, Vector> {
         return if (isOneWayPath) {
             val (first, second) = getOrthogonal(1.0, false)
 
@@ -137,7 +139,7 @@ class PathAnimatable(
         it.animationTime = 0.0
     }
 
-    override fun onUpdate(obj: Path, planet: Planet) {
+    override fun onUpdate(obj: PlanetPath, planet: Planet) {
         super.onUpdate(obj, planet)
 
         val grouping = getSenderGrouping(planet, reference)
@@ -148,12 +150,12 @@ class PathAnimatable(
         view.setHighlightColor(generateHighlightColors(planet, reference))
         view.setIsDashed(reference.hidden)
 
-        isWeightVisibleProperty.value = reference.weight?.let { it > 0.0 } ?: false
-        isBlockedProperty.value = reference.weight?.let { it < 0.0 } ?: false
-        isArrowVisibleProperty.value = reference.showDirectionArrow
+        isWeightVisibleProperty.value = (reference.weight > 0.0)
+        isBlockedProperty.value = (reference.weight < 0.0)
+        isArrowVisibleProperty.value = reference.arrow
 
         weightView.setSource(getOrthogonal(0.5, true).first)
-        weightView.text = reference.weight?.toString() ?: "0"
+        weightView.text = reference.weight.toString()
         senderGroupView.setCenter(getOrthogonal(0.5, true).second)
         senderGroupView.setGrouping(grouping)
 
@@ -216,11 +218,11 @@ class PathAnimatable(
             {
                 val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
                 if (focusedView != null) {
-                    val exposureCoordinate = Coordinate(
-                        focusedView.center.left.roundToInt(),
-                        focusedView.center.top.roundToInt()
+                    val exposureCoordinate = PlanetPoint(
+                        focusedView.center.left.roundToLong(),
+                        focusedView.center.top.roundToLong()
                     )
-                    "Toggle path exposure (Exposure: ${exposureCoordinate.toSimpleString()})"
+                    "Toggle path exposure (Exposure: ${exposureCoordinate})"
                 } else {
                     "Toggle path exposure"
                 }
@@ -235,9 +237,9 @@ class PathAnimatable(
             val callback = editCallback ?: return@onPointerDown
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             if (event.ctrlKey && focusedView != null) {
-                val exposureCoordinate = Coordinate(
-                    focusedView.center.left.roundToInt(),
-                    focusedView.center.top.roundToInt()
+                val exposureCoordinate = PlanetPoint(
+                    focusedView.center.left.roundToLong(),
+                    focusedView.center.top.roundToLong()
                 )
 
                 callback.togglePathExposure(this.reference, exposureCoordinate)
@@ -257,17 +259,15 @@ class PathAnimatable(
                 "Path (${path.source.x}, ${path.source.y}, ${path.sourceDirection.name.first()}) -> (${path.target.x}, ${path.target.y}, ${path.targetDirection.name.first()})"
             ) {
                 action("Reset control points") {
-                    callback.updatePathControlPoints(path, emptyList())
+                    callback.updatePathSpline(path, null)
                 }
 
                 action(if (path.hidden) "Mark path as visible" else "Mark path as hidden") {
                     callback.togglePathHiddenState(path)
                 }
 
-                if (path.weight != null) {
-                    action(if (path.weight < 0) "Unblock path" else "Block path") {
-                        callback.setPathWeight(path, if (path.weight < 0) 1 else -1)
-                    }
+                action(if (path.weight < 0) "Unblock path" else "Block path") {
+                    callback.setPathWeight(path, if (path.weight < 0) 1 else -1)
                 }
 
                 if (path.exposure.isNotEmpty()) {
@@ -306,115 +306,109 @@ class PathAnimatable(
         }
     }
 
-    private fun getSenderGrouping(planet: Planet, path: Path): SenderGrouping? {
+    private fun getSenderGrouping(planet: Planet, path: PlanetPath): SenderGrouping? {
         if (path.exposure.isEmpty()) {
             return null
         }
-        return SenderGrouping(planet.senderGrouping.getValue(path.exposure))
+        return SenderGrouping(planet.senderGroupings.first { it.sender == path.exposure }.name.first())
     }
 
     companion object {
-        fun getSourcePointFromPath(path: Path): Point {
-            return path.source.toPoint()
+        fun getSourcePointFromPath(path: PlanetPath): Vector {
+            return path.source.point
         }
 
-        fun getTargetPointFromPath(version: PlanetVersion, path: Path): Point {
+        fun getTargetPointFromPath(version: Long, path: PlanetPath): Vector {
             if (path.isOneWayPath && version >= PlanetVersion.V2020_SPRING) {
                 return getControlPointsFromPath(version, path).last()
             }
 
-            return path.target.toPoint()
+            return path.target.point
         }
 
         fun getControlPointsFromPath(
-            version: PlanetVersion,
-            path: Path
-        ): List<Point> {
+            version: Long,
+            path: PlanetPath
+        ): List<Vector> {
             return getControlPointsFromPath(
                 version,
-                path.source.toPoint(),
+                path.source.point,
                 path.sourceDirection,
-                path.target.toPoint(),
+                path.target.point,
                 path.targetDirection,
-                path.controlPoints
+                path.spline
             )
         }
 
-        private fun isPointInDirectLine(start: Point, direction: Direction, target: Point): Boolean = when (direction) {
-            Direction.NORTH -> start.y <= target.y && start.x == target.x
-            Direction.EAST -> start.x <= target.x && start.y == target.y
-            Direction.SOUTH -> start.y >= target.y && start.x == target.x
-            Direction.WEST -> start.x >= target.x && start.y == target.y
+        private fun isPointInDirectLine(start: Vector, direction: PlanetDirection, target: Vector): Boolean = when (direction) {
+            PlanetDirection.North -> start.y <= target.y && start.x == target.x
+            PlanetDirection.East -> start.x <= target.x && start.y == target.y
+            PlanetDirection.South -> start.y >= target.y && start.x == target.x
+            PlanetDirection.West -> start.x >= target.x && start.y == target.y
         }
 
         fun getControlPointsFromPath(
-            version: PlanetVersion,
-            startPoint: Point,
-            startDirection: Direction,
-            endPoint: Point,
-            endDirection: Direction,
-            controlPoints: List<Point> = emptyList()
-        ): List<Point> {
-            if (startPoint == endPoint && startDirection == endDirection && version >= PlanetVersion.V2020_SPRING) {
-                val linePoints = if (controlPoints.isNotEmpty()) {
-                    controlPoints
-                } else {
-                    listOf(startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT))
-                }
+            version: Long,
+            source: Vector,
+            sourceDirection: PlanetDirection,
+            target: Vector,
+            targetDirection: PlanetDirection,
+            spline: PlanetSpline? = null
+        ): List<Vector> {
+            if (source == target && sourceDirection == targetDirection && version >= PlanetVersion.V2020_SPRING) {
+                val linePoints = spline?.controlPoints?.map { it.point }
+                    ?: listOf(source.shift(sourceDirection, PlottingConstraints.CURVE_SECOND_POINT))
 
                 return listOfNotNull(
-                    startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
+                    source.shift(sourceDirection, PlottingConstraints.CURVE_FIRST_POINT),
                     if (linePoints.isNotEmpty() && isPointInDirectLine(
-                            startPoint,
-                            startDirection,
+                            source,
+                            sourceDirection,
                             linePoints.first()
                         )
-                    ) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
+                    ) null else source.shift(sourceDirection, PlottingConstraints.CURVE_SECOND_POINT),
                     *linePoints.toTypedArray()
                 )
             }
 
-            val linePoints = if (controlPoints.isNotEmpty()) {
-                controlPoints
-            } else {
-                PathGenerator.generateControlPoints(
+            val linePoints = spline?.controlPoints?.map { it.point }
+                ?: PathGenerator.generateControlPoints(
                     version,
-                    startPoint,
-                    startDirection,
-                    endPoint,
-                    endDirection
+                    source,
+                    sourceDirection,
+                    target,
+                    targetDirection
                 )
-            }
 
             return listOfNotNull(
-                startPoint.shift(startDirection, PlottingConstraints.CURVE_FIRST_POINT),
+                source.shift(sourceDirection, PlottingConstraints.CURVE_FIRST_POINT),
                 if (linePoints.isNotEmpty() && isPointInDirectLine(
-                        startPoint,
-                        startDirection,
+                        source,
+                        sourceDirection,
                         linePoints.first()
                     )
-                ) null else startPoint.shift(startDirection, PlottingConstraints.CURVE_SECOND_POINT),
+                ) null else source.shift(sourceDirection, PlottingConstraints.CURVE_SECOND_POINT),
                 *linePoints.toTypedArray(),
                 if (linePoints.isNotEmpty() && isPointInDirectLine(
-                        endPoint,
-                        endDirection,
+                        target,
+                        targetDirection,
                         linePoints.last()
                     )
-                ) null else endPoint.shift(endDirection, PlottingConstraints.CURVE_SECOND_POINT),
-                endPoint.shift(endDirection, PlottingConstraints.CURVE_FIRST_POINT)
+                ) null else target.shift(targetDirection, PlottingConstraints.CURVE_SECOND_POINT),
+                target.shift(targetDirection, PlottingConstraints.CURVE_FIRST_POINT)
             )
         }
 
         inline fun multiEval(
             count: Int,
-            controlPoints: List<Point>,
-            startPoint: Point,
-            endPoint: Point?,
-            eval: (Double) -> Point
-        ): List<Point> {
+            controlPoints: List<Vector>,
+            startPoint: Vector,
+            endPoint: Vector?,
+            eval: (Double) -> Vector
+        ): List<Vector> {
             val realCount = max(16, power2(log2(count - 1) + 1))
 
-            val points = arrayOfNulls<Point>(realCount + 1)
+            val points = arrayOfNulls<Vector>(realCount + 1)
 
             val step = 1.0 / realCount
             var t = 2 * step
@@ -442,9 +436,10 @@ class PathAnimatable(
             return listOf(startPointEdge) + points.take(index + 1).requireNoNulls() + endPointEdge
         }
 
-        fun evalLength(planetVersion: PlanetVersion, path: Path): Double {
+        fun evalLength(planetVersion: Long, path: PlanetPath): Double {
             val controlPoints = getControlPointsFromPath(planetVersion, path)
-            val lengthEstimate = path.length(controlPoints)
+            val lengthEstimate = (listOf(path.source.point) + controlPoints + path.target.point).windowed(2, 1)
+                .sumOf { (p0, p1) -> p0.distanceTo(p1) }
             val evalCount = (lengthEstimate * 10).roundToInt()
 
             val source = getSourcePointFromPath(path)

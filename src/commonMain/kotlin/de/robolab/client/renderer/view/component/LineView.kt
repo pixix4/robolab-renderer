@@ -4,27 +4,27 @@ import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.unionNullable
 import de.westermann.kobserve.property.mapBinding
 
 class LineView(
-    points: List<Point>,
+    points: List<Vector>,
     width: Double,
     color: ViewColor
 ) : BaseView() {
 
     val pointsTransition = transition(points)
     val points by pointsTransition
-    fun setPoints(points: List<Point>, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setPoints(points: List<Vector>, duration: Double = animationTime, offset: Double = 0.0) {
         pointsTransition.animate(points, duration, offset)
     }
 
-    val source: Point
+    val source: Vector
         get() = points.first()
 
-    val target: Point
+    val target: Vector
         get() = points.last()
 
     val widthTransition = transition(width)
@@ -49,7 +49,7 @@ class LineView(
         it.windowed(2, 1).sumOf { (p1, p2) -> p1 distanceTo p2 }
     }
 
-    private fun calcLinePoints(): List<Point> {
+    private fun calcLinePoints(): List<Vector> {
         return if (progress == 1.0 || progress == -1.0) {
             points
         } else if (progress > 0.0) {
@@ -109,7 +109,7 @@ class LineView(
         return Rectangle.fromEdges(points).expand(width) unionNullable parentBox
     }
 
-    fun getNearestPointOnLine(point: Point): Point {
+    fun getNearestPointOnLine(point: Vector): Vector {
         val mappedPoints = calcLinePoints().windowed(2, 1).map { (source, target) ->
             val lineVec = target - source
             val pointVec = point - source
@@ -128,7 +128,7 @@ class LineView(
         return mappedPoints.minByOrNull { it distanceTo point } ?: point
     }
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         val linePoints = calcLinePoints()
 
         for ((source, target) in linePoints.windowed(2, 1)) {

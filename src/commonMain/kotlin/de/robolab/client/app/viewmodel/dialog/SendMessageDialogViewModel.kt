@@ -139,6 +139,6 @@ class SendMessageDialogViewModel(
     }
 
     companion object {
-        private val coordinateRange = IntRange((-10e10).toInt(), 10e10.toInt())
+        private val coordinateRange = LongRange((-10e10).toLong(), 10e10.toLong())
     }
 }

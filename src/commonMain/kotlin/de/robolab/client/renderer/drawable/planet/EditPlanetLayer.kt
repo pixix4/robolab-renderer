@@ -5,6 +5,7 @@ import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.drawable.general.*
 import de.robolab.client.renderer.view.component.GroupTransformView
 import de.robolab.common.planet.*
+import de.robolab.common.planet.utils.IPlanetValue
 
 class EditPlanetLayer(
     editCallback: IEditCallback,
@@ -41,14 +42,14 @@ class EditPlanetLayer(
         view.importPlanet(planet)
     }
 
-    override fun focus(value: IPlanetValue) {
+    override fun focus(value: IPlanetValue<*>) {
         when (value) {
-            is Path -> pathManager.focus(value)
-            is Comment -> commentManager.focus(value)
-            is TargetPoint -> pointManager.focus(PointAnimatableManager.AttributePoint(value.target, false))
-            is Coordinate -> pointManager.focus(PointAnimatableManager.AttributePoint(value, false))
-            is PathSelect -> pointManager.focus(PointAnimatableManager.AttributePoint(value.point, false))
-            is StartPoint -> pointManager.focus(PointAnimatableManager.AttributePoint(value.point, false))
+            is PlanetPath -> pathManager.focus(value)
+            is PlanetComment -> commentManager.focus(value)
+            is PlanetTarget -> pointManager.focus(PointAnimatableManager.AttributePoint(value.point, false))
+            is PlanetPoint -> pointManager.focus(PointAnimatableManager.AttributePoint(value, false))
+            is PlanetPathSelect -> pointManager.focus(PointAnimatableManager.AttributePoint(value.point, false))
+            is PlanetStartPoint -> pointManager.focus(PointAnimatableManager.AttributePoint(value.point, false))
         }
     }
 }

@@ -49,6 +49,17 @@ class FormContentBuilder {
     }
 
     fun input(
+        valueProperty: ObservableValue<Long>,
+        range: LongRange,
+        description: String = "",
+        enabledProperty: ObservableValue<Boolean> = constObservable(true),
+    ): FormContentViewModel.LongInput {
+        val result = FormContentViewModel.LongInput(valueProperty, range, description, enabledProperty)
+        content += result
+        return result
+    }
+
+    fun input(
         valueProperty: ObservableValue<Double>,
         range: ClosedFloatingPointRange<Double>,
         step: Double,

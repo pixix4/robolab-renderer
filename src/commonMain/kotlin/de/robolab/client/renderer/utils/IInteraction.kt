@@ -3,26 +3,26 @@ package de.robolab.client.renderer.utils
 import de.robolab.client.renderer.events.KeyEvent
 import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 
 interface IInteraction {
-    fun onPointerDown(event: PointerEvent, position: Point): Boolean {
+    fun onPointerDown(event: PointerEvent, position: Vector): Boolean {
         return false
     }
 
-    fun onPointerUp(event: PointerEvent, position: Point): Boolean {
+    fun onPointerUp(event: PointerEvent, position: Vector): Boolean {
         return false
     }
 
-    fun onPointerMove(event: PointerEvent, position: Point): Boolean {
+    fun onPointerMove(event: PointerEvent, position: Vector): Boolean {
         return false
     }
 
-    fun onPointerDrag(event: PointerEvent, position: Point): Boolean {
+    fun onPointerDrag(event: PointerEvent, position: Vector): Boolean {
         return false
     }
 
-    fun onPointerSecondaryAction(event: PointerEvent, position: Point): Boolean {
+    fun onPointerSecondaryAction(event: PointerEvent, position: Vector): Boolean {
         return false
     }
 

@@ -5,18 +5,16 @@ import de.robolab.client.app.viewmodel.buildForm
 import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.utils.PathClassification
 import de.robolab.client.utils.PreferenceStorage
-import de.robolab.common.parser.PlanetFile
-import de.robolab.common.parser.toFixed
-import de.robolab.common.planet.Path
-import de.robolab.common.planet.PlanetVersion
-import de.robolab.common.planet.letter
+import de.robolab.common.planet.PlanetFile
+import de.robolab.common.planet.PlanetPath
+import de.robolab.common.utils.toFixed
 import de.westermann.kobserve.property.property
 import kotlin.math.roundToInt
 
-class PathDetailBox(path: Path, planetFile: PlanetFile) : ViewModel {
+class PathDetailBox(path: PlanetPath, planetFile: PlanetFile) : ViewModel {
 
-    val source = "${path.source.x}, ${path.source.y}, ${path.sourceDirection.letter()}"
-    val target = "${path.target.x}, ${path.target.y}, ${path.targetDirection.letter()}"
+    val source = "${path.source.x}, ${path.source.y}, ${path.sourceDirection.letter}"
+    val target = "${path.target.x}, ${path.target.y}, ${path.targetDirection.letter}"
 
     private val isHiddenProperty = property(getter = {
         path.hidden
@@ -24,7 +22,7 @@ class PathDetailBox(path: Path, planetFile: PlanetFile) : ViewModel {
         planetFile.togglePathHiddenState(path)
     })
     private val weightProperty = property(getter = {
-        path.weight ?: 0
+        path.weight
     }, setter = {
         planetFile.setPathWeight(path, it)
     })
@@ -46,7 +44,7 @@ class PathDetailBox(path: Path, planetFile: PlanetFile) : ViewModel {
                 input(target)
             }
             labeledEntry("Weight") {
-                input(weightProperty, -100000000..100000000)
+                input(weightProperty, -100000000L..100000000L)
             }
             labeledEntry("Hidden") {
                 input(isHiddenProperty)
@@ -88,11 +86,11 @@ class PathDetailBox(path: Path, planetFile: PlanetFile) : ViewModel {
     }
 
     companion object {
-        fun getPathLengthInGridUnits(planetVersion: PlanetVersion, path: Path): Double {
+        fun getPathLengthInGridUnits(planetVersion: Long, path: PlanetPath): Double {
             return PathAnimatable.evalLength(planetVersion, path)
         }
 
-        fun getPathLengthString(planetVersion: PlanetVersion, path: Path): String {
+        fun getPathLengthString(planetVersion: Long, path: PlanetPath): String {
             val lengthGrid = getPathLengthInGridUnits(planetVersion, path)
             val lengthMeter = lengthGrid * PreferenceStorage.paperGridWidth
             return "${lengthMeter.toFixed(2)} m\n${lengthGrid.toFixed(2)} units"

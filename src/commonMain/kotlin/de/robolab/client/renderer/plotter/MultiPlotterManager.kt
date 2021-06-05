@@ -88,7 +88,7 @@ class MultiPlotterManager(
         val windows = windowList
         if (requestRedraw) {
             canvas.fillRect(
-                Rectangle.fromDimension(Point.ZERO, canvas.dimension).expand(1.0),
+                Rectangle.fromDimension(Vector.ZERO, canvas.dimension).expand(1.0),
                 theme.plotter.secondaryBackgroundColor
             )
         }
@@ -107,7 +107,7 @@ class MultiPlotterManager(
                 window.canvas.endClip()
 
                 if (windowList.size > 1) {
-                    val edges = mutableListOf<Pair<Point, Point>>()
+                    val edges = mutableListOf<Pair<Vector, Vector>>()
 
                     if (window.layout.top > 0.0) {
                         edges += window.canvas.clip.topLeft to window.canvas.clip.topRight
@@ -174,7 +174,7 @@ class MultiPlotterManager(
                     backgroundColor
                 )
                 canvas.fillArc(
-                    Point(window.canvas.clip.left + width - radius, window.canvas.clip.top + height - radius),
+                    Vector(window.canvas.clip.left + width - radius, window.canvas.clip.top + height - radius),
                     radius,
                     0.0,
                     2.0 * PI,
@@ -183,7 +183,7 @@ class MultiPlotterManager(
                 for ((i, l) in lines.withIndex())
                     canvas.fillText(
                         l,
-                        window.canvas.clip.topLeft + Point(12.0, 14.0 + 16.0 * i),
+                        window.canvas.clip.topLeft + Vector(12.0, 14.0 + 16.0 * i),
                         textColor,
                         fontSize = 16.0,
                         fontWeight = ICanvas.FontWeight.BOLD

@@ -2,7 +2,7 @@ package de.robolab.client.renderer.drawable.base
 
 import de.robolab.client.renderer.view.base.IView
 import de.robolab.client.renderer.view.base.extraPut
-import de.robolab.common.planet.IPlanetValue
+import de.robolab.common.planet.utils.IPlanetValue
 import de.robolab.common.planet.Planet
 
 abstract class Animatable<T>(
@@ -13,8 +13,8 @@ abstract class Animatable<T>(
 
     fun onCreate(parent: IView) {
         val obj = reference
-        if (obj is IPlanetValue) {
-            view.extraPut<IPlanetValue>(obj)
+        if (obj is IPlanetValue<*>) {
+            view.extraPut<IPlanetValue<*>>(obj)
         }
 
         parent += view
@@ -26,8 +26,8 @@ abstract class Animatable<T>(
 
     open fun onUpdate(obj: T, planet: Planet) {
         reference = obj
-        if (obj is IPlanetValue) {
-            view.extraPut<IPlanetValue>(obj)
+        if (obj is IPlanetValue<*>) {
+            view.extraPut<IPlanetValue<*>>(obj)
         }
     }
 

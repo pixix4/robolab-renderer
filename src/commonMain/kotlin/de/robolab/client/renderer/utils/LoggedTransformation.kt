@@ -2,7 +2,7 @@
 package de.robolab.client.renderer.utils
 
 import de.robolab.common.utils.Logger
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 
 @Suppress("unused")
 class LoggedTransformation(
@@ -11,35 +11,35 @@ class LoggedTransformation(
 
     private val logger = Logger("LoggedTransformation")
 
-    override fun translateBy(point: Point, duration: Double) {
+    override fun translateBy(point: Vector, duration: Double) {
         logger.info {
             "translateBy(point: $point, duration: $duration)"
         }
         transformation.translateBy(point, duration)
     }
 
-    override fun translateTo(point: Point, duration: Double) {
+    override fun translateTo(point: Vector, duration: Double) {
         logger.info {
             "translateTo(point: $point, duration: $duration)"
         }
         transformation.translateTo(point, duration)
     }
 
-    override fun setTranslation(point: Point) {
+    override fun setTranslation(point: Vector) {
         logger.info {
             "setTranslation(point: $point)"
         }
         transformation.setTranslation(point)
     }
 
-    override fun rotateBy(angle: Double, center: Point, duration: Double) {
+    override fun rotateBy(angle: Double, center: Vector, duration: Double) {
         logger.info {
             "rotateBy(angle: $angle, center: $center, duration: $duration)"
         }
         transformation.rotateBy(angle, center, duration)
     }
 
-    override fun rotateTo(angle: Double, center: Point, duration: Double) {
+    override fun rotateTo(angle: Double, center: Vector, duration: Double) {
         logger.info {
             "rotateTo(angle: $angle, center: $center, duration: $duration)"
         }
@@ -53,35 +53,35 @@ class LoggedTransformation(
         transformation.setRotationAngle(angle)
     }
 
-    override fun scaleBy(factor: Double, center: Point, duration: Double) {
+    override fun scaleBy(factor: Double, center: Vector, duration: Double) {
         logger.info {
             "scaleBy(factor: $factor, center: $center, duration: $duration)"
         }
         transformation.scaleBy(factor, center, duration)
     }
 
-    override fun scaleTo(scale: Double, center: Point, duration: Double) {
+    override fun scaleTo(scale: Double, center: Vector, duration: Double) {
         logger.info {
             "scaleTo(scale: $scale, center: $center, duration: $duration)"
         }
         transformation.scaleTo(scale, center, duration)
     }
 
-    override fun scaleIn(center: Point, duration: Double) {
+    override fun scaleIn(center: Vector, duration: Double) {
         logger.info {
             "scaleIn(center: $center, duration: $duration)"
         }
         transformation.scaleIn(center, duration)
     }
 
-    override fun scaleOut(center: Point, duration: Double) {
+    override fun scaleOut(center: Vector, duration: Double) {
         logger.info {
             "scaleOut(center: $center, duration: $duration)"
         }
         transformation.scaleOut(center, duration)
     }
 
-    override fun resetScale(center: Point, duration: Double) {
+    override fun resetScale(center: Vector, duration: Double) {
         logger.info {
             "resetScale(center: $center, duration: $duration)"
         }

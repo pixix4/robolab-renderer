@@ -1,24 +1,23 @@
 package de.robolab.client.traverser.navigation
 
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
-import de.robolab.common.planet.letter
+import de.robolab.common.planet.PlanetPoint
+import de.robolab.common.planet.PlanetDirection
 
 data class Route(
     val steps: List<StartStep>,
-    val end: Coordinate,
+    val end: PlanetPoint,
 ) {
-    val start: Coordinate = steps.firstOrNull()?.start ?: end
+    val start: PlanetPoint = steps.firstOrNull()?.start ?: end
 
     val length = steps.size
 
     val cost: Float by lazy { steps.map(StartStep::cost).sum() }
 
-    val locations: List<Coordinate> by lazy { steps.map(StartStep::start) + listOf(end) }
+    val locations: List<PlanetPoint> by lazy { steps.map(StartStep::start) + listOf(end) }
 
     val firstStep: StartStep? = steps.firstOrNull()
 
-    operator fun get(index: Int): Coordinate = when {
+    operator fun get(index: Int): PlanetPoint = when {
         index < steps.size -> steps[index].start
         index == steps.size -> end
         else -> locations[index]
@@ -27,7 +26,7 @@ data class Route(
     fun isEmpty() = steps.isEmpty()
 
     fun hasCycles(): Boolean {
-        val seenCoordinates: MutableSet<Coordinate> = mutableSetOf(end)
+        val seenCoordinates: MutableSet<PlanetPoint> = mutableSetOf(end)
         for (step in steps)
             if (seenCoordinates.add(step.start))
                 return true
@@ -66,7 +65,7 @@ data class Route(
     fun chain(following: Route, translate: Boolean = false): Route = when {
         following.start == end -> Route(steps + following.steps, following.end)
         translate -> {
-            val delta = Coordinate(end.x - following.start.x, end.y - following.start.y)
+            val delta = PlanetPoint(end.x - following.start.x, end.y - following.start.y)
             Route(
                 steps + following.steps.map { StartStep(it.start.translate(delta), it.direction) },
                 following.end.translate(delta)
@@ -76,25 +75,25 @@ data class Route(
     }
 
     companion object {
-        fun empty(location: Coordinate) = Route(emptyList(), location)
-        fun build(start: Coordinate, block: Builder.() -> Unit): Route = Builder(start).apply(block).build()
+        fun empty(location: PlanetPoint) = Route(emptyList(), location)
+        fun build(start: PlanetPoint, block: Builder.() -> Unit): Route = Builder(start).apply(block).build()
 
-        fun List<StartStep>.toEndSteps(end: Coordinate): Pair<Coordinate, List<EndStep>> {
+        fun List<StartStep>.toEndSteps(end: PlanetPoint): Pair<PlanetPoint, List<EndStep>> {
             return if (isEmpty()) end to emptyList()
-            else first().start to (this + listOf(StartStep(end, Direction.NORTH))).chunked(2) { (current, next) ->
+            else first().start to (this + listOf(StartStep(end, PlanetDirection.North))).chunked(2) { (current, next) ->
                 EndStep(current.direction, next.start, current.cost)
             }
         }
 
-        fun List<EndStep>.toStartSteps(start: Coordinate): Pair<List<StartStep>, Coordinate> {
+        fun List<EndStep>.toStartSteps(start: PlanetPoint): Pair<List<StartStep>, PlanetPoint> {
             return if (isEmpty()) emptyList<StartStep>() to start
-            else (listOf(EndStep(Direction.NORTH, start)) + this).chunked(2) { (previous, current) ->
+            else (listOf(EndStep(PlanetDirection.North, start)) + this).chunked(2) { (previous, current) ->
                 StartStep(previous.end, current.direction, current.cost)
             } to last().end
         }
 
-        fun StartStep.toEndStep(end: Coordinate): Pair<Coordinate, EndStep> = start to EndStep(direction, end, cost)
-        fun EndStep.toStartStep(start: Coordinate): Pair<StartStep, Coordinate> =
+        fun StartStep.toEndStep(end: PlanetPoint): Pair<PlanetPoint, EndStep> = start to EndStep(direction, end, cost)
+        fun EndStep.toStartStep(start: PlanetPoint): Pair<StartStep, PlanetPoint> =
             StartStep(start, direction, cost) to end
 
         fun List<StartStep>.equals(other: List<StartStep>, onlyDirections: Boolean = false): Boolean {
@@ -104,30 +103,30 @@ data class Route(
     }
 
     data class StartStep(
-        val start: Coordinate,
-        val direction: Direction,
+        val start: PlanetPoint,
+        val direction: PlanetDirection,
         val cost: Float = 1f,
     ) {
-        override fun toString(): String = "(${start.x},${start.y},${direction.letter()}:$cost)"
+        override fun toString(): String = "(${start.x},${start.y},${direction.letter}:$cost)"
     }
 
     data class EndStep(
-        val direction: Direction,
-        val end: Coordinate,
+        val direction: PlanetDirection,
+        val end: PlanetPoint,
         val cost: Float = 1f,
     ) {
-        override fun toString(): String = "({${direction.letter()}},${end.x},${end.y}: $cost)"
+        override fun toString(): String = "({${direction.letter}},${end.x},${end.y}: $cost)"
     }
 
     class Builder private constructor(
-        private var _end: Coordinate,
+        private var _end: PlanetPoint,
         private val _steps: MutableList<StartStep>,
     ) {
-        constructor(start: Coordinate) : this(start, mutableListOf())
+        constructor(start: PlanetPoint) : this(start, mutableListOf())
 
-        val start: Coordinate
+        val start: PlanetPoint
             get() = _steps.firstOrNull()?.start ?: _end
-        val end: Coordinate
+        val end: PlanetPoint
             get() = _end
         val steps: List<StartStep> = _steps
 
@@ -135,14 +134,14 @@ data class Route(
 
         fun clone(): Builder = Builder(_end, _steps.toMutableList())
 
-        fun append(direction: Direction, end: Coordinate, cost: Float = 1f) {
+        fun append(direction: PlanetDirection, end: PlanetPoint, cost: Float = 1f) {
             _steps.add(StartStep(end, direction, cost))
             _end = end
         }
 
         fun append(step: EndStep) = append(step.direction, step.end, step.cost)
 
-        fun prepend(start: Coordinate, direction: Direction, cost: Float = 1f) =
+        fun prepend(start: PlanetPoint, direction: PlanetDirection, cost: Float = 1f) =
             prepend(StartStep(start, direction, cost))
 
         fun prepend(step: StartStep) {

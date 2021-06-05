@@ -1,6 +1,7 @@
 package de.robolab.client.app.model.file.provider
 
 import de.robolab.client.app.model.base.MaterialIcon
+import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
@@ -13,11 +14,11 @@ interface IFilePlanetLoader {
 
     val onRemoteChange: EventHandler<RemoteIdentifier>
 
-    suspend fun loadPlanet(id: String): Pair<RemoteMetadata.Planet, List<String>>?
+    suspend fun loadPlanet(id: String): Pair<RemoteMetadata.Planet, Planet>?
 
-    suspend fun savePlanet(id: String, lines: List<String>): RemoteIdentifier?
+    suspend fun savePlanet(id: String, planet: Planet): RemoteIdentifier?
 
-    suspend fun createPlanet(parentId: String, lines: List<String>): RemoteIdentifier?
+    suspend fun createPlanet(parentId: String, planet: Planet): RemoteIdentifier?
 
     suspend fun deletePlanet(id: String): Boolean
 

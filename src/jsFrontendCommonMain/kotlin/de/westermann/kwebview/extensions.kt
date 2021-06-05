@@ -1,11 +1,9 @@
 package de.westermann.kwebview
 
-import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
-import de.westermann.kobserve.property.property
 import org.w3c.dom.DOMRect
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.*
@@ -50,7 +48,7 @@ inline fun <reified T> EventHandler<T>.bind(element: EventTarget, event: String)
 }
 
 fun DOMRect.toRectangle(): Rectangle = Rectangle(x, y, width, height)
-val MouseEvent.clientPosition get() = Point(clientX, clientY)
+val MouseEvent.clientPosition get() = Vector(clientX, clientY)
 
 external fun delete(p: dynamic): Boolean = definedExternally
 

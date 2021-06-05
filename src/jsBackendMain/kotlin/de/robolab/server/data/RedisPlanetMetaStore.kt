@@ -1,6 +1,6 @@
 package de.robolab.server.data
 
-import de.robolab.common.planet.ServerPlanetInfo
+import de.robolab.common.planet.utils.ServerPlanetInfo
 import de.robolab.common.externaljs.dynamicOfDefined
 import de.robolab.server.externaljs.ioredis.*
 import de.robolab.common.externaljs.toList

@@ -13,7 +13,7 @@ import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.utils.MenuBuilder
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.runAsync
-import de.robolab.common.parser.PlanetFile
+import de.robolab.common.planet.PlanetFile
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.formatDateTime
@@ -24,8 +24,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
 
 class FileNavigationList(
     private val tab: FileNavigationTab,
@@ -129,7 +127,7 @@ class FileNavigationList(
         private suspend fun getPlanet(): Planet? {
             if (planet == null) {
                 val (_, lines) = loader.loadPlanet(id) ?: return null
-                planet = PlanetFile(lines).planet
+                planet = lines
                 timestamp = Clock.System.now().toEpochMilliseconds()
             }
             return planet

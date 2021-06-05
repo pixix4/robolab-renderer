@@ -2,7 +2,7 @@ package de.robolab.client.renderer.drawable.utils
 
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.common.utils.Color
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 
 object SegmentDrawer {
     private const val SEGMENT_GAP = 0.02
@@ -14,48 +14,48 @@ object SegmentDrawer {
     private const val SEGMENT_BOTTOM = 0.0
 
     private val SEGMENT_A = listOf(
-        Point(SEGMENT_LEFT + SEGMENT_GAP, SEGMENT_TOP),
-        Point(SEGMENT_RIGHT - SEGMENT_GAP, SEGMENT_TOP),
-        Point(SEGMENT_RIGHT - SEGMENT_WIDTH - SEGMENT_GAP, SEGMENT_TOP - SEGMENT_WIDTH),
-        Point(SEGMENT_LEFT + SEGMENT_WIDTH + SEGMENT_GAP, SEGMENT_TOP - SEGMENT_WIDTH)
+        Vector(SEGMENT_LEFT + SEGMENT_GAP, SEGMENT_TOP),
+        Vector(SEGMENT_RIGHT - SEGMENT_GAP, SEGMENT_TOP),
+        Vector(SEGMENT_RIGHT - SEGMENT_WIDTH - SEGMENT_GAP, SEGMENT_TOP - SEGMENT_WIDTH),
+        Vector(SEGMENT_LEFT + SEGMENT_WIDTH + SEGMENT_GAP, SEGMENT_TOP - SEGMENT_WIDTH)
     )
     private val SEGMENT_B = listOf(
-        Point(SEGMENT_RIGHT, SEGMENT_TOP - SEGMENT_GAP),
-        Point(SEGMENT_RIGHT, SEGMENT_MIDDLE + SEGMENT_GAP),
-        Point(SEGMENT_RIGHT - SEGMENT_WIDTH, SEGMENT_MIDDLE + SEGMENT_WIDTH / 2 + SEGMENT_GAP),
-        Point(SEGMENT_RIGHT - SEGMENT_WIDTH, SEGMENT_TOP - SEGMENT_WIDTH - SEGMENT_GAP)
+        Vector(SEGMENT_RIGHT, SEGMENT_TOP - SEGMENT_GAP),
+        Vector(SEGMENT_RIGHT, SEGMENT_MIDDLE + SEGMENT_GAP),
+        Vector(SEGMENT_RIGHT - SEGMENT_WIDTH, SEGMENT_MIDDLE + SEGMENT_WIDTH / 2 + SEGMENT_GAP),
+        Vector(SEGMENT_RIGHT - SEGMENT_WIDTH, SEGMENT_TOP - SEGMENT_WIDTH - SEGMENT_GAP)
     )
     private val SEGMENT_C = listOf(
-        Point(SEGMENT_RIGHT, SEGMENT_MIDDLE - SEGMENT_GAP),
-        Point(SEGMENT_RIGHT, SEGMENT_BOTTOM + SEGMENT_GAP),
-        Point(SEGMENT_RIGHT - SEGMENT_WIDTH, SEGMENT_BOTTOM + SEGMENT_WIDTH + SEGMENT_GAP),
-        Point(SEGMENT_RIGHT - SEGMENT_WIDTH, SEGMENT_MIDDLE - SEGMENT_WIDTH / 2 - SEGMENT_GAP)
+        Vector(SEGMENT_RIGHT, SEGMENT_MIDDLE - SEGMENT_GAP),
+        Vector(SEGMENT_RIGHT, SEGMENT_BOTTOM + SEGMENT_GAP),
+        Vector(SEGMENT_RIGHT - SEGMENT_WIDTH, SEGMENT_BOTTOM + SEGMENT_WIDTH + SEGMENT_GAP),
+        Vector(SEGMENT_RIGHT - SEGMENT_WIDTH, SEGMENT_MIDDLE - SEGMENT_WIDTH / 2 - SEGMENT_GAP)
     )
     private val SEGMENT_D = listOf(
-        Point(SEGMENT_LEFT + SEGMENT_GAP, SEGMENT_BOTTOM),
-        Point(SEGMENT_RIGHT - SEGMENT_GAP, SEGMENT_BOTTOM),
-        Point(SEGMENT_RIGHT - SEGMENT_WIDTH - SEGMENT_GAP, SEGMENT_BOTTOM + SEGMENT_WIDTH),
-        Point(SEGMENT_LEFT + SEGMENT_WIDTH + SEGMENT_GAP, SEGMENT_BOTTOM + SEGMENT_WIDTH)
+        Vector(SEGMENT_LEFT + SEGMENT_GAP, SEGMENT_BOTTOM),
+        Vector(SEGMENT_RIGHT - SEGMENT_GAP, SEGMENT_BOTTOM),
+        Vector(SEGMENT_RIGHT - SEGMENT_WIDTH - SEGMENT_GAP, SEGMENT_BOTTOM + SEGMENT_WIDTH),
+        Vector(SEGMENT_LEFT + SEGMENT_WIDTH + SEGMENT_GAP, SEGMENT_BOTTOM + SEGMENT_WIDTH)
     )
     private val SEGMENT_E = listOf(
-        Point(SEGMENT_LEFT, SEGMENT_MIDDLE - SEGMENT_GAP),
-        Point(SEGMENT_LEFT, SEGMENT_BOTTOM + SEGMENT_GAP),
-        Point(SEGMENT_LEFT + SEGMENT_WIDTH, SEGMENT_BOTTOM + SEGMENT_WIDTH + SEGMENT_GAP),
-        Point(SEGMENT_LEFT + SEGMENT_WIDTH, SEGMENT_MIDDLE - SEGMENT_WIDTH / 2 - SEGMENT_GAP)
+        Vector(SEGMENT_LEFT, SEGMENT_MIDDLE - SEGMENT_GAP),
+        Vector(SEGMENT_LEFT, SEGMENT_BOTTOM + SEGMENT_GAP),
+        Vector(SEGMENT_LEFT + SEGMENT_WIDTH, SEGMENT_BOTTOM + SEGMENT_WIDTH + SEGMENT_GAP),
+        Vector(SEGMENT_LEFT + SEGMENT_WIDTH, SEGMENT_MIDDLE - SEGMENT_WIDTH / 2 - SEGMENT_GAP)
     )
     private val SEGMENT_F = listOf(
-        Point(SEGMENT_LEFT, SEGMENT_TOP - SEGMENT_GAP),
-        Point(SEGMENT_LEFT, SEGMENT_MIDDLE + SEGMENT_GAP),
-        Point(SEGMENT_LEFT + SEGMENT_WIDTH, SEGMENT_MIDDLE + SEGMENT_WIDTH / 2 + SEGMENT_GAP),
-        Point(SEGMENT_LEFT + SEGMENT_WIDTH, SEGMENT_TOP - SEGMENT_WIDTH - SEGMENT_GAP)
+        Vector(SEGMENT_LEFT, SEGMENT_TOP - SEGMENT_GAP),
+        Vector(SEGMENT_LEFT, SEGMENT_MIDDLE + SEGMENT_GAP),
+        Vector(SEGMENT_LEFT + SEGMENT_WIDTH, SEGMENT_MIDDLE + SEGMENT_WIDTH / 2 + SEGMENT_GAP),
+        Vector(SEGMENT_LEFT + SEGMENT_WIDTH, SEGMENT_TOP - SEGMENT_WIDTH - SEGMENT_GAP)
     )
     private val SEGMENT_G = listOf(
-        Point(SEGMENT_LEFT + SEGMENT_GAP, SEGMENT_MIDDLE),
-        Point(SEGMENT_LEFT + SEGMENT_WIDTH + SEGMENT_GAP, SEGMENT_MIDDLE + SEGMENT_WIDTH / 2),
-        Point(SEGMENT_RIGHT - SEGMENT_WIDTH - SEGMENT_GAP, SEGMENT_MIDDLE + SEGMENT_WIDTH / 2),
-        Point(SEGMENT_RIGHT - SEGMENT_GAP, SEGMENT_MIDDLE),
-        Point(SEGMENT_RIGHT - SEGMENT_WIDTH - SEGMENT_GAP, SEGMENT_MIDDLE - SEGMENT_WIDTH / 2),
-        Point(SEGMENT_LEFT + SEGMENT_WIDTH + SEGMENT_GAP, SEGMENT_MIDDLE - SEGMENT_WIDTH / 2)
+        Vector(SEGMENT_LEFT + SEGMENT_GAP, SEGMENT_MIDDLE),
+        Vector(SEGMENT_LEFT + SEGMENT_WIDTH + SEGMENT_GAP, SEGMENT_MIDDLE + SEGMENT_WIDTH / 2),
+        Vector(SEGMENT_RIGHT - SEGMENT_WIDTH - SEGMENT_GAP, SEGMENT_MIDDLE + SEGMENT_WIDTH / 2),
+        Vector(SEGMENT_RIGHT - SEGMENT_GAP, SEGMENT_MIDDLE),
+        Vector(SEGMENT_RIGHT - SEGMENT_WIDTH - SEGMENT_GAP, SEGMENT_MIDDLE - SEGMENT_WIDTH / 2),
+        Vector(SEGMENT_LEFT + SEGMENT_WIDTH + SEGMENT_GAP, SEGMENT_MIDDLE - SEGMENT_WIDTH / 2)
     )
 
     private val NUMBER_ZERO = listOf(
@@ -130,16 +130,16 @@ object SegmentDrawer {
 
     private fun drawSegments(
         canvas: ICanvas,
-        segments: List<List<Point>>,
+        segments: List<List<Vector>>,
         color: Color,
-        transformation: (Point) -> Point = { it }
+        transformation: (Vector) -> Vector = { it }
     ) {
         for (segment in segments) {
             canvas.fillPolygon(segment.map(transformation), color)
         }
     }
 
-    fun drawCharacter(canvas: ICanvas, character: Char, color: Color, transformation: (Point) -> Point = { it }) {
+    fun drawCharacter(canvas: ICanvas, character: Char, color: Color, transformation: (Vector) -> Vector = { it }) {
         val segments = when (character.code) {
             '0'.code -> NUMBER_ZERO
             '1'.code -> NUMBER_ONE
@@ -156,7 +156,7 @@ object SegmentDrawer {
         drawSegments(canvas, segments, color, transformation)
     }
 
-    fun drawCharacter(canvas: ICanvas, character: Char, color: Color, position: Point, size: Double) {
+    fun drawCharacter(canvas: ICanvas, character: Char, color: Color, position: Vector, size: Double) {
         drawCharacter(canvas, character, color) { it * size + position }
     }
 }

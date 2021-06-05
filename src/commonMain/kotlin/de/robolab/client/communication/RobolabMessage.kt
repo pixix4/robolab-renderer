@@ -4,17 +4,16 @@ import de.robolab.client.utils.Flags
 import de.robolab.client.utils.emptyFlags
 import de.robolab.common.net.data.OdometryData
 import de.robolab.common.net.data.OdometryPayloadFlags
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
-import de.robolab.common.planet.Path
+import de.robolab.common.planet.PlanetDirection
+import de.robolab.common.planet.PlanetPath
+import de.robolab.common.planet.PlanetPoint
 import de.robolab.common.utils.formatDateTime
-import io.ktor.utils.io.core.*
 
 /**
  * @author leon
  */
 sealed class RobolabMessage(
-        val metadata: Metadata
+    val metadata: Metadata,
 ) {
 
     abstract val summary: String
@@ -25,17 +24,17 @@ sealed class RobolabMessage(
         val groupId: String,
         val from: From,
         val topic: String,
-        val rawMessage: String
+        val rawMessage: String,
     )
 
     abstract class PathMessage(
         metadata: Metadata,
-        val path: Path
+        val path: PlanetPath,
     ) : RobolabMessage(metadata)
 
     class FoundPathMessage(
         metadata: Metadata,
-        path: Path
+        path: PlanetPath,
     ) : PathMessage(metadata, path) {
         override val summary by lazy { "${metadata.comTestString}Path: ${pathToString(path, metadata.from)}" }
         override val details by lazy { pathToDetails(path, metadata.from) }
@@ -43,33 +42,33 @@ sealed class RobolabMessage(
 
     class PathSelectMessageFromRobot(
         metadata: Metadata,
-        val point: Coordinate,
-        val direction: Direction
+        val point: PlanetPoint,
+        val direction: PlanetDirection,
     ) : RobolabMessage(metadata) {
         override val summary by lazy { "${metadata.comTestString}Path selected: direction=${direction.export()} (at point ${point.x},${point.y})" }
         override val details by lazy {
             listOf(
-                    "Point" to "${point.x},${point.y}",
-                    "Direction" to direction.name
+                "Point" to "${point.x},${point.y}",
+                "Direction" to direction.name
             )
         }
     }
 
     class PathSelectMessageFromServer(
         metadata: Metadata,
-        val direction: Direction
+        val direction: PlanetDirection,
     ) : RobolabMessage(metadata) {
         override val summary by lazy { "${metadata.comTestString}Select path: direction=$direction" }
         override val details by lazy {
             listOf(
-                    "Direction" to direction.name
+                "Direction" to direction.name
             )
         }
     }
 
     class PathUnveiledMessage(
         metadata: Metadata,
-        path: Path
+        path: PlanetPath,
     ) : PathMessage(metadata, path) {
         override val summary by lazy { "${metadata.comTestString}Path unveiled: ${pathToString(path, metadata.from)}" }
         override val details by lazy {
@@ -80,92 +79,92 @@ sealed class RobolabMessage(
     class PlanetMessage(
         metadata: Metadata,
         val planetName: String,
-        val startPoint: Coordinate,
-        val startOrientation: Direction
+        val startPoint: PlanetPoint,
+        val startOrientation: PlanetDirection,
     ) : RobolabMessage(metadata) {
         override val summary by lazy { "${metadata.comTestString}Planet: name=$planetName, start=(${startPoint.x},${startPoint.y},${startOrientation.export()})" }
         override val details by lazy {
             listOf(
-                    "Planet" to planetName,
-                    "Start" to "${startPoint.x}, ${startPoint.y}, ${startOrientation.name}"
+                "Planet" to planetName,
+                "Start" to "${startPoint.x}, ${startPoint.y}, ${startOrientation.name}"
             )
         }
     }
 
     class SetPlanetMessage(
         metadata: Metadata,
-        val planetName: String
+        val planetName: String,
     ) : RobolabMessage(metadata) {
         override val summary by lazy { "${metadata.comTestString}Planet: $planetName" }
         override val details by lazy {
             listOf(
-                    "Planet" to planetName
+                "Planet" to planetName
             )
         }
     }
 
     class TargetMessage(
         metadata: Metadata,
-        val target: Coordinate
+        val target: PlanetPoint,
     ) : RobolabMessage(metadata) {
         override val summary by lazy { "${metadata.comTestString}Target: ${target.x},${target.y}" }
         override val details by lazy {
             listOf(
-                    "Target" to "${target.x}, ${target.y}"
+                "Target" to "${target.x}, ${target.y}"
             )
         }
     }
 
     class TargetReachedMessage(
         metadata: Metadata,
-        val message: String
+        val message: String,
     ) : RobolabMessage(metadata) {
         override val summary by lazy { "${metadata.comTestString}🧭 $message" }
         override val details by lazy {
             listOf(
-                    "Message" to message
+                "Message" to message
             )
         }
     }
 
     class ExplorationCompletedMessage(
         metadata: Metadata,
-        val message: String
+        val message: String,
     ) : RobolabMessage(metadata) {
         override val summary by lazy { "${metadata.comTestString}🏁 $message" }
         override val details by lazy {
             listOf(
-                    "Message" to message
+                "Message" to message
             )
         }
     }
 
     class DoneMessage(
         metadata: Metadata,
-        val message: String
+        val message: String,
     ) : RobolabMessage(metadata) {
         override val summary by lazy { "${metadata.comTestString}✅ $message" }
         override val details by lazy {
             listOf(
-                    "Message" to message
+                "Message" to message
             )
         }
     }
 
     class TestplanetMessage(
         metadata: Metadata,
-        val planetName: String
+        val planetName: String,
     ) : RobolabMessage(metadata) {
         override val summary by lazy { "${metadata.comTestString}Testplanet: $planetName" }
         override val details by lazy {
             listOf(
-                    "Test planet" to planetName
+                "Test planet" to planetName
             )
         }
     }
 
     class ReadyMessage(
-            metadata: Metadata
+        metadata: Metadata,
     ) : RobolabMessage(metadata) {
         override val summary by lazy { "${metadata.comTestString}Ready!" }
         override val details by lazy {
@@ -176,12 +175,12 @@ sealed class RobolabMessage(
     class DebugMessage(
         metadata: Metadata,
         val message: String,
-        val firstBluePoint: Coordinate?
+        val firstBluePoint: PlanetPoint?,
     ) : RobolabMessage(metadata) {
         override val summary by lazy { "${metadata.comTestString}Debug: $message" }
         override val details by lazy {
             listOf(
-                    "Message" to message
+                "Message" to message
             )
         }
     }
@@ -189,7 +188,7 @@ sealed class RobolabMessage(
     class SyntaxMessage(
         metadata: Metadata,
         val message: String,
-        val errors: List<String>
+        val errors: List<String>,
     ) : RobolabMessage(metadata) {
         val char = if (errors.isEmpty()) "✓" else "✗"
         override val summary by lazy { "$char Syntax: $message" }
@@ -205,7 +204,7 @@ sealed class RobolabMessage(
     class OdometryMessage(
         metadata: Metadata,
         val odometry: OdometryData,
-        val payloadFlags: Flags<OdometryPayloadFlags> = emptyFlags()
+        val payloadFlags: Flags<OdometryPayloadFlags> = emptyFlags(),
     ) : RobolabMessage(metadata) {
         override val summary: String by lazy {
             "Odometry (${odometry.size})"
@@ -223,12 +222,12 @@ sealed class RobolabMessage(
     class IllegalMessage(
         metadata: Metadata,
         val reason: Reason,
-        val errorMessage: String? = null
+        val errorMessage: String? = null,
     ) : RobolabMessage(metadata) {
         override val summary by lazy { "Illegal: ${reason.shortMessage}" }
         override val details by lazy {
             val result = mutableListOf(
-                    "Reason" to reason.shortMessage
+                "Reason" to reason.shortMessage
             )
             errorMessage?.let {
                 result.add("Error" to it)
@@ -257,7 +256,11 @@ sealed class RobolabMessage(
         }
     }
 
-    override fun toString() = "${formatDateTime(kotlinx.datetime.Instant.fromEpochMilliseconds(metadata.time), "HH:mm:ss")}: ${metadata.rawMessage}"
+    override fun toString() = "${
+        formatDateTime(kotlinx.datetime.Instant.fromEpochMilliseconds(metadata.time),
+            "HH:mm:ss")
+    }: ${metadata.rawMessage}"
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RobolabMessage) return false
@@ -270,36 +273,34 @@ sealed class RobolabMessage(
     }
 
     companion object {
-        fun pathToString(path: Path, from: From) = with(path) {
+        fun pathToString(path: PlanetPath, from: From) = with(path) {
             "(${source.x},${source.y},${sourceDirection.export()}) → " +
                     "(${target.x},${target.y},${targetDirection.export()})" +
                     (if (blocked) ", blocked" else "") +
-                    if (from != From.CLIENT && this.weight != null) ", weight: $weight" else ""
+                    if (from != From.CLIENT) ", weight: $weight" else ""
         }
 
-        fun pathToDetails(path: Path, from: From): List<Pair<String, String>> = with(path) {
+        fun pathToDetails(path: PlanetPath, from: From): List<Pair<String, String>> = with(path) {
             val result = mutableListOf(
-                    "Start" to "${source.x}, ${source.y}, ${sourceDirection.name}",
-                    "End" to "${target.x}, ${target.y}, ${targetDirection.name}",
-                    "Status" to if (this.blocked) "blocked" else "free"
+                "Start" to "${source.x}, ${source.y}, ${sourceDirection.name}",
+                "End" to "${target.x}, ${target.y}, ${targetDirection.name}",
+                "Status" to if (this.blocked) "blocked" else "free"
             )
             if (from != From.CLIENT) {
-                weight?.let {
-                    result += "Weight" to it.toString()
-                }
+                result += "Weight" to weight.toString()
             }
 
             return result
         }
     }
 
-    val Metadata.comTestString:String
-            get() = if (topic.startsWith(Topic.COMTEST.topicName)) "COMTEST: " else ""
+    val Metadata.comTestString: String
+        get() = if (topic.startsWith(Topic.COMTEST.topicName)) "COMTEST: " else ""
 }
 
-fun Direction.export() = when (this) {
-    Direction.NORTH -> "N"
-    Direction.EAST -> "E"
-    Direction.SOUTH -> "S"
-    Direction.WEST -> "W"
+fun PlanetDirection.export() = when (this) {
+    PlanetDirection.North -> "N"
+    PlanetDirection.East -> "E"
+    PlanetDirection.South -> "S"
+    PlanetDirection.West -> "W"
 }

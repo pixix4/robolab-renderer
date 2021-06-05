@@ -1,8 +1,8 @@
 package de.robolab.client.communication
 
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
-import de.robolab.common.planet.Path
+import de.robolab.common.planet.PlanetPoint
+import de.robolab.common.planet.PlanetDirection
+import de.robolab.common.planet.PlanetPath
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -35,23 +35,23 @@ data class JsonMessage(
 
     fun parsePlanet() = (payload::planetName.parsed()) to (payload::startX.parsed() to payload::startY.parsed())
 
-    fun parsePath() = Path(
-        Coordinate(payload::startX.parsed(), payload::startY.parsed()),
-        payload::startDirection.parsed(),
-        Coordinate(payload::endX.parsed(), payload::endY.parsed()),
-        payload::endDirection.parsed(),
-        if (from == From.CLIENT) (if (payload.pathStatus == PathStatus.BLOCKED) -1 else null) else payload::pathWeight.parsed(),
-        emptySet(),
-        emptyList(),
+    fun parsePath() = PlanetPath(
+        source = PlanetPoint(payload::startX.parsed(), payload::startY.parsed()),
+        sourceDirection = payload::startDirection.parsed(),
+        target = PlanetPoint(payload::endX.parsed(), payload::endY.parsed()),
+        targetDirection = payload::endDirection.parsed(),
+        weight = if (from == From.CLIENT) (if (payload.pathStatus == PathStatus.BLOCKED) -1L else 0L) else payload::pathWeight.parsed(),
+        exposure = emptySet(),
         hidden = false,
-        showDirectionArrow = false
+        spline = null,
+        arrow = false,
     )
 
-    fun parseStartPoint() = Coordinate(payload::startX.parsed(), payload::startY.parsed())
+    fun parseStartPoint() = PlanetPoint(payload::startX.parsed(), payload::startY.parsed())
 
     fun parseStartOrientation() = payload::startOrientation.parsed()
 
-    fun parseTarget() = Coordinate(payload::targetX.parsed(), payload::targetY.parsed())
+    fun parseTarget() = PlanetPoint(payload::targetX.parsed(), payload::targetY.parsed())
 
     fun requireFrom(vararg requiredFrom: From) {
         if (requiredFrom.none { it == from }) {
@@ -185,7 +185,7 @@ enum class Type {
             message.requireFrom(From.SERVER)
             return RobolabMessage.TargetMessage(
                 metadata,
-                Coordinate(message.payload::targetX.parsed(), message.payload::targetY.parsed())
+                PlanetPoint(message.payload::targetX.parsed(), message.payload::targetY.parsed())
             )
         }
     },
@@ -271,7 +271,7 @@ enum class Type {
             message.requireFrom(From.DEBUG)
             val bluePoint =
                 if (message.payload.message == "firstBluePoint" && message.payload.startX != null && message.payload.startY != null) {
-                    Coordinate(message.payload.startX, message.payload.startY)
+                    PlanetPoint(message.payload.startX, message.payload.startY)
                 } else null
             return RobolabMessage.DebugMessage(
                 metadata,
@@ -309,20 +309,20 @@ enum class Type {
 @Serializable
 data class Payload(
     val planetName: String? = null,
-    val startX: Int? = null,
-    val startY: Int? = null,
+    val startX: Long? = null,
+    val startY: Long? = null,
     @Serializable(with = DirectionSerializer::class)
-    val startDirection: Direction? = null,
+    val startDirection: PlanetDirection? = null,
     @Serializable(with = DirectionSerializer::class)
-    val startOrientation: Direction? = null,
-    val endX: Int? = null,
-    val endY: Int? = null,
+    val startOrientation: PlanetDirection? = null,
+    val endX: Long? = null,
+    val endY: Long? = null,
     @Serializable(with = DirectionSerializer::class)
-    val endDirection: Direction? = null,
-    val targetX: Int? = null,
-    val targetY: Int? = null,
+    val endDirection: PlanetDirection? = null,
+    val targetX: Long? = null,
+    val targetY: Long? = null,
     val pathStatus: PathStatus? = null,
-    val pathWeight: Int? = null,
+    val pathWeight: Long? = null,
     val message: String? = null,
     val debug: String? = null,
     val errors: List<String>? = null
@@ -337,29 +337,29 @@ enum class PathStatus {
     BLOCKED
 }
 
-object DirectionSerializer : KSerializer<Direction> {
+object DirectionSerializer : KSerializer<PlanetDirection> {
 
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("WithCustomDefault", PrimitiveKind.INT)
 
-    override fun serialize(encoder: Encoder, value: Direction) {
+    override fun serialize(encoder: Encoder, value: PlanetDirection) {
         val int = when (value) {
-            Direction.NORTH -> 0
-            Direction.EAST -> 90
-            Direction.SOUTH -> 180
-            Direction.WEST -> 270
+            PlanetDirection.North -> 0
+            PlanetDirection.East -> 90
+            PlanetDirection.South -> 180
+            PlanetDirection.West -> 270
         }
 
         encoder.encodeInt(int)
     }
 
-    override fun deserialize(decoder: Decoder): Direction {
+    override fun deserialize(decoder: Decoder): PlanetDirection {
         return when (decoder.decodeInt()) {
-            0 -> Direction.NORTH
-            90 -> Direction.EAST
-            180 -> Direction.SOUTH
-            270 -> Direction.WEST
-            else -> Direction.NORTH
+            0 -> PlanetDirection.North
+            90 -> PlanetDirection.East
+            180 -> PlanetDirection.South
+            270 -> PlanetDirection.West
+            else -> PlanetDirection.North
         }
     }
 }

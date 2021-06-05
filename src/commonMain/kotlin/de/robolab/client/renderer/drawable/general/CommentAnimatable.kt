@@ -8,25 +8,26 @@ import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.TextView
-import de.robolab.common.planet.Comment
+import de.robolab.common.planet.PlanetComment
 import de.robolab.common.planet.Planet
-import de.robolab.common.utils.Point
+import de.robolab.common.planet.PlanetCommentAlignment
+import de.robolab.common.utils.Vector
 import kotlin.math.round
 
 class CommentAnimatable(
-    reference: Comment,
+    reference: PlanetComment,
     private val editCallback: IEditCallback?
-) : Animatable<Comment>(reference) {
+) : Animatable<PlanetComment>(reference) {
 
-    private val Comment.fontAlignment
+    private val PlanetComment.fontAlignment
     get() = when(alignment) {
-        Comment.Alignment.LEFT -> ICanvas.FontAlignment.LEFT
-        Comment.Alignment.CENTER ->  ICanvas.FontAlignment.CENTER
-        Comment.Alignment.RIGHT ->  ICanvas.FontAlignment.RIGHT
+        PlanetCommentAlignment.Left -> ICanvas.FontAlignment.LEFT
+        PlanetCommentAlignment.Center ->  ICanvas.FontAlignment.CENTER
+        PlanetCommentAlignment.Right ->  ICanvas.FontAlignment.RIGHT
     }
 
     override val view = TextView(
-            reference.point,
+            reference.coordinate.point,
             12.0,
             reference.lines.joinToString("\n"),
             ViewColor.LINE_COLOR,
@@ -40,10 +41,10 @@ class CommentAnimatable(
         true
     }
 
-    override fun onUpdate(obj: Comment, planet: Planet) {
+    override fun onUpdate(obj: PlanetComment, planet: Planet) {
         super.onUpdate(obj, planet)
 
-        view.setSource(reference.point)
+        view.setSource(reference.coordinate.point)
         view.text = reference.lines.joinToString("\n")
         view.alignment = reference.fontAlignment
         view.requestRedraw()
@@ -67,7 +68,7 @@ class CommentAnimatable(
         view.onPointerDrag { event ->
             val callback = editCallback ?: return@onPointerDrag
 
-            val position = Point(
+            val position = Vector(
                     round(event.planetPoint.left * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR,
                     round(event.planetPoint.top * PlottingConstraints.PRECISION_FACTOR) / PlottingConstraints.PRECISION_FACTOR
             )
@@ -84,7 +85,7 @@ class CommentAnimatable(
 
             view.menu(event, "Comment") {
                 menu("Alignment") {
-                    for (alignment in Comment.Alignment.values()) {
+                    for (alignment in PlanetCommentAlignment.values()) {
                         action(alignment.name.lowercase()
                             .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }, comment.alignment == alignment) {
                             callback.setCommentAlignment(comment, alignment)

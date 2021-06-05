@@ -4,21 +4,22 @@ import de.robolab.client.traverser.navigation.Dijkstra
 import de.robolab.client.traverser.navigation.Route
 import de.robolab.client.traverser.navigation.getNeighbours
 import de.robolab.common.planet.*
+import de.robolab.common.planet.utils.LookupPlanet
 
 interface INavigator<NS> where NS : INavigatorState {
     val planet: LookupPlanet
     val seedState: NS
-    fun drovePath(current: NS, path: Path, receivedPaths: List<Path>, receivedTargets: List<TargetPoint>): NS
-    fun prepareLeaveNode(current: NS, location: Coordinate, arrivingPath: Path): Pair<List<NS>, Boolean>
+    fun drovePath(current: NS, path: PlanetPath, receivedPaths: List<PlanetPath>, receivedTargets: List<PlanetTarget>): NS
+    fun prepareLeaveNode(current: NS, location: PlanetPoint, arrivingPath: PlanetPath): Pair<List<NS>, Boolean>
     fun prepareLeaveNodeInDirection(
         current: NavigatorState,
-        location: Coordinate,
-        arrivingPath: Path,
-        direction: Direction?,
+        location: PlanetPoint,
+        arrivingPath: PlanetPath,
+        direction: PlanetDirection?,
         exploring: Boolean
     ): NavigatorState?
 
-    fun leavingNode(current: NS, direction: Direction): NS
+    fun leavingNode(current: NS, direction: PlanetDirection): NS
 }
 
 class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> {
@@ -29,9 +30,9 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
 
     override fun drovePath(
         current: NavigatorState,
-        path: Path,
-        receivedPaths: List<Path>,
-        receivedTargets: List<TargetPoint>
+        path: PlanetPath,
+        receivedPaths: List<PlanetPath>,
+        receivedTargets: List<PlanetTarget>
     ): NavigatorState =
         receivedPaths.fold(
             current.copy(
@@ -44,12 +45,12 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
 
     override fun prepareLeaveNode(
         current: NavigatorState,
-        location: Coordinate,
-        arrivingPath: Path
+        location: PlanetPoint,
+        arrivingPath: PlanetPath
     ): Pair<List<NavigatorState>, Boolean> {
-        val currentTargetLocation: Coordinate? = current.currentTarget?.target
+        val currentTargetLocation: PlanetPoint? = current.currentTarget?.point
         val exploring: Boolean
-        var paths: List<Direction?>
+        var paths: List<PlanetDirection?>
         if (currentTargetLocation == null) {
             exploring = true
             paths = exploreDijkstra(current, location).map { it.firstStep?.direction }.distinct()
@@ -73,9 +74,9 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
 
     override fun prepareLeaveNodeInDirection(
         current: NavigatorState,
-        location: Coordinate,
-        arrivingPath: Path,
-        direction: Direction?,
+        location: PlanetPoint,
+        arrivingPath: PlanetPath,
+        direction: PlanetDirection?,
         exploring: Boolean
     ): NavigatorState {
         if (direction == null) {
@@ -85,15 +86,15 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
         return current.copy(exploring = exploring, pickedDirection = direction)
     }
 
-    override fun leavingNode(current: NavigatorState, direction: Direction): NavigatorState {
+    override fun leavingNode(current: NavigatorState, direction: PlanetDirection): NavigatorState {
         return current
     }
 
-    fun targetDijkstra(state: NavigatorState, start: Coordinate, target: Coordinate): List<Route> =
+    fun targetDijkstra(state: NavigatorState, start: PlanetPoint, target: PlanetPoint): List<Route> =
         Dijkstra.shortestPaths(start, state::getNeighbours, target)
 
-    fun exploreDijkstra(state: NavigatorState, start: Coordinate): List<Route> {
-        fun hasOpenExits(location: Coordinate) = !state.openExits[location].isNullOrEmpty()
+    fun exploreDijkstra(state: NavigatorState, start: PlanetPoint): List<Route> {
+        fun hasOpenExits(location: PlanetPoint) = !state.openExits[location].isNullOrEmpty()
         val paths: List<Route> = if (hasOpenExits(start))
             listOf(Route.empty(start))
         else

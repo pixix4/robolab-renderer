@@ -5,10 +5,10 @@ package de.robolab.server.routes
 import de.robolab.client.renderer.Exporter
 import de.robolab.client.renderer.canvas.SvgCanvas
 import de.robolab.client.renderer.utils.ServerCanvas
-import de.robolab.client.theme.DarkTheme
-import de.robolab.client.theme.ITheme
-import de.robolab.client.theme.LightTheme
-import de.robolab.common.parser.PlanetFile
+import de.robolab.client.theme.DefaultDarkTheme
+import de.robolab.client.theme.utils.ITheme
+import de.robolab.client.theme.DefaultLightTheme
+import de.robolab.common.planet.PlanetFile
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Logger
 import de.robolab.server.externaljs.express.DefaultRouter
@@ -36,9 +36,9 @@ object ExportRouter {
             if (req.query.name && req.query.name == "false") {
                 drawName = false
             }
-            var theme: ITheme = LightTheme
+            var theme: ITheme = DefaultLightTheme
             if (req.query.theme && req.query.theme == "dark") {
-                theme = DarkTheme
+                theme = DefaultDarkTheme
             }
 
             val fileContent = req.files.planet.data.toString().unsafeCast<String>()
@@ -51,9 +51,9 @@ object ExportRouter {
             if (req.query.name && req.query.name == "false") {
                 drawName = false
             }
-            var theme: ITheme = LightTheme
+            var theme: ITheme = DefaultLightTheme
             if (req.query.theme && req.query.theme == "dark") {
-                theme = DarkTheme
+                theme = DefaultDarkTheme
             }
 
             val fileContent = req.files.planet.data.toString().unsafeCast<String>()

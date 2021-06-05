@@ -1,26 +1,26 @@
 package de.robolab.common.testing
 
-import de.robolab.common.planet.Coordinate
+import de.robolab.common.planet.PlanetPoint
 import de.robolab.common.planet.Planet
 
 sealed class TestGoal {
 
-    abstract fun translate(delta: Coordinate): TestGoal
-    abstract fun rotate(direction: Planet.RotateDirection, origin: Coordinate): TestGoal
+    abstract fun translate(delta: PlanetPoint): TestGoal
+    abstract fun rotate(direction: Planet.RotateDirection, origin: PlanetPoint): TestGoal
 
-    abstract val coordinate: Coordinate?
+    abstract val coordinate: PlanetPoint?
     abstract val type: GoalType
 
     data class Target(
-        override val coordinate: Coordinate
+        override val coordinate: PlanetPoint
     ) : TestGoal() {
         override val type: GoalType = GoalType.Target
 
-        override fun translate(delta: Coordinate): TestGoal {
+        override fun translate(delta: PlanetPoint): TestGoal {
             return Target(coordinate.translate(delta))
         }
 
-        override fun rotate(direction: Planet.RotateDirection, origin: Coordinate): TestGoal {
+        override fun rotate(direction: Planet.RotateDirection, origin: PlanetPoint): TestGoal {
             return Target(coordinate.rotate(direction, origin))
         }
 
@@ -30,13 +30,13 @@ sealed class TestGoal {
     }
 
     object Explore : TestGoal() {
-        override val coordinate: Coordinate? = null
+        override val coordinate: PlanetPoint? = null
         override val type: GoalType = GoalType.Explore
-        override fun translate(delta: Coordinate): TestGoal {
+        override fun translate(delta: PlanetPoint): TestGoal {
             return this
         }
 
-        override fun rotate(direction: Planet.RotateDirection, origin: Coordinate): TestGoal {
+        override fun rotate(direction: Planet.RotateDirection, origin: PlanetPoint): TestGoal {
             return this
         }
 
@@ -46,14 +46,14 @@ sealed class TestGoal {
     }
 
     data class ExploreCoordinate(
-        override val coordinate: Coordinate
+        override val coordinate: PlanetPoint
     ) : TestGoal() {
         override val type: GoalType = GoalType.ExploreCoordinate
-        override fun translate(delta: Coordinate): TestGoal {
+        override fun translate(delta: PlanetPoint): TestGoal {
             return ExploreCoordinate(coordinate.translate(delta))
         }
 
-        override fun rotate(direction: Planet.RotateDirection, origin: Coordinate): TestGoal {
+        override fun rotate(direction: Planet.RotateDirection, origin: PlanetPoint): TestGoal {
             return ExploreCoordinate(coordinate.rotate(direction, origin))
         }
 

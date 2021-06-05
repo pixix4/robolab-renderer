@@ -2,22 +2,21 @@ package de.robolab.client.utils
 
 import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
-import de.robolab.client.renderer.drawable.utils.toPoint
-import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Planet
+import de.robolab.common.planet.PlanetPoint
 
 class PlanetStatistic(
-    val planet: Planet
+    val planet: Planet,
 ) {
-    val pathCount = planet.pathList.size
-    val pathBlockedCount = planet.pathList.count { it.blocked || it.weight != null && it.weight < 0.0 }
+    val pathCount = planet.paths.size
+    val pathBlockedCount = planet.paths.count { it.blocked || it.weight < 0.0 }
     val pathFreeCount = pathCount - pathBlockedCount
-    val pathHiddenCount = planet.pathList.count { it.hidden }
+    val pathHiddenCount = planet.paths.count { it.hidden }
 
-    val bottleCount = planet.pathList.filter {
-        it.blocked || it.weight != null && it.weight < 0.0
+    val bottleCount = planet.paths.filter {
+        it.blocked || it.weight < 0.0
     }.map {
-        PathAnimatable.getControlPointsFromPath(planet.version, it).lastOrNull() ?: it.target.toPoint()
+        PathAnimatable.getControlPointsFromPath(planet.version, it).lastOrNull() ?: it.target.point
     }.distinctBy {
         it.roundedWithMultiplier(10.0)
     }.count()
@@ -29,23 +28,23 @@ class PlanetStatistic(
         !PointAnimatableManager.isPointHidden(
             planet,
             it
-        ) && it.getColor(planet.bluePoint) == Coordinate.Color.RED
+        ) && it.getColor(planet.bluePoint) == PlanetPoint.Color.Red
     }
     val pointBlueCount = points.count {
         !PointAnimatableManager.isPointHidden(
             planet,
             it
-        ) && it.getColor(planet.bluePoint) == Coordinate.Color.BLUE
+        ) && it.getColor(planet.bluePoint) == PlanetPoint.Color.Blue
     }
     val pointHiddenCount = points.count { PointAnimatableManager.isPointHidden(planet, it) }
 
     val startPoint = planet.startPoint
-    val pathUnveilCount = planet.pathList.count { it.exposure.isNotEmpty() }
-    val pathSelectCount = planet.pathSelectList.size
-    val targetCount = planet.targetList.groupBy { it.target }.size
-    val senderCount = planet.senderGrouping.keys.flatten().distinct().size
+    val pathUnveilCount = planet.paths.count { it.exposure.isNotEmpty() }
+    val pathSelectCount = planet.pathSelects.size
+    val targetCount = planet.targets.groupBy { it.point }.size
+    val senderCount = planet.senderGroupingsMap.keys.flatten().distinct().size
 
-    val classification = planet.pathList.map { PathClassification.classify(planet.version, it) }
+    val classification = planet.paths.map { PathClassification.classify(planet.version, it) }
 
     val pathDifficulty = classification
         .groupBy {

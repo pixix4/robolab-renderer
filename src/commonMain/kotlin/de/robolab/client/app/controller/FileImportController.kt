@@ -3,16 +3,14 @@ package de.robolab.client.app.controller
 import de.robolab.client.app.controller.ui.ContentController
 import de.robolab.client.app.controller.ui.UiController
 import de.robolab.client.app.model.file.FilePlanetDocument
-import de.robolab.client.app.model.file.provider.FilePlanet
 import de.robolab.client.app.model.file.provider.RemoteMetadata
 import de.robolab.client.app.model.file.provider.TempFilePlanetLoader
 import de.robolab.client.communication.RobolabMessageProvider
-import de.robolab.common.parser.PlanetFile
+import de.robolab.common.planet.PlanetFile
 import de.robolab.common.utils.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
 
 class FileImportController(
     private val robolabMessageProvider: RobolabMessageProvider,
@@ -24,7 +22,7 @@ class FileImportController(
     val logger = Logger(this)
 
     val supportedFileTypes = listOf(
-        ".planet",
+        ".json",
         ".log"
     )
 
@@ -44,22 +42,21 @@ class FileImportController(
 
         withContext(Dispatchers.Default) {
             try {
-                if (fileName.endsWith(".planet")) {
-                    val content = contentProvider().toList()
+                if (fileName.endsWith(".json")) {
+                    val content = contentProvider().joinToString("\n")
                     val planet = PlanetFile(content).planet
                     val metadata = RemoteMetadata.Planet(
                         planet.name,
                         lastModified,
-                        planet.tagMap,
+                        planet.tags,
                         planet.getPointList().size
                     )
-                    TempFilePlanetLoader.create(fileName, metadata, content)
+                    TempFilePlanetLoader.create(fileName, metadata, planet)
                     val filePlanet = filePlanetController.getFilePlanet(TempFilePlanetLoader, fileName)
                     contentController.openDocument(
                         FilePlanetDocument(filePlanet, uiController),
                         true
                     )
-                    logger.info { "Import of *.planet files is currently not supported!" }
                 } else if (fileName.endsWith(".log")) {
                     robolabMessageProvider.importMqttLog(contentProvider())
                 }

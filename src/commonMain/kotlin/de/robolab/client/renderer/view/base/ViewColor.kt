@@ -1,7 +1,7 @@
 package de.robolab.client.renderer.view.base
 
 import de.robolab.client.renderer.transition.IInterpolatable
-import de.robolab.client.theme.IThemePlotter
+import de.robolab.client.theme.utils.IThemePlotter
 import de.robolab.common.utils.Color
 
 data class ViewColor(

@@ -1,8 +1,7 @@
 package de.robolab.common.utils
 
 import de.robolab.client.renderer.transition.IInterpolatable
-import de.robolab.common.parser.toFixed
-import de.robolab.common.planet.Coordinate
+import de.robolab.common.planet.PlanetCoordinate
 import kotlin.math.*
 
 data class Vector(
@@ -12,7 +11,7 @@ data class Vector(
 
     constructor(left: Number, top: Number) : this(left.toDouble(), top.toDouble())
     constructor(point: Pair<Number, Number>) : this(point.first.toDouble(), point.second.toDouble())
-    constructor(point: Coordinate) : this(point.x.toDouble(), point.y.toDouble())
+    constructor(point: PlanetCoordinate) : this(point.x.toDouble(), point.y.toDouble())
 
     operator fun plus(other: Vector) = Vector(left + other.left, top + other.top)
     operator fun minus(other: Vector) = Vector(left - other.left, top - other.top)
@@ -128,4 +127,3 @@ data class Vector(
 }
 
 typealias Dimension = Vector
-typealias Point = Vector

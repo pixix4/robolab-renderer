@@ -1,14 +1,13 @@
 package de.robolab.common.utils
 
-import de.robolab.common.parser.toFixed
-import de.robolab.common.planet.Direction
+import de.robolab.common.planet.PlanetDirection
 
 
 data class Line(
-    val origin: Point,
+    val origin: Vector,
     val direction: Vector
 ) {
-    constructor(origin: Point, direction: Direction) : this(origin, direction.toVector())
+    constructor(origin: Vector, direction: PlanetDirection) : this(origin, direction.toVector())
 
     fun intersection(other: Line): Intersection {
         val x1 = origin.x
@@ -33,7 +32,7 @@ data class Line(
 
         val t = t1 / t2
 
-        return Intersection.Intersect(Point(
+        return Intersection.Intersect(Vector(
             x1 + t * (x2 - x1),
             y1 + t * (y2 - y1)
         ))
@@ -42,7 +41,7 @@ data class Line(
     fun orthogonal() = Line(origin, direction.orthogonal())
     fun rotate(rotation: Double) = Line(origin, direction.rotate(rotation))
 
-    infix fun projectOnto(point: Point): Pair<Double, Point> {
+    infix fun projectOnto(point: Vector): Pair<Double, Vector> {
         val (factor, vector) = (point - origin) projectOnto direction
         return factor to (vector + origin)
     }

@@ -2,7 +2,7 @@ package de.robolab.server.data
 
 import de.robolab.client.app.model.base.SearchRequest
 import de.robolab.common.net.data.DirectoryInfo
-import de.robolab.common.planet.ServerPlanetInfo
+import de.robolab.common.planet.utils.ServerPlanetInfo
 import de.robolab.server.model.ServerPlanet as SPlanet
 
 interface IPlanetStore {
@@ -26,7 +26,7 @@ interface IPlanetStore {
 }
 
 suspend fun IPlanetStore.get(info: ServerPlanetInfo?): SPlanet? {
-    return get((info ?: return null).id)
+    return get(info?.id ?: return null)
 }
 
 suspend fun IPlanetStore.listPlanets(path: String, name: String, ignoreCase: Boolean) =

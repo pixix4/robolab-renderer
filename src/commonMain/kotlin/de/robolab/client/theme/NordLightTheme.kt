@@ -1,5 +1,9 @@
 package de.robolab.client.theme
 
+import de.robolab.client.theme.utils.ITheme
+import de.robolab.client.theme.utils.IThemeEditor
+import de.robolab.client.theme.utils.IThemePlotter
+import de.robolab.client.theme.utils.IThemeUi
 import de.robolab.common.utils.Color
 
 object NordLightTheme : ITheme {
@@ -280,5 +284,5 @@ object NordLightTheme : ITheme {
         override val robotButtonColor = lineColor
     }
 
-    override val traverser = LightTheme.traverser
+    override val traverser = DefaultLightTheme.traverser
 }

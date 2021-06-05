@@ -2,7 +2,7 @@ package de.robolab.client.ui.views.utils
 
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.utils.*
-import de.robolab.common.parser.toFixed
+import de.robolab.common.utils.toFixed
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler

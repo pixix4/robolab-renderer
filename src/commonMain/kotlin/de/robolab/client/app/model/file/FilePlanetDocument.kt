@@ -85,7 +85,7 @@ class FilePlanetDocument(
             FormContentViewModel.Button(
                 MaterialIcon.SAVE,
                 description = "Save changes",
-                enabledProperty = planetFile.history.canUndoProperty
+                enabledProperty = planetFile.planetProperty.canUndoProperty
             ) {
                 GlobalScope.launch(Dispatchers.Main) {
                     save()
@@ -94,20 +94,20 @@ class FilePlanetDocument(
         ),
     ))
 
-    override val canUndoProperty = planetFile.history.canUndoProperty
+    override val canUndoProperty = planetFile.planetProperty.canUndoProperty
 
     override fun undo() {
-        planetFile.history.undo()
+        planetFile.planetProperty.undo()
     }
 
-    override val canRedoProperty = planetFile.history.canRedoProperty
+    override val canRedoProperty = planetFile.planetProperty.canRedoProperty
 
     override fun redo() {
-        planetFile.history.redo()
+        planetFile.planetProperty.redo()
     }
 
     val content: String
-        get() = planetFile.contentString
+        get() = planetFile.stringify()
 
     suspend fun save() {
         filePlanet.save()
@@ -128,13 +128,6 @@ class FilePlanetDocument(
         return saveExportPNG(
             filename ?: Exporter.getExportName(planetFile.planet, "png"),
             drawToPNGCanvas()
-        )
-    }
-
-    fun exportAsExtendedPlanetFile(filename: String? = null): Boolean {
-        return saveExportExtendedPlanetFile(
-            filename ?: Exporter.getExportName(planetFile.planet, "planet"),
-            planetFile.extendedContentString()
         )
     }
 
@@ -192,16 +185,12 @@ class FilePlanetDocument(
         DialogController.open(TransformPlanetDialogViewModel(planetFile))
     }
 
-    fun format(explicit: Boolean) {
-        planetFile.format(explicit)
-    }
-
     init {
         for (tab in infoBarTabs) {
             tab.importPlanet(planetFile.planet)
         }
 
-        planetFile.history.onChange {
+        planetFile.planetProperty.onChange {
             for (tab in infoBarTabs) {
                 tab.importPlanet(planetFile.planet)
             }

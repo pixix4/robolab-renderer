@@ -1,9 +1,9 @@
 package de.robolab.client.net.requests
 
 import kotlinx.datetime.Instant
-import de.robolab.common.planet.ID
-import de.robolab.common.planet.IDSerializer
-import de.robolab.common.planet.IPlanetInfo
+import de.robolab.common.planet.utils.ID
+import de.robolab.common.planet.utils.IDSerializer
+import de.robolab.common.planet.utils.IPlanetInfo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient

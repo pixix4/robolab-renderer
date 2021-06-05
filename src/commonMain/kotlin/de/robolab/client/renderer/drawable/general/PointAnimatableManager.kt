@@ -2,18 +2,18 @@ package de.robolab.client.renderer.drawable.general
 
 import de.robolab.client.renderer.drawable.base.AnimatableManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.IPlanetValue
 import de.robolab.common.planet.Planet
+import de.robolab.common.planet.PlanetPoint
+import de.robolab.common.planet.utils.IPlanetValue
 
 class PointAnimatableManager(
     private val editCallback: IEditCallback? = null,
 ) : AnimatableManager<PointAnimatableManager.AttributePoint, PointAnimatable>() {
 
     class AttributePoint(
-        val coordinate: Coordinate,
-        val hidden: Boolean
-    ) : IPlanetValue {
+        val coordinate: PlanetPoint,
+        val hidden: Boolean,
+    ) : IPlanetValue<AttributePoint> {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
@@ -49,9 +49,9 @@ class PointAnimatableManager(
     }
 
     companion object {
-        fun isPointHidden(planet: Planet, point: Coordinate): Boolean {
-            var hidden = point != planet.startPoint?.point
-            hidden = hidden && planet.pathList.asSequence().filter { it.connectsWith(point) }.all { it.hidden }
+        fun isPointHidden(planet: Planet, point: PlanetPoint): Boolean {
+            var hidden = point != planet.startPoint.point
+            hidden = hidden && planet.paths.asSequence().filter { it.connectsWith(point) }.all { it.hidden }
             return hidden
         }
     }

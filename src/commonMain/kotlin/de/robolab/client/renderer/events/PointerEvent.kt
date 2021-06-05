@@ -1,18 +1,18 @@
 package de.robolab.client.renderer.events
 
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.dimension
 
 open class PointerEvent(
-    val mousePoint: Point,
+    val mousePoint: Vector,
     val screen: Dimension,
     val ctrlKey: Boolean = false,
     val altKey: Boolean = false,
     val shiftKey: Boolean = false
 ): Event() {
-    var planetPoint: Point = mousePoint
+    var planetPoint: Vector = mousePoint
     var hasMoved: Boolean = false
 
     open fun clip(clip: Rectangle): PointerEvent {

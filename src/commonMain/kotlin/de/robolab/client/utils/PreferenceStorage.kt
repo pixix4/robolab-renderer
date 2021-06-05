@@ -3,7 +3,7 @@ package de.robolab.client.utils
 import de.robolab.client.app.controller.SystemController
 import de.robolab.client.app.model.file.LoadRemoteExamStateEvent
 import de.robolab.client.renderer.drawable.edit.PaperBackgroundDrawable
-import de.robolab.client.theme.Theme
+import de.robolab.client.theme.utils.Theme
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.TypedStorage
 import de.westermann.kobserve.event.emit

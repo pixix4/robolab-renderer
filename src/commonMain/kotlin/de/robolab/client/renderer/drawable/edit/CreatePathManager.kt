@@ -2,16 +2,14 @@ package de.robolab.client.renderer.drawable.edit
 
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.drawable.general.PathAnimatable.Companion.getControlPointsFromPath
-import de.robolab.client.renderer.drawable.utils.toPoint
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.extraGet
 import de.robolab.client.renderer.view.component.GroupView
 import de.robolab.client.renderer.view.component.SplineView
 import de.robolab.client.renderer.view.component.SquareView
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
-import de.robolab.common.planet.PlanetVersion
-import de.robolab.common.utils.Point
+import de.robolab.common.planet.*
+import de.robolab.common.planet.utils.PlanetVersion
+import de.robolab.common.utils.Vector
 import de.westermann.kobserve.event.EventListener
 
 class CreatePathManager(
@@ -22,7 +20,7 @@ class CreatePathManager(
 
     private var data: Data? = null
 
-    fun startPath(coordinate: Coordinate, direction: Direction, drawMode: Boolean) {
+    fun startPath(coordinate: PlanetPoint, direction: PlanetDirection, drawMode: Boolean) {
         data?.delete()
 
         data = Data(coordinate, direction, drawMode)
@@ -34,12 +32,12 @@ class CreatePathManager(
     }
 
     inner class Data(
-        private val startCoordinate: Coordinate,
-        private val startDirection: Direction,
+        private val startCoordinate: PlanetPoint,
+        private val startDirection: PlanetDirection,
         private val drawMode: Boolean
     ) {
 
-        val startPoint = startCoordinate.toPoint() + startDirection.toVector(PlottingConstraints.POINT_SIZE)
+        val startPoint = startCoordinate.point + startDirection.toVector(PlottingConstraints.POINT_SIZE)
 
         private val splineView = SplineView(
             startPoint,
@@ -51,7 +49,7 @@ class CreatePathManager(
             false
         )
 
-        private val controlPoints = mutableListOf<Point>()
+        private val controlPoints = mutableListOf<Vector>()
         private val listeners = mutableListOf<EventListener<*>>()
 
         fun delete() {
@@ -77,8 +75,8 @@ class CreatePathManager(
             listeners += document.onPointerDrag.reference { event ->
                 val hoveredView = document.hoveredStack.lastOrNull() as? SquareView
 
-                val hoveredCoordinate = hoveredView?.extraGet<Coordinate>()
-                val hoveredDirection = hoveredView?.extraGet<Direction>()
+                val hoveredCoordinate = hoveredView?.extraGet<PlanetCoordinate>()
+                val hoveredDirection = hoveredView?.extraGet<PlanetDirection>()
 
                 if (drawMode) {
                     val lastControlPoint = controlPoints.lastOrNull() ?: startPoint
@@ -90,7 +88,7 @@ class CreatePathManager(
 
                 if (hoveredCoordinate != null && hoveredDirection != null) {
                     val endPoint =
-                        hoveredCoordinate.toPoint() + hoveredDirection.toVector(PlottingConstraints.POINT_SIZE)
+                        hoveredCoordinate.point + hoveredDirection.toVector(PlottingConstraints.POINT_SIZE)
 
                     val cp = if (drawMode) {
                         when (controlPoints.size) {
@@ -101,9 +99,9 @@ class CreatePathManager(
                     } else {
                         getControlPointsFromPath(
                             PlanetVersion.CURRENT,
-                            startCoordinate.toPoint(),
+                            startCoordinate.point,
                             startDirection,
-                            hoveredCoordinate.toPoint(),
+                            hoveredCoordinate.point,
                             hoveredDirection
                         )
                     }
@@ -130,8 +128,8 @@ class CreatePathManager(
             listeners += document.onPointerUp.reference { event ->
                 val hoveredView = document.hoveredStack.lastOrNull() as? SquareView
 
-                val hoveredCoordinate = hoveredView?.extraGet<Coordinate>()
-                val hoveredDirection = hoveredView?.extraGet<Direction>()
+                val hoveredCoordinate = hoveredView?.extraGet<PlanetPoint>()
+                val hoveredDirection = hoveredView?.extraGet<PlanetDirection>()
 
 
                 if (hoveredCoordinate != null && hoveredDirection != null) {
@@ -140,7 +138,7 @@ class CreatePathManager(
                     } else {
                         if (drawMode) {
                             val endPoint =
-                                hoveredCoordinate.toPoint() + hoveredDirection.toVector(PlottingConstraints.POINT_SIZE)
+                                hoveredCoordinate.point + hoveredDirection.toVector(PlottingConstraints.POINT_SIZE)
 
                             if (controlPoints.last() distanceTo endPoint < 0.25) {
                                 controlPoints.removeAt(controlPoints.lastIndex)
@@ -152,7 +150,10 @@ class CreatePathManager(
                             startDirection,
                             hoveredCoordinate,
                             hoveredDirection,
-                            if (drawMode) controlPoints else emptyList()
+                            if (drawMode) PlanetSpline(
+                                PlanetSplineType.BSpline,
+                                controlPoints.map { it.planetCoordinate }
+                            )  else null
                         )
                     }
                 }

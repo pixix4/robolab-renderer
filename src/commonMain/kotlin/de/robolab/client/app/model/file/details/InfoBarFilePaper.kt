@@ -10,7 +10,7 @@ import de.robolab.client.app.viewmodel.buildFormContent
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
 import de.robolab.client.renderer.drawable.planet.PaperPlanetDrawable
 import de.robolab.client.utils.PreferenceStorage
-import de.robolab.common.planet.Path
+import de.robolab.common.planet.PlanetPath
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.constObservable
@@ -58,7 +58,7 @@ class InfoBarFilePaper(
     val detailBoxProperty: ObservableValue<ViewModel> = drawable.focusedElementsProperty.mapBinding { list ->
         when (val first = list.firstOrNull()) {
             is PointAnimatableManager.AttributePoint -> PointDetailBox(first, planetEntry.planetFile)
-            is Path -> PathDetailBox(first, planetEntry.planetFile)
+            is PlanetPath -> PathDetailBox(first, planetEntry.planetFile)
             else -> statisticsDetailBox
         }
     }

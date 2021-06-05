@@ -5,8 +5,8 @@ import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.client.renderer.utils.Transformation
-import de.robolab.client.theme.ITheme
-import de.robolab.client.theme.LightTheme
+import de.robolab.client.theme.utils.ITheme
+import de.robolab.client.theme.DefaultLightTheme
 import de.robolab.client.utils.HeadlessPlanetDocument
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
@@ -19,7 +19,7 @@ object Exporter {
         canvas: ICanvas,
         drawName: Boolean = true,
         drawNumbers: Boolean = true,
-        theme: ITheme = LightTheme
+        theme: ITheme = DefaultLightTheme
     ) {
         val drawable = SimplePlanetDrawable()
         drawable.importPlanet(planet)
@@ -32,7 +32,7 @@ object Exporter {
         canvas: ICanvas,
         drawName: Boolean = true,
         drawNumbers: Boolean = true,
-        theme: ITheme = LightTheme
+        theme: ITheme = DefaultLightTheme
     ) {
         drawable.drawCompass = false
         drawable.drawName = drawName

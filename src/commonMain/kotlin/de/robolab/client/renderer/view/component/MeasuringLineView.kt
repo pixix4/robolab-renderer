@@ -6,15 +6,15 @@ import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.utils.PreferenceStorage
-import de.robolab.common.parser.toFixed
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
+import de.robolab.common.utils.toFixed
 import de.robolab.common.utils.unionNullable
 import de.westermann.kobserve.property.join
 
 class MeasuringLineView(
-    source: Point,
-    target: Point,
+    source: Vector,
+    target: Vector,
     private val accumulator: (Double) -> Double = { it }
 ) : BaseView() {
 
@@ -23,13 +23,13 @@ class MeasuringLineView(
 
     val sourceTransition = transition(source)
     val source by sourceTransition
-    fun setSource(source: Point, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setSource(source: Vector, duration: Double = animationTime, offset: Double = 0.0) {
         sourceTransition.animate(source, duration, offset)
     }
 
     val targetTransition = transition(target)
     val target by targetTransition
-    fun setTarget(target: Point, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setTarget(target: Vector, duration: Double = animationTime, offset: Double = 0.0) {
         targetTransition.animate(target, duration, offset)
     }
 
@@ -79,7 +79,7 @@ class MeasuringLineView(
         return Rectangle.fromEdges(source, target).expand(PlottingConstraints.LINE_WIDTH / 2) unionNullable parentBox
     }
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         val lineVec = target - source
         val pointVec = planetPoint - source
 

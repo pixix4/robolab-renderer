@@ -3,7 +3,7 @@ package de.robolab.client.renderer.utils
 import de.robolab.client.renderer.transition.DoubleTransition
 import de.robolab.client.renderer.transition.ValueTransition
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.property.mapBinding
@@ -14,7 +14,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 class Transformation(
-    initTranslation: Point = Point.ZERO,
+    initTranslation: Vector = Vector.ZERO,
     initScale: Double = 1.0,
     initRotation: Double = 0.0,
     override val gridWidth: Double = PIXEL_PER_UNIT,
@@ -26,11 +26,11 @@ class Transformation(
     override val translationProperty = ValueTransition(initTranslation)
     override val translation by translationProperty
 
-    private var rotationCenter = Point.ZERO
+    private var rotationCenter = Vector.ZERO
     override val rotationProperty = DoubleTransition(initRotation)
     override val rotation by rotationProperty
 
-    private var scaleCenter = Point.ZERO
+    private var scaleCenter = Vector.ZERO
     override val scaleProperty = DoubleTransition(initScale)
     override val scale by scaleProperty
 
@@ -41,35 +41,35 @@ class Transformation(
 
     private val pixelPerUnitDimensionProperty = flipViewProperty.mapBinding {
         if (it) {
-            internalPixelPerUnitDimension * Point(-1.0, 1.0)
+            internalPixelPerUnitDimension * Vector(-1.0, 1.0)
         } else internalPixelPerUnitDimension
     }
     override val pixelPerUnitDimension: Dimension by pixelPerUnitDimensionProperty
 
     private var hasChanges = false
 
-    override fun translateBy(point: Point, duration: Double) {
+    override fun translateBy(point: Vector, duration: Double) {
         translateTo(translationProperty.targetValue + point, duration)
     }
 
-    override fun translateTo(point: Point, duration: Double) {
+    override fun translateTo(point: Vector, duration: Double) {
         translationProperty.animate(point, duration)
         onViewChange.emit(Unit)
         hasChanges = true
     }
 
-    override fun setTranslation(point: Point) {
+    override fun setTranslation(point: Vector) {
         if (point == translation && !translationProperty.isRunning) return
         translationProperty.resetValue(point)
         onViewChange.emit(Unit)
         hasChanges = true
     }
 
-    override fun rotateBy(angle: Double, center: Point, duration: Double) {
+    override fun rotateBy(angle: Double, center: Vector, duration: Double) {
         rotateTo(rotationProperty.targetValue - angle, center, duration)
     }
 
-    override fun rotateTo(angle: Double, center: Point, duration: Double) {
+    override fun rotateTo(angle: Double, center: Vector, duration: Double) {
         rotationCenter = center
 
         val planetPoint = canvasToPlanet(rotationCenter)
@@ -86,11 +86,11 @@ class Transformation(
         hasChanges = true
     }
 
-    override fun scaleBy(factor: Double, center: Point, duration: Double) {
+    override fun scaleBy(factor: Double, center: Vector, duration: Double) {
         scaleTo(scaleProperty.targetValue * factor, center, duration)
     }
 
-    override fun scaleTo(scale: Double, center: Point, duration: Double) {
+    override fun scaleTo(scale: Double, center: Vector, duration: Double) {
         scaleCenter = center
 
         val planetPoint = canvasToPlanet(scaleCenter)
@@ -100,7 +100,7 @@ class Transformation(
         translateBy(scaleCenter - newCenter, duration)
     }
 
-    private fun scaleDirected(direction: Int, center: Point, duration: Double = 0.0) {
+    private fun scaleDirected(direction: Int, center: Vector, duration: Double = 0.0) {
         val currentZoomLevel = scale
         var nearestZoomLevel = SCALE_STEPS.minByOrNull { abs(it - currentZoomLevel) } ?: 1.0
         var index = SCALE_STEPS.indexOf(nearestZoomLevel)
@@ -120,11 +120,11 @@ class Transformation(
         }
     }
 
-    override fun scaleIn(center: Point, duration: Double) = scaleDirected(1, center, duration)
+    override fun scaleIn(center: Vector, duration: Double) = scaleDirected(1, center, duration)
 
-    override fun scaleOut(center: Point, duration: Double) = scaleDirected(-1, center, duration)
+    override fun scaleOut(center: Vector, duration: Double) = scaleDirected(-1, center, duration)
 
-    override fun resetScale(center: Point, duration: Double) {
+    override fun resetScale(center: Vector, duration: Double) {
         scaleTo(1.0, center, duration)
     }
 
@@ -217,7 +217,7 @@ class Transformation(
     }
 
     data class State(
-        val translation: Point,
+        val translation: Vector,
         val scale: Double,
         val rotation: Double,
         val flipped: Boolean
@@ -226,7 +226,7 @@ class Transformation(
         fun isDefault() = this == DEFAULT
 
         companion object {
-            val DEFAULT = State(Point.ZERO, 1.0, 0.0, false)
+            val DEFAULT = State(Vector.ZERO, 1.0, 0.0, false)
         }
     }
 }

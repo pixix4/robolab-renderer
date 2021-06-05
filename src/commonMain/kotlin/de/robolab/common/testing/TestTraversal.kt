@@ -2,10 +2,7 @@ package de.robolab.common.testing
 
 import de.robolab.client.traverser.ITraverser
 import de.robolab.client.traverser.ITraverserState
-import de.robolab.client.traverser.TraverserState
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.LookupPlanet
-import de.robolab.common.planet.letter
+import de.robolab.common.planet.utils.LookupPlanet
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.tree.SemiMutableTreeProvider
 import de.robolab.common.utils.zipWithCopies
@@ -45,7 +42,7 @@ class TestTraversal<TS>(val planet: TestPlanet, val traverser: ITraverser<TS>) :
                 } catch (_: TestRunSkippedException) {
                 } catch (ex: TestRunFailedException) {
                     if (ex.message != null)
-                        Logger.DEFAULT.debug { "Run failed at ${test.traverserState.location}, ${test.traverserState.nextDirection.letter()}: ${ex.message}" }
+                        Logger.DEFAULT.debug { "Run failed at ${test.traverserState.location}, ${test.traverserState.nextDirection?.letter}: ${ex.message}" }
                 }
                 test
             }.drop(1) //drop 1 because the 'mutable' input will be added to the front anyway
@@ -74,18 +71,18 @@ class TestTraversal<TS>(val planet: TestPlanet, val traverser: ITraverser<TS>) :
                 ": $it"
             }.orEmpty()
             println(
-                "trail: ${ts.getTrail().directions.joinToString("") { it.letter().toString() }}: " +
-                        "${ts.location.toSimpleString()} -> ${ts.nextDirection?.letter() ?: "?"}: ${ts.status} / ${s.status}$statusMessage"
+                "trail: ${ts.getTrail().directions.joinToString("") { it.letter.toString() }}: " +
+                        "${ts.location} -> ${ts.nextDirection?.letter ?: "?"}: ${ts.status} / ${s.status}$statusMessage"
             )
         }
         if (missingExplorations.contains(null))
             println("No exploration has been completed")
         else if (missingExplorations.isNotEmpty())
-            println("The following exploration-completes have not been reached: ${missingExplorations.joinToString { it!!.toSimpleString() }}")
+            println("The following exploration-completes have not been reached: ${missingExplorations.joinToString { it!!.toString() }}")
         if (missingTargets.contains(null))
             println("No targets have been reached")
         else if (missingTargets.isNotEmpty())
-            println("The following targets have not been reached: ${missingTargets.joinToString { it!!.toSimpleString() }}")
+            println("The following targets have not been reached: ${missingTargets.joinToString { it!!.toString() }}")
     }
 
     fun traverseToLogger(logger: Logger = Logger("Testing ${traverser.planet.planet.name}")) {
@@ -118,20 +115,20 @@ class TestTraversal<TS>(val planet: TestPlanet, val traverser: ITraverser<TS>) :
                 val statusMessage: String = s.statusMessage?.let {
                     ": $it"
                 }.orEmpty()
-                "${ts.getTrail().directions.joinToString("") { it.letter().toString() }}: " +
-                        "${ts.location.toSimpleString()} -> ${ts.nextDirection?.letter() ?: "?"}: ${ts.status} / ${s.status}$statusMessage"
+                "${ts.getTrail().directions.joinToString("") { it.letter.toString() }}: " +
+                        "${ts.location.toString()} -> ${ts.nextDirection?.letter ?: "?"}: ${ts.status} / ${s.status}$statusMessage"
             }
         }
         if (missingExplorations.contains(null))
             logger.error { "No exploration has been completed" }
         else if (missingExplorations.isNotEmpty())
-            logger.error { "The following exploration-completes have not been reached: ${missingExplorations.joinToString { it!!.toSimpleString() }}" }
+            logger.error { "The following exploration-completes have not been reached: ${missingExplorations.joinToString { it!!.toString() }}" }
         if (missingTargets.contains(null))
             logger.error { "No targets have been reached" }
         else if (missingTargets.isNotEmpty())
-            logger.error { "The following targets have not been reached: ${missingTargets.joinToString { it!!.toSimpleString() }}" }
+            logger.error { "The following targets have not been reached: ${missingTargets.joinToString { it!!.toString() }}" }
     }
 }
 
-fun <TS> LookupPlanet.testWith(traverser: ITraverser<TS>): TestTraversal<TS> where TS : ITraverserState<TS> =
-    planet.testSuite.buildPlanet(this).testWith(traverser)
+fun <TS> LookupPlanet.testWith(traverser: ITraverser<TS>): TestTraversal<TS> where TS : ITraverserState<TS> = TODO()
+    // planet.testSuite.buildPlanet(this).testWith(traverser)

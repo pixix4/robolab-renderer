@@ -10,7 +10,10 @@ import de.robolab.client.utils.runAsync
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.bindView
-import de.westermann.kwebview.components.*
+import de.westermann.kwebview.components.BoxView
+import de.westermann.kwebview.components.boxView
+import de.westermann.kwebview.components.iconView
+import de.westermann.kwebview.components.textView
 import de.westermann.kwebview.extra.scrollBoxView
 import org.w3c.dom.HTMLElement
 
@@ -89,9 +92,6 @@ class InfoBarFileEditView(
                     ignoreUpdate = false
                 }
                 editor.addOnCursorListener { line, _ ->
-                    if (!ignoreUpdate) {
-                        viewModel.selectLine(line)
-                    }
                 }
 
                 viewModel.uiController.infoBarVisibleProperty.onChange {
@@ -104,11 +104,6 @@ class InfoBarFileEditView(
                     editor.refresh()
                 }
 
-                viewModel.onSetLine { line ->
-                    if (!ignoreUpdate) {
-                        editor.setCursor(line, 0)
-                    }
-                }
                 ignoreUpdate = false
             }
             resizeBox(0.3) {

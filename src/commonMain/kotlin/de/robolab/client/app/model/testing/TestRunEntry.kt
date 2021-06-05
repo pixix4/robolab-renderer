@@ -1,7 +1,8 @@
 package de.robolab.client.app.model.testing
 
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
+import de.robolab.common.planet.PlanetCoordinate
+import de.robolab.common.planet.PlanetDirection
+import de.robolab.common.planet.PlanetPoint
 import de.robolab.common.testing.TestGoal
 import de.robolab.common.testing.TestPlanet
 import de.robolab.common.testing.TestState
@@ -13,8 +14,8 @@ import de.westermann.kobserve.property.property
 
 data class TestRunEntry(
     val number: ObservableValue<Int>,
-    val location: ObservableProperty<Coordinate>,
-    val selectedDirection: ObservableProperty<Direction?>,
+    val location: ObservableProperty<PlanetPoint>,
+    val selectedDirection: ObservableProperty<PlanetDirection?>,
     val status: ObservableProperty<TestStatus>,
     val tasksCompleted: ObservableProperty<Int>,
     val tasksTotal: ObservableValue<Int>,

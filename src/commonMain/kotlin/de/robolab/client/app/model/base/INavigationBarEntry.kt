@@ -8,7 +8,7 @@ import de.robolab.client.utils.ContextMenu
 import de.robolab.client.utils.MenuBuilder
 import de.robolab.client.utils.buildContextMenu
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
@@ -27,7 +27,7 @@ interface INavigationBarEntry {
     val tab: INavigationBarTab
 
     fun MenuBuilder.contextMenu() {}
-    fun generateContextMenuAt(position: Point): ContextMenu? {
+    fun generateContextMenuAt(position: Vector): ContextMenu? {
         return buildContextMenu(position) {
             contextMenu()
         }

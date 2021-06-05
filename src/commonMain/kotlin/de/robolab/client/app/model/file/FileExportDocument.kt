@@ -1,13 +1,10 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.controller.ui.InfoBarController
-import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.app.model.base.IPlanetDocument
-import de.robolab.client.app.model.base.ToolBarEntry
 import de.robolab.client.app.viewmodel.FormContentViewModel
 import de.robolab.client.app.viewmodel.SideBarTabViewModel
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
-import de.robolab.common.parser.PlanetFile
+import de.robolab.common.planet.PlanetFile
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.property

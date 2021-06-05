@@ -9,7 +9,7 @@ import de.robolab.client.utils.electron
 import de.robolab.client.utils.noElectron
 import de.robolab.common.utils.Color
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.westermann.kwebview.components.Canvas
 import org.w3c.dom.*
@@ -58,7 +58,7 @@ open class WebCanvas(val canvas: Canvas) : ICanvas {
         )
     }
 
-    private fun drawPath(points: List<Point>) {
+    private fun drawPath(points: List<Vector>) {
         context.beginPath()
         val first = points.firstOrNull() ?: return
         context.moveTo(first.left, first.top)
@@ -68,7 +68,7 @@ open class WebCanvas(val canvas: Canvas) : ICanvas {
         }
     }
 
-    override fun fillPolygon(points: List<Point>, color: Color) {
+    override fun fillPolygon(points: List<Vector>, color: Color) {
         context.fillStyle = color.toString()
 
         drawPath(points)
@@ -77,7 +77,7 @@ open class WebCanvas(val canvas: Canvas) : ICanvas {
         context.fill()
     }
 
-    override fun strokePolygon(points: List<Point>, color: Color, width: Double) {
+    override fun strokePolygon(points: List<Vector>, color: Color, width: Double) {
         context.strokeStyle = color.toString()
         context.lineWidth = width
 
@@ -87,7 +87,7 @@ open class WebCanvas(val canvas: Canvas) : ICanvas {
         context.stroke()
     }
 
-    override fun strokeLine(points: List<Point>, color: Color, width: Double) {
+    override fun strokeLine(points: List<Vector>, color: Color, width: Double) {
         context.strokeStyle = color.toString()
         context.lineWidth = width
 
@@ -96,7 +96,7 @@ open class WebCanvas(val canvas: Canvas) : ICanvas {
         context.stroke()
     }
 
-    override fun dashLine(points: List<Point>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
+    override fun dashLine(points: List<Vector>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
         context.strokeStyle = color.toString()
         context.lineWidth = width
         context.setLineDash(dashes.toTypedArray())
@@ -112,7 +112,7 @@ open class WebCanvas(val canvas: Canvas) : ICanvas {
 
     override fun fillText(
         text: String,
-        position: Point,
+        position: Vector,
         color: Color,
         fontSize: Double,
         alignment: ICanvas.FontAlignment,
@@ -134,7 +134,7 @@ open class WebCanvas(val canvas: Canvas) : ICanvas {
         context.fillText(text, position.left, position.top)
     }
 
-    override fun fillArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
+    override fun fillArc(center: Vector, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
         context.fillStyle = color.toString()
 
         context.beginPath()
@@ -152,7 +152,7 @@ open class WebCanvas(val canvas: Canvas) : ICanvas {
     }
 
     override fun strokeArc(
-        center: Point,
+        center: Vector,
         radius: Double,
         startAngle: Double,
         extendAngle: Double,
@@ -177,7 +177,7 @@ open class WebCanvas(val canvas: Canvas) : ICanvas {
     }
 
     override fun openContextMenu(menu: ContextMenu) {
-        val m = menu.copy(position = menu.position + Point(canvas.offsetLeftTotal, canvas.offsetTopTotal))
+        val m = menu.copy(position = menu.position + Vector(canvas.offsetLeftTotal, canvas.offsetTopTotal))
         electron { electron ->
             electron.menu(m)
         }

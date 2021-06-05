@@ -1,6 +1,5 @@
 package de.robolab.client.app.model.testing
 
-import de.robolab.common.planet.SubscribableIdentifier
 import de.robolab.common.testing.*
 import de.westermann.kobserve.base.ObservableMutableMap
 import de.westermann.kobserve.base.ObservableProperty

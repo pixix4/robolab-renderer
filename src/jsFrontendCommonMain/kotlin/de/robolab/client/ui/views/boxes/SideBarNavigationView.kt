@@ -8,7 +8,7 @@ import de.robolab.client.ui.ViewFactory
 import de.robolab.client.ui.adapter.WebCanvas
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.mapBinding
@@ -171,7 +171,7 @@ class SideBarNavigationView(private val viewModel: INavigationBarList) : ViewCol
                 event.stopPropagation()
                 event.preventDefault()
 
-                val menu = entry.generateContextMenuAt(Point(event.clientX, event.clientY))
+                val menu = entry.generateContextMenuAt(Vector(event.clientX, event.clientY))
                 if (menu != null) {
                     SystemController.openContextMenu(menu)
                 }

@@ -1,9 +1,9 @@
 package de.robolab.client.app.model.file
 
-import com.soywiz.klock.DateTime
 import de.robolab.common.externaljs.fs.*
 import de.robolab.common.externaljs.toList
 import kotlinx.coroutines.await
+import kotlinx.datetime.Instant
 import path.path
 
 class File(val absolutePath: String) {
@@ -32,8 +32,8 @@ class File(val absolutePath: String) {
     val isFile: Boolean
         get() = stats.isFile()
 
-    val lastModified: DateTime
-        get() = DateTime.fromUnix(stats.mtimeMs.toLong())
+    val lastModified: Instant
+        get() = Instant.fromEpochMilliseconds(stats.mtimeMs.toLong())
 
     fun resolveChildren(vararg paths: String): File {
         return File(path.join(absolutePath, *paths))

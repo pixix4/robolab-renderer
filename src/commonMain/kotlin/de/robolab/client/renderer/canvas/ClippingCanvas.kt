@@ -86,25 +86,25 @@ class ClippingCanvas(private val canvas: ICanvas, initClip: Rectangle) : ICanvas
         canvas.strokeRect(rectangle.removeClip(), color, width)
     }
 
-    override fun fillPolygon(points: List<Point>, color: Color) {
+    override fun fillPolygon(points: List<Vector>, color: Color) {
         canvas.fillPolygon(points.map { it.removeClip() }, color)
     }
 
-    override fun strokePolygon(points: List<Point>, color: Color, width: Double) {
+    override fun strokePolygon(points: List<Vector>, color: Color, width: Double) {
         canvas.strokePolygon(points.map { it.removeClip() }, color, width)
     }
 
-    override fun strokeLine(points: List<Point>, color: Color, width: Double) {
+    override fun strokeLine(points: List<Vector>, color: Color, width: Double) {
         canvas.strokeLine(points.map { it.removeClip() }, color, width)
     }
 
-    override fun dashLine(points: List<Point>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
+    override fun dashLine(points: List<Vector>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
         canvas.dashLine(points.map { it.removeClip() }, color, width, dashes, dashOffset)
     }
 
     override fun fillText(
         text: String,
-        position: Point,
+        position: Vector,
         color: Color,
         fontSize: Double,
         alignment: ICanvas.FontAlignment,
@@ -113,12 +113,12 @@ class ClippingCanvas(private val canvas: ICanvas, initClip: Rectangle) : ICanvas
         canvas.fillText(text, position.removeClip(), color, fontSize, alignment, fontWeight)
     }
 
-    override fun fillArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
+    override fun fillArc(center: Vector, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
         canvas.fillArc(center.removeClip(), radius, startAngle, extendAngle, color)
     }
 
     override fun strokeArc(
-        center: Point,
+        center: Vector,
         radius: Double,
         startAngle: Double,
         extendAngle: Double,
@@ -145,7 +145,7 @@ class ClippingCanvas(private val canvas: ICanvas, initClip: Rectangle) : ICanvas
     }
 
     @Suppress("NOTHING_TO_INLINE")
-    private inline fun Point.removeClip(): Point {
+    private inline fun Vector.removeClip(): Vector {
         return this + clip.topLeft
     }
 }

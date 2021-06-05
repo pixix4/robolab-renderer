@@ -1,7 +1,8 @@
 package de.robolab.client.app.model.file.provider
 
 import de.robolab.client.utils.cache.ICacheStorage
-import de.robolab.common.parser.PlanetFile
+import de.robolab.common.planet.Planet
+import de.robolab.common.planet.PlanetFile
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.GlobalScope
@@ -14,13 +15,13 @@ import kotlinx.serialization.json.Json
 class FilePlanet(
     var loader: IFilePlanetLoader,
     private var id: String,
-    private val cacheEntry: ICacheStorage.Entry
+    private val cacheEntry: ICacheStorage.Entry,
 ) {
 
     private val stateProperty = property<State>()
     private var state by stateProperty
 
-    val planetFile = PlanetFile(emptyList())
+    val planetFile = PlanetFile("")
 
     val isLoadedProperty = stateProperty.mapBinding { it != null }
     val hasLocalChangesProperty = stateProperty.mapBinding { it != null && it.hasLocalChanges }
@@ -39,7 +40,7 @@ class FilePlanet(
 
         val planetFileCopy = PlanetFile(s.editLines)
         planetFileCopy.setName(planetFileCopy.planet.name + " - Copy")
-        loader.createPlanet(parentId, planetFileCopy.content) ?: return false
+        loader.createPlanet(parentId, planetFileCopy.planet) ?: return false
         return true
     }
 
@@ -64,7 +65,7 @@ class FilePlanet(
         )?.simplify() ?: State(metadata, content)
 
         if (!newState.hasLocalChanges) {
-            planetFile.history.clear()
+            planetFile.planetProperty.clear()
         }
 
         if (newState != s) {
@@ -100,28 +101,28 @@ class FilePlanet(
         }
 
         stateProperty.onChange {
-            val editLines = state?.editLines ?: emptyList()
-            if (editLines != planetFile.content) {
-                planetFile.content = editLines
+            val editLines = state?.editLines ?: Planet.EMPTY
+            if (editLines != planetFile.planet) {
+                planetFile.planet = editLines
             }
             GlobalScope.launch {
                 cacheEntry.write(Json.encodeToString(state))
             }
         }
 
-        planetFile.history.onChange {
-            val content = planetFile.content
+        planetFile.planetProperty.onChange {
+            val content = planetFile.planet
             val s = state
             if (s == null) {
-                if (content.isNotEmpty()) {
+                if (content != Planet.EMPTY) {
                     throw IllegalStateException()
                 }
             } else {
                 if (content != s.editLines) {
                     state = State(
                         s.metadata,
-                        remoteLines = state?.remoteLines ?: emptyList(),
-                        baseLines = state?.baseLines ?: emptyList(),
+                        remoteLines = state?.remoteLines ?: Planet.EMPTY,
+                        baseLines = state?.baseLines ?: Planet.EMPTY,
                         editLines = content,
                     )
                 }
@@ -132,12 +133,12 @@ class FilePlanet(
     @Serializable
     data class State(
         val metadata: RemoteMetadata.Planet,
-        val remoteLines: List<String>,
-        val baseLines: List<String>,
-        val editLines: List<String>,
+        val remoteLines: Planet,
+        val baseLines: Planet,
+        val editLines: Planet,
     ) {
 
-        constructor(metadata: RemoteMetadata.Planet, lines: List<String>) : this(metadata, lines, lines, lines)
+        constructor(metadata: RemoteMetadata.Planet, lines: Planet) : this(metadata, lines, lines, lines)
 
         val hasLocalChanges: Boolean
             get() = editLines != baseLines

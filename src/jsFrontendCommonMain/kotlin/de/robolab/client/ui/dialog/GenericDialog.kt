@@ -1,7 +1,7 @@
 package de.robolab.client.ui.dialog
 
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
@@ -9,7 +9,6 @@ import de.westermann.kobserve.event.EventListener
 import de.westermann.kobserve.property.DelegatePropertyAccessor
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
-import de.westermann.kobserve.property.readOnly
 import de.westermann.kwebview.View
 import de.westermann.kwebview.clientPosition
 import de.westermann.kwebview.components.*
@@ -76,8 +75,8 @@ abstract class Dialog(title: String) {
                 }
 
                 var isDragged = false
-                var lastPoint = Point.ZERO
-                var offset = Point.ZERO
+                var lastPoint = Vector.ZERO
+                var offset = Vector.ZERO
                 onMouseDown { event ->
                     isDragged = true
                     lastPoint = event.clientPosition
@@ -106,12 +105,12 @@ abstract class Dialog(title: String) {
                     isDragged = false
                 }
                 onTouchStart { event ->
-                    lastPoint = event.touches[0]?.let { Point(it.clientX, it.clientY) } ?: Point.ZERO
+                    lastPoint = event.touches[0]?.let { Vector(it.clientX, it.clientY) } ?: Vector.ZERO
                     event.stopPropagation()
                     event.preventDefault()
                 }
                 onTouchMove { event ->
-                    val point = event.touches[0]?.let { Point(it.clientX, it.clientY) } ?: Point.ZERO
+                    val point = event.touches[0]?.let { Vector(it.clientX, it.clientY) } ?: Vector.ZERO
 
                     offset += point - lastPoint
                     this@window.style {
@@ -188,7 +187,7 @@ abstract class Dialog(title: String) {
 
 fun ObservableValue<Double>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
     override fun set(value: String) {
-        if(this@bindStringParsing is ObservableProperty<Double>) {
+        if (this@bindStringParsing is ObservableProperty<Double>) {
             this@bindStringParsing.value = value.toDoubleOrNull() ?: return
         }
     }
@@ -201,7 +200,7 @@ fun ObservableValue<Double>.bindStringParsing() = property(object : DelegateProp
 
 fun ObservableValue<Int>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
     override fun set(value: String) {
-        if(this@bindStringParsing is ObservableProperty<Int>) {
+        if (this@bindStringParsing is ObservableProperty<Int>) {
             this@bindStringParsing.value = value.toIntOrNull() ?: return
         }
     }
@@ -215,6 +214,30 @@ fun ObservableValue<Int>.bindStringParsing() = property(object : DelegatePropert
 fun ObservableProperty<Int?>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
     override fun set(value: String) {
         this@bindStringParsing.value = value.toIntOrNull()
+    }
+
+    override fun get(): String {
+        return this@bindStringParsing.value?.toString() ?: ""
+    }
+
+}, this)
+
+fun ObservableValue<Long>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
+    override fun set(value: String) {
+        if (this@bindStringParsing is ObservableProperty<Long>) {
+            this@bindStringParsing.value = value.toLongOrNull() ?: return
+        }
+    }
+
+    override fun get(): String {
+        return this@bindStringParsing.value.toString()
+    }
+
+}, this)
+
+fun ObservableProperty<Long?>.bindStringParsing() = property(object : DelegatePropertyAccessor<String> {
+    override fun set(value: String) {
+        this@bindStringParsing.value = value.toLongOrNull()
     }
 
     override fun get(): String {

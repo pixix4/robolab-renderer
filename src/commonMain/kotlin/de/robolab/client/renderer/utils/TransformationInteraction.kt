@@ -4,7 +4,7 @@ import de.robolab.client.renderer.canvas.ICanvasListener
 import de.robolab.client.renderer.events.*
 import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import kotlin.math.PI
 
 class TransformationInteraction(
@@ -12,7 +12,7 @@ class TransformationInteraction(
 ) : ICanvasListener {
     private val transformation = plotter.transformation
 
-    private var lastPoint: Point = Point.ZERO
+    private var lastPoint: Vector = Vector.ZERO
     var lastDimension: Dimension = plotter.dimension
     private var hasMovedSinceDown = false
 
@@ -131,7 +131,7 @@ class TransformationInteraction(
                 transformation.rotateBy(event.delta.top / 40.0 * PI / 32, event.mousePoint, ANIMATION_TIME)
             }
             else -> {
-                val delta = if (event.shiftKey) event.delta.let { Point(it.y, it.x) } else event.delta
+                val delta = if (event.shiftKey) event.delta.let { Vector(it.y, it.x) } else event.delta
                 transformation.translateBy(delta, ANIMATION_TIME)
             }
         }
@@ -162,7 +162,7 @@ class TransformationInteraction(
 
         val oldCenter = transformation.canvasToPlanet(lastDimension / 2)
         val newCenter = transformation.canvasToPlanet(size / 2)
-        val diff = (oldCenter - newCenter) * transformation.scaledGridWidth * Point(
+        val diff = (oldCenter - newCenter) * transformation.scaledGridWidth * Vector(
             if (transformation.flipViewProperty.value) 1.0 else -1.0,
             1.0
         )
@@ -183,13 +183,13 @@ class TransformationInteraction(
         when (event.keyCode) {
             KeyCode.ARROW_UP -> {
                 val factor = if (event.shiftKey) -1.0 else 1.0
-                transformation.translateBy(Point(0.0, KEYBOARD_TRANSLATION * factor), ANIMATION_TIME)
+                transformation.translateBy(Vector(0.0, KEYBOARD_TRANSLATION * factor), ANIMATION_TIME)
                 plotter.document.emitOnUserTransformation()
                 plotter.updatePointer(lastPoint)
             }
             KeyCode.ARROW_DOWN -> {
                 val factor = if (event.shiftKey) -1.0 else 1.0
-                transformation.translateBy(Point(0.0, -KEYBOARD_TRANSLATION * factor), ANIMATION_TIME)
+                transformation.translateBy(Vector(0.0, -KEYBOARD_TRANSLATION * factor), ANIMATION_TIME)
                 plotter.document.emitOnUserTransformation()
                 plotter.updatePointer(lastPoint)
             }
@@ -198,7 +198,7 @@ class TransformationInteraction(
                 if (event.altKey) {
                     transformation.rotateBy(-KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
-                    transformation.translateBy(Point(KEYBOARD_TRANSLATION * factor, 0.0), ANIMATION_TIME)
+                    transformation.translateBy(Vector(KEYBOARD_TRANSLATION * factor, 0.0), ANIMATION_TIME)
                     plotter.document.emitOnUserTransformation()
                 }
                 plotter.updatePointer(lastPoint)
@@ -208,7 +208,7 @@ class TransformationInteraction(
                 if (event.altKey) {
                     transformation.rotateBy(KEYBOARD_ROTATION, lastDimension / 2, ANIMATION_TIME)
                 } else {
-                    transformation.translateBy(Point(-KEYBOARD_TRANSLATION * factor, 0.0), ANIMATION_TIME)
+                    transformation.translateBy(Vector(-KEYBOARD_TRANSLATION * factor, 0.0), ANIMATION_TIME)
                     plotter.document.emitOnUserTransformation()
                 }
                 plotter.updatePointer(lastPoint)

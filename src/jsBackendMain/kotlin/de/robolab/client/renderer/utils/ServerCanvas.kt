@@ -43,7 +43,7 @@ class ServerCanvas(override val dimension: Dimension, private val scale: Double)
         )
     }
 
-    private fun drawPath(points: List<Point>) {
+    private fun drawPath(points: List<Vector>) {
         context.beginPath()
         val first = points.firstOrNull() ?: return
         context.moveTo(first.left * scale, first.top * scale)
@@ -53,7 +53,7 @@ class ServerCanvas(override val dimension: Dimension, private val scale: Double)
         }
     }
 
-    override fun fillPolygon(points: List<Point>, color: Color) {
+    override fun fillPolygon(points: List<Vector>, color: Color) {
         context.fillStyle = color.toString()
 
         drawPath(points)
@@ -62,7 +62,7 @@ class ServerCanvas(override val dimension: Dimension, private val scale: Double)
         context.fill()
     }
 
-    override fun strokePolygon(points: List<Point>, color: Color, width: Double) {
+    override fun strokePolygon(points: List<Vector>, color: Color, width: Double) {
         context.strokeStyle = color.toString()
         context.lineWidth = width * scale
 
@@ -72,7 +72,7 @@ class ServerCanvas(override val dimension: Dimension, private val scale: Double)
         context.stroke()
     }
 
-    override fun strokeLine(points: List<Point>, color: Color, width: Double) {
+    override fun strokeLine(points: List<Vector>, color: Color, width: Double) {
         context.strokeStyle = color.toString()
         context.lineWidth = width * scale
 
@@ -81,7 +81,7 @@ class ServerCanvas(override val dimension: Dimension, private val scale: Double)
         context.stroke()
     }
 
-    override fun dashLine(points: List<Point>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
+    override fun dashLine(points: List<Vector>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
         context.strokeStyle = color.toString()
         context.lineWidth = width * scale
         context.setLineDash(dashes.map { it * scale }.toTypedArray())
@@ -97,7 +97,7 @@ class ServerCanvas(override val dimension: Dimension, private val scale: Double)
 
     override fun fillText(
         text: String,
-        position: Point,
+        position: Vector,
         color: Color,
         fontSize: Double,
         alignment: ICanvas.FontAlignment,
@@ -119,7 +119,7 @@ class ServerCanvas(override val dimension: Dimension, private val scale: Double)
         context.fillText(text, position.left * scale, position.top * scale)
     }
 
-    override fun fillArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
+    override fun fillArc(center: Vector, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
         context.fillStyle = color.toString()
 
         context.beginPath()
@@ -137,7 +137,7 @@ class ServerCanvas(override val dimension: Dimension, private val scale: Double)
     }
 
     override fun strokeArc(
-        center: Point,
+        center: Vector,
         radius: Double,
         startAngle: Double,
         extendAngle: Double,

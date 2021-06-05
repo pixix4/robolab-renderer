@@ -5,7 +5,7 @@ import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.drawable.utils.log2
 import de.robolab.client.renderer.drawable.utils.power2
 import de.robolab.client.renderer.view.base.BaseView
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.floor
@@ -22,22 +22,22 @@ class GridNumberView : BaseView() {
             val alpha = alphaOfLine(top, context.transformation.scaledGridWidth)
             if (alpha == 0.0) continue
 
-            val (x1, y1) = context.transformation.planetToCanvas(Point(rectangle.left, top.toDouble()))
-            val (x2, y2) = context.transformation.planetToCanvas(Point(rectangle.right, top.toDouble()))
+            val (x1, y1) = context.transformation.planetToCanvas(Vector(rectangle.left, top.toDouble()))
+            val (x2, y2) = context.transformation.planetToCanvas(Vector(rectangle.right, top.toDouble()))
             val p = if (isDefaultAxesOrientation) {
                 val x3 = 30.0
                 val y3 = (x3 - x1) / (x2 - x1) * (y2 - y1) + y1
 
                 if (y3 > context.dimension.height - 50) continue
 
-                Point(x3, y3)
+                Vector(x3, y3)
             } else {
                 val y3 = context.canvas.dimension.height - 30.0
                 val x3 = (y3 - y1) / (y2 - y1) * (x2 - x1) + x1
 
                 if (x3 < 50) continue
 
-                Point(x3, y3)
+                Vector(x3, y3)
             }
 
             context.canvas.fillText(top.toString(), p, context.theme.plotter.gridTextColor.a(alpha), FONT_SIZE, alignment = ICanvas.FontAlignment.CENTER)
@@ -49,23 +49,23 @@ class GridNumberView : BaseView() {
             val alpha = alphaOfLine(left, context.transformation.scaledGridWidth)
             if (alpha == 0.0) continue
 
-            val (x1, y1) = context.transformation.planetToCanvas(Point(left.toDouble(), rectangle.top))
-            val (x2, y2) = context.transformation.planetToCanvas(Point(left.toDouble(), rectangle.bottom))
+            val (x1, y1) = context.transformation.planetToCanvas(Vector(left.toDouble(), rectangle.top))
+            val (x2, y2) = context.transformation.planetToCanvas(Vector(left.toDouble(), rectangle.bottom))
             val p = if (isDefaultAxesOrientation) {
                 val y3 = context.canvas.dimension.height - 30.0
                 val x3 = (y3 - y1) / (y2 - y1) * (x2 - x1) + x1
-                Point(x3, y3)
+                Vector(x3, y3)
             } else {
                 val x3 = 30.0
                 val y3 = (x3 - x1) / (x2 - x1) * (y2 - y1) + y1
-                Point(x3, y3)
+                Vector(x3, y3)
             }
 
             context.canvas.fillText(left.toString(), p, context.theme.plotter.gridTextColor.a(alpha), FONT_SIZE, alignment = ICanvas.FontAlignment.CENTER)
         }
     }
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         return false
     }
 

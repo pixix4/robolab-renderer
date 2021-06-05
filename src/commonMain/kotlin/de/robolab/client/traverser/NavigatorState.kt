@@ -1,17 +1,18 @@
 package de.robolab.client.traverser
 
 import de.robolab.common.planet.*
+import de.robolab.common.planet.utils.LookupPlanet
 
 interface INavigatorState {
     val targetReached: Boolean
     val explorationComplete: Boolean
-    val pickedDirection: Direction?
+    val pickedDirection: PlanetDirection?
     val exploring: Boolean
-    val currentTarget: TargetPoint?
+    val currentTarget: PlanetTarget?
 }
 
-private fun addPath(paths: Map<Coordinate, Map<Direction, Path>>, path: Path): Map<Coordinate, Map<Direction, Path>> {
-    val oldEntry: Map<Direction, Path>? = paths[path.source]
+private fun addPath(paths: Map<PlanetPoint, Map<PlanetDirection, PlanetPath>>, path: PlanetPath): Map<PlanetPoint, Map<PlanetDirection, PlanetPath>> {
+    val oldEntry: Map<PlanetDirection, PlanetPath>? = paths[path.source]
     return when {
         oldEntry == null -> paths + (path.source to mapOf(path.sourceDirection to path))
         path.sourceDirection !in oldEntry -> paths + (path.source to (oldEntry + (path.sourceDirection to path)))
@@ -20,41 +21,41 @@ private fun addPath(paths: Map<Coordinate, Map<Direction, Path>>, path: Path): M
 }
 
 private fun addOpenExits(
-    openExits: Map<Coordinate, Set<Direction>>,
-    location: Coordinate
-): Map<Coordinate, Set<Direction>> =
+    openExits: Map<PlanetPoint, Set<PlanetDirection>>,
+    location: PlanetPoint
+): Map<PlanetPoint, Set<PlanetDirection>> =
     if (location in openExits) openExits
-    else openExits + (location to Direction.values().toSet())
+    else openExits + (location to PlanetDirection.values().toSet())
 
 private fun removeOpenExit(
-    openExits: Map<Coordinate, Set<Direction>>,
-    location: Coordinate,
-    direction: Direction
-): Map<Coordinate, Set<Direction>> {
-    val oldDirections: Set<Direction> = openExits[location]
+    openExits: Map<PlanetPoint, Set<PlanetDirection>>,
+    location: PlanetPoint,
+    direction: PlanetDirection
+): Map<PlanetPoint, Set<PlanetDirection>> {
+    val oldDirections: Set<PlanetDirection> = openExits[location]
         ?: error("Cannot remove exit from non-existing set at $location")
     return openExits + (location to (oldDirections - direction))
 }
 
 private fun addExploredExit(
-    exploredExits: Map<Coordinate, Set<Direction>>,
-    location: Coordinate,
-    direction: Direction
-): Map<Coordinate, Set<Direction>> =
+    exploredExits: Map<PlanetPoint, Set<PlanetDirection>>,
+    location: PlanetPoint,
+    direction: PlanetDirection
+): Map<PlanetPoint, Set<PlanetDirection>> =
     exploredExits + (location to (exploredExits[location].orEmpty() + direction))
 
 data class NavigatorState(
-    val openExits: Map<Coordinate, Set<Direction>>,
-    val exploredExits: Map<Coordinate, Set<Direction>>,
-    val paths: Map<Coordinate, Map<Direction, Path>>,
-    override val currentTarget: TargetPoint?,
+    val openExits: Map<PlanetPoint, Set<PlanetDirection>>,
+    val exploredExits: Map<PlanetPoint, Set<PlanetDirection>>,
+    val paths: Map<PlanetPoint, Map<PlanetDirection, PlanetPath>>,
+    override val currentTarget: PlanetTarget?,
     override val explorationComplete: Boolean,
     override val targetReached: Boolean,
-    override val pickedDirection: Direction?,
+    override val pickedDirection: PlanetDirection?,
     override val exploring: Boolean
 ) : INavigatorState {
 
-    fun withPath(path: Path) = copy(
+    fun withPath(path: PlanetPath) = copy(
         paths = addPath(addPath(paths, path), path.reversed()),
         openExits = removeOpenExit(
             removeOpenExit(
@@ -68,7 +69,7 @@ data class NavigatorState(
         )
     )
 
-    fun restrictOpenExits(location: Coordinate, directions: Set<Direction>): NavigatorState = copy(
+    fun restrictOpenExits(location: PlanetPoint, directions: Set<PlanetDirection>): NavigatorState = copy(
         openExits = openExits + (location to (openExits[location]!!.intersect(directions)))
     )
 
@@ -79,9 +80,9 @@ data class NavigatorState(
             pickedDirection = null,
             exploring = true,
             currentTarget = null,
-            openExits = mapOf(planet.planet.startPoint?.point!! to (planet.getLeavingDirections(planet.planet.startPoint.point)) - planet.planet.startPoint.orientation.opposite()),
+            openExits = mapOf(planet.planet.startPoint.point to (planet.getLeavingDirections(planet.planet.startPoint.point)) - planet.planet.startPoint.orientation.opposite()),
             exploredExits = mapOf(planet.planet.startPoint.point to setOf(planet.planet.startPoint.orientation.opposite())),
-            paths = mapOf(planet.planet.startPoint.point to mapOf(planet.planet.startPoint.orientation.opposite() to planet.planet.getStartPath()!!))
+            paths = mapOf(planet.planet.startPoint.point to mapOf(planet.planet.startPoint.orientation.opposite() to planet.planet.startPoint.path))
         )
 
         fun getSeed(planet: Planet): NavigatorState = getSeed(LookupPlanet(planet))

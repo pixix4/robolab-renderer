@@ -1,8 +1,8 @@
 package de.robolab.common.testing
 
-import de.robolab.common.planet.LookupPlanet
+import de.robolab.common.planet.utils.LookupPlanet
 
-fun LookupPlanet.buildTestPlanet() = planet.testSuite.buildPlanet(this)
+fun LookupPlanet.buildTestPlanet(): TestPlanet = TODO() // planet.testSuite.buildPlanet(this)
 
 fun TestSuite.buildPlanet(planet: LookupPlanet): TestPlanet {
     val (targetGoals, explorationGoals) = goals.partition { it is TestGoal.Target }

@@ -4,7 +4,7 @@ import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.drawable.base.AnimatableManager
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.common.planet.Planet
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 
 class GroupTransformView(
     tag: String?,
@@ -25,7 +25,7 @@ class GroupTransformView(
         addAll(viewList.map { it.view })
     }
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         return false
     }
 

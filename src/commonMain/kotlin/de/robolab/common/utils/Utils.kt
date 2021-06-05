@@ -1,6 +1,9 @@
 package de.robolab.common.utils
 
 import kotlin.jvm.JvmName
+import kotlin.math.absoluteValue
+import kotlin.math.pow
+import kotlin.math.round
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
@@ -43,7 +46,7 @@ fun <K, V> Map<K, List<V>>.withEntry(entry: Pair<K, V>) =
 inline fun <T, R, S, V> Iterable<T>.zip(
     other1: Iterable<R>,
     other2: Iterable<S>,
-    transform: (a: T, b: R, c: S) -> V
+    transform: (a: T, b: R, c: S) -> V,
 ): List<V> {
     val first = iterator()
     val second = other1.iterator()
@@ -96,3 +99,30 @@ inline fun <T> copyToCount(seed: T, count: Int, copy: (T) -> T): List<T> =
 
 inline fun <T, R, V> List<T>.zipWithCopies(seed: R, copy: (R) -> R, transform: (a: T, b: R) -> V): List<V> =
     zip(copyToCount(seed, size, copy), transform)
+
+fun Number.toFixed(places: Int): String {
+    if (places == 0) {
+        return toLong().toString()
+    }
+
+    val exp = 10.0.pow(places)
+    val number = (round(toDouble() * exp) / exp).toString()
+
+    val dotIndex = number.indexOf('.')
+
+    if (dotIndex < 0) {
+        return number + '.' + "0".repeat(places)
+    }
+
+    val missingPlaces = dotIndex + places - number.lastIndex
+
+    if (missingPlaces == 0) {
+        return number
+    }
+
+    if (missingPlaces > 0) {
+        return number + "0".repeat(missingPlaces)
+    }
+
+    return number.dropLast(missingPlaces.absoluteValue)
+}

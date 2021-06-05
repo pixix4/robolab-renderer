@@ -4,10 +4,10 @@ import de.robolab.client.app.controller.ConnectionController
 import de.robolab.client.app.controller.ProgressController
 import de.robolab.client.renderer.drawable.utils.normalizeRadiant
 import de.robolab.client.renderer.drawable.utils.radiantToDegree
-import de.robolab.common.parser.toFixed
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Path
-import de.robolab.common.utils.Point
+import de.robolab.common.planet.PlanetCoordinate
+import de.robolab.common.planet.PlanetPath
+import de.robolab.common.utils.Vector
+import de.robolab.common.utils.toFixed
 import de.westermann.kobserve.property.join
 import kotlin.math.roundToInt
 
@@ -43,9 +43,9 @@ class StatusBarController(
     val progressList = progressController.progressList
 
     private fun format(obj: Any): String = when (obj) {
-        is Path -> "Path(${obj.source.x},${obj.source.y},${obj.sourceDirection.name.first()} -> ${obj.target.x},${obj.target.y},${obj.targetDirection.name.first()})"
-        is Coordinate -> "Coordinate(${obj.x},${obj.y})"
-        is Point -> "${obj.left.toFixed(2)},${obj.top.toFixed(2)}"
+        is PlanetPath -> "Path(${obj.sourceX},${obj.sourceY},${obj.sourceDirection.name.first()} -> ${obj.targetX},${obj.targetY},${obj.targetDirection.name.first()})"
+        is PlanetCoordinate -> "Coordinate(${obj.x},${obj.y})"
+        is Vector -> "${obj.left.toFixed(2)},${obj.top.toFixed(2)}"
         else -> obj.toString()
     }
 

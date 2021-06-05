@@ -1,14 +1,14 @@
 package de.robolab.client.renderer.drawable.utils
 
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 
 /**
  * @author lars
  */
 interface Curve {
-    fun eval(t: Double, points: List<Point>): Point
+    fun eval(t: Double, points: List<Vector>): Vector
 
-    fun evalGradient(t: Double, points: List<Point>): Point {
+    fun evalGradient(t: Double, points: List<Vector>): Vector {
         val epsilon = 0.01 / points.size
 
         val (p1, p2) = when {
@@ -21,7 +21,7 @@ interface Curve {
             val p3 = eval(t, points)
 
             if (p3 == p1) {
-                return Point.ZERO
+                return Vector.ZERO
             }
             return (p2 - p3).normalize()
         }

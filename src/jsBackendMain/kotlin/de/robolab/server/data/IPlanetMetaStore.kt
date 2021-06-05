@@ -1,6 +1,6 @@
 package de.robolab.server.data
 
-import de.robolab.common.planet.ServerPlanetInfo
+import de.robolab.common.planet.utils.ServerPlanetInfo
 
 interface IPlanetMetaStore {
     suspend fun retrieveFilePath(id: String, verifier: suspend (String) -> Boolean): String?

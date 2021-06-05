@@ -1,11 +1,7 @@
 package de.robolab.client.renderer.canvas
 
 import de.robolab.client.utils.ContextMenu
-import de.robolab.common.parser.toFixed
-import de.robolab.common.utils.Color
-import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
-import de.robolab.common.utils.Rectangle
+import de.robolab.common.utils.*
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -56,22 +52,22 @@ class SvgCanvas(
         append("""<rect x="${rectangle.left}" y="${rectangle.top}" width="${rectangle.width}" height="${rectangle.height}" fill="none" stroke="$color" stroke-width="$width" $STROKE_CONST />""")
     }
 
-    override fun fillPolygon(points: List<Point>, color: Color) {
+    override fun fillPolygon(points: List<Vector>, color: Color) {
         val p = points.joinToString(" ") { "${it.left.toFixed(2)},${it.top.toFixed(2)}" }
         append("""<polygon points="$p" fill="$color" stroke="none" />""")
     }
 
-    override fun strokePolygon(points: List<Point>, color: Color, width: Double) {
+    override fun strokePolygon(points: List<Vector>, color: Color, width: Double) {
         val p = points.joinToString(" ") { "${it.left.toFixed(2)},${it.top.toFixed(2)}" }
         append("""<polygon points="$p" fill="none" stroke="$color" stroke-width="$width" $STROKE_CONST />""")
     }
 
-    override fun strokeLine(points: List<Point>, color: Color, width: Double) {
+    override fun strokeLine(points: List<Vector>, color: Color, width: Double) {
         val p = points.joinToString(" ") { "${it.left.toFixed(2)},${it.top.toFixed(2)}" }
         append("""<polyline points="$p" fill="none" stroke="$color" stroke-width="$width" $STROKE_CONST />""")
     }
 
-    override fun dashLine(points: List<Point>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
+    override fun dashLine(points: List<Vector>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
         val p = points.joinToString(" ") { "${it.left.toFixed(2)},${it.top.toFixed(2)}" }
         val d = dashes.joinToString(" ") { it.toFixed(2) }
         append(
@@ -83,7 +79,7 @@ class SvgCanvas(
 
     override fun fillText(
         text: String,
-        position: Point,
+        position: Vector,
         color: Color,
         fontSize: Double,
         alignment: ICanvas.FontAlignment,
@@ -105,11 +101,11 @@ class SvgCanvas(
         )
     }
 
-    private fun calcArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double): String {
+    private fun calcArc(center: Vector, radius: Double, startAngle: Double, extendAngle: Double): String {
         val sa = 2.0 * PI - startAngle
         val ea = 2.0 * PI - (startAngle + extendAngle)
-        val (x1, y1) = center + Point(radius * cos(sa), radius * sin(sa))
-        val (x2, y2) = center + Point(radius * cos(ea), radius * sin(ea))
+        val (x1, y1) = center + Vector(radius * cos(sa), radius * sin(sa))
+        val (x2, y2) = center + Vector(radius * cos(ea), radius * sin(ea))
         val fA = if (extendAngle > PI) 1 else 0
         val fS = if (extendAngle > 0) 0 else 1
         return "M ${x1.toFixed(2)},${y1.toFixed(2)} A ${radius.toFixed(2)} ${radius.toFixed(2)} 0 $fA $fS ${x2.toFixed(2)},${y2.toFixed(
@@ -117,7 +113,7 @@ class SvgCanvas(
         )}"
     }
 
-    override fun fillArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
+    override fun fillArc(center: Vector, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
         if (extendAngle < 2 * PI) {
             val d = calcArc(center, radius, startAngle, extendAngle)
             append("""<path d="$d" fill="$color" stroke="none" />""")
@@ -127,7 +123,7 @@ class SvgCanvas(
     }
 
     override fun strokeArc(
-        center: Point,
+        center: Vector,
         radius: Double,
         startAngle: Double,
         extendAngle: Double,

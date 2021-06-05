@@ -1,11 +1,11 @@
 package de.robolab.common.testing
 
-import de.robolab.common.planet.SubscribableIdentifier
+import de.robolab.common.planet.test.PlanetSubscribableRef
 
 interface ITestPlanetBehaviour
 
 interface ITestableSubscriber : ITestPlanetBehaviour {
-    val subscribable: SubscribableIdentifier<*>
+    val subscribable: PlanetSubscribableRef
     fun ITestRun.onTestableEntered()
 }
 

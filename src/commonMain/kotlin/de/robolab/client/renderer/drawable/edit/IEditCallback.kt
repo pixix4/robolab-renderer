@@ -2,43 +2,44 @@ package de.robolab.client.renderer.drawable.edit
 
 import de.robolab.common.planet.*
 import de.robolab.common.utils.Logger
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 
 private val logger = Logger("IEditCallback")
 
 interface IEditCallback {
+
     fun createPath(
-        startPoint: Coordinate,
-        startDirection: Direction,
-        endPoint: Coordinate,
-        endDirection: Direction,
-        controlPoints: List<Point>,
-        groupHistory: Boolean = false
+        source: PlanetPoint,
+        sourceDirection: PlanetDirection,
+        target: PlanetPoint,
+        targetDirection: PlanetDirection,
+        spline: PlanetSpline?,
+        groupHistory: Boolean = false,
     ) {
-        logger.warn { "Plotter action 'drawPath($startPoint, $startDirection, $endPoint, $endDirection, $controlPoints, $groupHistory)' is not supported!" }
+        logger.warn { "Plotter action 'drawPath($source, $sourceDirection, $target, $targetDirection, $spline, $groupHistory)' is not supported!" }
     }
 
-    fun updatePathControlPoints(path: Path, controlPoints: List<Point>, groupHistory: Boolean = false) {
-        logger.warn { "Plotter action 'updateControlPoints($path, $controlPoints, $groupHistory)' is not supported!" }
+    fun updatePathSpline(path: PlanetPath, spline: PlanetSpline?, groupHistory: Boolean = false) {
+        logger.warn { "Plotter action 'updateControlPoints($path, $spline, $groupHistory)' is not supported!" }
     }
 
-    fun deletePath(path: Path, groupHistory: Boolean = false) {
+    fun deletePath(path: PlanetPath, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'deletePath($path, $groupHistory)' is not supported!" }
     }
 
-    fun toggleTargetExposure(target: Coordinate, exposure: Coordinate, groupHistory: Boolean = false) {
+    fun toggleTargetExposure(target: PlanetPoint, exposure: PlanetPoint, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'toggleTargetExposure($target, $exposure, $groupHistory)' is not supported!" }
     }
 
-    fun togglePathExposure(path: Path, exposure: Coordinate, groupHistory: Boolean = false) {
+    fun togglePathExposure(path: PlanetPath, exposure: PlanetPoint, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'togglePathExposure($path, $exposure, $groupHistory)' is not supported!" }
     }
 
-    fun togglePathSelect(point: Coordinate, direction: Direction, groupHistory: Boolean = false) {
+    fun togglePathSelect(point: PlanetPoint, direction: PlanetDirection, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'togglePathSelect($point, $direction, $groupHistory)' is not supported!" }
     }
 
-    fun setStartPoint(point: Coordinate, orientation: Direction, groupHistory: Boolean = false) {
+    fun setStartPoint(point: PlanetPoint, orientation: PlanetDirection, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'setStartPoint($point, $orientation, $groupHistory)' is not supported!" }
     }
 
@@ -46,48 +47,48 @@ interface IEditCallback {
         logger.warn { "Plotter action 'deleteStartPoint($groupHistory)' is not supported!" }
     }
 
-    fun setBluePoint(point: Coordinate, groupHistory: Boolean = false) {
+    fun setBluePoint(point: PlanetPoint, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'setBluePoint($point, $groupHistory)' is not supported!" }
     }
 
-    fun togglePathHiddenState(path: Path, groupHistory: Boolean = false) {
+    fun togglePathHiddenState(path: PlanetPath, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'togglePathHiddenState($path, $groupHistory)' is not supported!" }
     }
 
-    fun setPathWeight(path: Path, weight: Int, groupHistory: Boolean = false) {
+    fun setPathWeight(path: PlanetPath, weight: Long, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'setPathWeight($path, $weight, $groupHistory)' is not supported!" }
     }
 
-    fun createComment(value: List<String>, position: Point, groupHistory: Boolean = false) {
+    fun createComment(value: List<String>, position: Vector, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'createComment($value, $position, $groupHistory)' is not supported!" }
     }
 
-    fun setCommentValue(comment: Comment, value: List<String>, groupHistory: Boolean = false) {
+    fun setCommentValue(comment: PlanetComment, value: List<String>, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'setCommentValue($comment, $value, $groupHistory)' is not supported!" }
     }
 
-    fun setCommentPosition(comment: Comment, position: Point, groupHistory: Boolean = false) {
+    fun setCommentPosition(comment: PlanetComment, position: Vector, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'setCommentPosition($comment, $position, $groupHistory)' is not supported!" }
     }
 
-    fun setCommentAlignment(comment: Comment, alignment: Comment.Alignment, groupHistory: Boolean = false) {
+    fun setCommentAlignment(comment: PlanetComment, alignment: PlanetCommentAlignment, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'setCommentAlignment($comment, $alignment, $groupHistory)' is not supported!" }
     }
 
-    fun deleteComment(comment: Comment, groupHistory: Boolean = false) {
+    fun deleteComment(comment: PlanetComment, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'deleteComment($comment, $groupHistory)' is not supported!" }
     }
 
 
-    fun translate(delta: Coordinate, groupHistory: Boolean = false) {
+    fun translate(delta: PlanetPoint, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'translate($delta, $groupHistory)' is not supported!" }
     }
 
-    fun rotate(direction: Planet.RotateDirection, origin: Coordinate, groupHistory: Boolean = false) {
+    fun rotate(direction: Planet.RotateDirection, origin: PlanetPoint, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'rotate($direction, $origin, $groupHistory)' is not supported!" }
     }
 
-    fun scaleWeights(factor: Double, offset: Int, groupHistory: Boolean = false) {
+    fun scaleWeights(factor: Double, offset: Long, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'scaleWeights($factor, $offset, $groupHistory)' is not supported!" }
     }
 

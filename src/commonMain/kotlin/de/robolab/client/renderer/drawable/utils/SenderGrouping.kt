@@ -2,12 +2,10 @@ package de.robolab.client.renderer.drawable.utils
 
 import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.view.base.ViewColor
-import de.robolab.common.planet.Coordinate
 import de.robolab.common.utils.Color
-import de.robolab.common.utils.Point
 
 data class SenderGrouping(
-    val char: Char
+    val char: Char,
 ) {
 
     val color = getColorByIndex(char.code - 65)
@@ -89,7 +87,5 @@ fun power2(exp: Int): Int {
     }
     return result
 }
-
-fun Coordinate.toPoint() = Point(x, y)
 
 fun DrawContext.c(color: ViewColor) = color.toColor(theme.plotter)

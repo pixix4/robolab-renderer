@@ -2,7 +2,7 @@ package de.robolab.client.renderer.view.component
 
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.IView
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.westermann.kobserve.base.ObservableValue
 
 class ConditionalView(
@@ -11,7 +11,7 @@ class ConditionalView(
     private val view: IView
 ) : BaseView(tag) {
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         return false
     }
 

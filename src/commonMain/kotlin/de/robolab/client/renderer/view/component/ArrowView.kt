@@ -4,14 +4,13 @@ import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
-import de.robolab.common.utils.Color
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.unionNullable
 
 class ArrowView(
-    source: Point,
-    target: Point,
+    source: Vector,
+    target: Vector,
     width: Double,
     color: ViewColor
 ) : BaseView() {
@@ -19,13 +18,13 @@ class ArrowView(
 
     val sourceTransition = transition(source)
     val source by sourceTransition
-    fun setSource(source: Point, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setSource(source: Vector, duration: Double = animationTime, offset: Double = 0.0) {
         sourceTransition.animate(source, duration, offset)
     }
 
     val targetTransition = transition(target)
     val target by targetTransition
-    fun setTarget(target: Point, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setTarget(target: Vector, duration: Double = animationTime, offset: Double = 0.0) {
         targetTransition.animate(target, duration, offset)
     }
 
@@ -51,8 +50,8 @@ class ArrowView(
     override fun onDraw(context: DrawContext) {
         if (sizeFactor == 0.0) return
 
-        val scaledSource: Point
-        val scaledTarget: Point
+        val scaledSource: Vector
+        val scaledTarget: Vector
         val scaledWidth: Double
 
         if (sizeFactor < 1.0) {
@@ -75,7 +74,7 @@ class ArrowView(
         return Rectangle.fromEdges(source, target).expand(width) unionNullable parentBox
     }
     
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         val source = source.interpolate(target, 0.5 + sizeFactor / 2)
         val target = target.interpolate(source, 0.5 + sizeFactor / 2)
 
@@ -105,8 +104,8 @@ class ArrowView(
     companion object {
         fun draw(
             context: DrawContext,
-            source: Point,
-            target: Point,
+            source: Vector,
+            target: Vector,
             width: Double,
             color: ViewColor
         ) {
@@ -119,8 +118,8 @@ class ArrowView(
 
             val arrowMiddle = target.interpolate(source, 0.4)
             val vector = (arrowMiddle - target) * 0.7
-            val left = arrowMiddle + Point(vector.top, -vector.left)
-            val right = arrowMiddle + Point(-vector.top, vector.left)
+            val left = arrowMiddle + Vector(vector.top, -vector.left)
+            val right = arrowMiddle + Vector(-vector.top, vector.left)
             context.fillPolygon(
                 listOf(target, left, right),
                 c

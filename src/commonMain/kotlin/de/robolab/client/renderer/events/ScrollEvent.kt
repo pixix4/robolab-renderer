@@ -1,13 +1,13 @@
 package de.robolab.client.renderer.events
 
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.dimension
 
 class ScrollEvent(
-    mousePoint: Point,
-    val delta: Point,
+    mousePoint: Vector,
+    val delta: Vector,
     screen: Dimension,
     ctrlKey: Boolean = false,
     altKey: Boolean = false,

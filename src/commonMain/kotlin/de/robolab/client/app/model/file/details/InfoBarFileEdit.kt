@@ -8,11 +8,9 @@ import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.app.viewmodel.buildFormContent
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
 import de.robolab.client.renderer.drawable.planet.EditPlanetDrawable
-import de.robolab.common.planet.IPlanetValue
-import de.robolab.common.planet.Path
 import de.robolab.common.planet.Planet
+import de.robolab.common.planet.PlanetPath
 import de.westermann.kobserve.base.ObservableValue
-import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.DelegatePropertyAccessor
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
@@ -41,12 +39,6 @@ class InfoBarFileEdit(
         button("Transform") {
             transform()
         }
-        button("Format") {
-            format()
-        }
-        button("Format explicit") {
-            formatExplicit()
-        }
     }
     override val bottomToolBar = buildFormContent { }
 
@@ -73,26 +65,22 @@ class InfoBarFileEdit(
             val group = lastChange == change
             lastChange = change
 
-            if (group) {
-                planetEntry.planetFile.replaceContent(value.split('\n'))
-            } else {
-                planetEntry.planetFile.content = value.split('\n')
-            }
+            planetEntry.planetFile.parse(value, group)
         }
 
         override fun get(): String {
             return planetEntry.content
         }
 
-    }, planetEntry.planetFile.history)
+    }, planetEntry.planetFile.planetProperty)
     var content by stringContentProperty
 
     fun undo() {
-        planetEntry.planetFile.history.undo()
+        planetEntry.planetFile.planetProperty.undo()
     }
 
     fun redo() {
-        planetEntry.planetFile.history.redo()
+        planetEntry.planetFile.planetProperty.redo()
     }
 
     fun save() {
@@ -105,65 +93,12 @@ class InfoBarFileEdit(
         planetEntry.transform()
     }
 
-    fun format() {
-        planetEntry.format(false)
-    }
-
-    fun formatExplicit() {
-        planetEntry.format(true)
-    }
-
-    var ignoreSetLine = false
-    fun selectLine(line: Int) {
-        val obj = planetEntry.planetFile.lineNumberToValue(line) ?: return
-        ignoreSetLine = true
-        drawable.focus(obj)
-        ignoreSetLine = false
-    }
-
-    val onSetLine = EventHandler<Int>()
-
-    private fun findObjForPoint(point: PointAnimatableManager.AttributePoint): IPlanetValue {
-        val planet = planetEntry.planetFile.planet
-
-        planet.targetList.find { it.target == point.coordinate }?.let {
-            return it
-        }
-        planet.targetList.find { it.exposure == point.coordinate }?.let {
-            return it
-        }
-        planet.pathSelectList.find { it.point == point.coordinate }?.let {
-            return it
-        }
-        planet.pathList.find { point.coordinate in it.exposure }?.let {
-            return it
-        }
-
-        return point
-    }
-
     private val statisticsDetailBox = PlanetStatisticsDetailBox(planetEntry.planetFile)
     val detailBoxProperty: ObservableValue<ViewModel> = drawable.focusedElementsProperty.mapBinding { list ->
         when (val first = list.firstOrNull()) {
             is PointAnimatableManager.AttributePoint -> PointDetailBox(first, planetEntry.planetFile)
-            is Path -> PathDetailBox(first, planetEntry.planetFile)
+            is PlanetPath -> PathDetailBox(first, planetEntry.planetFile)
             else -> statisticsDetailBox
-        }
-    }
-
-    init {
-        drawable.focusedElementsProperty.onChange {
-            val first = drawable.focusedElementsProperty.value.firstOrNull()
-            if (!ignoreSetLine && first != null) {
-                val obj = if (first is PointAnimatableManager.AttributePoint) {
-                    findObjForPoint(first)
-                } else first
-
-                val index = planetEntry.planetFile.valueToLineNumber(obj)
-                if (index != null) {
-                    onSetLine.emit(index)
-                }
-            }
         }
     }
 

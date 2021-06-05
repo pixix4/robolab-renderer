@@ -2,11 +2,11 @@ package de.robolab.client.utils
 
 import de.robolab.client.app.controller.SystemController
 import de.robolab.client.app.viewmodel.FormContentViewModel
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 
 
 data class ContextMenu(
-    val position: Point,
+    val position: Vector,
     val entry: ContextMenuList
 )
 
@@ -54,7 +54,7 @@ class MenuBuilder(
     }
 }
 
-fun buildContextMenu(position: Point, name: String = "", init: MenuBuilder.() -> Unit): ContextMenu? {
+fun buildContextMenu(position: Vector, name: String = "", init: MenuBuilder.() -> Unit): ContextMenu? {
     val menuBuilder = MenuBuilder(name)
     init(menuBuilder)
 

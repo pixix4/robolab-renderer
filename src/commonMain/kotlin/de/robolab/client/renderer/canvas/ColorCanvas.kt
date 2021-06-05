@@ -1,7 +1,7 @@
 package de.robolab.client.renderer.canvas
 
 import de.robolab.common.utils.Color
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 
 class ColorCanvas(private val canvas: ICanvas, private val colorAdapter: (Color) -> Color) : ICanvas by canvas {
@@ -21,14 +21,14 @@ class ColorCanvas(private val canvas: ICanvas, private val colorAdapter: (Color)
         )
     }
 
-    override fun fillPolygon(points: List<Point>, color: Color) {
+    override fun fillPolygon(points: List<Vector>, color: Color) {
         canvas.fillPolygon(
             points,
             colorAdapter(color)
         )
     }
 
-    override fun strokePolygon(points: List<Point>, color: Color, width: Double) {
+    override fun strokePolygon(points: List<Vector>, color: Color, width: Double) {
         canvas.strokePolygon(
             points,
             colorAdapter(color),
@@ -36,7 +36,7 @@ class ColorCanvas(private val canvas: ICanvas, private val colorAdapter: (Color)
         )
     }
 
-    override fun strokeLine(points: List<Point>, color: Color, width: Double) {
+    override fun strokeLine(points: List<Vector>, color: Color, width: Double) {
         if (points.isEmpty()) return
 
         canvas.strokeLine(
@@ -46,7 +46,7 @@ class ColorCanvas(private val canvas: ICanvas, private val colorAdapter: (Color)
         )
     }
 
-    override fun dashLine(points: List<Point>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
+    override fun dashLine(points: List<Vector>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
         if (points.isEmpty()) return
 
         canvas.dashLine(
@@ -60,7 +60,7 @@ class ColorCanvas(private val canvas: ICanvas, private val colorAdapter: (Color)
 
     override fun fillText(
         text: String,
-        position: Point,
+        position: Vector,
         color: Color,
         fontSize: Double,
         alignment: ICanvas.FontAlignment,
@@ -76,7 +76,7 @@ class ColorCanvas(private val canvas: ICanvas, private val colorAdapter: (Color)
         )
     }
 
-    override fun fillArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
+    override fun fillArc(center: Vector, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
         canvas.fillArc(
             center,
             radius,
@@ -87,7 +87,7 @@ class ColorCanvas(private val canvas: ICanvas, private val colorAdapter: (Color)
     }
 
     override fun strokeArc(
-        center: Point,
+        center: Vector,
         radius: Double,
         startAngle: Double,
         extendAngle: Double,

@@ -3,8 +3,7 @@ package de.robolab.client.app.model.file.details
 import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.app.viewmodel.buildForm
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
-import de.robolab.common.parser.PlanetFile
-import de.robolab.common.planet.letter
+import de.robolab.common.planet.PlanetFile
 import de.westermann.kobserve.property.observeConst
 
 class PointDetailBox(point: PointAnimatableManager.AttributePoint, planetFile: PlanetFile): ViewModel{
@@ -14,29 +13,31 @@ class PointDetailBox(point: PointAnimatableManager.AttributePoint, planetFile: P
     val position = "${coordinate.x}, ${coordinate.y}"
     private val isHidden = point.hidden
 
-    val pathSelect = planetFile.planet.pathSelectList.filter {
+    val pathSelect = planetFile.planet.pathSelects.filter {
         it.point == coordinate
     }.map {
         it.direction.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
     }
 
-    private val targetsSend = planetFile.planet.targetList.filter {
-        it.exposure == coordinate
-    }.map {
-        "${it.target.x}, ${it.target.y}"
-    }
-
-    private val targetExposedAt = planetFile.planet.targetList.filter {
-        it.target == coordinate
-    }.map {
-        "${it.exposure.x}, ${it.exposure.y}"
-    }
-
-    private val pathSend = planetFile.planet.pathList.filter {
+    private val targetsSend = planetFile.planet.targets.filter {
         coordinate in it.exposure
     }.map {
-        "${it.source.x},${it.source.y},${it.sourceDirection.letter()} -> " +
-                "${it.target.x},${it.target.y},${it.targetDirection.letter()}"
+        "${it.x}, ${it.y}"
+    }
+
+    private val targetExposedAt = planetFile.planet.targets.filter {
+        it.point == coordinate
+    }.flatMap { t ->
+        t.exposure.map {
+            "${it.x}, ${it.y}"
+        }
+    }
+
+    private val pathSend = planetFile.planet.paths.filter {
+        coordinate in it.exposure
+    }.map {
+        "${it.source.x},${it.source.y},${it.sourceDirection.letter} -> " +
+                "${it.target.x},${it.target.y},${it.targetDirection.letter}"
     }
 
     val content = buildForm {

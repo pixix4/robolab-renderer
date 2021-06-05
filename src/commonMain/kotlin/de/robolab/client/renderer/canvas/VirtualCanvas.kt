@@ -4,7 +4,7 @@ import de.robolab.client.renderer.events.*
 import de.robolab.client.utils.ContextMenu
 import de.robolab.common.utils.Color
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.property.property
 
@@ -45,25 +45,25 @@ class VirtualCanvas() : ICanvas {
         canvas?.strokeRect(rectangle, color, width)
     }
 
-    override fun fillPolygon(points: List<Point>, color: Color) {
+    override fun fillPolygon(points: List<Vector>, color: Color) {
         canvas?.fillPolygon(points, color)
     }
 
-    override fun strokePolygon(points: List<Point>, color: Color, width: Double) {
+    override fun strokePolygon(points: List<Vector>, color: Color, width: Double) {
         canvas?.strokePolygon(points, color, width)
     }
 
-    override fun strokeLine(points: List<Point>, color: Color, width: Double) {
+    override fun strokeLine(points: List<Vector>, color: Color, width: Double) {
         canvas?.strokeLine(points, color, width)
     }
 
-    override fun dashLine(points: List<Point>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
+    override fun dashLine(points: List<Vector>, color: Color, width: Double, dashes: List<Double>, dashOffset: Double) {
         canvas?.dashLine(points, color, width, dashes, dashOffset)
     }
 
     override fun fillText(
         text: String,
-        position: Point,
+        position: Vector,
         color: Color,
         fontSize: Double,
         alignment: ICanvas.FontAlignment,
@@ -72,12 +72,12 @@ class VirtualCanvas() : ICanvas {
         canvas?.fillText(text, position, color, fontSize, alignment, fontWeight)
     }
 
-    override fun fillArc(center: Point, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
+    override fun fillArc(center: Vector, radius: Double, startAngle: Double, extendAngle: Double, color: Color) {
         canvas?.fillArc(center, radius, startAngle, extendAngle, color)
     }
 
     override fun strokeArc(
-        center: Point,
+        center: Vector,
         radius: Double,
         startAngle: Double,
         extendAngle: Double,

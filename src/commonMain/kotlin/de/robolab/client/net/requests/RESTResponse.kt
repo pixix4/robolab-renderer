@@ -2,9 +2,8 @@ package de.robolab.client.net.requests
 
 import kotlinx.datetime.Instant
 import de.robolab.client.net.IServerResponse
-import de.robolab.client.net.mimeType
 import de.robolab.common.net.*
-import de.robolab.common.parser.PlanetFile
+import de.robolab.common.planet.PlanetFile
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Result
 import kotlinx.serialization.DeserializationStrategy
@@ -92,27 +91,17 @@ open class ClientPlanetInfoRestResponse(
 open class PlanetResponse(serverResponse: IServerResponse, triggeringRequest: IRESTRequest<PlanetResponse>) :
     RESTResponse(serverResponse) {
 
-    val lines: List<String>
+    val planet: Planet
     val lastModified: Instant
 
     init {
         serverResponse.requireOk(triggeringRequest)
         serverResponse.requireMimeType(setOf(MIMEType.JSON, MIMEType.PlainText), triggeringRequest)
-        lines = serverResponse.format<List<String>>(MIMEType.JSON to {
-            parse(ListSerializer(String.serializer())) ?: emptyList()
+        planet = serverResponse.format<Planet>(MIMEType.JSON to {
+            parse(Planet.serializer()) ?: Planet.EMPTY
         }, MIMEType.PlainText to {
-            body?.split('\n') ?: emptyList()
+            parse(Planet.serializer()) ?: Planet.EMPTY
         }, triggeringRequest = triggeringRequest)
         lastModified = serverResponse.typedHeaders.lastModifiedHeader?.dateTime ?: Instant.fromEpochMilliseconds(0)
     }
-
-    val planet: Planet by lazy {
-        PlanetFile(lines).planet
-    }
-
-    init {
-        if (EAGER_PLANET_EVAL)
-            planet
-    }
-
 }

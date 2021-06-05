@@ -1,26 +1,24 @@
 package de.robolab.client.renderer.drawable.edit
 
 import de.robolab.client.renderer.PlottingConstraints
-import de.robolab.client.renderer.drawable.general.PointAnimatable
-import de.robolab.client.renderer.drawable.utils.toPoint
 import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.GroupView
 import de.robolab.client.renderer.view.component.SquareView
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
+import de.robolab.common.planet.PlanetPoint
 import de.robolab.common.planet.Planet
 import kotlin.math.ceil
 import kotlin.math.floor
-import kotlin.math.roundToInt
+import kotlin.math.roundToLong
+import kotlin.math.roundToLong
 
 class EditPointsManager(
     private val editCallback: IEditCallback,
 ) {
 
     val view = GroupView("Edit points manager")
-    private val map = mutableMapOf<Coordinate, SquareView>()
+    private val map = mutableMapOf<PlanetPoint, SquareView>()
 
     private var planet = Planet.EMPTY
     fun importPlanet(planet: Planet) {
@@ -33,18 +31,18 @@ class EditPointsManager(
     private val blueColor = ViewColor.POINT_BLUE.interpolate(ViewColor.SECONDARY_BACKGROUND_COLOR, 0.8)
     private val unknownColor = ViewColor.GRID_TEXT_COLOR.interpolate(ViewColor.SECONDARY_BACKGROUND_COLOR, 0.8)
 
-    private fun setupViewEvents(coordinate: Coordinate, view: SquareView) {
+    private fun setupViewEvents(coordinate: PlanetPoint, view: SquareView) {
         view.focusable = true
 
         view.registerPointerHint(
             {
                 val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
                 if (focusedView != null) {
-                    val exposureCoordinate = Coordinate(
-                        focusedView.center.left.roundToInt(),
-                        focusedView.center.top.roundToInt()
+                    val exposureCoordinate = PlanetPoint(
+                        focusedView.center.left.roundToLong(),
+                        focusedView.center.top.roundToLong()
                     )
-                    "Toggle target (Exposure: ${exposureCoordinate.toSimpleString()})"
+                    "Toggle target (Exposure: ${exposureCoordinate})"
                 } else {
                     "Toggle target"
                 }
@@ -57,14 +55,14 @@ class EditPointsManager(
         view.onPointerDown { event ->
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             if (event.ctrlKey && focusedView != null) {
-                val targetCoordinate = Coordinate(
-                        view.center.left.roundToInt(),
-                        view.center.top.roundToInt()
+                val targetCoordinate = PlanetPoint(
+                        view.center.left.roundToLong(),
+                        view.center.top.roundToLong()
                 )
 
-                val exposureCoordinate = Coordinate(
-                        focusedView.center.left.roundToInt(),
-                        focusedView.center.top.roundToInt()
+                val exposureCoordinate = PlanetPoint(
+                        focusedView.center.left.roundToLong(),
+                        focusedView.center.top.roundToLong()
                 )
 
                 editCallback.toggleTargetExposure(targetCoordinate, exposureCoordinate)
@@ -76,13 +74,13 @@ class EditPointsManager(
         view.onPointerSecondaryAction {event ->
             event.stopPropagation()
 
-            val startPoint = planet.startPoint?.point
+            val startPoint = planet.startPoint.point
 
             view.menu(event, "Point ${coordinate.x}, ${coordinate.y}") {
-                if (startPoint != null && startPoint != coordinate) {
+                if (startPoint != coordinate) {
                     action("Translate start point") {
                         editCallback.translate(
-                            Coordinate(
+                            PlanetPoint(
                                 coordinate.x - startPoint.x,
                                 coordinate.y - startPoint.y
                             )
@@ -104,14 +102,14 @@ class EditPointsManager(
         val area = view.document?.plotter?.context?.area ?: return
 
         val coordinatesToRemove = map.keys.toMutableSet()
-        for (x in floor(area.left).toInt()..ceil(area.right).toInt()) {
-            for (y in floor(area.top).toInt()..ceil(area.bottom).toInt()) {
-                val coordinate = Coordinate(x, y)
+        for (x in floor(area.left).toInt()..ceil(area.right).toLong()) {
+            for (y in floor(area.top).toInt()..ceil(area.bottom).toLong()) {
+                val coordinate = PlanetPoint(x, y)
 
                 val color = when (coordinate.getColor(planet.bluePoint)) {
-                    Coordinate.Color.RED -> redColor
-                    Coordinate.Color.BLUE -> blueColor
-                    Coordinate.Color.UNKNOWN -> unknownColor
+                    PlanetPoint.Color.Red -> redColor
+                    PlanetPoint.Color.Blue -> blueColor
+                    PlanetPoint.Color.Unknown -> unknownColor
                 }
 
                 if (coordinate in map) {
@@ -120,7 +118,7 @@ class EditPointsManager(
                     mapView.setColor(color)
                 } else {
                     val newView = SquareView(
-                            coordinate.toPoint(),
+                            coordinate.point,
                             PlottingConstraints.POINT_SIZE,
                             PlottingConstraints.LINE_WIDTH * 0.65,
                             color

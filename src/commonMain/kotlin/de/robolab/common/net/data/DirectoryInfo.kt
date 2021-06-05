@@ -3,7 +3,7 @@ package de.robolab.common.net.data
 import kotlinx.datetime.Instant
 import de.robolab.client.app.model.file.provider.RemoteMetadata
 import de.robolab.client.net.requests.PlanetJsonInfo
-import de.robolab.common.planet.ServerPlanetInfo
+import de.robolab.common.planet.utils.ServerPlanetInfo
 import de.robolab.common.utils.DateFormat
 import de.robolab.common.utils.formatDateTime
 import de.robolab.common.utils.parseDateTime

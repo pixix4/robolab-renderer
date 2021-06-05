@@ -1,6 +1,6 @@
 package de.robolab.client.app.controller
 
-import de.robolab.common.parser.toFixed
+import de.robolab.common.utils.toFixed
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.mapBinding

@@ -4,7 +4,7 @@ import de.robolab.client.net.requests.PlanetJsonInfo
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.IHeader
 import de.robolab.common.net.headers.LastModifiedHeader
-import de.robolab.common.planet.ServerPlanetInfo
+import de.robolab.common.planet.utils.ServerPlanetInfo
 import de.robolab.common.utils.RobolabJson
 import de.robolab.common.externaljs.http.ServerResponse
 import de.robolab.server.externaljs.express.Response
@@ -69,8 +69,8 @@ fun Response<*>.sendDirectoryInfo(
 fun Response<*>.sendPlanet(planet: ServerPlanet) {
     setHeader(LastModifiedHeader(planet.lastModified))
     status(HttpStatusCode.Ok).format("json" to {
-        send(planet.lines.toJSArray())
+        send(planet.lines)
     }, "text" to {
-        send(planet.lines.joinToString("\n"))
+        send(planet.lines)
     })
 }

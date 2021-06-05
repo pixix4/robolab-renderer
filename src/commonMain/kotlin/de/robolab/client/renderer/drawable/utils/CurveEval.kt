@@ -2,29 +2,29 @@ package de.robolab.client.renderer.drawable.utils
 
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.utils.removeConsecutiveDuplicateIf
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import kotlin.math.max
 
 data class CurveEval(
-    val point: Point,
+    val point: Vector,
     val curveLength: Double,
     val curveProgress: Double
 ) {
     companion object {
         fun evalSpline(
             count: Int,
-            controlPoints: List<Point>,
-            source: Point,
-            target: Point,
+            controlPoints: List<Vector>,
+            source: Vector,
+            target: Vector,
             curve: Curve,
             delta: Double = 1e-4,
             improveCount: Boolean = true
-        ): List<Point> {
+        ): List<Vector> {
             val realCount = if (improveCount) {
                 max(16, power2(log2(count - 1) + 1))
             } else count
 
-            val points = arrayOfNulls<Point>(realCount + 1)
+            val points = arrayOfNulls<Vector>(realCount + 1)
 
             val step = 1.0 / realCount
             var t = 2 * step
@@ -66,9 +66,9 @@ data class CurveEval(
 
         fun evalSplineAttributed(
             count: Int,
-            controlPoints: List<Point>,
-            source: Point,
-            target: Point,
+            controlPoints: List<Vector>,
+            source: Vector,
+            target: Vector,
             curve: Curve,
             delta: Double = 1e-4,
             improveCount: Boolean = true

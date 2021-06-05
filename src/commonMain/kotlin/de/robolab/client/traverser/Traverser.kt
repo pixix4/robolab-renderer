@@ -1,14 +1,11 @@
 package de.robolab.client.traverser
 
 import de.robolab.common.planet.*
-import de.robolab.common.testing.TestStatus
-import de.robolab.common.testing.testWith
+import de.robolab.common.planet.utils.LookupPlanet
 import de.robolab.common.utils.tree.ISeededBranchProvider
 import de.robolab.common.utils.tree.ITreeProvider
 import de.robolab.common.utils.tree.TreeIterator
 import de.robolab.common.utils.tree.TreeProvider
-import io.ktor.util.date.*
-import io.ktor.utils.io.*
 
 interface ITraverser<TS> : ISeededBranchProvider<TS>, ITreeProvider<TS> where TS : ITraverserState<TS> {
     val planet: LookupPlanet
@@ -51,7 +48,7 @@ open class Traverser<M, MS, N, NS>(
         if (exploring) { //attempt reduction on forcedDirection
             val finishingStates: List<NS> = leaveNodeStates.filter { it.targetReached || it.explorationComplete }
             if (leaveNodeStates.size - finishingStates.size > 1) {
-                val forcedDir: Direction? = mothership.peekForceDirection(mothershipState)
+                val forcedDir: PlanetDirection? = mothership.peekForceDirection(mothershipState)
                 if (forcedDir != null) {
                     val stateForForcedDir: List<NS> = leaveNodeStates.filter { it.pickedDirection == forcedDir }
                     leaveNodeStates = if (stateForForcedDir.isNotEmpty())
@@ -103,10 +100,10 @@ open class Traverser<M, MS, N, NS>(
         }
     }
 
-    open fun drivePath(traverserState: TraverserState<MS, NS>, direction: Direction): TraverserState<MS, NS> =
+    open fun drivePath(traverserState: TraverserState<MS, NS>, direction: PlanetDirection): TraverserState<MS, NS> =
         drivePath(traverserState, planet.getPath(traverserState.location, direction)!!)
 
-    open fun drivePath(traverserState: TraverserState<MS, NS>, path: Path): TraverserState<MS, NS> {
+    open fun drivePath(traverserState: TraverserState<MS, NS>, path: PlanetPath): TraverserState<MS, NS> {
         val newMothershipState: MS = mothership.drivePath(traverserState.mothershipState, path)
         return traverserState.copy(
             mothershipState = newMothershipState,

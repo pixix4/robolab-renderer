@@ -1,19 +1,19 @@
 package de.robolab.client.renderer.drawable.utils
 
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import kotlin.math.min
 
 /**
  * @author lars
  */
 object BSpline : Curve {
-    override fun eval(t: Double, points: List<Point>): Point =
+    override fun eval(t: Double, points: List<Vector>): Vector =
         eval(t, min(DEFAULT_DEGREE, points.lastIndex), points)
 
     //override fun evalGradient(t: Double, points: List<Point>): Point =
     //        eval(t, min(DEFAULT_DEGREE, points.lastIndex) - 1, points).normalize()
 
-    private fun eval(t: Double, degree: Int, points: List<Point>): Point {
+    private fun eval(t: Double, degree: Int, points: List<Vector>): Vector {
         if (t == 0.0) return points.first()
         if (t == 1.0) return points.last()
         val v = vector(degree, points.size)
@@ -42,8 +42,8 @@ object BSpline : Curve {
         }
     }
 
-    private fun coxDeBoor(curveSegment: Int, t: Double, vector: List<Int>, points: List<Point>, degree: Int): Point {
-        val d: MutableList<Point> = ArrayList(degree + 1)
+    private fun coxDeBoor(curveSegment: Int, t: Double, vector: List<Int>, points: List<Vector>, degree: Int): Vector {
+        val d: MutableList<Vector> = ArrayList(degree + 1)
         for (index in 0..degree) {
             d += points[index + curveSegment - degree]
         }

@@ -8,16 +8,15 @@ import de.robolab.common.net.MIMEType
 import de.robolab.common.net.headers.ContentTypeHeader
 import de.robolab.common.net.headers.mapOf
 import de.robolab.common.net.parseResponseCatchingWrapper
-import de.robolab.common.parser.PlanetFile
-import de.robolab.common.planet.ID
+import de.robolab.common.planet.Planet
+import de.robolab.common.planet.PlanetFile
+import de.robolab.common.planet.utils.ID
 
-class PutPlanet(id: ID, content: String? = null) : IUnboundRESTRequest<ClientPlanetInfoRestResponse> {
-
-    constructor(id: ID, planet: PlanetFile) : this(id, planet.contentString)
+class PutPlanet(id: ID, content: Planet?) : IUnboundRESTRequest<ClientPlanetInfoRestResponse> {
 
     override val requestMethod: HttpMethod = HttpMethod.PUT
     override val requestPath: String = "/api/planet/${id.id}"
-    override val requestBody: String? = content
+    override val requestBody: String? = content?.let { PlanetFile.stringify(it) }
     override val requestQuery: Map<String, String> = emptyMap()
     override val requestHeader: Map<String, List<String>> =
         if (content != null) mapOf(ContentTypeHeader(MIMEType.PlainText))
@@ -27,18 +26,4 @@ class PutPlanet(id: ID, content: String? = null) : IUnboundRESTRequest<ClientPla
         parseResponseCatchingWrapper(serverResponse, this, ::ClientPlanetInfoRestResponse)
 }
 
-suspend fun IRobolabServer.putPlanet(id: ID, content: String? = null) = request(PutPlanet(id, content))
-
-suspend fun IRobolabServer.putPlanet(
-    id: ID,
-    content: String? = null,
-    block: RequestBuilder.() -> Unit
-) = request(PutPlanet(id, content), block)
-
-suspend fun IRobolabServer.putPlanet(id: ID, planet: PlanetFile) = request(PutPlanet(id, planet))
-
-suspend fun IRobolabServer.putPlanet(
-    id: ID,
-    planet: PlanetFile,
-    block: RequestBuilder.() -> Unit
-) = request(PutPlanet(id, planet), block)
+suspend fun IRobolabServer.putPlanet(id: ID, content: Planet? = null) = request(PutPlanet(id, content))

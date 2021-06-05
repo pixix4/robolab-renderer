@@ -1,7 +1,7 @@
 package de.robolab.common.testing
 
-import de.robolab.common.planet.Coordinate
 import de.robolab.common.planet.Planet
+import de.robolab.common.planet.PlanetPoint
 
 data class TestSuite(
     val goals: List<TestGoal>,
@@ -10,7 +10,7 @@ data class TestSuite(
     val flagSetterList: List<TestFlagSetter>,
 ) {
 
-    fun translate(delta: Coordinate): TestSuite {
+    fun translate(delta: PlanetPoint): TestSuite {
         return TestSuite(
             goals.map { it.translate(delta) },
             taskList.map { it.translate(delta) },
@@ -19,7 +19,7 @@ data class TestSuite(
         )
     }
 
-    fun rotate(direction: Planet.RotateDirection, origin: Coordinate): TestSuite {
+    fun rotate(direction: Planet.RotateDirection, origin: PlanetPoint): TestSuite {
         return TestSuite(
             goals.map { it.rotate(direction, origin) },
             taskList.map { it.rotate(direction, origin) },

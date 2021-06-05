@@ -4,22 +4,22 @@ import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.renderer.drawable.utils.BSpline
 import de.robolab.client.renderer.drawable.utils.CurveEval
 import de.robolab.client.renderer.drawable.utils.radiantToDegree
-import de.robolab.common.parser.toFixed
-import de.robolab.common.planet.Direction
-import de.robolab.common.planet.Path
-import de.robolab.common.planet.PlanetVersion
+import de.robolab.common.planet.PlanetDirection
+import de.robolab.common.planet.PlanetPath
+import de.robolab.common.planet.utils.PlanetVersion
 import de.robolab.common.utils.Vector
+import de.robolab.common.utils.toFixed
 import kotlin.math.*
 
 data class PathClassification(
-    val path: Path,
+    val path: PlanetPath,
     val score: Int,
     val classifier: Classifier,
     val difficulty: Difficulty,
     val segments: List<Segment>,
     val explicitSegments: List<Segment>,
     val completeSegment: Segment,
-    val table: String
+    val table: String,
 ) {
 
     enum class SegmentType {
@@ -42,9 +42,9 @@ data class PathClassification(
         }
 
         companion object {
-            private val MEDIUM_CURVINESS_THRESHOLD = 200.0
-            private val DIFFICULT_CURVINESS_THRESHOLD = 450.0
-            private val HARD_CURVINESS_THRESHOLD = 600.0
+            private const val MEDIUM_CURVINESS_THRESHOLD = 200.0
+            private const val DIFFICULT_CURVINESS_THRESHOLD = 450.0
+            private const val HARD_CURVINESS_THRESHOLD = 600.0
 
             fun create(segments: List<Segment>): Difficulty {
                 var difficulty = EASY
@@ -128,7 +128,7 @@ data class PathClassification(
                 v1: Vector,
                 v2: Vector?,
                 startProgress: Double,
-                endProgress: Double
+                endProgress: Double,
             ): Segment {
                 val distance = v1.magnitude()
                 var angle = if (v0 == null) {
@@ -173,12 +173,12 @@ data class PathClassification(
         OTHER("Other");
 
         companion object {
-            fun create(path: Path): Classifier {
+            fun create(path: PlanetPath): Classifier {
                 val xSpan = abs(path.source.x - path.target.x)
                 val ySpan = abs(path.source.y - path.target.y)
                 val length = xSpan + ySpan
 
-                if (length == 0) {
+                if (length == 0L) {
                     return when {
                         path.sourceDirection == path.targetDirection -> DEAD_END
                         path.sourceDirection.opposite() == path.targetDirection -> CIRCLE_180
@@ -186,29 +186,29 @@ data class PathClassification(
                     }
                 }
 
-                if (xSpan == 0 || ySpan == 0) {
+                if (xSpan == 0L || ySpan == 0L) {
                     return when {
                         path.sourceDirection == path.targetDirection ->
-                            if ((path.sourceDirection == Direction.EAST || path.sourceDirection == Direction.WEST) && xSpan == 0 ||
-                                (path.sourceDirection == Direction.NORTH || path.sourceDirection == Direction.SOUTH) && ySpan == 0
+                            if ((path.sourceDirection == PlanetDirection.East || path.sourceDirection == PlanetDirection.West) && xSpan == 0L ||
+                                (path.sourceDirection == PlanetDirection.North || path.sourceDirection == PlanetDirection.South) && ySpan == 0L
                             ) {
                                 HALF_CIRCLE
                             } else when (length) {
-                                1 -> HOOK_0_1
-                                2 -> HOOK_0_2
-                                3 -> HOOK_0_3
+                                1L -> HOOK_0_1
+                                2L -> HOOK_0_2
+                                3L -> HOOK_0_3
                                 else -> HOOK_0_LONG
                             }
                         path.sourceDirection.opposite() == path.targetDirection -> when (length) {
-                            1 -> LINE_1
-                            2 -> LINE_2
-                            3 -> LINE_3
+                            1L -> LINE_1
+                            2L -> LINE_2
+                            3L -> LINE_3
                             else -> LINE_LONG
                         }
                         else -> when (length) {
-                            1 -> SIDE_HOOK_0_1
-                            2 -> SIDE_HOOK_0_2
-                            3 -> SIDE_HOOK_0_3
+                            1L -> SIDE_HOOK_0_1
+                            2L -> SIDE_HOOK_0_2
+                            3L -> SIDE_HOOK_0_3
                             else -> SIDE_HOOK_0_LONG
                         }
                     }
@@ -220,18 +220,18 @@ data class PathClassification(
                 return when {
                     path.sourceDirection == path.targetDirection -> OTHER
                     path.sourceDirection.opposite() == path.targetDirection -> when (maxSpan) {
-                        1 -> S_CURVE_1_1
-                        2 -> S_CURVE_2_1
+                        1L -> S_CURVE_1_1
+                        2L -> S_CURVE_2_1
                         else -> OTHER
                     }
                     else -> when (maxSpan) {
-                        1 -> CURVE_1_1
-                        2 -> when (minSpan) {
-                            1 -> CURVE_2_1
+                        1L -> CURVE_1_1
+                        2L -> when (minSpan) {
+                            1L -> CURVE_2_1
                             else -> CURVE_2_2
                         }
-                        3 -> when (minSpan) {
-                            1 -> CURVE_3_1
+                        3L -> when (minSpan) {
+                            1L -> CURVE_3_1
                             else -> CURVE_3_2
                         }
                         else -> OTHER
@@ -243,7 +243,7 @@ data class PathClassification(
     }
 
     companion object {
-        fun classify(planetVersion: PlanetVersion, path: Path): PathClassification? {
+        fun classify(planetVersion: Long, path: PlanetPath): PathClassification? {
             val controlPoints = PathAnimatable.getControlPointsFromPath(planetVersion, path)
             val lengthEstimate = path.length(controlPoints)
             val evalCount = (lengthEstimate * 10).roundToInt()

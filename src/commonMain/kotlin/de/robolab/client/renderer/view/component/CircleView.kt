@@ -4,13 +4,13 @@ import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.unionNullable
 import kotlin.math.PI
 
 class CircleView(
-    center: Point,
+    center: Vector,
     private val initRadius: Double,
     color: ViewColor
 ) : BaseView() {
@@ -18,7 +18,7 @@ class CircleView(
 
     val centerTransition = transition(center)
     val center by centerTransition
-    fun setCenter(center: Point, duration: Double = animationTime, offset: Double = 0.0) {
+    fun setCenter(center: Vector, duration: Double = animationTime, offset: Double = 0.0) {
         centerTransition.animate(center, duration, offset)
     }
 
@@ -53,7 +53,7 @@ class CircleView(
         ) unionNullable parentBox
     }
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         return center.distanceTo(planetPoint) <= radius
     }
 

@@ -1,9 +1,7 @@
 package de.robolab.client.app.model.testing
 
-import de.robolab.common.planet.SubscribableIdentifier
+import de.robolab.common.planet.test.PlanetSubscribableRef
 import de.robolab.common.testing.*
-import de.robolab.common.utils.filterValuesNotNull
-import de.westermann.kobserve.base.ObservableMap
 import de.westermann.kobserve.base.ObservableMutableMap
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
@@ -18,7 +16,7 @@ class FlagEntry(
 ) {
 
     val type: ObservableValue<TestFlagSetter.Type> = flag.type.observeConst()
-    val location: ObservableValue<SubscribableIdentifier<*>> = flag.subscribable.observeConst()
+    val location: ObservableValue<PlanetSubscribableRef> = flag.subscribable.observeConst()
     val defaultActive: ObservableValue<Boolean> = flag.defaultActive.observeConst()
     val onSignals: ObservableMutableMap<TestSignal, TestSignalGroup.Phase> =
         flag.activateSignals.associateWithTo(observableMapOf()) { TestSignalGroup.Phase.Pending }

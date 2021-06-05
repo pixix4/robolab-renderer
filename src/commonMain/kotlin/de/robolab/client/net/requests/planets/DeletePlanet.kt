@@ -5,7 +5,7 @@ import de.robolab.client.net.requests.IUnboundRESTRequest
 import de.robolab.client.net.requests.PlanetResponse
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.parseResponseCatchingWrapper
-import de.robolab.common.planet.ID
+import de.robolab.common.planet.utils.ID
 
 class DeletePlanet(val id: ID) : IUnboundRESTRequest<PlanetResponse> {
     override val requestMethod: HttpMethod = HttpMethod.DELETE

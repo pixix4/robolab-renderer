@@ -2,19 +2,20 @@ package de.robolab.client.communication
 
 import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.common.planet.*
+import de.robolab.common.planet.utils.PlanetVersion
 import de.robolab.common.testing.TestSuite
 
 
-fun List<RobolabMessage>.toServerPlanet(): Pair<Planet, List<Coordinate>> {
+fun List<RobolabMessage>.toServerPlanet(): Pair<Planet, List<PlanetPoint>> {
     var name = ""
-    var startPoint: StartPoint? = null
-    val pathList = mutableListOf<Path>()
-    val targetList = mutableListOf<TargetPoint>()
-    val pathSelectList = mutableListOf<PathSelect>()
-    val visitedPointList = mutableListOf<Coordinate>()
+    var startPoint = PlanetStartPoint(0L, 0L, PlanetDirection.North, null)
+    val pathList = mutableListOf<PlanetPath>()
+    val targetList = mutableListOf<PlanetTarget>()
+    val pathSelectList = mutableListOf<PlanetPathSelect>()
+    val visitedPointList = mutableListOf<PlanetPoint>()
 
-    var currentPoint = Coordinate(0, 0)
-    var currentDirection = Direction.NORTH
+    var currentPoint = PlanetPoint(0, 0)
+    var currentDirection = PlanetDirection.North
     for (message in this) {
         when (message) {
             is RobolabMessage.PathSelectMessageFromRobot -> {
@@ -53,47 +54,47 @@ fun List<RobolabMessage>.toServerPlanet(): Pair<Planet, List<Coordinate>> {
                 visitedPointList += currentPoint
             }
             is RobolabMessage.PathSelectMessageFromServer -> {
-                pathSelectList += PathSelect(currentPoint, message.direction)
+                pathSelectList += PlanetPathSelect(currentPoint, message.direction)
                 currentDirection = message.direction
             }
             is RobolabMessage.PlanetMessage -> {
                 name = message.planetName
-                startPoint = StartPoint(message.startPoint, message.startOrientation, emptyList())
+                startPoint = PlanetStartPoint(message.startPoint, message.startOrientation, null)
                 currentPoint = message.startPoint
                 currentDirection = message.startOrientation
                 visitedPointList += currentPoint
             }
             is RobolabMessage.TargetMessage -> {
                 targetList.clear()
-                targetList += TargetPoint(message.target, currentPoint)
+                targetList += PlanetTarget(message.target, setOf(currentPoint))
             }
         }
     }
 
     return Planet(
-        PlanetVersion.CURRENT,
-        name,
-        startPoint,
-        null,
-        pathList,
-        targetList,
-        pathSelectList,
-        emptyList(),
-        emptyMap(),
-        emptyMap(),
-        TestSuite.EMPTY
+        bluePoint = null,
+        comments = emptyList(),
+        name = name,
+        paths = pathList,
+        pathSelects = pathSelectList,
+        senderGroupings = emptyList(),
+        startPoint = startPoint,
+        tags = emptyMap(),
+        targets = targetList,
+        testSuite = null,
+        version = PlanetVersion.CURRENT,
     ).generateMissingSenderGroupings() to visitedPointList
 }
 
 fun List<RobolabMessage>.toMqttPlanet(): Planet {
     var name = ""
-    var startPoint: StartPoint? = null
-    val pathList = mutableListOf<Path>()
-    val targetList = mutableListOf<TargetPoint>()
-    val pathSelectList = mutableListOf<PathSelect>()
+    var startPoint = PlanetStartPoint(0L, 0L, PlanetDirection.North, null)
+    val pathList = mutableListOf<PlanetPath>()
+    val targetList = mutableListOf<PlanetTarget>()
+    val pathSelectList = mutableListOf<PlanetPathSelect>()
 
-    var currentPoint = Coordinate(0, 0)
-    var currentDirection = Direction.NORTH
+    var currentPoint = PlanetPoint(0, 0)
+    var currentDirection = PlanetDirection.North
     for (message in this) {
         if (message.metadata.from != From.CLIENT) continue
 
@@ -119,40 +120,40 @@ fun List<RobolabMessage>.toMqttPlanet(): Planet {
                 currentDirection = message.direction
             }
             is RobolabMessage.PathSelectMessageFromServer -> {
-                pathSelectList += PathSelect(currentPoint, message.direction)
+                pathSelectList += PlanetPathSelect(currentPoint, message.direction)
                 currentDirection = message.direction
             }
             is RobolabMessage.PlanetMessage -> {
                 name = message.planetName
-                startPoint = StartPoint(message.startPoint, message.startOrientation, emptyList())
+                startPoint = PlanetStartPoint(message.startPoint, message.startOrientation, null)
                 currentPoint = message.startPoint
                 currentDirection = message.startOrientation
             }
             is RobolabMessage.TargetMessage -> {
                 targetList.clear()
-                targetList += TargetPoint(message.target, currentPoint)
+                targetList += PlanetTarget(message.target, setOf(currentPoint))
             }
         }
     }
 
     return Planet(
-        PlanetVersion.CURRENT,
-        name,
-        startPoint,
-        null,
-        pathList,
-        targetList,
-        pathSelectList,
-        emptyList(),
-        emptyMap(),
-        emptyMap(),
-        TestSuite.EMPTY
+        bluePoint = null,
+        comments = emptyList(),
+        name = name,
+        paths = pathList,
+        pathSelects = pathSelectList,
+        senderGroupings = emptyList(),
+        startPoint = startPoint,
+        tags = emptyMap(),
+        targets = targetList,
+        testSuite = null,
+        version = PlanetVersion.CURRENT,
     ).generateMissingSenderGroupings()
 }
 
 fun List<RobolabMessage>.toRobot(groupNumber: Int?, backwardMotion: Boolean = false): RobotDrawable.Robot? {
-    var currentPoint: Coordinate? = null
-    var currentDirection = Direction.NORTH
+    var currentPoint: PlanetPoint? = null
+    var currentDirection = PlanetDirection.North
     var beforePoint = true
 
     loop@ for (message in this) {

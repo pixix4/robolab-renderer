@@ -1,7 +1,7 @@
 package de.robolab.server.config
 
 import de.robolab.client.net.requests.PlanetJsonInfo
-import de.robolab.common.planet.ID
+import de.robolab.common.planet.utils.ID
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.TypedStorage
 import de.robolab.server.data.IPlanetMetaStore

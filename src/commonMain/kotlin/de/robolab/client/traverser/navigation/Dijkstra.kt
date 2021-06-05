@@ -1,33 +1,33 @@
 package de.robolab.client.traverser.navigation
 
-import de.robolab.common.planet.LookupPlanet
+import de.robolab.common.planet.utils.LookupPlanet
 import de.robolab.client.traverser.NavigatorState
 import de.robolab.common.utils.PriorityQueue
 import de.robolab.client.traverser.navigation.Route.Companion.toStartStep
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
-import de.robolab.common.planet.Path
+import de.robolab.common.planet.PlanetPoint
+import de.robolab.common.planet.PlanetDirection
+import de.robolab.common.planet.PlanetPath
 import de.robolab.common.planet.Planet
 import kotlin.math.min
 
-typealias NeighboursFunction = (location: Coordinate) -> List<Route.EndStep>
+typealias NeighboursFunction = (location: PlanetPoint) -> List<Route.EndStep>
 
 object Dijkstra {
     inline fun createField(
-        start: Coordinate,
+        start: PlanetPoint,
         neighbours: NeighboursFunction,
         equalityRange: Float = 0.01f
     ): NavigationField = createField(start, neighbours, Float.POSITIVE_INFINITY, equalityRange)
 
     inline fun createField(
-        start: Coordinate,
+        start: PlanetPoint,
         neighbours: NeighboursFunction,
         costLimit: Float,
         equalityRange: Float = 0.01f
     ): NavigationField {
         val field = NavigationField(start)
         val prioQueue = PriorityQueue(compareBy(field::getCost))
-        val visited = mutableSetOf<Coordinate>()
+        val visited = mutableSetOf<PlanetPoint>()
         prioQueue.add(start)
         while (prioQueue.isNotEmpty()) {
             val current = prioQueue.remove()
@@ -54,17 +54,17 @@ object Dijkstra {
     }
 
     inline fun createField(
-        start: Coordinate,
+        start: PlanetPoint,
         neighbours: NeighboursFunction,
         costLimit: Float = Float.POSITIVE_INFINITY,
-        matchPredicate: (Coordinate) -> Boolean,
+        matchPredicate: (PlanetPoint) -> Boolean,
         stopOnMatch: Boolean = true,
         equalityRange: Float = 0.01f
     ): NavigationField {
         val field = NavigationField(start)
         val prioQueue = PriorityQueue(compareBy(field::getCost))
-        val visited = mutableSetOf<Coordinate>()
-        val notMatchedLocations = mutableSetOf<Coordinate>()
+        val visited = mutableSetOf<PlanetPoint>()
+        val notMatchedLocations = mutableSetOf<PlanetPoint>()
         var maxCost = costLimit + equalityRange
         prioQueue.add(start)
         while (prioQueue.isNotEmpty()) {
@@ -73,7 +73,7 @@ object Dijkstra {
             val baseCost = field.getCost(current)
             if (baseCost > maxCost) return field
             for (step in neighbours(current)) {
-                val next: Coordinate = step.end
+                val next: PlanetPoint = step.end
                 if (step.cost < 0 || next in visited) continue
                 val newCost = baseCost + step.cost
                 if (newCost > maxCost) continue
@@ -110,11 +110,11 @@ object Dijkstra {
     }
 
     fun shortestPaths(
-        start: Coordinate,
+        start: PlanetPoint,
         neighbours: NeighboursFunction,
         equalityRange: Float = 0.01f,
         stopOnMatch: Boolean = true,
-        matchPredicate: (Coordinate) -> Boolean,
+        matchPredicate: (PlanetPoint) -> Boolean,
     ) = createField(
         start,
         neighbours,
@@ -124,9 +124,9 @@ object Dijkstra {
     ).findRoutesToMatched(true, equalityRange)
 
     fun shortestPaths(
-        start: Coordinate,
+        start: PlanetPoint,
         neighbours: NeighboursFunction,
-        target: Coordinate,
+        target: PlanetPoint,
         equalityRange: Float = 0.01f,
         stopOnMatch: Boolean = true
     ): List<Route> = createField(
@@ -138,22 +138,22 @@ object Dijkstra {
     ).findRoutes(target)
 }
 
-fun LookupPlanet.getNeighbours(location: Coordinate): List<Route.EndStep> =
+fun LookupPlanet.getNeighbours(location: PlanetPoint): List<Route.EndStep> =
     getPaths(location).mapNotNull {
         if (it.blocked) null
         else Route.EndStep(
             it.sourceDirection,
             it.target,
-            (it.weight ?: return@mapNotNull null).toFloat()
+            it.weight.toFloat()
         )
     }
 
 fun Planet.createNeighboursFunction(): NeighboursFunction = LookupPlanet(this)::getNeighbours
 
-fun Map<Coordinate, Map<Direction, Path>>.getNeighbours(location: Coordinate): List<Route.EndStep> =
+fun Map<PlanetPoint, Map<PlanetDirection, PlanetPath>>.getNeighbours(location: PlanetPoint): List<Route.EndStep> =
     this[location]?.mapNotNull {
         if (it.value.blocked) return@mapNotNull null
-        Route.EndStep(it.key, it.value.target, (it.value.weight ?: return@mapNotNull null).toFloat())
+        Route.EndStep(it.key, it.value.target, it.value.weight.toFloat())
     } ?: emptyList()
 
-fun NavigatorState.getNeighbours(location: Coordinate): List<Route.EndStep> = paths.getNeighbours(location)
+fun NavigatorState.getNeighbours(location: PlanetPoint): List<Route.EndStep> = paths.getNeighbours(location)

@@ -1,10 +1,8 @@
 package de.robolab.client.renderer.canvas
 
 import de.robolab.client.renderer.utils.ITransformation
-import de.robolab.client.renderer.utils.Transformation
-import de.robolab.client.theme.ITheme
-import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.client.theme.utils.ITheme
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 
 class DrawContext(
@@ -32,10 +30,10 @@ class DrawContext(
 
     private fun updateArea() {
         area = Rectangle.fromEdges(
-            transformation.canvasToPlanet(Point(0.0, 0.0)),
-            transformation.canvasToPlanet(Point(canvas.dimension.width, 0.0)),
-            transformation.canvasToPlanet(Point(0.0, canvas.dimension.height)),
-            transformation.canvasToPlanet(Point(canvas.dimension.width, canvas.dimension.height))
+            transformation.canvasToPlanet(Vector(0.0, 0.0)),
+            transformation.canvasToPlanet(Vector(canvas.dimension.width, 0.0)),
+            transformation.canvasToPlanet(Vector(0.0, canvas.dimension.height)),
+            transformation.canvasToPlanet(Vector(canvas.dimension.width, canvas.dimension.height))
         )
     }
 

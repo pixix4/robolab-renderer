@@ -7,10 +7,10 @@ import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.utils.*
 import de.robolab.client.renderer.view.base.Document
 import de.robolab.client.renderer.view.base.IView
-import de.robolab.client.theme.ITheme
+import de.robolab.client.theme.utils.ITheme
 import de.robolab.common.utils.Dimension
 import de.robolab.common.utils.Logger
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.property.flatMapBinding
@@ -72,10 +72,10 @@ class PlotterWindow(
         val heightOffset = dimension.height / tan(PI * 0.3)
         while (start - heightOffset < dimension.width) {
             val points = listOf(
-                Point(start, 0.0),
-                Point(start + stripWidth, 0.0),
-                Point(start + stripWidth - heightOffset, dimension.height),
-                Point(start - heightOffset, dimension.height),
+                Vector(start, 0.0),
+                Vector(start + stripWidth, 0.0),
+                Vector(start + stripWidth - heightOffset, dimension.height),
+                Vector(start - heightOffset, dimension.height),
             )
 
             canvas.fillPolygon(
@@ -130,7 +130,7 @@ class PlotterWindow(
 
     val pointerProperty = property<Pointer?>(null)
     val pointer by pointerProperty
-    fun updatePointer(mousePosition: Point? = pointer?.mousePosition): Point? {
+    fun updatePointer(mousePosition: Vector? = pointer?.mousePosition): Vector? {
         if (mousePosition == null) {
             if (pointerProperty.value != null) {
                 pointerProperty.value = null

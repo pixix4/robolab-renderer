@@ -6,7 +6,7 @@ import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.viewmodel.DialogViewModel
 import de.robolab.client.app.viewmodel.FormContentViewModel
 import de.robolab.client.app.viewmodel.buildForm
-import de.robolab.client.theme.ThemePropertySelectorMapper
+import de.robolab.client.theme.utils.ThemePropertySelectorMapper
 import de.robolab.client.utils.PlatformDefaultPreferences
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.BuildInformation

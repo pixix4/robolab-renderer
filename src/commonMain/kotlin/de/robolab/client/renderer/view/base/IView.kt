@@ -7,7 +7,7 @@ import de.robolab.client.renderer.transition.IAnimatable
 import de.robolab.client.utils.MenuBuilder
 import de.robolab.client.utils.buildContextMenu
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.event.EventHandler
 
@@ -20,7 +20,7 @@ interface IView : MutableList<IView>, IAnimatable {
     fun requestRedraw()
 
     val boundingBox: Rectangle?
-    fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean
+    fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean
 
     var document: Document?
     var parent: IView?
@@ -172,7 +172,7 @@ fun IView.getViewStack(): List<IView> {
     return p.getViewStack().plusElement(this)
 }
 
-fun IView.findHoveredView(planetPoint: Point, canvasPoint: Point, epsilon: Double): IView? {
+fun IView.findHoveredView(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): IView? {
     for (view in toList().asReversed()) {
         val box = view.boundingBox
         if (view.disableInteraction || box != null && planetPoint !in box) {

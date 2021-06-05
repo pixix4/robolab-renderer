@@ -14,18 +14,18 @@ data class Rectangle(
 
     val right: Double by lazy { left + width }
     val bottom: Double by lazy { top + height }
-    val center: Point by lazy { Point(left + width / 2, top + height / 2) }
+    val center: Vector by lazy { Vector(left + width / 2, top + height / 2) }
 
-    val bottomLeft: Point by lazy { Point(left, bottom) }
-    val bottomRight: Point by lazy { Point(right, bottom) }
-    val topLeft: Point by lazy { Point(left, top) }
-    val topRight: Point by lazy { Point(right, top) }
+    val bottomLeft: Vector by lazy { Vector(left, bottom) }
+    val bottomRight: Vector by lazy { Vector(right, bottom) }
+    val topLeft: Vector by lazy { Vector(left, top) }
+    val topRight: Vector by lazy { Vector(right, top) }
 
     infix fun intersects(other: Rectangle): Boolean {
         return other.right > left && other.bottom > top && other.left < right && other.top < bottom
     }
 
-    operator fun contains(point: Point): Boolean {
+    operator fun contains(point: Vector): Boolean {
         return point.left > left && point.top > top && point.left < right && point.top < bottom
     }
 
@@ -66,10 +66,10 @@ data class Rectangle(
     }
 
     fun toEdgeList() = listOf(
-        Point(left, top),
-        Point(right, top),
-        Point(right, bottom),
-        Point(left, bottom)
+        Vector(left, top),
+        Vector(right, top),
+        Vector(right, bottom),
+        Vector(left, bottom)
     )
 
 
@@ -90,17 +90,17 @@ data class Rectangle(
     companion object {
         val ZERO = Rectangle(0.0, 0.0, 0.0, 0.0)
 
-        fun fromEdges(vararg points: Point): Rectangle {
+        fun fromEdges(vararg points: Vector): Rectangle {
             if (points.isEmpty()) return ZERO
 
             val min = points.reduce { acc, point ->
-                Point(
+                Vector(
                     min(acc.left, point.left),
                     min(acc.top, point.top)
                 )
             }
             val max = points.reduce { acc, point ->
-                Point(
+                Vector(
                     max(acc.left, point.left),
                     max(acc.top, point.top)
                 )
@@ -114,11 +114,11 @@ data class Rectangle(
             )
         }
 
-        fun fromEdges(points: List<Point>): Rectangle {
+        fun fromEdges(points: List<Vector>): Rectangle {
             return fromEdges(*points.toTypedArray())
         }
 
-        fun fromDimension(origin: Point, size: Dimension): Rectangle {
+        fun fromDimension(origin: Vector, size: Dimension): Rectangle {
             var left = origin.left
             var top = origin.top
             var width = size.width

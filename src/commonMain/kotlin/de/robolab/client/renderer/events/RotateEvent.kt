@@ -1,12 +1,12 @@
 package de.robolab.client.renderer.events
 
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.dimension
 
 class RotateEvent(
-    mousePoint: Point,
+    mousePoint: Vector,
     val angle: Double,
     screen: Dimension,
     ctrlKey: Boolean = false,

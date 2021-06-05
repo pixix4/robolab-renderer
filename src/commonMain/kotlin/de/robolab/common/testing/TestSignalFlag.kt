@@ -1,10 +1,10 @@
 package de.robolab.common.testing
 
-import de.robolab.common.planet.LookupPlanet
-import de.robolab.common.planet.SubscribableIdentifier
+import de.robolab.common.planet.utils.LookupPlanet
+import de.robolab.common.planet.test.PlanetSubscribableRef
 
 abstract class TestSignalFlag(
-    override val subscribable: SubscribableIdentifier<*>,
+    override val subscribable: PlanetSubscribableRef,
     val activateSignals: Set<TestSignal>,
     val deactivateSignals: Set<TestSignal>,
     val defaultActive: Boolean,
@@ -26,7 +26,7 @@ abstract class TestSignalFlag(
             type: TestFlagSetter.Type,
             activateSignals: Set<TestSignal>,
             deactivateSignals: Set<TestSignal>,
-            subscribable: SubscribableIdentifier<*>,
+            subscribable: PlanetSubscribableRef,
             planet: LookupPlanet,
             defaultOverride: Boolean? = null
         ): TestSignalFlag = create(
@@ -41,7 +41,7 @@ abstract class TestSignalFlag(
             type: TestFlagSetter.Type,
             activateSignals: Set<TestSignal>,
             deactivateSignals: Set<TestSignal>,
-            subscribable: SubscribableIdentifier<*>,
+            subscribable: PlanetSubscribableRef,
             default: Boolean
         ): TestSignalFlag = type.creator(activateSignals, deactivateSignals, subscribable, default)
     }
@@ -49,7 +49,7 @@ abstract class TestSignalFlag(
     class Disallow(
         disallowSignals: Set<TestSignal>,
         allowSignals: Set<TestSignal>,
-        subscribable: SubscribableIdentifier<*>,
+        subscribable: PlanetSubscribableRef,
         defaultActive: Boolean,
     ) : TestSignalFlag(subscribable, disallowSignals, allowSignals, defaultActive, TestFlagSetter.Type.DISALLOW) {
         override fun ITestRun.onTestableEnteredActive() {
@@ -60,7 +60,7 @@ abstract class TestSignalFlag(
     class Skip(
         disallowSignals: Set<TestSignal>,
         allowSignals: Set<TestSignal>,
-        subscribable: SubscribableIdentifier<*>,
+        subscribable: PlanetSubscribableRef,
         defaultActive: Boolean,
     ) : TestSignalFlag(subscribable, disallowSignals, allowSignals, defaultActive, TestFlagSetter.Type.SKIP) {
         override fun ITestRun.onTestableEnteredActive() {

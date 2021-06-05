@@ -1,12 +1,12 @@
 package de.robolab.client.renderer.events
 
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.dimension
 
 class ZoomEvent(
-    mousePoint: Point,
+    mousePoint: Vector,
     val zoomFactor: Double,
     screen: Dimension,
     ctrlKey: Boolean = false,

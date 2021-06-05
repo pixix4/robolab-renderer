@@ -1,8 +1,8 @@
 package de.robolab.server.model
 
 import de.robolab.client.net.requests.PlanetJsonInfo
-import de.robolab.common.planet.ID
-import de.robolab.common.planet.ServerPlanetInfo
+import de.robolab.common.planet.utils.ID
+import de.robolab.common.planet.utils.ServerPlanetInfo
 import de.robolab.common.utils.decodeFromB64
 import de.robolab.common.externaljs.Buffer
 import de.robolab.common.net.data.DirectoryInfo

@@ -3,15 +3,14 @@ package de.robolab.client.renderer.drawable.general
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.drawable.base.Animatable
 import de.robolab.client.renderer.drawable.edit.IEditCallback
-import de.robolab.client.renderer.drawable.utils.toPoint
 import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
 import de.robolab.client.renderer.view.component.SquareView
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
+import de.robolab.common.planet.PlanetPoint
+import de.robolab.common.planet.PlanetDirection
 import de.robolab.common.planet.Planet
-import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 class PointAnimatable(
     reference: PointAnimatableManager.AttributePoint,
@@ -20,7 +19,7 @@ class PointAnimatable(
 ) : Animatable<PointAnimatableManager.AttributePoint>(reference) {
 
     override val view = SquareView(
-        reference.coordinate.toPoint(),
+        reference.coordinate.point,
         PlottingConstraints.POINT_SIZE,
         PlottingConstraints.LINE_WIDTH * 0.65,
         calcColor(planet),
@@ -37,9 +36,9 @@ class PointAnimatable(
 
     private fun calcColor(planet: Planet): ViewColor {
         return when (reference.coordinate.getColor(planet.bluePoint)) {
-            Coordinate.Color.RED -> ViewColor.POINT_RED
-            Coordinate.Color.BLUE -> ViewColor.POINT_BLUE
-            Coordinate.Color.UNKNOWN -> ViewColor.GRID_TEXT_COLOR
+            PlanetPoint.Color.Red -> ViewColor.POINT_RED
+            PlanetPoint.Color.Blue -> ViewColor.POINT_BLUE
+            PlanetPoint.Color.Unknown -> ViewColor.GRID_TEXT_COLOR
         }
     }
 
@@ -50,11 +49,11 @@ class PointAnimatable(
             {
                 val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
                 if (focusedView != null) {
-                    val exposureCoordinate = Coordinate(
-                        focusedView.center.left.roundToInt(),
-                        focusedView.center.top.roundToInt()
+                    val exposureCoordinate = PlanetPoint(
+                        focusedView.center.left.roundToLong(),
+                        focusedView.center.top.roundToLong()
                     )
-                    "Toggle target (Exposure: ${exposureCoordinate.toSimpleString()})"
+                    "Toggle target (Exposure: ${exposureCoordinate})"
                 } else {
                     "Toggle target"
                 }
@@ -69,14 +68,14 @@ class PointAnimatable(
             val callback = editCallback ?: return@onPointerDown
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             if (event.ctrlKey && focusedView != null) {
-                val targetCoordinate = Coordinate(
-                    view.center.left.roundToInt(),
-                    view.center.top.roundToInt()
+                val targetCoordinate = PlanetPoint(
+                    view.center.left.roundToLong(),
+                    view.center.top.roundToLong()
                 )
 
-                val exposureCoordinate = Coordinate(
-                    focusedView.center.left.roundToInt(),
-                    focusedView.center.top.roundToInt()
+                val exposureCoordinate = PlanetPoint(
+                    focusedView.center.left.roundToLong(),
+                    focusedView.center.top.roundToLong()
                 )
 
                 callback.toggleTargetExposure(targetCoordinate, exposureCoordinate)
@@ -91,11 +90,11 @@ class PointAnimatable(
 
             val coordinate = this.reference.coordinate
 
-            val pathList = planet.pathList.filter { it.connectsWith(coordinate) }
-            val pathExposureList = planet.pathList.filter { coordinate in it.exposure }
-            val targetList = planet.targetList.filter { it.target == coordinate || it.exposure == coordinate }
-            val pathSelectList = planet.pathSelectList.filter { it.point == coordinate }
-            val startPoint = planet.startPoint?.point
+            val pathList = planet.paths.filter { it.connectsWith(coordinate) }
+            val pathExposureList = planet.paths.filter { coordinate in it.exposure }
+            val targetList = planet.targets.filter { it.point == coordinate || coordinate in it.exposure }
+            val pathSelectList = planet.pathSelects.filter { it.point == coordinate }
+            val startPoint = planet.startPoint.point
             val isStartPoint = startPoint == coordinate
 
             view.menu(event, "Point ${coordinate.x}, ${coordinate.y}") {
@@ -104,7 +103,7 @@ class PointAnimatable(
                         callback.deleteStartPoint(false)
                     }
                 } else {
-                    val openDirections = (Direction.values().toList() - pathList.flatMap {
+                    val openDirections = (PlanetDirection.values().toList() - pathList.flatMap {
                         listOf(
                             it.source to it.sourceDirection,
                             it.target to it.targetDirection
@@ -124,7 +123,7 @@ class PointAnimatable(
                 }
 
                 menu("Toggle path select") {
-                    for (direction in Direction.values()) {
+                    for (direction in PlanetDirection.values()) {
                         val isChecked = pathSelectList.find { it.direction == direction } != null
                         action(direction.name.lowercase()
                             .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }, isChecked) {
@@ -134,31 +133,31 @@ class PointAnimatable(
                 }
 
                 when (coordinate.getColor(planet.bluePoint)) {
-                    Coordinate.Color.RED -> {
+                    PlanetPoint.Color.Red -> {
                         action("Mark as blue") {
                             callback.setBluePoint(coordinate)
                         }
                     }
-                    Coordinate.Color.BLUE -> {
+                    PlanetPoint.Color.Blue -> {
                         action("Mark as red") {
-                            callback.setBluePoint(Coordinate(coordinate.x + 1, coordinate.y))
+                            callback.setBluePoint(PlanetPoint(coordinate.x + 1, coordinate.y))
                         }
                     }
-                    Coordinate.Color.UNKNOWN -> {
+                    PlanetPoint.Color.Unknown -> {
                         action("Mark as blue") {
                             callback.setBluePoint(coordinate)
                         }
                         action("Mark as red") {
-                            callback.setBluePoint(Coordinate(coordinate.x + 1, coordinate.y))
+                            callback.setBluePoint(PlanetPoint(coordinate.x + 1, coordinate.y))
                         }
                     }
                 }
 
                 menu("Transform") {
-                    if (startPoint != null && startPoint != coordinate) {
+                    if (startPoint != coordinate) {
                         action("Translate start point") {
                             callback.translate(
-                                Coordinate(
+                                PlanetPoint(
                                     coordinate.x - startPoint.x,
                                     coordinate.y - startPoint.y
                                 )
@@ -181,8 +180,10 @@ class PointAnimatable(
                         grouping = true
                     }
                     for (target in targetList) {
-                        callback.toggleTargetExposure(target.target, target.exposure, grouping)
-                        grouping = true
+                        for (e in target.exposure) {
+                            callback.toggleTargetExposure(target.point, e, grouping)
+                            grouping = true
+                        }
                     }
                     for (pathSelect in pathSelectList) {
                         callback.togglePathSelect(pathSelect.point, pathSelect.direction, grouping)

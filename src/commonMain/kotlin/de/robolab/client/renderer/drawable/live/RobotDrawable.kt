@@ -9,7 +9,8 @@ import de.robolab.client.renderer.transition.IInterpolatable
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.component.RobotView
 import de.robolab.common.planet.*
-import de.robolab.common.utils.Point
+import de.robolab.common.planet.utils.PlanetVersion
+import de.robolab.common.utils.Vector
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.max
@@ -20,14 +21,14 @@ class RobotDrawable(
 ) : Animatable<RobotDrawable.Robot?>(reference) {
 
     override val view = RobotView(
-        DrawRobot(Point.ZERO, 0.0, null),
+        DrawRobot(Vector.ZERO, 0.0, null),
         null,
         ViewColor.TRANSPARENT
     )
 
     data class Robot(
-        val point: Coordinate,
-        val direction: Direction,
+        val point: PlanetPoint,
+        val direction: PlanetDirection,
         val beforePoint: Boolean,
         val groupNumber: Int?,
         val backwardMotion: Boolean,
@@ -38,14 +39,14 @@ class RobotDrawable(
     private var planet: Planet? = null
 
     inner class DrawRobot(
-        val position: Point,
+        val position: Vector,
         val orientation: Double,
         private val robot: Robot?
     ) : IInterpolatable<DrawRobot> {
 
         private var cachedToRobot: Robot? = null
-        private var cachedToRobotPathPoints: Pair<Path, List<Point>>? = null
-        private fun getPathPoints(toRobot: Robot): Pair<Path, List<Point>> {
+        private var cachedToRobotPathPoints: Pair<PlanetPath, List<Vector>>? = null
+        private fun getPathPoints(toRobot: Robot): Pair<PlanetPath, List<Vector>> {
             if (robot == null) throw IllegalStateException()
 
             if (cachedToRobot == toRobot) {
@@ -58,26 +59,26 @@ class RobotDrawable(
                 cachedToRobotPathPoints = null
             }
 
-            var path = Path(
-                robot.point,
-                robot.direction,
-                toRobot.point,
-                toRobot.direction,
-                1,
-                emptySet(),
-                emptyList(),
+            var path = PlanetPath(
+                source = robot.point,
+                sourceDirection = robot.direction,
+                target = toRobot.point,
+                targetDirection = toRobot.direction,
+                weight = 1,
+                exposure = emptySet(),
                 hidden = false,
-                showDirectionArrow = false
+                spline = null,
+                arrow = false
             )
-            val planetPath = planet?.pathList?.find { it.equalPath(path) }
+            val planetPath = planet?.paths?.find { it.equalPath(path) }
             if (planetPath != null) {
                 path = if (path.source == planetPath.source && path.sourceDirection == planetPath.sourceDirection) {
                     path.copy(
-                        controlPoints = planetPath.controlPoints
+                        spline = planetPath.spline
                     )
                 } else {
                     path.copy(
-                        controlPoints = planetPath.controlPoints.reversed()
+                        spline = planetPath.spline?.reversed()
                     )
                 }
             }
@@ -146,8 +147,8 @@ class RobotDrawable(
 
                 val (path, points) = getPathPoints(toValue.robot)
 
-                val position: Point
-                val d: Point
+                val position: Vector
+                val d: Vector
 
                 if (path.isOneWayPath) {
                     val driveInterval = 0.4
@@ -199,7 +200,7 @@ class RobotDrawable(
 
     private fun getDrawRobot(robot: Robot): DrawRobot {
         return DrawRobot(
-            Point(robot.point).shift(robot.direction, PlottingConstraints.CURVE_FIRST_POINT),
+            robot.point.point.shift(robot.direction, PlottingConstraints.CURVE_FIRST_POINT),
             if (robot.beforePoint) robot.direction.opposite().toAngle() else robot.direction.toAngle(),
             robot,
         )
@@ -239,11 +240,11 @@ class RobotDrawable(
     }
 }
 
-fun Direction.toAngle() = when (this) {
-    Direction.NORTH -> 0.0
-    Direction.EAST -> PI * 1.5
-    Direction.SOUTH -> PI
-    Direction.WEST -> PI * 0.5
+fun PlanetDirection.toAngle() = when (this) {
+    PlanetDirection.North -> 0.0
+    PlanetDirection.East -> PI * 1.5
+    PlanetDirection.South -> PI
+    PlanetDirection.West -> PI * 0.5
 }
 
-fun Point.toAngle() = (atan2(y, x) + 3 * PI / 2) % (2 * PI)
+fun Vector.toAngle() = (atan2(y, x) + 3 * PI / 2) % (2 * PI)

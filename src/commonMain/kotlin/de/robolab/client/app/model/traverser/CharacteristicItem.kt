@@ -2,7 +2,7 @@ package de.robolab.client.app.model.traverser
 
 import de.robolab.client.traverser.ITraverserState
 import de.robolab.client.utils.PreferenceStorage
-import de.robolab.common.planet.Direction
+import de.robolab.common.planet.PlanetDirection
 import de.robolab.common.utils.Color
 
 val ITraverserState<*>.isCorrect: Boolean
@@ -30,10 +30,10 @@ class CharacteristicItem(val color: Color) {
             if (!state.running)
                 return CharacteristicItem(theme.traverser.traverserCharacteristicErrorColor)
             return when (state.nextDirection) {
-                Direction.NORTH -> theme.traverser.traverserCharacteristicNorthColor
-                Direction.EAST -> theme.traverser.traverserCharacteristicEastColor
-                Direction.SOUTH -> theme.traverser.traverserCharacteristicSouthColor
-                Direction.WEST -> theme.traverser.traverserCharacteristicWestColor
+                PlanetDirection.North -> theme.traverser.traverserCharacteristicNorthColor
+                PlanetDirection.East -> theme.traverser.traverserCharacteristicEastColor
+                PlanetDirection.South -> theme.traverser.traverserCharacteristicSouthColor
+                PlanetDirection.West -> theme.traverser.traverserCharacteristicWestColor
                 else -> null
             }.let { color -> if (color != null) CharacteristicItem(color) else null }
         }

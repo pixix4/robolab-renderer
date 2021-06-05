@@ -6,7 +6,7 @@ import de.robolab.client.renderer.transition.ValueTransition
 import de.robolab.client.renderer.transition.nullableInterpolator
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
-import de.robolab.common.utils.Point
+import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.robolab.common.utils.unionNullable
 
@@ -42,7 +42,7 @@ class RectangleView(
         return rectangle unionNullable parentBox
     }
 
-    override fun checkPoint(planetPoint: Point, canvasPoint: Point, epsilon: Double): Boolean {
+    override fun checkPoint(planetPoint: Vector, canvasPoint: Vector, epsilon: Double): Boolean {
         val rect = rectangle ?: return false
         return planetPoint in rect
     }

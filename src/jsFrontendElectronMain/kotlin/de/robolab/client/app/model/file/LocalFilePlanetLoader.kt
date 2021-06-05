@@ -4,7 +4,8 @@ import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.provider.*
 import de.robolab.common.externaljs.fs.existsSync
 import de.robolab.common.externaljs.fs.readdir
-import de.robolab.common.parser.PlanetFile
+import de.robolab.common.planet.Planet
+import de.robolab.common.planet.PlanetFile
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
@@ -56,28 +57,27 @@ class LocalFilePlanetLoader(
         return baseDirectory.relative(file)
     }
 
-    override suspend fun loadPlanet(id: String): Pair<RemoteMetadata.Planet, List<String>>? {
+    override suspend fun loadPlanet(id: String): Pair<RemoteMetadata.Planet, Planet>? {
         return try {
             val file = idToFile(id)
-            val lines = file.readLines()
+            val lines = file.readText()
             val planet = PlanetFile(lines).planet
             RemoteMetadata.Planet(
                 planet.name,
                 file.lastModified,
-                planet.tagMap,
+                planet.tags,
                 planet.getPointList().size
-            ) to lines
+            ) to planet
         } catch (e: Exception) {
             null
         }
     }
 
-    override suspend fun savePlanet(id: String, lines: List<String>): RemoteIdentifier? {
+    override suspend fun savePlanet(id: String, planet: Planet): RemoteIdentifier? {
         val file = idToFile(id)
-        val planet = PlanetFile(lines).planet
         val name = planet.name.replace(' ', '_')
         return try {
-            file.writeLines(lines)
+            file.writeText(PlanetFile.stringify(planet))
 
             var newId = id
 
@@ -89,7 +89,7 @@ class LocalFilePlanetLoader(
             val metadata = RemoteMetadata.Planet(
                 planet.name,
                 file.lastModified,
-                planet.tagMap,
+                planet.tags,
                 planet.getPointList().size
             )
 
@@ -102,19 +102,18 @@ class LocalFilePlanetLoader(
         }
     }
 
-    override suspend fun createPlanet(parentId: String, lines: List<String>): RemoteIdentifier? {
-        val planet = PlanetFile(lines).planet
+    override suspend fun createPlanet(parentId: String, planet: Planet): RemoteIdentifier? {
         val name = planet.name.replace(' ', '_')
         return try {
             val file = findUnusedFile(idToFile(parentId), name)
-            file.writeLines(lines)
+            file.writeText(PlanetFile.stringify(planet))
 
             RemoteIdentifier(
                 fileToId(file),
                 RemoteMetadata.Planet(
                     planet.name,
                     file.lastModified,
-                    planet.tagMap,
+                    planet.tags,
                     planet.getPointList().size
                 )
             )
@@ -156,11 +155,11 @@ class LocalFilePlanetLoader(
             file.lastModified,
             readdir(file.absolutePath).await().length
         ) else {
-            val planet = PlanetFile(file.readLines()).planet
+            val planet = PlanetFile(file.readText()).planet
             RemoteMetadata.Planet(
                 planet.name,
                 file.lastModified,
-                planet.tagMap,
+                planet.tags,
                 planet.getPointList().size
             )
         }
@@ -188,7 +187,7 @@ class LocalFilePlanetLoader(
 
     private suspend fun getPlanetNameOfFile(file: File): String? {
         return try {
-            PlanetFile.getName(file.readText())
+            PlanetFile.parse(file.readText()).name
         } catch (e: Exception) {
             null
         }

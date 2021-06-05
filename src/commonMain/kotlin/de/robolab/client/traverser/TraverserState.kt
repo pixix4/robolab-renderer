@@ -1,18 +1,19 @@
 package de.robolab.client.traverser
 
-import de.robolab.common.planet.Coordinate
-import de.robolab.common.planet.Direction
-import de.robolab.common.planet.Path
+import de.robolab.common.planet.PlanetCoordinate
+import de.robolab.common.planet.PlanetDirection
+import de.robolab.common.planet.PlanetPath
+import de.robolab.common.planet.PlanetPoint
 
 interface ITraverserState<out TS> where TS : ITraverserState<TS> {
     val mothershipState: IMothershipState
     val navigatorState: INavigatorState
-    val nextDirection: Direction?
-    val location: Coordinate
+    val nextDirection: PlanetDirection?
+    val location: PlanetPoint
     val parent: TS?
     val beforePoint: Boolean
         get() = mothershipState.beforePoint
-    val lastDrivenPath: Path
+    val lastDrivenPath: PlanetPath
         get() = mothershipState.drivenPath
 
     fun traceUp(): Sequence<ITraverserState<TS>> = generateSequence(this, ITraverserState<TS>::parent)
@@ -48,13 +49,13 @@ data class TraverserState<MS, NS>(
     override val depth: Int = (parent?.depth ?: -1) + 1
 ) : ITraverserState<TraverserState<MS, NS>>
         where MS : IMothershipState, NS : INavigatorState {
-    override val nextDirection: Direction?
+    override val nextDirection: PlanetDirection?
         get() = mothershipState.forcedDirection.let {
             if (it == null) return@let mothershipState.selectedDirection
             else return@let it
         }
 
-    override val location: Coordinate = mothershipState.currentLocation
+    override val location: PlanetPoint = mothershipState.currentLocation
 
     companion object Seed {
         fun <M, MS, N, NS> getSeed(traverser: Traverser<M, MS, N, NS>): TraverserState<MS, NS>

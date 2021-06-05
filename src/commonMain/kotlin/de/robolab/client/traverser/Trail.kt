@@ -1,6 +1,7 @@
 package de.robolab.client.traverser
 
 import de.robolab.common.planet.*
+import de.robolab.common.planet.utils.PlanetVersion
 import de.robolab.common.testing.TestSuite
 import de.robolab.common.utils.intersect
 import kotlin.random.Random
@@ -16,24 +17,24 @@ fun ITraverserState<*>.createRenderState(
 
 interface ITraverserTrail {
     val summary: String
-        get() = path.map(Pair<Coordinate, Direction?>::second).joinToString {
+        get() = path.map(Pair<PlanetPoint, PlanetDirection?>::second).joinToString {
             when (it) {
-                Direction.EAST -> "E"
-                Direction.NORTH -> "N"
-                Direction.WEST -> "W"
-                Direction.SOUTH -> "S"
+                PlanetDirection.East -> "E"
+                PlanetDirection.North -> "N"
+                PlanetDirection.West -> "W"
+                PlanetDirection.South -> "S"
                 null -> "#"
             }
         }
-    val locations: List<Coordinate>
-        get() = path.map(Pair<Coordinate, Direction?>::first)
-    val directions: List<Direction>
-        get() = path.mapNotNull(Pair<Coordinate, Direction?>::second)
-    val start: Coordinate
+    val locations: List<PlanetPoint>
+        get() = path.map(Pair<PlanetPoint, PlanetDirection?>::first)
+    val directions: List<PlanetDirection>
+        get() = path.mapNotNull(Pair<PlanetPoint, PlanetDirection?>::second)
+    val start: PlanetPoint
         get() = path.first().first
-    val end: Coordinate
+    val end: PlanetPoint
         get() = path.last().first
-    val path: List<Pair<Coordinate, Direction?>>
+    val path: List<Pair<PlanetPoint, PlanetDirection?>>
     val result: ITraverserState.Status
     val resultInfo: Any?
     val mothershipState: IMothershipState
@@ -44,22 +45,18 @@ interface ITraverserTrail {
         isBackward: Boolean = false,
         name: String = "${original?.name ?: "TrailPlanet"}-${Random.nextHexString()}"
     ): TraverserRenderState {
-        val planet = Planet(
-            original?.version ?: PlanetVersion.CURRENT,
-            name,
-            original?.startPoint
-                ?: (path.firstOrNull()?.first)?.let { StartPoint(it, Direction.NORTH, emptyList()) },
-            original?.bluePoint,
-            (original?.pathList?.intersect(mothershipState.sentPaths, Path::equalPath)
+        val planet = Planet.EMPTY.copy(
+            version = original?.version ?: PlanetVersion.CURRENT,
+            name = name,
+            startPoint = original?.startPoint
+                ?: (path.firstOrNull()?.first)?.let { PlanetStartPoint(it.x, it.y, PlanetDirection.North) } ?: PlanetStartPoint(0L, 0L, PlanetDirection.North),
+            bluePoint = original?.bluePoint,
+            paths=(original?.paths?.intersect(mothershipState.sentPaths, PlanetPath::equalPath)
                 ?: mothershipState.sentPaths).toList(),
-            (original?.targetList?.intersect(mothershipState.sentTargets)
+            targets = (original?.targets?.intersect(mothershipState.sentTargets)
                 ?: mothershipState.sentTargets).toList(),
-            (original?.pathSelectList?.intersect(mothershipState.sentPathSelects)
+            pathSelects = (original?.pathSelects?.intersect(mothershipState.sentPathSelects)
                 ?: mothershipState.sentPathSelects).toList(),
-            emptyList(),
-            emptyMap(),
-            emptyMap(),
-            TestSuite.EMPTY
         )
 
         return TraverserRenderState(
@@ -76,7 +73,7 @@ interface ITraverserTrail {
 }
 
 data class TraverserTrail(
-    override val path: List<Pair<Coordinate, Direction?>>,
+    override val path: List<Pair<PlanetPoint, PlanetDirection?>>,
     override val mothershipState: IMothershipState,
     override val navigatorState: INavigatorState,
     override val result: ITraverserState.Status,

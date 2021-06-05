@@ -2,8 +2,8 @@ package de.robolab.client.renderer.plotter
 
 import de.robolab.client.app.model.base.EmptyPlanetDocument
 import de.robolab.client.renderer.canvas.ICanvas
-import de.robolab.common.utils.Point
 import de.robolab.common.utils.Rectangle
+import de.robolab.common.utils.Vector
 import de.westermann.kobserve.property.constObservable
 
 class SimplePlotterManager(
@@ -23,7 +23,7 @@ class SimplePlotterManager(
 
         if (requestRedraw) {
             canvas.fillRect(
-                Rectangle.fromDimension(Point.ZERO, canvas.dimension).expand(1.0),
+                Rectangle.fromDimension(Vector.ZERO, canvas.dimension).expand(1.0),
                 theme.plotter.secondaryBackgroundColor
             )
         }

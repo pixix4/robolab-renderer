@@ -63,6 +63,23 @@ sealed class FormContentView(
         }
     }
 
+    class FormContentLongInputView(override val viewModel: FormContentViewModel.LongInput) : FormContentView(viewModel) {
+
+        init {
+            inputView(InputType.NUMBER, viewModel.valueProperty.bindStringParsing()) {
+                disabledProperty.bind(!viewModel.enabledProperty)
+                titleProperty.bind(viewModel.descriptionProperty)
+
+                viewModel.rangeProperty.onChange.now {
+                    val range = viewModel.rangeProperty.value
+                    min = range.first.toDouble()
+                    max = range.last.toDouble()
+                    step = range.step.toDouble()
+                }
+            }
+        }
+    }
+
     class FormContentDoubleInputView(override val viewModel: FormContentViewModel.DoubleInput) :
         FormContentView(viewModel) {
 
@@ -212,6 +229,7 @@ sealed class FormContentView(
             val view = when (viewModel) {
                 is FormContentViewModel.StringInput -> FormContentStringInputView(viewModel)
                 is FormContentViewModel.IntInput -> FormContentIntInputView(viewModel)
+                is FormContentViewModel.LongInput -> FormContentLongInputView(viewModel)
                 is FormContentViewModel.DoubleInput -> FormContentDoubleInputView(viewModel)
                 is FormContentViewModel.SelectInput -> FormContentSelectInputView(viewModel)
                 is FormContentViewModel.EnumInput<*> -> FormContentEnumInputView(viewModel)
