@@ -1,5 +1,6 @@
 package de.robolab.client.app.controller.ui
 
+import de.robolab.client.app.controller.FileImportController
 import de.robolab.client.app.controller.FilePlanetController
 import de.robolab.client.app.model.file.FileNavigationTab
 import de.robolab.client.app.model.group.GroupNavigationTab
@@ -14,7 +15,8 @@ class NavigationBarController(
     messageRepository: MessageRepository,
     messageManager: MessageManager,
     private val filePlanetController: FilePlanetController,
-    private val uiController: UiController
+    private val uiController: UiController,
+    fileImportController: FileImportController
 ) {
 
     private val groupPlanetProperty = GroupNavigationTab(
@@ -22,7 +24,8 @@ class NavigationBarController(
         messageManager,
         contentController,
         filePlanetController,
-        uiController
+        uiController,
+        fileImportController
     )
     private val roomPlanetProvider = RoomNavigationTab(
         messageRepository,

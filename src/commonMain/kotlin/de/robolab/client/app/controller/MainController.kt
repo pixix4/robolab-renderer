@@ -78,11 +78,12 @@ class MainController(private val args: Args) {
         messageManager,
         filePlanetController,
         uiController,
+        fileImportController,
     )
     val toolBarController = ToolBarController(
         contentController,
         remoteServerController,
-        uiController
+        uiController,
     )
 
     val infoBarController = InfoBarController(

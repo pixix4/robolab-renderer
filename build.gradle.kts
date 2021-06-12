@@ -21,8 +21,8 @@ repositories {
 
 val serializationVersion = "1.2.1"
 val datetimeVersion = "0.2.0"
-val coroutineVersion = "1.4.3"
-val ktorVersion = "1.5.0"
+val coroutineVersion = "1.5.0"
+val ktorVersion = "1.6.0"
 
 @Suppress("LeakingThis")
 open class NodeExec : AbstractExecTask<NodeExec>(NodeExec::class.java) {

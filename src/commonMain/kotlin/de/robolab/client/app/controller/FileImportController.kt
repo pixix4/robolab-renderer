@@ -16,7 +16,7 @@ class FileImportController(
     private val robolabMessageProvider: RobolabMessageProvider,
     private val filePlanetController: FilePlanetController,
     private val contentController: ContentController,
-    private val uiController: UiController
+    private val uiController: UiController,
 ) {
 
     val logger = Logger(this)
@@ -28,7 +28,7 @@ class FileImportController(
 
     val supportedFiles = listOf(
         "Supported files" to supportedFileTypes.map { "*$it" },
-        "Planet file" to listOf("*.planet"),
+        "Planet file" to listOf("*.json"),
         "MQTT-Log file" to listOf("*.log"),
         "Any" to listOf("*")
     )
@@ -38,31 +38,41 @@ class FileImportController(
     }
 
     suspend fun importFile(fileName: String, lastModified: Instant, contentProvider: suspend () -> Sequence<String>) {
-        if (!isFileSupported(fileName)) return
+        return importFile(File(fileName, lastModified, contentProvider))
+    }
+
+    suspend fun importFile(file: File) {
+        if (!isFileSupported(file.name)) return
 
         withContext(Dispatchers.Default) {
             try {
-                if (fileName.endsWith(".json")) {
-                    val content = contentProvider().joinToString("\n")
+                if (file.name.endsWith(".json")) {
+                    val content = file.contentProvider().joinToString("\n")
                     val planet = PlanetFile(content).planet
                     val metadata = RemoteMetadata.Planet(
                         planet.name,
-                        lastModified,
+                        file.lastModified,
                         planet.tags,
                         planet.getPointList().size
                     )
-                    TempFilePlanetLoader.create(fileName, metadata, planet)
-                    val filePlanet = filePlanetController.getFilePlanet(TempFilePlanetLoader, fileName)
+                    TempFilePlanetLoader.create(file.name, metadata, planet)
+                    val filePlanet = filePlanetController.getFilePlanet(TempFilePlanetLoader, file.name)
                     contentController.openDocument(
                         FilePlanetDocument(filePlanet, uiController),
                         true
                     )
-                } else if (fileName.endsWith(".log")) {
-                    robolabMessageProvider.importMqttLog(contentProvider())
+                } else if (file.name.endsWith(".log")) {
+                    robolabMessageProvider.importMqttLog(file.contentProvider())
                 }
             } catch (e: Exception) {
                 logger.warn { e }
             }
         }
     }
+
+    data class File(
+        val name: String,
+        val lastModified: Instant,
+        val contentProvider: suspend () -> Sequence<String>,
+    )
 }

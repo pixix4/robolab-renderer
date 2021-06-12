@@ -33,7 +33,8 @@ class GroupNavigationTab(
     private val messageManager: MessageManager,
     private val contentController: ContentController,
     private val planetProvider: FilePlanetController,
-    private val uiController: UiController
+    private val uiController: UiController,
+    private val fileImportController: FileImportController,
 ) : INavigationBarTab("Track robots via mqtt", MaterialIcon.GROUP) {
 
     override val contentProperty = property<SideBarContentViewModel>(
@@ -56,7 +57,14 @@ class GroupNavigationTab(
             }
         }
         button(MaterialIcon.ADD) {
-            FileImportController
+            GlobalScope.launch {
+                val files =
+                    openFile(fileImportController.supportedFiles, fileImportController.supportedFileTypes)
+
+                for (file in files) {
+                    fileImportController.importFile(file)
+                }
+            }
         }
     }
 
@@ -181,3 +189,6 @@ class GroupNavigationTab(
 
     interface RepositoryList : INavigationBarList, RepositoryEventListener
 }
+
+
+expect suspend fun openFile(supportedFiles: List<Pair<String, List<String>>>, supportedFileTypes: List<String>): List<FileImportController.File>
