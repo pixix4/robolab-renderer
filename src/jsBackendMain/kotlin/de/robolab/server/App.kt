@@ -28,7 +28,27 @@ fun main() {
     DefaultEnvironment.app.use(cookieParser())
 
     DefaultEnvironment.app.use { req: Request<*>, res: Response<*>, next: (NodeError?) -> Unit ->
-        req.user = User.Anonymous
+        val robolabAccess = req.get("X-RL-Access") ?: ""
+        val robolabName = req.get("X-RL-Name") ?: ""
+        val robolabId = req.get("X-RL-ID")?.toUIntOrNull() ?: UInt.MAX_VALUE
+        val robolabGroup = req.get("X-RL-Group")?.toIntOrNull()
+
+        req.user = when (robolabAccess) {
+            "T" -> User(
+                userID = robolabId,
+                accessLevel = AccessLevel.Tutor,
+                username = robolabName,
+                group = robolabGroup,
+            )
+            "S" -> User(
+                userID = robolabId,
+                accessLevel = AccessLevel.GroupMember,
+                username = robolabName,
+                group = robolabGroup,
+            )
+            else -> User.Anonymous
+        }
+
         next(null)
     }
 

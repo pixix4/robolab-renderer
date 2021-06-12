@@ -97,12 +97,7 @@ object DefaultEnvironment {
                     next(null)
                     return@use
                 }
-                if (req.user == User.Anonymous) {
-                    if (Config.Web.mount.endsWith("/"))
-                        res.redirect(Config.Web.mount + "api/auth/gitlab")
-                    else
-                        res.redirect(Config.Web.mount + "/api/auth/gitlab")
-                } else if (req.user.canAccess(minAccessLevel)) {
+                if (req.user.canAccess(minAccessLevel)) {
                     next(null)
                 } else {
                     res.sendStatus(HttpStatusCode.Forbidden)
