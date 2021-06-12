@@ -1,4 +1,4 @@
-package de.robolab.client.app.model.file.details
+package de.robolab.client.app.model.file.boxes
 
 import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.app.viewmodel.buildForm

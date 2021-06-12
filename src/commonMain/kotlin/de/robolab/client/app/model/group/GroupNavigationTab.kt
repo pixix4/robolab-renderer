@@ -1,5 +1,6 @@
 package de.robolab.client.app.model.group
 
+import de.robolab.client.app.controller.FileImportController
 import de.robolab.client.app.controller.FilePlanetController
 import de.robolab.client.app.controller.ui.ContentController
 import de.robolab.client.app.controller.ui.UiController
@@ -53,6 +54,9 @@ class GroupNavigationTab(
                     }
                 }
             }
+        }
+        button(MaterialIcon.ADD) {
+            FileImportController
         }
     }
 

@@ -3,6 +3,9 @@ package de.robolab.client.app.model.file.details
 import de.robolab.client.app.controller.ui.UiController
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.FilePlanetDocument
+import de.robolab.client.app.model.file.boxes.PathDetailBox
+import de.robolab.client.app.model.file.boxes.PlanetStatisticsDetailBox
+import de.robolab.client.app.model.file.boxes.PointDetailBox
 import de.robolab.client.app.viewmodel.SideBarContentViewModel
 import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.app.viewmodel.buildFormContent

@@ -66,7 +66,7 @@ select {
 }
 
 
-.form-content-string-input-view, .form-content-int-input-view, .form-content-double-input-view {
+.form-content-string-input-view, .form-content-int-input-view, .form-content-long-input-view, .form-content-double-input-view {
   flex-grow: 1;
 
   .input-view {

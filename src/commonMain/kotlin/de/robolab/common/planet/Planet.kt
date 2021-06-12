@@ -33,9 +33,7 @@ data class Planet(
             name = reference.name,
             version = reference.version,
             bluePoint = reference.bluePoint,
-            startPoint = startPoint.copy(
-                spline = reference.startPoint.spline
-            ),
+            startPoint = reference.startPoint,
             paths = paths.map {
                 for (p in reference.paths) {
                     if (it.equalPath(p, false)) {

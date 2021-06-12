@@ -265,7 +265,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
 
     companion object {
         private val json = Json {
-            prettyPrint = false
+            prettyPrint = true
             ignoreUnknownKeys = true
         }
 

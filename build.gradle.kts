@@ -170,6 +170,7 @@ kotlin {
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("hammerjs", "2.0.8"))
                 implementation(npm("moment", "2.29.1"))
+                implementation(npm("@js-joda/core", "3.2.0"))
                 implementation(npm("buffer", "6.0.3"))
                 implementation(npm("process", "0.11.10"))
 

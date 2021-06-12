@@ -101,8 +101,8 @@ fun initMainView(
                     if (content != null) {
                         mainController.fileImportController.importFile(
                             file.pathOrName(),
-                            Instant.fromEpochMilliseconds(file.lastModified.toLong())
-                        ) { file.lineSequence() }
+                            Instant.fromEpochMilliseconds("${file.lastModified}".toLong())
+                        ) { content.splitToSequence("\n") }
                     }
                 }
             }

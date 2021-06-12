@@ -1,6 +1,6 @@
 package de.robolab.client.ui.views.boxes
 
-import de.robolab.client.app.model.file.details.PathDetailBox
+import de.robolab.client.app.model.file.boxes.PathDetailBox
 import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.ui.ViewFactory
 import de.robolab.client.ui.ViewFactoryRegistry
