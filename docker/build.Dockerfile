@@ -2,7 +2,6 @@ FROM openjdk:11 as gradleBuilder
 WORKDIR /usr/src/robolab-renderer
 COPY . .
 RUN chmod +x ./gradlew
-RUN ./gradlew --no-daemon kotlinNpmInstall
 
 FROM gradleBuilder as jsBackendBuilder
 RUN ./gradlew --no-daemon deployBackend
