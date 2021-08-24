@@ -2,6 +2,7 @@ package de.robolab.server.data
 
 import de.robolab.common.planet.utils.ServerPlanetInfo
 import de.robolab.common.externaljs.dynamicOfDefined
+import de.robolab.common.externaljs.toJSArray
 import de.robolab.server.externaljs.ioredis.*
 import de.robolab.common.externaljs.toList
 import de.robolab.common.jsutils.jsTruthy
@@ -32,18 +33,18 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
     private suspend fun setTag(id: String, tagName: String, tagValues: List<String>) {
         redis.del(planetTagKey(id, tagName)).await()
         if (tagValues.isNotEmpty())
-            redis.lpush(planetTagKey(id, tagName), tagValues[0], *tagValues.drop(1).toTypedArray())
-        redis.sadd(planetTagsKey(id), tagName).await()
+            redis.lpush(planetTagKey(id, tagName), tagValues)
+        redis.sadd(planetTagsKey(id), listOf(tagName)).await()
     }
 
     private suspend fun removeTag(id: String, tagName: String) {
-        redis.srem(planetTagsKey(id), tagName).await()
+        redis.srem(planetTagsKey(id), listOf(tagName)).await()
         redis.del(planetTagKey(id, tagName)).await()
     }
 
     private suspend fun removeTags(id: String) {
         val oldTags: List<String> = redis.smembers(planetTagsKey(id)).await().toList().filterNotNull()
-        redis.del(planetTagsKey(id), *oldTags.map { planetTagKey(id, it) }.toTypedArray()).await()
+        val delProm = redis.del(planetTagsKey(id), oldTags.map {planetTagKey(id, it) }.toJSArray()).await()
     }
 
     private suspend fun setTag(id: String, tagName: String, tagValues: List<String>?) =
@@ -86,7 +87,7 @@ class RedisPlanetMetaStore(connectionString: String, connectionName: String = ""
     }
 
     override suspend fun retrieveInfo(id: String): ServerPlanetInfo? =
-        redis.mget(planetNameKey(id), planetMTimeKey(id)).await().let { data ->
+        redis.mget(listOf(planetNameKey(id), planetMTimeKey(id))).await().let { data ->
             val (name, mtime) = data.toList()
             val tags = getTags(id)
             if (name != null && mtime != null) ServerPlanetInfo(

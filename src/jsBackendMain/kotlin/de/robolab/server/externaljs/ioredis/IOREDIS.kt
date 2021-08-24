@@ -2,10 +2,8 @@
 
 package de.robolab.server.externaljs.ioredis
 
-import de.robolab.common.externaljs.JSArray
-import de.robolab.common.externaljs.emptyJSArray
+import de.robolab.common.externaljs.*
 import de.robolab.common.externaljs.events.EventEmitter
-import de.robolab.common.externaljs.toJSArray
 import de.robolab.common.jsutils.promise
 import kotlinx.coroutines.await
 import kotlin.js.Promise
@@ -41,15 +39,15 @@ external interface IRedisCommandReceiver {
 
     //bitfield
 
-    fun bitop(operation: String, destkey: String, key: String, vararg keys: String): RedisIntResponse
+    fun bitop(operation: String, destkey: String, key: String, keys: JSArray<String>): RedisIntResponse
     fun bitpos(key: String, bit: Int): RedisIntResponse
     fun bitpos(key: String, bit: Int, start: Int): RedisIntResponse
     fun bitpos(key: String, bit: Int, start: Int, end: Int): RedisIntResponse
-    fun blpop(key: String, vararg keys: String, timeout: Int): RedisArrayResponse
-    fun brpop(key: String, vararg keys: String, timeout: Int): RedisArrayResponse
+    fun blpop(key: String, keys: JSArray<String>, timeout: Int): RedisArrayResponse
+    fun brpop(key: String, keys: JSArray<String>, timeout: Int): RedisArrayResponse
     fun brpoplpush(source: String, destination: String, timeout: Int): RedisBulkStrResponse
-    fun bzpopmin(key: String, vararg keys: String, timeout: Int): RedisArrayResponse
-    fun bzpopmax(key: String, vararg keys: String, timeout: Int): RedisArrayResponse
+    fun bzpopmin(key: String, keys: JSArray<String>, timeout: Int): RedisArrayResponse
+    fun bzpopmax(key: String, keys: JSArray<String>, timeout: Int): RedisArrayResponse
 
     //client
     //cluster
@@ -59,7 +57,7 @@ external interface IRedisCommandReceiver {
     fun dbsize(): RedisIntResponse
     fun decr(key: String): RedisIntResponse
     fun decrby(key: String, decrement: Int): RedisIntResponse
-    fun del(key: String, vararg keys: String): RedisIntResponse
+    fun del(key: String, keys: JSArray<String>): RedisIntResponse
     fun discard()
     fun dump(key: String)
     fun echo(message: String)
@@ -68,19 +66,19 @@ external interface IRedisCommandReceiver {
     //evalsha
 
     fun exec(): Promise<JSArray<Any?>?>
-    fun exists(key: String, vararg keys: String): RedisIntResponse
+    fun exists(key: String, keys: JSArray<String>): RedisIntResponse
     fun expire(key: String, seconds: Int): RedisIntResponse
     fun expireat(key: String, timestamp: Int): RedisIntResponse
-    fun flushall():RedisStrResponse
-    fun flushall(async: String):RedisStrResponse
-    fun flushdb():RedisStrResponse
-    fun flushdb(async: String):RedisStrResponse
+    fun flushall(): RedisStrResponse
+    fun flushall(async: String): RedisStrResponse
+    fun flushdb(): RedisStrResponse
+    fun flushdb(async: String): RedisStrResponse
     fun geoadd(key: String, longitude: Float, latitude: Float, member: String): RedisIntResponse
-    fun geohash(key: String, member: String, vararg members: String): RedisTypedArrayResponse<String>
+    fun geohash(key: String, member: String, members: JSArray<String>): RedisTypedArrayResponse<String>
     fun geopos(
         key: String,
         member: String,
-        vararg members: String
+        members: List<String>
     ): RedisTypedArrayResponse<JSArray<Float>> // maybe string?
 
     fun geodist(key: String, member1: String, member2: String): RedisBulkStrResponse
@@ -125,7 +123,7 @@ external interface IRedisCommandReceiver {
     fun getset(key: String, value: String): RedisBulkStrResponse
     fun getset(key: String, value: Int): RedisBulkStrResponse
     fun getset(key: String, value: Float): RedisBulkStrResponse
-    fun hdel(key: String, field: String, vararg fields: String): RedisIntResponse
+    fun hdel(key: String, field: String, fields: JSArray<String>): RedisIntResponse
 
     //hello
 
@@ -136,15 +134,15 @@ external interface IRedisCommandReceiver {
     fun hincrbyfloat(key: String, field: String, increment: Float): RedisBulkStrResponse
     fun hkeys(key: String): RedisTypedArrayResponse<String>
     fun hlen(key: String): RedisIntResponse
-    fun hmget(key: String, field: String, vararg fields: String): RedisTypedArrayResponse<String>
+    fun hmget(key: String, field: String, fields: JSArray<String>): RedisTypedArrayResponse<String>
     fun hset(key: String, field: String, value: String): RedisIntResponse
     fun hset(key: String, field: String, value: Int): RedisIntResponse
     fun hset(key: String, field: String, value: Float): RedisIntResponse
-    fun hset(key: String, field: String, value: String, vararg args: String): RedisIntResponse
+    fun hset(key: String, field: String, value: String, args: JSArray<String>): RedisIntResponse
     fun hsetNX(key: String, field: String, value: String): RedisIntResponse
     fun hsetNX(key: String, field: String, value: Int): RedisIntResponse
     fun hsetNX(key: String, field: String, value: Float): RedisIntResponse
-    fun hsetNX(key: String, field: String, value: String, vararg args: String): RedisIntResponse
+    fun hsetNX(key: String, field: String, value: String, args: JSArray<String>): RedisIntResponse
     fun hstrlen(key: String, field: String): RedisIntResponse
     fun hvals(key: String): RedisTypedArrayResponse<String>
     fun incr(key: String): RedisIntResponse
@@ -164,15 +162,15 @@ external interface IRedisCommandReceiver {
     fun lpush(key: String, element: String): RedisIntResponse
     fun lpush(key: String, element: Int): RedisIntResponse
     fun lpush(key: String, element: Float): RedisIntResponse
-    fun lpush(key: String, element: String, vararg elements: String): RedisIntResponse
-    fun lpush(key: String, element: Int, vararg elements: Int): RedisIntResponse
-    fun lpush(key: String, element: Float, vararg elements: Float): RedisIntResponse
+    fun lpush(key: String, element: String, elements: JSArray<String>): RedisIntResponse
+    fun lpush(key: String, element: Int, elements: JSArray<Int>): RedisIntResponse
+    fun lpush(key: String, element: Float, elements: JSArray<Float>): RedisIntResponse
     fun lpushx(key: String, element: String): RedisIntResponse
     fun lpushx(key: String, element: Int): RedisIntResponse
     fun lpushx(key: String, element: Float): RedisIntResponse
-    fun lpushx(key: String, element: String, vararg elements: String): RedisIntResponse
-    fun lpushx(key: String, element: Int, vararg elements: Int): RedisIntResponse
-    fun lpushx(key: String, element: Float, vararg elements: Float): RedisIntResponse
+    fun lpushx(key: String, element: String, elements: JSArray<String>): RedisIntResponse
+    fun lpushx(key: String, element: Int, elements: JSArray<Int>): RedisIntResponse
+    fun lpushx(key: String, element: Float, elements: JSArray<Float>): RedisIntResponse
     fun lrange(key: String, start: Int, stop: Int): RedisArrayResponse
     fun lrem(key: String, count: Int, element: String): RedisIntResponse
     fun lrem(key: String, count: Int, element: Int): RedisIntResponse
@@ -184,7 +182,7 @@ external interface IRedisCommandReceiver {
 
     // memory
 
-    fun mget(key: String, vararg keys: String): RedisTypedArrayResponse<String?>
+    fun mget(key: String, keys: JSArray<String>): RedisTypedArrayResponse<String?>
 
     //migrate
     //module
@@ -193,27 +191,28 @@ external interface IRedisCommandReceiver {
     fun mset(key: String, value: String): RedisStrResponse
     fun mset(key: String, value: Int): RedisStrResponse
     fun mset(key: String, value: Float): RedisStrResponse
-    fun mset(key: String, value: String, vararg args: String): RedisStrResponse
+    fun mset(key: String, value: String, args: JSArray<String>): RedisStrResponse
     fun msetnx(key: String, value: String): RedisIntResponse
     fun msetnx(key: String, value: Int): RedisIntResponse
     fun msetnx(key: String, value: Float): RedisIntResponse
-    fun msetnx(key: String, value: String, vararg args: String): RedisIntResponse
+    fun msetnx(key: String, value: String, args: JSArray<String>): RedisIntResponse
+
     //fun multi(): RedisStrResponse // TODO: Multi apparently has special pipeline-behaviour in ioredis
-    fun `object`(subcommand: String, vararg arguments: String): Promise<Any?>
+    fun `object`(subcommand: String, arguments: JSArray<String>): Promise<Any?>
     fun persist(key: String): RedisIntResponse
     fun pexpire(key: String, milliseconds: Int): RedisIntResponse
     fun pexpireat(key: String, millisecondstimestampt: Int): RedisIntResponse
-    fun pfadd(key: String, element: String, vararg elements: String): RedisIntResponse
-    fun pfcount(key: String, vararg keys: String): RedisIntResponse
-    fun pfmerge(destKey: String, sourceKey: String, vararg sourceKeys: String): RedisStrResponse
+    fun pfadd(key: String, element: String, elements: JSArray<String>): RedisIntResponse
+    fun pfcount(key: String, keys: JSArray<String>): RedisIntResponse
+    fun pfmerge(destKey: String, sourceKey: String, sourceKeys: JSArray<String>): RedisStrResponse
     fun ping(): RedisStrResponse
     fun ping(message: String): RedisStrResponse
     fun psetex(key: String, milliseconds: Int, value: String): RedisStrResponse
-    fun psubscribe(pattern: String, vararg patterns: String)
-    fun pubsub(subcommand: String, vararg arguments: String): Promise<Any>
+    fun psubscribe(pattern: String, patterns: JSArray<String>)
+    fun pubsub(subcommand: String, arguments: JSArray<String>): Promise<Any>
     fun pttl(key: String): RedisIntResponse
     fun publish(channel: String, message: String): RedisIntResponse
-    fun punsubscribe(vararg patterns: String)
+    fun punsubscribe(patterns: JSArray<String>)
     fun quit(): RedisStrResponse
     fun randomkey(): RedisBulkStrResponse
     fun readonly(): RedisStrResponse
@@ -227,16 +226,16 @@ external interface IRedisCommandReceiver {
     fun rpush(key: String, element: String): RedisIntResponse
     fun rpush(key: String, element: Int): RedisIntResponse
     fun rpush(key: String, element: Float): RedisIntResponse
-    fun rpush(key: String, element: String, vararg elements: String): RedisIntResponse
-    fun rpush(key: String, element: Int, vararg elements: Int): RedisIntResponse
-    fun rpush(key: String, element: Float, vararg elements: Float): RedisIntResponse
+    fun rpush(key: String, element: String, elements: JSArray<String>): RedisIntResponse
+    fun rpush(key: String, element: Int, elements: JSArray<Int>): RedisIntResponse
+    fun rpush(key: String, element: Float, elements: JSArray<Float>): RedisIntResponse
     fun rpushx(key: String, element: String): RedisIntResponse
     fun rpushx(key: String, element: Int): RedisIntResponse
     fun rpushx(key: String, element: Float): RedisIntResponse
-    fun rpushx(key: String, element: String, vararg elements: String): RedisIntResponse
-    fun rpushx(key: String, element: Int, vararg elements: Int): RedisIntResponse
-    fun rpushx(key: String, element: Float, vararg elements: Float): RedisIntResponse
-    fun sadd(key: String, member: String, vararg members: String): RedisIntResponse
+    fun rpushx(key: String, element: String, elements: JSArray<String>): RedisIntResponse
+    fun rpushx(key: String, element: Int, elements: JSArray<Int>): RedisIntResponse
+    fun rpushx(key: String, element: Float, elements: JSArray<Float>): RedisIntResponse
+    fun sadd(key: String, member: String, members: JSArray<String>): RedisIntResponse
     fun save(): RedisStrResponse
     fun scard(): RedisIntResponse
     fun scan(cursor: String): RedisArrayResponse
@@ -250,8 +249,8 @@ external interface IRedisCommandReceiver {
 
     //script
 
-    fun sdiff(key: String, vararg keys: String): RedisArrayResponse
-    fun sdiffstore(destination: String, key: String, vararg keys: String): RedisIntResponse
+    fun sdiff(key: String, keys: JSArray<String>): RedisArrayResponse
+    fun sdiffstore(destination: String, key: String, keys: JSArray<String>): RedisIntResponse
     fun select(index: Int): RedisStrResponse
     fun set(key: String, value: String): RedisStrResponse
     fun set(key: String, value: Int): RedisStrResponse
@@ -269,8 +268,8 @@ external interface IRedisCommandReceiver {
     fun setrange(key: String, offset: Int, value: String): RedisIntResponse
     fun shutdown(): RedisStrResponse?
     fun shutdown(modifier: String): RedisStrResponse?
-    fun sinter(key: String, vararg keys: String): RedisArrayResponse
-    fun sinterstore(destination: String, key: String, vararg keys: String): RedisIntResponse
+    fun sinter(key: String, keys: JSArray<String>): RedisArrayResponse
+    fun sinterstore(destination: String, key: String, keys: JSArray<String>): RedisIntResponse
     fun sismember(key: String, member: String): RedisIntResponse
 
     //slaveof
@@ -278,36 +277,36 @@ external interface IRedisCommandReceiver {
 
     fun smembers(key: String): RedisTypedArrayResponse<String>
     fun smove(source: String, destination: String, member: String): RedisIntResponse
-    fun sort(key: String, vararg args: String): Promise<Any>
+    fun sort(key: String, args: JSArray<String>): Promise<Any>
     fun spop(key: String): RedisBulkStrResponse
     fun spop(key: String, count: Int): RedisTypedArrayResponse<String>
     fun srandmember(key: String): RedisBulkStrResponse
     fun srandmember(key: String, count: Int): RedisTypedArrayResponse<String>
-    fun srem(key: String, member: String, vararg members: String): RedisIntResponse
+    fun srem(key: String, member: String, members: JSArray<String>): RedisIntResponse
     fun strlen(key: String): RedisIntResponse
-    fun subscribe(channel: String, vararg channels: String)
-    fun sunion(key: String, vararg keys: String): RedisTypedArrayResponse<String>
-    fun sunionstore(destination: String, key: String, vararg keys: String): RedisIntResponse
+    fun subscribe(channel: String, channels: JSArray<String>)
+    fun sunion(key: String, keys: JSArray<String>): RedisTypedArrayResponse<String>
+    fun sunionstore(destination: String, key: String, keys: JSArray<String>): RedisIntResponse
     fun swapdb(index1: Int, index2: Int): RedisStrResponse
 
     //sync
     //psync
 
     fun time(): RedisTypedArrayResponse<String>
-    fun touch(key: String, vararg keys: String): RedisIntResponse
+    fun touch(key: String, keys: JSArray<String>): RedisIntResponse
     fun ttl(key: String): RedisIntResponse
 
     //type
 
-    fun unlink(key: String, vararg keys: String): RedisIntResponse
-    fun unsubscribe(vararg channel: String)
+    fun unlink(key: String, keys: JSArray<String>): RedisIntResponse
+    fun unsubscribe(channel: JSArray<String>)
     fun unwatch(): RedisStrResponse
     fun wait(): RedisIntResponse
-    fun watch(key: String, vararg keys: String): RedisStrResponse
+    fun watch(key: String, keys: JSArray<String>): RedisStrResponse
 
     /*
-    fun xack(key:String, group:String, id:String, vararg ids:String):RedisIntResponse
-    fun xadd(key:String, id:String, field:String, value:String, vararg args:String):RedisBulkStrResponse
+    fun xack(key:String, group:String, id:String,  ids:JSArray<String>):RedisIntResponse
+    fun xadd(key:String, id:String, field:String, value:String,  args:JSArray<String>):RedisBulkStrResponse
     fun xclaim()
     fun xdel()
     fun xgroup()
@@ -330,7 +329,7 @@ external interface IRedisCommandReceiver {
     fun zcard(key: String): RedisIntResponse
     fun zcount(key: String, min: String, max: String): RedisIntResponse
     fun zincrby(key: String, increment: Float, member: String): RedisBulkStrResponse
-    fun zinterstore(destination: String, numkeys: Int, key: String, vararg keys: String): RedisIntResponse
+    fun zinterstore(destination: String, numkeys: Int, key: String, keys: JSArray<String>): RedisIntResponse
     fun zinterstore(destination: String, vararg options: String): RedisIntResponse
     fun zlexcount(key: String, min: String, max: String): RedisIntResponse
     fun zpopmax(key: String): RedisArrayResponse
@@ -371,7 +370,7 @@ external interface IRedisCommandReceiver {
     ): RedisArrayResponse
 
     fun zrank(key: String, member: String): Promise<Int?>
-    fun zrem(key: String, member: String, vararg members: String): RedisIntResponse
+    fun zrem(key: String, member: String, members: JSArray<String>): RedisIntResponse
     fun zremrangebylex(key: String, min: String, max: String): RedisIntResponse
     fun zremrangebyrank(key: String, start: Int, stop: Int): RedisIntResponse
     fun zremrangebyscore(key: String, min: String, max: String): RedisIntResponse
@@ -410,56 +409,28 @@ external interface IRedisCommandReceiver {
 
     fun zrevrank(key: String, member: String): Promise<Int?>
     fun zscore(key: String, member: String): RedisBulkStrResponse
-    fun zunionstore(destination: String, numkeys: Int, key: String, vararg keys: String): RedisIntResponse
+    fun zunionstore(destination: String, numkeys: Int, key: String, keys: JSArray<String>): RedisIntResponse
     fun zunionstore(destination: String, vararg options: String): RedisIntResponse
 }
 
-fun IRedisCommandReceiver.mget(vararg keys: String): RedisTypedArrayResponse<String> {
-    return when {
-        keys.isEmpty() -> Promise.Companion.resolve(emptyJSArray())
-        keys.size == 1 -> mget(keys.single())
-        else -> {
-            //Unexpected compile error (probably related to spread over constructed array)
-            //mget(keys[0], *keys.slice(IntRange(1, keys.lastIndex)).toTypedArray())
-            promise {
-                val proms = keys.map { get(it) }
-                return@promise proms.map { it.await() }.toJSArray()
-            }
-        }
+fun IRedisCommandReceiver.mget(keys: JSArray<String>): RedisTypedArrayResponse<String> {
+    return when (keys.length) {
+        0 -> Promise.Companion.resolve(emptyJSArray())
+        1 -> mget(keys[0], emptyJSArray())
+        else -> mget(keys[0], keys.toList().drop(1).toJSArray())
     }
 }
 
 fun IRedisCommandReceiver.mget(keys: List<String>): RedisTypedArrayResponse<String> {
     return when {
         keys.isEmpty() -> Promise.Companion.resolve(emptyJSArray())
-        keys.size == 1 -> mget(keys.single())
+        keys.size == 1 -> mget(keys.single(), emptyJSArray())
         else -> {
             //Unexpected compile error (probably related to spread over constructed array)
             //mget(keys[0], *keys.slice(IntRange(1, keys.lastIndex)).toTypedArray())
             promise {
                 val proms = keys.map { get(it) }
                 return@promise proms.map { it.await() }.toJSArray()
-            }
-        }
-    }
-}
-
-
-fun IRedisCommandReceiver.mset(vararg args: Pair<String, String>): RedisStrResponse {
-    return when {
-        args.isEmpty() -> Promise.Companion.resolve("OK")
-        args.size == 1 -> mset(args.single().first, args.single().second)
-        else -> {
-            //Unexpected compile error (probably related to spread over constructed array)
-            //mset(
-            //args[0].first,
-            //args[0].second,
-            //*args.sliceArray(IntRange(1, args.lastIndex)).flatMap { listOf(it.first, it.second) }.toTypedArray()
-            //)
-            promise {
-                val proms = args.map { set(it.first, it.second) }
-                proms.forEach { it.await() }
-                return@promise "OK"
             }
         }
     }
@@ -470,17 +441,11 @@ fun IRedisCommandReceiver.mset(args: List<Pair<String, String>>): RedisStrRespon
         args.isEmpty() -> Promise.Companion.resolve("OK")
         args.size == 1 -> mset(args.single().first, args.single().second)
         else -> {
-            //Unexpected compile error (probably related to spread over constructed array)
-            //mset(
-            //args[0].first,
-            //args[0].second,
-            //*args.slice(IntRange(1, args.lastIndex)).flatMap { listOf(it.first, it.second) }.toTypedArray()
-            //)
-            promise {
-                val proms = args.map { set(it.first, it.second) }
-                proms.forEach { it.await() }
-                return@promise "OK"
-            }
+            mset(
+                args[0].first,
+                args[0].second,
+                args.slice(IntRange(1, args.lastIndex)).flatMap { listOf(it.first, it.second) }.toJSArray()
+            )
         }
     }
 }
@@ -493,39 +458,17 @@ fun IRedisCommandReceiver.mset(args: Map<String, String>): RedisStrResponse {
     }
 }
 
-fun IRedisCommandReceiver.msetnx(vararg args: Pair<String, String>): RedisIntResponse {
-    return when {
-        args.isEmpty() -> Promise.Companion.resolve(0)
-        args.size == 1 -> msetnx(args.single().first, args.single().second)
-        else -> {
-            //Unexpected compile error (probably related to spread over constructed array)
-            //msetnx(
-            //args[0].first,
-            //args[0].second,
-            //*args.sliceArray(IntRange(1, args.lastIndex)).flatMap { listOf(it.first, it.second) }.toTypedArray()
-            //)
-            promise {
-                val proms = args.map { setnx(it.first, it.second) }
-                return@promise proms.sumOf { it.await() }
-            }
-        }
-    }
-}
 
 fun IRedisCommandReceiver.msetnx(args: List<Pair<String, String>>): RedisIntResponse {
     return when {
         args.isEmpty() -> Promise.Companion.resolve(0)
         args.size == 1 -> msetnx(args.single().first, args.single().second)
-        else -> {//Unexpected compile error (probably related to spread over constructed array)
-            //msetnx(
-            //args[0].first,
-            //args[0].second,
-            //*args.slice(IntRange(1, args.lastIndex)).flatMap { listOf(it.first, it.second) }.toTypedArray()
-            //)
-            promise {
-                val proms = args.map { setnx(it.first, it.second) }
-                return@promise proms.sumOf { it.await() }
-            }
+        else -> {
+            msetnx(
+                args[0].first,
+                args[0].second,
+                args.slice(IntRange(1, args.lastIndex)).flatMap { listOf(it.first, it.second) }.toJSArray()
+            )
         }
     }
 }
@@ -557,11 +500,56 @@ abstract external class Redis : IRedisCommandReceiver {
     fun monitor(): Promise<EventEmitter>
     fun getBuiltinCommands(): JSArray<String>
 
-    fun on(event:String, handler: (event: dynamic) -> dynamic)
+    fun on(event: String, handler: (event: dynamic) -> dynamic)
 }
 
+fun IRedisCommandReceiver.del(key: String) = del(key, emptyJSArray())
+fun IRedisCommandReceiver.del(keys: List<String>) = del(keys.first(), keys.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.lpush(key: String, elements: List<String>) =
+    lpush(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.lpush(key: String, elements: List<Int>) =
+    lpush(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.lpush(key: String, elements: List<Float>) =
+    lpush(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.lpushx(key: String, elements: List<String>) =
+    lpushx(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.lpushx(key: String, elements: List<Int>) =
+    lpushx(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.lpushx(key: String, elements: List<Float>) =
+    lpushx(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.rpush(key: String, elements: List<String>) =
+    rpush(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.rpush(key: String, elements: List<Int>) =
+    rpush(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.rpush(key: String, elements: List<Float>) =
+    rpush(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.rpushx(key: String, elements: List<String>) =
+    rpushx(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.rpushx(key: String, elements: List<Int>) =
+    rpushx(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.rpushx(key: String, elements: List<Float>) =
+    rpushx(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.sadd(key: String, elements: List<String>) =
+    sadd(key, elements.first(), elements.drop(1).toJSArray())
+
+fun IRedisCommandReceiver.srem(key: String, elements: List<String>) =
+    srem(key, elements.first(), elements.drop(1).toJSArray())
+
 suspend inline fun IRedisCommandReceiver.transaction(
-    vararg watches: String,
+    watches: JSArray<String>,
     watchedBlock: suspend IRedisCommandReceiver.() -> Unit,
     block: IRedisCommandReceiver.() -> Unit
 ): JSArray<Any?> {
