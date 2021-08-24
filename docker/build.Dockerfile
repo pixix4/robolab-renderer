@@ -9,7 +9,7 @@ RUN ./gradlew --no-daemon deployBackend
 FROM gradleBuilder as jsFrontendWebBuilder
 RUN ./gradlew --no-daemon deployWeb
 
-FROM node:latest
+FROM node:14.15.4
 WORKDIR /opt/robolab-renderer
 EXPOSE 8080
 ENTRYPOINT node /opt/robolab-renderer/packages/robolab-service-renderer-js-backend/kotlin/robolab-service-renderer-js-backend.js
