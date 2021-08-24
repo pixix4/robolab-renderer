@@ -55,9 +55,18 @@ data class Planet(
     }
 
     private fun getDrawableSenderGrouping(): List<Set<PlanetPoint>> {
-        return (targets.map {
+        val targetExposureGrouping = targets.map {
             it.exposure
-        } + paths.map { it.exposure })
+        }
+        val pathExposureGrouping = paths.flatMap { path ->
+            path.exposure
+                .groupBy { it.changes }
+                .values.map { group ->
+                    group.map { it.planetPoint }.toSet()
+                }
+        }
+
+        return (targetExposureGrouping + pathExposureGrouping)
             .filterNot { it.isEmpty() }
             .distinct()
     }
@@ -104,7 +113,7 @@ data class Planet(
                     listOf(
                         PlanetPoint(it.sourceX, it.sourceY),
                         PlanetPoint(it.targetX, it.targetY)
-                    ) + it.exposure
+                    ) + it.exposure.map { it.planetPoint }
                 } + targets.flatMap {
                     listOf(
                         PlanetPoint(it.x, it.y)

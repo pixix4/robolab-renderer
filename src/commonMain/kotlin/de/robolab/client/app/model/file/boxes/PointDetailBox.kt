@@ -33,8 +33,10 @@ class PointDetailBox(point: PointAnimatableManager.AttributePoint, planetFile: P
         }
     }
 
-    private val pathSend = planetFile.planet.paths.filter {
-        coordinate in it.exposure
+    private val pathSend = planetFile.planet.paths.filter { path ->
+        path.exposure.any { exposure ->
+            exposure.planetPoint == coordinate
+        }
     }.map {
         "${it.source.x},${it.source.y},${it.sourceDirection.letter} -> " +
                 "${it.target.x},${it.target.y},${it.targetDirection.letter}"

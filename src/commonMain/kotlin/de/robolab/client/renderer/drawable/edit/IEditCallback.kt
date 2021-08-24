@@ -31,7 +31,7 @@ interface IEditCallback {
         logger.warn { "Plotter action 'toggleTargetExposure($target, $exposure, $groupHistory)' is not supported!" }
     }
 
-    fun togglePathExposure(path: PlanetPath, exposure: PlanetPoint, groupHistory: Boolean = false) {
+    fun togglePathExposure(path: PlanetPath, exposure: PlanetPathExposure, groupHistory: Boolean = false) {
         logger.warn { "Plotter action 'togglePathExposure($path, $exposure, $groupHistory)' is not supported!" }
     }
 

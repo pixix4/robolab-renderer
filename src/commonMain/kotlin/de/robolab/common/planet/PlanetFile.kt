@@ -5,6 +5,7 @@ import de.robolab.client.renderer.utils.History
 import de.robolab.common.utils.Vector
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import kotlin.math.exp
 
 class PlanetFile(planet: Planet) : IEditCallback {
 
@@ -95,22 +96,25 @@ class PlanetFile(planet: Planet) : IEditCallback {
         setPlanet(p, groupHistory)
     }
 
-    override fun togglePathExposure(path: PlanetPath, exposure: PlanetPoint, groupHistory: Boolean) {
+    override fun togglePathExposure(path: PlanetPath, exposure: PlanetPathExposure, groupHistory: Boolean) {
         val current = planet.paths.find { it.equalPath(path) } ?: throw NoSuchElementException()
-        val p = if (exposure in current.exposure) {
-            planet.copy(
-                paths = planet.paths - current + current.copy(
-                    exposure = current.exposure - exposure
-                )
+        val currentExposure = current.exposure.find { it.planetPoint == exposure.planetPoint }
+
+        var newPath = current
+        if (currentExposure != null) {
+            newPath = current.copy(
+                exposure = current.exposure - currentExposure
             )
-        } else {
-            planet.copy(
-                paths = planet.paths - current + current.copy(
-                    exposure = current.exposure + exposure
-                )
+        }
+        if (exposure != currentExposure) {
+            newPath = current.copy(
+                exposure = current.exposure + exposure
             )
         }
 
+        val p = planet.copy(
+            paths = planet.paths - current + newPath
+        )
         setPlanet(p, groupHistory)
     }
 

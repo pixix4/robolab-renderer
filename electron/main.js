@@ -155,7 +155,7 @@ function createWindow() {
         height: mainWindowState.height,
         webPreferences: {
             nodeIntegration: true,
-            enableRemoteModule: true,
+            enableRemoteModule: false,
             contextIsolation: false,
             additionalArguments: ["--##--", ...process.argv.slice(2), ...initOpenFileQueue]
         }

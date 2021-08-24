@@ -5,6 +5,7 @@
 **/out/*
 build/
 !electron/build/
+electron/dist/
 magic_draw/*
 .gradle/*
 robolab.conf

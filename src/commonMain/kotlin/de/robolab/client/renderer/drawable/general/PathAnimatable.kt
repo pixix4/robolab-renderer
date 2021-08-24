@@ -242,7 +242,10 @@ class PathAnimatable(
                     focusedView.center.top.roundToLong()
                 )
 
-                callback.togglePathExposure(this.reference, exposureCoordinate)
+                callback.togglePathExposure(this.reference, PlanetPathExposure(
+                    exposureCoordinate,
+                    if (event.shiftKey) PlanetPathExposureChanges(-1L) else null
+                ))
 
                 event.stopPropagation()
             }

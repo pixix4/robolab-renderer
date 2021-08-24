@@ -8,6 +8,7 @@ import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 import de.westermann.kobserve.property.readOnly
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 

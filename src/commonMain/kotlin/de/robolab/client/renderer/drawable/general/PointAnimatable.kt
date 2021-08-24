@@ -91,7 +91,9 @@ class PointAnimatable(
             val coordinate = this.reference.coordinate
 
             val pathList = planet.paths.filter { it.connectsWith(coordinate) }
-            val pathExposureList = planet.paths.filter { coordinate in it.exposure }
+            val pathExposureList = planet.paths.filter { path ->
+                path.exposure.any { it.planetPoint == coordinate }
+            }
             val targetList = planet.targets.filter { it.point == coordinate || coordinate in it.exposure }
             val pathSelectList = planet.pathSelects.filter { it.point == coordinate }
             val startPoint = planet.startPoint.point
@@ -176,8 +178,12 @@ class PointAnimatable(
                 action("Delete") {
                     var grouping = false
                     for (path in pathExposureList) {
-                        callback.togglePathExposure(path, coordinate, grouping)
-                        grouping = true
+                        for (exposure in path.exposure) {
+                            if (exposure.planetPoint == coordinate) {
+                                callback.togglePathExposure(path, exposure, grouping)
+                                grouping = true
+                            }
+                        }
                     }
                     for (target in targetList) {
                         for (e in target.exposure) {

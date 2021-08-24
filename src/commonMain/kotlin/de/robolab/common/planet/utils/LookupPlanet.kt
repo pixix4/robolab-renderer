@@ -7,7 +7,7 @@ class LookupPlanet(val planet: Planet) {
 
     init {
         val pathsByPoint = planet.paths
-            .flatMap { path -> path.exposure.map { it to path } }
+            .flatMap { path -> path.exposure.map { it.planetPoint to path } }
             .groupBy(Pair<PlanetPoint, PlanetPath>::first, Pair<PlanetPoint, PlanetPath>::second)
         val targetsByPoint: Map<PlanetPoint, List<PlanetTarget>> = planet.targets
             .flatMap { target ->

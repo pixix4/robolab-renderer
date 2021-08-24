@@ -30,7 +30,7 @@ fun List<RobolabMessage>.toServerPlanet(): Pair<Planet, List<PlanetPoint>> {
                 pathList.removeAll { it.equalPath(message.path) }
 
                 pathList += message.path.copy(
-                    exposure = setOf(currentPoint)
+                    exposure = setOf(PlanetPathExposure(currentPoint))
                 )
             }
             is RobolabMessage.PathMessage -> {
