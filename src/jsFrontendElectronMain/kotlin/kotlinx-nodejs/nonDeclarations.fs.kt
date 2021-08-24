@@ -1,24 +1,9 @@
 @file:Suppress("INTERFACE_WITH_SUPERCLASS", "OVERRIDING_FINAL_MEMBER", "RETURN_TYPE_MISMATCH_ON_OVERRIDE")
 package fs
 
-import kotlin.js.*
-import kotlin.js.Json
-import org.khronos.webgl.*
-import org.w3c.dom.*
-import org.w3c.dom.events.*
-import org.w3c.dom.parsing.*
-import org.w3c.dom.svg.*
-import org.w3c.dom.url.*
-import org.w3c.fetch.*
-import org.w3c.files.*
-import org.w3c.notifications.*
-import org.w3c.performance.*
-import org.w3c.workers.*
-import org.w3c.xhr.*
-import NodeJS.ErrnoException
-import events.EventEmitter.EventEmitter
+import kotlin.js.Date
 
-typealias NoParamCallback = (err: ErrnoException?) -> Unit
+typealias NoParamCallback = (err: dynamic) -> Unit
 
 external interface StatsBase<T> {
     fun isFile(): Boolean
@@ -48,25 +33,25 @@ external interface StatsBase<T> {
     var birthtime: Date
 }
 
-external interface FSWatcher : EventEmitter {
+external interface FSWatcher {
     fun close()
-    override fun addListener(event: String, listener: (args: Any) -> Unit): FSWatcher /* this */
+    fun addListener(event: String, listener: (args: Any) -> Unit): FSWatcher /* this */
     fun addListener(event: String /* "change" */, listener: (eventType: String, filename: dynamic /* String | Buffer */) -> Unit): FSWatcher /* this */
     fun addListener(event: String /* "error" */, listener: (error: Error) -> Unit): FSWatcher /* this */
     fun addListener(event: String /* "close" */, listener: () -> Unit): FSWatcher /* this */
-    override fun on(event: String, listener: (args: Any) -> Unit): FSWatcher /* this */
+    fun on(event: String, listener: (args: Any) -> Unit): FSWatcher /* this */
     fun on(event: String /* "change" */, listener: (eventType: String, filename: dynamic /* String | Buffer */) -> Unit): FSWatcher /* this */
     fun on(event: String /* "error" */, listener: (error: Error) -> Unit): FSWatcher /* this */
     fun on(event: String /* "close" */, listener: () -> Unit): FSWatcher /* this */
-    override fun once(event: String, listener: (args: Any) -> Unit): FSWatcher /* this */
+    fun once(event: String, listener: (args: Any) -> Unit): FSWatcher /* this */
     fun once(event: String /* "change" */, listener: (eventType: String, filename: dynamic /* String | Buffer */) -> Unit): FSWatcher /* this */
     fun once(event: String /* "error" */, listener: (error: Error) -> Unit): FSWatcher /* this */
     fun once(event: String /* "close" */, listener: () -> Unit): FSWatcher /* this */
-    override fun prependListener(event: String, listener: (args: Any) -> Unit): FSWatcher /* this */
+    fun prependListener(event: String, listener: (args: Any) -> Unit): FSWatcher /* this */
     fun prependListener(event: String /* "change" */, listener: (eventType: String, filename: dynamic /* String | Buffer */) -> Unit): FSWatcher /* this */
     fun prependListener(event: String /* "error" */, listener: (error: Error) -> Unit): FSWatcher /* this */
     fun prependListener(event: String /* "close" */, listener: () -> Unit): FSWatcher /* this */
-    override fun prependOnceListener(event: String, listener: (args: Any) -> Unit): FSWatcher /* this */
+    fun prependOnceListener(event: String, listener: (args: Any) -> Unit): FSWatcher /* this */
     fun prependOnceListener(event: String /* "change" */, listener: (eventType: String, filename: dynamic /* String | Buffer */) -> Unit): FSWatcher /* this */
     fun prependOnceListener(event: String /* "error" */, listener: (error: Error) -> Unit): FSWatcher /* this */
     fun prependOnceListener(event: String /* "close" */, listener: () -> Unit): FSWatcher /* this */

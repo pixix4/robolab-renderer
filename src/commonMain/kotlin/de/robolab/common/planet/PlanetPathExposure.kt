@@ -9,7 +9,7 @@ import kotlin.math.roundToLong
 data class PlanetPathExposure(
     val x: Long,
     val y: Long,
-    val changes: PlanetPathExposureChanges?
+    val changes: PlanetPathExposureChanges? = null
 ) : IPlanetValue<PlanetPathExposure> {
 
     constructor(

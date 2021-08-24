@@ -454,7 +454,15 @@ val jsFrontendElectronTargetFile = tasks.create("jsFrontendElectronTargetFile") 
     val file = File("$projectDir/webpack.config.d/target.js")
 
     doLast {
-        file.writeText("""config.target = "electron-renderer"""")
+        file.writeText(
+            """
+            config.target = "electron-renderer"
+            
+            config.externals = {
+                "fs": "fs"
+            }
+            """.trimIndent()
+        )
     }
 
     outputs.files(file)

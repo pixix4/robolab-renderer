@@ -1,27 +1,15 @@
 @file:Suppress("INTERFACE_WITH_SUPERCLASS", "OVERRIDING_FINAL_MEMBER", "RETURN_TYPE_MISMATCH_ON_OVERRIDE")
 package fs.promises
 
-import kotlin.js.*
-import kotlin.js.Json
-import org.khronos.webgl.*
-import org.w3c.dom.*
-import org.w3c.dom.events.*
-import org.w3c.dom.parsing.*
-import org.w3c.dom.svg.*
-import org.w3c.dom.url.*
-import org.w3c.fetch.*
-import org.w3c.files.*
-import org.w3c.notifications.*
-import org.w3c.performance.*
-import org.w3c.workers.*
-import org.w3c.xhr.*
-import fs.read.`T$41`
-import Buffer
+import fs.ReadVResult
 import fs.Stats
+import fs.WriteVResult
+import fs.read.`T$41`
 import fs.write.`T$39`
 import fs.write.`T$40`
-import fs.WriteVResult
-import fs.ReadVResult
+import org.khronos.webgl.Uint8Array
+import kotlin.js.Date
+import kotlin.js.Promise
 
 external interface `T$52` {
     var encoding: String?
@@ -70,7 +58,6 @@ external interface FileHandle {
     fun datasync(): Promise<Unit>
     fun sync(): Promise<Unit>
     fun <TBuffer : Uint8Array> read(buffer: TBuffer, offset: Number? = definedExternally, length: Number? = definedExternally, position: Number? = definedExternally): Promise<`T$41`<TBuffer>>
-    fun readFile(options: `T$53`? = definedExternally): Promise<Buffer>
     fun readFile(options: `T$54`): Promise<String>
     fun readFile(options: String /* "ascii" | "utf8" | "utf-8" | "utf16le" | "ucs2" | "ucs-2" | "base64" | "latin1" | "binary" | "hex" */): Promise<String>
     fun readFile(options: `T$55`? = definedExternally): Promise<dynamic /* String | Buffer */>

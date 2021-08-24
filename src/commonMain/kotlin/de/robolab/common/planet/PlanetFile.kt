@@ -277,6 +277,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
             return try {
                 json.decodeFromString(Planet.serializer(), content)
             } catch (e: SerializationException) {
+                e.printStackTrace()
                 Planet.EMPTY
             }
         }
