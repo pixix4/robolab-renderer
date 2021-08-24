@@ -274,6 +274,10 @@ class PlanetFile(planet: Planet) : IEditCallback {
         }
 
         fun parse(content: String): Planet {
+            if (content.isBlank()) {
+                return Planet.EMPTY
+            }
+
             return try {
                 json.decodeFromString(Planet.serializer(), content)
             } catch (e: SerializationException) {

@@ -183,7 +183,6 @@ kotlin {
         val jsFrontendElectronMain by getting {
             dependencies {
                 dependsOn(jsFrontendCommonMain)
-                dependsOn(jsBackendCommonMain)
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-js:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutineVersion")

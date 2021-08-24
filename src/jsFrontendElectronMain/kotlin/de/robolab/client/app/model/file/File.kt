@@ -1,15 +1,17 @@
 package de.robolab.client.app.model.file
 
 import de.robolab.common.externaljs.fs.*
+import de.robolab.common.externaljs.path.pathParse
+import de.robolab.common.externaljs.path.pathRelative
+import de.robolab.common.externaljs.path.safeJoinPath
 import de.robolab.common.externaljs.toList
 import kotlinx.coroutines.await
 import kotlinx.datetime.Instant
-import path.path
 
 class File(val absolutePath: String) {
 
     private val pathObj by lazy {
-        path.parse(absolutePath)
+        pathParse(absolutePath)
     }
 
     val dir: String
@@ -23,7 +25,7 @@ class File(val absolutePath: String) {
 
 
     private val stats by lazy {
-        fs.statSync(absolutePath)
+        statSync(absolutePath)
     }
 
     val isDirectory: Boolean
@@ -36,15 +38,15 @@ class File(val absolutePath: String) {
         get() = Instant.fromEpochMilliseconds(stats.mtimeMs.toLong())
 
     fun resolveChildren(vararg paths: String): File {
-        return File(path.join(absolutePath, *paths))
+        return File(safeJoinPath(absolutePath, *paths))
     }
 
     fun relative(other: File): String {
-        return path.relative(absolutePath, other.absolutePath)
+        return pathRelative(absolutePath, other.absolutePath)
     }
 
     fun resolveSibling(vararg paths: String): File {
-        return File(path.join(dir, *paths))
+        return File(safeJoinPath(dir, *paths))
     }
 
     val parent: File
@@ -76,7 +78,7 @@ class File(val absolutePath: String) {
     }
 
     suspend fun renameRelative(relativeName: String): File {
-        val id = path.join(dir, relativeName)
+        val id = safeJoinPath(dir, relativeName)
         rename(absolutePath, id).await()
         return File(id)
     }

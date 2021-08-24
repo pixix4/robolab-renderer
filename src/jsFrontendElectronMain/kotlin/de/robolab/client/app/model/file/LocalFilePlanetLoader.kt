@@ -4,6 +4,7 @@ import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.model.file.provider.*
 import de.robolab.common.externaljs.fs.existsSync
 import de.robolab.common.externaljs.fs.readdir
+import de.robolab.common.externaljs.path.pathResolve
 import de.robolab.common.planet.Planet
 import de.robolab.common.planet.PlanetFile
 import de.westermann.kobserve.base.ObservableProperty
@@ -13,7 +14,6 @@ import de.westermann.kobserve.property.property
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
-import path.path
 
 class LocalFilePlanetLoader(
     private val baseDirectory: File
@@ -21,7 +21,7 @@ class LocalFilePlanetLoader(
 
     override val id = "local-file-loader-${baseDirectory.absolutePath}"
 
-    constructor(baseDirectoryName: String) : this(File(path.resolve(baseDirectoryName)))
+    constructor(baseDirectoryName: String) : this(File(pathResolve(baseDirectoryName)))
 
     override val onRemoteChange = EventHandler<RemoteIdentifier>()
 

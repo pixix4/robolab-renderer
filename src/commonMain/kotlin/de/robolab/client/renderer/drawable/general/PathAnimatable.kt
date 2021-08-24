@@ -313,7 +313,12 @@ class PathAnimatable(
         if (path.exposure.isEmpty()) {
             return null
         }
-        return SenderGrouping(planet.senderGroupings.first { it.sender == path.exposure }.name.first())
+
+        val grouping = planet.senderGroupings.find {
+            it.sender == path.exposure.filter { it.changes == null }.map { it.planetPoint }.toSet()
+        } ?: return null
+
+        return SenderGrouping(grouping.name.first())
     }
 
     companion object {
