@@ -41,7 +41,7 @@ object ExportRouter {
                 theme = DefaultDarkTheme
             }
 
-            val fileContent = req.files.planet.data.toString().unsafeCast<String>()
+            val fileContent = req.files.planet.data.toString("utf8").unsafeCast<String>()
 
             exportPlanetAsPng(PlanetFile(fileContent), scale, drawName, theme, res)
         }
@@ -56,7 +56,7 @@ object ExportRouter {
                 theme = DefaultDarkTheme
             }
 
-            val fileContent = req.files.planet.data.toString().unsafeCast<String>()
+            val fileContent = req.files.planet.data.toString("utf8").unsafeCast<String>()
 
             exportPlanetAsSvg(PlanetFile(fileContent), drawName, theme, res)
         }
