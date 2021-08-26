@@ -51,7 +51,7 @@ data class Planet(
     fun importSenderGroups(reference: Planet, visitedPoints: List<PlanetPoint>): Planet {
         return copy(
             senderGroupings = reference.senderGroupings
-        ).generateMissingSenderGroupings()
+        ).generateSenderGroupings()
     }
 
     private fun getDrawableSenderGrouping(): List<Set<PlanetPoint>> {
@@ -71,10 +71,15 @@ data class Planet(
             .distinct()
     }
 
-    fun generateMissingSenderGroupings(): Planet {
-        val missing = getDrawableSenderGrouping() - senderGroupings.map { it.sender }
+    fun generateSenderGroupings(): Planet {
+        val drawableSenderGrouping = getDrawableSenderGrouping()
 
         val groupings = senderGroupings.toMutableList()
+        groupings.retainAll {
+            it.sender in drawableSenderGrouping
+        }
+
+        val missing = getDrawableSenderGrouping() - groupings.map { it.sender }
 
         var lastChar = 'A'
         for (set in missing) {
@@ -88,23 +93,6 @@ data class Planet(
         return copy(
             senderGroupings = groupings
         )
-    }
-
-    fun getDefaultSenderGroupings(): List<PlanetSenderGrouping> {
-        val missing = getDrawableSenderGrouping()
-
-        val groupings = mutableListOf<PlanetSenderGrouping>()
-
-        var lastChar = 'A'
-        for (set in missing) {
-            while (groupings.any { it.name == lastChar.toString() }) {
-                lastChar += 1
-            }
-            groupings += PlanetSenderGrouping(lastChar.toString(), set)
-            lastChar += 1
-        }
-
-        return groupings
     }
 
     fun getPointList(): List<PlanetPoint> {

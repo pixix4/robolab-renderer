@@ -25,7 +25,7 @@ import kotlin.math.roundToLong
 class PathAnimatable(
     reference: PlanetPath,
     planet: Planet,
-    val editCallback: IEditCallback?
+    val editCallback: IEditCallback?,
 ) : Animatable<PlanetPath>(reference) {
 
     private fun generateHighlightColors(planet: Planet, reference: PlanetPath): List<SplineView.Color> {
@@ -52,26 +52,28 @@ class PathAnimatable(
         getTargetPointFromPath(planet.version, reference),
         getControlPointsFromPath(planet.version, reference),
         PlottingConstraints.LINE_WIDTH,
-        getSenderGrouping(planet, reference)?.viewColor ?: ViewColor.LINE_COLOR,
+        getSenderGrouping(planet, reference).find { !it.changes }?.viewColor ?: ViewColor.LINE_COLOR,
         generateHighlightColors(planet, reference),
         reference.hidden
     )
 
     private val isWeightVisibleProperty = property(reference.weight > 0.0)
-    private val isBlockedProperty = property(reference.weight < 0.0)
+    private val isBlockedProperty = property(reference.weight < 0.0 || reference.exposure.any {
+        it.changes != null && it.changes.weight < 0
+    })
     private val isArrowVisibleProperty = property(reference.arrow)
 
     val isOneWayPath
         get() = reference.source == reference.target && reference.sourceDirection == reference.targetDirection
 
-    private fun getOrthogonal(t: Double, swap: Boolean): Pair<Vector, Vector> {
+    private fun getOrthogonal(t: Double, swap: Boolean, distance: Double = 0.1): Pair<Vector, Vector> {
         val position = view.eval(t)
         val gradient = view.evalGradient(t)
 
         val vec = gradient.orthogonal()
 
-        var source = position + vec * 0.1
-        var target = position - vec * 0.1
+        var source = position + vec * distance
+        var target = position - vec * distance
 
         if (source.left + source.top > target.left + target.top && swap) {
             val h = target
@@ -102,14 +104,14 @@ class PathAnimatable(
     }
 
     private val senderGroupView = SenderCharView(
-        getOrthogonal(0.5, true).second,
+        getOrthogonal(0.5, true, 0.15).second,
+        view.evalGradient(0.5),
         getSenderGrouping(planet, reference)
     )
-
-    private val blockedView = LineView(
-        getOrthogonal(if (isOneWayPath && planet.version >= PlanetVersion.V2020_SPRING) 1.0 else 0.5, true).toList(),
-        PlottingConstraints.LINE_WIDTH,
-        ViewColor.POINT_RED
+    private val blockedView = BlockedView(
+        view.eval(if (isOneWayPath && planet.version >= PlanetVersion.V2020_SPRING) 1.0 else 0.5),
+        getSenderGrouping(planet, reference).find { it.changes }?.viewColor ?: ViewColor.POINT_RED,
+        !reference.blocked
     ).also {
         it.animationTime = 0.0
     }
@@ -146,25 +148,27 @@ class PathAnimatable(
         view.setControlPoints(getControlPointsFromPath(planet.version, reference), 0.0)
         view.setSource(getSourcePointFromPath(reference), 0.0)
         view.setTarget(getTargetPointFromPath(planet.version, reference), 0.0)
-        view.setColor(getSenderGrouping(planet, reference)?.viewColor ?: ViewColor.LINE_COLOR)
+        view.setColor(getSenderGrouping(planet, reference).find { !it.changes }?.viewColor ?: ViewColor.LINE_COLOR)
         view.setHighlightColor(generateHighlightColors(planet, reference))
         view.setIsDashed(reference.hidden)
 
-        isWeightVisibleProperty.value = (reference.weight > 0.0)
-        isBlockedProperty.value = (reference.weight < 0.0)
+        isWeightVisibleProperty.value = reference.weight > 0.0
+        isBlockedProperty.value = reference.weight < 0.0 || reference.exposure.any {
+            it.changes != null && it.changes.weight < 0
+        }
         isArrowVisibleProperty.value = reference.arrow
 
         weightView.setSource(getOrthogonal(0.5, true).first)
         weightView.text = reference.weight.toString()
-        senderGroupView.setCenter(getOrthogonal(0.5, true).second)
-        senderGroupView.setGrouping(grouping)
+        senderGroupView.setCenter(getOrthogonal(0.5, true, 0.15).second)
+        senderGroupView.setDirection(view.evalGradient(0.5))
+        senderGroupView.setGroupings(grouping)
 
-        blockedView.setPoints(
-            getOrthogonal(
-                if (isOneWayPath && planet.version >= PlanetVersion.V2020_SPRING) 1.0 else 0.5,
-                true
-            ).toList()
+        blockedView.setCenter(
+            view.eval(if (isOneWayPath && planet.version >= PlanetVersion.V2020_SPRING) 1.0 else 0.5)
         )
+        blockedView.setColor(getSenderGrouping(planet, reference).find { it.changes }?.viewColor ?: ViewColor.POINT_RED)
+        blockedView.setIsPartial(!reference.blocked)
 
         val (first, second) = getArrowPosition()
         arrowView.setSource(first)
@@ -196,9 +200,9 @@ class PathAnimatable(
         }
 
     init {
+        view += ConditionalView("Path blocked", isBlockedProperty, blockedView)
         view += ConditionalView("Path weight", isWeightVisibleProperty, weightView)
         view += senderGroupView
-        view += ConditionalView("Path blocked", isBlockedProperty, blockedView)
         view += ConditionalView("Path arrow", isArrowVisibleProperty, arrowView)
 
         view.focusable = true || editCallback != null
@@ -229,6 +233,26 @@ class PathAnimatable(
             },
             PointerEvent.Type.DOWN,
             ctrlKey = true
+        ) {
+            val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
+            editCallback != null && focusedView != null
+        }
+        view.registerPointerHint(
+            {
+                val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
+                if (focusedView != null) {
+                    val exposureCoordinate = PlanetPoint(
+                        focusedView.center.left.roundToLong(),
+                        focusedView.center.top.roundToLong()
+                    )
+                    "Toggle path meteorite exposure (Exposure: ${exposureCoordinate})"
+                } else {
+                    "Toggle path meteorite exposure"
+                }
+            },
+            PointerEvent.Type.DOWN,
+            ctrlKey = true,
+            shiftKey = true
         ) {
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             editCallback != null && focusedView != null
@@ -309,16 +333,14 @@ class PathAnimatable(
         }
     }
 
-    private fun getSenderGrouping(planet: Planet, path: PlanetPath): SenderGrouping? {
-        if (path.exposure.isEmpty()) {
-            return null
-        }
-
-        val grouping = planet.senderGroupings.find {
-            it.sender == path.exposure.filter { it.changes == null }.map { it.planetPoint }.toSet()
-        } ?: return null
-
-        return SenderGrouping(grouping.name.first())
+    private fun getSenderGrouping(planet: Planet, path: PlanetPath): List<SenderGrouping> {
+        val senders = path.exposure
+            .groupBy { it.changes }
+            .mapValues { (_, group) ->
+                group.map { it.planetPoint }.toSet()
+            }.map { (k, v) -> v to k }.toMap()
+        val groupings = planet.senderGroupings.filter { it.sender in senders }
+        return groupings.map { SenderGrouping(it.name.first(), senders[it.sender] != null) }
     }
 
     companion object {
@@ -336,7 +358,7 @@ class PathAnimatable(
 
         fun getControlPointsFromPath(
             version: Long,
-            path: PlanetPath
+            path: PlanetPath,
         ): List<Vector> {
             return getControlPointsFromPath(
                 version,
@@ -348,12 +370,13 @@ class PathAnimatable(
             )
         }
 
-        private fun isPointInDirectLine(start: Vector, direction: PlanetDirection, target: Vector): Boolean = when (direction) {
-            PlanetDirection.North -> start.y <= target.y && start.x == target.x
-            PlanetDirection.East -> start.x <= target.x && start.y == target.y
-            PlanetDirection.South -> start.y >= target.y && start.x == target.x
-            PlanetDirection.West -> start.x >= target.x && start.y == target.y
-        }
+        private fun isPointInDirectLine(start: Vector, direction: PlanetDirection, target: Vector): Boolean =
+            when (direction) {
+                PlanetDirection.North -> start.y <= target.y && start.x == target.x
+                PlanetDirection.East -> start.x <= target.x && start.y == target.y
+                PlanetDirection.South -> start.y >= target.y && start.x == target.x
+                PlanetDirection.West -> start.x >= target.x && start.y == target.y
+            }
 
         fun getControlPointsFromPath(
             version: Long,
@@ -361,7 +384,7 @@ class PathAnimatable(
             sourceDirection: PlanetDirection,
             target: Vector,
             targetDirection: PlanetDirection,
-            spline: PlanetSpline? = null
+            spline: PlanetSpline? = null,
         ): List<Vector> {
             if (source == target && sourceDirection == targetDirection && version >= PlanetVersion.V2020_SPRING) {
                 val linePoints = spline?.controlPoints?.map { it.point }
@@ -412,7 +435,7 @@ class PathAnimatable(
             controlPoints: List<Vector>,
             startPoint: Vector,
             endPoint: Vector?,
-            eval: (Double) -> Vector
+            eval: (Double) -> Vector,
         ): List<Vector> {
             val realCount = max(16, power2(log2(count - 1) + 1))
 

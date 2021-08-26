@@ -7,6 +7,7 @@ import de.robolab.client.renderer.drawable.utils.SenderGrouping
 import de.robolab.client.renderer.drawable.utils.c
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.client.renderer.view.base.ViewColor
+import de.robolab.client.theme.utils.intensity
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.Color
 import de.robolab.common.utils.Vector
@@ -15,8 +16,11 @@ import kotlin.math.abs
 
 class SenderCharView(
     center: Vector,
-    initGrouping: SenderGrouping?
+    direction: Vector,
+    groupings: List<SenderGrouping>
 ) : BaseView() {
+
+    constructor(center: Vector, grouping: SenderGrouping): this(center, Vector.ONE, listOf(grouping))
 
     private val centerTransition = transition(center)
     val center by centerTransition
@@ -24,68 +28,52 @@ class SenderCharView(
         centerTransition.animate(center, duration, offset)
     }
 
-    private var oldGrouping: SenderGrouping? = null
-    private var newGrouping: SenderGrouping? = initGrouping
-
-    private val progressTransition = transition(0.0)
-    val progress by progressTransition
-    fun setGrouping(grouping: SenderGrouping?, duration: Double = animationTime, offset: Double = 0.0) {
-        progressTransition.resetValue(0.0)
-
-        oldGrouping = newGrouping
-        newGrouping = grouping
-
-        progressTransition.animate(1.0, duration, offset)
+    private val directionTransition = transition(direction)
+    val direction by directionTransition
+    fun setDirection(direction: Vector, duration: Double = animationTime, offset: Double = 0.0) {
+        directionTransition.animate(direction, duration, offset)
     }
 
-    override fun onCreate() {
-        progressTransition.resetValue(0.0)
-        progressTransition.animate(1.0, animationTime)
+    private var groupings: List<SenderGrouping> = emptyList()
+    private var groupingPositions: List<Vector> = emptyList()
+    fun setGroupings(groupings: List<SenderGrouping>) {
+        this.groupings = groupings
+        updatePositions()
+
+        requestRedraw()
+    }
+    fun setGrouping(grouping: SenderGrouping) = setGroupings(listOf(grouping))
+
+    private fun updatePositions() {
+        groupingPositions = (1..groupings.size).map {
+            it - (1.0 + groupings.size) / 2.0
+        }.map {
+            center + (direction.normalize() * POINT_OFFSET * it)
+        }
     }
 
-    override fun onDestroy(onFinish: () -> Unit) {
-        setGrouping(null)
+    init {
+        setGroupings(groupings)
 
-        animatableManager.onAnimationFinish {
-            onFinish()
+        centerTransition.onChange {
+            updatePositions()
+        }
+        directionTransition.onChange {
+            updatePositions()
         }
     }
 
     override fun onDraw(context: DrawContext) {
-        val old = oldGrouping
-        val new = newGrouping
-
-        if (new != null) {
-            if (progress >= 1.0) {
-                draw(context, center, new.viewColor, new.char)
-                return
-            }
-
-            if (old != null) {
-                draw(
-                    context,
-                    center,
-                    old.viewColor.interpolate(new.viewColor, progress),
-                    if (progress < 0.5) old.char else new.char
-                )
-            } else {
-                draw(
-                    context,
-                    center,
-                    ViewColor.TRANSPARENT.interpolate(new.viewColor, progress),
-                    new.char
-                )
-            }
-        } else {
-            if (old != null && progress < 1.0) {
-                draw(
-                    context,
-                    center,
-                    old.viewColor.interpolate(ViewColor.TRANSPARENT, progress),
-                    old.char
-                )
-            }
+        for ((grouping, position) in groupings.zip(groupingPositions)) {
+            draw(
+                context,
+                position,
+                grouping.viewColor,
+                grouping.char,
+                grouping.changes
+            )
         }
+
         super.onDraw(context)
     }
 
@@ -98,25 +86,49 @@ class SenderCharView(
     }
 
     companion object {
-        fun draw(context: DrawContext, position: Vector, color: ViewColor, char: Char) {
+        const val POINT_RADIUS = 0.07
+        const val POINT_OFFSET = POINT_RADIUS * 2.5
+
+        fun draw(context: DrawContext, position: Vector, color: ViewColor, char: Char, border: Boolean = false) {
             if (PreferenceStorage.renderSenderGrouping) {
                 val c = context.c(color)
+                val cBackground = if (border) c.interpolate(context.theme.plotter.primaryBackgroundColor, 0.6) else c
                 val b1 = context.theme.plotter.primaryBackgroundColor
                 val b2 = context.theme.plotter.lineColor
-                val textColor = (if (b1.contrast(c) * 1.5 > b2.contrast(c)) b1 else b2).a(c.alpha)
+                val textColor = (if (b1.contrast(cBackground) * 1.5 > b2.contrast(cBackground)) b1 else b2).a(c.alpha)
+
                 context.fillArc(
                     position,
-                    0.07,
+                    POINT_RADIUS,
                     0.0,
                     2 * PI,
-                    c
+                    cBackground
                 )
+
+                if (border) {
+                    context.strokeArc(
+                        position,
+                        POINT_RADIUS + 0.01,
+                        0.0,
+                        2 * PI,
+                        c,
+                        0.025
+                    )
+                }
+
                 context.fillText(
                     char.toString(),
                     position,
                     textColor,
                     alignment = ICanvas.FontAlignment.CENTER
                 )
+
+                if (border) {
+                    context.strokeLine(listOf(
+                        position + Vector(-0.03, -0.05),
+                        position + Vector(0.03, -0.05),
+                    ), textColor, 0.008)
+                }
             }
         }
     }

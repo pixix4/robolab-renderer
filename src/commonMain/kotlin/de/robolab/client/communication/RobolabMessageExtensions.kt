@@ -3,7 +3,6 @@ package de.robolab.client.communication
 import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.common.planet.*
 import de.robolab.common.planet.utils.PlanetVersion
-import de.robolab.common.testing.TestSuite
 
 
 fun List<RobolabMessage>.toServerPlanet(): Pair<Planet, List<PlanetPoint>> {
@@ -83,7 +82,7 @@ fun List<RobolabMessage>.toServerPlanet(): Pair<Planet, List<PlanetPoint>> {
         targets = targetList,
         testSuite = null,
         version = PlanetVersion.CURRENT,
-    ).generateMissingSenderGroupings() to visitedPointList
+    ).generateSenderGroupings() to visitedPointList
 }
 
 fun List<RobolabMessage>.toMqttPlanet(): Planet {
@@ -148,7 +147,7 @@ fun List<RobolabMessage>.toMqttPlanet(): Planet {
         targets = targetList,
         testSuite = null,
         version = PlanetVersion.CURRENT,
-    ).generateMissingSenderGroupings()
+    ).generateSenderGroupings()
 }
 
 fun List<RobolabMessage>.toRobot(groupNumber: Int?, backwardMotion: Boolean = false): RobotDrawable.Robot? {

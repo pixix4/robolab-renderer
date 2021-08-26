@@ -109,7 +109,7 @@ class InfoBarFileTraverse(
             drawable.importServerPlanet(
                 state?.planet?.importSenderGroups(
                     planetEntry.planetFile.planet, state.trail.locations
-                )?.generateMissingSenderGroupings() ?: Planet.EMPTY
+                )?.generateSenderGroupings() ?: Planet.EMPTY
             )
         }
     }

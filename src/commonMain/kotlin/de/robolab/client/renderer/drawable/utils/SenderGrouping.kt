@@ -6,6 +6,7 @@ import de.robolab.common.utils.Color
 
 data class SenderGrouping(
     val char: Char,
+    val changes: Boolean = false
 ) {
 
     val color = getColorByIndex(char.code - 65)

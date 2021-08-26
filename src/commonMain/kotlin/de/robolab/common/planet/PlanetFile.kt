@@ -74,7 +74,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
             paths = planet.paths - current
         )
 
-        setPlanet(p, groupHistory)
+        setPlanet(p.generateSenderGroupings(), groupHistory)
     }
 
     override fun toggleTargetExposure(target: PlanetPoint, exposure: PlanetPoint, groupHistory: Boolean) {
@@ -93,7 +93,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
             )
         }
 
-        setPlanet(p, groupHistory)
+        setPlanet(p.generateSenderGroupings(), groupHistory)
     }
 
     override fun togglePathExposure(path: PlanetPath, exposure: PlanetPathExposure, groupHistory: Boolean) {
@@ -102,20 +102,20 @@ class PlanetFile(planet: Planet) : IEditCallback {
 
         var newPath = current
         if (currentExposure != null) {
-            newPath = current.copy(
-                exposure = current.exposure - currentExposure
+            newPath = newPath.copy(
+                exposure = newPath.exposure - currentExposure
             )
         }
         if (exposure != currentExposure) {
-            newPath = current.copy(
-                exposure = current.exposure + exposure
+            newPath = newPath.copy(
+                exposure = newPath.exposure + exposure
             )
         }
 
         val p = planet.copy(
             paths = planet.paths - current + newPath
         )
-        setPlanet(p, groupHistory)
+        setPlanet(p.generateSenderGroupings(), groupHistory)
     }
 
     override fun togglePathSelect(point: PlanetPoint, direction: PlanetDirection, groupHistory: Boolean) {
@@ -279,7 +279,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
             }
 
             return try {
-                json.decodeFromString(Planet.serializer(), content)
+                json.decodeFromString(Planet.serializer(), content).generateSenderGroupings()
             } catch (e: SerializationException) {
                 e.printStackTrace()
                 Planet.EMPTY
@@ -288,7 +288,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
 
         fun stringify(planet: Planet): String {
             return try {
-                json.encodeToString(Planet.serializer(), planet)
+                json.encodeToString(Planet.serializer(), planet.generateSenderGroupings())
             } catch (e: SerializationException) {
                 ""
             }
