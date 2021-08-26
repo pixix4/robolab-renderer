@@ -163,7 +163,7 @@ abstract class AbsPlanetDrawable(
         paper = paperArea ?: Rectangle.ZERO
         centerOfPlanets = area?.center
         if (autoCentering) {
-            centerPlanet(duration = if (isFirstImport) 0.0 else TransformationInteraction.ANIMATION_TIME)
+            centerPlanet(duration = 0.0)
         }
 
         plotter?.updatePointer()
