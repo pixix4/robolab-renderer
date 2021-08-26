@@ -17,12 +17,12 @@ actual object EnvironmentStorage {
     }
 
     init {
+        val process = js("require('process')")
+        val Object = js("Object")
+
         val keyArray = Object.keys(process.env) as Array<String>
         storage = keyArray.map {
             it to process.env[it] as String
         }.toMap()
     }
 }
-
-external val Object: dynamic = definedExternally
-external val process: dynamic = definedExternally

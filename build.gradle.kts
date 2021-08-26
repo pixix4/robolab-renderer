@@ -10,8 +10,8 @@ val FRONTEND_VERSION = "4.0.1"
 val BACKEND_VERSION = "1.0.0"
 
 plugins {
-    kotlin("multiplatform") version "1.5.21"
-    kotlin("plugin.serialization") version "1.5.21"
+    kotlin("multiplatform") version "1.5.30"
+    kotlin("plugin.serialization") version "1.5.30"
     id("com.gorylenko.gradle-git-properties") version "2.2.4"
 }
 
@@ -19,10 +19,10 @@ repositories {
     mavenCentral()
 }
 
-val serializationVersion = "1.2.1"
-val datetimeVersion = "0.2.0"
-val coroutineVersion = "1.5.0"
-val ktorVersion = "1.6.0"
+val serializationVersion = "1.2.2"
+val datetimeVersion = "0.2.1"
+val coroutineVersion = "1.5.1"
+val ktorVersion = "1.6.2"
 
 @Suppress("LeakingThis")
 open class NodeExec : AbstractExecTask<NodeExec>(NodeExec::class.java) {
@@ -119,9 +119,9 @@ kotlin {
 
     sourceSets {
         all {
-            languageSettings.useExperimentalAnnotation("kotlin.contracts.ExperimentalContracts")
-            languageSettings.useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
-            languageSettings.useExperimentalAnnotation("kotlin.time.ExperimentalTime")
+            languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
+            languageSettings.optIn("kotlin.ExperimentalUnsignedTypes")
+            languageSettings.optIn("kotlin.time.ExperimentalTime")
         }
 
         val commonMain by getting {
@@ -456,10 +456,6 @@ val jsFrontendElectronTargetFile = tasks.create("jsFrontendElectronTargetFile") 
         file.writeText(
             """
             config.target = "electron-renderer"
-            
-            config.externals = {
-                "fs": "fs"
-            }
             """.trimIndent()
         )
     }
