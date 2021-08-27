@@ -17,7 +17,7 @@ actual class MqttClient actual constructor(
     }
 
     private fun onMessageCallback(topic: String, payload: dynamic) {
-        callback?.onMessage(topic, payload.toString())
+        callback?.onMessage(topic, payload.toString("utf8"))
     }
 
     private fun onDisconnectCallback() {
