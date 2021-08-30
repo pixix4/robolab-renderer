@@ -40,22 +40,7 @@ class BlockedView(
     }
 
     override fun onDraw(context: DrawContext) {
-        val color = context.c(color)
-
-        if (isPartial) {
-            context.fillArc(
-                center,
-                0.08,
-                0.0,
-                2.0 * PI,
-                context.c(ViewColor.PRIMARY_BACKGROUND_COLOR).a(0.8)
-            )
-            context.strokeArc(center, 0.07, 0.0, 2.0 * PI, color.a(0.8), 0.02)
-            context.strokeLine(line, color.a(0.8), 0.025)
-        } else {
-            context.fillArc(center, 0.08, 0.0, 2.0 * PI, color)
-            context.strokeLine(line, context.c(ViewColor.PRIMARY_BACKGROUND_COLOR).a(color.alpha), 0.025)
-        }
+        drawBlocked(context, center, color, isPartial, line)
 
         super.onDraw(context)
     }
@@ -70,5 +55,30 @@ class BlockedView(
 
     override fun onDestroy(onFinish: () -> Unit) {
         animatableManager.onFinish(onFinish)
+    }
+
+    companion object {
+        fun drawBlocked(context: DrawContext, center: Vector, color: ViewColor, isPartial: Boolean, cacheLine: List<Vector>? = null, scale: Double = 1.0) {
+            val color = context.c(color)
+
+            val line = cacheLine ?: listOf(
+                center - Vector(0.045 * scale, 0),
+                center + Vector(0.045 * scale, 0),
+            )
+            if (isPartial) {
+                context.fillArc(
+                    center,
+                    0.08 * scale,
+                    0.0,
+                    2.0 * PI,
+                    context.c(ViewColor.PRIMARY_BACKGROUND_COLOR).a(0.8)
+                )
+                context.strokeArc(center, 0.07 * scale, 0.0, 2.0 * PI, color.a(0.8), 0.02 * scale)
+                context.strokeLine(line, color.a(0.8), 0.025 * scale)
+            } else {
+                context.fillArc(center, 0.08 * scale, 0.0, 2.0 * PI, color)
+                context.strokeLine(line, context.c(ViewColor.PRIMARY_BACKGROUND_COLOR).a(color.alpha), 0.025 * scale)
+            }
+        }
     }
 }

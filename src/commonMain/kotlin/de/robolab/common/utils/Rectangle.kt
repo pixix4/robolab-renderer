@@ -140,6 +140,15 @@ data class Rectangle(
                 height
             )
         }
+
+        fun fromCenter(center: Vector, width: Double, height: Double): Rectangle {
+            return Rectangle(
+                center.left - width / 2,
+                center.top - height / 2,
+                width,
+                height
+            )
+        }
     }
 }
 

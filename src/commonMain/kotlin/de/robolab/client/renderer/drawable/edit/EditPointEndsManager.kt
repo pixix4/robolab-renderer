@@ -74,8 +74,8 @@ class EditPointEndsManager(
         fun setupPointEnd(
             coordinate: PlanetPoint,
             direction: PlanetDirection,
-            editCallback: IEditCallback?,
-            createPath: CreatePathManager?
+            editCallback: IEditCallback,
+            createPath: CreatePathManager
         ): SquareView {
             val squareView = SquareView(
                 coordinate.point + direction.toVector(PlottingConstraints.POINT_SIZE),
@@ -92,28 +92,20 @@ class EditPointEndsManager(
                 "Toggle path select",
                 PointerEvent.Type.DOWN,
                 altKey = true
-            ) {
-                editCallback != null
-            }
+            )
             squareView.registerPointerHint(
                 "Start new path",
                 PointerEvent.Type.DOWN,
-            ) {
-                editCallback != null
-            }
+            )
             squareView.registerPointerHint(
                 "Start new path (draw mode)",
                 PointerEvent.Type.DOWN,
                 ctrlKey = true
-            ) {
-                editCallback != null
-            }
+            )
             squareView.onPointerDown { event ->
-                val callback = editCallback ?: return@onPointerDown
-
                 if (event.altKey) {
-                    callback.togglePathSelect(coordinate, direction)
-                } else createPath?.startPath(coordinate, direction, event.ctrlKey)
+                    editCallback.togglePathSelect(coordinate, direction)
+                } else createPath.startPath(coordinate, direction, event.ctrlKey)
 
                 event.stopPropagation()
             }

@@ -75,7 +75,7 @@ class CreatePathManager(
             listeners += document.onPointerDrag.reference { event ->
                 val hoveredView = document.hoveredStack.lastOrNull() as? SquareView
 
-                val hoveredCoordinate = hoveredView?.extraGet<PlanetCoordinate>()
+                val hoveredCoordinate = hoveredView?.extraGet<PlanetPoint>()
                 val hoveredDirection = hoveredView?.extraGet<PlanetDirection>()
 
                 if (drawMode) {
@@ -130,7 +130,6 @@ class CreatePathManager(
 
                 val hoveredCoordinate = hoveredView?.extraGet<PlanetPoint>()
                 val hoveredDirection = hoveredView?.extraGet<PlanetDirection>()
-
 
                 if (hoveredCoordinate != null && hoveredDirection != null) {
                     if (drawMode && controlPoints.isEmpty()) {

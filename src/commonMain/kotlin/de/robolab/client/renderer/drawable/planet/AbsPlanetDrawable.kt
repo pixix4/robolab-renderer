@@ -44,6 +44,9 @@ abstract class AbsPlanetDrawable(
     val drawBackgroundProperty = property(true)
     var drawBackground by drawBackgroundProperty
 
+    val drawLegendProperty = property(false)
+    var drawLegend by drawLegendProperty
+
     val plotterProperty = property<PlotterWindow?>(null)
     var plotter by plotterProperty
 
@@ -73,6 +76,8 @@ abstract class AbsPlanetDrawable(
     private val gridNumbersView = GridNumberView()
     private val compassView = CompassView()
 
+    private val legendView = LegendView(Vector.ZERO, 2)
+
     private var planetLayers: List<IPlanetLayer> = emptyList()
 
     fun setPlanetLayers(vararg planetLayer: IPlanetLayer) {
@@ -100,6 +105,7 @@ abstract class AbsPlanetDrawable(
         ConditionalView("Grid numbers", drawGridNumbersProperty, gridNumbersView),
         ConditionalView("Compass", drawCompassProperty, compassView),
         ConditionalView("Planet name", drawNameProperty, nameView),
+        ConditionalView("Legend", drawLegendProperty, legendView),
     )
 
     var focusedElementsProperty = view.focusedStack.mapBinding { list ->

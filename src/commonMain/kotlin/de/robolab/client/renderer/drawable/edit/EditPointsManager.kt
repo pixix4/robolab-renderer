@@ -71,7 +71,7 @@ class EditPointsManager(
             }
         }
 
-        view.onPointerSecondaryAction {event ->
+        view.onPointerSecondaryAction { event ->
             event.stopPropagation()
 
             val startPoint = planet.startPoint.point

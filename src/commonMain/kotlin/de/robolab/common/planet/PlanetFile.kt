@@ -41,7 +41,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
         groupHistory: Boolean,
     ) {
         val p = planet.copy(
-            paths = planet.paths - PlanetPath(
+            paths = planet.paths + PlanetPath(
                 source = source,
                 sourceDirection = sourceDirection,
                 target = target,

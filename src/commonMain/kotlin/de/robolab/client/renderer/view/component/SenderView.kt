@@ -39,79 +39,6 @@ class SenderView(
         progressTransition.animate(1.0, duration, offset)
     }
 
-
-    private fun satellite(
-        context: DrawContext,
-        position: Vector,
-        start: Double,
-        extend: Double = 90.0,
-        color: ViewColor,
-        char: Char?,
-        directions: List<Vector>,
-        alpha: Double
-    ) {
-        val c = context.c(color)
-        context.strokeArc(
-            position,
-            PlottingConstraints.TARGET_RADIUS * 0.4,
-            start,
-            extend,
-            c,
-            PlottingConstraints.LINE_WIDTH
-        )
-        context.strokeArc(
-            position,
-            PlottingConstraints.TARGET_RADIUS * 0.7,
-            start,
-            extend,
-            c,
-            PlottingConstraints.LINE_WIDTH
-        )
-        context.strokeArc(
-            position,
-            PlottingConstraints.TARGET_RADIUS * 1.0,
-            start,
-            extend,
-            c,
-            PlottingConstraints.LINE_WIDTH
-        )
-
-        if (char != null) {
-            val center = position + Vector(PlottingConstraints.TARGET_RADIUS * 1.4, 0.0).rotate(start + extend / 2)
-            val cc = if (alpha < 1.0) ViewColor.TRANSPARENT.interpolate(color, alpha) else color
-
-            val r = 0.07
-            val a = PI / 3
-            val b = PI / 2 - a / 2
-            val h = r / sin(a / 2)
-
-            for (d in directions) {
-                val t = (d - center).normalize() * r
-
-                val points = listOf(
-                    center + t.rotate(b),
-                    center + t.rotate(-b),
-                    center + t.normalize() * h
-                )
-
-                context.fillPolygon(
-                    points,
-                    context.c(cc)
-                )
-
-                // ArrowView.draw(
-                //     context,
-                //     center,
-                //     center + t,
-                //     PlottingConstraints.LINE_WIDTH * 0.6,
-                //     cc
-                // )
-            }
-
-            SenderCharView.draw(context, center, cc, char)
-        }
-    }
-
     override fun onDraw(context: DrawContext) {
         val length = max(newColors.size, oldColors.size)
 
@@ -126,7 +53,6 @@ class SenderView(
 
             val newGroup = newColors.getOrNull(index)
             val oldGroup = oldColors.getOrNull(index)
-
 
             val steps = (length - (index % 4)) / 4 + 1
             val step = index / 4
@@ -192,5 +118,73 @@ class SenderView(
         setColors(emptyList())
 
         animatableManager.onFinish(onFinish)
+    }
+
+    companion object {
+
+        fun satellite(
+            context: DrawContext,
+            position: Vector,
+            start: Double,
+            extend: Double,
+            color: ViewColor,
+            char: Char?,
+            directions: List<Vector>,
+            alpha: Double,
+            scale: Double = 1.0
+        ) {
+            val c = context.c(color)
+            context.strokeArc(
+                position,
+                PlottingConstraints.TARGET_RADIUS * 0.4 * scale,
+                start,
+                extend,
+                c,
+                PlottingConstraints.LINE_WIDTH * scale
+            )
+            context.strokeArc(
+                position,
+                PlottingConstraints.TARGET_RADIUS * 0.7 * scale,
+                start,
+                extend,
+                c,
+                PlottingConstraints.LINE_WIDTH * scale
+            )
+            context.strokeArc(
+                position,
+                PlottingConstraints.TARGET_RADIUS * 1.0 * scale,
+                start,
+                extend,
+                c,
+                PlottingConstraints.LINE_WIDTH * scale
+            )
+
+            if (char != null) {
+                val center = position + Vector(PlottingConstraints.TARGET_RADIUS * 1.4 * scale, 0.0).rotate(start + extend / 2)
+                val cc = if (alpha < 1.0) ViewColor.TRANSPARENT.interpolate(color, alpha) else color
+
+                val r = 0.07 * scale
+                val a = PI / 3
+                val b = PI / 2 - a / 2
+                val h = r / sin(a / 2)
+
+                for (d in directions) {
+                    val t = (d - center).normalize() * r
+
+                    val points = listOf(
+                        center + t.rotate(b),
+                        center + t.rotate(-b),
+                        center + t.normalize() * h
+                    )
+
+                    context.fillPolygon(
+                        points,
+                        context.c(cc)
+                    )
+                }
+
+                SenderCharView.draw(context, center, cc, char)
+            }
+        }
     }
 }

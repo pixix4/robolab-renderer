@@ -63,7 +63,7 @@ class RobolabMessageProvider(private val mqttConnection: RobolabMqttConnection) 
             topic.substringAfterLast('/').substringAfterLast('-'),
             From.UNKNOWN,
             topic,
-            content.replace("\\n", "\n")
+            content.replace("\\n", "\n").replace("\\t", "\t")
         )
     }
 

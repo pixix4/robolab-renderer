@@ -58,24 +58,7 @@ class InteractiveWebCanvas(canvas: Canvas) : WebCanvas(canvas) {
         return point
     }
 
-    init {
-        context.lineCap = CanvasLineCap.BUTT
-        context.lineJoin = CanvasLineJoin.MITER
-
-        hammer.enablePan()
-        hammer.enablePinch()
-        hammer.enableRotate()
-        hammer.enablePress()
-        hammer.enableTap()
-
-        canvas.html.tabIndex = 0
-
-        canvas.onMouseMove { event ->
-            event.stopPropagation()
-            event.preventDefault()
-
-            listenerManager.onPointerMove(mouseEventToPointerEvent(event))
-        }
+    private fun initKeyEventHandlers() {
         canvas.onClick { event ->
             when (event.button) {
                 MOUSE_BUTTON_SECONDARY -> {
@@ -116,12 +99,6 @@ class InteractiveWebCanvas(canvas: Canvas) : WebCanvas(canvas) {
             event.preventDefault()
             event.stopPropagation()
             listenerManager.onPointerEnter(mouseEventToPointerEvent(event))
-        }
-        canvas.onMouseLeave { event ->
-            event.preventDefault()
-            event.stopPropagation()
-            listenerManager.onPointerLeave(mouseEventToPointerEvent(event))
-            lastPoint = null
         }
         canvas.onWheel { event ->
             event.stopPropagation()
@@ -178,6 +155,60 @@ class InteractiveWebCanvas(canvas: Canvas) : WebCanvas(canvas) {
                 event.stopPropagation()
             }
         }
+    }
+
+    private fun initMouseEventHandlers() {
+        var isMouseDown = false
+        canvas.onMouseDown { event ->
+            event.preventDefault()
+            event.stopPropagation()
+            listenerManager.onPointerDown(mouseEventToPointerEvent(event))
+            isMouseDown = true
+        }
+        canvas.onMouseUp { event ->
+            event.preventDefault()
+            event.stopPropagation()
+            listenerManager.onPointerUp(mouseEventToPointerEvent(event))
+            isMouseDown = false
+        }
+        canvas.onMouseLeave { event ->
+            event.preventDefault()
+            event.stopPropagation()
+            listenerManager.onPointerLeave(mouseEventToPointerEvent(event))
+            lastPoint = null
+            isMouseDown = false
+        }
+        canvas.onMouseMove { event ->
+            event.stopPropagation()
+            event.preventDefault()
+
+            if (isMouseDown) {
+                listenerManager.onPointerDrag(mouseEventToPointerEvent(event))
+            } else {
+                listenerManager.onPointerMove(mouseEventToPointerEvent(event))
+            }
+        }
+    }
+
+    private fun initHammerEventHandlers() {
+        canvas.onMouseMove { event ->
+            event.stopPropagation()
+            event.preventDefault()
+
+            listenerManager.onPointerMove(mouseEventToPointerEvent(event))
+        }
+        canvas.onMouseLeave { event ->
+            event.preventDefault()
+            event.stopPropagation()
+            listenerManager.onPointerLeave(mouseEventToPointerEvent(event))
+            lastPoint = null
+        }
+
+        hammer.enablePan()
+        hammer.enablePinch()
+        hammer.enableRotate()
+        hammer.enablePress()
+        hammer.enableTap()
 
         hammer.onPanStart { event ->
             event.preventDefault()
@@ -263,54 +294,70 @@ class InteractiveWebCanvas(canvas: Canvas) : WebCanvas(canvas) {
         hammer.onRotateEnd { event ->
             event.preventDefault()
         }
+    }
+
+    private fun initGestureEventHandlers() {
+        var lastGestureRotate = 0.0
+        var lastGestureScale = 1.0
+        Document.onGestureStart { event ->
+            event.preventDefault()
+
+            lastGestureRotate = event.rotation
+            lastGestureScale = event.scale
+        }
+        Document.onGestureChange { event ->
+            event.preventDefault()
+
+            val deltaRotate = (event.rotation - lastGestureRotate) / 180.0 * PI
+            val deltaScale = 1.0 - (lastGestureScale - event.scale) / 4
+
+            lastGestureRotate = event.rotation
+            lastGestureScale = event.scale
+
+            if (deltaScale != 1.0) {
+                listenerManager.onZoom(
+                    ZoomEvent(
+                        pointFromEvent(event),
+                        deltaScale,
+                        dimension,
+                        event.ctrlKey || event.metaKey,
+                        event.altKey,
+                        event.shiftKey
+                    )
+                )
+            }
+
+            if (deltaRotate != 0.0) {
+                listenerManager.onRotate(
+                    RotateEvent(
+                        pointFromEvent(event),
+                        deltaRotate,
+                        dimension,
+                        event.ctrlKey || event.metaKey,
+                        event.altKey,
+                        event.shiftKey
+                    )
+                )
+            }
+        }
+        Document.onGestureEnd { event ->
+            event.preventDefault()
+        }
+    }
+
+    init {
+        context.lineCap = CanvasLineCap.BUTT
+        context.lineJoin = CanvasLineJoin.MITER
+
+        canvas.html.tabIndex = 0
+
+        initKeyEventHandlers()
 
         if (js("!window.TouchEvent") == true) {
-            var lastGestureRotate = 0.0
-            var lastGestureScale = 1.0
-            Document.onGestureStart { event ->
-                event.preventDefault()
-
-                lastGestureRotate = event.rotation
-                lastGestureScale = event.scale
-            }
-            Document.onGestureChange { event ->
-                event.preventDefault()
-
-                val deltaRotate = (event.rotation - lastGestureRotate) / 180.0 * PI
-                val deltaScale = 1.0 - (lastGestureScale - event.scale) / 4
-
-                lastGestureRotate = event.rotation
-                lastGestureScale = event.scale
-
-                if (deltaScale != 1.0) {
-                    listenerManager.onZoom(
-                        ZoomEvent(
-                            pointFromEvent(event),
-                            deltaScale,
-                            dimension,
-                            event.ctrlKey || event.metaKey,
-                            event.altKey,
-                            event.shiftKey
-                        )
-                    )
-                }
-
-                if (deltaRotate != 0.0) {
-                    listenerManager.onRotate(
-                        RotateEvent(
-                            pointFromEvent(event),
-                            deltaRotate,
-                            dimension,
-                            event.ctrlKey || event.metaKey,
-                            event.altKey,
-                            event.shiftKey
-                        )
-                    )
-                }
-            }
-            Document.onGestureEnd { event ->
-                event.preventDefault()
-            }
+            initMouseEventHandlers()
+            initGestureEventHandlers()
+        } else {
+            initHammerEventHandlers()
         }
 
         electron { electron ->
