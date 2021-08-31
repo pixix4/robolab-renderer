@@ -17,7 +17,7 @@ class TargetAnimatableManager : AnimatableManager<PlanetTarget, TargetAnimatable
 
     override fun createAnimatable(obj: PlanetTarget, planet: Planet): TargetAnimatable {
         val key = planet.targets.filter { obj.point == it.point }.flatMap { it.exposure }.toSet()
-        val grouping = planet.senderGroupingsMap[key] ?: throw IllegalStateException()
+        val grouping = planet.senderGroupingsMap[key] ?: throw IllegalStateException("Sender-Grouping $key does not exist!")
 
         return TargetAnimatable(obj, SenderGrouping(grouping.first()))
     }

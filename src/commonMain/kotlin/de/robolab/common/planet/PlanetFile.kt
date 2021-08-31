@@ -58,7 +58,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
     }
 
     override fun updatePathSpline(path: PlanetPath, spline: PlanetSpline?, groupHistory: Boolean) {
-        val current = planet.paths.find { it.equalPath(path) } ?: throw NoSuchElementException()
+        val current = planet.paths.find { it.equalPath(path) } ?: throw NoSuchElementException("Cannot update spline of unknown path!")
         val p = planet.copy(
             paths = planet.paths - current + current.copy(
                 spline = spline
@@ -69,7 +69,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
     }
 
     override fun deletePath(path: PlanetPath, groupHistory: Boolean) {
-        val current = planet.paths.find { it.equalPath(path) } ?: throw NoSuchElementException()
+        val current = planet.paths.find { it.equalPath(path) } ?: throw NoSuchElementException("Cannot delete unknown path!")
         val p = planet.copy(
             paths = planet.paths - current
         )
@@ -78,13 +78,19 @@ class PlanetFile(planet: Planet) : IEditCallback {
     }
 
     override fun toggleTargetExposure(target: PlanetPoint, exposure: PlanetPoint, groupHistory: Boolean) {
-        val current = planet.targets.find { it.point == target } ?: throw NoSuchElementException()
+        val current = planet.targets.find { it.point == target } ?: PlanetTarget(target, emptySet())
         val p = if (exposure in current.exposure) {
-            planet.copy(
-                targets = planet.targets - current + current.copy(
-                    exposure = current.exposure - exposure
+            if (current.exposure.size == 1) {
+                planet.copy(
+                    targets = planet.targets - current
                 )
-            )
+            } else {
+                planet.copy(
+                    targets = planet.targets - current + current.copy(
+                        exposure = current.exposure - exposure
+                    )
+                )
+            }
         } else {
             planet.copy(
                 targets = planet.targets - current + current.copy(
@@ -97,7 +103,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
     }
 
     override fun togglePathExposure(path: PlanetPath, exposure: PlanetPathExposure, groupHistory: Boolean) {
-        val current = planet.paths.find { it.equalPath(path) } ?: throw NoSuchElementException()
+        val current = planet.paths.find { it.equalPath(path) } ?: throw NoSuchElementException("Cannot toggle exposure of unknown path!")
         val currentExposure = current.exposure.find { it.planetPoint == exposure.planetPoint }
 
         var newPath = current
@@ -160,7 +166,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
     }
 
     override fun togglePathHiddenState(path: PlanetPath, groupHistory: Boolean) {
-        val current = planet.paths.find { it.equalPath(path) } ?: throw NoSuchElementException()
+        val current = planet.paths.find { it.equalPath(path) } ?: throw NoSuchElementException("Cannot toggle hidden state of unknown path!")
         val p = planet.copy(
             paths = planet.paths - current + current.copy(
                 hidden = !current.hidden
@@ -171,7 +177,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
     }
 
     override fun setPathWeight(path: PlanetPath, weight: Long, groupHistory: Boolean) {
-        val pa = planet.paths.find { it.equalPath(path) } ?: throw NoSuchElementException()
+        val pa = planet.paths.find { it.equalPath(path) } ?: throw NoSuchElementException("Cannot set weight of unknown path!")
         val p = planet.copy(
             paths = planet.paths - pa + pa.copy(
                 weight = weight
