@@ -1,6 +1,7 @@
 package de.robolab.client.renderer.drawable.edit
 
 import de.robolab.client.renderer.PlottingConstraints
+import de.robolab.client.renderer.drawable.base.IAnimatableManager
 import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.extraPut
@@ -15,13 +16,13 @@ import kotlin.math.floor
 class EditPointEndsManager(
     private val editCallback: IEditCallback,
     private val createPath: CreatePathManager
-) {
+): IAnimatableManager {
 
-    val view = GroupView("Edit point ends manager")
+    override val view = GroupView("Edit point ends manager")
     private val map = mutableMapOf<PlanetPoint, GroupView>()
 
     private var planet = Planet.EMPTY
-    fun importPlanet(planet: Planet) {
+    override fun importPlanet(planet: Planet) {
         this.planet = planet
 
         updateViews()

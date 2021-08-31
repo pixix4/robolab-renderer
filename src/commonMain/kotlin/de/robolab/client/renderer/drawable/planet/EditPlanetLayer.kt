@@ -1,14 +1,17 @@
 package de.robolab.client.renderer.drawable.planet
 
 import de.robolab.client.renderer.canvas.DrawContext
+import de.robolab.client.renderer.drawable.base.IAnimatableManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.drawable.general.*
+import de.robolab.client.renderer.view.base.IView
 import de.robolab.client.renderer.view.component.GroupTransformView
 import de.robolab.common.planet.*
 import de.robolab.common.planet.utils.IPlanetValue
 
 class EditPlanetLayer(
     editCallback: IEditCallback,
+    editPointsView: IAnimatableManager,
     contextTransformation: (DrawContext) -> DrawContext = { it }
 ) : IPlanetLayer {
 
@@ -25,6 +28,7 @@ class EditPlanetLayer(
         contextTransformation,
         targetManager,
         senderManager,
+        editPointsView,
         pathManager,
         pathSelectManager,
         pointManager,

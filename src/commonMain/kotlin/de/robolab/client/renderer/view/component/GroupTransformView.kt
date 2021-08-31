@@ -2,6 +2,7 @@ package de.robolab.client.renderer.view.component
 
 import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.drawable.base.AnimatableManager
+import de.robolab.client.renderer.drawable.base.IAnimatableManager
 import de.robolab.client.renderer.view.base.BaseView
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Vector
@@ -11,12 +12,12 @@ class GroupTransformView(
     val contextTransformation: (DrawContext) -> DrawContext
 ) : BaseView(tag) {
 
-    private var animatableManagerList = emptyList<AnimatableManager<*, *>>()
+    private var animatableManagerList = emptyList<IAnimatableManager>()
 
     constructor(
         tag: String?,
         contextTransformation: (DrawContext) -> DrawContext,
-        vararg viewList: AnimatableManager<*, *>
+        vararg viewList: IAnimatableManager
     ) : this(
         tag,
         contextTransformation

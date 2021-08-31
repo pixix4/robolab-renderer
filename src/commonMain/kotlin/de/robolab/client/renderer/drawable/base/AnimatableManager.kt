@@ -3,14 +3,14 @@ package de.robolab.client.renderer.drawable.base
 import de.robolab.client.renderer.view.component.GroupView
 import de.robolab.common.planet.Planet
 
-abstract class AnimatableManager<T, A : Animatable<T>> {
+abstract class AnimatableManager<T, A : Animatable<T>>: IAnimatableManager {
 
     private val animatableList = mutableListOf<A>()
 
     abstract fun getObjectList(planet: Planet): List<T>
     abstract fun createAnimatable(obj: T, planet: Planet): A
 
-    val view = GroupView(this::class.simpleName)
+    override val view = GroupView(this::class.simpleName)
 
     open fun objectEquals(oldValue: T, newValue: T): Boolean {
         return oldValue == newValue
@@ -30,7 +30,7 @@ abstract class AnimatableManager<T, A : Animatable<T>> {
 
     private var planet = Planet.EMPTY
     protected var objectList: List<T> = emptyList()
-    fun importPlanet(planet: Planet) {
+    override fun importPlanet(planet: Planet) {
         val oldPlanet = this.planet
         this.planet = planet
 

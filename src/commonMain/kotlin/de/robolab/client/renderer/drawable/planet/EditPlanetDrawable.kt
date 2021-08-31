@@ -17,7 +17,7 @@ class EditPlanetDrawable(
     private val editPoints = EditPointsManager(editCallback)
     private val editPointEnds = EditPointEndsManager(editCallback, createPath)
 
-    private val planetLayer = EditPlanetLayer(editCallback)
+    private val planetLayer = EditPlanetLayer(editCallback, editPointEnds)
 
     fun importPlanet(planet: Planet) {
         planetLayer.importPlanet(planet)
@@ -33,7 +33,6 @@ class EditPlanetDrawable(
 
         underlayerViews.add(editPoints.view)
 
-        overlayerViews.add(editPointEnds.view)
         overlayerViews.add(createPath.view)
 
         view.onKeyPress { event ->

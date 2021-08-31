@@ -58,12 +58,21 @@ class PlanetFile(planet: Planet) : IEditCallback {
     }
 
     override fun updatePathSpline(path: PlanetPath, spline: PlanetSpline?, groupHistory: Boolean) {
-        val current = planet.paths.find { it.equalPath(path) } ?: throw NoSuchElementException("Cannot update spline of unknown path!")
-        val p = planet.copy(
-            paths = planet.paths - current + current.copy(
-                spline = spline
+        val p = if (planet.startPoint.path.equalPath(path)) {
+            planet.copy(
+                startPoint = planet.startPoint.copy(
+                    spline = spline
+                )
             )
-        )
+        } else {
+            val current = planet.paths.find { it.equalPath(path) }
+                ?: throw NoSuchElementException("Cannot update spline of unknown path!")
+            planet.copy(
+                paths = planet.paths - current + current.copy(
+                    spline = spline
+                )
+            )
+        }
 
         setPlanet(p, groupHistory)
     }
