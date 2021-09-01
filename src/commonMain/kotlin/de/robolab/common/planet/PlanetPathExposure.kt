@@ -37,7 +37,7 @@ data class PlanetPathExposure(
     override fun translate(delta: PlanetPoint) = Vector(x, y).plus(delta.point).let { p ->
         copy(
             x = p.x.roundToLong(),
-            y = p.x.roundToLong(),
+            y = p.y.roundToLong(),
             changes = changes?.translate(delta)
         )
     }
@@ -46,7 +46,7 @@ data class PlanetPathExposure(
         Vector(x, y).rotate(direction.angle, origin.point).let { p ->
             copy(
                 x = p.x.roundToLong(),
-                y = p.x.roundToLong(),
+                y = p.y.roundToLong(),
                 changes = changes?.rotate(direction, origin)
             )
         }

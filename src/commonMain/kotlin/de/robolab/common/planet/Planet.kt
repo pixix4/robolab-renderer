@@ -84,10 +84,10 @@ data class Planet(
         var lastChar = 'A'
         for (set in missing) {
             while (groupings.any { it.name == lastChar.toString() }) {
-                lastChar += 1
+                lastChar = if (lastChar == 'Z') 'a' else lastChar + 1
             }
             groupings += PlanetSenderGrouping(lastChar.toString(), set)
-            lastChar += 1
+            lastChar = if (lastChar == 'Z') 'a' else lastChar + 1
         }
 
         return copy(

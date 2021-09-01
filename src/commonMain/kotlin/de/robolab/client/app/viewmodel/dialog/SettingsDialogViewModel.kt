@@ -89,15 +89,9 @@ class SettingsDialogViewModel(
                 val enabledProperty =
                     !(PreferenceStorage.useRemoteExamStateProperty or !PreferenceStorage.examActiveProperty)
 
-                labeledEntry("Small Planet") {
+                labeledEntry("Exam planet ids") {
                     input(
-                        PreferenceStorage.examSmallProperty,
-                        enabledProperty = enabledProperty,
-                    )
-                }
-                labeledEntry("Large Planet") {
-                    input(
-                        PreferenceStorage.examLargeProperty,
+                        PreferenceStorage.examPlanetsProperty,
                         enabledProperty = enabledProperty,
                     )
                 }

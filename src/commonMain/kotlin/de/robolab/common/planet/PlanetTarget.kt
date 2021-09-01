@@ -26,7 +26,7 @@ data class PlanetTarget(
         copy(
             exposure = exposure.translate(delta),
             x = p.x.roundToLong(),
-            y = p.x.roundToLong()
+            y = p.y.roundToLong()
         )
     }
 
@@ -35,7 +35,7 @@ data class PlanetTarget(
             copy(
                 exposure = exposure.rotate(direction, origin),
                 x = p.x.roundToLong(),
-                y = p.x.roundToLong()
+                y = p.y.roundToLong()
             )
         }
 }

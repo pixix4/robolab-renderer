@@ -126,11 +126,8 @@ object PreferenceStorage : TypedStorage() {
     val examActiveProperty = item("exam.active", false)
     var examActive by examActiveProperty
 
-    val examSmallProperty = item("exam.small", "")
-    var examSmall by examSmallProperty
-
-    val examLargeProperty = item("exam.large", "")
-    var examLarge by examLargeProperty
+    val examPlanetsProperty = item("exam.planets", "")
+    var examPlanets by examPlanetsProperty
 
     init {
         logLevelProperty.onChange.now {

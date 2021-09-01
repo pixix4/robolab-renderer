@@ -21,7 +21,7 @@ data class PlanetPathSelect(
         get() = PlanetPoint(x, y)
 
     override fun translate(delta: PlanetPoint) = Vector(x, y).plus(delta.point).let { p ->
-        copy(x = p.x.roundToLong(), y = p.x.roundToLong())
+        copy(x = p.x.roundToLong(), y = p.y.roundToLong())
     }
 
     override fun rotate(direction: Planet.RotateDirection, origin: PlanetPoint) =
@@ -29,7 +29,7 @@ data class PlanetPathSelect(
             copy(
                 direction = this.direction.rotate(direction, origin),
                 x = p.x.roundToLong(),
-                y = p.x.roundToLong()
+                y = p.y.roundToLong()
             )
         }
 }

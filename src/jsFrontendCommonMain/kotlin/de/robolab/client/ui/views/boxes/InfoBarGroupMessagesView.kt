@@ -83,21 +83,17 @@ class InfoBarGroupMessagesView(
                     textView("Exam")
                     classList.bind("active", PreferenceStorage.examActiveProperty)
 
-                    buttonGroup {
-                        button("Small Planet") {
-                            onClick {
-                                viewModel.openSendDialogSmallExamPlanet()
+                    +ViewFactoryRegistry.create(buildFormContent {
+                        for (pair in PreferenceStorage.examPlanets.split(";")) {
+                            val (name, planetName) = pair.split("=", limit = 2)
+                            button(name) {
+                                onClick {
+                                    viewModel.openSendDialogExamPlanet(planetName)
+                                }
                             }
                         }
-
-                        button("Large Planet") {
-                            onClick {
-                                viewModel.openSendDialogLargeExamPlanet()
-                            }
-                        }
-                    }
+                    })
                 }
-
             }
             resizeBox(0.5) {
                 table("info-bar-group-view-content") {

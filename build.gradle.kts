@@ -122,6 +122,8 @@ kotlin {
             languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
             languageSettings.optIn("kotlin.ExperimentalUnsignedTypes")
             languageSettings.optIn("kotlin.time.ExperimentalTime")
+            languageSettings.optIn("kotlinx.coroutines.DelicateCoroutinesApi")
+            languageSettings.optIn("kotlinx.serialization.ExperimentalSerializationApi")
         }
 
         val commonMain by getting {

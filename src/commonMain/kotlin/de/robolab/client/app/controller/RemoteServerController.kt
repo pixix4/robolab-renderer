@@ -111,8 +111,7 @@ class RemoteServerController() {
 
                 PreferenceStorage.examActive = info.isExam
                 if (info.isExam) {
-                    PreferenceStorage.examSmall = info.smallInfo?.name ?: ""
-                    PreferenceStorage.examLarge = info.largeInfo?.name ?: ""
+                    PreferenceStorage.examPlanets = info.planets.joinToString(";") { "${it.name}=${it.info.name}" }
                 }
             } catch (e: Exception) {
 

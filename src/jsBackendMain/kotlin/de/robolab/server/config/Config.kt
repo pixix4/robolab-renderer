@@ -70,17 +70,8 @@ object Config : TypedStorage() {
         //Is exam-mode enabled?
         val examEnabled by item("info.examEnabled", false)
 
-        //ID of the largePlanet. MUST be non-null if examEnabled is true
-        val examPlanetLargeID by item("info.examPlanetLargeID", "MORE-HUGE")
-
-        //ID of the smallPlanet. MUST be non-null if examEnabled is true
-        val examPlanetSmallID by item("info.examPlanetSmallID", "LESS-TINY")
-
-        //Fallback-Name for smallPlanet when it could not be found via ID
-        val examPlanetLargeName by item("info.examPlanetLargeName", "ExminatorBig")
-
-        //Fallback-Name for smallPlanet when it could not be found via ID
-        val examPlanetSmallName by item("info.examPlanetSmallName", "ExminatorSmall")
+        //id1;id2;id3
+        val examPlanets by item("info.examPlanets", "MORE-HUGE")
     }
 
     //--------MQTT--------
@@ -161,33 +152,3 @@ object Config : TypedStorage() {
         val groupProjectsGroupID by item("auth.groupProjectsGroupID", 192)
     }
 }
-
-suspend fun IPlanetMetaStore.getSmallExamPlanetInfo(): PlanetJsonInfo =
-    this.retrieveInfo(Config.Info.examPlanetSmallID)?.asPlanetJsonInfo() ?: PlanetJsonInfo(
-        ID(Config.Info.examPlanetSmallID),
-        Config.Info.examPlanetSmallName,
-        Instant.DISTANT_PAST
-    )
-
-
-suspend fun IPlanetStore.getSmallExamPlanetInfo(): PlanetJsonInfo =
-    this.getInfo(Config.Info.examPlanetSmallID)?.asPlanetJsonInfo() ?: PlanetJsonInfo(
-        ID(Config.Info.examPlanetSmallID),
-        Config.Info.examPlanetSmallName,
-        Instant.DISTANT_PAST
-    )
-
-suspend fun IPlanetMetaStore.getLargeExamPlanetInfo(): PlanetJsonInfo =
-    this.retrieveInfo(Config.Info.examPlanetLargeID)?.asPlanetJsonInfo() ?: PlanetJsonInfo(
-        ID(Config.Info.examPlanetLargeID),
-        Config.Info.examPlanetLargeName,
-        Instant.DISTANT_PAST
-    )
-
-
-suspend fun IPlanetStore.getLargeExamPlanetInfo(): PlanetJsonInfo =
-    this.getInfo(Config.Info.examPlanetLargeID)?.asPlanetJsonInfo() ?: PlanetJsonInfo(
-        ID(Config.Info.examPlanetSmallID),
-        Config.Info.examPlanetLargeName,
-        Instant.DISTANT_PAST
-    )

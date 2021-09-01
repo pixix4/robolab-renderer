@@ -42,7 +42,7 @@ data class PlanetStartPoint(
         copy(
             spline = spline.translate(delta),
             x = p.x.roundToLong(),
-            y = p.x.roundToLong()
+            y = p.y.roundToLong()
         )
     }
 
@@ -52,7 +52,7 @@ data class PlanetStartPoint(
                 orientation = orientation.rotate(direction, origin),
                 spline = spline.rotate(direction, origin),
                 x = p.x.roundToLong(),
-                y = p.x.roundToLong()
+                y = p.y.roundToLong()
             )
         }
 }

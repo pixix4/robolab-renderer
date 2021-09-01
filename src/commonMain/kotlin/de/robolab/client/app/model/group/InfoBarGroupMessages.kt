@@ -65,7 +65,7 @@ class InfoBarGroupMessages(
         DialogController.open(dialog)
     }
 
-    private fun openSendDialogExamPlanet(planetName: String) {
+    fun openSendDialogExamPlanet(planetName: String) {
         val controller = SendMessageDialogController(
             attemptProperty.value.groupName,
             planetNameProperty.value,
@@ -79,14 +79,6 @@ class InfoBarGroupMessages(
 
         val dialog = SendMessageDialogViewModel(controller)
         DialogController.open(dialog)
-    }
-
-    fun openSendDialogSmallExamPlanet() {
-        openSendDialogExamPlanet(PreferenceStorage.examSmall)
-    }
-
-    fun openSendDialogLargeExamPlanet() {
-        openSendDialogExamPlanet(PreferenceStorage.examLarge)
     }
 
     val messageCountStringProperty = messages.join(selectedIndexProperty) { messages, index ->
