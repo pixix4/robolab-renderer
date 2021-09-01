@@ -70,7 +70,7 @@ abstract class AbsPlanetDrawable(
         40.0,
         "",
         ViewColor.LINE_COLOR.interpolate(ViewColor.GRID_TEXT_COLOR, 0.5),
-        ICanvas.FontAlignment.RIGHT,
+        ICanvas.FontAlignment.LEFT,
         ICanvas.FontWeight.BOLD
     )
     private val gridNumbersView = GridNumberView()
@@ -163,8 +163,8 @@ abstract class AbsPlanetDrawable(
         val paperArea = area?.expand(1.0)
         backgroundView.setRectangle(paperArea)
         nameView.text = planetList.asReversed().firstOrNull { it.name.isNotEmpty() }?.name ?: ""
-        val edge = paperArea?.bottomRight ?: Vector.ZERO
-        nameView.setSource(edge - Vector(0.3, 0.4))
+        val edge = paperArea?.bottomLeft ?: Vector.ZERO
+        nameView.setSource(edge + Vector(0.3, -0.4))
 
         paper = paperArea ?: Rectangle.ZERO
         centerOfPlanets = area?.center

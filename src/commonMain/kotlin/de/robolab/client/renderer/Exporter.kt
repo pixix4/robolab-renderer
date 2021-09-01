@@ -34,7 +34,7 @@ object Exporter {
         drawNumbers: Boolean = true,
         theme: ITheme = DefaultLightTheme
     ) {
-        drawable.drawCompass = false
+        drawable.drawCompass = true
         drawable.drawName = drawName
         drawable.drawGridNumbers = drawNumbers
 

@@ -118,10 +118,10 @@ class PathAnimatable(
 
     private fun getArrowPosition(): Pair<Vector, Vector> {
         return if (isOneWayPath) {
-            val (first, second) = getOrthogonal(1.0, false)
-
-            val second2 = first + (first - second).orthogonal().normalize() * PlottingConstraints.ARROW_LENGTH
-            first to second2
+            val gradient = view.evalGradient(1.0)
+            val target = view.eval(1.0) - gradient * PlottingConstraints.POINT_SIZE / 4
+            val source = target + (gradient * PlottingConstraints.POINT_SIZE * 1.3)
+            target to source
         } else {
             val (first, second) = getOrthogonal(0.5, false)
             val length = (second - first).orthogonal().normalize() * PlottingConstraints.ARROW_LENGTH / 2
@@ -131,10 +131,10 @@ class PathAnimatable(
     }
 
     private val arrowView = getArrowPosition().let { (first, second) ->
-        ArrowView(
+        LabeledArrowView(
             first,
             second,
-            PlottingConstraints.LINE_WIDTH * 0.65,
+            reference.sourceDirection.opposite().letter,
             ViewColor.LINE_COLOR
         )
     }.also {
@@ -173,6 +173,7 @@ class PathAnimatable(
         val (first, second) = getArrowPosition()
         arrowView.setSource(first)
         arrowView.setTarget(second)
+        arrowView.setLabel(reference.sourceDirection.opposite().letter)
 
         pathEditManager?.onUpdate()
     }
