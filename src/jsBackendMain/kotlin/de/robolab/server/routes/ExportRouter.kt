@@ -103,6 +103,7 @@ object ExportRouter {
         Exporter.renderToCanvas(
             planetFile.planet,
             canvas,
+            drawCompass = true,
             drawName = drawName,
             theme = theme
         )
@@ -126,6 +127,7 @@ object ExportRouter {
         Exporter.renderToCanvas(
             planetFile.planet,
             canvas,
+            drawCompass = true,
             drawName = drawName,
             theme = theme
         )
@@ -171,6 +173,7 @@ object ExportRouter {
         Exporter.renderToCanvas(
             planetFile.planet,
             canvas,
+            drawCompass = true,
             drawName = drawName,
             theme = theme
         )
@@ -192,6 +195,7 @@ object ExportRouter {
         Exporter.renderToCanvas(
             planetFile.planet,
             canvas,
+            drawCompass = true,
             drawName = drawName,
             theme = theme
         )

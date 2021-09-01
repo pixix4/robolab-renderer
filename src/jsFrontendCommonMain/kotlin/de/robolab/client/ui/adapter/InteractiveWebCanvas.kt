@@ -164,6 +164,7 @@ class InteractiveWebCanvas(canvas: Canvas) : WebCanvas(canvas) {
             event.stopPropagation()
             listenerManager.onPointerDown(mouseEventToPointerEvent(event))
             isMouseDown = true
+            canvas.html.focus()
         }
         canvas.onMouseUp { event ->
             event.preventDefault()

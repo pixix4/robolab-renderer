@@ -17,6 +17,7 @@ object Exporter {
     fun renderToCanvas(
         planet: Planet,
         canvas: ICanvas,
+        drawCompass: Boolean = false,
         drawName: Boolean = true,
         drawNumbers: Boolean = true,
         theme: ITheme = DefaultLightTheme
@@ -24,17 +25,18 @@ object Exporter {
         val drawable = SimplePlanetDrawable()
         drawable.importPlanet(planet)
 
-        renderToCanvas(drawable, canvas, drawName, drawNumbers, theme)
+        renderToCanvas(drawable, canvas, drawCompass, drawName, drawNumbers, theme)
     }
 
     fun renderToCanvas(
         drawable: AbsPlanetDrawable,
         canvas: ICanvas,
+        drawCompass: Boolean = false,
         drawName: Boolean = true,
         drawNumbers: Boolean = true,
         theme: ITheme = DefaultLightTheme
     ) {
-        drawable.drawCompass = true
+        drawable.drawCompass = drawCompass
         drawable.drawName = drawName
         drawable.drawGridNumbers = drawNumbers
 
