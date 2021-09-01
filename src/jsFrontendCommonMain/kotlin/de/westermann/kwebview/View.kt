@@ -180,7 +180,7 @@ abstract class View(view: HTMLElement = createHtmlView()) {
         onMouseEnter.bind(view, "mouseenter")
         onMouseLeave.bind(view, "mouseleave")
 
-        if (js("!!window.TouchEvent") == true) {
+        if (Document.isTouchSupported) {
             onTouchStart.bind(view, "touchstart")
             onTouchEnd.bind(view, "touchend")
             onTouchMove.bind(view, "touchmove")

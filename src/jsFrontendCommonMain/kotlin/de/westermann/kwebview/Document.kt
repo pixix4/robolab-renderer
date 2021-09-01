@@ -33,7 +33,7 @@ object Document {
     val onGestureChange = EventHandler<GestureEvent>()
     val onGestureEnd = EventHandler<GestureEvent>()
 
-    val isTouchSupported = js("!!window.TouchEvent") == true
+    val isTouchSupported = js("'ontouchstart' in document.documentElement") == true
 
     init {
         onClick.bind(document, "click")

@@ -353,11 +353,11 @@ class InteractiveWebCanvas(canvas: Canvas) : WebCanvas(canvas) {
 
         initKeyEventHandlers()
 
-        if (js("!window.TouchEvent") == true) {
+        if (Document.isTouchSupported) {
+            initHammerEventHandlers()
+        } else {
             initMouseEventHandlers()
             initGestureEventHandlers()
-        } else {
-            initHammerEventHandlers()
         }
 
         electron { electron ->
