@@ -105,8 +105,7 @@ class Document(val drawable: AbsPlanetDrawable) : BaseView() {
 
         if (oldStack == newStack || newStack.any { it.disableInteraction }) return
 
-        focusedStack.clear()
-        focusedStack.addAll(newStack)
+        focusedStack.atomicClearAndAddAll(newStack)
 
         for (index in 0 until max(oldStack.size, newStack.size)) {
             val ov = oldStack.getOrNull(index)

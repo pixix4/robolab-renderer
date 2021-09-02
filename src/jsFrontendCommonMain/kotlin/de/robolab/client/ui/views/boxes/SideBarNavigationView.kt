@@ -17,6 +17,7 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.clientPosition
 import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
+import de.westermann.kwebview.sync
 import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -145,12 +146,18 @@ class SideBarNavigationView(private val viewModel: INavigationBarList) : ViewCol
             textView(entry.nameProperty)
             textView(entry.subtitleProperty)
             boxView {
-                entry.statusIconProperty.onChange.now {
-                    clear()
-                    for (icon in entry.statusIconProperty.value) {
-                        iconView(icon)
+                sync(
+                    entry.statusIconProperty,
+                    create = { item ->
+                        IconView(item)
+                    },
+                    update = { view, item ->
+                        view.icon = item
+                    },
+                    delete = { view ->
+                        view.icon = null
                     }
-                }
+                )
             }
 
             classList.bind("disabled", !entry.enabledProperty)

@@ -44,6 +44,9 @@ interface ObservableMutableList<T> : ObservableMutableCollection<T>, ObservableL
     override fun removeAt(index: Int): T
     override fun set(index: Int, element: T): T
 
+    fun atomicClearAndAdd(element: T)
+    fun atomicClearAndAddAll(elements: Collection<T>)
+
     override fun subList(fromIndex: Int, toIndex: Int): ObservableMutableList<T> {
         return ObservableMutableSubList(this, fromIndex until toIndex)
     }

@@ -118,7 +118,6 @@ abstract class AbsPlanetDrawable(
         }
     }
 
-
     private var paper: Rectangle = Rectangle.ZERO
     private var centerOfPlanets: Vector? = null
 

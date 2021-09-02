@@ -29,13 +29,15 @@ object InfoRouter {
                 if (Config.Info.examEnabled) {
                     this.put("planets", buildJsonArray {
                         for (nameIdPair in Config.Info.examPlanets.split(";")) {
-                            val (name, id) = nameIdPair.split("=", limit = 2)
-                            add(buildJsonObject {
-                                put("name", name)
-                                put("info", PlanetJsonInfo.serializer()
-                                    .encode(PlanetRouter.planetStore.getInfo(id)?.asPlanetJsonInfo()
-                                        ?: throw NullPointerException("Planet $id does not exists!")))
-                            })
+                            if ('=' in nameIdPair) {
+                                val (name, id) = nameIdPair.split("=", limit = 2)
+                                add(buildJsonObject {
+                                    put("name", name)
+                                    put("info", PlanetJsonInfo.serializer()
+                                        .encode(PlanetRouter.planetStore.getInfo(id)?.asPlanetJsonInfo()
+                                            ?: throw NullPointerException("Planet $id does not exists!")))
+                                })
+                            }
                         }
                     })
                 }

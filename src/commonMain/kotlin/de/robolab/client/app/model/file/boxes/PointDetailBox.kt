@@ -4,42 +4,59 @@ import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.app.viewmodel.buildForm
 import de.robolab.client.renderer.drawable.general.PointAnimatableManager
 import de.robolab.common.planet.PlanetFile
+import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.observeConst
+import de.westermann.kobserve.property.property
 
-class PointDetailBox(point: PointAnimatableManager.AttributePoint, planetFile: PlanetFile): ViewModel{
+class PointDetailBox(
+    initPoint: PointAnimatableManager.AttributePoint,
+    planetFile: PlanetFile,
+) : ViewModel {
 
-    val coordinate = point.coordinate
 
-    val position = "${coordinate.x}, ${coordinate.y}"
-    private val isHidden = point.hidden
+    val pointProperty = property(initPoint)
+    var point by pointProperty
 
-    val pathSelect = planetFile.planet.pathSelects.filter {
-        it.point == coordinate
-    }.map {
-        it.direction.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+    val coordinate = pointProperty.mapBinding { it.coordinate }
+
+    val position = coordinate.mapBinding { "${it.x}, ${it.y}" }
+    private val isHidden = pointProperty.mapBinding { it.hidden }
+
+    val pathSelect = coordinate.mapBinding { c ->
+        planetFile.planet.pathSelects.filter {
+            it.point == c
+        }.joinToString("; ") { planetPathSelect ->
+            planetPathSelect.direction.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        }
     }
 
-    private val targetsSend = planetFile.planet.targets.filter {
-        coordinate in it.exposure
-    }.map {
-        "${it.x}, ${it.y}"
-    }
-
-    private val targetExposedAt = planetFile.planet.targets.filter {
-        it.point == coordinate
-    }.flatMap { t ->
-        t.exposure.map {
+    private val targetsSend = coordinate.mapBinding { c ->
+        planetFile.planet.targets.filter {
+            c in it.exposure
+        }.joinToString("; ") {
             "${it.x}, ${it.y}"
         }
     }
 
-    private val pathSend = planetFile.planet.paths.filter { path ->
-        path.exposure.any { exposure ->
-            exposure.planetPoint == coordinate
+    private val targetExposedAt = coordinate.mapBinding { c ->
+        planetFile.planet.targets.filter {
+            it.point == c
+        }.flatMap { t ->
+            t.exposure.map {
+                "${it.x}, ${it.y}"
+            }
+        }.joinToString("; ")
+    }
+
+    private val pathSend = coordinate.mapBinding { c ->
+        planetFile.planet.paths.filter { path ->
+            path.exposure.any { exposure ->
+                exposure.planetPoint == c
+            }
+        }.joinToString("; ") {
+            "${it.source.x},${it.source.y},${it.sourceDirection.letter} -> " +
+                    "${it.target.x},${it.target.y},${it.targetDirection.letter}"
         }
-    }.map {
-        "${it.source.x},${it.source.y},${it.sourceDirection.letter} -> " +
-                "${it.target.x},${it.target.y},${it.targetDirection.letter}"
     }
 
     val content = buildForm {
@@ -48,28 +65,19 @@ class PointDetailBox(point: PointAnimatableManager.AttributePoint, planetFile: P
                 input(position)
             }
             labeledEntry("Hidden") {
-                input(isHidden.observeConst())
+                input(isHidden)
             }
-        }
-        labeledGroup("Targets send") {
-            for (i in targetsSend) {
-                entry {
-                    input(i)
-                }
+            labeledEntry("Path select") {
+                input(pathSelect)
             }
-        }
-        labeledGroup("Target exposed at") {
-            for (i in targetExposedAt) {
-                entry {
-                    input(i)
-                }
+            labeledEntry("Targets send") {
+                input(targetsSend)
             }
-        }
-        labeledGroup("Path send") {
-            for (i in pathSend) {
-                entry {
-                    input(i)
-                }
+            labeledEntry("Targets exposed at") {
+                input(targetExposedAt)
+            }
+            labeledEntry("Path send") {
+                input(pathSend)
             }
         }
     }

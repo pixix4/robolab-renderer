@@ -8,31 +8,48 @@ import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.planet.PlanetFile
 import de.robolab.common.planet.PlanetPath
 import de.robolab.common.utils.toFixed
+import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlin.math.roundToInt
 
-class PathDetailBox(path: PlanetPath, planetFile: PlanetFile) : ViewModel {
+class PathDetailBox(
+    initPath: PlanetPath,
+    planetFile: PlanetFile,
+) : ViewModel {
 
-    val source = "${path.source.x}, ${path.source.y}, ${path.sourceDirection.letter}"
-    val target = "${path.target.x}, ${path.target.y}, ${path.targetDirection.letter}"
+    val pathProperty = property(initPath)
+    var path by pathProperty
+
+    val source = pathProperty.mapBinding {
+        "${it.source.x}, ${it.source.y}, ${it.sourceDirection.letter}"
+    }
+    val target = pathProperty.mapBinding {
+        "${it.target.x}, ${it.target.y}, ${it.targetDirection.letter}"
+    }
 
     private val isHiddenProperty = property(getter = {
         path.hidden
     }, setter = {
         planetFile.togglePathHiddenState(path)
-    })
+    }, pathProperty)
     private val weightProperty = property(getter = {
         path.weight
     }, setter = {
         planetFile.setPathWeight(path, it)
-    })
+    }, pathProperty)
 
-    val length = getPathLengthString(planetFile.planet.version, path)
+    val length = pathProperty.mapBinding {
+        getPathLengthString(planetFile.planet.version, it)
+    }
 
-    private val classification = PathClassification.classify(planetFile.planet.version, path)
+    private val classification = pathProperty.mapBinding {
+        PathClassification.classify(planetFile.planet.version, it)
+    }
 
-    private val pathExposedAt = path.exposure.map {
-        "${it.x}, ${it.y}"
+    private val pathExposedAt = pathProperty.mapBinding { p ->
+        p.exposure.joinToString("; ") {
+            "(${it.x}, ${it.y})"
+        }
     }
 
     val content = buildForm {
@@ -52,35 +69,26 @@ class PathDetailBox(path: PlanetPath, planetFile: PlanetFile) : ViewModel {
             labeledEntry("Length") {
                 input(length)
             }
+            labeledEntry("Exposure") {
+                input(pathExposedAt)
+            }
         }
         labeledGroup("Classification") {
             labeledEntry("Classifier") {
-                input(classification?.classifier?.desc ?: "")
+                input(classification.mapBinding { it?.classifier?.desc ?: "" })
             }
             labeledEntry("Difficulty") {
-                input(classification?.difficulty?.name?.lowercase()
-                    ?.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-                    ?: "")
+                input(classification.mapBinding {
+                    it?.difficulty?.name?.lowercase()
+                        ?.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                        ?: ""
+                })
             }
             labeledEntry("Score") {
-                input(classification?.score?.toString() ?: "")
+                input(classification.mapBinding { it?.score?.toString() ?: "" })
             }
             labeledEntry("Curviness") {
-                input(classification?.completeSegment?.curviness?.roundToInt()?.toString() ?: "")
-            }
-            labeledGroup("Segments") {
-                for (i in classification?.segments ?: emptyList()) {
-                    entry {
-                        input(i.toString())
-                    }
-                }
-            }
-        }
-        labeledGroup("Path exposed at") {
-            for (i in pathExposedAt) {
-                entry {
-                    input(i)
-                }
+                input(classification.mapBinding { it?.completeSegment?.curviness?.roundToInt()?.toString() ?: "" })
             }
         }
     }

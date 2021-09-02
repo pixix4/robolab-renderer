@@ -37,12 +37,39 @@ class InfoBarFileView(
     override val topToolBar = buildFormContent { }
     override val bottomToolBar = buildFormContent { }
 
+    private var pointDetailBox: PointDetailBox? = null
+    private var pathDetailBox: PathDetailBox? = null
     private val statisticsDetailBox = PlanetStatisticsDetailBox(planetEntry.planetFile)
+
     val detailBoxProperty: ObservableValue<ViewModel> = drawable.focusedElementsProperty.mapBinding { list ->
         when (val first = list.firstOrNull()) {
-            is PointAnimatableManager.AttributePoint -> PointDetailBox(first, planetEntry.planetFile)
-            is PlanetPath -> PathDetailBox(first, planetEntry.planetFile)
-            else -> statisticsDetailBox
+            is PointAnimatableManager.AttributePoint -> {
+                val box = pointDetailBox
+
+                if (box == null) {
+                    val b = PointDetailBox(first, planetEntry.planetFile)
+                    pointDetailBox = b
+                    b
+                } else {
+                    box.point = first
+                    box
+                }
+            }
+            is PlanetPath -> {
+                val box = pathDetailBox
+
+                if (box == null) {
+                    val b = PathDetailBox(first, planetEntry.planetFile)
+                    pathDetailBox = b
+                    b
+                } else {
+                    box.path = first
+                    box
+                }
+            }
+            else -> {
+                statisticsDetailBox
+            }
         }
     }
 }

@@ -48,6 +48,31 @@ class SimpleObservableMutableList<T>(
         emitOnClear(elements)
     }
 
+    override fun atomicClearAndAdd(element: T) {
+        val oldElements = backingField.toList()
+        backingField.clear()
+        val isAdded = backingField.add(element)
+
+        emitOnClear(oldElements)
+        if (isAdded) {
+            emitOnAdd(size - 1, element)
+        }
+    }
+
+    override fun atomicClearAndAddAll(elements: Collection<T>) {
+        val oldElements = backingField.toList()
+        backingField.clear()
+        val isAdded = backingField.addAll(elements)
+
+        emitOnClear(oldElements)
+        if (isAdded) {
+            for (i in size - elements.size until size) {
+                emitOnAdd(i, backingField[i], false)
+            }
+            onChange.emit()
+        }
+    }
+
     override fun remove(element: T): Boolean {
         val index = backingField.indexOf(element)
         val isRemoved = backingField.remove(element)

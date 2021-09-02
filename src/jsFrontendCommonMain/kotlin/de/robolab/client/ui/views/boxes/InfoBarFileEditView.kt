@@ -10,59 +10,14 @@ import de.robolab.client.utils.runAsync
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.bindView
-import de.westermann.kwebview.components.BoxView
-import de.westermann.kwebview.components.boxView
-import de.westermann.kwebview.components.iconView
-import de.westermann.kwebview.components.textView
+import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.scrollBoxView
+import de.westermann.kwebview.sync
 import org.w3c.dom.HTMLElement
 
 class InfoBarFileEditView(
     private val viewModel: InfoBarFileEdit,
 ) : ViewCollection<View>() {
-
-    private fun updateActionList(box: BoxView) {
-        box.clear()
-
-        for (hint in viewModel.actionHintList.value) {
-            box.boxView {
-                style {
-                    padding = "0.3rem 0.4rem"
-                    whiteSpace = "nowrap"
-                }
-
-                boxView {
-                    style {
-                        display = "inline-block"
-                    }
-                    iconView(
-                        when (hint.action) {
-                            is ActionHint.Action.KeyboardAction -> MaterialIcon.KEYBOARD
-                            is ActionHint.Action.PointerAction -> MaterialIcon.MOUSE
-                        }
-                    )
-                }
-                boxView {
-                    style {
-                        display = "inline-block"
-                        lineHeight = "1rem"
-                        paddingLeft = "0.4rem"
-                    }
-                    textView(hint.action.toString()) {
-                        style {
-                            display = "block"
-                            fontSize = "0.8rem"
-                        }
-                    }
-                    textView(hint.description) {
-                        style {
-                            display = "block"
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     init {
         scrollBoxView {
@@ -112,10 +67,18 @@ class InfoBarFileEditView(
                 }
             }
             resizeBox(0.2) {
-                viewModel.actionHintList.onChange {
-                    updateActionList(this)
-                }
-                updateActionList(this)
+                sync(
+                    viewModel.actionHintList,
+                    create = { item ->
+                        ActionHintView(item)
+                    },
+                    update = { view, item ->
+                        view.hint = item
+                    },
+                    delete = { view ->
+                        view.hint = null
+                    }
+                )
             }
         }
     }
@@ -140,4 +103,59 @@ external class TextEditor(container: HTMLElement) {
     fun setCursor(line: Int, ch: Int)
 
     fun refresh()
+}
+
+class ActionHintView(hint: ActionHint): ViewCollection<View>() {
+
+    var hint: ActionHint? = hint
+        set(value) {
+            field = value
+
+            iconView.icon = when (hint?.action) {
+                is ActionHint.Action.KeyboardAction -> MaterialIcon.KEYBOARD
+                is ActionHint.Action.PointerAction -> MaterialIcon.MOUSE
+                else -> null
+            }
+            actionTextView.text = hint?.action?.toString() ?: ""
+            descriptionTextView.text = hint?.description ?: ""
+        }
+
+    lateinit var iconView: IconView
+    lateinit var actionTextView: TextView
+    lateinit var descriptionTextView: TextView
+
+    init {
+        style {
+            padding = "0.3rem 0.4rem"
+            whiteSpace = "nowrap"
+        }
+
+        boxView {
+            style {
+                display = "inline-block"
+            }
+            iconView = iconView()
+        }
+        boxView {
+            style {
+                display = "inline-block"
+                lineHeight = "1rem"
+                paddingLeft = "0.4rem"
+            }
+            actionTextView = textView {
+                style {
+                    display = "block"
+                    fontSize = "0.8rem"
+                }
+            }
+            descriptionTextView = textView {
+                style {
+                    display = "block"
+                }
+            }
+        }
+
+        this.hint = hint
+    }
+
 }

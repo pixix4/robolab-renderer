@@ -10,6 +10,7 @@ import org.w3c.dom.events.FocusEvent
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.WheelEvent
+import kotlin.js.Date
 
 abstract class View(view: HTMLElement = createHtmlView()) {
 
@@ -169,6 +170,8 @@ abstract class View(view: HTMLElement = createHtmlView()) {
     val onDrop = EventHandler<DragEvent>()
 
     init {
+        // console.log(Date.now(), "Create new view ${this::class.simpleName}", view)
+
         onClick.bind(view, "click")
         onAuxClick.bind(view, "auxclick")
         onDblClick.bind(view, "dblclick")

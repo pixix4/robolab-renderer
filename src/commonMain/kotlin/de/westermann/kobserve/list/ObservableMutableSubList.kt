@@ -38,6 +38,16 @@ class ObservableMutableSubList<T>(
         }
     }
 
+    override fun atomicClearAndAdd(element: T) {
+        clear()
+        add(element)
+    }
+
+    override fun atomicClearAndAddAll(elements: Collection<T>) {
+        clear()
+        addAll(elements)
+    }
+
     override fun remove(element: T): Boolean {
         return parent.remove(element)
     }

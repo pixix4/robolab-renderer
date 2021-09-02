@@ -7,13 +7,8 @@ import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.ui.ViewFactory
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.property.mapBinding
-import de.westermann.kwebview.View
-import de.westermann.kwebview.ViewCollection
-import de.westermann.kwebview.bindView
-import de.westermann.kwebview.components.BoxView
-import de.westermann.kwebview.components.boxView
-import de.westermann.kwebview.components.iconView
-import de.westermann.kwebview.components.textView
+import de.westermann.kwebview.*
+import de.westermann.kwebview.components.*
 import de.westermann.kwebview.extra.listFactory
 
 class StatusBarView(
@@ -53,12 +48,18 @@ class StatusBarView(
         }
 
         boxView {
-            viewModel.contentList.onChange.now {
-                clear()
-                for (item in viewModel.contentList.value) {
-                    textView(item)
+            sync(
+                viewModel.contentList,
+                create = { item ->
+                    TextView(item)
+                },
+                update = { view, item ->
+                    view.text = item
+                },
+                delete = { view ->
+                    view.text = ""
                 }
-            }
+            )
         }
 
         boxView {

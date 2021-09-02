@@ -30,8 +30,8 @@ class SendMessageDialogViewModel(
                 input(controller.topicProperty)
             }
             labeledEntry("From") {
-                select(controller.fromProperty) {
-                    it.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                select(controller.fromProperty) { from ->
+                    from.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
                 }
             }
             labeledEntry("Type") {

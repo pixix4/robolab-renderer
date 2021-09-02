@@ -4,10 +4,12 @@ import de.robolab.common.utils.Vector
 import de.robolab.common.utils.Rectangle
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.event.EventHandler
+import de.westermann.kobserve.event.now
 import org.w3c.dom.DOMRect
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.*
 import kotlinx.browser.document
+import kotlin.math.max
 
 inline fun <reified V : HTMLElement> createHtmlView(tag: String? = null): V {
     var tagName: String
@@ -57,14 +59,20 @@ fun delete(thing: dynamic, key: String) {
 }
 
 fun <T, V : View> ViewCollection<V>.bindView(property: ObservableValue<T>, block: (T) -> V) {
-    var view = block(property.value)
+    var value = property.value
+    var view = block(value)
     +view
 
     property.onChange {
-        val new = block(property.value)
-        if (new != view) {
-            replace(view, new)
-            view = new
+        val newValue = property.value
+
+        if (value != newValue) {
+            value = newValue
+            val newView = block(newValue)
+            if (newView != view) {
+                replace(view, newView)
+                view = newView
+            }
         }
     }
 }
@@ -76,5 +84,42 @@ fun View.bindStyleProperty(name: String, property: ObservableValue<String>) {
     html.style.setProperty(name, property.value)
     property.onChange {
         html.style.setProperty(name, property.value)
+    }
+}
+
+fun <TView : View, TItem : Any> ViewCollection<in TView>.sync(
+    list: List<TItem>,
+    create: (TItem) -> TView,
+    update: (TView, TItem) -> Unit,
+    delete: (TView) -> Unit,
+) {
+    for (i in 0 until max(this.size, list.size)) {
+        val view = this.getOrNull(i) as? TView
+        val item = list.getOrNull(i)
+
+        if (item == null) {
+            if (view == null) {
+                TODO("Sync ViewCollection with List: both Collections returned null")
+            } else {
+                delete(view)
+            }
+        } else {
+            if (view == null) {
+                add(create(item))
+            } else {
+                update(view, item)
+            }
+        }
+    }
+}
+
+fun <TView : View, TItem : Any> ViewCollection<in TView>.sync(
+    listProperty: ObservableValue<List<TItem>>,
+    create: (TItem) -> TView,
+    update: (TView, TItem) -> Unit,
+    delete: (TView) -> Unit,
+) {
+    listProperty.onChange.now {
+        sync(listProperty.value, create, update, delete)
     }
 }
