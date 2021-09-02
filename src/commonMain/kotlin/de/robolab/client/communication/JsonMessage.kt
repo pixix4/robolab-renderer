@@ -101,6 +101,7 @@ controller adjust: from=debug; message
 enum class Type {
     @SerialName("ready")
     READY {
+        override val serialName = "ready"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.EXPLORER, this)
             message.requireFrom(From.CLIENT)
@@ -110,6 +111,7 @@ enum class Type {
 
     @SerialName("planet")
     PLANET {
+        override val serialName = "planet"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.EXPLORER, this)
             message.requireFrom(From.SERVER)
@@ -124,6 +126,7 @@ enum class Type {
 
     @SerialName("setPlanet")
     SET_PLANET {
+        override val serialName = "setPlanet"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.CONTROLLER, this)
             val planetName = message.payload.planetName ?: message.payload.message?.let {
@@ -138,6 +141,7 @@ enum class Type {
 
     @SerialName("path")
     PATH {
+        override val serialName = "path"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.PLANET, this)
             message.requireFrom(From.SERVER, From.CLIENT)
@@ -150,6 +154,7 @@ enum class Type {
 
     @SerialName("pathSelect")
     PATH_SELECT {
+        override val serialName = "pathSelect"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.PLANET, this)
             message.requireFrom(From.CLIENT, From.SERVER)
@@ -168,6 +173,7 @@ enum class Type {
 
     @SerialName("pathUnveiled")
     PATH_UNVEILED {
+        override val serialName = "pathUnveiled"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.PLANET, this)
             message.requireFrom(From.SERVER)
@@ -180,6 +186,7 @@ enum class Type {
 
     @SerialName("target")
     TARGET {
+        override val serialName = "target"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.PLANET, this)
             message.requireFrom(From.SERVER)
@@ -192,6 +199,7 @@ enum class Type {
 
     @SerialName("targetReached")
     TARGET_REACHED {
+        override val serialName = "targetReached"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.EXPLORER, this)
             message.requireFrom(From.CLIENT)
@@ -204,6 +212,7 @@ enum class Type {
 
     @SerialName("explorationCompleted")
     EXPLORATION_COMPLETED {
+        override val serialName = "explorationCompleted"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.EXPLORER, this)
             message.requireFrom(From.CLIENT)
@@ -216,6 +225,7 @@ enum class Type {
 
     @SerialName("done")
     DONE {
+        override val serialName = "done"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.EXPLORER, this)
             message.requireFrom(From.SERVER)
@@ -228,6 +238,7 @@ enum class Type {
 
     @SerialName("testplanet")
     TEST_PLANET {
+        override val serialName = "testplanet"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.EXPLORER, this)
             message.requireFrom(From.CLIENT)
@@ -240,6 +251,7 @@ enum class Type {
 
     @SerialName("adjust")
     ADJUST {
+        override val serialName = "adjust"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.CONTROLLER, this)
             message.requireFrom(From.DEBUG)
@@ -253,6 +265,7 @@ enum class Type {
 
     @SerialName("reload")
     RELOAD {
+        override val serialName = "reload"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.CONTROLLER, this)
             message.requireFrom(From.DEBUG)
@@ -266,6 +279,7 @@ enum class Type {
 
     @SerialName("notice")
     NOTICE {
+        override val serialName = "notice"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.CONTROLLER, this)
             message.requireFrom(From.DEBUG)
@@ -283,6 +297,7 @@ enum class Type {
 
     @SerialName("error")
     ERROR {
+        override val serialName = "error"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.CONTROLLER, this)
             message.requireFrom(From.DEBUG)
@@ -292,6 +307,7 @@ enum class Type {
 
     @SerialName("syntax")
     SYNTAX {
+        override val serialName = "syntax"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.COMTEST, this)
             message.requireFrom(From.DEBUG)
@@ -304,6 +320,8 @@ enum class Type {
     };
 
     abstract fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage
+
+    abstract val serialName: String
 }
 
 @Serializable

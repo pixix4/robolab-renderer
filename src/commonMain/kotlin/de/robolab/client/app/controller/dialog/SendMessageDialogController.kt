@@ -2,9 +2,14 @@ package de.robolab.client.app.controller.dialog
 
 import de.robolab.client.communication.*
 import de.robolab.common.planet.PlanetDirection
+import de.robolab.common.utils.Logger
 import de.robolab.common.utils.RobolabJson
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class SendMessageDialogController(
     private val groupNumber: String,
@@ -300,9 +305,81 @@ class SendMessageDialogController(
             }
         }
 
+        Logger(this).info { "${topicProperty.value}: $message" }
+
+        val jsonMessage = buildJsonObject {
+            put("from", message.from.name.lowercase())
+            put("type", message.type.serialName)
+            put("payload", buildJsonObject {
+                if (message.payload.planetName != null) {
+                    put("planetName", message.payload.planetName)
+                }
+                if (message.payload.startX != null) {
+                    put("startX", message.payload.startX)
+                }
+                if (message.payload.startY != null) {
+                    put("startY", message.payload.startY)
+                }
+                if (message.payload.startDirection != null) {
+                    put("startDirection", message.payload.startDirection.let { value ->
+                        when (value) {
+                            PlanetDirection.North -> 0
+                            PlanetDirection.East -> 90
+                            PlanetDirection.South -> 180
+                            PlanetDirection.West -> 270
+                        }
+                    })
+                }
+                if (message.payload.startOrientation != null) {
+                    put("startOrientation", message.payload.startOrientation.let { value ->
+                        when (value) {
+                            PlanetDirection.North -> 0
+                            PlanetDirection.East -> 90
+                            PlanetDirection.South -> 180
+                            PlanetDirection.West -> 270
+                        }
+                    })
+                }
+                if (message.payload.endX != null) {
+                    put("endX", message.payload.endX)
+                }
+                if (message.payload.endY != null) {
+                    put("endY", message.payload.endY)
+                }
+                if (message.payload.endDirection != null) {
+                    put("endDirection", message.payload.endDirection.let { value ->
+                        when (value) {
+                            PlanetDirection.North -> 0
+                            PlanetDirection.East -> 90
+                            PlanetDirection.South -> 180
+                            PlanetDirection.West -> 270
+                        }
+                    })
+                }
+                if (message.payload.targetX != null) {
+                    put("targetX", message.payload.targetX)
+                }
+                if (message.payload.targetY != null) {
+                    put("targetY", message.payload.targetY)
+                }
+                if (message.payload.pathStatus != null) {
+                    put("pathStatus", message.payload.pathStatus.name.lowercase())
+                }
+                if (message.payload.pathWeight != null) {
+                    put("pathWeight", message.payload.pathWeight)
+                }
+                if (message.payload.message != null) {
+                    put("message", message.payload.message)
+                }
+                if (message.payload.debug != null) {
+                    put("debug", message.payload.debug)
+                }
+            })
+        }
+
         return messageManager.sendMessage(
             topicProperty.value,
-            RobolabJson.encodeToString(JsonMessage.serializer(), message)
+            RobolabJson.encodeToString(jsonMessage)
         )
     }
 }
