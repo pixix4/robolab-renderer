@@ -83,16 +83,20 @@ class InfoBarGroupMessagesView(
                     textView("Exam")
                     classList.bind("active", PreferenceStorage.examActiveProperty)
 
-                    +ViewFactoryRegistry.create(buildFormContent {
-                        for (pair in PreferenceStorage.examPlanets.split(";")) {
-                            val (name, planetName) = pair.split("=", limit = 2)
-                            button(name) {
-                                onClick {
-                                    viewModel.openSendDialogExamPlanet(planetName)
+                    val pairList = PreferenceStorage.examPlanets.split(";")
+
+                    if (pairList.isNotEmpty()) {
+                        +ViewFactoryRegistry.create(buildFormContent {
+                            for (pair in pairList) {
+                                if ('=' in pair) {
+                                    val (name, planetName) = pair.split("=", limit = 2)
+                                    button(name) {
+                                        viewModel.openSendDialogExamPlanet(planetName)
+                                    }
                                 }
                             }
-                        }
-                    })
+                        })
+                    }
                 }
             }
             resizeBox(0.5) {
@@ -232,7 +236,8 @@ class InfoBarGroupMessagesView(
 
             iconView.classList += "info-bar-group-icon"
             iconView.classList += fromToClass(from)
-            iconView.title = from.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+            iconView.title =
+                from.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
 
             return iconView
         }
@@ -248,7 +253,8 @@ class InfoBarGroupMessagesView(
                     }
                 }
                 iconView.classList += fromToClass(from.value)
-                iconView.title = from.value.name.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                iconView.title = from.value.name.lowercase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
             }
 
             return iconView
@@ -258,7 +264,7 @@ class InfoBarGroupMessagesView(
     class InfoBarGroupViewCell(
         private val message: RobolabMessage,
         private val content: InfoBarGroupMessages,
-        private val scrollView: BoxView
+        private val scrollView: BoxView,
     ) : TableRow() {
 
         private val index = content.messages.indexOf(message)
@@ -288,7 +294,8 @@ class InfoBarGroupMessagesView(
             classList.bind("selected", selectedProperty)
 
             cell {
-                textView(formatDateTime(Instant.fromEpochMilliseconds(message.metadata.time), InfoBarGroupMessages.TIME_FORMAT_DETAILED))
+                textView(formatDateTime(Instant.fromEpochMilliseconds(message.metadata.time),
+                    InfoBarGroupMessages.TIME_FORMAT_DETAILED))
             }
             cell {
                 +InfoBarGroupMessagesView.generateFromIcon(message.metadata.from)

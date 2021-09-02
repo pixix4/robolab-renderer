@@ -68,7 +68,7 @@ class InfoBarFileEdit(
             val group = lastChange == change
             lastChange = change
 
-            planetEntry.planetFile.parse(value, group)
+            planetEntry.planetFile.parse(value, groupHistory = group, ignoreInvalid = true)
         }
 
         override fun get(): String {

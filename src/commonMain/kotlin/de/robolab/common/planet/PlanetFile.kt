@@ -22,10 +22,14 @@ class PlanetFile(planet: Planet) : IEditCallback {
         }
     }
 
-    fun parse(content: String, groupHistory: Boolean = false) {
-        val p = Companion.parse(content)
+    fun parse(content: String, groupHistory: Boolean = false, ignoreInvalid: Boolean = false) {
+        val p = tryParse(content)
 
-        setPlanet(p, groupHistory)
+        if (p != null) {
+            setPlanet(p, groupHistory)
+        } else if (!ignoreInvalid) {
+            setPlanet(Planet.EMPTY, groupHistory)
+        }
     }
 
     fun stringify(): String {
@@ -289,6 +293,10 @@ class PlanetFile(planet: Planet) : IEditCallback {
         }
 
         fun parse(content: String): Planet {
+            return tryParse(content) ?: Planet.EMPTY
+        }
+
+        fun tryParse(content: String): Planet? {
             if (content.isBlank()) {
                 return Planet.EMPTY
             }
@@ -297,9 +305,10 @@ class PlanetFile(planet: Planet) : IEditCallback {
                 json.decodeFromString(Planet.serializer(), content).generateSenderGroupings()
             } catch (e: SerializationException) {
                 e.printStackTrace()
-                Planet.EMPTY
+                null
             }
         }
+
 
         fun stringify(planet: Planet): String {
             return try {
