@@ -1,6 +1,7 @@
 package de.robolab.client.app.controller
 
 import de.robolab.client.app.controller.ui.*
+import de.robolab.client.app.model.group.GroupLiveAttemptPlanetDocument
 import de.robolab.client.app.repository.DatabaseMessageStorage
 import de.robolab.client.app.repository.MemoryMessageStorage
 import de.robolab.client.app.repository.MessageRepository
@@ -12,6 +13,7 @@ import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.cache.MemoryCacheStorage
 import de.robolab.client.utils.cache.PersistentCacheStorage
 import de.robolab.common.utils.ConsoleGreeter
+import de.robolab.common.utils.Logger
 import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
@@ -125,8 +127,17 @@ class MainController(private val args: Args) {
                     val group = messageRepository.createEmptyGroup(groupName) ?: continue
                     val attempt = messageRepository.getLatestAttempt(group.groupId)
 
+                    val document = GroupLiveAttemptPlanetDocument(
+                        group,
+                        attempt,
+                        messageRepository,
+                        messageManager,
+                        filePlanetController,
+                        uiController
+                    )
+
                     withContext(Dispatchers.Main) {
-                        TODO()
+                        contentController.openDocumentAtIndex(document, index, false)
                     }
                 }
             }

@@ -24,6 +24,13 @@ class ContentSplitController : IRenderInstance {
         activeNodeProperty.value.content.openDocument(document, newTab)
     }
 
+    fun openDocumentAtIndex(document: IPlanetDocument, index: Int, newTab: Boolean) {
+        val nodeList = serialize()
+        val tab = nodeList.getOrNull(index) ?: return
+        tab.select()
+        tab.content.openDocument(document, newTab)
+    }
+
     fun splitEntryVertical(node: Node = activeNodeProperty.value) = node.splitVertical()
     fun splitEntryHorizontal(node: Node = activeNodeProperty.value) = node.splitHorizontal()
     fun closeEntry(entry: Entry = activeNodeProperty.value, simplify: Boolean = true) {

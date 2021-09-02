@@ -17,6 +17,10 @@ class ContentController {
         content.openDocument(document, newTab)
     }
 
+    fun openDocumentAtIndex(document: IPlanetDocument, index: Int, newTab: Boolean) {
+        content.openDocumentAtIndex(document, index, newTab)
+    }
+
     val activeTabProperty = content.activeNodeProperty.flatMapBinding { it.content.activeProperty }
     val plotterWindowProperty = activeTabProperty.flatMapBinding { it.plotterManager.activePlotterProperty }
 
