@@ -32,7 +32,7 @@ class RemoteServerController() {
     private var lastPingServer: PingRobolabServer? = null
     val remoteServerProperty = remoteServerUriProperty.mapBinding { uri ->
         if (uri == null) null else {
-            val host = uri.substringAfter("://").trimEnd('/')
+            val host = uri.substringAfter("://").substringBefore("?").trimEnd('/')
             lastPingServer?.stopPing()
             val restServer = RESTRobolabServer(host, 0, !uri.startsWith("http://"))
 
