@@ -2,7 +2,7 @@ package de.robolab.client.app.controller.testing
 
 import de.robolab.client.app.model.testing.FilterEntry
 import de.robolab.client.app.model.testing.TestRunEntry
-import de.robolab.common.testing.TestGoal
+import de.robolab.common.planet.test.PlanetTestGoal
 import de.robolab.common.testing.TestState
 import de.robolab.common.testing.TestStatus
 import de.robolab.common.testing.TestTraversal
@@ -60,12 +60,12 @@ class TestTraversalController(
             addAll(traversal.planet.targetGoals.map {
                 FilterEntry.GoalFilterEntry(
                     if (it == null) throw IllegalArgumentException("Location for Target-Goal may not be null")
-                    else TestGoal.Target(it)
+                    else PlanetTestGoal.Target(it)
                 )
             } + (traversal.planet.explorationGoals.map {
                 FilterEntry.GoalFilterEntry(
-                    if (it == null) TestGoal.Explore
-                    else TestGoal.ExploreCoordinate(it)
+                    if (it == null) PlanetTestGoal.Explore
+                    else PlanetTestGoal.ExploreCoordinate(it)
                 )
             }))
         }

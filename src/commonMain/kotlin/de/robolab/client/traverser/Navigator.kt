@@ -5,11 +5,18 @@ import de.robolab.client.traverser.navigation.Route
 import de.robolab.client.traverser.navigation.getNeighbours
 import de.robolab.common.planet.*
 import de.robolab.common.planet.utils.LookupPlanet
+import de.robolab.common.utils.Logger
 
 interface INavigator<NS> where NS : INavigatorState {
     val planet: LookupPlanet
     val seedState: NS
-    fun drovePath(current: NS, path: PlanetPath, receivedPaths: List<PlanetPath>, receivedTargets: List<PlanetTarget>): NS
+    fun drovePath(
+        current: NS,
+        path: PlanetPath,
+        receivedPaths: List<PlanetPath>,
+        receivedTargets: List<PlanetTarget>
+    ): NS
+
     fun prepareLeaveNode(current: NS, location: PlanetPoint, arrivingPath: PlanetPath): Pair<List<NS>, Boolean>
     fun prepareLeaveNodeInDirection(
         current: NavigatorState,
@@ -33,8 +40,9 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
         path: PlanetPath,
         receivedPaths: List<PlanetPath>,
         receivedTargets: List<PlanetTarget>
-    ): NavigatorState =
-        receivedPaths.fold(
+    ): NavigatorState = receivedPaths
+        .flatMap { (if (it.blocked && !it.isOneWayPath) it.splitPath().toList() else listOf(it)) }
+        .fold(
             current.copy(
                 pickedDirection = null, currentTarget = receivedTargets.lastOrNull()
                     ?: current.currentTarget
@@ -58,7 +66,8 @@ class Navigator(override val planet: LookupPlanet) : INavigator<NavigatorState> 
                 paths = listOf(null)
         } else {
             paths =
-                targetDijkstra(current, location, currentTargetLocation).map { it.firstStep?.direction }.distinct()
+                targetDijkstra(current, location, currentTargetLocation).map { it.firstStep?.direction }
+                    .distinct()
             exploring = paths.isEmpty()
             if (exploring) {
                 paths = exploreDijkstra(current, location).map { it.firstStep?.direction }.distinct()

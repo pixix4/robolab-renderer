@@ -4,6 +4,7 @@ import de.robolab.client.traverser.ITraverser
 import de.robolab.client.traverser.ITraverserState
 import de.robolab.client.traverser.Traverser
 import de.robolab.client.traverser.TraverserState
+import de.robolab.common.planet.test.PlanetTestGoal
 
 data class TestState<TS>(
     val signalPhases: Map<TestSignalGroup, TestSignalGroup.Phase>,
@@ -11,7 +12,7 @@ data class TestState<TS>(
     val activeFlags: Set<TestSignalFlag>,
     val status: TestStatus,
     val statusMessage: String?,
-    val achievedGoalType: TestGoal.GoalType?,
+    val achievedGoalType: PlanetTestGoal.GoalType?,
     val traverserState: TS,
     val signalsByPhase: Map<TestSignalGroup.Phase, Set<TestSignalGroup>> = signalPhases.entries
         .groupBy({ it.value }, { it.key }).mapValues { it.value.toSet() },

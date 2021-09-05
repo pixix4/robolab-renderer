@@ -1,9 +1,8 @@
 package de.robolab.client.app.model.testing
 
-import de.robolab.common.planet.PlanetCoordinate
 import de.robolab.common.planet.PlanetDirection
 import de.robolab.common.planet.PlanetPoint
-import de.robolab.common.testing.TestGoal
+import de.robolab.common.planet.test.PlanetTestGoal
 import de.robolab.common.testing.TestPlanet
 import de.robolab.common.testing.TestState
 import de.robolab.common.testing.TestStatus
@@ -19,7 +18,7 @@ data class TestRunEntry(
     val status: ObservableProperty<TestStatus>,
     val tasksCompleted: ObservableProperty<Int>,
     val tasksTotal: ObservableValue<Int>,
-    val goal: ObservableProperty<TestGoal.GoalType?>
+    val goal: ObservableProperty<PlanetTestGoal.GoalType?>
 ) {
     constructor(number: Int, state: TestState<*>, planet: TestPlanet) : this(
         number.observeConst(),

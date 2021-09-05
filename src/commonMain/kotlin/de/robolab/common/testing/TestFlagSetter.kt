@@ -1,10 +1,10 @@
 package de.robolab.common.testing
 
-import de.robolab.common.planet.utils.LookupPlanet
-import de.robolab.common.planet.PlanetPath
 import de.robolab.common.planet.Planet
+import de.robolab.common.planet.PlanetPath
 import de.robolab.common.planet.PlanetPoint
 import de.robolab.common.planet.test.PlanetSubscribableRef
+import de.robolab.common.planet.utils.LookupPlanet
 
 data class TestFlagSetter(
     val subscribable: PlanetSubscribableRef,
@@ -37,7 +37,10 @@ data class TestFlagSetter(
         DISALLOW("ALLOW", TestSignalFlag::Disallow) {
             override fun getDefault(subscribable: PlanetSubscribableRef, planet: LookupPlanet): Boolean =
                 when (subscribable) {
-                    is PlanetSubscribableRef.Path -> TODO() //subscribable.lookup(planet).hidden
+                    is PlanetSubscribableRef.Path -> planet.getPath(
+                        PlanetPoint(subscribable.x, subscribable.y),
+                        subscribable.direction
+                    )?.hidden ?: throw NoSuchElementException("Could not find referenced path @$subscribable")
                     is PlanetSubscribableRef.Node -> planet.getPaths(subscribable.point).all(PlanetPath::hidden)
                 }
         },

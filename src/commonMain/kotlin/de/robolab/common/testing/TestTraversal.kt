@@ -2,6 +2,8 @@ package de.robolab.common.testing
 
 import de.robolab.client.traverser.ITraverser
 import de.robolab.client.traverser.ITraverserState
+import de.robolab.common.planet.test.PlanetTestGoal
+import de.robolab.common.planet.test.PlanetTestSuite
 import de.robolab.common.planet.utils.LookupPlanet
 import de.robolab.common.utils.Logger
 import de.robolab.common.utils.tree.SemiMutableTreeProvider
@@ -55,12 +57,12 @@ class TestTraversal<TS>(val planet: TestPlanet, val traverser: ITraverser<TS>) :
             val ts = s.traverserState
             if (s.status == TestStatus.Success) {
                 when (s.achievedGoalType) {
-                    TestGoal.GoalType.Explore -> missingExplorations.remove(null)
-                    TestGoal.GoalType.ExploreCoordinate -> {
+                    PlanetTestGoal.GoalType.Explore -> missingExplorations.remove(null)
+                    PlanetTestGoal.GoalType.ExploreCoordinate -> {
                         missingExplorations.remove(null)
                         missingExplorations.remove(ts.location)
                     }
-                    TestGoal.GoalType.Target -> {
+                    PlanetTestGoal.GoalType.Target -> {
                         missingTargets.remove(null)
                         missingTargets.remove(ts.location)
                     }
@@ -92,12 +94,12 @@ class TestTraversal<TS>(val planet: TestPlanet, val traverser: ITraverser<TS>) :
             val ts = s.traverserState
             if (s.status == TestStatus.Success) {
                 when (s.achievedGoalType) {
-                    TestGoal.GoalType.Explore -> missingExplorations.remove(null)
-                    TestGoal.GoalType.ExploreCoordinate -> {
+                    PlanetTestGoal.GoalType.Explore -> missingExplorations.remove(null)
+                    PlanetTestGoal.GoalType.ExploreCoordinate -> {
                         missingExplorations.remove(null)
                         missingExplorations.remove(ts.location)
                     }
-                    TestGoal.GoalType.Target -> {
+                    PlanetTestGoal.GoalType.Target -> {
                         missingTargets.remove(null)
                         missingTargets.remove(ts.location)
                     }
@@ -130,5 +132,5 @@ class TestTraversal<TS>(val planet: TestPlanet, val traverser: ITraverser<TS>) :
     }
 }
 
-fun <TS> LookupPlanet.testWith(traverser: ITraverser<TS>): TestTraversal<TS> where TS : ITraverserState<TS> = TODO()
-    // planet.testSuite.buildPlanet(this).testWith(traverser)
+fun <TS> LookupPlanet.testWith(traverser: ITraverser<TS>): TestTraversal<TS> where TS : ITraverserState<TS> =
+    (planet.testSuite?: PlanetTestSuite.EMPTY).buildPlanet(this).testWith(traverser)

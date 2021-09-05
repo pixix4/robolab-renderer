@@ -5,7 +5,6 @@ import de.robolab.common.planet.utils.rotate
 import de.robolab.common.planet.utils.translate
 import de.robolab.common.utils.Vector
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import kotlin.math.roundToLong
 
 @Serializable
@@ -33,7 +32,8 @@ data class PlanetPath(
         hidden: Boolean,
         spline: PlanetSpline? = null,
         arrow: Boolean = false,
-    ) : this(source.x,
+    ) : this(
+        source.x,
         source.y,
         sourceDirection,
         target.x,
@@ -43,7 +43,28 @@ data class PlanetPath(
         exposure,
         hidden,
         spline,
-        arrow)
+        arrow
+    )
+
+    constructor(
+        sourceVertex: PlanetPathVertex,
+        targetVertex: PlanetPathVertex,
+        weight: Long,
+        exposure: Set<PlanetPathExposure>,
+        hidden: Boolean,
+        spline: PlanetSpline? = null,
+        arrow: Boolean = false
+    ) : this(
+        sourceVertex.point,
+        sourceVertex.direction,
+        targetVertex.point,
+        targetVertex.direction,
+        weight,
+        exposure,
+        hidden,
+        spline,
+        arrow
+    )
 
     val blocked = weight < 0
 
@@ -52,6 +73,12 @@ data class PlanetPath(
 
     val target: PlanetPoint
         get() = PlanetPoint(targetX, targetY)
+
+    val sourceVertex: PlanetPathVertex
+        get() = PlanetPathVertex(source, sourceDirection)
+
+    val targetVertex: PlanetPathVertex
+        get() = PlanetPathVertex(target, targetDirection)
 
     fun length(spline: PlanetSpline? = this.spline): Double {
         if (spline == null) {
@@ -143,4 +170,28 @@ data class PlanetPath(
     override fun scaleWeights(factor: Double, offset: Long) = copy(
         weight = (weight * factor).roundToLong() + offset
     )
+
+    fun splitPath(retainWeight: Boolean = false): Pair<PlanetPath, PlanetPath> {
+        return copy(
+            sourceX = sourceX,
+            sourceY = sourceY,
+            sourceDirection = sourceDirection,
+            targetX = sourceX,
+            targetY = sourceY,
+            targetDirection = sourceDirection,
+            weight = if (retainWeight) weight else -1,
+            spline = null
+        ) to copy(
+            sourceX = targetX,
+            sourceY = targetY,
+            sourceDirection = targetDirection,
+            targetX = targetX,
+            targetY = targetY,
+            targetDirection = targetDirection,
+            weight = if (retainWeight) weight else -1,
+            spline = null
+        )
+
+        //TODO: Add Spline splitting
+    }
 }

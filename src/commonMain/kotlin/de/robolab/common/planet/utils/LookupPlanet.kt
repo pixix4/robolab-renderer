@@ -3,12 +3,16 @@ package de.robolab.common.planet.utils
 import de.robolab.common.planet.*
 
 class LookupPlanet(val planet: Planet) {
-    private val visitFeatures: Map<PlanetPoint, Pair<List<PlanetPath>, List<PlanetTarget>>>
+    private val visitFeatures: Map<PlanetPoint, PlanetVisitFeature>
 
     init {
         val pathsByPoint = planet.paths
-            .flatMap { path -> path.exposure.map { it.planetPoint to path } }
-            .groupBy(Pair<PlanetPoint, PlanetPath>::first, Pair<PlanetPoint, PlanetPath>::second)
+            .flatMap { path -> path.exposure.map { it to path } }
+            .groupBy({ (exposure, _) ->
+                exposure.planetPoint
+            }, { (exposure, path) ->
+                exposure.changes.applyUpdateOrPass(path)
+            })
         val targetsByPoint: Map<PlanetPoint, List<PlanetTarget>> = planet.targets
             .flatMap { target ->
                 target.exposure.map { exposure ->
@@ -17,7 +21,12 @@ class LookupPlanet(val planet: Planet) {
             }
             .groupBy(Pair<PlanetPoint, PlanetTarget>::first, Pair<PlanetPoint, PlanetTarget>::second)
         visitFeatures = (pathsByPoint.keys + targetsByPoint.keys)
-            .associateWith { Pair(pathsByPoint.getOrElse(it, ::emptyList), targetsByPoint.getOrElse(it, ::emptyList)) }
+            .associateWith {
+                PlanetVisitFeature(
+                    pathsByPoint.getOrElse(it, ::emptyList),
+                    targetsByPoint.getOrElse(it, ::emptyList)
+                )
+            }
     }
 
     private val leaveFeatures: Map<PlanetPoint, PlanetPathSelect> = planet.pathSelects.associateBy { it.point }
@@ -53,13 +62,13 @@ class LookupPlanet(val planet: Planet) {
 
     fun pointReachable(coordinate: PlanetPoint?): Boolean = coordinate != null && coordinate in reachablePoints
 
-    fun getVisitFeatures(point: PlanetPoint): Pair<List<PlanetPath>, List<PlanetTarget>>? = visitFeatures[point]
+    fun getVisitFeatures(point: PlanetPoint): PlanetVisitFeature? = visitFeatures[point]
     fun getLeaveFeatures(point: PlanetPoint): PlanetPathSelect? = getPathSelect(point)
 
     fun getPathSelect(point: PlanetPoint): PlanetPathSelect? = leaveFeatures[point]
-    fun getRevealedPaths(point: PlanetPoint): List<PlanetPath> = visitFeatures[point]?.first.orEmpty()
-    fun getSetTargets(point: PlanetPoint): List<PlanetTarget> = visitFeatures[point]?.second.orEmpty()
-    fun getLastSetTarget(point: PlanetPoint): PlanetTarget? = visitFeatures[point]?.second?.lastOrNull()
+    fun getRevealedPaths(point: PlanetPoint): List<PlanetPath> = visitFeatures[point]?.revealedPaths.orEmpty()
+    fun getSetTargets(point: PlanetPoint): List<PlanetTarget> = visitFeatures[point]?.setTargets.orEmpty()
+    fun getLastSetTarget(point: PlanetPoint): PlanetTarget? = visitFeatures[point]?.setTargets?.lastOrNull()
 
     fun getPath(point: PlanetPoint, direction: PlanetDirection): PlanetPath? = paths[point]?.get(direction)
 

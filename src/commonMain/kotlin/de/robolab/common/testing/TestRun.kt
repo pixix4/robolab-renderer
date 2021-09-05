@@ -1,6 +1,7 @@
 package de.robolab.common.testing
 
 import de.robolab.client.traverser.ITraverserState
+import de.robolab.common.planet.test.PlanetTestGoal
 import de.westermann.kobserve.base.*
 import de.westermann.kobserve.map.asObservable
 import de.westermann.kobserve.property.property
@@ -46,7 +47,7 @@ open class TestRun<TS> protected constructor(
     private val _activeFlags: MutableSet<TestSignalFlag>,
     protected open var pStatus: TestStatus,
     protected open var pStatusMessage: String?,
-    protected open var pAchievedGoalType: TestGoal.GoalType?,
+    protected open var pAchievedGoalType: PlanetTestGoal.GoalType?,
     open var traverserState: TS,
     private val _signalsByPhase: MutableMap<TestSignalGroup.Phase, MutableSet<TestSignalGroup>> = _signalPhases.entries
         .groupBy({ it.value }, { it.key }).mapValuesTo(mutableMapOf()) { it.value.toMutableSet() }
@@ -146,17 +147,17 @@ open class TestRun<TS> protected constructor(
                 }"
             )
         pAchievedGoalType = if (planet.explorationGoals.isEmpty() && planet.targetGoals.isEmpty()) {
-            if (exploration) TestGoal.GoalType.Explore
-            else TestGoal.GoalType.Target
+            if (exploration) PlanetTestGoal.GoalType.Explore
+            else PlanetTestGoal.GoalType.Target
         } else if (exploration) {
             when {
-                planet.explorationGoals.contains(traverserState.location) -> TestGoal.GoalType.ExploreCoordinate
-                planet.explorationGoals.contains(null) -> TestGoal.GoalType.Explore
+                planet.explorationGoals.contains(traverserState.location) -> PlanetTestGoal.GoalType.ExploreCoordinate
+                planet.explorationGoals.contains(null) -> PlanetTestGoal.GoalType.Explore
                 else -> fail("Completed exploration at location ${traverserState.location} which has no exploration-goal associated with it")
             }
         } else when {
-            planet.targetGoals.contains(traverserState.location) -> TestGoal.GoalType.Target
-            planet.targetGoals.contains(null) -> TestGoal.GoalType.Target
+            planet.targetGoals.contains(traverserState.location) -> PlanetTestGoal.GoalType.Target
+            planet.targetGoals.contains(null) -> PlanetTestGoal.GoalType.Target
             else -> fail("Reached target at location ${traverserState.location} which has no target-goal associated with it")
         }
         pStatus = TestStatus.Success
@@ -170,7 +171,7 @@ class ObservableTestRun<TS> private constructor(
     activeFlags: ObservableMutableSet<TestSignalFlag>,
     status: TestStatus,
     statusMessage: String?,
-    achievedGoalType: TestGoal.GoalType?,
+    achievedGoalType: PlanetTestGoal.GoalType?,
     traverserState: TS,
     signalsByPhase: MutableMap<TestSignalGroup.Phase, MutableSet<TestSignalGroup>> = signalPhases.entries
         .groupBy({ it.value }, { it.key }).mapValuesTo(mutableMapOf()) { it.value.toMutableSet() }
@@ -204,13 +205,13 @@ class ObservableTestRun<TS> private constructor(
     override var traverserState: TS by _traverserState
     private val _statusMessage = property(statusMessage)
     override var pStatusMessage: String? by _statusMessage
-    private val _achievedGoalType = property<TestGoal.GoalType?>(null)
-    override var pAchievedGoalType: TestGoal.GoalType? by _achievedGoalType
+    private val _achievedGoalType = property<PlanetTestGoal.GoalType?>(null)
+    override var pAchievedGoalType: PlanetTestGoal.GoalType? by _achievedGoalType
 
     val observableStatus: ObservableValue<TestStatus> = _status
     val observableStatusMessage: ObservableValue<String?> = _statusMessage
     val observableTraverserState: ObservableValue<TS> = _traverserState
-    val observableAchievedGoalType: ObservableValue<TestGoal.GoalType?> = _achievedGoalType
+    val observableAchievedGoalType: ObservableValue<PlanetTestGoal.GoalType?> = _achievedGoalType
     val signalPhases: ObservableMap<TestSignalGroup, TestSignalGroup.Phase> = signalPhases
     val completedTasks: ObservableSet<TestTask> = completedTasks
     val activeFlags: ObservableSet<TestSignalFlag> = activeFlags

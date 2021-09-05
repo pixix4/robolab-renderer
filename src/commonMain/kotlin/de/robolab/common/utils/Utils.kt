@@ -1,5 +1,6 @@
 package de.robolab.common.utils
 
+import de.robolab.common.planet.test.PlanetTestGoal
 import kotlin.jvm.JvmName
 import kotlin.math.absoluteValue
 import kotlin.math.pow
@@ -67,6 +68,19 @@ inline fun <T> Iterable<T>.intersect(other: Iterable<T>, predicate: (T, T) -> Bo
     return filter { selfPath ->
         other.any { predicate(selfPath, it) }
     }
+}
+
+inline fun <T,K,V> Iterable<T>.associateNotNull(transform:(T)->Pair<K,V>?) = mapNotNull(transform).toMap()
+
+inline fun <reified V, T> Iterable<T>.partitionIsInstance(): Pair<List<V>,List<T>> where V:T {
+    val (hits, misses) = this.partition { it is V }
+    return hits.filterIsInstance<V>() to misses
+}
+
+inline fun <reified V1, reified V2, T> Iterable<T>.partitionIsInstance2(): Triple<List<V1>, List<V2>, List<T>> where V1:T, V2:T{
+    val (hits1, misses1) = partitionIsInstance<V1,T>()
+    val (hits2, misses2) = misses1.partitionIsInstance<V2,T>()
+    return Triple(hits1, hits2, misses2)
 }
 
 private val durationRegex: Regex = "^(\\d+)([dhms]|ms)$".toRegex(RegexOption.IGNORE_CASE)
