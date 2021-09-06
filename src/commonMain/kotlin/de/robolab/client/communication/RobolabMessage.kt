@@ -103,6 +103,90 @@ sealed class RobolabMessage(
         }
     }
 
+    class DefaultPlanetMessage(
+        metadata: Metadata,
+        val message: String,
+    ) : RobolabMessage(metadata) {
+        override val summary by lazy { "${metadata.comTestString}Planet: $message" }
+        override val details by lazy {
+            listOf(
+                "Message" to message
+            )
+        }
+    }
+
+    class ReloadMessage(
+        metadata: Metadata,
+    ) : RobolabMessage(metadata) {
+        override val summary by lazy { "${metadata.comTestString}Reload" }
+        override val details by lazy {
+            emptyList<Pair<String, String>>()
+        }
+    }
+
+    class ActivePlanetsMessage(
+        metadata: Metadata,
+        val planets: List<String>
+    ) : RobolabMessage(metadata) {
+        override val summary by lazy { "${metadata.comTestString}${planets.size} planet(s) found" }
+        override val details by lazy {
+            listOf(
+                "Planets" to planets.joinToString("\n")
+            )
+        }
+    }
+
+    class GetPlanetsMessage(
+        metadata: Metadata,
+    ) : RobolabMessage(metadata) {
+        override val summary by lazy { "${metadata.comTestString}Get Planets" }
+
+        override val details by lazy {
+            emptyList<Pair<String, String>>()
+        }
+    }
+
+    class DumpGroupMessage(
+        metadata: Metadata,
+        val groupId: String
+    ) : RobolabMessage(metadata) {
+        override val summary by lazy { "${metadata.comTestString}Dump Group $groupId" }
+        override val details by lazy {
+            listOf(
+                "Group" to groupId
+            )
+        }
+    }
+
+    class GroupDumpMessage(
+        metadata: Metadata,
+        val groupId: String,
+        val planetName: String,
+        val exploredPaths: List<String>,
+        val visitedPoints: List<String>,
+        val implicitKnowPoints: List<String>,
+        val sentRedirections: List<String>,
+        val lastVisitedPoint: String,
+        val lastTarget: String,
+    ) : RobolabMessage(metadata) {
+        override val summary by lazy {
+            "${metadata.comTestString}Group dump for $groupId: $planetName with ${exploredPaths.size} explored path(s)"
+        }
+
+        override val details by lazy {
+            listOf(
+                "Group" to groupId,
+                "Planet" to planetName,
+                "Explored paths" to exploredPaths.joinToString("\n"),
+                "Visited points" to visitedPoints.joinToString("\n"),
+                "Implicit points" to implicitKnowPoints.joinToString("\n"),
+                "Sent redirects" to sentRedirections.joinToString("\n"),
+                "Last point" to lastVisitedPoint,
+                "Last target" to lastTarget
+            )
+        }
+    }
+
     class TargetMessage(
         metadata: Metadata,
         val target: PlanetPoint,
@@ -257,8 +341,10 @@ sealed class RobolabMessage(
     }
 
     override fun toString() = "${
-        formatDateTime(kotlinx.datetime.Instant.fromEpochMilliseconds(metadata.time),
-            "HH:mm:ss")
+        formatDateTime(
+            kotlinx.datetime.Instant.fromEpochMilliseconds(metadata.time),
+            "HH:mm:ss"
+        )
     }: ${metadata.rawMessage}"
 
     override fun equals(other: Any?): Boolean {

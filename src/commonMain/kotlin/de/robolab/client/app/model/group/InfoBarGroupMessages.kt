@@ -69,7 +69,7 @@ class InfoBarGroupMessages(
             messageManager
         )
 
-        controller.topicController()
+        controller.topicControllerGroup()
         controller.type = SendMessageDialogController.Type.ControllerSetPlanetMessage
         controller.from = SendMessageDialogController.From.CLIENT
         controller.planetName = planetName

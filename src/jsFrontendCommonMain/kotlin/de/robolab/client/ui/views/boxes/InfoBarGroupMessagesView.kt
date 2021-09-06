@@ -222,6 +222,7 @@ class InfoBarGroupMessagesView(
             From.SERVER -> MaterialIcon.WEST
             From.DEBUG -> MaterialIcon.DNS
             From.UNKNOWN -> MaterialIcon.HELP_OUTLINE
+            From.ADMIN -> MaterialIcon.VERIFIED_USER
         }
 
         private fun fromToClass(from: From): String = when (from) {
@@ -229,6 +230,7 @@ class InfoBarGroupMessagesView(
             From.SERVER -> "info-bar-group-server"
             From.DEBUG -> "info-bar-group-debug"
             From.UNKNOWN -> "info-bar-group-unknown"
+            From.ADMIN -> "info-bar-group-admin"
         }
 
         fun generateFromIcon(from: From): IconView {

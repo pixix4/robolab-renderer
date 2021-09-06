@@ -59,19 +59,19 @@ class SendMessageDialogController(
             }
             Type.ControllerSetPlanetMessage -> {
                 topicControllerGroup()
-                from = From.CLIENT
+                from = From.ADMIN
             }
             Type.ControllerGetPlanetsMessage -> {
                 topicControllerAdmin()
-                from = From.CLIENT
+                from = From.ADMIN
             }
             Type.ControllerReloadMessage -> {
                 topicControllerAdmin()
-                from = From.CLIENT
+                from = From.ADMIN
             }
             Type.ControllerDumpGroupMessage -> {
                 topicControllerAdmin()
-                from = From.CLIENT
+                from = From.ADMIN
             }
             Type.TestPlanetMessage -> {
                 topicExplorer()
@@ -126,11 +126,13 @@ class SendMessageDialogController(
 
     enum class From {
         CLIENT,
-        SERVER;
+        SERVER,
+        ADMIN;
 
         fun convert() = when (this) {
             CLIENT -> de.robolab.client.communication.From.CLIENT
             SERVER -> de.robolab.client.communication.From.SERVER
+            ADMIN -> de.robolab.client.communication.From.ADMIN
         }
     }
 
@@ -414,6 +416,9 @@ class SendMessageDialogController(
                 }
                 if (message.payload.debug != null) {
                     put("debug", message.payload.debug)
+                }
+                if (message.payload.groupId != null) {
+                    put("groupId", message.payload.groupId)
                 }
             })
         }

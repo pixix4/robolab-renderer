@@ -311,6 +311,10 @@ textarea {
     color: var(--editor-number-color) !important;
   }
 
+  &.info-bar-group-admin {
+    color: var(--warn-color) !important;
+  }
+
   &.info-bar-group-debug {
     color: var(--secondary-text-color) !important;
   }

@@ -1,9 +1,11 @@
 package de.robolab.client.communication
 
-import de.robolab.common.planet.PlanetPoint
 import de.robolab.common.planet.PlanetDirection
 import de.robolab.common.planet.PlanetPath
-import kotlinx.serialization.*
+import de.robolab.common.planet.PlanetPoint
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -70,7 +72,10 @@ enum class From {
 
     @SerialName("debug")
     DEBUG,
-    UNKNOWN
+
+    @SerialName("admin")
+    ADMIN,
+    UNKNOWN,
 }
 
 /*
@@ -268,11 +273,80 @@ enum class Type {
         override val serialName = "reload"
         override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
             metadata.requireTopic(Topic.CONTROLLER, this)
-            message.requireFrom(From.DEBUG)
-            return RobolabMessage.DebugMessage(
+            message.requireFrom(From.ADMIN)
+            return RobolabMessage.ReloadMessage(
+                metadata
+            )
+        }
+    },
+
+    @SerialName("defaultPlanet")
+    DEFAULT_PLANET {
+        override val serialName = "defaultPlanet"
+        override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
+            metadata.requireTopic(Topic.CONTROLLER, this)
+            message.requireFrom(From.SERVER)
+            return RobolabMessage.DefaultPlanetMessage(
                 metadata,
-                "Reload requested",
-                null
+                message.payload::message.parsed()
+            )
+        }
+    },
+
+    @SerialName("activePlanets")
+    ACTIVE_PLANETS {
+        override val serialName = "activePlanets"
+        override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
+            metadata.requireTopic(Topic.CONTROLLER, this)
+            message.requireFrom(From.SERVER)
+            return RobolabMessage.ActivePlanetsMessage(
+                metadata,
+                message.payload::planets.parsed()
+            )
+        }
+    },
+
+    @SerialName("getPlanets")
+    GET_PLANETS {
+        override val serialName = "getPlanets"
+        override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
+            metadata.requireTopic(Topic.CONTROLLER, this)
+            message.requireFrom(From.ADMIN)
+            return RobolabMessage.GetPlanetsMessage(
+                metadata
+            )
+        }
+    },
+
+    @SerialName("dumpGroup")
+    DUMP_GROUP {
+        override val serialName = "dumpGroup"
+        override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
+            metadata.requireTopic(Topic.CONTROLLER, this)
+            message.requireFrom(From.ADMIN)
+            return RobolabMessage.DumpGroupMessage(
+                metadata,
+                message.payload::groupId.parsed()
+            )
+        }
+    },
+
+    @SerialName("groupDump")
+    GROUP_DUMP {
+        override val serialName = "groupDump"
+        override fun parseMessage(metadata: RobolabMessage.Metadata, message: JsonMessage): RobolabMessage {
+            metadata.requireTopic(Topic.CONTROLLER, this)
+            message.requireFrom(From.SERVER)
+            return RobolabMessage.GroupDumpMessage(
+                metadata,
+                message.payload.groupId ?: metadata.groupId,
+                message.payload::planetName.parsed(),
+                message.payload::exploredPaths.parsed(),
+                message.payload::visitedPoints.parsed(),
+                message.payload::implicitKnowPoints.parsed(),
+                message.payload::sentRedirections.parsed(),
+                message.payload::lastVisitedPoint.parsed(),
+                message.payload::lastTarget.parsed(),
             )
         }
     },
@@ -344,7 +418,14 @@ data class Payload(
     val message: String? = null,
     val groupId: String? = null,
     val debug: String? = null,
-    val errors: List<String>? = null
+    val errors: List<String>? = null,
+    val planets: List<String>? = null,
+    val exploredPaths: List<String>? = null,
+    val visitedPoints: List<String>? = null,
+    val implicitKnowPoints: List<String>? = null,
+    val sentRedirections: List<String>? = null,
+    val lastVisitedPoint: String? = null,
+    val lastTarget: String? = null,
 )
 
 @Serializable
