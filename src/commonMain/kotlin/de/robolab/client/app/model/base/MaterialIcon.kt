@@ -1287,6 +1287,7 @@ enum class MaterialIcon(val unicode: String, val ligature: String) {
     SLIDESHOW ("\ue41b", "slideshow"),
     SLOW_MOTION_VIDEO ("\ue068", "slow_motion_video"),
     SMART_BUTTON ("\uf1c1", "smart_button"),
+    SMART_TOY ("\uf06c", "smart_toy"),
     SMARTPHONE ("\ue32c", "smartphone"),
     SMOKE_FREE ("\ueb4a", "smoke_free"),
     SMOKING_ROOMS ("\ueb4b", "smoking_rooms"),

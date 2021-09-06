@@ -218,9 +218,9 @@ class InfoBarGroupMessagesView(
         }
 
         private fun fromToIcon(from: From): MaterialIcon = when (from) {
-            From.CLIENT -> MaterialIcon.EAST
-            From.SERVER -> MaterialIcon.WEST
-            From.DEBUG -> MaterialIcon.DNS
+            From.CLIENT -> MaterialIcon.SMART_TOY
+            From.SERVER -> MaterialIcon.DNS
+            From.DEBUG -> MaterialIcon.WARNING
             From.UNKNOWN -> MaterialIcon.HELP_OUTLINE
             From.ADMIN -> MaterialIcon.VERIFIED_USER
         }
