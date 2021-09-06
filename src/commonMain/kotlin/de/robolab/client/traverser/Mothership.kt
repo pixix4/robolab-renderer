@@ -2,6 +2,7 @@ package de.robolab.client.traverser
 
 import de.robolab.common.planet.*
 import de.robolab.common.planet.utils.LookupPlanet
+import de.robolab.common.planet.utils.PlanetVisitFeature
 
 interface IMothership<T> where T : IMothershipState {
     val planet: LookupPlanet
@@ -36,14 +37,14 @@ class Mothership(override val planet: LookupPlanet) : IMothership<MothershipStat
                 beforePoint = true
         )
         if (visitedLocations.size <= result.visitedLocations.size) { //added new endPoint
-            val features: Pair<List<PlanetPath>, List<PlanetTarget>>? = planet.getVisitFeatures(path.target)
+            val features: PlanetVisitFeature? = planet.getVisitFeatures(path.target)
             if (features != null)
                 result = result.copy(
-                        sentPaths = sentPaths + (features.first + path),
-                        newPaths = features.first - sentPaths,
-                        sentTargets = sentTargets + features.second,
-                        newTargets = features.second - sentTargets,
-                        currentTarget = (features.second - sentTargets).lastOrNull() ?: currentTarget
+                        sentPaths = sentPaths + (features.revealedPaths + path),
+                        newPaths = features.revealedPaths - sentPaths,
+                        sentTargets = sentTargets + features.setTargets,
+                        newTargets = features.setTargets - sentTargets,
+                        currentTarget = (features.setTargets - sentTargets).lastOrNull() ?: currentTarget
                 )
         }
         return@with result

@@ -1,6 +1,6 @@
 package de.robolab.client.app.model.testing
 
-import de.robolab.common.testing.TestGoal
+import de.robolab.common.planet.test.PlanetTestGoal
 import de.robolab.common.testing.TestStatus
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.base.ObservableValue
@@ -14,11 +14,11 @@ open class FilterEntry<T>(
 ) {
 
     class GoalFilterEntry(
-        content: ObservableValue<TestGoal>,
+        content: ObservableValue<PlanetTestGoal>,
         active: ObservableProperty<Boolean>,
         matchingCount: ObservableProperty<Int>
-    ) : FilterEntry<TestGoal>(content, active, matchingCount) {
-        constructor(content: TestGoal) : this(content.observeConst(), property(false), property(0))
+    ) : FilterEntry<PlanetTestGoal>(content, active, matchingCount) {
+        constructor(content: PlanetTestGoal) : this(content.observeConst(), property(false), property(0))
     }
 
     class StatusFilterEntry(

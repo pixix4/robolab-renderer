@@ -1,7 +1,7 @@
 package de.robolab.client.app.controller.testing
 
 import de.robolab.client.traverser.navigation.Route
-import de.robolab.common.testing.TestGoal
+import de.robolab.common.planet.test.PlanetTestGoal
 import de.robolab.common.testing.TestState
 import de.robolab.common.testing.TestStatus
 import de.robolab.common.testing.TestTraversal
@@ -27,7 +27,7 @@ class TestRunController(
 
     val title: ObservableValue<String> = "Run #$number ".observeConst()
     val status: ObservableValue<TestStatus> = state.mapBinding(TestState<*>::status)
-    val goal: ObservableValue<TestGoal.GoalType?> = state.mapBinding(TestState<*>::achievedGoalType)
+    val goal: ObservableValue<PlanetTestGoal.GoalType?> = state.mapBinding(TestState<*>::achievedGoalType)
     val route: ObservableValue<Route> = Route.empty(
         traversal.traverser.planet.planet.startPoint.point
     ).observeConst()

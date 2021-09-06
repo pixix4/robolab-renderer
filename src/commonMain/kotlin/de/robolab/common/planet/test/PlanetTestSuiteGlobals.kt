@@ -22,4 +22,8 @@ data class PlanetTestSuiteGlobals(
         flags = flags.rotate(direction, origin),
         tasks = tasks.rotate(direction, origin),
     )
+
+    companion object {
+        val EMPTY = PlanetTestSuiteGlobals(emptyList(), emptyList())
+    }
 }

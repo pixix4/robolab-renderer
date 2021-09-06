@@ -25,4 +25,8 @@ data class PlanetTestSuite(
         signalGroups = signalGroups.rotate(direction, origin),
         globals = globals.rotate(direction, origin)
     )
+
+    companion object{
+        val EMPTY = PlanetTestSuite(emptyList(), emptyList(), PlanetTestSuiteGlobals.EMPTY)
+    }
 }

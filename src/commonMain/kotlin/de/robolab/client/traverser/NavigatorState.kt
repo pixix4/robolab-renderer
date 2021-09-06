@@ -15,8 +15,7 @@ private fun addPath(paths: Map<PlanetPoint, Map<PlanetDirection, PlanetPath>>, p
     val oldEntry: Map<PlanetDirection, PlanetPath>? = paths[path.source]
     return when {
         oldEntry == null -> paths + (path.source to mapOf(path.sourceDirection to path))
-        path.sourceDirection !in oldEntry -> paths + (path.source to (oldEntry + (path.sourceDirection to path)))
-        else -> paths
+        else -> paths + (path.source to (oldEntry + (path.sourceDirection to path)))
     }
 }
 

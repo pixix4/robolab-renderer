@@ -1,9 +1,7 @@
 package de.robolab.common.planet
 
 import de.robolab.common.planet.utils.IPlanetValue
-import de.robolab.common.utils.Vector
 import kotlinx.serialization.Serializable
-import kotlin.math.roundToLong
 
 @Serializable
 data class PlanetPathExposureChanges(
@@ -16,3 +14,6 @@ data class PlanetPathExposureChanges(
         )
     }
 }
+
+fun PlanetPathExposureChanges?.applyUpdateOrPass(path: PlanetPath): PlanetPath =
+    this?.applyUpdate(path) ?: path

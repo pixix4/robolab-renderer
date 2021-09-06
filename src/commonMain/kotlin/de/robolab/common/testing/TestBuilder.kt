@@ -1,11 +1,49 @@
 package de.robolab.common.testing
 
+import de.robolab.common.planet.test.PlanetFlagType
+import de.robolab.common.planet.test.PlanetSignalGroup
+import de.robolab.common.planet.test.PlanetTestGoal
+import de.robolab.common.planet.test.PlanetTestSuite
 import de.robolab.common.planet.utils.LookupPlanet
+import de.robolab.common.utils.partitionIsInstance2
 
-fun LookupPlanet.buildTestPlanet(): TestPlanet = TODO() // planet.testSuite.buildPlanet(this)
+fun LookupPlanet.buildTestPlanet(): TestPlanet = (planet.testSuite ?: PlanetTestSuite.EMPTY).buildPlanet(this)
 
-fun TestSuite.buildPlanet(planet: LookupPlanet): TestPlanet {
-    val (targetGoals, explorationGoals) = goals.partition { it is TestGoal.Target }
+fun PlanetTestSuite.buildPlanet(planet: LookupPlanet): TestPlanet {
+    val (targetGoals, coordinateExplorationGoal, otherGoals) = goals.partitionIsInstance2<
+            PlanetTestGoal.Target,
+            PlanetTestGoal.ExploreCoordinate,
+            PlanetTestGoal>()
+    val exploreAnyGoals = otherGoals.filterIsInstance<PlanetTestGoal.Explore>()
+    otherGoals.firstOrNull { it !is PlanetTestGoal.Explore }?.let {
+        throw IllegalArgumentException("Unexpected test-goal: $it")
+    }
+
+    val globalTasks = this.globals.tasks
+
+    val taskList: List<TestTask> = globalTasks.map { TestTask(it, null) } + this.signalGroups.flatMap { signal ->
+        signal.tasks.map {
+            TestTask(it, signal.testSignal)
+        }
+    }
+
+    val triggerList: List<TestTrigger> = this.signalGroups.flatMap { signal ->
+        signal.triggers.map {
+            TestTrigger(it, signal.testSignal)
+        }
+    }
+
+    val flagSetterList: List<TestFlagSetter> = this.globals.flags.map {
+        TestFlagSetter(
+            it.ref!!, null, it.type.testFlagSetterType, it.value
+        )
+    } + this.signalGroups.flatMap { signal ->
+        signal.flags.map {
+            TestFlagSetter(
+                it.ref!!, signal.testSignal, it.type.testFlagSetterType, it.value
+            )
+        }
+    }
 
     val flagList = combineFlags(flagSetterList, planet)
 
@@ -16,8 +54,8 @@ fun TestSuite.buildPlanet(planet: LookupPlanet): TestPlanet {
     )
 
     return TestPlanet(
-        explorationGoals.map(TestGoal::coordinate).toSet(),
-        targetGoals.map(TestGoal::coordinate).toSet(),
+        (coordinateExplorationGoal.map(PlanetTestGoal.ExploreCoordinate::point) + exploreAnyGoals.map { it.point }).toSet(),
+        targetGoals.map(PlanetTestGoal.Target::point).toSet(),
         taskList.groupBy { it.triggered }.mapValues { it.value.toSet() },
         triggerList,
         flagList,
@@ -89,3 +127,15 @@ fun createSignalGroups(
         )
     }.filterNotNull().associateBy(TestSignalGroup::signal))
 }
+
+val PlanetSignalGroup.testSignal: TestSignal
+    get() = when (this) {
+        is PlanetSignalGroup.Unordered -> TestSignal.Unordered(label)
+        is PlanetSignalGroup.Ordered -> TestSignal.Ordered(order.toInt())
+    }
+
+val PlanetFlagType.testFlagSetterType: TestFlagSetter.Type
+    get() = when (this) {
+        PlanetFlagType.Skip -> TestFlagSetter.Type.SKIP
+        PlanetFlagType.Disallow -> TestFlagSetter.Type.DISALLOW
+    }
