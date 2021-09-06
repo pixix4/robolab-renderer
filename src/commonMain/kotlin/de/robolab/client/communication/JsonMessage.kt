@@ -342,6 +342,7 @@ data class Payload(
     val pathStatus: PathStatus? = null,
     val pathWeight: Long? = null,
     val message: String? = null,
+    val groupId: String? = null,
     val debug: String? = null,
     val errors: List<String>? = null
 )

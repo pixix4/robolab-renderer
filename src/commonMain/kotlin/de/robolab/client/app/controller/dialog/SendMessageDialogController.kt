@@ -6,7 +6,6 @@ import de.robolab.common.utils.Logger
 import de.robolab.common.utils.RobolabJson
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -32,7 +31,11 @@ class SendMessageDialogController(
         topic = "planet/$planet/$groupNumber"
     }
 
-    fun topicController() {
+    fun topicControllerAdmin() {
+        topic = "controller/000"
+    }
+
+    fun topicControllerGroup() {
         topic = "controller/$groupNumber"
     }
 
@@ -54,8 +57,20 @@ class SendMessageDialogController(
                 topicExplorer()
                 from = From.SERVER
             }
-            Type.SetPlanetMessage -> {
-                topicController()
+            Type.ControllerSetPlanetMessage -> {
+                topicControllerGroup()
+                from = From.CLIENT
+            }
+            Type.ControllerGetPlanetsMessage -> {
+                topicControllerAdmin()
+                from = From.CLIENT
+            }
+            Type.ControllerReloadMessage -> {
+                topicControllerAdmin()
+                from = From.CLIENT
+            }
+            Type.ControllerDumpGroupMessage -> {
+                topicControllerAdmin()
                 from = From.CLIENT
             }
             Type.TestPlanetMessage -> {
@@ -92,7 +107,10 @@ class SendMessageDialogController(
         PathMessage("Path"),
         ReadyMessage("Ready"),
         PlanetMessage("Planet"),
-        SetPlanetMessage("Set planet (exam)"),
+        ControllerSetPlanetMessage("[controller] Set planet"),
+        ControllerReloadMessage("[controller] Reload planets"),
+        ControllerGetPlanetsMessage("[controller] Get available planets"),
+        ControllerDumpGroupMessage("[controller] Dump group state"),
         TestPlanetMessage("Test planet"),
         PathUnveilMessage("Path unveil"),
         TargetMessage("Target"),
@@ -119,7 +137,7 @@ class SendMessageDialogController(
     val planetNameProperty = property("")
     var planetName by planetNameProperty
     val planetNameVisibleProperty = typeProperty.mapBinding {
-        it == Type.PlanetMessage || it == Type.SetPlanetMessage || it == Type.TestPlanetMessage
+        it == Type.PlanetMessage || it == Type.ControllerSetPlanetMessage || it == Type.TestPlanetMessage
     }
 
     val startXProperty = property(0L)
@@ -194,6 +212,12 @@ class SendMessageDialogController(
         it == Type.TargetReachedMessage || it == Type.ExplorationCompletedMessage || it == Type.DoneMessage
     }
 
+    val groupIdProperty = property("")
+    var groupId by groupIdProperty
+    val groupIdVisibleProperty = typeProperty.mapBinding {
+        it == Type.ControllerDumpGroupMessage
+    }
+
     val customProperty = property("")
     var custom by customProperty
     val customVisibleProperty = typeProperty.mapBinding {
@@ -230,11 +254,28 @@ class SendMessageDialogController(
                 de.robolab.client.communication.Type.READY,
                 Payload()
             )
-            Type.SetPlanetMessage -> JsonMessage(
+            Type.ControllerSetPlanetMessage -> JsonMessage(
                 from.convert(),
                 de.robolab.client.communication.Type.SET_PLANET,
                 Payload(
                     planetName = planetName
+                )
+            )
+            Type.ControllerGetPlanetsMessage -> JsonMessage(
+                from.convert(),
+                de.robolab.client.communication.Type.GET_PLANETS,
+                Payload()
+            )
+            Type.ControllerReloadMessage -> JsonMessage(
+                from.convert(),
+                de.robolab.client.communication.Type.RELOAD,
+                Payload()
+            )
+            Type.ControllerDumpGroupMessage -> JsonMessage(
+                from.convert(),
+                de.robolab.client.communication.Type.DUMP_GROUP,
+                Payload(
+                    groupId = groupId
                 )
             )
             Type.TestPlanetMessage -> JsonMessage(

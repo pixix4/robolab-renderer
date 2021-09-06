@@ -22,8 +22,11 @@ class SendMessageDialogViewModel(
                 button("Planet") {
                     controller.topicPlanet()
                 }
-                button("Controller") {
-                    controller.topicController()
+                button("Controller group") {
+                    controller.topicControllerGroup()
+                }
+                button("Controller admin") {
+                    controller.topicControllerAdmin()
                 }
             }
             entry {
@@ -122,6 +125,11 @@ class SendMessageDialogViewModel(
             if (controller.messageVisibleProperty.value) {
                 labeledEntry("Message") {
                     input(controller.messageProperty)
+                }
+            }
+            if (controller.groupIdVisibleProperty.value) {
+                labeledEntry("Group ID") {
+                    input(controller.groupIdProperty)
                 }
             }
             if (controller.customVisibleProperty.value) {

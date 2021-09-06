@@ -3,10 +3,8 @@ package de.robolab.client.app.model.group
 import de.robolab.client.app.controller.DialogController
 import de.robolab.client.app.controller.dialog.SendMessageDialogController
 import de.robolab.client.app.controller.ui.UiController
-import de.robolab.client.app.model.base.IInfoBarContent
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.repository.Attempt
-import de.robolab.client.app.viewmodel.FormContentViewModel
 import de.robolab.client.app.viewmodel.SideBarContentViewModel
 import de.robolab.client.app.viewmodel.SideBarTabViewModel
 import de.robolab.client.app.viewmodel.buildFormContent
@@ -14,7 +12,6 @@ import de.robolab.client.app.viewmodel.dialog.SendMessageDialogViewModel
 import de.robolab.client.communication.From
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessage
-import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.formatDateTime
 import de.westermann.kobserve.base.ObservableList
 import de.westermann.kobserve.base.ObservableProperty
@@ -73,7 +70,7 @@ class InfoBarGroupMessages(
         )
 
         controller.topicController()
-        controller.type = SendMessageDialogController.Type.SetPlanetMessage
+        controller.type = SendMessageDialogController.Type.ControllerSetPlanetMessage
         controller.from = SendMessageDialogController.From.CLIENT
         controller.planetName = planetName
 
