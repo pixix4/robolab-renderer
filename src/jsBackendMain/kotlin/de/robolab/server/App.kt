@@ -1,5 +1,9 @@
 package de.robolab.server
 
+import de.robolab.client.repl.*
+import de.robolab.client.repl.base.IReplCommandParameter
+import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
+import de.robolab.client.repl.base.ReplCommandParameterDescriptor
 import de.robolab.common.auth.AccessLevel
 import de.robolab.common.auth.User
 import de.robolab.common.externaljs.NodeError
@@ -14,6 +18,41 @@ import de.robolab.server.externaljs.express.Request
 import de.robolab.server.externaljs.express.Response
 import de.robolab.server.net.DefaultEnvironment
 import de.robolab.server.routes.logoResponse
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlin.reflect.KClass
+
+data class LayoutConstraint(
+    val rows: Int,
+    val cols: Int,
+) : IReplCommandParameter {
+
+    override val typeDescriptor: IReplCommandParameterTypeDescriptor<*> = Companion
+
+    override fun toToken(): String = "${rows}x$cols"
+
+    companion object : IReplCommandParameterTypeDescriptor<LayoutConstraint> {
+        override val klazz: KClass<LayoutConstraint> = LayoutConstraint::class
+        override val name: String = "LayoutConstraint"
+        override val example: String = LayoutConstraint(3, 2).toToken()
+        override val regex: Regex = """\d+x\d+""".toRegex()
+
+        override fun fromToken(token: String): LayoutConstraint? {
+            val (cols, rows) = token.split("x", limit = 2)
+            return LayoutConstraint(
+                cols.toIntOrNull() ?: return null,
+                rows.toIntOrNull() ?: return null
+            )
+        }
+    }
+}
+
+suspend fun execute(command: String) {
+    println("\n> $command")
+    println("#".repeat(20))
+    println(ReplExecutor.execute(command).joinToString("\n"))
+    println("#".repeat(20))
+}
 
 fun main() {
     val args = js("process.argv.slice(2)") as Array<String>
@@ -23,6 +62,41 @@ fun main() {
 
     ConsoleGreeter.greetServer()
     val logger = Logger("MainApp")
+
+    val windowCommand = ReplCommandNode("window", "Modify the current window state")
+    ReplRootCommand += windowCommand
+    windowCommand += ReplSimpleCommand("split-h", "Split the current window horizontally") {
+        listOf("Split-h")
+    }
+    windowCommand += ReplSimpleCommand("split-v", "Split the current window vertically") {
+        listOf("Split-v")
+    }
+    windowCommand += ReplParameterCommand(
+        "layout",
+        "Transform the current window to the specified layout",
+        ReplCommandParameterDescriptor(
+            LayoutConstraint,
+            "layout"
+        )
+    ) { parameters ->
+        parameters
+    }
+
+    GlobalScope.launch {
+        execute("help")
+        execute("win")
+        execute("window")
+        execute("window help")
+        execute("window split-v help")
+        execute("window split-v")
+        execute("window layout help")
+        execute("window layout")
+        execute("window layout 3x2")
+        execute("window layout abc")
+    }
+
+    return
+
 
     val endpoints = mutableListOf<Pair<String, String>>()
     DefaultEnvironment.app.use(cookieParser())
