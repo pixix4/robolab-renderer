@@ -28,6 +28,7 @@ fun initMainView(
     ViewFactoryRegistry.register(ToolBarView)
     ViewFactoryRegistry.register(StatusBarView)
     ViewFactoryRegistry.register(ContentView)
+    ViewFactoryRegistry.register(TerminalView)
 
     ViewFactoryRegistry.register(FormContentView)
     ViewFactoryRegistry.register(FormView)

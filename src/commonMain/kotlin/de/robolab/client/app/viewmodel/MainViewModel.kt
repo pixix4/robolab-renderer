@@ -19,6 +19,8 @@ class MainViewModel(
 
     val dialogList = observableListOf<DialogViewModel>()
 
+    val terminal = TerminalViewModel()
+
     init {
         DialogController.onOpen {
             it.open(this)

@@ -15,6 +15,7 @@ object ReplExecutor {
     data class Hint(
         val suffix: String,
         val highlight: List<HintHighlight>,
+        val input: String = "",
     )
 
     data class HintHighlight(
@@ -81,7 +82,7 @@ object ReplExecutor {
             ReplRootCommand,
             tokenize(input, true),
             emptyList()
-        )
+        ).copy(input = input)
     }
 
     private suspend fun execute(command: IReplCommand, input: List<Token>, parentNames: List<String>): List<String> {
@@ -178,6 +179,7 @@ object ReplExecutor {
 
     private fun hint(command: IReplCommand, input: List<Token>, highlight: List<HintHighlight>): Hint {
         val nextToken = input.firstOrNull()
+        val nextNextToken = input.getOrNull(1)
 
         if (nextToken != null) {
             if (nextToken.value == "help") {
@@ -206,7 +208,7 @@ object ReplExecutor {
                     it.first.startsWith(nextToken.value)
                 }
 
-                if (subCommands.isNotEmpty()) {
+                if (subCommands.isNotEmpty() && nextNextToken == null) {
                     return Hint(
                         subCommands.first().first.removePrefix(nextToken.value),
                         highlight

@@ -1,0 +1,109 @@
+@use '../utils';
+
+.terminal-view {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 20rem;
+  z-index: 10;
+
+  background: var(--primary-background);
+  border-top: solid 1px var(--border-color);
+}
+
+.terminal-output {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 3rem;
+  white-space: pre;
+  font-family: "Roboto Mono", sans-serif;
+  line-height: 1.1rem;
+  padding-top: 0.2rem;
+  overflow: auto;
+
+  div {
+    border-bottom: solid 1px var(--border-color);
+    white-space: pre;
+    font-family: "Roboto Mono", sans-serif;
+    line-height: 1.1rem;
+    padding: 0.2rem 0.8rem;
+
+    span {
+      display: block;
+      white-space: pre;
+      font-family: "Roboto Mono", sans-serif;
+      line-height: 1.1rem;
+      height: 1.1rem;
+
+      &:nth-child(2) {
+        padding-top: 0.2rem;
+      }
+    }
+  }
+}
+
+@keyframes cursor-blink {
+  0% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+.terminal-input {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3rem;
+  line-height: 2rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  border-top: solid 1px var(--border-color);
+
+  .terminal-input-content {
+    white-space: pre;
+    font-family: "Roboto Mono", sans-serif;
+    display: block;
+
+    span {
+      white-space: pre;
+      font-family: "Roboto Mono", sans-serif;
+    }
+
+    .node {
+      color: steelblue;
+    }
+    .leaf {
+      color: darkcyan;
+    }
+    .parameter {
+      color: green;
+    }
+    .error {
+      color: indianred;
+    }
+    .cursor {
+      content: "";
+      border-left: solid 1px var(--primary-text-color);
+      margin-left: -0.5px;
+      margin-right: -0.5px;
+
+      animation: cursor-blink 1s step-end infinite;
+    }
+    .hidden {
+      display: none;
+    }
+  }
+
+  .terminal-input-suffix {
+    white-space: pre;
+    font-family: "Roboto Mono", sans-serif;
+    display: block;
+    color: var(--tertiary-background)
+  }
+}
