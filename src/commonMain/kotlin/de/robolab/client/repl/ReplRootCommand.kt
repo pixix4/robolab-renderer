@@ -1,11 +1,13 @@
 package de.robolab.client.repl
 
 import de.robolab.client.repl.base.buildList
+import de.robolab.common.utils.ConsoleGreeter
 
 object ReplRootCommand: ReplCommandNode("robolab", "RoboLab Renderer repl") {
     override fun printHelp(parentNames: List<String>): List<String> {
         return buildList {
-            add(description)
+            addAll(ConsoleGreeter.appLogo.split("\n"))
+            add(ConsoleGreeter.appClientCreators)
             add("")
             add("Commands:")
 

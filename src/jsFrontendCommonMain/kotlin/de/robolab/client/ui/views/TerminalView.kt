@@ -140,11 +140,9 @@ class TerminalView(
         }
 
         onClick { event ->
-            if (document.activeElement != inputView.html) {
-                inputView.focus()
-                event.stopPropagation()
-                event.preventDefault()
-            }
+            inputView.focus()
+            event.stopPropagation()
+            event.preventDefault()
         }
     }
 
