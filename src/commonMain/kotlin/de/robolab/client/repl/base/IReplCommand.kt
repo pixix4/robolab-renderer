@@ -15,6 +15,12 @@ interface IReplCommandNode : IReplCommand {
 
     val commands: List<IReplCommand>
 
+    val helpCommandDescriptions: List<Pair<String, String>>
+        get() {
+            val list = commands.map { it.name to it.description } + Pair("help", "Print help message for this command")
+            return list.sortedBy { it.first }
+        }
+
     override fun printHelp(parentNames: List<String>): List<String> {
         return buildList {
             add((parentNames + name).joinToString(" "))
@@ -23,8 +29,11 @@ interface IReplCommandNode : IReplCommand {
             add("    $description")
             add("")
             add("Commands:")
-            for (command in commands) {
-                add("    ${command.name}: ${command.description}")
+
+            val nameLength = helpCommandDescriptions.maxOf { it.first.length }
+            for ((commandName, commandDescription) in helpCommandDescriptions) {
+                val padding = " ".repeat(nameLength - commandName.length)
+                add("    ${commandName}: $padding$commandDescription")
             }
         }
     }
@@ -38,12 +47,35 @@ interface IReplCommandLeaf : IReplCommand {
 
     override fun printHelp(parentNames: List<String>): List<String> {
         val params = parameters.joinToString(" ") {
-            if (it.optional) {
-                "[optional ${it.name} ${it.type.name} \"${it.type.example}\"]"
-            } else {
-                "[${it.name} ${it.type.name} \"${it.type.example}\"]"
-            }
+            val s = "${it.name}: ${it.type.name}"
+            if (it.optional) "[$s]" else "<$s>"
         }
+
+        val types = parameters
+            .asSequence()
+            .map { it.type }
+            .distinct()
+            .sortedBy { it.name }
+            .map {
+                buildList<String> {
+                    add("")
+                    if (it.pattern.contains(' ')) {
+                        add("${it.name}: \"${it.pattern}\"")
+                    } else {
+                        add("${it.name}: ${it.pattern}")
+                    }
+                    add("    ${it.description}")
+
+                    if (it.example.isNotEmpty()) {
+                        add("    Example: \"${it.example.first().escapeIfNecessary()}\"")
+                    }
+                    for (e in it.example.drop(1)) {
+                        add("             \"${it.example.first().escapeIfNecessary()}\"")
+                    }
+                }
+            }
+            .flatten()
+            .toList()
 
         return buildList {
             add((parentNames + name).joinToString(" "))
@@ -52,7 +84,8 @@ interface IReplCommandLeaf : IReplCommand {
             add("    $description")
             add("")
             add("Usage:")
-            add("    $name: $params")
+            add("    $name $params")
+            addAll(types)
         }
     }
 }
@@ -67,7 +100,9 @@ interface IReplCommandParameterTypeDescriptor<T> where T : IReplCommandParameter
     val klazz: KClass<T>
 
     val name: String
-    val example: String
+    val description: String
+    val example: List<String>
+    val pattern: String
     val regex: Regex
 
     fun fromToken(token: String): T?
@@ -91,3 +126,6 @@ fun<T> buildList(builder: MutableList<T>.() -> Unit): List<T> {
     builder(list)
     return list.toList()
 }
+
+
+fun String.escapeIfNecessary() = if (this.contains(' ')) "\"$this\"" else this

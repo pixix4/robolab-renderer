@@ -34,7 +34,11 @@ data class LayoutConstraint(
     companion object : IReplCommandParameterTypeDescriptor<LayoutConstraint> {
         override val klazz: KClass<LayoutConstraint> = LayoutConstraint::class
         override val name: String = "LayoutConstraint"
-        override val example: String = LayoutConstraint(3, 2).toToken()
+        override val description = "Specify the window layout"
+        override val pattern = "<rows>x<cols>"
+        override val example = listOf(
+            LayoutConstraint(3, 2).toToken()
+        )
         override val regex: Regex = """\d+x\d+""".toRegex()
 
         override fun fromToken(token: String): LayoutConstraint? {
@@ -52,6 +56,51 @@ suspend fun execute(command: String) {
     println("#".repeat(20))
     println(ReplExecutor.execute(command).joinToString("\n"))
     println("#".repeat(20))
+}
+
+fun autoComplete(command: String) {
+    for (i in 0..command.length) {
+        val subCommand = command.take(i)
+
+        println("\n> $subCommand")
+        println(ReplExecutor.autoComplete(subCommand).joinToString("\n").prependIndent("    "))
+    }
+}
+
+fun hint(command: String, expand: Boolean = true) {
+    val range = if (expand) 0..command.length else command.length..command.length
+    for (i in range) {
+        val subCommand = command.take(i)
+        val hint = ReplExecutor.hint(subCommand)
+
+        val grey = "\u001b[37m"
+        val cyan = "\u001b[36m"
+        val blue = "\u001b[34m"
+        val green = "\u001b[32m"
+        val red = "\u001b[31m"
+        val reset = "\u001b[0m"
+
+        val builder = StringBuilder()
+
+        var lastSplit = 0
+
+        for ((range, color) in hint.highlight) {
+            builder.append(subCommand.substring(lastSplit, range.first))
+
+            builder.append(when (color) {
+                ReplExecutor.HintColor.NODE -> blue
+                ReplExecutor.HintColor.LEAF -> cyan
+                ReplExecutor.HintColor.PARAMETER -> green
+                ReplExecutor.HintColor.ERROR -> red
+            })
+            builder.append(subCommand.substring(range))
+            builder.append(reset)
+            lastSplit = range.last + 1
+        }
+        builder.append(subCommand.substring(lastSplit, subCommand.length))
+
+        println("\n> ${builder.toString()}$grey${hint.suffix}$reset")
+    }
 }
 
 fun main() {
@@ -76,10 +125,20 @@ fun main() {
         "Transform the current window to the specified layout",
         ReplCommandParameterDescriptor(
             LayoutConstraint,
-            "layout"
+            "constraint",
+            false
+        ),
+        ReplCommandParameterDescriptor(
+            LayoutConstraint,
+            "param2",
+        true
         )
     ) { parameters ->
-        parameters
+        val layoutConstraint = parameters.first() as LayoutConstraint
+
+        listOf(
+            "Set layout to $layoutConstraint"
+        )
     }
 
     GlobalScope.launch {
@@ -93,6 +152,15 @@ fun main() {
         execute("window layout")
         execute("window layout 3x2")
         execute("window layout abc")
+
+        autoComplete("window split-v")
+        hint("window split-v")
+        hint("window layout 3x2 4x5")
+        hint("window layout asdf", false)
+        hint("window layout 1234 asdf asdf", false)
+        hint("window layout 2x2 asdf asdf", false)
+        hint("window layout 2x2 2x2 asdf", false)
+        hint("window asdf 1234", false)
     }
 
     return
