@@ -125,10 +125,10 @@ object ReplExecutor {
         } else {
             if (nextInput != null) {
                 if (command is ReplRootCommand) {
-                    listOf("Unknown command '${(parentNames + nextInput).joinToString(" ")}'!") + command.printHelp(
+                    listOf("Unknown command '${(parentNames + nextInput.value).joinToString(" ")}'!") + command.printHelp(
                         parentNames)
                 } else {
-                    listOf("Unknown command '${(parentNames + command.name + nextInput).joinToString(" ")}'!") + command.printHelp(
+                    listOf("Unknown command '${(parentNames + command.name + nextInput.value).joinToString(" ")}'!") + command.printHelp(
                         parentNames)
                 }
             } else {

@@ -8,8 +8,11 @@ object ReplRootCommand: ReplCommandNode("robolab", "RoboLab Renderer repl") {
             add(description)
             add("")
             add("Commands:")
-            for (command in commands) {
-                add("    ${command.name}: ${command.description}")
+
+            val nameLength = helpCommandDescriptions.maxOf { it.first.length }
+            for ((commandName, commandDescription) in helpCommandDescriptions) {
+                val padding = " ".repeat(nameLength - commandName.length)
+                add("    ${commandName}: $padding$commandDescription")
             }
         }
     }

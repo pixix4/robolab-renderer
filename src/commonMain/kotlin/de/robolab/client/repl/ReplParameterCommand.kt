@@ -21,13 +21,13 @@ open class ReplParameterCommand(
                 if (p.optional) {
                     p to null
                 } else {
-                    throw IllegalArgumentException("Required parameter ${p.name} is missing!")
+                    throw IllegalArgumentException("Required parameter '${p.name}' is missing!")
                 }
             } else {
                 if (p.type.regex.matches(nextString)) {
                     p to nextString
                 } else {
-                    throw IllegalArgumentException("Required parameter ${p.name} does not match given '$nextString'!")
+                    throw IllegalArgumentException("Required parameter '${p.name}' does not match given '$nextString'!")
                 }
             }
         }.mapNotNull { (type, param) ->

@@ -2,12 +2,14 @@ package de.robolab.client.app.viewmodel
 
 import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.renderer.events.KeyEvent
+import de.robolab.client.renderer.utils.History
 import de.robolab.client.repl.*
 import de.robolab.client.repl.base.IReplCommandParameter
 import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
 import de.robolab.client.repl.base.ReplCommandParameterDescriptor
 import de.robolab.client.repl.base.buildList
 import de.westermann.kobserve.event.EventHandler
+import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -16,6 +18,58 @@ import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
 class TerminalViewModel : ViewModel {
+
+    val inputViewModel = TerminalInputViewModel()
+
+    val onOutput = EventHandler<Pair<TerminalInputViewModel, List<String>>>()
+
+    private fun execute(input: String) {
+        GlobalScope.launch {
+            val output = ReplExecutor.execute(input)
+            onOutput.emit(TerminalInputViewModel(input, true) to output)
+        }
+    }
+
+    init {
+        inputViewModel.onExecute {
+            execute(it)
+        }
+
+        val windowCommand = ReplCommandNode("window", "Modify the current window state")
+        ReplRootCommand += windowCommand
+        windowCommand += ReplSimpleCommand("split-h", "Split the current window horizontally") {
+            listOf("Split-h")
+        }
+        windowCommand += ReplSimpleCommand("split-v", "Split the current window vertically") {
+            listOf("Split-v")
+        }
+        windowCommand += ReplParameterCommand(
+            "layout",
+            "Transform the current window to the specified layout",
+            ReplCommandParameterDescriptor(
+                LayoutConstraint,
+                "constraint",
+                false
+            ),
+            ReplCommandParameterDescriptor(
+                LayoutConstraint,
+                "param2",
+                true
+            )
+        ) { parameters ->
+            val layoutConstraint = parameters.first() as LayoutConstraint
+
+            listOf(
+                "Set layout to $layoutConstraint"
+            )
+        }
+    }
+}
+
+class TerminalInputViewModel(
+    value: String = "",
+    readOnly: Boolean = false,
+) : ViewModel {
 
     data class HintContent(
         val value: String,
@@ -29,11 +83,19 @@ class TerminalViewModel : ViewModel {
         val cursor: Int = value.length,
     )
 
-    private val stateProperty = property(State(""))
+    private val commandHistory = History("")
+    private var commandHistoryDirty = true
+
+    private val stateProperty = property(State(value))
     private var state by stateProperty
 
     private val stateValueProperty = stateProperty.mapBinding { it.value }
     private val stateCursorProperty = stateProperty.mapBinding { it.cursor }
+
+    val onExecute = EventHandler<String>()
+
+    val readOnlyProperty = property(readOnly)
+    var readOnly by readOnlyProperty
 
     private val hintProperty = stateValueProperty.mapBinding {
         ReplExecutor.hint(it)
@@ -96,15 +158,45 @@ class TerminalViewModel : ViewModel {
         hint.suffix
     }
 
-    val onOutput = EventHandler<List<String>>()
+    fun paste(input: String) {
+        val state = state
+        val value =
+            state.value.substring(0, state.cursor) + input + state.value.substring(state.cursor, state.value.length)
+        this.state = State(value, state.cursor + 1)
+    }
+
+    val onPasteRequest = EventHandler<Unit>()
 
     fun onKeyDown(event: KeyEvent) {
-        event.stopPropagation()
-        val state = state
+        if (event.ctrlKey) {
+            when (event.keyCode) {
+                KeyCode.V -> {
+                    onPasteRequest.emit()
+                }
+                else -> {
+                    // Nothing todo
+                }
+            }
+            return
+        }
 
+        val state = state
+        event.stopPropagation()
         when (event.keyCode) {
             KeyCode.ENTER -> {
-                execute()
+                onExecute.emit(state.value)
+
+                while (commandHistory.canRedo) {
+                    commandHistory.redo()
+                }
+                if (commandHistoryDirty) {
+                    commandHistory.replace(state.value)
+                } else {
+                    commandHistory.push(state.value)
+                }
+                commandHistoryDirty = false
+
+                this.state = State("")
             }
             KeyCode.TAB -> {
                 autoComplete()
@@ -143,6 +235,26 @@ class TerminalViewModel : ViewModel {
                     this.state = state.copy(cursor = state.value.length)
                 }
             }
+            KeyCode.ARROW_UP -> {
+                if (!commandHistory.canRedo) {
+                    if (commandHistoryDirty) {
+                        commandHistory.replace(state.value)
+                    } else {
+                        commandHistory.push(state.value)
+                        commandHistoryDirty = true
+                    }
+                }
+                if (commandHistory.canUndo) {
+                    commandHistory.undo()
+                }
+                this.state = State(commandHistory.value)
+            }
+            KeyCode.ARROW_DOWN -> {
+                if (commandHistory.canRedo) {
+                    commandHistory.redo()
+                }
+                this.state = State(commandHistory.value)
+            }
             else -> {
                 var c = event.keyCode.char ?: return
 
@@ -165,19 +277,6 @@ class TerminalViewModel : ViewModel {
         event.stopPropagation()
     }
 
-    private fun execute() {
-        GlobalScope.launch {
-            val input = state.value
-            state = State("")
-            val output = ReplExecutor.execute(input)
-
-            val o = mutableListOf("> $input")
-            o.addAll(output)
-
-            onOutput.emit(o)
-        }
-    }
-
     private fun autoComplete() {
         val input = state.value
         val autoComplete = ReplExecutor.autoComplete(input)
@@ -186,39 +285,7 @@ class TerminalViewModel : ViewModel {
             state = State(input + autoComplete.first().suffix)
         }
     }
-
-    init {
-        val windowCommand = ReplCommandNode("window", "Modify the current window state")
-        ReplRootCommand += windowCommand
-        windowCommand += ReplSimpleCommand("split-h", "Split the current window horizontally") {
-            listOf("Split-h")
-        }
-        windowCommand += ReplSimpleCommand("split-v", "Split the current window vertically") {
-            listOf("Split-v")
-        }
-        windowCommand += ReplParameterCommand(
-            "layout",
-            "Transform the current window to the specified layout",
-            ReplCommandParameterDescriptor(
-                LayoutConstraint,
-                "constraint",
-                false
-            ),
-            ReplCommandParameterDescriptor(
-                LayoutConstraint,
-                "param2",
-                true
-            )
-        ) { parameters ->
-            val layoutConstraint = parameters.first() as LayoutConstraint
-
-            listOf(
-                "Set layout to $layoutConstraint"
-            )
-        }
-    }
 }
-
 
 data class LayoutConstraint(
     val rows: Int,

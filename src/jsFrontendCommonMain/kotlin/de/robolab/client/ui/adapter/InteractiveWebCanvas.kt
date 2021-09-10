@@ -478,6 +478,7 @@ fun KeyboardEvent.getKeyCode() = when (key.lowercase()) {
     "tab" -> KeyCode.TAB
     "shift" -> KeyCode.SHIFT
     "control" -> KeyCode.CTRL
+    "meta" -> KeyCode.CTRL
     "alt" -> KeyCode.ALT
     "altgraph" -> KeyCode.ALT_GRAPHICS
     "print" -> KeyCode.PRINT
