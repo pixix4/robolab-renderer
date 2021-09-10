@@ -26,6 +26,7 @@ enum class MIMEType(primaryName: String, vararg alsoKnownAs:String) {
     OCTET_STREAM("application/octet-stream"),
     JSON("application/json"),
     JWT("application/jwt"),
+    FORM_URLENCODED("application/x-www-form-urlencoded"),
     ;
 
     val primaryName = primaryName.lowercase()

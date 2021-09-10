@@ -1,6 +1,8 @@
 package de.robolab.client.net
 
-import de.robolab.client.app.model.file.requestAuthToken
+import de.robolab.client.app.model.file.handleAuthPrompt
+import de.robolab.client.net.requests.auth.OIDCServer
+import de.robolab.client.net.requests.auth.TokenResponse
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AuthorizationHeader
@@ -16,14 +18,33 @@ class RESTRobolabServer(
     override val hostURL: String,
     override val hostPort: Int,
     override val protocol: String,
+    val oidcServer: OIDCServer,
+    val clientID: String,
+    private val clientSecret: String? = null,
     val enableWaitingRequestList: Boolean = false,
 ) : IRobolabServer {
 
-    constructor(hostURL: String, hostPort: Int? = null, secure: Boolean = false) :
-            this(hostURL, hostPort ?: if (secure) 443 else 80, if (secure) "https" else "http")
+    constructor(
+        hostURL: String,
+        hostPort: Int? = null,
+        secure: Boolean = false,
+        oidcServer: OIDCServer,
+        clientID: String,
+        clientSecret: String? = null
+    ) : this(
+        hostURL,
+        hostPort ?: if (secure) 443 else 80,
+        if (secure) "https" else "http",
+        oidcServer,
+        clientID,
+        clientSecret
+    )
 
     private val headerHashcodeXorMask: Int = Random.nextInt()
     private val logger: Logger = Logger("ServerLogger")
+
+    private val refreshTokenProperty = property<String>()
+    private var refreshToken by refreshTokenProperty
 
     override val authHeaderProperty = property<AuthorizationHeader>()
     override var authHeader by authHeaderProperty
@@ -32,8 +53,8 @@ class RESTRobolabServer(
 
     }
 
-    private var _requestAuthTokenMutex: Mutex = Mutex()
-    private var _waitingRequestsMutex: Mutex = Mutex()
+    private val _requestAuthTokenMutex: Mutex = Mutex(true) //locked for param-loading from storage
+    private val _waitingRequestsMutex: Mutex = Mutex()
     private val _waitingRequests: MutableList<Triple<Any, HttpMethod, String>> = mutableListOf()
     val waitingRequests: List<Pair<HttpMethod, String>>
         get() = _waitingRequests.map { it.second to it.third }
@@ -48,13 +69,52 @@ class RESTRobolabServer(
                 storeAuthorizationHeader(authHeader)
             }
         }
-
-        GlobalScope.launch {
-            val header = loadAuthorizationHeader()
-            if (header != null) {
-                authHeader = header
+        refreshTokenProperty.onChange {
+            GlobalScope.launch {
+                storeRefreshToken(refreshToken)
             }
         }
+
+
+        GlobalScope.launch {
+            try {
+                val header = loadAuthorizationHeader()
+                if (header != null) {
+                    authHeader = header
+                }
+                val refresh = loadRefreshToken()
+                if (refresh != null)
+                    refreshToken = refresh
+            } finally {
+                _requestAuthTokenMutex.unlock() // Locked by initializer
+            }
+        }
+    }
+
+    private suspend fun requestToken(): Boolean{
+        val refreshToken = refreshToken
+        if(!refreshToken.isNullOrEmpty()){
+            when(val refreshResponse = oidcServer.performTokenRefresh(refreshToken,clientID,clientSecret)){
+                is TokenResponse.FinalTokenResponse.AccessToken -> {
+                    useAccessToken(refreshResponse, refreshToken)
+                    return true
+                }
+                !is TokenResponse.ExpiredToken -> {
+                    logger.warn{
+                        "Unexpected refresh-response: $refreshResponse"
+                    }
+                }
+            }
+        }
+
+        val authResponse = oidcServer.performDeviceAuth(clientID, clientSecret, promptHandler= ::handleAuthPrompt)
+        useAccessToken(authResponse)
+        return true
+    }
+
+    private fun useAccessToken(token: TokenResponse.FinalTokenResponse.AccessToken, refreshToken: String?=null){
+        authHeaderProperty.set(AuthorizationHeader.Bearer(token.accessToken))
+        refreshTokenProperty.set(token.refreshToken ?: refreshToken)
     }
 
     override suspend fun request(
@@ -154,7 +214,7 @@ class RESTRobolabServer(
                     "|C-@>A| $method:$path AUTH"
                 }
                 logAuthTokenProvided = true
-            } while (requestAuthToken(this, true))
+            } while (requestToken())
         } finally {
             if (_requestAuthTokenMutex.holdsLock(owner))
                 _requestAuthTokenMutex.unlock(owner)
@@ -170,3 +230,5 @@ class RESTRobolabServer(
 
 expect suspend fun loadAuthorizationHeader(): AuthorizationHeader?
 expect suspend fun storeAuthorizationHeader(header: AuthorizationHeader?)
+expect suspend fun loadRefreshToken(): String?
+expect suspend fun storeRefreshToken(refreshToken: String?)

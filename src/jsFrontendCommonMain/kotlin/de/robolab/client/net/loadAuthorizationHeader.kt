@@ -21,3 +21,15 @@ actual suspend fun storeAuthorizationHeader(header: AuthorizationHeader?) {
         localStorage["robolab-token"] = header.toString()
     }
 }
+
+actual suspend fun loadRefreshToken(): String? {
+    return localStorage["robolab-refresh"]
+}
+
+actual suspend fun storeRefreshToken(refreshToken: String?) {
+    if (refreshToken == null) {
+        localStorage.removeItem("robolab-refresh")
+    } else {
+        localStorage["robolab-refresh"] = refreshToken
+    }
+}

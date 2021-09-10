@@ -17,7 +17,7 @@ interface IUnboundRESTRequest<out R> : IRESTRequest<R> where R : IRESTResponse {
     fun parseResponse(serverResponse: ServerResponse): RESTResult<R>
 }
 
-interface IBoundRestRequest<out R>: IRESTRequest<R> where R: IRESTResponse{
+interface IBoundRESTRequest<out R>: IRESTRequest<R> where R: IRESTResponse{
     val requestURL: URLInfo
     val requestHeaders: Map<String,List<String>>
         get() = emptyMap()

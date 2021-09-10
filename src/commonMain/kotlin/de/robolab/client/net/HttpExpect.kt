@@ -1,6 +1,6 @@
 package de.robolab.client.net
 
-import de.robolab.client.net.requests.IBoundRestRequest
+import de.robolab.client.net.requests.IBoundRESTRequest
 import de.robolab.client.net.requests.IRESTResponse
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
@@ -48,7 +48,7 @@ suspend fun sendHttpRequest(
         ?: throw IllegalArgumentException("Invalid URL: $url"), body, headers
 )
 
-suspend fun <R : IRESTResponse> sendHttpRequest(boundRequest: IBoundRestRequest<R>) =
+suspend fun <R : IRESTResponse> sendHttpRequest(boundRequest: IBoundRESTRequest<R>) =
     boundRequest.parseResponse(
         sendHttpRequest(
             boundRequest.requestURL,
@@ -58,7 +58,7 @@ suspend fun <R : IRESTResponse> sendHttpRequest(boundRequest: IBoundRestRequest<
     )
 
 @JvmName("sendHttpRequestReceiving")
-suspend fun <R : IRESTResponse> IBoundRestRequest<R>.sendHttpRequest() = sendHttpRequest(this)
+suspend fun <R : IRESTResponse> IBoundRESTRequest<R>.sendHttpRequest() = sendHttpRequest(this)
 
 suspend fun sendHttpRequest(
     urlInfo: URLInfo,

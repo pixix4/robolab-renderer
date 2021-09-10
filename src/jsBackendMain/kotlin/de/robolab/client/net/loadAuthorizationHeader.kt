@@ -8,3 +8,9 @@ actual suspend fun loadAuthorizationHeader(): AuthorizationHeader? {
 
 actual suspend fun storeAuthorizationHeader(header: AuthorizationHeader?) {
 }
+actual suspend fun loadRefreshToken(): String? {
+    TODO("Not yet implemented")
+}
+
+actual suspend fun storeRefreshToken(refreshToken: String?) {
+}
