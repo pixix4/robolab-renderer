@@ -5,7 +5,7 @@ import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.renderer.events.KeyEvent
 import de.robolab.client.renderer.utils.History
 import de.robolab.client.repl.ReplExecutor
-import de.robolab.client.repl.base.buildList
+import de.robolab.client.repl.buildList
 import de.robolab.client.repl.offset
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
@@ -93,9 +93,11 @@ class TerminalInputViewModel(
                 val firstRange = curr.range.first until cursor
                 val secondRange = cursor..curr.range.last
 
-                list.add(i, HintContent(curr.value.substring(secondRange.offset(-curr.range.first)), curr.color, secondRange))
+                list.add(i,
+                    HintContent(curr.value.substring(secondRange.offset(-curr.range.first)), curr.color, secondRange))
                 list.add(i, cursorElement)
-                list.add(i, HintContent(curr.value.substring(firstRange.offset(-curr.range.first)), curr.color, firstRange))
+                list.add(i,
+                    HintContent(curr.value.substring(firstRange.offset(-curr.range.first)), curr.color, firstRange))
 
                 return@join list
             }
@@ -145,7 +147,7 @@ class TerminalInputViewModel(
                 val currentAutoComplete = autoCompleteProperty.value
                 if (currentAutoComplete.isNotEmpty()) {
                     val selectedIndex = currentAutoComplete.first { it.selected }
-                    this.state = State(state.value + selectedIndex.suffix  + " ")
+                    this.state = State(state.value + selectedIndex.suffix + " ")
                     autoCompleteProperty.value = emptyList()
                     return
                 }
@@ -360,7 +362,7 @@ class TerminalInputViewModel(
         if (currentAutoComplete.isNotEmpty()) {
             val selected = currentAutoComplete.find { it.value == textContent } ?: return
 
-            state = State(input + selected.suffix  + " ")
+            state = State(input + selected.suffix + " ")
             autoCompleteProperty.value = emptyList()
             return
         }

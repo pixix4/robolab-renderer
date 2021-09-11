@@ -2,7 +2,6 @@ package de.robolab.client.repl
 
 import de.robolab.client.repl.base.IReplCommandParameter
 import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
-import de.robolab.client.repl.base.escapeIfNecessary
 import kotlin.reflect.KClass
 
 data class BooleanParameter(

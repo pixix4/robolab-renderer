@@ -1,7 +1,8 @@
 package de.robolab.client.repl.base
 
 import de.robolab.client.app.model.base.MaterialIcon
-import kotlin.reflect.KClass
+import de.robolab.client.repl.escapeIfNecessary
+import de.robolab.client.repl.merge
 
 interface IReplCommand {
 
@@ -18,7 +19,8 @@ interface IReplCommandNode : IReplCommand {
 
     val helpCommandDescriptions: List<Pair<String, String>>
         get() {
-            val list = commands.map { it.name to it.description } + Pair("help", "Print help message for this command")
+            val list = commands.groupBy { it.name }.mapNotNull { it.value.merge() }
+                .map { it.name to it.description } + Pair("help", "Print help message for this command")
             return list.sortedBy { it.first }
         }
 
@@ -79,41 +81,6 @@ interface IReplCommandLeaf : IReplCommand {
             }
         }
     }
-}
-
-interface IReplCommandParameter {
-    val typeDescriptor: IReplCommandParameterTypeDescriptor<*>
-    fun toToken(): String
-}
-
-interface IReplCommandParameterTypeDescriptor<T> where T : IReplCommandParameter {
-
-    val klazz: KClass<T>
-
-    val name: String
-    val description: String
-    val example: List<String>
-    val pattern: String
-    val regex: Regex
-
-    fun fromToken(token: String): T?
-}
-
-data class ReplCommandParameterDescriptor<T>(
-    val type: IReplCommandParameterTypeDescriptor<T>,
-    val name: String,
-    val optional: Boolean = false,
-) where T : IReplCommandParameter
-
-fun <T> buildList(builder: MutableList<T>.() -> Unit): List<T> {
-    val list = mutableListOf<T>()
-    builder(list)
-    return list.toList()
-}
-
-fun String.escapeIfNecessary(): String {
-    val intern = if (this.contains('"')) this.replace("\"", "\\\"") else this
-    return if (intern.contains(' ') || intern.contains('"')) "\"$intern\"" else intern
 }
 
 enum class ReplColor {

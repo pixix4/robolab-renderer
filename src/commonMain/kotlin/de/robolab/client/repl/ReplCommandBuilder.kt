@@ -1,7 +1,9 @@
 package de.robolab.client.repl
 
-import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.client.repl.base.*
+import de.robolab.client.repl.base.IReplCommandParameter
+import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
+import de.robolab.client.repl.base.IReplOutput
+import de.robolab.client.repl.base.ReplCommandParameterDescriptor
 
 
 fun ReplCommandNode.node(
@@ -43,16 +45,13 @@ fun <T : IReplCommandParameter> IReplCommandParameterTypeDescriptor<T>.param(
     return ReplCommandParameterDescriptor(this, name, optional)
 }
 
-object DummyReplOutput : IReplOutput {
-    override fun writeString(message: String, color: ReplColor?) {
-    }
-    override fun writeIcon(icon: MaterialIcon, color: ReplColor?) {
-    }
+fun <T> buildList(builder: MutableList<T>.() -> Unit): List<T> {
+    val list = mutableListOf<T>()
+    builder(list)
+    return list.toList()
 }
 
-fun ReplExecutor.HintColor.toColor() = when (this) {
-    ReplExecutor.HintColor.NODE -> ReplColor.BLUE
-    ReplExecutor.HintColor.LEAF -> ReplColor.CYAN
-    ReplExecutor.HintColor.PARAMETER -> ReplColor.GREEN
-    ReplExecutor.HintColor.ERROR -> ReplColor.RED
+fun String.escapeIfNecessary(): String {
+    val intern = if (this.contains('"')) this.replace("\"", "\\\"") else this
+    return if (intern.contains(' ') || intern.contains('"')) "\"$intern\"" else intern
 }

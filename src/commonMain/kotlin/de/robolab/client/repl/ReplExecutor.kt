@@ -1,9 +1,6 @@
 package de.robolab.client.repl
 
-import de.robolab.client.repl.base.IReplCommand
-import de.robolab.client.repl.base.IReplCommandLeaf
-import de.robolab.client.repl.base.IReplCommandNode
-import de.robolab.client.repl.base.IReplOutput
+import de.robolab.client.repl.base.*
 
 object ReplExecutor {
 
@@ -108,9 +105,9 @@ object ReplExecutor {
             }
 
             if (command is IReplCommandNode) {
-                val subCommand = command.commands.find {
+                val subCommand = command.commands.filter {
                     it.name == nextInput.value
-                }
+                }.merge()
 
                 if (subCommand != null) {
                     val nextParentNames = if (command is ReplRootCommand) {
@@ -162,9 +159,9 @@ object ReplExecutor {
             }
 
             if (command is IReplCommandNode) {
-                val subCommand = command.commands.find {
+                val subCommand = command.commands.filter {
                     it.name == nextInput.value
-                }
+                }.merge()
 
                 if (subCommand != null) {
                     return autoComplete(
@@ -202,9 +199,9 @@ object ReplExecutor {
             }
 
             if (command is IReplCommandNode) {
-                val subCommand = command.commands.find {
+                val subCommand = command.commands.filter {
                     it.name == nextToken.value
-                }
+                }.merge()
 
                 if (subCommand != null) {
                     val h = when (subCommand) {
@@ -296,3 +293,10 @@ object ReplExecutor {
 }
 
 fun IntRange.offset(offset: Int) = IntRange(start + offset, endInclusive + offset)
+
+fun ReplExecutor.HintColor.toColor() = when (this) {
+    ReplExecutor.HintColor.NODE -> ReplColor.BLUE
+    ReplExecutor.HintColor.LEAF -> ReplColor.CYAN
+    ReplExecutor.HintColor.PARAMETER -> ReplColor.GREEN
+    ReplExecutor.HintColor.ERROR -> ReplColor.RED
+}

@@ -8,7 +8,6 @@ import de.robolab.client.repl.*
 import de.robolab.client.repl.base.IReplCommandParameter
 import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
 import de.robolab.client.repl.base.IReplOutput
-import de.robolab.client.repl.base.buildList
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.RobolabJson
 import kotlinx.coroutines.GlobalScope
