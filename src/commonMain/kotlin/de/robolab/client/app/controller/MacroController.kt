@@ -117,6 +117,8 @@ class MacroController {
     }
 
     private fun loadDefaults() {
+        macroList.clear()
+
         macroList += Macro(
             KeyBinding(KeyCode.ENTER, ctrlKey = true),
             listOf("ui toggle terminal")
@@ -210,6 +212,10 @@ class MacroController {
 
                 save()
                 output
+            }
+
+            actionNoOutput("restore-defaults", "Delete all saved macros and restore the default bindings") { ->
+                loadDefaults()
             }
         }
     }
