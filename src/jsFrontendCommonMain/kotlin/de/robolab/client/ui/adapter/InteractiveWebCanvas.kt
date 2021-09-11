@@ -2,11 +2,15 @@ package de.robolab.client.ui.adapter
 
 import de.robolab.client.renderer.events.*
 import de.robolab.client.utils.electron
-import de.robolab.common.utils.*
+import de.robolab.common.utils.Logger
+import de.robolab.common.utils.Vector
 import de.westermann.kwebview.Document
 import de.westermann.kwebview.components.Canvas
 import kotlinx.browser.window
-import org.w3c.dom.*
+import org.w3c.dom.BUTT
+import org.w3c.dom.CanvasLineCap
+import org.w3c.dom.CanvasLineJoin
+import org.w3c.dom.MITER
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
 import kotlin.math.PI
@@ -501,18 +505,18 @@ fun KeyboardEvent.getKeyCode() = when (key.lowercase()) {
     "copy" -> KeyCode.COPY
     "paste" -> KeyCode.PASTE
     "find" -> KeyCode.FIND
-    // "f1" -> KeyCode.F1
-    // "f2" -> KeyCode.F2
-    // "f3" -> KeyCode.F3
-    // "f4" -> KeyCode.F4
-    // "f5" -> KeyCode.F5
-    // "f6" -> KeyCode.F6
-    // "f7" -> KeyCode.F7
-    // "f8" -> KeyCode.F8
-    // "f9" -> KeyCode.F9
-    // "f10" -> KeyCode.F10
-    // "f11" -> KeyCode.F11
-    // "f12" -> KeyCode.F12
+    "f1" -> KeyCode.F1
+    "f2" -> KeyCode.F2
+    "f3" -> KeyCode.F3
+    "f4" -> KeyCode.F4
+    "f5" -> KeyCode.F5
+    "f6" -> KeyCode.F6
+    "f7" -> KeyCode.F7
+    "f8" -> KeyCode.F8
+    "f9" -> KeyCode.F9
+    "f10" -> KeyCode.F10
+    "f11" -> KeyCode.F11
+    "f12" -> KeyCode.F12
     else -> {
         Logger("KeyMapper").info { "Unsupported keyCode: $key" }
         KeyCode.UNSUPPORTED
