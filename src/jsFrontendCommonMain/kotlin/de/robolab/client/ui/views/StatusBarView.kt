@@ -16,6 +16,14 @@ class StatusBarView(
 ) : ViewCollection<View>() {
 
     init {
+        boxView("status-bar-terminal") {
+            iconView(MaterialIcon.CODE)
+
+            title = "Open terminal"
+            onClick {
+                viewModel.openTerminal()
+            }
+        }
         boxView {
             listFactory(viewModel.connectionList, { connection ->
                 BoxView().apply {

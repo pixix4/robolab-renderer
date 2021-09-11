@@ -5,7 +5,7 @@ import de.robolab.client.app.controller.MainController
 import de.westermann.kobserve.list.observableListOf
 
 class MainViewModel(
-    private val controller: MainController
+    controller: MainController
 ) : ViewModel {
 
     val toolBar = ToolBarViewModel(controller.toolBarController)
@@ -19,7 +19,7 @@ class MainViewModel(
 
     val dialogList = observableListOf<DialogViewModel>()
 
-    val terminal = TerminalViewModel()
+    val terminal = TerminalViewModel(controller.uiController)
 
     init {
         DialogController.onOpen {

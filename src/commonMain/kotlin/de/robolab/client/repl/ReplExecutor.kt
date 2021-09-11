@@ -119,7 +119,7 @@ object ReplExecutor {
                 command.execute(input.map { it.value })
             } catch (e: Exception) {
                 listOf(
-                    "Command failed with exception: ${e.message}"
+                    "Command failed with ${e::class.simpleName ?: "Exception"}: ${e.message}"
                 )
             }
         } else {
@@ -209,6 +209,12 @@ object ReplExecutor {
                 }
 
                 if (subCommands.isNotEmpty() && nextNextToken == null) {
+                    if (command is ReplRootCommand && nextToken.value == "") {
+                        return Hint(
+                            "help",
+                            highlight
+                        )
+                    }
                     return Hint(
                         subCommands.first().first.removePrefix(nextToken.value),
                         highlight
@@ -247,6 +253,15 @@ object ReplExecutor {
     }
 
     private fun tokenize(input: String, open: Boolean = false): List<Token> {
+        var input = input.trimStart()
+        if (open && input.isEmpty()) {
+            return listOf(Token("", 0..0))
+        }
+
+        if (!open) {
+            input = input.trimEnd()
+        }
+
         val regex = if (open) {
             """'(?:[^'\\]|\\.)*('|$)|"(?:[^"\\]|\\.)*("|$)|([^ '"\\])+""".toRegex()
         } else {

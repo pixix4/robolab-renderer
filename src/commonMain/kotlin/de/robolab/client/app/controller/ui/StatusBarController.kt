@@ -15,7 +15,7 @@ class StatusBarController(
     private val connectionController: ConnectionController,
     private val contentController: ContentController,
     private val progressController: ProgressController,
-    uiController: UiController,
+    private val uiController: UiController,
 ) {
     val connectionList = connectionController.connectionIndicatorList
 
@@ -50,4 +50,8 @@ class StatusBarController(
     }
 
     val fullscreenProperty = uiController.fullscreenProperty
+
+    fun openTerminal() {
+        uiController.terminalEnabledProperty.value = true
+    }
 }

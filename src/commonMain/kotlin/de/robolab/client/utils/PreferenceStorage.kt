@@ -61,6 +61,8 @@ object PreferenceStorage : TypedStorage() {
 
     val infoBarEnabledProperty = item("ui.infoBarEnabledProperty", true)
 
+    val terminalEnabledProperty = item("ui.terminalEnabledProperty", false)
+
 
     val clientIdProperty =
         item("communication.clientId", Random.nextBytes(16).joinToString("") { it.toString(16).padStart(2, '0') })

@@ -5,12 +5,51 @@
   left: 0;
   right: 0;
   bottom: 0;
-  height: 20rem;
+  height: var(--terminal-view-height);
   z-index: 10;
-  overflow: auto;
+  display: none;
 
   background: var(--primary-background);
   border-top: solid 1px var(--border-color);
+
+  &.active {
+    display: block;
+  }
+}
+
+.terminal-close-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 2rem;
+  height: 2rem;
+  text-align: center;
+  opacity: 0.3 !important;
+
+  &:hover {
+    opacity: 0.7 !important;
+  }
+}
+
+.terminal-bar-resize {
+  position: absolute;
+  height: 0.8rem;
+  width: 100%;
+  left: 0;
+  top: -0.4rem;
+  cursor: row-resize;
+  opacity: 0.5;
+  z-index: 2;
+}
+
+.terminal-scroll-box {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  overflow: auto;
+  padding-bottom: 0.5rem;
 }
 
 .terminal-output {
@@ -109,5 +148,37 @@
 
   &.readonly .terminal-input-suffix {
     display: none;
+  }
+}
+.terminal-input-auto-complete {
+  position: absolute;
+  left: 0.4rem;
+  bottom: calc(100% + 0.2rem);
+  background: var(--primary-background);
+  border: solid 1px var(--border-color);
+  display: flex;
+
+  &:empty {
+    display: none;
+  }
+
+  span {
+    position: relative;
+    display: block;
+    padding: 0.4rem 0.6rem;
+
+    &::after {
+      content: attr(data-description);
+      display: block;
+      font-size: 0.7rem;
+    }
+
+    &.selected {
+      color: var(--theme-color);
+    }
+
+    &:not(:last-child) {
+      border-right: solid 1px var(--border-color);
+    }
   }
 }
