@@ -83,6 +83,10 @@ interface IReplCommandLeaf : IReplCommand {
     }
 }
 
+interface IReplBoundCommandTemplate<in T> {
+    fun bind(ref: T): IReplCommand
+}
+
 enum class ReplColor {
     RED,
     GREEN,

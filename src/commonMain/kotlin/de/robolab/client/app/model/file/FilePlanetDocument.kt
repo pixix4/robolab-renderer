@@ -17,8 +17,12 @@ import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.renderer.utils.TransformationInteraction
+import de.robolab.client.repl.ReplRootCommand
+import de.robolab.client.repl.base.IReplCommand
+import de.robolab.client.repl.commands.planet.PlanetCommand
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
+import de.robolab.common.utils.consumeEach
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -101,6 +105,8 @@ class FilePlanetDocument(
         ),
     ))
 
+    private val _registeredCommands: MutableList<IReplCommand> = mutableListOf()
+
     override val canUndoProperty = planetFile.planetProperty.canUndoProperty
 
     override fun undo() {
@@ -167,9 +173,11 @@ class FilePlanetDocument(
     }
 
     override fun onAttach() {
+        ReplRootCommand += PlanetCommand.bind(this).also(_registeredCommands::add)
     }
 
     override fun onDetach() {
+        _registeredCommands.consumeEach(ReplRootCommand::removeCommand)
     }
 
     override fun onDestroy() {
