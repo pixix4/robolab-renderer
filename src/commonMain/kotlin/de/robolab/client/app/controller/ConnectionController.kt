@@ -2,7 +2,7 @@ package de.robolab.client.app.controller
 
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
 import de.robolab.client.repl.ReplRootCommand
-import de.robolab.client.repl.actionNoOutput
+import de.robolab.client.repl.action
 import de.robolab.client.repl.node
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
@@ -51,21 +51,21 @@ class ConnectionController(
 
     init {
         ReplRootCommand.node("mqtt", "Connect to the mothership via mqtt") {
-            actionNoOutput("connect", "Connect to the mothership") { ->
+            action("connect", "Connect to the mothership") { _ ->
                 val state = connection.connectionState
 
                 if (state is RobolabMqttConnection.Disconnected || state is RobolabMqttConnection.ConnectionLost) {
                     state.onAction()
                 }
             }
-            actionNoOutput("disconnect", "Disconnect from the mothership") { ->
+            action("disconnect", "Disconnect from the mothership") { _ ->
                 val state = connection.connectionState
 
                 if (state is RobolabMqttConnection.Connected) {
                     state.onAction()
                 }
             }
-            actionNoOutput("abort", "Stop the current connection attempt") { ->
+            action("abort", "Stop the current connection attempt") { _ ->
                 val state = connection.connectionState
 
                 if (state is RobolabMqttConnection.Connecting) {

@@ -3,6 +3,7 @@ package de.robolab.client.repl
 import de.robolab.client.repl.base.IReplCommand
 import de.robolab.client.repl.base.IReplCommandLeaf
 import de.robolab.client.repl.base.IReplCommandNode
+import de.robolab.client.repl.base.IReplOutput
 
 object ReplExecutor {
 
@@ -69,8 +70,9 @@ object ReplExecutor {
         }
     }
 
-    suspend fun execute(input: String): List<String> {
-        return execute(
+    suspend fun execute(input: String, output: IReplOutput) {
+        execute(
+            output,
             ReplRootCommand,
             tokenize(input),
             emptyList()
@@ -92,12 +94,17 @@ object ReplExecutor {
         ).copy(input = input)
     }
 
-    private suspend fun execute(command: IReplCommand, input: List<Token>, parentNames: List<String>): List<String> {
+    private suspend fun execute(
+        output: IReplOutput,
+        command: IReplCommand,
+        input: List<Token>,
+        parentNames: List<String>,
+    ) {
         val nextInput = input.firstOrNull()
 
         if (nextInput != null) {
             if (nextInput.value == "help") {
-                return command.printHelp(parentNames)
+                return command.printHelp(output, parentNames)
             }
 
             if (command is IReplCommandNode) {
@@ -113,6 +120,7 @@ object ReplExecutor {
                     }
 
                     return execute(
+                        output,
                         subCommand,
                         input.drop(1),
                         nextParentNames
@@ -121,9 +129,9 @@ object ReplExecutor {
             }
         }
 
-        return if (command is IReplCommandLeaf) {
+        if (command is IReplCommandLeaf) {
             try {
-                command.execute(input.map { it.value })
+                command.execute(output, input.map { it.value })
             } catch (e: Exception) {
                 listOf(
                     "Command failed with ${e::class.simpleName ?: "Exception"}: ${e.message}"
@@ -133,13 +141,13 @@ object ReplExecutor {
             if (nextInput != null) {
                 if (command is ReplRootCommand) {
                     listOf("Unknown command '${(parentNames + nextInput.value).joinToString(" ")}'!") + command.printHelp(
-                        parentNames)
+                        output, parentNames)
                 } else {
                     listOf("Unknown command '${(parentNames + command.name + nextInput.value).joinToString(" ")}'!") + command.printHelp(
-                        parentNames)
+                        output, parentNames)
                 }
             } else {
-                command.printHelp(parentNames)
+                command.printHelp(output, parentNames)
             }
         }
     }
@@ -264,7 +272,7 @@ object ReplExecutor {
         val rangeOffset = input.length - trimmedInput.length
 
         if (open && trimmedInput.isEmpty()) {
-            return listOf(Token("",  (0..0).offset(rangeOffset), true))
+            return listOf(Token("", (0..0).offset(rangeOffset), true))
         }
 
         if (!open) {

@@ -3,9 +3,11 @@ package de.robolab.client.ui.views
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.viewmodel.TerminalInputViewModel
 import de.robolab.client.app.viewmodel.ViewModel
-import de.robolab.client.repl.ReplExecutor
+import de.robolab.client.repl.base.ReplColor
+import de.robolab.client.repl.toColor
 import de.robolab.client.ui.ViewFactory
 import de.robolab.client.ui.adapter.toEvent
+import de.westermann.kwebview.ClassList
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.TextView
@@ -81,7 +83,7 @@ class TerminalInputView(
             )
 
             onClick { event ->
-                val t= event.target
+                val t = event.target
                 if (t is HTMLSpanElement) {
                     viewModel.selectAutoComplete(t.textContent ?: "")
                 }
@@ -92,10 +94,10 @@ class TerminalInputView(
             viewModel.contentProperty,
             create = { item ->
                 TextView(item.value).also { view ->
+                    view.classList.toggleTerminalColor(item.color?.toColor())
+
                     if (item.isCursor) {
                         view.classList += "cursor"
-                    } else if (item.color != null) {
-                        view.classList += item.color.name.lowercase()
                     }
                 }
             },
@@ -103,23 +105,13 @@ class TerminalInputView(
                 view.text = item.value
 
                 view.classList.toggle("hidden", false)
-                view.classList.toggle("cursor", false)
-                for (c in ReplExecutor.HintColor.values()) {
-                    view.classList.toggle(c.name.lowercase(), false)
-                }
-
-                if (item.isCursor) {
-                    view.classList += "cursor"
-                } else if (item.color != null) {
-                    view.classList += item.color.name.lowercase()
-                }
+                view.classList.toggle("cursor", item.isCursor)
+                view.classList.toggleTerminalColor(item.color?.toColor())
             },
             delete = { view ->
                 view.text = ""
                 view.classList.toggle("cursor", false)
-                for (c in ReplExecutor.HintColor.values()) {
-                    view.classList.toggle(c.name.lowercase(), false)
-                }
+                view.classList.toggleTerminalColor(null)
                 view.classList += "hidden"
             },
         )
@@ -143,3 +135,11 @@ class TerminalInputView(
         }
     }
 }
+
+fun ClassList.toggleTerminalColor(color: ReplColor?) {
+    for (c in ReplColor.values()) {
+        toggle(c.toClassName(), c == color)
+    }
+}
+
+fun ReplColor.toClassName() = "terminal-${name.lowercase()}"

@@ -3,16 +3,17 @@ package de.robolab.client.repl
 import de.robolab.client.repl.base.ReplCommandParameterDescriptor
 import de.robolab.client.repl.base.IReplCommandLeaf
 import de.robolab.client.repl.base.IReplCommandParameter
+import de.robolab.client.repl.base.IReplOutput
 
 open class ReplParameterCommand(
     override val name: String,
     override val description: String,
     vararg parameters: ReplCommandParameterDescriptor<*>,
-    private val executeHandler: suspend (params: List<IReplCommandParameter>) -> List<String>,
+    private val executeHandler: suspend (output: IReplOutput, params: List<IReplCommandParameter>) -> Unit,
 ): IReplCommandLeaf {
     override val parameters: List<ReplCommandParameterDescriptor<*>> = parameters.toList()
 
-    override suspend fun execute(stringParameters: List<String>): List<String> {
+    override suspend fun execute(output: IReplOutput, stringParameters: List<String>) {
         val p = this.parameters.mapIndexed { i, p ->
             val nextString = stringParameters.getOrNull(i)
             if (nextString == null) {
@@ -34,6 +35,6 @@ open class ReplParameterCommand(
             }
         }
 
-        return executeHandler(p)
+        return executeHandler(output, p)
     }
 }

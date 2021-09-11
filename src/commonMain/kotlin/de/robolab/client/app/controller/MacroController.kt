@@ -1,10 +1,14 @@
 package de.robolab.client.app.controller
 
+import de.robolab.client.app.model.base.MaterialIcon
+import de.robolab.client.app.viewmodel.TerminalInputViewModel
 import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.renderer.events.KeyEvent
 import de.robolab.client.repl.*
 import de.robolab.client.repl.base.IReplCommandParameter
 import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
+import de.robolab.client.repl.base.IReplOutput
+import de.robolab.client.repl.base.buildList
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.RobolabJson
 import kotlinx.coroutines.GlobalScope
@@ -93,7 +97,7 @@ class MacroController {
 
         GlobalScope.launch {
             for (line in macro.commands) {
-                ReplExecutor.execute(line)
+                ReplExecutor.execute(line, DummyReplOutput)
             }
         }
     }
@@ -129,11 +133,14 @@ class MacroController {
         load()
 
         ReplRootCommand.node("macro", "Interact with the macro system") {
-            action("list", "List all available macros") { ->
-                macroList.flatMap { macro ->
-                    listOf(
-                        macro.keyBinding.toString()
-                    ) + macro.commands.map { "    > $it" }
+            action("list", "List all available macros") { output ->
+                for (macro in macroList) {
+                    output.writeln(macro.keyBinding.toString())
+                    for (c in macro.commands) {
+                        output.write("  ")
+                        output.writeHighlightCommand(c)
+                        output.writeln()
+                    }
                 }
             }
 
@@ -141,16 +148,19 @@ class MacroController {
                 "get",
                 "Show all commands for the given key binding",
                 KeyBinding.param("binding"),
-            ) { params ->
+            ) { output, params ->
                 val keyBinding = params[0] as KeyBinding
 
                 val existing = macroList.find {
                     it.keyBinding == keyBinding
                 }?.commands ?: emptyList()
 
-                listOf(
-                    keyBinding.toString()
-                ) + existing.map { "    > $it" }
+                output.writeln(keyBinding.toString())
+                for (c in existing) {
+                    output.write("  ")
+                    output.writeHighlightCommand(c)
+                    output.writeln()
+                }
             }
 
             action(
@@ -158,7 +168,7 @@ class MacroController {
                 "Add a new command. If a macro with the given key binding already exists, the given command will be added to the existing macro",
                 KeyBinding.param("binding"),
                 StringParameter.param("command")
-            ) { params ->
+            ) { output, params ->
                 val keyBinding = params[0] as KeyBinding
                 val command = params[1] as StringParameter
 
@@ -173,9 +183,12 @@ class MacroController {
                 macroList += macro
                 save()
 
-                listOf(
-                    macro.keyBinding.toString()
-                ) + macro.commands.map { "    > $it" }
+                output.writeln(macro.keyBinding.toString())
+                for (c in macro.commands) {
+                    output.write("  ")
+                    output.writeHighlightCommand(c)
+                    output.writeln()
+                }
             }
 
             action(
@@ -183,7 +196,7 @@ class MacroController {
                 "Remove an existing command",
                 KeyBinding.param("binding"),
                 IntParameter.param("index", optional = true)
-            ) { params ->
+            ) { output, params ->
                 val keyBinding = params[0] as KeyBinding
                 val index = (params.getOrNull(1) as IntParameter?)?.value
 
@@ -196,27 +209,61 @@ class MacroController {
                     it.keyBinding == keyBinding
                 }
 
-                val output = if (index != null && index >= 0 && index < existing.size && existing.size > 1) {
+                if (index != null && index >= 0 && index < existing.size && existing.size > 1) {
                     val l = existing.toMutableList()
                     l.removeAt(index)
 
                     val macro = Macro(keyBinding, l)
                     macroList += macro
 
-                    listOf(
-                        macro.keyBinding.toString()
-                    ) + macro.commands.map { "    > $it" }
-                } else {
-                    emptyList()
+                    output.writeln(macro.keyBinding.toString())
+                    for (c in macro.commands) {
+                        output.write("  ")
+                        output.writeHighlightCommand(c)
+                        output.writeln()
+                    }
                 }
 
                 save()
-                output
             }
 
-            actionNoOutput("restore-defaults", "Delete all saved macros and restore the default bindings") { ->
+            action("restore-defaults", "Delete all saved macros and restore the default bindings") { _ ->
                 loadDefaults()
             }
         }
+    }
+}
+
+fun IReplOutput.writeHighlightCommand(input: String) {
+    writeIcon(MaterialIcon.CHEVRON_RIGHT)
+    write(" ")
+
+    val hint = ReplExecutor.hint(input)
+    val list = buildList<TerminalInputViewModel.HintContent> {
+        var lastSplit = 0
+
+        for ((range, color) in hint.highlight) {
+            add(TerminalInputViewModel.HintContent(
+                hint.input.substring(lastSplit, range.first),
+                null,
+                lastSplit until range.first
+            ))
+            add(TerminalInputViewModel.HintContent(
+                input.substring(range),
+                color,
+                range
+            ))
+            lastSplit = range.last + 1
+        }
+
+        add(TerminalInputViewModel.HintContent(
+            input.substring(lastSplit, input.length),
+            null,
+            lastSplit until input.length
+        ))
+    }.filter { it.value.isNotEmpty() }
+
+    for (item in list) {
+        write(item.value, item.color?.toColor())
     }
 }

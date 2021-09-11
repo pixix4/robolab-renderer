@@ -1,40 +1,46 @@
 package de.robolab.client.repl
 
-import de.robolab.client.repl.base.IReplCommand
-import de.robolab.client.repl.base.IReplCommandNode
-import de.robolab.client.repl.base.buildList
+import de.robolab.client.repl.base.*
 import de.robolab.common.utils.ConsoleGreeter
 
-object ReplRootCommand: ReplCommandNode("robolab", "RoboLab Renderer repl") {
-    override fun printHelp(parentNames: List<String>): List<String> {
-        return buildList {
-            addAll(ConsoleGreeter.appLogo.split("\n"))
-            add(ConsoleGreeter.appClientCreators)
-            add("")
-            add("Commands:")
+object ReplRootCommand : ReplCommandNode("robolab", "RoboLab Renderer repl") {
+    override fun printHelp(output: IReplOutput, parentNames: List<String>) {
+        output.writeln(ConsoleGreeter.appLogo)
+        output.writeln(ConsoleGreeter.appClientCreators)
+        output.writeln("")
+        output.writeln("Commands:")
 
-            val nameLength = helpCommandDescriptions.maxOf { it.first.length }
-            for ((commandName, commandDescription) in helpCommandDescriptions) {
-                val padding = " ".repeat(nameLength - commandName.length)
-                add("    ${commandName}: $padding$commandDescription")
-            }
+        val nameLength = helpCommandDescriptions.maxOf { it.first.length }
+        for ((commandName, commandDescription) in helpCommandDescriptions) {
+            val padding = " ".repeat(nameLength - commandName.length)
+            output.writeln("    ${commandName}: $padding$commandDescription")
         }
     }
 
-    private fun buildDebugTree(command: IReplCommand): List<String> {
-        return if (command is IReplCommandNode) {
-            listOf("${command.name}: ${command.description}") + command.commands.sortedBy { it.name }.flatMap { c ->
-                buildDebugTree(c).map { "    $it" }
+    private fun printDebugTree(output: IReplOutput, command: IReplCommand, depth: Int){
+        output.write("    ".repeat(depth))
+
+        if (command is IReplCommandNode) {
+            output.write(command.name, ReplColor.BLUE)
+            output.write(": ")
+            output.writeln(command.description, ReplColor.GREY)
+
+            for (subCommand in command.commands.sortedBy { it.name }) {
+                printDebugTree(output, subCommand, depth + 1)
             }
-        } else {
-            listOf("${command.name}: ${command.description}")
+        } else if (command is IReplCommandLeaf) {
+            output.write(command.name, ReplColor.CYAN)
+            output.write(": ")
+            output.writeln(command.description, ReplColor.GREY)
         }
     }
 
     init {
         this.node("debug", "Debug related commands") {
-            action("tree", "Print command hierarchy") { ->
-                ReplRootCommand.commands.sortedBy { it.name }.flatMap(this@ReplRootCommand::buildDebugTree)
+            action("tree", "Print command hierarchy") { output ->
+                for (command in ReplRootCommand.commands.sortedBy { it.name }) {
+                    printDebugTree(output, command, 0)
+                }
             }
         }
     }

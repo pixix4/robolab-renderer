@@ -57,7 +57,7 @@
   font-family: "Roboto Mono", sans-serif;
   line-height: 1.1rem;
 
-  .terminal-output-block {
+  .terminal-output-box {
     border-bottom: solid 1px var(--border-color);
     white-space: pre;
     font-family: "Roboto Mono", sans-serif;
@@ -68,12 +68,22 @@
       padding: 0.5rem 0;
     }
 
-    & > span {
-      display: block;
+    .terminal-output-line {
+      display: flex;
       white-space: pre;
       font-family: "Roboto Mono", sans-serif;
       line-height: 1.1rem;
       height: 1.1rem;
+
+      .text-view {
+        display: block;
+        white-space: pre;
+        font-family: "Roboto Mono", sans-serif;
+      }
+
+      .icon-view {
+        width: 0.7rem;
+      }
     }
   }
 }
@@ -103,18 +113,6 @@
       font-family: "Roboto Mono", sans-serif;
     }
 
-    .node {
-      color: steelblue;
-    }
-    .leaf {
-      color: darkcyan;
-    }
-    .parameter {
-      color: green;
-    }
-    .error {
-      color: indianred;
-    }
     .cursor {
       content: "";
       border-left: solid 1px var(--primary-text-color);
@@ -124,6 +122,7 @@
 
       animation: cursor-blink 0.8s step-end infinite;
     }
+
     .hidden {
       display: none;
     }
@@ -151,6 +150,7 @@
     display: none;
   }
 }
+
 .terminal-input-auto-complete {
   position: absolute;
   left: 0.4rem;
@@ -183,4 +183,32 @@
       border-right: solid 1px var(--border-color);
     }
   }
+}
+
+.terminal-red {
+  color: #e74c3c;
+}
+
+.terminal-green {
+  color: #27ae60;
+}
+
+.terminal-yellow {
+  color: #f1c40f;
+}
+
+.terminal-blue {
+  color: #3498db;
+}
+
+.terminal-magenta {
+  color: #9b59b6;
+}
+
+.terminal-cyan {
+  color: #26C6DA;
+}
+
+.terminal-grey {
+  color: #95a5a6;
 }

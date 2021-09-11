@@ -70,11 +70,11 @@ class UiController {
     init {
         ReplRootCommand.node("ui", "Update general state of the user interface") {
             node("toggle", "Toggle visibility of user interface elements") {
-                actionNoOutput(
+                action(
                     "navigation-bar",
                     "Toggle the left navigation bar",
                     BooleanParameter.param("force", true)
-                ) { params ->
+                ) { _, params ->
                     val force = params.firstOrNull() as BooleanParameter?
 
                     if (force == null) {
@@ -83,11 +83,11 @@ class UiController {
                         navigationBarEnabledProperty.value = force.value
                     }
                 }
-                actionNoOutput(
+                action(
                     "info-bar",
                     "Toggle the right information bar",
                     BooleanParameter.param("force", true)
-                ) { params ->
+                ) { _, params ->
                     val force = params.firstOrNull() as BooleanParameter?
 
                     if (force == null) {
@@ -96,11 +96,11 @@ class UiController {
                         infoBarEnabledProperty.value = force.value
                     }
                 }
-                actionNoOutput(
+                action(
                     "terminal",
                     "Toggle the terminal",
                     BooleanParameter.param("force", true)
-                ) { params ->
+                ) { _, params ->
                     val force = params.firstOrNull() as BooleanParameter?
 
                     if (force == null) {
@@ -109,11 +109,11 @@ class UiController {
                         terminalEnabledProperty.value = force.value
                     }
                 }
-                actionNoOutput(
+                action(
                     "fullscreen",
                     "Toggle fullscreen mode",
                     BooleanParameter.param("force", true)
-                ) { params ->
+                ) { _, params ->
                     val force = params.firstOrNull() as BooleanParameter?
 
                     if (force == null) {

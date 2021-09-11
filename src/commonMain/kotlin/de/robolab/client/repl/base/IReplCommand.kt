@@ -1,5 +1,6 @@
 package de.robolab.client.repl.base
 
+import de.robolab.client.app.model.base.MaterialIcon
 import kotlin.reflect.KClass
 
 interface IReplCommand {
@@ -8,7 +9,7 @@ interface IReplCommand {
 
     val description: String
 
-    fun printHelp(parentNames: List<String>): List<String>
+    fun printHelp(output: IReplOutput, parentNames: List<String>)
 }
 
 interface IReplCommandNode : IReplCommand {
@@ -21,20 +22,18 @@ interface IReplCommandNode : IReplCommand {
             return list.sortedBy { it.first }
         }
 
-    override fun printHelp(parentNames: List<String>): List<String> {
-        return buildList {
-            add((parentNames + name).joinToString(" "))
-            add("")
-            add("Description:")
-            add("    $description")
-            add("")
-            add("Commands:")
+    override fun printHelp(output: IReplOutput, parentNames: List<String>) {
+        output.writeln((parentNames + name).joinToString(" "))
+        output.writeln()
+        output.writeln("Description:")
+        output.writeln("    $description")
+        output.writeln()
+        output.writeln("Commands:")
 
-            val nameLength = helpCommandDescriptions.maxOf { it.first.length }
-            for ((commandName, commandDescription) in helpCommandDescriptions) {
-                val padding = " ".repeat(nameLength - commandName.length)
-                add("    ${commandName}: $padding$commandDescription")
-            }
+        val nameLength = helpCommandDescriptions.maxOf { it.first.length }
+        for ((commandName, commandDescription) in helpCommandDescriptions) {
+            val padding = " ".repeat(nameLength - commandName.length)
+            output.writeln("    ${commandName}: $padding$commandDescription")
         }
     }
 }
@@ -43,49 +42,41 @@ interface IReplCommandLeaf : IReplCommand {
 
     val parameters: List<ReplCommandParameterDescriptor<*>>
 
-    suspend fun execute(parameters: List<String>): List<String>
+    suspend fun execute(output: IReplOutput, parameters: List<String>)
 
-    override fun printHelp(parentNames: List<String>): List<String> {
+    override fun printHelp(output: IReplOutput, parentNames: List<String>) {
         val params = parameters.joinToString(" ") {
             val s = "${it.name}: ${it.type.name}"
             if (it.optional) "[$s]" else "<$s>"
         }
 
-        val types = parameters
+        output.writeln((parentNames + name).joinToString(" "))
+        output.writeln("")
+        output.writeln("Description:")
+        output.writeln("    $description")
+        output.writeln("")
+        output.writeln("Usage:")
+        output.writeln("    $name $params")
+
+        for (parameter in parameters
             .asSequence()
             .map { it.type }
             .distinct()
-            .sortedBy { it.name }
-            .map {
-                buildList<String> {
-                    add("")
-                    if (it.pattern.contains(' ')) {
-                        add("${it.name}: \"${it.pattern}\"")
-                    } else {
-                        add("${it.name}: ${it.pattern}")
-                    }
-                    add("    ${it.description}")
-
-                    if (it.example.isNotEmpty()) {
-                        add("    Example: \"${it.example.first().escapeIfNecessary()}\"")
-                    }
-                    for (e in it.example.drop(1)) {
-                        add("             \"${it.example.first().escapeIfNecessary()}\"")
-                    }
-                }
+            .sortedBy { it.name }) {
+            output.writeln()
+            if (parameter.pattern.contains(' ')) {
+                output.writeln("${parameter.name}: \"${parameter.pattern}\"")
+            } else {
+                output.writeln("${parameter.name}: ${parameter.pattern}")
             }
-            .flatten()
-            .toList()
+            output.writeln("    ${parameter.description}")
 
-        return buildList {
-            add((parentNames + name).joinToString(" "))
-            add("")
-            add("Description:")
-            add("    $description")
-            add("")
-            add("Usage:")
-            add("    $name $params")
-            addAll(types)
+            if (parameter.example.isNotEmpty()) {
+                output.writeln("    Example: \"${parameter.example.first().escapeIfNecessary()}\"")
+            }
+            for (e in parameter.example.drop(1)) {
+                output.writeln("             \"${parameter.example.first().escapeIfNecessary()}\"")
+            }
         }
     }
 }
@@ -108,27 +99,39 @@ interface IReplCommandParameterTypeDescriptor<T> where T : IReplCommandParameter
     fun fromToken(token: String): T?
 }
 
-
-interface IReplCommandPicker<T> where T : IReplCommandParameter {
-    val klazz: KClass<T>
-
-    suspend fun pick(): T
-}
-
 data class ReplCommandParameterDescriptor<T>(
     val type: IReplCommandParameterTypeDescriptor<T>,
     val name: String,
     val optional: Boolean = false,
 ) where T : IReplCommandParameter
 
-fun<T> buildList(builder: MutableList<T>.() -> Unit): List<T> {
+fun <T> buildList(builder: MutableList<T>.() -> Unit): List<T> {
     val list = mutableListOf<T>()
     builder(list)
     return list.toList()
 }
 
-
 fun String.escapeIfNecessary(): String {
     val intern = if (this.contains('"')) this.replace("\"", "\\\"") else this
     return if (intern.contains(' ') || intern.contains('"')) "\"$intern\"" else intern
+}
+
+enum class ReplColor {
+    RED,
+    GREEN,
+    YELLOW,
+    BLUE,
+    MAGENTA,
+    CYAN,
+    GREY;
+}
+
+interface IReplOutput {
+
+    fun writeString(message: String, color: ReplColor? = null)
+    fun writeIcon(icon: MaterialIcon, color: ReplColor? = null)
+
+    fun write(message: Any?, color: ReplColor? = null) = writeString(message.toString(), color)
+    fun writeln(message: Any?, color: ReplColor? = null) = writeString("${message.toString()}\n", color)
+    fun writeln() = writeString("\n", null)
 }
