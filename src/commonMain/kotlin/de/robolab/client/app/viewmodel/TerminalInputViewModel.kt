@@ -5,6 +5,8 @@ import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.renderer.events.KeyEvent
 import de.robolab.client.renderer.utils.History
 import de.robolab.client.repl.ReplExecutor
+import de.robolab.client.repl.base.buildList
+import de.robolab.client.repl.offset
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.property.join
@@ -52,7 +54,7 @@ class TerminalInputViewModel(
     }
 
     val contentProperty = hintProperty.join(stateCursorProperty) { hint, _ ->
-        val list = de.robolab.client.repl.base.buildList<HintContent> {
+        val list = buildList<HintContent> {
             var lastSplit = 0
 
             for ((range, color) in hint.highlight) {
@@ -91,9 +93,9 @@ class TerminalInputViewModel(
                 val firstRange = curr.range.first until cursor
                 val secondRange = cursor..curr.range.last
 
-                list.add(i, HintContent(curr.value.substring(secondRange), curr.color, secondRange))
+                list.add(i, HintContent(curr.value.substring(secondRange.offset(-curr.range.first)), curr.color, secondRange))
                 list.add(i, cursorElement)
-                list.add(i, HintContent(curr.value.substring(firstRange), curr.color, firstRange))
+                list.add(i, HintContent(curr.value.substring(firstRange.offset(-curr.range.first)), curr.color, firstRange))
 
                 return@join list
             }
@@ -327,7 +329,6 @@ class TerminalInputViewModel(
         }
         return false
     }
-
 
     private fun autoComplete() {
         val input = state.value

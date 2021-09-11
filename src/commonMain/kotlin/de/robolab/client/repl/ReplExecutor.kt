@@ -28,6 +28,7 @@ object ReplExecutor {
     }
 
     data class Token(
+        val token: String,
         val value: String,
         val range: IntRange,
     ) {
@@ -58,7 +59,13 @@ object ReplExecutor {
                 }
             }
 
-            return Token(v, range)
+            return copy(value = v)
+        }
+
+        companion object {
+            operator fun invoke(token: String, range: IntRange, open: Boolean = false): Token {
+                return Token(token, token, range).removeEscape(open)
+            }
         }
     }
 
@@ -253,13 +260,15 @@ object ReplExecutor {
     }
 
     private fun tokenize(input: String, open: Boolean = false): List<Token> {
-        var input = input.trimStart()
-        if (open && input.isEmpty()) {
-            return listOf(Token("", 0..0))
+        var trimmedInput = input.trimStart()
+        val rangeOffset = input.length - trimmedInput.length
+
+        if (open && trimmedInput.isEmpty()) {
+            return listOf(Token("",  (0..0).offset(rangeOffset), true))
         }
 
         if (!open) {
-            input = input.trimEnd()
+            trimmedInput = trimmedInput.trimEnd()
         }
 
         val regex = if (open) {
@@ -267,28 +276,15 @@ object ReplExecutor {
         } else {
             """'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|([^ '"\\])+""".toRegex()
         }
-        var splitList = regex.findAll(input).map {
-            Token(it.value, it.range)
+        var tokenList = regex.findAll(trimmedInput).map {
+            Token(it.value, it.range.offset(rangeOffset), true)
         }.toList()
-        if (open && input.endsWith(" ")) {
-            splitList = splitList + Token("", input.length..input.length)
-        }
-
-        val joinedInput = splitList.joinToString(" ") {
-            it.value
-        }
-        if (input != joinedInput) {
-            println("Invalid input")
-            println(splitList)
-            println(input)
-            println(joinedInput)
-            return emptyList()
-        }
-
-        val tokenList = splitList.map {
-            it.removeEscape(open)
+        if (open && trimmedInput.endsWith(" ")) {
+            tokenList = tokenList + Token("", (trimmedInput.length..trimmedInput.length).offset(rangeOffset), true)
         }
 
         return tokenList
     }
 }
+
+fun IntRange.offset(offset: Int) = IntRange(start + offset, endInclusive + offset)

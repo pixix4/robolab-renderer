@@ -74,8 +74,8 @@ class UiController {
                     "navigation-bar",
                     "Toggle the left navigation bar",
                     BooleanParameter.param("force", true)
-                ) {
-                    val force = it.firstOrNull() as BooleanParameter?
+                ) { params ->
+                    val force = params.firstOrNull() as BooleanParameter?
 
                     if (force == null) {
                         navigationBarEnabledProperty.toggle()
@@ -87,8 +87,8 @@ class UiController {
                     "info-bar",
                     "Toggle the right information bar",
                     BooleanParameter.param("force", true)
-                ) {
-                    val force = it.firstOrNull() as BooleanParameter?
+                ) { params ->
+                    val force = params.firstOrNull() as BooleanParameter?
 
                     if (force == null) {
                         infoBarEnabledProperty.toggle()
@@ -100,8 +100,8 @@ class UiController {
                     "terminal",
                     "Toggle the terminal",
                     BooleanParameter.param("force", true)
-                ) {
-                    val force = it.firstOrNull() as BooleanParameter?
+                ) { params ->
+                    val force = params.firstOrNull() as BooleanParameter?
 
                     if (force == null) {
                         terminalEnabledProperty.toggle()
@@ -113,8 +113,8 @@ class UiController {
                     "fullscreen",
                     "Toggle fullscreen mode",
                     BooleanParameter.param("force", true)
-                ) {
-                    val force = it.firstOrNull() as BooleanParameter?
+                ) { params ->
+                    val force = params.firstOrNull() as BooleanParameter?
 
                     if (force == null) {
                         fullscreenProperty.toggle()

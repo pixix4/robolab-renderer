@@ -131,6 +131,10 @@ object PreferenceStorage : TypedStorage() {
     val examPlanetsProperty = item("exam.planets", "")
     var examPlanets by examPlanetsProperty
 
+
+    val macrosProperty = item("macros", "")
+    var macros by macrosProperty
+
     init {
         logLevelProperty.onChange.now {
             Logger.level = logLevel

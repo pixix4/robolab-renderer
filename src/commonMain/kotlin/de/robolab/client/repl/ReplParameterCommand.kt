@@ -12,11 +12,9 @@ open class ReplParameterCommand(
 ): IReplCommandLeaf {
     override val parameters: List<ReplCommandParameterDescriptor<*>> = parameters.toList()
 
-    override suspend fun execute(parameters: List<String>): List<String> {
-        val stringParameters = parameters.toMutableList()
-
-        val p = this.parameters.map { p ->
-            val nextString = stringParameters.firstOrNull()
+    override suspend fun execute(stringParameters: List<String>): List<String> {
+        val p = this.parameters.mapIndexed { i, p ->
+            val nextString = stringParameters.getOrNull(i)
             if (nextString == null) {
                 if (p.optional) {
                     p to null
@@ -27,7 +25,7 @@ open class ReplParameterCommand(
                 if (p.type.regex.matches(nextString)) {
                     p to nextString
                 } else {
-                    throw IllegalArgumentException("Required parameter '${p.name}' does not match given '$nextString'!")
+                    throw IllegalArgumentException("Required parameter '${p.name}' does not match the given token '$nextString'!")
                 }
             }
         }.mapNotNull { (type, param) ->

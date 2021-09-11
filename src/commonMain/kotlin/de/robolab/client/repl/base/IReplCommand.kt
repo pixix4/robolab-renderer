@@ -128,4 +128,7 @@ fun<T> buildList(builder: MutableList<T>.() -> Unit): List<T> {
 }
 
 
-fun String.escapeIfNecessary() = if (this.contains(' ')) "\"$this\"" else this
+fun String.escapeIfNecessary(): String {
+    val intern = if (this.contains('"')) this.replace("\"", "\\\"") else this
+    return if (intern.contains(' ') || intern.contains('"')) "\"$intern\"" else intern
+}
