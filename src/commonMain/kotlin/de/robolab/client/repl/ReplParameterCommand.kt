@@ -14,25 +14,24 @@ open class ReplParameterCommand(
     override val parameters: List<ReplCommandParameterDescriptor<*>> = parameters.toList()
 
     override suspend fun execute(output: IReplOutput, parameters: List<String>) {
-        val p = this.parameters.mapIndexed { i, p ->
+        val p = this.parameters.mapIndexedNotNull { i, p ->
             val nextString = parameters.getOrNull(i)
             if (nextString == null) {
                 if (p.optional) {
-                    p to null
+                    null
                 } else {
                     throw IllegalArgumentException("Required parameter '${p.name}' is missing!")
                 }
             } else {
-                if (p.type.regex.matches(nextString)) {
-                    p to nextString
+                val match = p.type.regex.matchEntire(nextString)
+                if (match != null) {
+                    Triple(p, nextString, match)
                 } else {
                     throw IllegalArgumentException("Required parameter '${p.name}' does not match the given token '$nextString'!")
                 }
             }
-        }.mapNotNull { (type, param) ->
-            if (param == null) null else {
-                type.type.fromToken(param)
-            }
+        }.mapNotNull { (type, param, match) ->
+            type.type.fromToken(param, match)
         }
 
         return executeHandler(output, p)

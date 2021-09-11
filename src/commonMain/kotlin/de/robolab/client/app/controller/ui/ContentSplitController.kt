@@ -293,7 +293,7 @@ data class GridLayout(
         )
         override val regex: Regex = """\d+x\d+""".toRegex()
 
-        override fun fromToken(token: String): GridLayout? {
+        override fun fromToken(token: String, match: MatchResult): GridLayout? {
             val (rows, cols) = token.split("x", limit = 2)
             return GridLayout(
                 rows.toIntOrNull() ?: return null,

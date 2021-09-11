@@ -133,6 +133,10 @@ data class PlanetPath(
         return (sourceX == point.x && sourceY == point.y && direction == sourceDirection) || (targetX == point.x && targetY == point.y && targetDirection == direction)
     }
 
+    fun connectsWith(vertex: PlanetPathVertex): Boolean{
+        return connectsWith(vertex.point, vertex.direction)
+    }
+
     fun reversed(): PlanetPath {
         return copy(
             sourceX = targetX,

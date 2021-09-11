@@ -20,7 +20,7 @@ data class BooleanParameter(
         override val example = listOf<String>()
         override val regex: Regex = """(true|false)""".toRegex()
 
-        override fun fromToken(token: String): BooleanParameter? {
+        override fun fromToken(token: String, match: MatchResult): BooleanParameter? {
             return BooleanParameter(token.toBooleanStrictOrNull() ?: return null)
         }
     }
@@ -42,7 +42,7 @@ data class IntParameter(
         override val example = listOf<String>()
         override val regex: Regex = """-?\d+""".toRegex()
 
-        override fun fromToken(token: String): IntParameter? {
+        override fun fromToken(token: String, match: MatchResult): IntParameter? {
             return IntParameter(token.toIntOrNull() ?: return null)
         }
     }
@@ -64,7 +64,7 @@ data class DoubleParameter(
         override val example = listOf<String>()
         override val regex: Regex = """-?\d+(\.\d+)?""".toRegex()
 
-        override fun fromToken(token: String): DoubleParameter? {
+        override fun fromToken(token: String, match: MatchResult): DoubleParameter? {
             return DoubleParameter(token.toDoubleOrNull() ?: return null)
         }
     }
@@ -86,7 +86,7 @@ data class StringParameter(
         override val example = listOf<String>()
         override val regex: Regex = """.*""".toRegex()
 
-        override fun fromToken(token: String): StringParameter? {
+        override fun fromToken(token: String, match: MatchResult): StringParameter? {
             return StringParameter(token)
         }
     }

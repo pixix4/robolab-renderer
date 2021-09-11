@@ -51,7 +51,7 @@ class MacroController {
             override val example = listOf("Ctrl+K")
             override val regex: Regex = """(\w+\+)*\w+""".toRegex()
 
-            override fun fromToken(token: String): KeyBinding? {
+            override fun fromToken(token: String, match: MatchResult): KeyBinding? {
                 val split = token.split('+')
 
                 val modifier = split.dropLast(1).map { it.lowercase().trim() }

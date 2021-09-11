@@ -17,7 +17,7 @@ interface IReplCommandParameterTypeDescriptor<T> where T : IReplCommandParameter
     val pattern: String
     val regex: Regex
 
-    fun fromToken(token: String): T?
+    fun fromToken(token: String, match: MatchResult): T?
 }
 
 data class ReplCommandParameterDescriptor<T>(
