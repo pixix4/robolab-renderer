@@ -5,9 +5,7 @@ import de.robolab.client.app.viewmodel.TerminalInputViewModel
 import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.renderer.events.KeyEvent
 import de.robolab.client.repl.*
-import de.robolab.client.repl.base.IReplCommandParameter
-import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
-import de.robolab.client.repl.base.IReplOutput
+import de.robolab.client.repl.base.*
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.RobolabJson
 import kotlinx.coroutines.GlobalScope
@@ -84,7 +82,7 @@ class MacroController {
 
     @Serializable
     data class MacroStorage(
-        val macroList: List<Macro>
+        val macroList: List<Macro>,
     )
 
     private val macroList = mutableListOf<Macro>()
@@ -148,7 +146,7 @@ class MacroController {
                 "Show all commands for the given key binding",
                 KeyBinding.param("binding"),
             ) { output, params ->
-                val keyBinding = params[0] as KeyBinding
+                val keyBinding = params.parse1<KeyBinding>()
 
                 val existing = macroList.find {
                     it.keyBinding == keyBinding
@@ -168,12 +166,11 @@ class MacroController {
                 KeyBinding.param("binding"),
                 StringParameter.param("command")
             ) { output, params ->
-                val keyBinding = params[0] as KeyBinding
-                val command = params[1] as StringParameter
+                val (keyBinding, command) = params.parse2<KeyBinding, StringParameter>()
 
                 val existing = macroList.find {
-                        it.keyBinding == keyBinding
-                    }?.commands ?: emptyList()
+                    it.keyBinding == keyBinding
+                }?.commands ?: emptyList()
 
                 macroList.removeAll {
                     it.keyBinding == keyBinding
@@ -196,8 +193,7 @@ class MacroController {
                 KeyBinding.param("binding"),
                 IntParameter.param("index", optional = true)
             ) { output, params ->
-                val keyBinding = params[0] as KeyBinding
-                val index = (params.getOrNull(1) as IntParameter?)?.value
+                val (keyBinding, index) = params.parse2<KeyBinding, IntParameter?>()
 
                 val existing = macroList.find {
                     it.keyBinding == keyBinding
@@ -208,9 +204,9 @@ class MacroController {
                     it.keyBinding == keyBinding
                 }
 
-                if (index != null && index >= 0 && index < existing.size && existing.size > 1) {
+                if (index != null && index.value >= 0 && index.value < existing.size && existing.size > 1) {
                     val l = existing.toMutableList()
-                    l.removeAt(index)
+                    l.removeAt(index.value)
 
                     val macro = Macro(keyBinding, l)
                     macroList += macro

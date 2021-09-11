@@ -4,6 +4,8 @@ import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.renderer.utils.CommonTimer
 import de.robolab.client.renderer.utils.Pointer
 import de.robolab.client.renderer.utils.TransformationInteraction
+import de.robolab.client.repl.*
+import de.robolab.client.repl.base.parse1
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.property.flatMapBinding
@@ -52,6 +54,15 @@ class ContentController {
         )
     }
 
+    fun setZoom(zoom: Int) {
+        val plotter = plotterWindowProperty.value
+        plotter.transformation.scaleTo(
+            zoom.toDouble() / 100.0,
+            plotter.dimension / 2,
+            TransformationInteraction.ANIMATION_TIME
+        )
+    }
+
     val onRender = EventHandler<Unit>()
     private fun render(msOffset: Double) {
         onRender.emit()
@@ -66,5 +77,23 @@ class ContentController {
 
         pointerProperty.bind(plotterWindowProperty.flatMapBinding { it.pointerProperty })
         zoomProperty.bind(plotterWindowProperty.flatMapBinding { it.transformation.scaleProperty })
+
+        ReplRootCommand.node("window", "") {
+            node("zoom", "Set zoom level") {
+                action("in", "Zoom in") { _ ->
+                    zoomIn()
+                }
+                action("out", "Zoom in") { _ ->
+                    zoomOut()
+                }
+                action("reset", "Zoom in") { _ ->
+                    resetZoom()
+                }
+                action("set", "Zoom in", IntParameter.param("zoom")) { _, params ->
+                    val zoom = params.parse1<IntParameter>()
+                    setZoom(zoom.value)
+                }
+            }
+        }
     }
 }

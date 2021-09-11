@@ -1,6 +1,7 @@
 package de.robolab.client.app.controller.ui
 
 import de.robolab.client.repl.*
+import de.robolab.client.repl.base.parse1
 import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.and
 import de.westermann.kobserve.base.ObservableProperty
@@ -68,14 +69,14 @@ class UiController {
 
 
     init {
-        ReplRootCommand.node("ui", "Update general state of the user interface") {
+        ReplRootCommand.node("window", "Update general state of the user interface") {
             node("toggle", "Toggle visibility of user interface elements") {
                 action(
                     "navigation-bar",
                     "Toggle the left navigation bar",
                     BooleanParameter.param("force", true)
                 ) { _, params ->
-                    val force = params.firstOrNull() as BooleanParameter?
+                    val force = params.parse1<BooleanParameter?>()
 
                     if (force == null) {
                         navigationBarEnabledProperty.toggle()
@@ -88,7 +89,7 @@ class UiController {
                     "Toggle the right information bar",
                     BooleanParameter.param("force", true)
                 ) { _, params ->
-                    val force = params.firstOrNull() as BooleanParameter?
+                    val force = params.parse1<BooleanParameter?>()
 
                     if (force == null) {
                         infoBarEnabledProperty.toggle()
@@ -101,7 +102,7 @@ class UiController {
                     "Toggle the terminal",
                     BooleanParameter.param("force", true)
                 ) { _, params ->
-                    val force = params.firstOrNull() as BooleanParameter?
+                    val force = params.parse1<BooleanParameter?>()
 
                     if (force == null) {
                         terminalEnabledProperty.toggle()
@@ -114,7 +115,7 @@ class UiController {
                     "Toggle fullscreen mode",
                     BooleanParameter.param("force", true)
                 ) { _, params ->
-                    val force = params.firstOrNull() as BooleanParameter?
+                    val force = params.parse1<BooleanParameter?>()
 
                     if (force == null) {
                         fullscreenProperty.toggle()
