@@ -120,7 +120,7 @@ class TerminalInputViewModel(
         val state = state
         val value =
             state.value.substring(0, state.cursor) + input + state.value.substring(state.cursor, state.value.length)
-        this.state = State(value, state.cursor + 1)
+        this.state = State(value, state.cursor + input.length)
     }
 
     val onPasteRequest = EventHandler<Unit>()

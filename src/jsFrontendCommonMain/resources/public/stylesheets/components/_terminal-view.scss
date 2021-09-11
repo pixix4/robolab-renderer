@@ -62,10 +62,10 @@
     white-space: pre;
     font-family: "Roboto Mono", sans-serif;
     line-height: 1.1rem;
-    padding: 0 1rem 0.5rem;
+    padding: 0 1rem;
 
     .terminal-input-view {
-      padding: 0.5rem 0;
+      padding: 0.7rem 0;
     }
 
     .terminal-output-line {
@@ -99,7 +99,7 @@
 
 .terminal-input-view {
   position: relative;
-  padding: 0.5rem 1rem;
+  padding: 0.7rem 1rem;
   display: flex;
   line-height: 1.1rem;
 
@@ -137,6 +137,7 @@
     font-family: "Roboto Mono", sans-serif;
     display: block;
     padding-right: 0.4rem;
+    margin-left: -0.2rem;
   }
 
   .terminal-input-suffix {

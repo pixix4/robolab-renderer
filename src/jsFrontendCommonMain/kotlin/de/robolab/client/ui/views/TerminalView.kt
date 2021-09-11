@@ -77,26 +77,21 @@ class TerminalView(
 class TerminalOutputBox(input: TerminalInputViewModel?, private val scrollBox: BoxView) : ViewCollection<View>(),
     IReplOutput {
 
-    var lastLine: BoxView
+    var lastLine: BoxView? = null
 
     override fun writeString(message: String, color: ReplColor?) {
         val lines = message.split('\n')
 
         val line = lines.first()
 
-        lastLine.textView(line) {
+        getLine().textView(line) {
             if (color != null) {
                 classList += "terminal-${color.name.lowercase()}"
             }
         }
 
         for (additionalLine in lines.drop(1)) {
-            lastLine = boxView("terminal-output-line")
-            runAfterTimeout(1) {
-                scrollBox.scrollTo(top = scrollBox.scrollHeight)
-            }
-
-            lastLine.textView(additionalLine) {
+            newLine().textView(additionalLine) {
                 if (color != null) {
                     classList += "terminal-${color.name.lowercase()}"
                 }
@@ -105,11 +100,24 @@ class TerminalOutputBox(input: TerminalInputViewModel?, private val scrollBox: B
     }
 
     override fun writeIcon(icon: MaterialIcon, color: ReplColor?) {
-        lastLine.iconView(icon) {
+        getLine().iconView(icon) {
             if (color != null) {
                 classList += color.toClassName()
             }
         }
+    }
+
+    private fun getLine(): BoxView {
+        return lastLine ?: newLine()
+    }
+
+    private fun newLine(): BoxView {
+        val line =  boxView("terminal-output-line")
+        lastLine = line
+        runAfterTimeout(1) {
+            scrollBox.scrollTo(top = scrollBox.scrollHeight)
+        }
+        return line
     }
 
     init {
@@ -117,7 +125,6 @@ class TerminalOutputBox(input: TerminalInputViewModel?, private val scrollBox: B
             +ViewFactoryRegistry.create(input)
         }
 
-        lastLine = boxView("terminal-output-line")
         runAfterTimeout(1) {
             scrollBox.scrollTo(top = scrollBox.scrollHeight)
         }

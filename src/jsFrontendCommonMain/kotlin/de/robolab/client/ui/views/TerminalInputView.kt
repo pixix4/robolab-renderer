@@ -34,6 +34,8 @@ class TerminalInputView(
             if (!e.bubbles) {
                 event.preventDefault()
                 event.stopPropagation()
+
+                scrollIntoView()
             }
         }
         onKeyPress { event ->
@@ -42,6 +44,8 @@ class TerminalInputView(
             if (!e.bubbles) {
                 event.preventDefault()
                 event.stopPropagation()
+
+                scrollIntoView()
             }
         }
         onKeyUp { event ->
@@ -50,6 +54,8 @@ class TerminalInputView(
             if (!e.bubbles) {
                 event.preventDefault()
                 event.stopPropagation()
+
+                scrollIntoView()
             }
         }
 
