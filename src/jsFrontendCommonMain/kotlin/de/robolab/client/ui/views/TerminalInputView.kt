@@ -1,5 +1,6 @@
 package de.robolab.client.ui.views
 
+import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.viewmodel.TerminalInputViewModel
 import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.repl.ReplExecutor
@@ -9,6 +10,7 @@ import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.TextView
 import de.westermann.kwebview.components.boxView
+import de.westermann.kwebview.components.iconView
 import de.westermann.kwebview.components.textView
 import de.westermann.kwebview.sync
 import kotlinx.browser.window
@@ -49,7 +51,7 @@ class TerminalInputView(
             }
         }
 
-        textView("> ") {
+        iconView(MaterialIcon.CHEVRON_RIGHT) {
             classList += "terminal-input-prefix"
         }
         val inputContentView = boxView("terminal-input-content")

@@ -1,6 +1,9 @@
 package de.robolab.client.app.controller
 
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
+import de.robolab.client.repl.ReplRootCommand
+import de.robolab.client.repl.actionNoOutput
+import de.robolab.client.repl.node
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.constObservable
@@ -45,6 +48,32 @@ class ConnectionController(
             constObservable("")
         ) {}
     )
+
+    init {
+        ReplRootCommand.node("mqtt", "Connect to the mothership via mqtt") {
+            actionNoOutput("connect", "Connect to the mothership") { ->
+                val state = connection.connectionState
+
+                if (state is RobolabMqttConnection.Disconnected || state is RobolabMqttConnection.ConnectionLost) {
+                    state.onAction()
+                }
+            }
+            actionNoOutput("disconnect", "Disconnect from the mothership") { ->
+                val state = connection.connectionState
+
+                if (state is RobolabMqttConnection.Connected) {
+                    state.onAction()
+                }
+            }
+            actionNoOutput("abort", "Stop the current connection attempt") { ->
+                val state = connection.connectionState
+
+                if (state is RobolabMqttConnection.Connecting) {
+                    state.onAction()
+                }
+            }
+        }
+    }
 
     enum class StatusColor {
         SUCCESS,

@@ -137,6 +137,7 @@
     white-space: pre;
     font-family: "Roboto Mono", sans-serif;
     display: block;
+    padding-right: 0.4rem;
   }
 
   .terminal-input-suffix {
@@ -157,6 +158,7 @@
   background: var(--primary-background);
   border: solid 1px var(--border-color);
   display: flex;
+  max-width: calc(100% - 0.8rem);
 
   &:empty {
     display: none;
