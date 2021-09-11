@@ -27,6 +27,8 @@ interface IPlanetDocument {
         }
     }
 
+    fun centerPlanet()
+
     val documentProperty: ObservableValue<Document>
 
     fun onCreate()

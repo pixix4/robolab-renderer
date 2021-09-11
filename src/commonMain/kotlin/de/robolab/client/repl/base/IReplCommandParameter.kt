@@ -27,13 +27,13 @@ data class ReplCommandParameterDescriptor<T>(
 ) where T : IReplCommandParameter
 
 inline fun<reified T1: IReplCommandParameter?> List<IReplCommandParameter>.parse1(): T1 {
-    return this[0] as T1
+    return this.getOrNull(0) as T1
 }
 
 inline fun<reified T1: IReplCommandParameter?, reified T2: IReplCommandParameter?> List<IReplCommandParameter>.parse2(): Pair<T1, T2> {
-    return Pair(this[0] as T1, this[1] as T2)
+    return Pair(this.getOrNull(0) as T1, this.getOrNull(1) as T2)
 }
 
 inline fun<reified T1: IReplCommandParameter?, reified T2: IReplCommandParameter?, reified T3: IReplCommandParameter?> List<IReplCommandParameter>.parse3(): Triple<T1, T2, T3> {
-    return Triple(this[0] as T1, this[1] as T2, this[2] as T3)
+    return Triple(this.getOrNull(0) as T1, this.getOrNull(1) as T2, this.getOrNull(2) as T3)
 }

@@ -16,6 +16,7 @@ import de.robolab.client.renderer.canvas.SvgCanvas
 import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.client.renderer.utils.Transformation
+import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
 import de.westermann.kobserve.property.constObservable
@@ -54,6 +55,12 @@ class FilePlanetDocument(
     )
 
     override val activeTabProperty = property<SideBarTabViewModel?>(infoBarTabs.first())
+
+
+    private val drawableProperty = activeTabProperty.mapBinding {
+        val tab = it as? FilePlanetSideBarTab<*>
+        tab?.drawable
+    }
 
     override val documentProperty = activeTabProperty.mapBinding {
         val tab = it as? FilePlanetSideBarTab<*>
@@ -166,6 +173,12 @@ class FilePlanetDocument(
     }
 
     override fun onDestroy() {
+    }
+
+
+    override fun centerPlanet() {
+        drawableProperty.value?.autoCentering = true
+        drawableProperty.value?.centerPlanet(duration = TransformationInteraction.ANIMATION_TIME)
     }
 
     override fun equals(other: Any?): Boolean {

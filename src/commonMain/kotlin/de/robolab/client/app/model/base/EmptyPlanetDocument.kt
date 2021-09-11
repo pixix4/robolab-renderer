@@ -37,6 +37,9 @@ class EmptyPlanetDocument() : IPlanetDocument {
     override fun onDestroy() {
     }
 
+    override fun centerPlanet() {
+    }
+
     init {
         documentProperty.value.drawPlaceholder = true
     }

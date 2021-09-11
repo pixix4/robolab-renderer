@@ -40,7 +40,7 @@ data class IntParameter(
         override val description = "A integer value"
         override val pattern = "<digits>"
         override val example = listOf<String>()
-        override val regex: Regex = """\d+""".toRegex()
+        override val regex: Regex = """-?\d+""".toRegex()
 
         override fun fromToken(token: String): IntParameter? {
             return IntParameter(token.toIntOrNull() ?: return null)
@@ -62,7 +62,7 @@ data class DoubleParameter(
         override val description = "A double value"
         override val pattern = "<digits.digits>"
         override val example = listOf<String>()
-        override val regex: Regex = """\d+(\.\d+)?""".toRegex()
+        override val regex: Regex = """-?\d+(\.\d+)?""".toRegex()
 
         override fun fromToken(token: String): DoubleParameter? {
             return DoubleParameter(token.toDoubleOrNull() ?: return null)

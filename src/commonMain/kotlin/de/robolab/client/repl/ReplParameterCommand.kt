@@ -13,9 +13,9 @@ open class ReplParameterCommand(
 ): IReplCommandLeaf {
     override val parameters: List<ReplCommandParameterDescriptor<*>> = parameters.toList()
 
-    override suspend fun execute(output: IReplOutput, stringParameters: List<String>) {
+    override suspend fun execute(output: IReplOutput, parameters: List<String>) {
         val p = this.parameters.mapIndexed { i, p ->
-            val nextString = stringParameters.getOrNull(i)
+            val nextString = parameters.getOrNull(i)
             if (nextString == null) {
                 if (p.optional) {
                     p to null

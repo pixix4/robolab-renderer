@@ -130,25 +130,23 @@ object ReplExecutor {
             try {
                 command.execute(output, input.map { it.value })
             } catch (e: Exception) {
-                listOf(
-                    "Command failed with ${e::class.simpleName ?: "Exception"}: ${e.message}"
-                )
+                output.writeln("Command failed with ${e::class.simpleName ?: "Exception"}: ${e.message}", ReplColor.RED)
             }
         } else {
             if (nextInput != null) {
                 if (command is ReplRootCommand) {
-                    listOf("Unknown command '${(parentNames + nextInput.value).joinToString(" ")}'!") + command.printHelp(
-                        output, parentNames)
+                    output.writeln("Unknown command '${(parentNames + nextInput.value).joinToString(" ")}'!",
+                        ReplColor.RED)
                 } else {
-                    listOf("Unknown command '${(parentNames + command.name + nextInput.value).joinToString(" ")}'!") + command.printHelp(
-                        output, parentNames)
+                    output.writeln("Unknown command '${(parentNames + command.name + nextInput.value).joinToString(" ")}'!",
+                        ReplColor.RED)
                 }
+                command.printHelp(output, parentNames)
             } else {
                 command.printHelp(output, parentNames)
             }
         }
     }
-
 
     private fun autoComplete(command: IReplCommand, input: List<Token>): List<AutoComplete> {
         val nextInput = input.firstOrNull()
