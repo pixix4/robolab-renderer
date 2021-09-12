@@ -1,6 +1,7 @@
 package de.robolab.client.repl.base
 
 import de.robolab.client.app.model.base.MaterialIcon
+import de.robolab.client.repl.ReplExecutor
 import de.robolab.client.repl.escapeIfNecessary
 import de.robolab.client.repl.merge
 
@@ -45,6 +46,10 @@ interface IReplCommandLeaf : IReplCommand {
     val parameters: List<ReplCommandParameterDescriptor<*>>
 
     suspend fun execute(output: IReplOutput, parameters: List<String>)
+
+    suspend fun requestAutoCompleteFor(type: ReplCommandParameterDescriptor<*>): List<ReplExecutor.AutoComplete> {
+        return emptyList()
+    }
 
     override fun printHelp(output: IReplOutput, parentNames: List<String>) {
         val params = parameters.joinToString(" ") {
@@ -97,10 +102,17 @@ enum class ReplColor {
     GREY;
 }
 
+enum class FileType {
+    TEXT,
+    BINARY,
+}
+
 interface IReplOutput {
 
     fun writeString(message: String, color: ReplColor? = null)
     fun writeIcon(icon: MaterialIcon, color: ReplColor? = null)
+    fun writeFile(name: String, type: FileType, content: suspend () -> String)
+    fun writeAction(name: String, action: suspend () -> Unit)
 
     fun write(message: Any?, color: ReplColor? = null) = writeString(message.toString(), color)
     fun writeln(message: Any?, color: ReplColor? = null) = writeString("${message.toString()}\n", color)

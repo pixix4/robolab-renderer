@@ -59,12 +59,19 @@ class TerminalInputView(
             }
         }
 
+        viewModel.requestFocus {
+            focus()
+        }
+
         iconView(MaterialIcon.CHEVRON_RIGHT) {
             classList += "terminal-input-prefix"
         }
         val inputContentView = boxView("terminal-input-content")
-        textView(viewModel.suffixProperty) {
-            classList += "terminal-input-suffix"
+        val inputSuffixView = boxView("terminal-input-suffix")
+
+        iconView(MaterialIcon.HOURGLASS_TOP) {
+            classList += "terminal-input-auto-complete-activity"
+            classList.bind("active", viewModel.autoCompleteActiveProperty)
         }
 
         boxView("terminal-input-auto-complete") {
@@ -117,6 +124,25 @@ class TerminalInputView(
             delete = { view ->
                 view.text = ""
                 view.classList.toggle("cursor", false)
+                view.classList.toggleTerminalColor(null)
+                view.classList += "hidden"
+            },
+        )
+
+        inputSuffixView.sync(
+            viewModel.suffixProperty,
+            create = { item ->
+                TextView(item.value).also { view ->
+                    view.classList.toggleTerminalColor(item.color?.toColor())
+                }
+            },
+            update = { view, item ->
+                view.text = item.value
+                view.classList.toggle("hidden", false)
+                view.classList.toggleTerminalColor(item.color?.toColor())
+            },
+            delete = { view ->
+                view.text = ""
                 view.classList.toggleTerminalColor(null)
                 view.classList += "hidden"
             },

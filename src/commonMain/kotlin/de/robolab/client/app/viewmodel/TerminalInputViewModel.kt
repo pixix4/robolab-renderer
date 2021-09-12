@@ -7,11 +7,15 @@ import de.robolab.client.renderer.utils.History
 import de.robolab.client.repl.ReplExecutor
 import de.robolab.client.repl.buildList
 import de.robolab.client.repl.offset
+import de.robolab.client.utils.runAfterTimeout
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
 import de.westermann.kobserve.property.join
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class TerminalInputViewModel(
     value: String = "",
@@ -49,34 +53,14 @@ class TerminalInputViewModel(
     val readOnlyProperty = property(readOnly)
     var readOnly by readOnlyProperty
 
+    val requestFocus =  EventHandler<Unit>()
+
     private val hintProperty = stateValueProperty.mapBinding {
         ReplExecutor.hint(it)
     }
 
     val contentProperty = hintProperty.join(stateCursorProperty) { hint, _ ->
-        val list = buildList<HintContent> {
-            var lastSplit = 0
-
-            for ((range, color) in hint.highlight) {
-                add(HintContent(
-                    hint.input.substring(lastSplit, range.first),
-                    null,
-                    lastSplit until range.first
-                ))
-                add(HintContent(
-                    state.value.substring(range),
-                    color,
-                    range
-                ))
-                lastSplit = range.last + 1
-            }
-
-            add(HintContent(
-                state.value.substring(lastSplit, state.value.length),
-                null,
-                lastSplit until state.value.length
-            ))
-        }.filter { it.value.isNotEmpty() }.toMutableList()
+        val list = buildHintContent(hint.input, hint.highlight).toMutableList()
 
         val cursor = state.cursor
         val cursorElement = HintContent("", null, cursor..cursor, true)
@@ -112,9 +96,9 @@ class TerminalInputViewModel(
 
     val suffixProperty = hintProperty.join(autoCompleteProperty) { hint, autoComplete ->
         if (autoComplete.isEmpty()) {
-            hint.suffix
+            buildHintContent(hint.suffix, hint.suffixHighlight)
         } else {
-            autoComplete.first { it.selected }.suffix
+            buildHintContent(autoComplete.first { it.selected }.suffix, emptyList())
         }
     }
 
@@ -128,6 +112,8 @@ class TerminalInputViewModel(
     val onPasteRequest = EventHandler<Unit>()
 
     fun onKeyDown(event: KeyEvent) {
+        cancelAutoComplete()
+
         if (event.ctrlKey) {
             when (event.keyCode) {
                 KeyCode.V -> {
@@ -188,8 +174,9 @@ class TerminalInputViewModel(
                         }
                     }
 
-                    val value = state.value.substring(0, state.cursor - deleteCount) + state.value.substring(state.cursor,
-                        state.value.length)
+                    val value =
+                        state.value.substring(0, state.cursor - deleteCount) + state.value.substring(state.cursor,
+                            state.value.length)
                     this.state = State(value, state.cursor - deleteCount)
                 }
             }
@@ -336,28 +323,50 @@ class TerminalInputViewModel(
         return false
     }
 
+    val autoCompleteActiveProperty = property(false)
+
+    fun cancelAutoComplete() {
+        autoCompleteJob?.cancel()
+        autoCompleteActiveProperty.value = false
+        ReplExecutor.cancelAutoComplete()
+        hintProperty.invalidate()
+    }
+
+    private var autoCompleteJob: Job? = null
     private fun autoComplete() {
-        val input = state.value
+        cancelAutoComplete()
+        autoCompleteJob = GlobalScope.launch {
+            val input = state.value
 
-        val autoComplete = ReplExecutor.autoComplete(input)
-
-        if (autoComplete.isEmpty()) {
-            if (!input.endsWith(' ') && state.cursor == input.length) {
-                state = State("$input ")
+            autoCompleteActiveProperty.value = true
+            runAfterTimeout(1) {
+                hintProperty.invalidate()
             }
-            return
-        }
+            val autoComplete = ReplExecutor.autoComplete(input)
+            autoCompleteActiveProperty.value = false
+            requestFocus.emit()
+            runAfterTimeout(1) {
+                hintProperty.invalidate()
+            }
 
-        if (autoComplete.size == 1) {
-            state = State(input + autoComplete.first().suffix + " ")
-        } else {
-            autoCompleteProperty.value = autoComplete.mapIndexed { index, element ->
-                AutoCompleteEntry(
-                    element.name,
-                    element.suffix,
-                    element.description,
-                    index == 0
-                )
+            if (autoComplete.isEmpty()) {
+                if (!input.endsWith(' ') && state.cursor == input.length) {
+                    state = State("$input ")
+                }
+                return@launch
+            }
+
+            if (autoComplete.size == 1) {
+                state = State(input + autoComplete.first().suffix + " ")
+            } else {
+                autoCompleteProperty.value = autoComplete.mapIndexed { index, element ->
+                    AutoCompleteEntry(
+                        element.name,
+                        element.suffix,
+                        element.description,
+                        index == 0
+                    )
+                }
             }
         }
     }
@@ -381,4 +390,30 @@ class TerminalInputViewModel(
             commandHistory.push(command)
         }
     }
+}
+
+fun buildHintContent(input: String, highlight: List<ReplExecutor.HintHighlight>): List<TerminalInputViewModel.HintContent> {
+    return  buildList<TerminalInputViewModel.HintContent> {
+        var lastSplit = 0
+
+        for ((range, color) in highlight) {
+            add(TerminalInputViewModel.HintContent(
+                input.substring(lastSplit, range.first),
+                null,
+                lastSplit until range.first
+            ))
+            add(TerminalInputViewModel.HintContent(
+                input.substring(range),
+                color,
+                range
+            ))
+            lastSplit = range.last + 1
+        }
+
+        add(TerminalInputViewModel.HintContent(
+            input.substring(lastSplit, input.length),
+            null,
+            lastSplit until input.length
+        ))
+    }.filter { it.value.isNotEmpty() }
 }

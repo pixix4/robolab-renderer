@@ -1,7 +1,7 @@
 package de.robolab.client.app.controller
 
 import de.robolab.client.app.model.base.MaterialIcon
-import de.robolab.client.app.viewmodel.TerminalInputViewModel
+import de.robolab.client.app.viewmodel.buildHintContent
 import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.renderer.events.KeyEvent
 import de.robolab.client.repl.*
@@ -95,7 +95,7 @@ class MacroController {
     )
 
     private val macroList = mutableListOf<Macro>()
-    private var debugOutput: IReplOutput? =  null
+    private var debugOutput: IReplOutput? = null
 
     fun onKeyDown(event: KeyEvent) {
         debugOutput?.writeln(event.toString())
@@ -288,29 +288,7 @@ fun IReplOutput.writeHighlightCommand(input: String) {
     write(" ")
 
     val hint = ReplExecutor.hint(input)
-    val list = buildList<TerminalInputViewModel.HintContent> {
-        var lastSplit = 0
-
-        for ((range, color) in hint.highlight) {
-            add(TerminalInputViewModel.HintContent(
-                hint.input.substring(lastSplit, range.first),
-                null,
-                lastSplit until range.first
-            ))
-            add(TerminalInputViewModel.HintContent(
-                input.substring(range),
-                color,
-                range
-            ))
-            lastSplit = range.last + 1
-        }
-
-        add(TerminalInputViewModel.HintContent(
-            input.substring(lastSplit, input.length),
-            null,
-            lastSplit until input.length
-        ))
-    }.filter { it.value.isNotEmpty() }
+    val list = buildHintContent(hint.input, hint.highlight)
 
     for (item in list) {
         write(item.value, item.color?.toColor())

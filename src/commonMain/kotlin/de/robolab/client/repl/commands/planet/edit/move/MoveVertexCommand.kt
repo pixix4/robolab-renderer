@@ -4,6 +4,7 @@ import de.robolab.client.app.model.file.FilePlanetDocument
 import de.robolab.client.renderer.drawable.live.toAngle
 import de.robolab.client.repl.BooleanParameter
 import de.robolab.client.repl.ReplBoundParameterCommandTemplate
+import de.robolab.client.repl.ReplExecutor
 import de.robolab.client.repl.base.IReplCommandParameter
 import de.robolab.client.repl.base.IReplOutput
 import de.robolab.client.repl.base.ReplCommandParameterDescriptor
@@ -61,18 +62,31 @@ object MoveVertexCommand : ReplBoundParameterCommandTemplate<FilePlanetDocument>
         planetFile.planet = planet.copy(paths = paths, startPoint = startPoint, pathSelects = pathSelects)
     }
 
+    override suspend fun FilePlanetDocument.requestAutoCompleteFor(type: ReplCommandParameterDescriptor<*>): List<ReplExecutor.AutoComplete> {
+        if (type.type is PlanetPathVertex.Companion) {
+            val pointEnd = drawableProperty.value?.requestContext?.requestPointEnd() ?: return emptyList()
+
+            return listOf(ReplExecutor.AutoComplete(
+                PlanetPathVertex(pointEnd.first, pointEnd.second).toToken(),
+                "Selected point end"
+            ))
+        }
+
+        return emptyList()
+    }
+
     fun PlanetSpline.moveByVertices(
         old: Pair<PlanetPathVertex, PlanetPathVertex>,
         new: Pair<PlanetPathVertex, PlanetPathVertex>,
         scaleNormal: Boolean = true,
-        weightMode: SplineMoveWeightMode = SplineMoveWeightMode.PROJECTION
+        weightMode: SplineMoveWeightMode = SplineMoveWeightMode.PROJECTION,
     ) = moveByVertices(old, new, scaleNormal, weightMode::getWeight)
 
     inline fun PlanetSpline.moveByVertices(
         old: Pair<PlanetPathVertex, PlanetPathVertex>,
         new: Pair<PlanetPathVertex, PlanetPathVertex>,
         scaleNormal: Boolean = true,
-        weightFunction: (PlanetSpline, Double, Pair<PlanetPathVertex, PlanetPathVertex>) -> Double
+        weightFunction: (PlanetSpline, Double, Pair<PlanetPathVertex, PlanetPathVertex>) -> Double,
     ): PlanetSpline = copy(
         controlPoints = this.controlPoints.mapIndexed { index, cp ->
             val offsetOldSource = (cp.point - old.first.point.point).rotate(-old.first.direction.toAngle())
@@ -100,14 +114,14 @@ object MoveVertexCommand : ReplBoundParameterCommandTemplate<FilePlanetDocument>
             override fun getWeight(
                 spline: PlanetSpline,
                 progress: Double,
-                path: Pair<PlanetPathVertex, PlanetPathVertex>
+                path: Pair<PlanetPathVertex, PlanetPathVertex>,
             ): Double = progress
         },
         PROJECTION {
             override fun getWeight(
                 spline: PlanetSpline,
                 progress: Double,
-                path: Pair<PlanetPathVertex, PlanetPathVertex>
+                path: Pair<PlanetPathVertex, PlanetPathVertex>,
             ): Double {
                 if (progress < 0 || progress > 1) throw IllegalArgumentException("Progress-Parameter out of range (0..1): $progress")
                 //TODO: Use more accurate position calculation
@@ -122,7 +136,7 @@ object MoveVertexCommand : ReplBoundParameterCommandTemplate<FilePlanetDocument>
             override fun getWeight(
                 spline: PlanetSpline,
                 progress: Double,
-                path: Pair<PlanetPathVertex, PlanetPathVertex>
+                path: Pair<PlanetPathVertex, PlanetPathVertex>,
             ): Double {
                 if (progress < 0 || progress > 1) throw IllegalArgumentException("Progress-Parameter out of range (0..1): $progress")
                 //TODO: Use more accurate position calculation
@@ -139,7 +153,7 @@ object MoveVertexCommand : ReplBoundParameterCommandTemplate<FilePlanetDocument>
         abstract fun getWeight(
             spline: PlanetSpline,
             progress: Double,
-            path: Pair<PlanetPathVertex, PlanetPathVertex>
+            path: Pair<PlanetPathVertex, PlanetPathVertex>,
         ): Double
     }
 }

@@ -3,6 +3,7 @@ package de.robolab.client.renderer.drawable.general
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.drawable.base.Animatable
 import de.robolab.client.renderer.drawable.edit.IEditCallback
+import de.robolab.client.renderer.drawable.utils.PlanetRequestContext
 import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
@@ -16,6 +17,7 @@ class PointAnimatable(
     reference: PointAnimatableManager.AttributePoint,
     private var planet: Planet,
     private val editCallback: IEditCallback?,
+    private val requestContext: PlanetRequestContext,
 ) : Animatable<PointAnimatableManager.AttributePoint>(reference) {
 
     override val view = SquareView(
@@ -65,6 +67,12 @@ class PointAnimatable(
             editCallback != null && focusedView != null
         }
         view.onPointerDown { event ->
+            if (requestContext.type == PlanetRequestContext.Type.POINT) {
+                requestContext.providePoint(reference.coordinate)
+                event.stopPropagation()
+                return@onPointerDown
+            }
+
             val callback = editCallback ?: return@onPointerDown
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             if (event.ctrlKey && focusedView != null) {

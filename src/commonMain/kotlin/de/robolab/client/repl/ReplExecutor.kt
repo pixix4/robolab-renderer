@@ -8,11 +8,14 @@ object ReplExecutor {
         val name: String,
         val suffix: String,
         val description: String,
-    )
+    ) {
+        constructor(suffix: String, description: String) : this(suffix, suffix, description)
+    }
 
     data class Hint(
-        val suffix: String,
         val highlight: List<HintHighlight>,
+        val suffix: String,
+        val suffixHighlight: List<HintHighlight>,
         val input: String = "",
     )
 
@@ -22,7 +25,7 @@ object ReplExecutor {
     )
 
     enum class HintColor {
-        NODE, LEAF, PARAMETER, ERROR
+        NODE, LEAF, PARAMETER, ERROR, ACTIVE
     }
 
     data class Token(
@@ -67,6 +70,12 @@ object ReplExecutor {
         }
     }
 
+    data class AutoCompleteJob(
+        val parameter: ReplCommandParameterDescriptor<*>,
+    )
+
+    private var activeAutoComplete: AutoCompleteJob? = null
+
     suspend fun execute(input: String, output: IReplOutput) {
         execute(
             output,
@@ -76,7 +85,7 @@ object ReplExecutor {
         )
     }
 
-    fun autoComplete(input: String): List<AutoComplete> {
+    suspend fun autoComplete(input: String): List<AutoComplete> {
         return autoComplete(
             ReplRootCommand,
             tokenize(input, true)
@@ -148,12 +157,27 @@ object ReplExecutor {
         }
     }
 
-    private fun autoComplete(command: IReplCommand, input: List<Token>): List<AutoComplete> {
+    fun cancelAutoComplete() {
+        activeAutoComplete = null
+    }
+
+    private suspend fun autoComplete(command: IReplCommand, input: List<Token>): List<AutoComplete> {
         val nextInput = input.firstOrNull()
+        activeAutoComplete = null
 
         if (nextInput != null) {
             if (nextInput.value == "help") {
                 return emptyList()
+            }
+
+            if (command is IReplCommandLeaf) {
+                val parameter =
+                    command.parameters.getOrNull(input.filter { it.token.isNotEmpty() }.size) ?: return emptyList()
+                activeAutoComplete = AutoCompleteJob(parameter)
+
+                val result = command.requestAutoCompleteFor(parameter)
+                activeAutoComplete = null
+                return result
             }
 
             if (command is IReplCommandNode) {
@@ -193,7 +217,7 @@ object ReplExecutor {
 
         if (nextToken != null) {
             if (nextToken.value == "help") {
-                return Hint("", highlight + nextToken.highlight(HintColor.LEAF))
+                return Hint(highlight + nextToken.highlight(HintColor.LEAF), "", emptyList())
             }
 
             if (command is IReplCommandNode) {
@@ -221,18 +245,21 @@ object ReplExecutor {
                 if (subCommands.isNotEmpty() && nextNextToken == null) {
                     if (command is ReplRootCommand && nextToken.value == "") {
                         return Hint(
+                            highlight,
                             "help",
-                            highlight
+                            emptyList()
                         )
                     }
                     return Hint(
+                        highlight,
                         subCommands.first().first.removePrefix(nextToken.value),
-                        highlight
+                        emptyList()
                     )
                 } else if (nextToken.value.isNotEmpty()) {
                     return Hint(
+                        highlight + nextToken.highlight(HintColor.ERROR),
                         "",
-                        highlight + nextToken.highlight(HintColor.ERROR)
+                        emptyList()
                     )
                 }
             }
@@ -248,18 +275,36 @@ object ReplExecutor {
                 }
             }
 
-            val params = command.parameters.map {
+            val paramsList = command.parameters.map {
                 val s = it.name
-                if (it.optional) "[$s]" else "<$s>"
-            }.drop(input.count { it.value.isNotEmpty() }).joinToString(" ")
+                (if (it.optional) "[$s]" else "<$s>") to (it == activeAutoComplete?.parameter)
+            }.drop(input.count { it.value.isNotEmpty() })
+
+            val suffixBuilder = StringBuilder()
+            val suffixHighlight = mutableListOf<HintHighlight>()
+
+            if (input.lastOrNull()?.value != "") {
+                suffixBuilder.append(" ")
+            }
+
+            for ((value, active) in paramsList) {
+                val start = suffixBuilder.length
+                suffixBuilder.append(value)
+                suffixBuilder.append(" ")
+
+                if (active) {
+                    suffixHighlight += HintHighlight(start until (start + value.length), HintColor.ACTIVE)
+                }
+            }
 
             return Hint(
-                if (input.lastOrNull()?.value == "") params else " $params",
-                highlight + paramHighlight
+                highlight + paramHighlight,
+                suffixBuilder.toString().trimEnd(),
+                suffixHighlight
             )
         }
 
-        return Hint("", highlight)
+        return Hint(highlight, "", emptyList())
     }
 
     private fun tokenize(input: String, open: Boolean = false): List<Token> {
@@ -297,4 +342,5 @@ fun ReplExecutor.HintColor.toColor() = when (this) {
     ReplExecutor.HintColor.LEAF -> ReplColor.CYAN
     ReplExecutor.HintColor.PARAMETER -> ReplColor.GREEN
     ReplExecutor.HintColor.ERROR -> ReplColor.RED
+    ReplExecutor.HintColor.ACTIVE -> ReplColor.MAGENTA
 }

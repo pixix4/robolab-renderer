@@ -9,15 +9,27 @@ abstract class ReplBoundParameterCommandTemplate<T>(
     vararg val parameters: ReplCommandParameterDescriptor<*>,
 ) : IReplBoundCommandTemplate<T> {
 
-    override fun bind(ref: T): IReplCommandLeaf = ReplParameterCommand(
-        name,
-        description,
-        *parameters
-    ) { out, params ->
-        ref.execute(out, params)
+    override fun bind(ref: T): IReplCommandLeaf {
+        val command = ReplParameterCommand(
+            name,
+            description,
+            *parameters
+        ) { out, params ->
+            ref.execute(out, params)
+        }
+
+        command.setRequestAutoCompleteForHandler {
+            ref.requestAutoCompleteFor(it)
+        }
+
+        return command
     }
 
     abstract suspend fun T.execute(out: IReplOutput, params: List<IReplCommandParameter>)
+
+    open suspend fun T.requestAutoCompleteFor(type: ReplCommandParameterDescriptor<*>): List<ReplExecutor.AutoComplete> {
+        return emptyList()
+    }
 
     companion object {
         operator fun <T> invoke(

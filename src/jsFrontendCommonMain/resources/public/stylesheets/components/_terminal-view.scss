@@ -74,13 +74,13 @@
       line-height: 1.1rem;
       height: 1.1rem;
 
-      .text-view {
+      .terminal-output-entry-text {
         display: block;
         white-space: pre;
         font-family: "Roboto Mono", sans-serif;
       }
 
-      .icon-view {
+      .terminal-output-entry-icon {
         width: 0.7rem;
       }
     }
@@ -102,7 +102,7 @@
   display: flex;
   line-height: 1.1rem;
 
-  .terminal-input-content {
+  .terminal-input-content, .terminal-input-suffix {
     white-space: pre;
     font-family: "Roboto Mono", sans-serif;
     display: block;
@@ -140,14 +140,23 @@
   }
 
   .terminal-input-suffix {
-    white-space: pre;
-    font-family: "Roboto Mono", sans-serif;
-    display: block;
     color: var(--tertiary-background)
   }
 
   &.readonly .terminal-input-suffix {
     display: none;
+  }
+  .terminal-input-auto-complete-activity {
+    position: absolute;
+    display: none;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 2rem;
+
+    &.active {
+      display: flex;
+    }
   }
 }
 

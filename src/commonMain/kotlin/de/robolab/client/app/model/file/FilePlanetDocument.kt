@@ -55,13 +55,12 @@ class FilePlanetDocument(
         InfoBarFileEdit(this, uiController),
         InfoBarFileTraverse(this, uiController),
         InfoBarFileTest(this, uiController)
-
     )
 
     override val activeTabProperty = property<SideBarTabViewModel?>(infoBarTabs.first())
 
 
-    private val drawableProperty = activeTabProperty.mapBinding {
+    val drawableProperty = activeTabProperty.mapBinding {
         val tab = it as? FilePlanetSideBarTab<*>
         tab?.drawable
     }

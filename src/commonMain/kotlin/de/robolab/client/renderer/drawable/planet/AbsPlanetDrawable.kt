@@ -4,6 +4,7 @@ import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.canvas.ICanvas
 import de.robolab.client.renderer.drawable.general.PathAnimatable
 import de.robolab.client.renderer.drawable.utils.BSpline
+import de.robolab.client.renderer.drawable.utils.PlanetRequestContext
 import de.robolab.client.renderer.plotter.PlotterWindow
 import de.robolab.client.renderer.utils.ITransformationReference
 import de.robolab.client.renderer.utils.Transformation
@@ -62,6 +63,8 @@ abstract class AbsPlanetDrawable(
         transformation?.flip(force)
         centerPlanet()
     }
+
+    val requestContext = PlanetRequestContext()
 
     private val backgroundView = RectangleView(null, ViewColor.PRIMARY_BACKGROUND_COLOR)
     private val gridLinesView = GridLineView()

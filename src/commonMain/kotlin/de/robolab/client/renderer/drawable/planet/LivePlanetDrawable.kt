@@ -11,13 +11,13 @@ class LivePlanetDrawable(
     transformationState: ObservableProperty<Transformation.State> = property(Transformation.State.DEFAULT)
 ) : AbsPlanetDrawable(transformationState) {
 
-    private val backgroundLayer = PlanetLayer("Background layer") {
+    private val backgroundLayer = PlanetLayer("Background layer", requestContext) {
         it.withAlpha(0.2)
     }
-    private val mqttLayer = PlanetLayer("Mqtt layer") {
+    private val mqttLayer = PlanetLayer("Mqtt layer", requestContext) {
         it.withAlpha(0.5)
     }
-    private val serverLayer = PlanetLayer("Server layer")
+    private val serverLayer = PlanetLayer("Server layer", requestContext)
 
     private val robotDrawable = RobotDrawable()
 
