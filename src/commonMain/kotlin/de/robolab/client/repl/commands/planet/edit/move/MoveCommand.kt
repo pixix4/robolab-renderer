@@ -10,5 +10,6 @@ object MoveCommand : ReplBoundCommandNodeTemplate<FilePlanetDocument>(
 ) {
     override val children: List<IReplBoundCommandTemplate<FilePlanetDocument>> = listOf(
         MoveVertexCommand,
+        MovePointCommand
     )
 }
