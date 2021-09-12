@@ -7,6 +7,7 @@ import de.robolab.client.repl.base.IReplBoundCommandTemplate
 import de.robolab.client.repl.base.ReplCommandParameterDescriptor
 import de.robolab.client.repl.commands.planet.edit.EditCommand
 import de.robolab.common.planet.PlanetPathVertex
+import de.robolab.client.repl.commands.planet.generate.GenerateCommand
 
 object PlanetCommand : ReplBoundCommandNodeTemplate<FilePlanetDocument>(
     "planet",
@@ -14,6 +15,7 @@ object PlanetCommand : ReplBoundCommandNodeTemplate<FilePlanetDocument>(
 ) {
     override val children: List<IReplBoundCommandTemplate<FilePlanetDocument>> = listOf(
         EditCommand,
+        GenerateCommand,
     )
 
     override suspend fun FilePlanetDocument.requestAutoCompleteFor(type: ReplCommandParameterDescriptor<*>): List<ReplExecutor.AutoComplete>? {
