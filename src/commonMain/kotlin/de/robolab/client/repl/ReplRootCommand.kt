@@ -6,18 +6,22 @@ import de.robolab.common.utils.ConsoleGreeter
 object ReplRootCommand : ReplCommandNode("robolab", "RoboLab Renderer repl") {
     override fun printHelp(output: IReplOutput, parentNames: List<String>) {
         output.writeln(ConsoleGreeter.appLogo)
-        output.writeln(ConsoleGreeter.appClientCreators)
+        output.writeln(ConsoleGreeter.appClientCreators, ReplColor.GREY)
         output.writeln("")
         output.writeln("Commands:")
 
         val nameLength = helpCommandDescriptions.maxOf { it.first.length }
-        for ((commandName, commandDescription) in helpCommandDescriptions) {
+        for ((commandName, commandDescription, color) in helpCommandDescriptions) {
             val padding = " ".repeat(nameLength - commandName.length)
-            output.writeln("    ${commandName}: $padding$commandDescription")
+
+            output.write("    ")
+            output.write(commandName, color)
+            output.write(": $padding")
+            output.writeln(commandDescription, ReplColor.GREY)
         }
     }
 
-    private fun printDebugTree(output: IReplOutput, command: IReplCommand, depth: Int){
+    private fun printDebugTree(output: IReplOutput, command: IReplCommand, depth: Int) {
         output.write("    ".repeat(depth))
 
         if (command is IReplCommandNode) {

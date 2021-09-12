@@ -18,10 +18,16 @@ interface IReplCommandNode : IReplCommand {
 
     val commands: List<IReplCommand>
 
-    val helpCommandDescriptions: List<Pair<String, String>>
+    val helpCommandDescriptions: List<Triple<String, String, ReplColor?>>
         get() {
             val list = commands.groupBy { it.name }.mapNotNull { it.value.merge() }
-                .map { it.name to it.description } + Pair("help", "Print help message for this command")
+                .map {
+                    Triple(it.name, it.description, when (it) {
+                        is IReplCommandNode -> ReplColor.BLUE
+                        is IReplCommandLeaf -> ReplColor.CYAN
+                        else -> null
+                    })
+                } + Triple("help", "Print help message for this command", ReplColor.CYAN)
             return list.sortedBy { it.first }
         }
 
@@ -34,9 +40,13 @@ interface IReplCommandNode : IReplCommand {
         output.writeln("Commands:")
 
         val nameLength = helpCommandDescriptions.maxOf { it.first.length }
-        for ((commandName, commandDescription) in helpCommandDescriptions) {
+        for ((commandName, commandDescription, color) in helpCommandDescriptions) {
             val padding = " ".repeat(nameLength - commandName.length)
-            output.writeln("    ${commandName}: $padding$commandDescription")
+
+            output.write("    ")
+            output.write(commandName, color)
+            output.write(": $padding")
+            output.writeln(commandDescription, ReplColor.GREY)
         }
     }
 }

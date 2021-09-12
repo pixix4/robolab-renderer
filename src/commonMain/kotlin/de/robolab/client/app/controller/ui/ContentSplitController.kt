@@ -154,7 +154,7 @@ class ContentSplitController : IRenderInstance {
             action("split-v", "Split vertically") { _ ->
                 splitEntryVertical()
             }
-            action("layout", "Zoom in", GridLayout.param("grid")) { _, params ->
+            action("layout", "Set the window grid layout", GridLayout.param("grid")) { _, params ->
                 val grid = params.parse1<GridLayout>()
                 setGridLayout(grid.rows, grid.cols)
             }

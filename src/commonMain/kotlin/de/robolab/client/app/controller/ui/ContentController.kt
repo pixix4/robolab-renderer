@@ -1,5 +1,6 @@
 package de.robolab.client.app.controller.ui
 
+import de.robolab.client.app.model.base.EmptyPlanetDocument
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.renderer.drawable.utils.degreeToRadiant
 import de.robolab.client.renderer.utils.CommonTimer
@@ -11,7 +12,9 @@ import de.robolab.client.repl.base.parse1
 import de.robolab.common.utils.Vector
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
+import de.westermann.kobserve.event.now
 import de.westermann.kobserve.property.flatMapBinding
+import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 
 class ContentController {
@@ -28,6 +31,8 @@ class ContentController {
 
     val activeTabProperty = content.activeNodeProperty.flatMapBinding { it.content.activeProperty }
     val plotterWindowProperty = activeTabProperty.flatMapBinding { it.plotterManager.activePlotterProperty }
+    val isPlanetVisibleProperty =
+        plotterWindowProperty.flatMapBinding { it.planetDocumentProperty }.mapBinding { it !is EmptyPlanetDocument }
 
     val pointerProperty = property<Pointer?>(null)
 
@@ -132,7 +137,7 @@ class ContentController {
         pointerProperty.bind(plotterWindowProperty.flatMapBinding { it.pointerProperty })
         zoomProperty.bind(plotterWindowProperty.flatMapBinding { it.transformation.scaleProperty })
 
-        ReplRootCommand.node("window", "") {
+        val windowNode = ReplCommandNode("window", "") {
             node("zoom", "Set zoom level") {
                 action("in", "Zoom in") { _ ->
                     zoomIn()
@@ -185,6 +190,14 @@ class ContentController {
                 action("reset", "Reset translation to center") { _ ->
                     center()
                 }
+            }
+        }
+
+        isPlanetVisibleProperty.onChange.now {
+            if (isPlanetVisibleProperty.value) {
+                ReplRootCommand += windowNode
+            } else {
+                ReplRootCommand -= windowNode
             }
         }
     }
