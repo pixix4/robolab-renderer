@@ -37,12 +37,12 @@ open class ReplParameterCommand(
         return executeHandler(output, p)
     }
 
-    private var handler: suspend (type: ReplCommandParameterDescriptor<*>) -> List<ReplExecutor.AutoComplete> = { emptyList() }
-    fun setRequestAutoCompleteForHandler(handler: suspend (type: ReplCommandParameterDescriptor<*>) -> List<ReplExecutor.AutoComplete>) {
+    private var handler: suspend (type: ReplCommandParameterDescriptor<*>) -> List<ReplExecutor.AutoComplete>? = { null }
+    fun setRequestAutoCompleteForHandler(handler: suspend (type: ReplCommandParameterDescriptor<*>) -> List<ReplExecutor.AutoComplete>?) {
         this.handler = handler
     }
 
-    override suspend fun requestAutoCompleteFor(type: ReplCommandParameterDescriptor<*>): List<ReplExecutor.AutoComplete> {
+    override suspend fun requestAutoCompleteFor(type: ReplCommandParameterDescriptor<*>): List<ReplExecutor.AutoComplete>? {
         return handler(type)
     }
 }

@@ -27,8 +27,8 @@ abstract class ReplBoundParameterCommandTemplate<T>(
 
     abstract suspend fun T.execute(out: IReplOutput, params: List<IReplCommandParameter>)
 
-    open suspend fun T.requestAutoCompleteFor(type: ReplCommandParameterDescriptor<*>): List<ReplExecutor.AutoComplete> {
-        return emptyList()
+    open suspend fun T.requestAutoCompleteFor(type: ReplCommandParameterDescriptor<*>): List<ReplExecutor.AutoComplete>? {
+        return null
     }
 
     companion object {

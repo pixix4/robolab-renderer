@@ -62,19 +62,6 @@ object MoveVertexCommand : ReplBoundParameterCommandTemplate<FilePlanetDocument>
         planetFile.planet = planet.copy(paths = paths, startPoint = startPoint, pathSelects = pathSelects)
     }
 
-    override suspend fun FilePlanetDocument.requestAutoCompleteFor(type: ReplCommandParameterDescriptor<*>): List<ReplExecutor.AutoComplete> {
-        if (type.type is PlanetPathVertex.Companion) {
-            val pointEnd = drawableProperty.value?.requestContext?.requestPointEnd() ?: return emptyList()
-
-            return listOf(ReplExecutor.AutoComplete(
-                PlanetPathVertex(pointEnd.first, pointEnd.second).toToken(),
-                "Selected point end"
-            ))
-        }
-
-        return emptyList()
-    }
-
     fun PlanetSpline.moveByVertices(
         old: Pair<PlanetPathVertex, PlanetPathVertex>,
         new: Pair<PlanetPathVertex, PlanetPathVertex>,

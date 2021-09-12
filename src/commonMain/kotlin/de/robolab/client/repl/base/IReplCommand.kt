@@ -12,6 +12,10 @@ interface IReplCommand {
     val description: String
 
     fun printHelp(output: IReplOutput, parentNames: List<String>)
+
+    suspend fun requestAutoCompleteFor(type: ReplCommandParameterDescriptor<*>): List<ReplExecutor.AutoComplete>? {
+        return null
+    }
 }
 
 interface IReplCommandNode : IReplCommand {
@@ -56,10 +60,6 @@ interface IReplCommandLeaf : IReplCommand {
     val parameters: List<ReplCommandParameterDescriptor<*>>
 
     suspend fun execute(output: IReplOutput, parameters: List<String>)
-
-    suspend fun requestAutoCompleteFor(type: ReplCommandParameterDescriptor<*>): List<ReplExecutor.AutoComplete> {
-        return emptyList()
-    }
 
     override fun printHelp(output: IReplOutput, parentNames: List<String>) {
         val params = parameters.joinToString(" ") {

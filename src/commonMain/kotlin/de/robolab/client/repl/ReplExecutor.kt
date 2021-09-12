@@ -88,7 +88,8 @@ object ReplExecutor {
     suspend fun autoComplete(input: String): List<AutoComplete> {
         return autoComplete(
             ReplRootCommand,
-            tokenize(input, true)
+            tokenize(input, true),
+            emptyList()
         )
     }
 
@@ -161,7 +162,11 @@ object ReplExecutor {
         activeAutoComplete = null
     }
 
-    private suspend fun autoComplete(command: IReplCommand, input: List<Token>): List<AutoComplete> {
+    private suspend fun autoComplete(
+        command: IReplCommand,
+        input: List<Token>,
+        parents: List<IReplCommandNode>,
+    ): List<AutoComplete> {
         val nextInput = input.firstOrNull()
         activeAutoComplete = null
 
@@ -175,9 +180,17 @@ object ReplExecutor {
                     command.parameters.getOrNull(input.filter { it.token.isNotEmpty() }.size) ?: return emptyList()
                 activeAutoComplete = AutoCompleteJob(parameter)
 
-                val result = command.requestAutoCompleteFor(parameter)
+                for (c in (parents + command).reversed()) {
+                    val result = c.requestAutoCompleteFor(parameter)
+
+                    if (result != null) {
+                        activeAutoComplete = null
+                        return result
+                    }
+                }
+
                 activeAutoComplete = null
-                return result
+                return emptyList()
             }
 
             if (command is IReplCommandNode) {
@@ -189,6 +202,7 @@ object ReplExecutor {
                     return autoComplete(
                         subCommand,
                         input.drop(1),
+                        parents + command
                     )
                 }
 
