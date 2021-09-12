@@ -154,13 +154,9 @@ class TerminalInputViewModel(
 
                 TerminalController.execute(state.value)
 
-                while (commandHistory.canRedo) {
-                    commandHistory.redo()
-                }
-                if (commandHistoryDirty) {
-                    commandHistory.replace(state.value)
-                } else {
-                    commandHistory.push(state.value)
+                commandHistory.clear(TerminalController.commandHistory.firstOrNull() ?: "")
+                for (command in TerminalController.commandHistory.drop(1)) {
+                    commandHistory.push(command)
                 }
                 commandHistoryDirty = false
 
@@ -184,9 +180,17 @@ class TerminalInputViewModel(
             }
             KeyCode.BACKSPACE -> {
                 if (state.cursor > 0) {
-                    val value = state.value.substring(0, state.cursor - 1) + state.value.substring(state.cursor,
+                    var deleteCount = 1
+
+                    if (event.ctrlKey || event.shiftKey || event.altKey) {
+                        while (deleteCount < state.cursor && state.value[state.cursor - deleteCount] != ' ') {
+                            deleteCount += 1
+                        }
+                    }
+
+                    val value = state.value.substring(0, state.cursor - deleteCount) + state.value.substring(state.cursor,
                         state.value.length)
-                    this.state = State(value, state.cursor - 1)
+                    this.state = State(value, state.cursor - deleteCount)
                 }
             }
             KeyCode.DELETE -> {
@@ -338,6 +342,9 @@ class TerminalInputViewModel(
         val autoComplete = ReplExecutor.autoComplete(input)
 
         if (autoComplete.isEmpty()) {
+            if (!input.endsWith(' ') && state.cursor == input.length) {
+                state = State("$input ")
+            }
             return
         }
 
@@ -365,6 +372,13 @@ class TerminalInputViewModel(
             state = State(input + selected.suffix + " ")
             autoCompleteProperty.value = emptyList()
             return
+        }
+    }
+
+    init {
+        commandHistory.clear(TerminalController.commandHistory.firstOrNull() ?: "")
+        for (command in TerminalController.commandHistory.drop(1)) {
+            commandHistory.push(command)
         }
     }
 }

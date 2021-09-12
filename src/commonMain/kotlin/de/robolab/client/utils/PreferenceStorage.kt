@@ -135,6 +135,9 @@ object PreferenceStorage : TypedStorage() {
     val macrosProperty = item("macros", "")
     var macros by macrosProperty
 
+    val terminalHistoryProperty = item("terminal.history", "")
+    var terminalHistory by terminalHistoryProperty
+
     init {
         logLevelProperty.onChange.now {
             Logger.level = logLevel

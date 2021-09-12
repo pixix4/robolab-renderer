@@ -78,7 +78,16 @@ class MacroController {
     data class Macro(
         val keyBinding: KeyBinding,
         val commands: List<String>,
-    )
+    ) {
+
+        fun withAlias(vararg alias: KeyBinding): List<Macro> {
+            return listOf(this) + alias.map { binding ->
+                Macro(binding, listOf(
+                    "macro execute ${this.keyBinding.toToken()}"
+                ))
+            }
+        }
+    }
 
     @Serializable
     data class MacroStorage(
@@ -86,17 +95,24 @@ class MacroController {
     )
 
     private val macroList = mutableListOf<Macro>()
+    private var debugOutput: IReplOutput? =  null
 
     fun onKeyDown(event: KeyEvent) {
-        val binding = KeyBinding.fromKeyEvent(event)
+        debugOutput?.writeln(event.toString())
+        if (execute(KeyBinding.fromKeyEvent(event), debugOutput ?: DummyReplOutput)) {
+            event.stopPropagation()
+        }
+    }
 
-        val macro = macroList.find { it.keyBinding == binding } ?: return
+    fun execute(binding: KeyBinding, output: IReplOutput): Boolean {
+        val macro = macroList.find { it.keyBinding == binding } ?: return false
 
         GlobalScope.launch {
             for (line in macro.commands) {
-                ReplExecutor.execute(line, DummyReplOutput)
+                ReplExecutor.execute(line, output)
             }
         }
+        return true
     }
 
     fun save() {
@@ -120,10 +136,10 @@ class MacroController {
     private fun loadDefaults() {
         macroList.clear()
 
-        macroList += Macro(
-            KeyBinding(KeyCode.ENTER, ctrlKey = true),
-            listOf("ui toggle terminal")
-        )
+        macroList.addAll(Macro(
+            KeyBinding(KeyCode.SLASH, ctrlKey = true),
+            listOf("window toggle terminal")
+        ).withAlias(KeyBinding(KeyCode.ENTER, ctrlKey = true), KeyBinding(KeyCode.HASH, ctrlKey = true)))
     }
 
     init {
@@ -158,6 +174,15 @@ class MacroController {
                     output.writeHighlightCommand(c)
                     output.writeln()
                 }
+            }
+
+            action(
+                "execute",
+                "Run a macro with the given key binding",
+                KeyBinding.param("binding"),
+            ) { output, params ->
+                val binding = params.parse1<KeyBinding>()
+                execute(binding, output)
             }
 
             action(
@@ -224,6 +249,35 @@ class MacroController {
 
             action("restore-defaults", "Delete all saved macros and restore the default bindings") { _ ->
                 loadDefaults()
+                save()
+            }
+
+            action(
+                "debug",
+                "Log the currently pressed key binding",
+                BooleanParameter.param("enabled", optional = true)
+            ) { output, params ->
+                val enabled = params.parse1<BooleanParameter?>()
+
+                when (enabled?.value) {
+                    null -> {
+                        debugOutput = if (debugOutput == null) {
+                            output
+                        } else {
+                            null
+                        }
+                    }
+                    true -> {
+                        if (debugOutput == null) {
+                            debugOutput = output
+                        }
+                    }
+                    false -> {
+                        if (debugOutput != null) {
+                            debugOutput = null
+                        }
+                    }
+                }
             }
         }
     }
