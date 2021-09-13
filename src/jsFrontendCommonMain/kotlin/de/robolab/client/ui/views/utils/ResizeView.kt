@@ -9,7 +9,12 @@ import de.westermann.kwebview.View
 
 class ResizeView(vararg cssClasses: String, onResize: (position: Vector, size: Vector) -> Unit) : View() {
 
-    private val hammer = Hammer(html, object {})
+    private val hammer = Hammer(html, js("""{
+        touchAction: 'auto',
+        recognizers: [
+            [Hammer.Pan,{ direction: Hammer.DIRECTION_HORIZONTAL }],
+        ]
+        }"""))
 
     private var offset: Vector = Vector.ZERO
 

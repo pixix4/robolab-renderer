@@ -79,5 +79,13 @@ enum class PlanetDirection(val value: String) : IPlanetValue<PlanetDirection> {
                 if (vector.x >= 0) East else West
             }
         }
+
+        fun fromLetter(letter: Char): PlanetDirection? = when (letter.uppercaseChar()) {
+            'N' -> North
+            'E' -> East
+            'S' -> South
+            'W' -> West
+            else -> null
+        }
     }
 }

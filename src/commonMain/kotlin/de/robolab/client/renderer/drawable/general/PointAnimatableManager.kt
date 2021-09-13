@@ -2,12 +2,14 @@ package de.robolab.client.renderer.drawable.general
 
 import de.robolab.client.renderer.drawable.base.AnimatableManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
+import de.robolab.client.renderer.drawable.utils.PlanetRequestContext
 import de.robolab.common.planet.Planet
 import de.robolab.common.planet.PlanetPoint
 import de.robolab.common.planet.utils.IPlanetValue
 
 class PointAnimatableManager(
     private val editCallback: IEditCallback? = null,
+    private val requestContext: PlanetRequestContext,
 ) : AnimatableManager<PointAnimatableManager.AttributePoint, PointAnimatable>() {
 
     class AttributePoint(
@@ -45,7 +47,7 @@ class PointAnimatableManager(
     }
 
     override fun createAnimatable(obj: AttributePoint, planet: Planet): PointAnimatable {
-        return PointAnimatable(obj, planet, editCallback)
+        return PointAnimatable(obj, planet, editCallback, requestContext)
     }
 
     companion object {

@@ -7,6 +7,7 @@ import de.robolab.client.communication.toMqttPlanet
 import de.robolab.client.communication.toRobot
 import de.robolab.client.communication.toServerPlanet
 import de.robolab.client.renderer.drawable.planet.LivePlanetDrawable
+import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.constObservable
@@ -46,6 +47,10 @@ abstract class AbstractGroupAttemptPlanetDocument : IPlanetDocument {
     val drawable = LivePlanetDrawable()
     override val documentProperty = constObservable(drawable.view)
 
+    override fun centerPlanet() {
+        drawable.autoCentering = true
+        drawable.centerPlanet(duration = TransformationInteraction.ANIMATION_TIME)
+    }
 
     val planetNameProperty = property("")
 

@@ -1,7 +1,9 @@
 package de.robolab.client.ui
 
 import de.robolab.client.app.controller.MainController
+import de.robolab.client.app.controller.TerminalController
 import de.robolab.client.app.viewmodel.MainViewModel
+import de.robolab.client.ui.adapter.toEvent
 import de.robolab.client.ui.views.*
 import de.robolab.client.ui.views.boxes.*
 import de.robolab.client.ui.views.dialogs.*
@@ -16,6 +18,7 @@ import de.westermann.kobserve.property.property
 import de.westermann.kwebview.bindStyleProperty
 import de.westermann.kwebview.components.init
 import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -28,6 +31,8 @@ fun initMainView(
     ViewFactoryRegistry.register(ToolBarView)
     ViewFactoryRegistry.register(StatusBarView)
     ViewFactoryRegistry.register(ContentView)
+    ViewFactoryRegistry.register(TerminalInputView)
+    ViewFactoryRegistry.register(TerminalView)
 
     ViewFactoryRegistry.register(FormContentView)
     ViewFactoryRegistry.register(FormView)
@@ -72,6 +77,11 @@ fun initMainView(
             uiController.infoBarWidthProperty.join(uiController.infoBarVisibleProperty) { width, visible ->
                 if (visible) "${width}px" else "0px"
             })
+        bindStyleProperty(
+            "--terminal-view-height",
+            uiController.terminalHeightProperty.join(uiController.terminalEnabledProperty) { height, visible ->
+                if (visible) "${height}px" else "0px"
+            })
 
 
         clear()
@@ -111,23 +121,16 @@ fun initMainView(
         mainController.finishSetup()
 
         onKeyDown { event ->
-            /*if (event.ctrlOrCommandKey && event.key == "w") {
-                val tab = mainController.tabController.activeTabProperty.value
-
-                if (tab != null && !mainController.tabController.empty()) {
-                    event.stopPropagation()
-                    event.preventDefault()
-
-                    tab.close()
-                }
-            }
-
-            if (event.ctrlOrCommandKey && event.key == "t") {
+            val e = event.toEvent()
+            mainController.macroController.onKeyDown(e)
+            if (!e.bubbles) {
                 event.stopPropagation()
                 event.preventDefault()
+            }
+        }
 
-                mainController.tabController.openNewTab()
-            }*/
+        window.asDynamic().execute =  { input: String ->
+            TerminalController.execute(input)
         }
 
         electron { electron ->

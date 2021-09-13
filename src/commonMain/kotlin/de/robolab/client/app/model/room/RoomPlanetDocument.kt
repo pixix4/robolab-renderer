@@ -16,6 +16,7 @@ import de.robolab.client.communication.RobolabMessage
 import de.robolab.client.communication.toRobot
 import de.robolab.client.renderer.drawable.live.RobotDrawable
 import de.robolab.client.renderer.drawable.planet.MultiRobotPlanetDrawable
+import de.robolab.client.renderer.utils.TransformationInteraction
 import de.robolab.client.utils.runAsync
 import de.robolab.common.planet.Planet
 import de.westermann.kobserve.base.ObservableProperty
@@ -46,6 +47,11 @@ class RoomPlanetDocument(
 
     val drawable = MultiRobotPlanetDrawable()
     override val documentProperty = constObservable(drawable.view)
+
+    override fun centerPlanet() {
+        drawable.autoCentering = true
+        drawable.centerPlanet(duration = TransformationInteraction.ANIMATION_TIME)
+    }
 
     data class GroupState(
         val attempt: Attempt,

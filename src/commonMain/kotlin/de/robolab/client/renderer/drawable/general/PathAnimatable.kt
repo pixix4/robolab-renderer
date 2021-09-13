@@ -25,7 +25,8 @@ import kotlin.math.roundToLong
 class PathAnimatable(
     reference: PlanetPath,
     planet: Planet,
-    val editCallback: IEditCallback?,
+    private val editCallback: IEditCallback?,
+    private val requestContext: PlanetRequestContext,
 ) : Animatable<PlanetPath>(reference) {
 
     private fun generateHighlightColors(planet: Planet, reference: PlanetPath): List<SplineView.Color> {
@@ -259,6 +260,12 @@ class PathAnimatable(
             editCallback != null && focusedView != null
         }
         view.onPointerDown { event ->
+            if (requestContext.type == PlanetRequestContext.Type.PATH) {
+                requestContext.providePath(reference)
+                event.stopPropagation()
+                return@onPointerDown
+            }
+
             val callback = editCallback ?: return@onPointerDown
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             if (event.ctrlKey && focusedView != null) {

@@ -3,10 +3,15 @@ package de.robolab.client.app.controller.ui
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.renderer.utils.IRenderInstance
 import de.robolab.client.renderer.utils.onRender
+import de.robolab.client.repl.*
+import de.robolab.client.repl.base.IReplCommandParameter
+import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
+import de.robolab.client.repl.base.parse1
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import kotlin.reflect.KClass
 
 class ContentSplitController : IRenderInstance {
 
@@ -140,6 +145,20 @@ class ContentSplitController : IRenderInstance {
         val node = Node()
         rootProperty = property(node)
         activeNodeProperty = property(node)
+
+
+        ReplRootCommand.node("window", "") {
+            action("split-h", "Split horizontally") { _ ->
+                splitEntryHorizontal()
+            }
+            action("split-v", "Split vertically") { _ ->
+                splitEntryVertical()
+            }
+            action("layout", "Set the window grid layout", GridLayout.param("grid")) { _, params ->
+                val grid = params.parse1<GridLayout>()
+                setGridLayout(grid.rows, grid.cols)
+            }
+        }
     }
 
     interface Entry : IRenderInstance {
@@ -251,5 +270,35 @@ class ContentSplitController : IRenderInstance {
 
     enum class Orientation {
         VERTICAL, HORIZONTAL
+    }
+}
+
+
+data class GridLayout(
+    val rows: Int,
+    val cols: Int,
+) : IReplCommandParameter {
+
+    override val typeDescriptor: IReplCommandParameterTypeDescriptor<*> = Companion
+
+    override fun toToken(): String = "${rows}x$cols"
+
+    companion object : IReplCommandParameterTypeDescriptor<GridLayout> {
+        override val klazz: KClass<GridLayout> = GridLayout::class
+        override val name: String = "GridLayout"
+        override val description = "Specify the window grid layout"
+        override val pattern = "<rows>x<cols>"
+        override val example = listOf(
+            GridLayout(3, 2).toToken()
+        )
+        override val regex: Regex = """\d+x\d+""".toRegex()
+
+        override fun fromToken(token: String, match: MatchResult): GridLayout? {
+            val (rows, cols) = token.split("x", limit = 2)
+            return GridLayout(
+                rows.toIntOrNull() ?: return null,
+                cols.toIntOrNull() ?: return null
+            )
+        }
     }
 }

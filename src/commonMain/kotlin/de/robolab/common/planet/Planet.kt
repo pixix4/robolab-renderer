@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlin.math.PI
 
-
 @Serializable
 data class Planet(
     val bluePoint: PlanetPoint? = null,

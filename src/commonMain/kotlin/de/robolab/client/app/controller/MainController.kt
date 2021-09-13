@@ -99,6 +99,8 @@ class MainController(private val args: Args) {
         uiController
     )
 
+    val macroController = MacroController()
+
     init {
         ConsoleGreeter.greetClient()
 

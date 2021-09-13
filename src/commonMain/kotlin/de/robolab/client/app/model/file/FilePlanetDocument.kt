@@ -16,8 +16,13 @@ import de.robolab.client.renderer.canvas.SvgCanvas
 import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.client.renderer.utils.Transformation
+import de.robolab.client.renderer.utils.TransformationInteraction
+import de.robolab.client.repl.ReplRootCommand
+import de.robolab.client.repl.base.IReplCommand
+import de.robolab.client.repl.commands.planet.PlanetCommand
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
+import de.robolab.common.utils.consumeEach
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -50,10 +55,15 @@ class FilePlanetDocument(
         InfoBarFileEdit(this, uiController),
         InfoBarFileTraverse(this, uiController),
         InfoBarFileTest(this, uiController)
-
     )
 
     override val activeTabProperty = property<SideBarTabViewModel?>(infoBarTabs.first())
+
+
+    val drawableProperty = activeTabProperty.mapBinding {
+        val tab = it as? FilePlanetSideBarTab<*>
+        tab?.drawable
+    }
 
     override val documentProperty = activeTabProperty.mapBinding {
         val tab = it as? FilePlanetSideBarTab<*>
@@ -93,6 +103,8 @@ class FilePlanetDocument(
             }
         ),
     ))
+
+    private val _registeredCommands: MutableList<IReplCommand> = mutableListOf()
 
     override val canUndoProperty = planetFile.planetProperty.canUndoProperty
 
@@ -160,12 +172,20 @@ class FilePlanetDocument(
     }
 
     override fun onAttach() {
+        ReplRootCommand += PlanetCommand.bind(this).also(_registeredCommands::add)
     }
 
     override fun onDetach() {
+        _registeredCommands.consumeEach(ReplRootCommand::removeCommand)
     }
 
     override fun onDestroy() {
+    }
+
+
+    override fun centerPlanet() {
+        drawableProperty.value?.autoCentering = true
+        drawableProperty.value?.centerPlanet(duration = TransformationInteraction.ANIMATION_TIME)
     }
 
     override fun equals(other: Any?): Boolean {

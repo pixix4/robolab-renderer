@@ -1,0 +1,296 @@
+package de.robolab.client.app.controller
+
+import de.robolab.client.app.model.base.MaterialIcon
+import de.robolab.client.app.viewmodel.buildHintContent
+import de.robolab.client.renderer.events.KeyCode
+import de.robolab.client.renderer.events.KeyEvent
+import de.robolab.client.repl.*
+import de.robolab.client.repl.base.*
+import de.robolab.client.utils.PreferenceStorage
+import de.robolab.common.utils.RobolabJson
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlin.reflect.KClass
+
+class MacroController {
+
+    @Serializable
+    data class KeyBinding(
+        val keyCode: KeyCode,
+        val ctrlKey: Boolean = false,
+        val altKey: Boolean = false,
+        val shiftKey: Boolean = false,
+    ) : IReplCommandParameter {
+
+        override val typeDescriptor: IReplCommandParameterTypeDescriptor<*> = Companion
+
+        override fun toToken(): String = toString()
+
+
+        override fun toString(): String {
+            return buildString {
+                if (ctrlKey) {
+                    append("Ctrl+")
+                }
+                if (shiftKey) {
+                    append("Shift+")
+                }
+                if (altKey) {
+                    append("Alt+")
+                }
+                append(keyCode.name)
+            }
+        }
+
+        companion object : IReplCommandParameterTypeDescriptor<KeyBinding> {
+            override val klazz: KClass<KeyBinding> = KeyBinding::class
+            override val name: String = "KeyBinding"
+            override val description = "Describes a bindable key combination"
+            override val pattern = "[Ctrl+][Shift+][Alt+]<KeyCode>"
+            override val example = listOf("Ctrl+K")
+            override val regex: Regex = """(\w+\+)*\w+""".toRegex()
+
+            override fun fromToken(token: String, match: MatchResult): KeyBinding? {
+                val split = token.split('+')
+
+                val modifier = split.dropLast(1).map { it.lowercase().trim() }
+                val keyCode = KeyCode.values().find { it.name.equals(split.last().trim(), true) } ?: return null
+
+                return KeyBinding(
+                    keyCode,
+                    ctrlKey = modifier.any { it == "ctrl" },
+                    shiftKey = modifier.any { it == "shift" },
+                    altKey = modifier.any { it == "alt" },
+                )
+            }
+
+            fun fromKeyEvent(event: KeyEvent) = KeyBinding(
+                event.keyCode,
+                event.ctrlKey,
+                event.altKey,
+                event.shiftKey
+            )
+        }
+    }
+
+    @Serializable
+    data class Macro(
+        val keyBinding: KeyBinding,
+        val commands: List<String>,
+    ) {
+
+        fun withAlias(vararg alias: KeyBinding): List<Macro> {
+            return listOf(this) + alias.map { binding ->
+                Macro(binding, listOf(
+                    "macro execute ${this.keyBinding.toToken()}"
+                ))
+            }
+        }
+    }
+
+    @Serializable
+    data class MacroStorage(
+        val macroList: List<Macro>,
+    )
+
+    private val macroList = mutableListOf<Macro>()
+    private var debugOutput: IReplOutput? = null
+
+    fun onKeyDown(event: KeyEvent) {
+        debugOutput?.writeln(event.toString())
+        if (execute(KeyBinding.fromKeyEvent(event), debugOutput ?: DummyReplOutput)) {
+            event.stopPropagation()
+        }
+    }
+
+    fun execute(binding: KeyBinding, output: IReplOutput): Boolean {
+        val macro = macroList.find { it.keyBinding == binding } ?: return false
+
+        GlobalScope.launch {
+            for (line in macro.commands) {
+                ReplExecutor.execute(line, output)
+            }
+        }
+        return true
+    }
+
+    fun save() {
+        PreferenceStorage.macros = RobolabJson.encodeToString(MacroStorage.serializer(), MacroStorage(macroList))
+    }
+
+    fun load() {
+        val macros = PreferenceStorage.macros
+
+        try {
+            val storage = RobolabJson.decodeFromString(MacroStorage.serializer(), macros)
+
+            macroList.clear()
+            macroList.addAll(storage.macroList)
+        } catch (e: Exception) {
+            loadDefaults()
+            save()
+        }
+    }
+
+    private fun loadDefaults() {
+        macroList.clear()
+
+        macroList.addAll(Macro(
+            KeyBinding(KeyCode.SLASH, ctrlKey = true),
+            listOf("window toggle terminal")
+        ).withAlias(KeyBinding(KeyCode.ENTER, ctrlKey = true), KeyBinding(KeyCode.HASH, ctrlKey = true)))
+    }
+
+    init {
+        load()
+
+        ReplRootCommand.node("macro", "Interact with the macro system") {
+            action("list", "List all available macros") { output ->
+                for (macro in macroList) {
+                    output.writeln(macro.keyBinding.toString())
+                    for (c in macro.commands) {
+                        output.write("  ")
+                        output.writeHighlightCommand(c)
+                        output.writeln()
+                    }
+                }
+            }
+
+            action(
+                "get",
+                "Show all commands for the given key binding",
+                KeyBinding.param("binding"),
+            ) { output, params ->
+                val keyBinding = params.parse1<KeyBinding>()
+
+                val existing = macroList.find {
+                    it.keyBinding == keyBinding
+                }?.commands ?: emptyList()
+
+                output.writeln(keyBinding.toString())
+                for (c in existing) {
+                    output.write("  ")
+                    output.writeHighlightCommand(c)
+                    output.writeln()
+                }
+            }
+
+            action(
+                "execute",
+                "Run a macro with the given key binding",
+                KeyBinding.param("binding"),
+            ) { output, params ->
+                val binding = params.parse1<KeyBinding>()
+                execute(binding, output)
+            }
+
+            action(
+                "add",
+                "Add a new command. If a macro with the given key binding already exists, the given command will be added to the existing macro",
+                KeyBinding.param("binding"),
+                StringParameter.param("command")
+            ) { output, params ->
+                val (keyBinding, command) = params.parse2<KeyBinding, StringParameter>()
+
+                val existing = macroList.find {
+                    it.keyBinding == keyBinding
+                }?.commands ?: emptyList()
+
+                macroList.removeAll {
+                    it.keyBinding == keyBinding
+                }
+                val macro = Macro(keyBinding, existing + command.value)
+                macroList += macro
+                save()
+
+                output.writeln(macro.keyBinding.toString())
+                for (c in macro.commands) {
+                    output.write("  ")
+                    output.writeHighlightCommand(c)
+                    output.writeln()
+                }
+            }
+
+            action(
+                "remove",
+                "Remove an existing command",
+                KeyBinding.param("binding"),
+                IntParameter.param("index", optional = true)
+            ) { output, params ->
+                val (keyBinding, index) = params.parse2<KeyBinding, IntParameter?>()
+
+                val existing = macroList.find {
+                    it.keyBinding == keyBinding
+                }?.commands ?: emptyList()
+
+
+                macroList.removeAll {
+                    it.keyBinding == keyBinding
+                }
+
+                if (index != null && index.value >= 0 && index.value < existing.size && existing.size > 1) {
+                    val l = existing.toMutableList()
+                    l.removeAt(index.value)
+
+                    val macro = Macro(keyBinding, l)
+                    macroList += macro
+
+                    output.writeln(macro.keyBinding.toString())
+                    for (c in macro.commands) {
+                        output.write("  ")
+                        output.writeHighlightCommand(c)
+                        output.writeln()
+                    }
+                }
+
+                save()
+            }
+
+            action("restore-defaults", "Delete all saved macros and restore the default bindings") { _ ->
+                loadDefaults()
+                save()
+            }
+
+            action(
+                "debug",
+                "Log the currently pressed key binding",
+                BooleanParameter.param("enabled", optional = true)
+            ) { output, params ->
+                val enabled = params.parse1<BooleanParameter?>()
+
+                when (enabled?.value) {
+                    null -> {
+                        debugOutput = if (debugOutput == null) {
+                            output
+                        } else {
+                            null
+                        }
+                    }
+                    true -> {
+                        if (debugOutput == null) {
+                            debugOutput = output
+                        }
+                    }
+                    false -> {
+                        if (debugOutput != null) {
+                            debugOutput = null
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun IReplOutput.writeHighlightCommand(input: String) {
+    writeIcon(MaterialIcon.CHEVRON_RIGHT)
+    write(" ")
+
+    val hint = ReplExecutor.hint(input)
+    val list = buildHintContent(hint.input, hint.highlight)
+
+    for (item in list) {
+        write(item.value, item.color?.toColor())
+    }
+}

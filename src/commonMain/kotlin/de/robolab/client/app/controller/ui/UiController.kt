@@ -1,11 +1,14 @@
 package de.robolab.client.app.controller.ui
 
+import de.robolab.client.repl.*
+import de.robolab.client.repl.base.parse1
 import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.and
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.not
 import de.westermann.kobserve.property.property
 import de.westermann.kobserve.property.readOnly
+import de.westermann.kobserve.toggle
 import kotlin.math.max
 
 class UiController {
@@ -28,6 +31,14 @@ class UiController {
         updateBarWidth(width, infoBarWidthMutableProperty, infoBarEnabledProperty, ignoreWidthToggle)
     }
 
+    val terminalEnabledProperty = PreferenceStorage.terminalEnabledProperty
+    private val terminalHeightMutableProperty = property(300.0)
+    val terminalHeightProperty = terminalHeightMutableProperty.readOnly()
+
+    fun setTerminalHeight(height: Double, ignoreWidthToggle: Boolean = false) {
+        updateBarWidth(height, terminalHeightMutableProperty, terminalEnabledProperty, ignoreWidthToggle)
+    }
+
     val toolBarVisibleProperty = !fullscreenProperty
     val navigationBarVisibleProperty = !fullscreenProperty and navigationBarEnabledProperty
     val infoBarVisibleProperty = !fullscreenProperty and infoBarEnabledProperty
@@ -37,7 +48,7 @@ class UiController {
         width: Double,
         barWidthProperty: ObservableProperty<Double>,
         barEnabledProperty: ObservableProperty<Boolean>,
-        ignoreWidthToggle: Boolean
+        ignoreWidthToggle: Boolean,
     ) {
         var w = width
         if (barEnabledProperty.value) {
@@ -52,6 +63,66 @@ class UiController {
         } else {
             if (w >= 50.0 && !ignoreWidthToggle) {
                 barEnabledProperty.value = true
+            }
+        }
+    }
+
+
+    init {
+        ReplRootCommand.node("window", "Update general state of the user interface") {
+            node("toggle", "Toggle visibility of user interface elements") {
+                action(
+                    "navigation-bar",
+                    "Toggle the left navigation bar",
+                    BooleanParameter.param("force", true)
+                ) { _, params ->
+                    val force = params.parse1<BooleanParameter?>()
+
+                    if (force == null) {
+                        navigationBarEnabledProperty.toggle()
+                    } else {
+                        navigationBarEnabledProperty.value = force.value
+                    }
+                }
+                action(
+                    "info-bar",
+                    "Toggle the right information bar",
+                    BooleanParameter.param("force", true)
+                ) { _, params ->
+                    val force = params.parse1<BooleanParameter?>()
+
+                    if (force == null) {
+                        infoBarEnabledProperty.toggle()
+                    } else {
+                        infoBarEnabledProperty.value = force.value
+                    }
+                }
+                action(
+                    "terminal",
+                    "Toggle the terminal",
+                    BooleanParameter.param("force", true)
+                ) { _, params ->
+                    val force = params.parse1<BooleanParameter?>()
+
+                    if (force == null) {
+                        terminalEnabledProperty.toggle()
+                    } else {
+                        terminalEnabledProperty.value = force.value
+                    }
+                }
+                action(
+                    "fullscreen",
+                    "Toggle fullscreen mode",
+                    BooleanParameter.param("force", true)
+                ) { _, params ->
+                    val force = params.parse1<BooleanParameter?>()
+
+                    if (force == null) {
+                        fullscreenProperty.toggle()
+                    } else {
+                        fullscreenProperty.value = force.value
+                    }
+                }
             }
         }
     }

@@ -23,6 +23,8 @@ class MainView(
         }
         +ViewFactoryRegistry.create(viewModel.statusBar)
         +ViewFactoryRegistry.create(viewModel.content)
+        +ViewFactoryRegistry.create(viewModel.terminal)
+
         boxView("dialog-area") {
             listFactory(viewModel.dialogList, {
                 DialogView(it)

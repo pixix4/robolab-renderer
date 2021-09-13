@@ -2,6 +2,7 @@ package de.robolab.client.renderer.drawable.edit
 
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.drawable.base.IAnimatableManager
+import de.robolab.client.renderer.drawable.utils.PlanetRequestContext
 import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.extraPut
@@ -15,7 +16,8 @@ import kotlin.math.floor
 
 class EditPointEndsManager(
     private val editCallback: IEditCallback,
-    private val createPath: CreatePathManager
+    private val createPath: CreatePathManager,
+    private val requestContext: PlanetRequestContext
 ): IAnimatableManager {
 
     override val view = GroupView("Edit point ends manager")
@@ -30,7 +32,7 @@ class EditPointEndsManager(
 
     private fun setupViewEvents(coordinate: PlanetPoint, view: GroupView) {
         for (direction in PlanetDirection.values()) {
-            view += setupPointEnd(coordinate, direction, editCallback, createPath)
+            view += setupPointEnd(coordinate, direction, editCallback, createPath, requestContext)
         }
     }
 
@@ -76,7 +78,8 @@ class EditPointEndsManager(
             coordinate: PlanetPoint,
             direction: PlanetDirection,
             editCallback: IEditCallback,
-            createPath: CreatePathManager
+            createPath: CreatePathManager,
+            requestContext: PlanetRequestContext,
         ): SquareView {
             val squareView = SquareView(
                 coordinate.point + direction.toVector(PlottingConstraints.POINT_SIZE),
@@ -104,9 +107,14 @@ class EditPointEndsManager(
                 ctrlKey = true
             )
             squareView.onPointerDown { event ->
-                if (event.altKey) {
-                    editCallback.togglePathSelect(coordinate, direction)
-                } else createPath.startPath(coordinate, direction, event.ctrlKey)
+                if (requestContext.type == PlanetRequestContext.Type.POINT_END) {
+                    requestContext.providePointEnd(coordinate, direction)
+                    event.stopPropagation()
+                } else {
+                    if (event.altKey) {
+                        editCallback.togglePathSelect(coordinate, direction)
+                    } else createPath.startPath(coordinate, direction, event.ctrlKey)
+                }
 
                 event.stopPropagation()
             }

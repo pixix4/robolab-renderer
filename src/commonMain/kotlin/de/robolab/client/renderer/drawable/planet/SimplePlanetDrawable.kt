@@ -9,7 +9,7 @@ class SimplePlanetDrawable(
     transformationStateProperty: ObservableProperty<Transformation.State> = property(Transformation.State.DEFAULT)
 ) : AbsPlanetDrawable(transformationStateProperty) {
 
-    private val planetLayer = PlanetLayer("Planet layer")
+    private val planetLayer = PlanetLayer("Planet layer", requestContext)
 
     fun importPlanet(planet: Planet) {
         planetLayer.importPlanet(planet)
