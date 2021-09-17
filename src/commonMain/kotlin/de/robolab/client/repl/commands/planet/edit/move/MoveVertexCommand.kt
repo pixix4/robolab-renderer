@@ -2,33 +2,33 @@ package de.robolab.client.repl.commands.planet.edit.move
 
 import de.robolab.client.app.model.file.FilePlanetDocument
 import de.robolab.client.renderer.drawable.live.toAngle
-import de.robolab.client.repl.BooleanParameter
-import de.robolab.client.repl.ReplBoundParameterCommandTemplate
-import de.robolab.client.repl.ReplExecutor
-import de.robolab.client.repl.base.IReplCommandParameter
-import de.robolab.client.repl.base.IReplOutput
-import de.robolab.client.repl.base.ReplCommandParameterDescriptor
+import de.robolab.client.repl.base.BooleanParameter
+import de.robolab.client.repl.base.IReplExecutionContext
+import de.robolab.client.repl.base.ReplBindableLeafCommand
 import de.robolab.common.planet.*
 import de.robolab.common.utils.getInterpolated
 
-object MoveVertexCommand : ReplBoundParameterCommandTemplate<FilePlanetDocument>(
+object MoveVertexCommand : ReplBindableLeafCommand<FilePlanetDocument>(
     "vertex",
     "Move all features (paths, pathSelects) from one point-vertex to another point-vertex",
-    ReplCommandParameterDescriptor(PlanetPathVertex, "from"),
-    ReplCommandParameterDescriptor(PlanetPathVertex, "to"),
-    ReplCommandParameterDescriptor(BooleanParameter, "transformSpline", true)
+    FilePlanetDocument::class,
 ) {
-    override suspend fun FilePlanetDocument.execute(out: IReplOutput, params: List<IReplCommandParameter>) {
 
-        val from: PlanetPathVertex = params[0] as PlanetPathVertex
-        val to: PlanetPathVertex = params[1] as PlanetPathVertex
-        val transformSpline: Boolean = (params.getOrNull(2) as BooleanParameter?)?.value ?: false
+    private val fromParam = PlanetPathVertex.param("from")
+    private val toParam = PlanetPathVertex.param("to")
+    private val transformSplineParam = BooleanParameter.optional("transformSpline")
 
-        val planet = planetFile.planet
+    override suspend fun execute(binding: FilePlanetDocument, context: IReplExecutionContext) {
+        val from = context.getParameter(fromParam)
+        val to = context.getParameter(toParam)
+        val transformSpline = context.getParameter(transformSplineParam)?.value ?: false
+
+        val planet = binding.planetFile.planet
 
         val paths: List<PlanetPath> = planet.paths.map {
-            if (!it.connectsWith(from))
+            if (!it.connectsWith(from)) {
                 return@map it
+            }
             val newSource = if (it.sourceVertex == from) to else it.sourceVertex
             val newTarget = if (it.targetVertex == from) to else it.targetVertex
             return@map it.copy(
@@ -59,7 +59,7 @@ object MoveVertexCommand : ReplBoundParameterCommandTemplate<FilePlanetDocument>
             if (it.vertex == from) PlanetPathSelect(to) else it
         }
 
-        planetFile.planet = planet.copy(paths = paths, startPoint = startPoint, pathSelects = pathSelects)
+        binding.planetFile.planet = planet.copy(paths = paths, startPoint = startPoint, pathSelects = pathSelects)
     }
 
     fun PlanetSpline.moveByVertices(

@@ -4,7 +4,6 @@ import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.viewmodel.TerminalInputViewModel
 import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.repl.base.ReplColor
-import de.robolab.client.repl.toColor
 import de.robolab.client.ui.ViewFactory
 import de.robolab.client.ui.adapter.toEvent
 import de.westermann.kwebview.ClassList
@@ -13,7 +12,6 @@ import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.TextView
 import de.westermann.kwebview.components.boxView
 import de.westermann.kwebview.components.iconView
-import de.westermann.kwebview.components.textView
 import de.westermann.kwebview.sync
 import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
@@ -107,7 +105,7 @@ class TerminalInputView(
             viewModel.contentProperty,
             create = { item ->
                 TextView(item.value).also { view ->
-                    view.classList.toggleTerminalColor(item.color?.toColor())
+                    view.classList.toggleTerminalColor(item.color)
 
                     if (item.isCursor) {
                         view.classList += "cursor"
@@ -119,7 +117,7 @@ class TerminalInputView(
 
                 view.classList.toggle("hidden", false)
                 view.classList.toggle("cursor", item.isCursor)
-                view.classList.toggleTerminalColor(item.color?.toColor())
+                view.classList.toggleTerminalColor(item.color)
             },
             delete = { view ->
                 view.text = ""
@@ -133,13 +131,13 @@ class TerminalInputView(
             viewModel.suffixProperty,
             create = { item ->
                 TextView(item.value).also { view ->
-                    view.classList.toggleTerminalColor(item.color?.toColor())
+                    view.classList.toggleTerminalColor(item.color)
                 }
             },
             update = { view, item ->
                 view.text = item.value
                 view.classList.toggle("hidden", false)
-                view.classList.toggleTerminalColor(item.color?.toColor())
+                view.classList.toggleTerminalColor(item.color)
             },
             delete = { view ->
                 view.text = ""

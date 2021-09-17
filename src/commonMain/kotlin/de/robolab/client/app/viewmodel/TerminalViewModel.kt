@@ -2,9 +2,10 @@ package de.robolab.client.app.viewmodel
 
 import de.robolab.client.app.controller.TerminalController
 import de.robolab.client.app.controller.ui.UiController
-import de.robolab.client.repl.DummyReplOutput
 import de.robolab.client.repl.ReplExecutor
+import de.robolab.client.repl.base.DummyReplOutput
 import de.robolab.client.repl.base.IReplOutput
+import de.robolab.client.repl.base.ReplColor
 import de.robolab.common.utils.ConsoleGreeter
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -41,7 +42,7 @@ class TerminalViewModel(
         val output = generator(null)
 
         output.writeln(ConsoleGreeter.appLogo)
-        output.writeln(ConsoleGreeter.appClientCreators)
+        output.writeln(ConsoleGreeter.appClientCreators, ReplColor.GREY)
     }
 
     init {

@@ -1,26 +1,31 @@
 package de.robolab.client.repl.commands.planet
 
 import de.robolab.client.app.model.file.FilePlanetDocument
-import de.robolab.client.repl.ReplBoundCommandNodeTemplate
 import de.robolab.client.repl.ReplExecutor
-import de.robolab.client.repl.base.IReplBoundCommandTemplate
 import de.robolab.client.repl.base.ReplCommandParameterDescriptor
+import de.robolab.client.repl.base.ReplSingleBindableNodeCommand
 import de.robolab.client.repl.commands.planet.edit.EditCommand
-import de.robolab.common.planet.PlanetPathVertex
 import de.robolab.client.repl.commands.planet.generate.GenerateCommand
+import de.robolab.common.planet.PlanetPathVertex
 
-object PlanetCommand : ReplBoundCommandNodeTemplate<FilePlanetDocument>(
+object PlanetCommand : ReplSingleBindableNodeCommand<FilePlanetDocument>(
     "planet",
-    "Operations related to the currently selected planet"
+    "Operations related to the currently selected planet",
+    FilePlanetDocument::class,
 ) {
-    override val children: List<IReplBoundCommandTemplate<FilePlanetDocument>> = listOf(
-        EditCommand,
-        GenerateCommand,
-    )
 
-    override suspend fun FilePlanetDocument.requestAutoCompleteFor(type: ReplCommandParameterDescriptor<*>): List<ReplExecutor.AutoComplete>? {
-        if (type.type is PlanetPathVertex.Companion) {
-            val pointEnd = drawableProperty.value?.requestContext?.requestPointEnd() ?: return emptyList()
+    init {
+        addCommand(EditCommand)
+        addCommand(GenerateCommand)
+    }
+
+    override suspend fun requestAutoCompleteFor(
+        binding: FilePlanetDocument,
+        descriptor: ReplCommandParameterDescriptor<*>,
+        token: String,
+    ): List<ReplExecutor.AutoComplete>? {
+        if (descriptor.type is PlanetPathVertex.Companion) {
+            val pointEnd = binding.drawableProperty.value?.requestContext?.requestPointEnd() ?: return emptyList()
 
             return listOf(ReplExecutor.AutoComplete(
                 PlanetPathVertex(pointEnd.first, pointEnd.second).toToken(),

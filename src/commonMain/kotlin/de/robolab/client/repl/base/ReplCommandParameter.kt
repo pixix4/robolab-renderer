@@ -1,8 +1,45 @@
-package de.robolab.client.repl
+package de.robolab.client.repl.base
 
-import de.robolab.client.repl.base.IReplCommandParameter
-import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
+import de.robolab.client.repl.escapeIfNecessary
 import kotlin.reflect.KClass
+
+interface IReplCommandParameter {
+    val typeDescriptor: IReplCommandParameterTypeDescriptor<*>
+    fun toToken(): String
+}
+
+interface IReplCommandParameterTypeDescriptor<T> where T : IReplCommandParameter {
+
+    val klazz: KClass<T>
+
+    val name: String
+    val description: String
+    val example: List<String>
+    val pattern: String
+    val regex: Regex
+
+    fun fromToken(token: String, match: MatchResult): T?
+}
+
+sealed interface ReplCommandParameterDescriptor<T : IReplCommandParameter> {
+    val type: IReplCommandParameterTypeDescriptor<T>
+    val name: String
+}
+
+data class ReplCommandDefaultParameterDescriptor<T : IReplCommandParameter>(
+    override val type: IReplCommandParameterTypeDescriptor<T>,
+    override val name: String,
+) : ReplCommandParameterDescriptor<T>
+
+data class ReplCommandOptionalParameterDescriptor<T : IReplCommandParameter>(
+    override val type: IReplCommandParameterTypeDescriptor<T>,
+    override val name: String,
+) : ReplCommandParameterDescriptor<T>
+
+data class ReplCommandVarargParameterDescriptor<T : IReplCommandParameter>(
+    override val type: IReplCommandParameterTypeDescriptor<T>,
+    override val name: String,
+) : ReplCommandParameterDescriptor<T>
 
 data class BooleanParameter(
     val value: Boolean,

@@ -17,12 +17,9 @@ import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.renderer.utils.TransformationInteraction
-import de.robolab.client.repl.ReplRootCommand
-import de.robolab.client.repl.base.IReplCommand
 import de.robolab.client.repl.commands.planet.PlanetCommand
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
-import de.robolab.common.utils.consumeEach
 import de.westermann.kobserve.property.constObservable
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
@@ -32,7 +29,7 @@ import kotlinx.coroutines.launch
 
 class FilePlanetDocument(
     val filePlanet: FilePlanet,
-    uiController: UiController
+    uiController: UiController,
 ) : IPlanetDocument {
 
     val planetFile = filePlanet.planetFile
@@ -41,7 +38,7 @@ class FilePlanetDocument(
 
     abstract class FilePlanetSideBarTab<T : AbsPlanetDrawable>(
         name: String,
-        icon: MaterialIcon
+        icon: MaterialIcon,
     ) : SideBarTabViewModel(name, icon) {
 
         abstract val drawable: T
@@ -103,8 +100,6 @@ class FilePlanetDocument(
             }
         ),
     ))
-
-    private val _registeredCommands: MutableList<IReplCommand> = mutableListOf()
 
     override val canUndoProperty = planetFile.planetProperty.canUndoProperty
 
@@ -172,11 +167,11 @@ class FilePlanetDocument(
     }
 
     override fun onAttach() {
-        ReplRootCommand += PlanetCommand.bind(this).also(_registeredCommands::add)
+        PlanetCommand.bind(this)
     }
 
     override fun onDetach() {
-        _registeredCommands.consumeEach(ReplRootCommand::removeCommand)
+        PlanetCommand.bind(null)
     }
 
     override fun onDestroy() {

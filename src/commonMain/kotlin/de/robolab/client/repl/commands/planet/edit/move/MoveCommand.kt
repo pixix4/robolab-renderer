@@ -1,15 +1,16 @@
 package de.robolab.client.repl.commands.planet.edit.move
 
 import de.robolab.client.app.model.file.FilePlanetDocument
-import de.robolab.client.repl.ReplBoundCommandNodeTemplate
-import de.robolab.client.repl.base.IReplBoundCommandTemplate
+import de.robolab.client.repl.base.ReplSingleBindableNodeCommand
 
-object MoveCommand : ReplBoundCommandNodeTemplate<FilePlanetDocument>(
+object MoveCommand : ReplSingleBindableNodeCommand<FilePlanetDocument>(
     "move",
-    "Move planet features around"
+    "Move planet features around",
+    FilePlanetDocument::class,
 ) {
-    override val children: List<IReplBoundCommandTemplate<FilePlanetDocument>> = listOf(
-        MoveVertexCommand,
-        MovePointCommand
-    )
+
+    init {
+        addCommand(MoveVertexCommand)
+        addCommand(MovePointCommand)
+    }
 }

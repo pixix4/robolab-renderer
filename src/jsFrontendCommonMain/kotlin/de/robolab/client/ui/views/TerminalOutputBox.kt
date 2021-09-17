@@ -2,9 +2,9 @@ package de.robolab.client.ui.views
 
 import de.robolab.client.app.model.base.MaterialIcon
 import de.robolab.client.app.viewmodel.TerminalInputViewModel
-import de.robolab.client.repl.base.FileType
 import de.robolab.client.repl.base.IReplOutput
 import de.robolab.client.repl.base.ReplColor
+import de.robolab.client.repl.base.ReplFileType
 import de.robolab.client.ui.ViewFactoryRegistry
 import de.robolab.client.ui.triggerDownload
 import de.robolab.client.utils.runAfterTimeout
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 class TerminalOutputBox(input: TerminalInputViewModel?, private val scrollBox: BoxView) : ViewCollection<View>(),
     IReplOutput {
 
-    var lastLine: BoxView? = null
+    private var lastLine: BoxView? = null
 
     override fun writeString(message: String, color: ReplColor?) {
         val lines = message.split('\n')
@@ -50,7 +50,7 @@ class TerminalOutputBox(input: TerminalInputViewModel?, private val scrollBox: B
         }
     }
 
-    override fun writeFile(name: String, type: FileType, content: suspend () -> String) {
+    override fun writeFile(name: String, type: ReplFileType, content: suspend () -> String) {
         getLine().button("Download file") {
             classList += "terminal-output-entry-file"
 
@@ -74,6 +74,10 @@ class TerminalOutputBox(input: TerminalInputViewModel?, private val scrollBox: B
                 }
             }
         }
+    }
+
+    override fun clearCurrentLine() {
+        getLine().clear()
     }
 
     private fun getLine(): BoxView {

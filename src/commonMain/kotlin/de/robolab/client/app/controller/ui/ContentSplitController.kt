@@ -3,10 +3,9 @@ package de.robolab.client.app.controller.ui
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.renderer.utils.IRenderInstance
 import de.robolab.client.renderer.utils.onRender
-import de.robolab.client.repl.*
 import de.robolab.client.repl.base.IReplCommandParameter
 import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
-import de.robolab.client.repl.base.parse1
+import de.robolab.client.repl.commands.window.WindowCommand
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.mapBinding
@@ -147,18 +146,7 @@ class ContentSplitController : IRenderInstance {
         activeNodeProperty = property(node)
 
 
-        ReplRootCommand.node("window", "") {
-            action("split-h", "Split horizontally") { _ ->
-                splitEntryHorizontal()
-            }
-            action("split-v", "Split vertically") { _ ->
-                splitEntryVertical()
-            }
-            action("layout", "Set the window grid layout", GridLayout.param("grid")) { _, params ->
-                val grid = params.parse1<GridLayout>()
-                setGridLayout(grid.rows, grid.cols)
-            }
-        }
+        WindowCommand.bind(this)
     }
 
     interface Entry : IRenderInstance {

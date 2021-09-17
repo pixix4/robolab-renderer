@@ -156,7 +156,7 @@ data class Planet(
             tags = emptyMap(),
             targets = emptyList(),
             testSuite = null,
-            version = 0L,
+            version = 4L,
         )
     }
 }

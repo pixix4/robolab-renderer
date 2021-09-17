@@ -1,14 +1,15 @@
 package de.robolab.client.repl.commands.planet.generate.python
 
 import de.robolab.client.app.model.file.FilePlanetDocument
-import de.robolab.client.repl.ReplBoundCommandNodeTemplate
-import de.robolab.client.repl.base.IReplBoundCommandTemplate
+import de.robolab.client.repl.base.ReplSingleBindableNodeCommand
 
-object PythonCommand : ReplBoundCommandNodeTemplate<FilePlanetDocument>(
+object PythonCommand : ReplSingleBindableNodeCommand<FilePlanetDocument>(
     "python",
-    "Generate python code based on the current planet"
+    "Generate python code based on the current planet",
+    FilePlanetDocument::class,
 ) {
-    override val children: List<IReplBoundCommandTemplate<FilePlanetDocument>> = listOf(
-        PythonAddPathsCommand,
-    )
+
+    init {
+        addCommand(PythonAddPathsCommand)
+    }
 }

@@ -7,8 +7,9 @@ import de.robolab.client.renderer.utils.CommonTimer
 import de.robolab.client.renderer.utils.Pointer
 import de.robolab.client.renderer.utils.Transformation
 import de.robolab.client.renderer.utils.TransformationInteraction
-import de.robolab.client.repl.*
-import de.robolab.client.repl.base.parse1
+import de.robolab.client.repl.commands.window.WindowRotateCommand
+import de.robolab.client.repl.commands.window.WindowTranslateCommand
+import de.robolab.client.repl.commands.window.WindowZoomCommand
 import de.robolab.common.utils.Vector
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.event.emit
@@ -137,67 +138,15 @@ class ContentController {
         pointerProperty.bind(plotterWindowProperty.flatMapBinding { it.pointerProperty })
         zoomProperty.bind(plotterWindowProperty.flatMapBinding { it.transformation.scaleProperty })
 
-        val windowNode = ReplCommandNode("window", "") {
-            node("zoom", "Set zoom level") {
-                action("in", "Zoom in") { _ ->
-                    zoomIn()
-                }
-                action("out", "Zoom out") { _ ->
-                    zoomOut()
-                }
-                action("reset", "Reset zoom to 100%") { _ ->
-                    resetZoom()
-                }
-                action("set", "Set zoom level", IntParameter.param("percent")) { _, params ->
-                    val percent = params.parse1<IntParameter>()
-                    setZoom(percent.value)
-                }
-            }
-            node("rotate", "Set rotation level") {
-                action("clockwise", "Rotate clockwise", IntParameter.param("degree", optional = true)) { _, params ->
-                    val degree = params.parse1<IntParameter?>()
-                    rotateClockwise(degree?.value)
-                }
-                action("counter-clockwise", "Rotate counter clockwise") { _, params ->
-                    val degree = params.parse1<IntParameter?>()
-                    rotateCounterClockwise(degree?.value)
-                }
-                action("reset", "Reset rotation to 0") { _ ->
-                    resetRotation()
-                }
-                action("set", "Set rotation in", IntParameter.param("degree")) { _, params ->
-                    val degree = params.parse1<IntParameter>()
-                    setRotation(degree.value)
-                }
-            }
-            node("translate", "Set translation") {
-                action("up", "Translate up", DoubleParameter.param("by")) { _, params ->
-                    val by = params.parse1<DoubleParameter?>()
-                    translate(Vector(0.0, 1.0), by?.value)
-                }
-                action("left", "Translate left", DoubleParameter.param("by")) { _, params ->
-                    val by = params.parse1<DoubleParameter?>()
-                    translate(Vector(1.0, 0.0), by?.value)
-                }
-                action("down", "Translate down", DoubleParameter.param("by")) { _, params ->
-                    val by = params.parse1<DoubleParameter?>()
-                    translate(Vector(0.0, -1.0), by?.value)
-                }
-                action("right", "Translate right", DoubleParameter.param("by")) { _, params ->
-                    val by = params.parse1<DoubleParameter?>()
-                    translate(Vector(-1.0, 0.0), by?.value)
-                }
-                action("reset", "Reset translation to center") { _ ->
-                    center()
-                }
-            }
-        }
-
         isPlanetVisibleProperty.onChange.now {
             if (isPlanetVisibleProperty.value) {
-                ReplRootCommand += windowNode
+                WindowZoomCommand.bind(this)
+                WindowRotateCommand.bind(this)
+                WindowTranslateCommand.bind(this)
             } else {
-                ReplRootCommand -= windowNode
+                WindowZoomCommand.bind(null)
+                WindowRotateCommand.bind(null)
+                WindowTranslateCommand.bind(null)
             }
         }
     }

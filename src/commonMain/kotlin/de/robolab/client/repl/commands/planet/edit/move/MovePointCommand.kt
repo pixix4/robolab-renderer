@@ -1,28 +1,28 @@
 package de.robolab.client.repl.commands.planet.edit.move
 
 import de.robolab.client.app.model.file.FilePlanetDocument
-import de.robolab.client.repl.BooleanParameter
-import de.robolab.client.repl.ReplBoundParameterCommandTemplate
-import de.robolab.client.repl.base.IReplCommandParameter
-import de.robolab.client.repl.base.IReplOutput
-import de.robolab.client.repl.base.ReplCommandParameterDescriptor
+import de.robolab.client.repl.base.BooleanParameter
+import de.robolab.client.repl.base.IReplExecutionContext
+import de.robolab.client.repl.base.ReplBindableLeafCommand
 import de.robolab.client.repl.commands.planet.edit.move.MoveVertexCommand.moveByVertices
 import de.robolab.common.planet.*
 
-object MovePointCommand : ReplBoundParameterCommandTemplate<FilePlanetDocument>(
+object MovePointCommand : ReplBindableLeafCommand<FilePlanetDocument>(
     "point",
     "Move all features (paths, pathSelects) from one point to another point",
-    ReplCommandParameterDescriptor(PlanetPoint, "from"),
-    ReplCommandParameterDescriptor(PlanetPoint, "to"),
-    ReplCommandParameterDescriptor(BooleanParameter, "transformSpline", true)
+    FilePlanetDocument::class,
 ) {
-    override suspend fun FilePlanetDocument.execute(out: IReplOutput, params: List<IReplCommandParameter>) {
 
-        val from: PlanetPoint = params[0] as PlanetPoint
-        val to: PlanetPoint = params[1] as PlanetPoint
-        val transformSpline: Boolean = (params.getOrNull(2) as BooleanParameter?)?.value ?: false
+    private val fromParam = PlanetPoint.param("from")
+    private val toParam = PlanetPoint.param("to")
+    private val transformSplineParam = BooleanParameter.optional("transformSpline")
 
-        val planet = planetFile.planet
+    override suspend fun execute(binding: FilePlanetDocument, context: IReplExecutionContext) {
+        val from = context.getParameter(fromParam)
+        val to = context.getParameter(toParam)
+        val transformSpline = context.getParameter(transformSplineParam)?.value ?: false
+
+        val planet = binding.planetFile.planet
 
         val paths: List<PlanetPath> = planet.paths.map {
             if (!it.connectsWith(from) && !it.exposure.any { ex -> ex.planetPoint == from })
@@ -69,7 +69,7 @@ object MovePointCommand : ReplBoundParameterCommandTemplate<FilePlanetDocument>(
             )
         }
 
-        planetFile.planet = planet.copy(
+        binding.planetFile.planet = planet.copy(
             paths = paths,
             startPoint = startPoint,
             pathSelects = pathSelects,
