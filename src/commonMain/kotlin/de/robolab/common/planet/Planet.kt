@@ -47,6 +47,16 @@ data class Planet(
         )
     }
 
+    fun sanitizeCoordinates(): Planet {
+        val origin = startPoint.point.point
+        return copy(
+            comments = comments.filter { origin.distanceTo(it.coordinate.point) < 1000 },
+            paths = paths.filter { origin.distanceTo(it.source.point) < 1000 && origin.distanceTo(it.target.point) < 1000 },
+            pathSelects = pathSelects.filter { origin.distanceTo(it.point.point) < 1000 },
+            targets = targets.filter { origin.distanceTo(it.point.point) < 1000 },
+        )
+    }
+
     fun importSenderGroups(reference: Planet, visitedPoints: List<PlanetPoint>): Planet {
         return copy(
             senderGroupings = reference.senderGroupings
