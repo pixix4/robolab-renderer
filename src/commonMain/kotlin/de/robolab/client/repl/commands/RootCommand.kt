@@ -5,6 +5,7 @@ import de.robolab.client.repl.autoComplete
 import de.robolab.client.repl.base.BooleanParameter
 import de.robolab.client.repl.base.ReplCommandParameterDescriptor
 import de.robolab.client.repl.base.ReplSingleBindableNodeCommand
+import de.robolab.client.repl.commands.group.GroupCommand
 import de.robolab.client.repl.commands.macro.MacroCommand
 import de.robolab.client.repl.commands.mqtt.MqttCommand
 import de.robolab.client.repl.commands.planet.PlanetCommand
@@ -21,6 +22,7 @@ object RootCommand : ReplSingleBindableNodeCommand<Unit>(
         addCommand(WindowCommand)
         addCommand(MqttCommand)
         addCommand(MacroCommand)
+        addCommand(GroupCommand)
 
         addCommand(HelpCommand)
         addCommand(TreeCommand)

@@ -8,6 +8,7 @@ import de.robolab.client.app.repository.MessageRepository
 import de.robolab.client.communication.MessageManager
 import de.robolab.client.communication.RobolabMessageProvider
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
+import de.robolab.client.repl.commands.group.GroupCommand
 import de.robolab.client.utils.MqttStorage
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.client.utils.cache.MemoryCacheStorage
@@ -110,20 +111,31 @@ class MainController(private val args: Args) {
         messageManager.onMessageList {
             messageRepository.addMessageList(it)
         }
+
+        GroupCommand.bind(this)
     }
 
-    fun finishSetup() {
-        if (args.layout != null) {
-            val split = args.layout.split("x")
-            val rowCount = split.getOrNull(0)?.toIntOrNull()
-            val colCount = split.getOrNull(1)?.toIntOrNull()
-            if (rowCount != null && colCount != null) {
-                contentController.content.setGridLayout(rowCount, colCount)
-            }
-        }
-        if (args.groups != null) {
-            val groups = args.groups.split("+")
-            GlobalScope.launch {
+    fun appendLiveGroupView(groups: List<String>, customIndex: Int? = null) {
+        GlobalScope.launch {
+
+            if(customIndex != null && groups.size == 1) {
+                val groupName = groups[0]
+                val group = messageRepository.createEmptyGroup(groupName) ?: return@launch
+                val attempt = messageRepository.getLatestAttempt(group.groupId)
+
+                val document = GroupLiveAttemptPlanetDocument(
+                    group,
+                    attempt,
+                    messageRepository,
+                    messageManager,
+                    filePlanetController,
+                    uiController
+                )
+
+                withContext(Dispatchers.Main) {
+                    contentController.openDocumentAtIndex(document, customIndex, false)
+                }
+            } else {
                 for ((index, groupName) in groups.withIndex()) {
                     if (groupName.isBlank()) continue
                     val group = messageRepository.createEmptyGroup(groupName) ?: continue
@@ -143,6 +155,21 @@ class MainController(private val args: Args) {
                     }
                 }
             }
+        }
+    }
+
+    fun finishSetup() {
+        if (args.layout != null) {
+            val split = args.layout.split("x")
+            val rowCount = split.getOrNull(0)?.toIntOrNull()
+            val colCount = split.getOrNull(1)?.toIntOrNull()
+            if (rowCount != null && colCount != null) {
+                contentController.content.setGridLayout(rowCount, colCount)
+            }
+        }
+        if (args.groups != null) {
+            val groups = args.groups.split("+")
+            appendLiveGroupView(groups)
         }
         if (args.fullscreen != null && args.fullscreen.toBoolean()) {
             uiController.fullscreenProperty.value = true
