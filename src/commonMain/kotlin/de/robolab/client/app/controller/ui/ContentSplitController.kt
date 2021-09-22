@@ -267,8 +267,6 @@ data class GridLayout(
     val cols: Int,
 ) : IReplCommandParameter {
 
-    override val typeDescriptor: IReplCommandParameterTypeDescriptor<*> = Companion
-
     override fun toToken(): String = "${rows}x$cols"
 
     companion object : IReplCommandParameterTypeDescriptor<GridLayout> {

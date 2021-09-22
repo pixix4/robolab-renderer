@@ -4,7 +4,6 @@ import de.robolab.client.repl.escapeIfNecessary
 import kotlin.reflect.KClass
 
 interface IReplCommandParameter {
-    val typeDescriptor: IReplCommandParameterTypeDescriptor<*>
     fun toToken(): String
 }
 
@@ -45,8 +44,6 @@ data class BooleanParameter(
     val value: Boolean,
 ) : IReplCommandParameter {
 
-    override val typeDescriptor: IReplCommandParameterTypeDescriptor<*> = Companion
-
     override fun toToken(): String = value.toString()
 
     companion object : IReplCommandParameterTypeDescriptor<BooleanParameter> {
@@ -66,8 +63,6 @@ data class BooleanParameter(
 data class IntParameter(
     val value: Int,
 ) : IReplCommandParameter {
-
-    override val typeDescriptor: IReplCommandParameterTypeDescriptor<*> = Companion
 
     override fun toToken(): String = value.toString()
 
@@ -89,8 +84,6 @@ data class DoubleParameter(
     val value: Double,
 ) : IReplCommandParameter {
 
-    override val typeDescriptor: IReplCommandParameterTypeDescriptor<*> = Companion
-
     override fun toToken(): String = value.toString()
 
     companion object : IReplCommandParameterTypeDescriptor<DoubleParameter> {
@@ -111,8 +104,6 @@ data class StringParameter(
     val value: String,
 ) : IReplCommandParameter {
 
-    override val typeDescriptor: IReplCommandParameterTypeDescriptor<*> = Companion
-
     override fun toToken(): String = value.escapeIfNecessary()
 
     companion object : IReplCommandParameterTypeDescriptor<StringParameter> {
@@ -125,6 +116,49 @@ data class StringParameter(
 
         override fun fromToken(token: String, match: MatchResult): StringParameter? {
             return StringParameter(token)
+        }
+    }
+}
+
+data class EnumParameter<T : Enum<T>>(
+    val value: T,
+) : IReplCommandParameter {
+
+    override fun toToken(): String = value.toString().lowercase()
+
+    class Descriptor<T : Enum<T>>(
+        override val name: String,
+        override val description: String,
+        val valueList: List<T>,
+    ) : IReplCommandParameterTypeDescriptor<EnumParameter<T>> {
+        private val valueStringList = valueList.map { it.name.lowercase() }
+
+        override val klazz: KClass<EnumParameter<T>> = EnumParameter::class as KClass<EnumParameter<T>>
+        override val pattern = valueStringList
+            .joinToString("|", "<", ">")
+        override val example = listOf<String>()
+        override val regex: Regex = valueStringList
+            .joinToString("|", "(", ")").toRegex()
+
+        override fun fromToken(token: String, match: MatchResult): EnumParameter<T>? {
+            val value = valueList
+                .find { it.name.equals(token, true) } ?: return null
+            return EnumParameter(value)
+        }
+    }
+
+    companion object {
+        inline fun <reified T : Enum<T>> create(
+            description: String,
+            name: String = T::class.simpleName ?: "",
+        ): Descriptor<T> {
+            return Descriptor(name, description, enumValues<T>().toList())
+        }
+
+        inline fun <reified T : Enum<T>> isDescriptor(descriptor: IReplCommandParameterTypeDescriptor<*>): Boolean {
+            if (descriptor !is Descriptor<*>) return false
+            val list = enumValues<T>().toList()
+            return descriptor.valueList.containsAll(list) && list.containsAll(descriptor.valueList)
         }
     }
 }

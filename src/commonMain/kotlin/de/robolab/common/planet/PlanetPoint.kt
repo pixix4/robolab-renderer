@@ -41,9 +41,7 @@ data class PlanetPoint(
         Red, Blue, Unknown
     }
 
-    override val typeDescriptor: IReplCommandParameterTypeDescriptor<*> = Companion
     override fun toToken(): String = "$x,$y"
-
 
     companion object : IReplCommandParameterTypeDescriptor<PlanetPoint> {
         override val klazz: KClass<PlanetPoint> = PlanetPoint::class

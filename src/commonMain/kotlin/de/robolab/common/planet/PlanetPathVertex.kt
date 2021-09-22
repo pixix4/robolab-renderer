@@ -7,10 +7,7 @@ import kotlin.reflect.KClass
 data class PlanetPathVertex(val point: PlanetPoint, val direction: PlanetDirection) : IReplCommandParameter {
     fun toShortString(): String = "${point.x},${point.y},${direction.letter}"
 
-
-    override val typeDescriptor: IReplCommandParameterTypeDescriptor<*> = Companion
     override fun toToken(): String = "${point.x},${point.y},${direction.letter}"
-
 
     companion object : IReplCommandParameterTypeDescriptor<PlanetPathVertex> {
         override val klazz: KClass<PlanetPathVertex> = PlanetPathVertex::class

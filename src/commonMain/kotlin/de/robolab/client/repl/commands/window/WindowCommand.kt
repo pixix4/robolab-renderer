@@ -21,6 +21,7 @@ object WindowCommand : ReplSingleBindableNodeCommand<ContentSplitController>(
         addCommand(WindowZoomCommand)
         addCommand(WindowRotateCommand)
         addCommand(WindowTranslateCommand)
+        addCommand(WindowThemeCommand)
     }
 }
 

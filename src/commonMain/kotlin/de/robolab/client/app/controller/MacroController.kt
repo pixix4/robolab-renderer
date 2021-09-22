@@ -25,10 +25,7 @@ class MacroController {
         val shiftKey: Boolean = false,
     ) : IReplCommandParameter {
 
-        override val typeDescriptor: IReplCommandParameterTypeDescriptor<*> = Companion
-
         override fun toToken(): String = toString()
-
 
         override fun toString(): String {
             return buildString {
