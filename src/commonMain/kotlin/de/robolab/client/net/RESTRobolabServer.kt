@@ -1,6 +1,8 @@
 package de.robolab.client.net
 
 import de.robolab.client.app.model.file.handleAuthPrompt
+import de.robolab.client.net.requests.auth.DeviceAuthPrompt
+import de.robolab.client.net.requests.auth.IDeviceAuthPromptCallbacks
 import de.robolab.client.net.requests.auth.OIDCServer
 import de.robolab.client.net.requests.auth.TokenResponse
 import de.robolab.common.net.HttpMethod
@@ -51,6 +53,13 @@ class RESTRobolabServer(
 
     override fun resetAuthSession() {
 
+    }
+
+    override suspend fun performDeviceAuth(
+        scope: String,
+        promptHandler: (DeviceAuthPrompt) -> IDeviceAuthPromptCallbacks
+    ): TokenResponse.FinalTokenResponse.AccessToken {
+        return oidcServer.performDeviceAuth(clientID, clientSecret, scope, promptHandler)
     }
 
     private val _requestAuthTokenMutex: Mutex = Mutex(true) //locked for param-loading from storage

@@ -26,7 +26,7 @@ class SettingsDialogController(
         val server = remoteServerController.remoteServer
         if (server != null) {
             GlobalScope.launch {
-                de.robolab.client.app.model.file.requestAuthToken(server, false)
+                server.resetAuthSession()
             }
         }
     }

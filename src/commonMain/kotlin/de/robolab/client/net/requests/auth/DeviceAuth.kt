@@ -26,7 +26,7 @@ data class DeviceAuthPrompt(
     val expiresIn: Long?
 )
 
-interface DeviceAuthPromptCallbacks {
+interface IDeviceAuthPromptCallbacks {
     fun onPromptSuccess()
     fun onPromptError()
     fun onPromptRefresh(newPrompt: DeviceAuthPrompt)

@@ -4,6 +4,7 @@ import de.robolab.client.app.model.file.provider.IFilePlanetLoader
 import de.robolab.client.app.model.file.provider.RemoteFilePlanetLoader
 import de.robolab.client.net.PingRobolabServer
 import de.robolab.client.net.RESTRobolabServer
+import de.robolab.client.net.requests.auth.OIDCServer
 import de.robolab.client.net.requests.getVersion
 import de.robolab.client.net.requests.info.getExamInfo
 import de.robolab.client.net.requests.info.whoami
@@ -21,7 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 
-class RemoteServerController() {
+class RemoteServerController {
 
     private val logger = Logger(this)
 
@@ -30,26 +31,7 @@ class RemoteServerController() {
     }
 
     private var lastPingServer: PingRobolabServer? = null
-    val remoteServerProperty = remoteServerUriProperty.mapBinding { uri ->
-        if (uri == null) null else {
-            val host = uri.substringAfter("://").substringBefore("?").trimEnd('/')
-            lastPingServer?.stopPing()
-            val restServer = RESTRobolabServer(host, 0, !uri.startsWith("http://"))
-
-            if (PreferenceStorage.authenticationToken.isNotEmpty()) {
-                try {
-                    restServer.authHeader = AuthorizationHeader.Bearer(PreferenceStorage.authenticationToken)
-                } catch (e: Exception) {
-                    logger.error(e)
-                }
-            }
-
-            val pingServer = PingRobolabServer(restServer)
-            pingServer.startPing()
-            lastPingServer = pingServer
-            pingServer
-        }
-    }
+    val remoteServerProperty = property<PingRobolabServer>()
     val remoteServer by remoteServerProperty
 
     val remoteServerVersionProperty = property("")
@@ -120,6 +102,40 @@ class RemoteServerController() {
     }
 
     init {
+        remoteServerUriProperty.onChange { uri ->
+            val uri = remoteServerUriProperty.value
+            if (uri == null) {
+                remoteServerProperty.value = null
+                return@onChange
+            }
+            GlobalScope.launch {
+                val host = uri.substringAfter("://").substringBefore("?").trimEnd('/')
+                lastPingServer?.stopPing()
+
+                val oidcServer = OIDCServer.RoboLabOIDC.await()
+                val restServer = RESTRobolabServer(
+                    host,
+                    0,
+                    !uri.startsWith("http://"),
+                    oidcServer!!,
+                    "renderer"
+                )
+
+                if (PreferenceStorage.authenticationToken.isNotEmpty()) {
+                    try {
+                        restServer.authHeader = AuthorizationHeader.Bearer(PreferenceStorage.authenticationToken)
+                    } catch (e: Exception) {
+                        logger.error(e)
+                    }
+                }
+
+                val pingServer = PingRobolabServer(restServer)
+                pingServer.startPing()
+                lastPingServer = pingServer
+                remoteServerProperty.value = pingServer
+            }
+        }
+
         remoteServerProperty.onChange.now {
             updateServerState()
         }

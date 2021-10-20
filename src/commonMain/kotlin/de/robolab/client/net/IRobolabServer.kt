@@ -1,6 +1,9 @@
 package de.robolab.client.net
 
 import de.robolab.client.net.requests.*
+import de.robolab.client.net.requests.auth.DeviceAuthPrompt
+import de.robolab.client.net.requests.auth.IDeviceAuthPromptCallbacks
+import de.robolab.client.net.requests.auth.TokenResponse
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.headers.AuthorizationHeader
 import de.westermann.kobserve.base.ObservableProperty
@@ -13,6 +16,10 @@ interface IRobolabServer {
     var authHeader: AuthorizationHeader?
 
     fun resetAuthSession()
+    suspend fun performDeviceAuth(
+        scope: String = "openid+robolab+offline_access",
+        promptHandler: (DeviceAuthPrompt) -> IDeviceAuthPromptCallbacks
+    ): TokenResponse.FinalTokenResponse.AccessToken
 
     suspend fun request(
         method: HttpMethod,

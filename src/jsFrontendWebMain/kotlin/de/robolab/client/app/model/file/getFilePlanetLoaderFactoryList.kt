@@ -1,15 +1,8 @@
 package de.robolab.client.app.model.file
 
-import de.robolab.client.app.controller.DialogController
 import de.robolab.client.app.model.file.provider.IFilePlanetLoaderFactory
-import de.robolab.client.app.viewmodel.MainViewModel
-import de.robolab.client.app.viewmodel.dialog.TokenDialogViewModel
-import de.robolab.client.net.IRobolabServer
 import de.robolab.client.net.requests.auth.DeviceAuthPrompt
-import de.robolab.client.net.requests.auth.DeviceAuthPromptCallbacks
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import de.robolab.client.net.requests.auth.IDeviceAuthPromptCallbacks
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -19,14 +12,14 @@ actual fun getFilePlanetLoaderFactoryList(): List<IFilePlanetLoaderFactory> {
 
 actual fun handleAuthPrompt(
     prompt: DeviceAuthPrompt
-): DeviceAuthPromptCallbacks {
+): IDeviceAuthPromptCallbacks {
     //TODO: Handle Auth Prompt in FrontendWeb
     if(prompt.expiresIn != null){
         println("New Auth-Prompt (${prompt.userCode}), please visit ${prompt.verificationURI} within ${prompt.expiresIn.toDuration(DurationUnit.SECONDS)}")
     }else{
         println("New Auth-Prompt (${prompt.userCode}), please visit ${prompt.verificationURI}")
     }
-    return object : DeviceAuthPromptCallbacks{
+    return object : IDeviceAuthPromptCallbacks{
         override fun onPromptError() {
             println("Auth-Prompt-Error!")
         }

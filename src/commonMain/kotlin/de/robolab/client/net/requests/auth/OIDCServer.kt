@@ -100,9 +100,9 @@ class OIDCServer(val config: OpenIDConfiguration) {
         clientID: String,
         clientSecret: String? = null,
         scope: String = "openid+robolab+offline_access",
-        promptHandler: (DeviceAuthPrompt) -> DeviceAuthPromptCallbacks
+        promptHandler: (DeviceAuthPrompt) -> IDeviceAuthPromptCallbacks
     ): TokenResponse.FinalTokenResponse.AccessToken {
-        var currentHandler: DeviceAuthPromptCallbacks? = null
+        var currentHandler: IDeviceAuthPromptCallbacks? = null
         do {
             val authResp = requestDeviceAuth(clientID, clientSecret, scope)
             if (currentHandler != null)
