@@ -61,6 +61,8 @@ object PreferenceStorage : TypedStorage() {
 
     val infoBarEnabledProperty = item("ui.infoBarEnabledProperty", true)
 
+    val terminalEnabledProperty = item("ui.terminalEnabledProperty", false)
+
 
     val clientIdProperty =
         item("communication.clientId", Random.nextBytes(16).joinToString("") { it.toString(16).padStart(2, '0') })
@@ -128,6 +130,13 @@ object PreferenceStorage : TypedStorage() {
 
     val examPlanetsProperty = item("exam.planets", "")
     var examPlanets by examPlanetsProperty
+
+
+    val macrosProperty = item("macros", "")
+    var macros by macrosProperty
+
+    val terminalHistoryProperty = item("terminal.history", "")
+    var terminalHistory by terminalHistoryProperty
 
     init {
         logLevelProperty.onChange.now {

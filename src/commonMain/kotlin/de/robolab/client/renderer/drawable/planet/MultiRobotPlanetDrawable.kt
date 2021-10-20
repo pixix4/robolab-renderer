@@ -6,7 +6,7 @@ import de.robolab.common.planet.Planet
 
 class MultiRobotPlanetDrawable : AbsPlanetDrawable() {
 
-    private val planetLayer = PlanetLayer("Server layer")
+    private val planetLayer = PlanetLayer("Server layer", requestContext)
 
     val robotDrawableManager = RobotDrawableManager()
 

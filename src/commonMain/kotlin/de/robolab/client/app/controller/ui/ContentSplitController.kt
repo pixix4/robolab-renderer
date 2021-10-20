@@ -3,10 +3,14 @@ package de.robolab.client.app.controller.ui
 import de.robolab.client.app.model.base.IPlanetDocument
 import de.robolab.client.renderer.utils.IRenderInstance
 import de.robolab.client.renderer.utils.onRender
+import de.robolab.client.repl.base.IReplCommandParameter
+import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
+import de.robolab.client.repl.commands.window.WindowCommand
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
+import kotlin.reflect.KClass
 
 class ContentSplitController : IRenderInstance {
 
@@ -140,6 +144,9 @@ class ContentSplitController : IRenderInstance {
         val node = Node()
         rootProperty = property(node)
         activeNodeProperty = property(node)
+
+
+        WindowCommand.bind(this)
     }
 
     interface Entry : IRenderInstance {
@@ -251,5 +258,33 @@ class ContentSplitController : IRenderInstance {
 
     enum class Orientation {
         VERTICAL, HORIZONTAL
+    }
+}
+
+
+data class GridLayout(
+    val rows: Int,
+    val cols: Int,
+) : IReplCommandParameter {
+
+    override fun toToken(): String = "${rows}x$cols"
+
+    companion object : IReplCommandParameterTypeDescriptor<GridLayout> {
+        override val klazz: KClass<GridLayout> = GridLayout::class
+        override val name: String = "GridLayout"
+        override val description = "Specify the window grid layout"
+        override val pattern = "<rows>x<cols>"
+        override val example = listOf(
+            GridLayout(3, 2).toToken()
+        )
+        override val regex: Regex = """\d+x\d+""".toRegex()
+
+        override fun fromToken(token: String, match: MatchResult): GridLayout? {
+            val (rows, cols) = token.split("x", limit = 2)
+            return GridLayout(
+                rows.toIntOrNull() ?: return null,
+                cols.toIntOrNull() ?: return null
+            )
+        }
     }
 }

@@ -38,6 +38,9 @@ data class PlanetStartPoint(
         arrow = true,
     )
 
+    val vertex: PlanetPathVertex
+        get() = PlanetPathVertex(point,  orientation.opposite())
+
     override fun translate(delta: PlanetPoint) = Vector(x, y).plus(delta.point).let { p ->
         copy(
             spline = spline.translate(delta),

@@ -16,7 +16,6 @@ class ClassList(
 
     private val bound: MutableMap<String, Bound> = mutableMapOf()
 
-
     /**
      * Add css class.
      */

@@ -198,6 +198,9 @@ class MessageRepository(
     }
 
     suspend fun createEmptyGroup(groupName: String): Group? {
+        val findGroup = getGroupList().find{it.name == groupName}
+        if(findGroup != null) return findGroup;
+        
         val events = EventMessageStorage(
             storage,
             onGroupListChange,

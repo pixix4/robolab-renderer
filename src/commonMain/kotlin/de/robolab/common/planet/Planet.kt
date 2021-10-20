@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlin.math.PI
 
-
 @Serializable
 data class Planet(
     val bluePoint: PlanetPoint? = null,
@@ -45,6 +44,16 @@ data class Planet(
 
                 it
             }
+        )
+    }
+
+    fun sanitizeCoordinates(): Planet {
+        val origin = startPoint.point.point
+        return copy(
+            comments = comments.filter { origin.distanceTo(it.coordinate.point) < 1000 },
+            paths = paths.filter { origin.distanceTo(it.source.point) < 1000 && origin.distanceTo(it.target.point) < 1000 },
+            pathSelects = pathSelects.filter { origin.distanceTo(it.point.point) < 1000 },
+            targets = targets.filter { origin.distanceTo(it.point.point) < 1000 },
         )
     }
 
@@ -157,7 +166,7 @@ data class Planet(
             tags = emptyMap(),
             targets = emptyList(),
             testSuite = null,
-            version = 0L,
+            version = 4L,
         )
     }
 }

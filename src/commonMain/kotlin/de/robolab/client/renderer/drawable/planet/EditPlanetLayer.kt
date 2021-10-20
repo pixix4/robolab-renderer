@@ -4,7 +4,7 @@ import de.robolab.client.renderer.canvas.DrawContext
 import de.robolab.client.renderer.drawable.base.IAnimatableManager
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.drawable.general.*
-import de.robolab.client.renderer.view.base.IView
+import de.robolab.client.renderer.drawable.utils.PlanetRequestContext
 import de.robolab.client.renderer.view.component.GroupTransformView
 import de.robolab.common.planet.*
 import de.robolab.common.planet.utils.IPlanetValue
@@ -12,15 +12,16 @@ import de.robolab.common.planet.utils.IPlanetValue
 class EditPlanetLayer(
     editCallback: IEditCallback,
     editPointsView: IAnimatableManager,
+    requestContext: PlanetRequestContext,
     contextTransformation: (DrawContext) -> DrawContext = { it }
 ) : IPlanetLayer {
 
     private val targetManager = TargetAnimatableManager()
     private val targetLabelManager = TargetLabelAnimatableManager()
     private val senderManager = SenderAnimatableManager()
-    private val pathManager = PathAnimatableManager(editCallback)
+    private val pathManager = PathAnimatableManager(editCallback, requestContext)
     private val pathSelectManager = PathSelectAnimatableManager()
-    private val pointManager = PointAnimatableManager(editCallback)
+    private val pointManager = PointAnimatableManager(editCallback, requestContext)
     private val commentManager = CommentAnimatableManager(editCallback)
 
     override val view = GroupTransformView(

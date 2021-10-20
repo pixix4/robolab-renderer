@@ -1,6 +1,7 @@
 package de.robolab.client.app.controller
 
 import de.robolab.client.communication.mqtt.RobolabMqttConnection
+import de.robolab.client.repl.commands.mqtt.MqttCommand
 import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.list.observableListOf
 import de.westermann.kobserve.property.constObservable
@@ -8,9 +9,10 @@ import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
 
 class ConnectionController(
-    private val connection: RobolabMqttConnection,
-    private val fileNavigationManager: RemoteServerController
+    val connection: RobolabMqttConnection,
+    fileNavigationManager: RemoteServerController,
 ) {
+
 
     val connectionIndicatorList = observableListOf(
         ConnectionIndicator(
@@ -46,6 +48,10 @@ class ConnectionController(
         ) {}
     )
 
+    init {
+        MqttCommand.bind(this)
+    }
+
     enum class StatusColor {
         SUCCESS,
         WARN,
@@ -58,6 +64,6 @@ class ConnectionController(
         val statusLabel: ObservableValue<String>,
         val statusColor: ObservableValue<StatusColor>,
         val actionLabel: ObservableValue<String>,
-        val actionHandler: () -> Unit
+        val actionHandler: () -> Unit,
     )
 }

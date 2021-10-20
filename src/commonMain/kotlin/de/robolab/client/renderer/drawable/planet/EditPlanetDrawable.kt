@@ -14,10 +14,10 @@ class EditPlanetDrawable(
 ) : AbsPlanetDrawable(transformationStateProperty) {
 
     private val createPath = CreatePathManager(editCallback)
-    private val editPoints = EditPointsManager(editCallback)
-    private val editPointEnds = EditPointEndsManager(editCallback, createPath)
+    private val editPoints = EditPointsManager(editCallback, requestContext)
+    private val editPointEnds = EditPointEndsManager(editCallback, createPath, requestContext)
 
-    private val planetLayer = EditPlanetLayer(editCallback, editPointEnds)
+    private val planetLayer = EditPlanetLayer(editCallback, editPointEnds, requestContext)
 
     fun importPlanet(planet: Planet) {
         planetLayer.importPlanet(planet)

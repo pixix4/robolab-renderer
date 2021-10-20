@@ -46,4 +46,7 @@ class HeadlessPlanetDocument(
 
     override fun onDestroy() {
     }
+
+    override fun centerPlanet() {
+    }
 }

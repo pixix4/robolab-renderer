@@ -93,6 +93,7 @@ fun <TView : View, TItem : Any> ViewCollection<in TView>.sync(
     update: (TView, TItem) -> Unit,
     delete: (TView) -> Unit,
 ) {
+    val deleteViews = mutableListOf<TView>()
     for (i in 0 until max(this.size, list.size)) {
         val view = this.getOrNull(i) as? TView
         val item = list.getOrNull(i)
@@ -102,6 +103,7 @@ fun <TView : View, TItem : Any> ViewCollection<in TView>.sync(
                 TODO("Sync ViewCollection with List: both Collections returned null")
             } else {
                 delete(view)
+                deleteViews += view
             }
         } else {
             if (view == null) {
@@ -110,6 +112,10 @@ fun <TView : View, TItem : Any> ViewCollection<in TView>.sync(
                 update(view, item)
             }
         }
+    }
+
+    for (v in deleteViews) {
+        remove(v)
     }
 }
 

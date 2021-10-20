@@ -15,10 +15,15 @@ data class PlanetPathSelect(
     constructor(
         point: PlanetPoint,
         direction: PlanetDirection
-    ): this(point.x, point.y, direction)
+    ) : this(point.x, point.y, direction)
+
+    constructor(vertex: PlanetPathVertex) : this(vertex.point, vertex.direction)
 
     val point: PlanetPoint
         get() = PlanetPoint(x, y)
+
+    val vertex: PlanetPathVertex
+        get() = PlanetPathVertex(point, direction)
 
     override fun translate(delta: PlanetPoint) = Vector(x, y).plus(delta.point).let { p ->
         copy(x = p.x.roundToLong(), y = p.y.roundToLong())

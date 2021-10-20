@@ -16,6 +16,8 @@ import de.robolab.client.renderer.canvas.SvgCanvas
 import de.robolab.client.renderer.drawable.planet.AbsPlanetDrawable
 import de.robolab.client.renderer.drawable.planet.SimplePlanetDrawable
 import de.robolab.client.renderer.utils.Transformation
+import de.robolab.client.renderer.utils.TransformationInteraction
+import de.robolab.client.repl.commands.planet.PlanetCommand
 import de.robolab.common.planet.Planet
 import de.robolab.common.utils.Dimension
 import de.westermann.kobserve.property.constObservable
@@ -27,7 +29,7 @@ import kotlinx.coroutines.launch
 
 class FilePlanetDocument(
     val filePlanet: FilePlanet,
-    uiController: UiController
+    uiController: UiController,
 ) : IPlanetDocument {
 
     val planetFile = filePlanet.planetFile
@@ -36,7 +38,7 @@ class FilePlanetDocument(
 
     abstract class FilePlanetSideBarTab<T : AbsPlanetDrawable>(
         name: String,
-        icon: MaterialIcon
+        icon: MaterialIcon,
     ) : SideBarTabViewModel(name, icon) {
 
         abstract val drawable: T
@@ -50,10 +52,15 @@ class FilePlanetDocument(
         InfoBarFileEdit(this, uiController),
         InfoBarFileTraverse(this, uiController),
         InfoBarFileTest(this, uiController)
-
     )
 
     override val activeTabProperty = property<SideBarTabViewModel?>(infoBarTabs.first())
+
+
+    val drawableProperty = activeTabProperty.mapBinding {
+        val tab = it as? FilePlanetSideBarTab<*>
+        tab?.drawable
+    }
 
     override val documentProperty = activeTabProperty.mapBinding {
         val tab = it as? FilePlanetSideBarTab<*>
@@ -160,12 +167,20 @@ class FilePlanetDocument(
     }
 
     override fun onAttach() {
+        PlanetCommand.bind(this)
     }
 
     override fun onDetach() {
+        PlanetCommand.bind(null)
     }
 
     override fun onDestroy() {
+    }
+
+
+    override fun centerPlanet() {
+        drawableProperty.value?.autoCentering = true
+        drawableProperty.value?.centerPlanet(duration = TransformationInteraction.ANIMATION_TIME)
     }
 
     override fun equals(other: Any?): Boolean {

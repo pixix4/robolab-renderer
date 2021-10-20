@@ -2,6 +2,7 @@ package de.robolab.client.renderer.drawable.edit
 
 import de.robolab.client.renderer.PlottingConstraints
 import de.robolab.client.renderer.drawable.base.IAnimatableManager
+import de.robolab.client.renderer.drawable.utils.PlanetRequestContext
 import de.robolab.client.renderer.events.PointerEvent
 import de.robolab.client.renderer.view.base.ViewColor
 import de.robolab.client.renderer.view.base.menu
@@ -15,6 +16,7 @@ import kotlin.math.roundToLong
 
 class EditPointsManager(
     private val editCallback: IEditCallback,
+    private val requestContext: PlanetRequestContext,
 ): IAnimatableManager {
 
     override val view = GroupView("Edit points manager")
@@ -53,6 +55,12 @@ class EditPointsManager(
             view.document?.focusedStack?.lastOrNull() as? SquareView != null
         }
         view.onPointerDown { event ->
+            if (requestContext.type == PlanetRequestContext.Type.POINT) {
+                requestContext.providePoint(coordinate)
+                event.stopPropagation()
+                return@onPointerDown
+            }
+
             val focusedView = view.document?.focusedStack?.lastOrNull() as? SquareView
             if (event.ctrlKey && focusedView != null) {
                 val targetCoordinate = PlanetPoint(

@@ -1,5 +1,6 @@
 package de.robolab.client.ui.adapter
 
+import de.robolab.client.utils.buildJsInterface
 import de.westermann.kwebview.Document
 import org.w3c.dom.TouchEvent
 import org.w3c.dom.events.MouseEvent
@@ -7,43 +8,43 @@ import org.w3c.dom.events.MouseEvent
 
 @Suppress("unused")
 fun Hammer.enablePan() {
-    get("pan").set(object {
-        val enable = true
-        val direction = js("Hammer.DIRECTION_ALL")
-        val threshold = 0
+    get("pan").set(buildJsInterface {
+        this.enable = true
+        this.direction = js("Hammer.DIRECTION_ALL")
+        this.threshold = 0
     })
 }
 
 @Suppress("unused")
 fun Hammer.enablePinch() {
-    get("pinch").set(object {
-        val enable = true
+    get("pinch").set(buildJsInterface {
+        this.enable = true
     })
 }
 
 @Suppress("unused")
 fun Hammer.enablePress() {
-    get("press").set(object {
-        val enable = true
-        val threshold = 1
-        val time = 500
+    get("press").set(buildJsInterface {
+        this.enable = true
+        this.threshold = 1
+        this.time = 500
     })
 }
 
 @Suppress("unused")
 fun Hammer.enableTap() {
-    get("tap").set(object {
-        val enable = true
-        val threshold = 5
-        val posThreshold = 15
+    get("tap").set(buildJsInterface {
+        this.enable = true
+        this.threshold = 5
+        this.posThreshold = 15
     })
 }
 
 @Suppress("unused")
 fun Hammer.enableRotate() {
-    get("rotate").set(object {
-        val enable = true
-        val threshold = 5
+    get("rotate").set(buildJsInterface {
+        this.enable = true
+        this.threshold = 5
     })
 }
 

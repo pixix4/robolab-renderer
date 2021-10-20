@@ -82,7 +82,7 @@ fun List<RobolabMessage>.toServerPlanet(): Pair<Planet, List<PlanetPoint>> {
         targets = targetList,
         testSuite = null,
         version = PlanetVersion.CURRENT,
-    ).generateSenderGroupings() to visitedPointList
+    ).sanitizeCoordinates().generateSenderGroupings() to visitedPointList
 }
 
 fun List<RobolabMessage>.toMqttPlanet(): Planet {
@@ -147,7 +147,7 @@ fun List<RobolabMessage>.toMqttPlanet(): Planet {
         targets = targetList,
         testSuite = null,
         version = PlanetVersion.CURRENT,
-    ).generateSenderGroupings()
+    ).sanitizeCoordinates().generateSenderGroupings()
 }
 
 fun List<RobolabMessage>.toRobot(groupNumber: Int?, backwardMotion: Boolean = false): RobotDrawable.Robot? {
@@ -161,12 +161,20 @@ fun List<RobolabMessage>.toRobot(groupNumber: Int?, backwardMotion: Boolean = fa
 
             }
             is RobolabMessage.PathMessage -> {
+                if (currentPoint != null && currentPoint.point.distanceTo(message.path.target.point) >= 1000) {
+                    continue@loop
+                }
+
                 currentPoint = message.path.target
                 currentDirection = message.path.targetDirection
 
                 beforePoint = true
             }
             is RobolabMessage.PathSelectMessageFromRobot -> {
+                if (currentPoint != null && currentPoint.point.distanceTo(message.point.point) >= 1000) {
+                    continue@loop
+                }
+
                 currentPoint = message.point
                 currentDirection = message.direction
                 beforePoint = false

@@ -1,5 +1,6 @@
 package de.robolab.client.app.controller.ui
 
+import de.robolab.client.repl.commands.window.WindowToggleCommand
 import de.robolab.client.utils.PreferenceStorage
 import de.westermann.kobserve.and
 import de.westermann.kobserve.base.ObservableProperty
@@ -28,6 +29,14 @@ class UiController {
         updateBarWidth(width, infoBarWidthMutableProperty, infoBarEnabledProperty, ignoreWidthToggle)
     }
 
+    val terminalEnabledProperty = PreferenceStorage.terminalEnabledProperty
+    private val terminalHeightMutableProperty = property(300.0)
+    val terminalHeightProperty = terminalHeightMutableProperty.readOnly()
+
+    fun setTerminalHeight(height: Double, ignoreWidthToggle: Boolean = false) {
+        updateBarWidth(height, terminalHeightMutableProperty, terminalEnabledProperty, ignoreWidthToggle)
+    }
+
     val toolBarVisibleProperty = !fullscreenProperty
     val navigationBarVisibleProperty = !fullscreenProperty and navigationBarEnabledProperty
     val infoBarVisibleProperty = !fullscreenProperty and infoBarEnabledProperty
@@ -37,7 +46,7 @@ class UiController {
         width: Double,
         barWidthProperty: ObservableProperty<Double>,
         barEnabledProperty: ObservableProperty<Boolean>,
-        ignoreWidthToggle: Boolean
+        ignoreWidthToggle: Boolean,
     ) {
         var w = width
         if (barEnabledProperty.value) {
@@ -54,5 +63,10 @@ class UiController {
                 barEnabledProperty.value = true
             }
         }
+    }
+
+
+    init {
+        WindowToggleCommand.bind(this)
     }
 }

@@ -1,10 +1,9 @@
 package de.robolab.common.utils
 
+import de.robolab.client.renderer.transition.IInterpolatable
 import de.robolab.common.planet.test.PlanetTestGoal
 import kotlin.jvm.JvmName
-import kotlin.math.absoluteValue
-import kotlin.math.pow
-import kotlin.math.round
+import kotlin.math.*
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
@@ -70,16 +69,16 @@ inline fun <T> Iterable<T>.intersect(other: Iterable<T>, predicate: (T, T) -> Bo
     }
 }
 
-inline fun <T,K,V> Iterable<T>.associateNotNull(transform:(T)->Pair<K,V>?) = mapNotNull(transform).toMap()
+inline fun <T, K, V> Iterable<T>.associateNotNull(transform: (T) -> Pair<K, V>?) = mapNotNull(transform).toMap()
 
-inline fun <reified V, T> Iterable<T>.partitionIsInstance(): Pair<List<V>,List<T>> where V:T {
+inline fun <reified V, T> Iterable<T>.partitionIsInstance(): Pair<List<V>, List<T>> where V : T {
     val (hits, misses) = this.partition { it is V }
     return hits.filterIsInstance<V>() to misses
 }
 
-inline fun <reified V1, reified V2, T> Iterable<T>.partitionIsInstance2(): Triple<List<V1>, List<V2>, List<T>> where V1:T, V2:T{
-    val (hits1, misses1) = partitionIsInstance<V1,T>()
-    val (hits2, misses2) = misses1.partitionIsInstance<V2,T>()
+inline fun <reified V1, reified V2, T> Iterable<T>.partitionIsInstance2(): Triple<List<V1>, List<V2>, List<T>> where V1 : T, V2 : T {
+    val (hits1, misses1) = partitionIsInstance<V1, T>()
+    val (hits2, misses2) = misses1.partitionIsInstance<V2, T>()
     return Triple(hits1, hits2, misses2)
 }
 
@@ -139,4 +138,25 @@ fun Number.toFixed(places: Int): String {
     }
 
     return number.dropLast(missingPlaces.absoluteValue)
+}
+
+inline fun <T, R> List<T>.getInterpolated(index: Double, interpolator: (T, T, Double) -> R): R {
+    if (isEmpty()) throw IllegalArgumentException("Interpolation-Index out of range (empty list): $index")
+    if (index < 0 || index > lastIndex) throw IllegalArgumentException("Interpolation-Index out of range (0..$lastIndex): $index ")
+    val lower = this[floor(index).toInt()]
+    val upper = this[ceil(index).toInt()]
+    val subProgress = index % 1
+    return interpolator(lower, upper, subProgress)
+}
+
+fun <T> List<T>.getInterpolated(index: Double): T where T : IInterpolatable<T> = getInterpolated(index) { p1, p2, f ->
+    p1.interpolate(p2, f)
+}
+
+inline fun <T> MutableList<T>.consumeEach(action: (T) -> Unit, fromBack: Boolean = false) {
+    while (this.isNotEmpty()) {
+        val element = if (fromBack) last() else first()
+        action(element) //Only remove after action has been completed in case of exception
+        if (fromBack) removeLast() else removeFirst()
+    }
 }
