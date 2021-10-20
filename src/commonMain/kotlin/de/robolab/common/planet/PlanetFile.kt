@@ -3,6 +3,7 @@ package de.robolab.common.planet
 import de.robolab.client.renderer.drawable.edit.IEditCallback
 import de.robolab.client.renderer.utils.History
 import de.robolab.common.utils.Vector
+import de.robolab.common.utils.autoLogger
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlin.math.exp
@@ -304,7 +305,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
             return try {
                 json.decodeFromString(Planet.serializer(), content).generateSenderGroupings()
             } catch (e: SerializationException) {
-                e.printStackTrace()
+                autoLogger.error("Could not decode planet from string", e)
                 null
             }
         }
@@ -314,6 +315,7 @@ class PlanetFile(planet: Planet) : IEditCallback {
             return try {
                 json.encodeToString(Planet.serializer(), planet.generateSenderGroupings())
             } catch (e: SerializationException) {
+                autoLogger.warn("Could not stringify planet", e)
                 ""
             }
         }

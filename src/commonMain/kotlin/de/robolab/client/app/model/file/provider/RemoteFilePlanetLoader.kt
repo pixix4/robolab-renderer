@@ -5,6 +5,7 @@ import de.robolab.client.net.PingRobolabServer
 import de.robolab.client.net.requests.planets.*
 import de.robolab.common.planet.Planet
 import de.robolab.common.planet.utils.ID
+import de.robolab.common.utils.Logger
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
@@ -16,6 +17,8 @@ import kotlinx.coroutines.withContext
 class RemoteFilePlanetLoader(
     val server: PingRobolabServer
 ) : IFilePlanetLoader {
+
+    val logger = Logger(this)
 
     override val id: String = "remote-loader-${server.hostURL}"
 
@@ -40,6 +43,7 @@ class RemoteFilePlanetLoader(
                 val result = server.getPlanet(ID(id)).okOrThrow()
                 RemoteMetadata.Planet(result.planet.name, result.lastModified) to result.planet
             } catch (e: Exception) {
+                logger.error("Exception during Planet-Loading", id, e)
                 null
             }
         }
@@ -51,6 +55,7 @@ class RemoteFilePlanetLoader(
                 server.putPlanet(ID(id), planet).okOrThrow()
                 RemoteIdentifier(id, loadPlanet(id)?.first ?: return@withContext null)
             } catch (e: Exception) {
+                logger.error("Exception during Planet-Saving", id, e)
                 null
             }
         }
@@ -62,6 +67,7 @@ class RemoteFilePlanetLoader(
                 val info = server.postPlanet(planet).okOrThrow().info
                 RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified))
             } catch (e: Exception) {
+                logger.error("Exception during Planet-Creation", parentId, e)
                 null
             }
         }
@@ -73,6 +79,7 @@ class RemoteFilePlanetLoader(
                 server.deletePlanet(ID(id)).okOrThrow()
                 true
             } catch (e: Exception) {
+                logger.error("Exception during Planet-Deletion", id, e)
                 false
             }
         }
@@ -111,6 +118,7 @@ class RemoteFilePlanetLoader(
                     }
                 }
             } catch (e: Exception) {
+                logger.error("Could not get Planet-List", id, e)
                 null
             }
         }
@@ -127,6 +135,7 @@ class RemoteFilePlanetLoader(
                     RemoteIdentifier(info.id.toString(), RemoteMetadata.Planet(info.name, info.lastModified))
                 }
             } catch (e: Exception) {
+                logger.error("Could not search planets",e)
                 null
             }
         }

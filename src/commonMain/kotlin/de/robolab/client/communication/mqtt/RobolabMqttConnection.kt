@@ -106,6 +106,7 @@ class RobolabMqttConnection {
                 mqttClient.publish(topic, message)
                 true
             } catch (e: Exception) {
+                logger.error("Could not publish message", e)
                 false
             }
         }

@@ -3,6 +3,7 @@ package de.robolab.client.app.model.file.provider
 import de.robolab.client.utils.cache.ICacheStorage
 import de.robolab.common.planet.Planet
 import de.robolab.common.planet.PlanetFile
+import de.robolab.common.utils.autoLogger
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.GlobalScope
@@ -95,6 +96,7 @@ class FilePlanet(
                 val cacheContent = cacheEntry.read() ?: throw NullPointerException()
                 state = Json.decodeFromString<State>(cacheContent)
             } catch (e: Exception) {
+                autoLogger.debug("Could not load cache-state",e)
             }
 
             update()

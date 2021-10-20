@@ -4,6 +4,7 @@ import de.robolab.client.net.requests.IBoundRESTRequest
 import de.robolab.client.net.requests.IRESTResponse
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
+import de.robolab.common.utils.autoLogger
 import io.ktor.client.*
 import io.ktor.client.features.*
 import io.ktor.client.request.*

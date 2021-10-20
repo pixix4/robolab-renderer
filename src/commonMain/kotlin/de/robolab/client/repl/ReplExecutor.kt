@@ -3,8 +3,11 @@ package de.robolab.client.repl
 import de.robolab.client.app.controller.ui.indexOfOrNull
 import de.robolab.client.repl.base.*
 import de.robolab.client.repl.commands.RootCommand
+import de.robolab.common.utils.Logger
 
 object ReplExecutor {
+
+    val logger = Logger(this)
 
     data class AutoComplete(
         val name: String,
@@ -72,8 +75,10 @@ object ReplExecutor {
         try {
             execute(bindTokenList(tokenize(input), output))
         } catch (e: Exception) {
-            output.writeln("Command could not be parsed: ${e::class.simpleName ?: "Exception"}: ${e.message}",
-                ReplColor.RED)
+            output.writeln(
+                "Command could not be parsed: ${e::class.simpleName ?: "Exception"}: ${e.message}",
+                ReplColor.RED
+            )
         }
     }
 
@@ -81,6 +86,7 @@ object ReplExecutor {
         return try {
             autoComplete(bindTokenList(tokenize(input)))
         } catch (e: Exception) {
+            logger.debug("Error during autocompletion of '$input'", e)
             emptyList()
         }
     }
@@ -89,6 +95,7 @@ object ReplExecutor {
         return try {
             hint(bindTokenList(tokenize(input))).copy(input = input)
         } catch (e: Exception) {
+            logger.debug("Error during hinting of '$input'", e)
             Hint(emptyList(), "", emptyList(), input)
         }
     }
@@ -356,10 +363,12 @@ object ReplExecutor {
 
         // Append trailing token
         if (input.endsWith(" ") || input.isEmpty()) {
-            tokenList = tokenList + Token("",
+            tokenList = tokenList + Token(
+                "",
                 (trimmedInput.length..trimmedInput.length).offset(rangeOffset),
                 tokenList.size,
-                true)
+                true
+            )
         }
 
         // Remove escape characters

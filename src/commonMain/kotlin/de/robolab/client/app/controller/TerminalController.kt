@@ -1,7 +1,9 @@
 package de.robolab.client.app.controller
 
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.common.utils.Logger
 import de.robolab.common.utils.RobolabJson
+import de.robolab.common.utils.autoLogger
 import de.westermann.kobserve.event.EventHandler
 import kotlinx.serialization.Serializable
 
@@ -37,6 +39,7 @@ object TerminalController {
             commandHistory.addAll(RobolabJson.decodeFromString(TerminalHistory.serializer(),
                 PreferenceStorage.terminalHistory).history)
         } catch (e: Exception) {
+            autoLogger.debug("Could not load command-history",e)
         }
     }
 

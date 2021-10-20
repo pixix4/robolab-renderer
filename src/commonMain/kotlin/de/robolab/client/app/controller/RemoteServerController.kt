@@ -61,6 +61,7 @@ class RemoteServerController {
                             remoteServerVersionProperty.value = version.toString()
                         }
                     } catch (e: Throwable) {
+                        logger.error("Could not load server version", e)
                         withContext(Dispatchers.Main) {
                             remoteServerVersionProperty.value = "Cannot load server version!"
                         }
@@ -72,6 +73,7 @@ class RemoteServerController {
                             remoteServerAuthenticationProperty.value = "${user.username} (${user.accessLevel.name})"
                         }
                     } catch (e: Throwable) {
+                        logger.error("Could not load auth information", e)
                         withContext(Dispatchers.Main) {
                             remoteServerAuthenticationProperty.value = "Cannot load auth information!"
                         }
@@ -96,7 +98,7 @@ class RemoteServerController {
                     PreferenceStorage.examPlanets = info.planets.joinToString(";") { "${it.name}=${it.info.name}" }
                 }
             } catch (e: Exception) {
-
+                logger.error("Could not load remote exam-state", e)
             }
         }
     }

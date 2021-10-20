@@ -7,6 +7,7 @@ import de.robolab.common.externaljs.fs.readdir
 import de.robolab.common.externaljs.path.pathResolve
 import de.robolab.common.planet.Planet
 import de.robolab.common.planet.PlanetFile
+import de.robolab.common.utils.Logger
 import de.westermann.kobserve.base.ObservableProperty
 import de.westermann.kobserve.event.EventHandler
 import de.westermann.kobserve.property.constObservable
@@ -18,6 +19,8 @@ import kotlinx.coroutines.launch
 class LocalFilePlanetLoader(
     private val baseDirectory: File
 ) : IFilePlanetLoader {
+
+    val logger = Logger(this)
 
     override val id = "local-file-loader-${baseDirectory.absolutePath}"
 
@@ -69,6 +72,7 @@ class LocalFilePlanetLoader(
                 planet.getPointList().size
             ) to planet
         } catch (e: Exception) {
+            logger.error("Could not load planet",id,e)
             null
         }
     }
@@ -98,6 +102,7 @@ class LocalFilePlanetLoader(
                 metadata
             )
         } catch (e: Exception) {
+            logger.error("Could not save planet",id,e)
             null
         }
     }
@@ -118,6 +123,7 @@ class LocalFilePlanetLoader(
                 )
             )
         } catch (e: Exception) {
+            logger.error("Exception during Planet-Creation", parentId, e)
             null
         }
     }
@@ -127,6 +133,7 @@ class LocalFilePlanetLoader(
             idToFile(id).delete()
             true
         } catch (e: Exception) {
+            logger.error("Exception during Planet-Deletion", id, e)
             false
         }
     }
@@ -181,6 +188,7 @@ class LocalFilePlanetLoader(
                     it.metadata.name
                 })
         } catch (e: Exception) {
+            logger.error("Could not get Planet-List", id, e)
             null
         }
     }
@@ -189,6 +197,7 @@ class LocalFilePlanetLoader(
         return try {
             PlanetFile.parse(file.readText()).name
         } catch (e: Exception) {
+            logger.error("Exception during getting name of file", file.absolutePath, e)
             null
         }
     }
@@ -211,6 +220,7 @@ class LocalFilePlanetLoader(
                     mapFile(file)
                 }
         } catch (e: Exception) {
+            logger.error("Could not search planets",e)
             emptyList()
         }
     }

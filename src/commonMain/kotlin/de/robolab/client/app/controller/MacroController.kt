@@ -9,7 +9,9 @@ import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
 import de.robolab.client.repl.base.IReplOutput
 import de.robolab.client.repl.commands.macro.MacroCommand
 import de.robolab.client.utils.PreferenceStorage
+import de.robolab.common.utils.Logger
 import de.robolab.common.utils.RobolabJson
+import de.robolab.common.utils.autoLogger
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -127,6 +129,7 @@ class MacroController {
             macroList.clear()
             macroList.addAll(storage.macroList)
         } catch (e: Exception) {
+            autoLogger.debug("Exception during macro-loading",e)
             loadDefaults()
             save()
         }

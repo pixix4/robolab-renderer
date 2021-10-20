@@ -1,5 +1,6 @@
 package de.robolab.client.communication
 
+import de.robolab.common.utils.autoLogger
 import de.westermann.kobserve.event.SuspendEventHandler
 
 /**
@@ -28,6 +29,7 @@ class MessageManager(private val messageProvider: RobolabMessageProvider) {
             messageProvider.sendMessage(topic, message)
             true
         } catch (e: Exception) {
+            autoLogger.error("Could not send message", e)
             false
         }
     }

@@ -75,3 +75,6 @@ expect class LoggerOutput() {
 
     fun printStacktrace()
 }
+
+val Any.autoLogger:Logger
+    get() = Logger(this)

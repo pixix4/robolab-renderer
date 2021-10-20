@@ -2,6 +2,7 @@ package de.robolab.client.ui.dialog
 
 import de.robolab.client.ui.triggerDownloadUrl
 import de.robolab.client.ui.views.utils.buttonGroup
+import de.robolab.common.utils.autoLogger
 import de.westermann.kobserve.event.now
 import de.westermann.kobserve.property.property
 import de.westermann.kwebview.components.*
@@ -82,6 +83,7 @@ class DownloadDialog private constructor() : Dialog("Download") {
                 @Suppress("EXPERIMENTAL_API_USAGE")
                 artefactMap = Json.decodeFromDynamic(result)
             } catch (e: Exception) {
+                autoLogger.error(e)
                 artefactMap = emptyMap()
             }
         }

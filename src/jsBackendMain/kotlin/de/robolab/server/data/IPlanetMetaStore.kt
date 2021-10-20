@@ -1,6 +1,7 @@
 package de.robolab.server.data
 
 import de.robolab.common.planet.utils.ServerPlanetInfo
+import de.robolab.common.utils.autoLogger
 
 interface IPlanetMetaStore {
     suspend fun retrieveFilePath(id: String, verifier: suspend (String) -> Boolean): String?
@@ -74,7 +75,7 @@ interface IPlanetMetaStore {
                 else id to try {
                     lookup(id)
                 } catch (ex: Exception) {
-                    console.error(ex)
+                    autoLogger.error("Could not retrieve meta-info for '$id'",ex)
                     null
                 }
             }

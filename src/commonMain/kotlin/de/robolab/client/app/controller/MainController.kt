@@ -15,6 +15,7 @@ import de.robolab.client.utils.cache.MemoryCacheStorage
 import de.robolab.client.utils.cache.PersistentCacheStorage
 import de.robolab.common.utils.ConsoleGreeter
 import de.robolab.common.utils.Logger
+import de.robolab.common.utils.autoLogger
 import de.westermann.kobserve.property.flatMapBinding
 import de.westermann.kobserve.property.mapBinding
 import de.westermann.kobserve.property.nullableFlatMapBinding
@@ -37,6 +38,7 @@ class MainController(private val args: Args) {
     private val cacheStorage = try {
         PersistentCacheStorage()
     } catch (e: Exception) {
+        autoLogger.debug("Could not create PersistentCacheStorage",e)
         MemoryCacheStorage()
     }
 

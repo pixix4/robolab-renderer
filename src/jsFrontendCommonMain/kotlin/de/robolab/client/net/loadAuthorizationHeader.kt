@@ -1,6 +1,7 @@
 package de.robolab.client.net
 
 import de.robolab.common.net.headers.AuthorizationHeader
+import de.robolab.common.utils.Logger
 import kotlinx.browser.localStorage
 import org.w3c.dom.get
 import org.w3c.dom.set
@@ -10,6 +11,7 @@ actual suspend fun loadAuthorizationHeader(): AuthorizationHeader? {
     return try {
         AuthorizationHeader.parse(tokenString)
     } catch (e: Exception) {
+        Logger("loadAuthorizationHeader").error("Could not parse authorization-header",e)
         null
     }
 }
