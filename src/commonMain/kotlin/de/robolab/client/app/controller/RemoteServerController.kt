@@ -102,11 +102,11 @@ class RemoteServerController {
     }
 
     init {
-        remoteServerUriProperty.onChange { uri ->
+        remoteServerUriProperty.onChange.now {
             val uri = remoteServerUriProperty.value
             if (uri == null) {
                 remoteServerProperty.value = null
-                return@onChange
+                return@now
             }
             GlobalScope.launch {
                 val host = uri.substringAfter("://").substringBefore("?").trimEnd('/')
