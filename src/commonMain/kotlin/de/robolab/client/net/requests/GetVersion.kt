@@ -6,7 +6,6 @@ import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.MIMEType
 import de.robolab.common.net.parseResponseCatchingWrapper
 import de.robolab.common.utils.Version
-import kotlinx.serialization.Serializable
 
 object GetVersion : IUnboundRESTRequest<GetVersion.VersionResponse> {
     override val requestMethod: HttpMethod = HttpMethod.GET
@@ -19,20 +18,17 @@ object GetVersion : IUnboundRESTRequest<GetVersion.VersionResponse> {
         parseResponseCatchingWrapper(serverResponse, this, ::VersionResponse)
 
     class VersionResponse(serverResponse: IServerResponse, triggeringRequest: IRESTRequest<VersionResponse>) :
-        JsonRestResponse<VersionWithName>(serverResponse, triggeringRequest, VersionWithName.serializer()) {
+        JsonRestResponse<Version.VersionWithName>(
+            serverResponse,
+            triggeringRequest,
+            Version.VersionWithName.serializer()
+        ) {
         val version: Version = decodedValue.version
 
         override fun toString(): String {
             return "VersionResponse(version=$version)"
         }
     }
-
-    @Suppress("unused")
-    @Serializable
-    class VersionWithName(
-        val version: Version,
-        val versionString: String
-    )
 }
 
 suspend fun IRobolabServer.getVersion() = request(GetVersion)

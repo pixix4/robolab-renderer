@@ -95,4 +95,13 @@ data class Version(
             )
         }
     }
+
+    @Suppress("unused")
+    @Serializable
+    class VersionWithName(
+        val version: Version,
+        val versionString: String
+    )
 }
+
+fun Version.withName() = Version.VersionWithName(this, this.toString())

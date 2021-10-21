@@ -11,9 +11,7 @@ import de.robolab.common.externaljs.path.pathJoin
 import de.robolab.common.externaljs.path.pathResolve
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AccessControlAllowMethods
-import de.robolab.common.utils.BuildInformation
-import de.robolab.common.utils.Logger
-import de.robolab.common.utils.Version
+import de.robolab.common.utils.*
 import de.robolab.server.config.Config
 import de.robolab.server.externaljs.body_parser.json
 import de.robolab.server.externaljs.body_parser.text
@@ -63,10 +61,7 @@ object DefaultEnvironment {
         router.get("/version") { _, res ->
             res.status(HttpStatusCode.Ok)
             res.format("json" to {
-                val obj = emptyDynamic()
-                obj["version"] = BuildInformation.versionBackend
-                obj["versionString"] = BuildInformation.versionBackend.toString()
-                res.send(JSON.stringify(obj))
+                res.send(encodeString(BuildInformation.versionBackend.withName()))
             }, "text" to {
                 res.send(BuildInformation.versionBackend.toString())
             })
