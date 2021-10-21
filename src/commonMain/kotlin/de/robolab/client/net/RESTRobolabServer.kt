@@ -1,14 +1,12 @@
 package de.robolab.client.net
 
 import de.robolab.client.app.model.file.handleAuthPrompt
-import de.robolab.client.net.requests.auth.DeviceAuthPrompt
-import de.robolab.client.net.requests.auth.IDeviceAuthPromptCallbacks
-import de.robolab.client.net.requests.auth.OIDCServer
-import de.robolab.client.net.requests.auth.TokenResponse
+import de.robolab.client.net.requests.auth.*
 import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.HttpStatusCode
 import de.robolab.common.net.headers.AuthorizationHeader
 import de.robolab.common.utils.Logger
+import de.westermann.kobserve.base.ObservableValue
 import de.westermann.kobserve.property.property
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -52,7 +50,13 @@ class RESTRobolabServer(
     override var authHeader by authHeaderProperty
 
     override fun resetAuthSession() {
-
+        val owner = Random.nextLong()
+        GlobalScope.launch {
+            _requestAuthTokenMutex.withLock(owner) {
+                requestToken()
+                //TODO: improve queue-handling, only request new Token if previously recorded token has changed (see `usedHeader` in `request()`)
+            }
+        }
     }
 
     override suspend fun performDeviceAuth(
@@ -100,28 +104,42 @@ class RESTRobolabServer(
         }
     }
 
-    private suspend fun requestToken(): Boolean{
+    private suspend fun requestToken(): Boolean {
         val refreshToken = refreshToken
-        if(!refreshToken.isNullOrEmpty()){
-            when(val refreshResponse = oidcServer.performTokenRefresh(refreshToken,clientID,clientSecret)){
+        if (!refreshToken.isNullOrEmpty()) {
+            val refreshResponse: Any = try { //refreshResponse: Union<TokenResponse,Exception>
+                oidcServer.performTokenRefresh(refreshToken, clientID, clientSecret)
+            } catch (ex: IllegalStateException) {
+                if (ex.message?.startsWith("Fail to serialize body.") != true) throw ex
+                ex
+            }
+            when (refreshResponse) {
                 is TokenResponse.FinalTokenResponse.AccessToken -> {
                     useAccessToken(refreshResponse, refreshToken)
                     return true
                 }
                 !is TokenResponse.ExpiredToken -> {
-                    logger.warn{
-                        "Unexpected refresh-response: $refreshResponse"
-                    }
+                    logger.warn("Unexpected refresh-response:", refreshResponse)
                 }
             }
         }
 
-        val authResponse = oidcServer.performDeviceAuth(clientID, clientSecret, promptHandler= ::handleAuthPrompt)
+
+        val authResponse: TokenResponse.FinalTokenResponse.AccessToken = try {
+            oidcServer.performDeviceAuth(clientID, clientSecret, promptHandler = ::handleAuthPrompt)
+        } catch (ex: IllegalStateException) {
+            if (ex.message?.startsWith("Fail to serialize body.") == true) {
+                logger.error { "Unexpected response to device-auth" }
+                logger.error { "|C-x-A| AUTH Exception!" }
+                throw IllegalStateException("Unexpected response to device-auth", ex)
+            }
+            throw ex
+        }
         useAccessToken(authResponse)
         return true
     }
 
-    private fun useAccessToken(token: TokenResponse.FinalTokenResponse.AccessToken, refreshToken: String?=null){
+    private fun useAccessToken(token: TokenResponse.FinalTokenResponse.AccessToken, refreshToken: String? = null) {
         authHeaderProperty.set(AuthorizationHeader.Bearer(token.accessToken))
         refreshTokenProperty.set(token.refreshToken ?: refreshToken)
     }

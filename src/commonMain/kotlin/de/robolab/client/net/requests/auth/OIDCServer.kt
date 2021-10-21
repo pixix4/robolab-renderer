@@ -40,13 +40,12 @@ class OIDCServer(val config: OpenIDConfiguration) {
         return client.request {
             url(config.deviceAuthorizationEndpoint)
             method = HttpMethod.Post
-            header("Content-Type", MIMEType.FORM_URLENCODED.primaryName)
             expectSuccess = true
-            body = formData {
+            body = FormDataContent(Parameters.build {
                 append("client_id", clientID)
                 if (!clientSecret.isNullOrEmpty()) append("client_secret", clientSecret)
                 append("scope", scope)
-            }
+            })
         }
     }
 
@@ -58,14 +57,13 @@ class OIDCServer(val config: OpenIDConfiguration) {
         request {
             url(config.authorizationEndpoint)
             method = HttpMethod.Post
-            header("Content-Type", MIMEType.FORM_URLENCODED.primaryName)
             expectSuccess = true
-            body = formData {
+            body = FormDataContent(Parameters.build {
                 append("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
                 append("client_id", clientID)
                 if (!clientSecret.isNullOrEmpty()) append("client_secret", clientSecret)
                 append("device_code", authResponse.deviceCode)
-            }
+            })
         }
 
     suspend fun pollTokenOnce(
@@ -133,14 +131,13 @@ class OIDCServer(val config: OpenIDConfiguration) {
         return client.request<TokenResponse> {
             url(config.tokenEndpoint)
             method = HttpMethod.Post
-            header("Content-Type", MIMEType.FORM_URLENCODED.primaryName)
             expectSuccess = true
-            body = formData {
+            body = FormDataContent(Parameters.build {
                 append("grant_type", "refresh_token")
                 append("refresh_token", refreshToken)
                 if (!clientID.isNullOrEmpty()) append("client_id", clientID)
                 if (!clientSecret.isNullOrEmpty()) append("client_secret", clientSecret)
-            }
+            })
         }
     }
 
