@@ -41,6 +41,7 @@ class OIDCServer(val config: OpenIDConfiguration) {
             url(config.deviceAuthorizationEndpoint)
             method = HttpMethod.Post
             expectSuccess = true
+            accept(MIMEType.JSON.ktorContentType)
             body = FormDataContent(Parameters.build {
                 append("client_id", clientID)
                 if (!clientSecret.isNullOrEmpty()) append("client_secret", clientSecret)
@@ -58,6 +59,7 @@ class OIDCServer(val config: OpenIDConfiguration) {
             url(config.authorizationEndpoint)
             method = HttpMethod.Post
             expectSuccess = true
+            accept(MIMEType.JSON.ktorContentType)
             body = FormDataContent(Parameters.build {
                 append("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
                 append("client_id", clientID)
@@ -132,6 +134,7 @@ class OIDCServer(val config: OpenIDConfiguration) {
             url(config.tokenEndpoint)
             method = HttpMethod.Post
             expectSuccess = true
+            accept(MIMEType.JSON.ktorContentType)
             body = FormDataContent(Parameters.build {
                 append("grant_type", "refresh_token")
                 append("refresh_token", refreshToken)
