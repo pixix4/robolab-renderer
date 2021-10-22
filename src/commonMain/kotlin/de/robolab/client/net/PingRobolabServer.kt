@@ -20,7 +20,7 @@ class PingRobolabServer(
 
     fun update() {
         GlobalScope.launch(Dispatchers.Default) {
-            _availableProperty.value = server.ping("/api")
+            _availableProperty.value = server.ping("/api/")
         }
     }
 
