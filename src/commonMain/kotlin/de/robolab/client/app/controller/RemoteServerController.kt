@@ -120,7 +120,8 @@ class RemoteServerController {
                     0,
                     !uri.startsWith("http://"),
                     oidcServer!!,
-                    "renderer"
+                    "renderer",
+                    "4L9VMZ2r3tKwetzArHA9a4uDNr7Qjy8vpkYNDnPrurnDse94TUzY85Nw5zZAB7wGXvjNdmN5M7Ln8JEhpMfcj9hQDNZd5xGk35JQKMXTG7E4pAUmdpjNCPnLyvVHYKDt"
                 )
 
                 if (PreferenceStorage.authenticationToken.isNotEmpty()) {
