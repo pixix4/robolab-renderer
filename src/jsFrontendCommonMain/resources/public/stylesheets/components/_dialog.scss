@@ -195,16 +195,21 @@
   }
 
   span:nth-child(2) {
-    padding: 0.5rem 0;
-    font-size: 1.2rem;
+    padding: 1.2rem 0 1.5rem;
+    font-size: 1.5rem;
     font-weight: bold;
     user-select: all;
     font-family: "Roboto Mono", monospace, sans-serif;
   }
 
+  a {
+    text-decoration: none;
+  }
+
   button {
     display: block;
     text-align: center;
+    margin: 0 auto;
   }
 }
 

@@ -41,19 +41,23 @@ class TokenDialogView(viewModel: TokenDialogViewModel) : ViewCollection<View>() 
         uriProperty.onChange.now {
             val uri = uriProperty.value
 
-            if (!open(uri)) {
-                contentTab.apply {
-                    contentTab.clear()
-                    classList += "token-popup"
+            val couldBeOpened = open(uri)
+
+            contentTab.apply {
+                contentTab.clear()
+                classList += "token-popup"
+                if (couldBeOpened) {
+                    textView("The following code should be displayed on the authentication page:")
+                } else {
                     textView("The browser has blocked the OAuth page. Please open the OAuth page manually or allow this popup in your browsers settings.")
-                    textView(userCodeProperty)
-                    boxView("form-content-button-view") {
-                        link(uri) {
-                            buttonGroup(true) {
-                                button("Open OAuth page")
-                            }
-                            this.html.target = "_blank"
+                }
+                textView(userCodeProperty)
+                boxView("form-content-button-view") {
+                    link(uri) {
+                        buttonGroup(true) {
+                            button("Open OAuth page")
                         }
+                        this.html.target = "_blank"
                     }
                 }
             }
