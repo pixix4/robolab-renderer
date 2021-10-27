@@ -43,10 +43,12 @@ suspend fun sendHttpRequest(
     url: String,
     method: HttpMethod = HttpMethod.GET,
     body: String? = null,
-    headers: Map<String, List<String>> = emptyMap()
+    headers: Map<String, List<String>> = emptyMap(),
+    throwOnNonOk: Boolean = true,
 ): ServerResponse = sendHttpRequest(
     URLInfo.fromURL(url, method)
-        ?: throw IllegalArgumentException("Invalid URL: $url"), body, headers
+        ?: throw IllegalArgumentException("Invalid URL: $url"), body, headers,
+    throwOnNonOk = throwOnNonOk,
 )
 
 suspend fun <R : IRESTResponse> sendHttpRequest(boundRequest: IBoundRESTRequest<R>) =
@@ -64,7 +66,8 @@ suspend fun <R : IRESTResponse> IBoundRESTRequest<R>.sendHttpRequest() = sendHtt
 suspend fun sendHttpRequest(
     urlInfo: URLInfo,
     body: String? = null,
-    headers: Map<String, List<String>> = emptyMap()
+    headers: Map<String, List<String>> = emptyMap(),
+    throwOnNonOk: Boolean = true,
 ): ServerResponse =
     sendHttpRequest(
         urlInfo.method,
@@ -74,7 +77,8 @@ suspend fun sendHttpRequest(
         urlInfo.path,
         body,
         urlInfo.query,
-        headers
+        headers,
+        throwOnNonOk = throwOnNonOk,
     )
 
 @JvmName("sendHttpRequestReceiving")
@@ -103,7 +107,7 @@ suspend fun sendHttpRequest(
                 body = body,
                 query = query,
                 headers = headers,
-                throwOnNonOk = true
+                throwOnNonOk = true,
             )
         } catch (ex: ClientRequestException) {
             ex.response.toRobolabResponse()

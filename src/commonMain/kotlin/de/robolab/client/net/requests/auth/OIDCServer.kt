@@ -66,7 +66,8 @@ class OIDCServer(val config: OpenIDConfiguration) {
         mapOf(
             "accept" to listOf(MIMEType.JSON.primaryName),
             "content-type" to listOf(MIMEType.FORM_URLENCODED.primaryName)
-        )
+        ),
+        throwOnNonOk = false
     ).parseOrThrow(TokenResponse.serializer())
 
     suspend fun pollTokenContinuous(
@@ -136,7 +137,8 @@ class OIDCServer(val config: OpenIDConfiguration) {
             mapOf(
                 "accept" to listOf(MIMEType.JSON.primaryName),
                 "content-type" to listOf(MIMEType.FORM_URLENCODED.primaryName)
-            )
+            ),
+            throwOnNonOk = false
         ).parseOrThrow(TokenResponse.serializer())
     }
 
