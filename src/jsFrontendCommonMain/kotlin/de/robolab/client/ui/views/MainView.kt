@@ -6,6 +6,7 @@ import de.robolab.client.ui.ViewFactory
 import de.robolab.client.ui.ViewFactoryRegistry
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
+import de.westermann.kwebview.components.BoxView
 import de.westermann.kwebview.components.boxView
 import de.westermann.kwebview.extra.listFactory
 
@@ -27,7 +28,10 @@ class MainView(
 
         boxView("dialog-area") {
             listFactory(viewModel.dialogList, {
-                DialogView(it)
+                BoxView().apply {
+                    classList += "dialog-area-wrapper"
+                    +DialogView(it)
+                }
             })
         }
     }

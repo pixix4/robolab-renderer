@@ -20,13 +20,14 @@ data class DeviceAuthResponse(
     val expiresIn: Long? = null
 ) {
     val prompt: DeviceAuthPrompt
-        get() = DeviceAuthPrompt(userCode, verificationURI, expiresIn)
+        get() = DeviceAuthPrompt(userCode, verificationURI, verificationURIComplete, expiresIn)
 }
 
 data class DeviceAuthPrompt(
     val userCode: String,
     val verificationURI: String,
-    val expiresIn: Long?
+    val verificationURIComplete: String? = null,
+    val expiresIn: Long? = null,
 )
 
 interface IDeviceAuthPromptCallbacks {

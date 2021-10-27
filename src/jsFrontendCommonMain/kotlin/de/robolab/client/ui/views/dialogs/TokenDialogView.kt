@@ -2,13 +2,11 @@ package de.robolab.client.ui.views.dialogs
 
 import de.robolab.client.app.viewmodel.ViewModel
 import de.robolab.client.app.viewmodel.dialog.TokenDialogViewModel
-import de.robolab.client.net.requests.auth.DeviceAuthPrompt
-import de.robolab.client.net.requests.auth.IDeviceAuthPromptCallbacks
 import de.robolab.client.ui.ViewFactory
 import de.robolab.client.ui.views.utils.buttonGroup
 import de.robolab.client.utils.electron
+import de.westermann.kobserve.event.now
 import de.westermann.kobserve.property.mapBinding
-import de.westermann.kobserve.property.property
 import de.westermann.kwebview.View
 import de.westermann.kwebview.ViewCollection
 import de.westermann.kwebview.components.boxView
@@ -16,12 +14,8 @@ import de.westermann.kwebview.components.button
 import de.westermann.kwebview.components.link
 import de.westermann.kwebview.components.textView
 import kotlinx.browser.window
-import kotlinx.coroutines.*
 
 class TokenDialogView(viewModel: TokenDialogViewModel) : ViewCollection<View>() {
-
-    private var success = false
-    private var isOpen = true
 
     private fun open(url: String): Boolean {
         val electron = electron
@@ -34,50 +28,26 @@ class TokenDialogView(viewModel: TokenDialogViewModel) : ViewCollection<View>() 
         }
     }
 
-    val deviceAuthPrompt = property<DeviceAuthPrompt>()
-
     init {
         val contentTab = boxView {
             textView("Please wait...")
         }
 
-        viewModel.onClose {
-            isOpen = false
-            viewModel.onFinish(success)
+        val uriProperty = viewModel.deviceAuthPrompt.mapBinding {
+            it.verificationURIComplete ?: it.verificationURI
         }
+        val userCodeProperty = viewModel.deviceAuthPrompt.mapBinding { it.userCode }
 
-        GlobalScope.launch {
-            viewModel.server.performDeviceAuth {
-                deviceAuthPrompt.value = it
-                object : IDeviceAuthPromptCallbacks {
-                    override fun onPromptSuccess() {
-                        viewModel.close()
-                    }
-
-                    override fun onPromptError() {
-                        viewModel.close()
-                    }
-
-                    override fun onPromptRefresh(newPrompt: DeviceAuthPrompt) {
-                        deviceAuthPrompt.value = newPrompt
-                    }
-                }
-            }
-        }
-
-        val uriProperty = deviceAuthPrompt.mapBinding { it?.verificationURI }
-        val userCodeProperty = deviceAuthPrompt.mapBinding { it?.userCode ?: "" }
-
-        uriProperty.onChange {
+        uriProperty.onChange.now {
             val uri = uriProperty.value
 
-            if (uri != null) {
-                if (!open(uri)) {
-                    contentTab.apply {
-                        contentTab.clear()
-                        classList += "token-popup"
-                        textView("The browser has blocked the OAuth page. Please open the OAuth page manually or allow this popup in your browsers settings.")
-                        textView(userCodeProperty)
+            if (!open(uri)) {
+                contentTab.apply {
+                    contentTab.clear()
+                    classList += "token-popup"
+                    textView("The browser has blocked the OAuth page. Please open the OAuth page manually or allow this popup in your browsers settings.")
+                    textView(userCodeProperty)
+                    boxView("form-content-button-view") {
                         link(uri) {
                             buttonGroup(true) {
                                 button("Open OAuth page")

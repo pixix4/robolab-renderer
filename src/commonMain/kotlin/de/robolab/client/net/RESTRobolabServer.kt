@@ -59,13 +59,6 @@ class RESTRobolabServer(
         }
     }
 
-    override suspend fun performDeviceAuth(
-        scope: String,
-        promptHandler: (DeviceAuthPrompt) -> IDeviceAuthPromptCallbacks
-    ): TokenResponse.FinalTokenResponse.AccessToken {
-        return oidcServer.performDeviceAuth(clientID, clientSecret, scope, promptHandler)
-    }
-
     private val _requestAuthTokenMutex: Mutex = Mutex(true) //locked for param-loading from storage
     private val _waitingRequestsMutex: Mutex = Mutex()
     private val _waitingRequests: MutableList<Triple<Any, HttpMethod, String>> = mutableListOf()

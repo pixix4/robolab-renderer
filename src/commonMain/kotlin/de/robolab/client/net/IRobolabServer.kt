@@ -16,10 +16,6 @@ interface IRobolabServer {
     var authHeader: AuthorizationHeader?
 
     fun resetAuthSession()
-    suspend fun performDeviceAuth(
-        scope: String = "openid+robolab+offline_access",
-        promptHandler: (DeviceAuthPrompt) -> IDeviceAuthPromptCallbacks
-    ): TokenResponse.FinalTokenResponse.AccessToken
 
     suspend fun request(
         method: HttpMethod,

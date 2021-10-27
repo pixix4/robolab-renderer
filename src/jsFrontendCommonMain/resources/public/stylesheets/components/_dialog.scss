@@ -8,6 +8,20 @@
   left: 0;
   width: 100%;
   height: 100%;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.dialog-area-wrapper {
+  @include utils.prevent-user-select();
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   z-index: 5;
   display: flex;
   justify-content: center;
@@ -22,10 +36,6 @@
     height: 100%;
     background-color: black;
     opacity: 0.4;
-  }
-
-  &:empty {
-    display: none;
   }
 }
 
@@ -178,6 +188,19 @@
 
 .token-popup {
   padding: 1rem;
+
+  span {
+    display: block;
+    text-align: center;
+  }
+
+  span:nth-child(2) {
+    padding: 0.5rem 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    user-select: all;
+    font-family: "Roboto Mono", monospace, sans-serif;
+  }
 
   button {
     display: block;
