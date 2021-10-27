@@ -2,12 +2,10 @@ package de.robolab.client.net.requests.auth
 
 import de.robolab.client.net.RobolabScope
 import de.robolab.client.net.URLInfo
-import de.robolab.client.net.client
 import de.robolab.client.net.sendHttpRequest
+import de.robolab.common.net.HttpMethod
 import de.robolab.common.net.MIMEType
-import io.ktor.client.features.*
-import io.ktor.client.request.*
-import io.ktor.client.request.forms.*
+import de.robolab.common.net.parseOrThrow
 import io.ktor.http.*
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -37,42 +35,39 @@ class OIDCServer(val config: OpenIDConfiguration) {
         clientSecret: String? = null,
         scope: String = "openid+robolab+offline_access"
     ): DeviceAuthResponse {
-        return client.request {
-            url(config.deviceAuthorizationEndpoint)
-            method = HttpMethod.Post
-            expectSuccess = true
-            accept(MIMEType.JSON.ktorContentType)
-            body = FormDataContent(Parameters.build {
+        return sendHttpRequest(
+            config.deviceAuthorizationEndpoint,
+            HttpMethod.POST,
+            Parameters.build {
                 append("client_id", clientID)
                 if (!clientSecret.isNullOrEmpty()) append("client_secret", clientSecret)
                 append("scope", scope)
-            })
-        }
+            }.formUrlEncode(),
+            mapOf(
+                "accept" to listOf(MIMEType.JSON.primaryName),
+                "content-type" to listOf(MIMEType.FORM_URLENCODED.primaryName)
+            )
+        ).parseOrThrow(DeviceAuthResponse.serializer())
     }
-
-    private fun prepareTokenPoll(
-        authResponse: DeviceAuthResponse,
-        clientID: String,
-        clientSecret: String? = null
-    ): HttpRequestBuilder =
-        request {
-            url(config.authorizationEndpoint)
-            method = HttpMethod.Post
-            expectSuccess = true
-            accept(MIMEType.JSON.ktorContentType)
-            body = FormDataContent(Parameters.build {
-                append("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
-                append("client_id", clientID)
-                if (!clientSecret.isNullOrEmpty()) append("client_secret", clientSecret)
-                append("device_code", authResponse.deviceCode)
-            })
-        }
 
     suspend fun pollTokenOnce(
         authResponse: DeviceAuthResponse,
         clientID: String,
         clientSecret: String? = null
-    ): TokenResponse = client.request(prepareTokenPoll(authResponse, clientID, clientSecret))
+    ): TokenResponse = sendHttpRequest(
+        config.authorizationEndpoint,
+        HttpMethod.POST,
+        Parameters.build {
+            append("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
+            append("client_id", clientID)
+            if (!clientSecret.isNullOrEmpty()) append("client_secret", clientSecret)
+            append("device_code", authResponse.deviceCode)
+        }.formUrlEncode(),
+        mapOf(
+            "accept" to listOf(MIMEType.JSON.primaryName),
+            "content-type" to listOf(MIMEType.FORM_URLENCODED.primaryName)
+        )
+    ).parseOrThrow(TokenResponse.serializer())
 
     suspend fun pollTokenContinuous(
         authResponse: DeviceAuthResponse,
@@ -80,10 +75,9 @@ class OIDCServer(val config: OpenIDConfiguration) {
         clientSecret: String? = null
     ): TokenResponse {
         var interval: Long = (authResponse.interval ?: 5) * 1000L
-        val builder = prepareTokenPoll(authResponse, clientID, clientSecret)
         do {
             delay(interval)
-            return when (val response: TokenResponse = client.request(builder)) {
+            return when (val response: TokenResponse = pollTokenOnce(authResponse, clientID, clientSecret)) {
                 is TokenResponse.FinalTokenResponse.AccessDenied -> response
                 is TokenResponse.FinalTokenResponse.AccessToken -> response
                 is TokenResponse.ExpiredToken -> response
@@ -130,18 +124,20 @@ class OIDCServer(val config: OpenIDConfiguration) {
         clientID: String? = null,
         clientSecret: String? = null,
     ): TokenResponse {
-        return client.request<TokenResponse> {
-            url(config.tokenEndpoint)
-            method = HttpMethod.Post
-            expectSuccess = true
-            accept(MIMEType.JSON.ktorContentType)
-            body = FormDataContent(Parameters.build {
+        return sendHttpRequest(
+            config.tokenEndpoint,
+            HttpMethod.POST,
+            Parameters.build {
                 append("grant_type", "refresh_token")
                 append("refresh_token", refreshToken)
                 if (!clientID.isNullOrEmpty()) append("client_id", clientID)
                 if (!clientSecret.isNullOrEmpty()) append("client_secret", clientSecret)
-            })
-        }
+            }.formUrlEncode(),
+            mapOf(
+                "accept" to listOf(MIMEType.JSON.primaryName),
+                "content-type" to listOf(MIMEType.FORM_URLENCODED.primaryName)
+            )
+        ).parseOrThrow(TokenResponse.serializer())
     }
 
     companion object {

@@ -2,7 +2,6 @@ package de.robolab.client.net.requests.auth
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 
 @Serializable
@@ -13,12 +12,13 @@ data class DeviceAuthResponse(
     val userCode: String,
     @SerialName("verification_uri")
     val verificationURI: String,
+    @SerialName("verification_uri_complete")
+    val verificationURIComplete: String? = null,
     @SerialName("interval")
-    val interval: Int?,
+    val interval: Int? = null,
     @SerialName("expires_in")
-    val expiresIn: Long?
+    val expiresIn: Long? = null
 ) {
-    @Transient
     val prompt: DeviceAuthPrompt
         get() = DeviceAuthPrompt(userCode, verificationURI, expiresIn)
 }
