@@ -55,7 +55,7 @@ class OIDCServer(val config: OpenIDConfiguration) {
         clientID: String,
         clientSecret: String? = null
     ): TokenResponse = sendHttpRequest(
-        config.authorizationEndpoint,
+        config.tokenEndpoint,
         HttpMethod.POST,
         Parameters.build {
             append("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
