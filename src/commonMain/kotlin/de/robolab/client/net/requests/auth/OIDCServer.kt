@@ -33,7 +33,7 @@ class OIDCServer(val config: OpenIDConfiguration) {
     suspend fun requestDeviceAuth(
         clientID: String,
         clientSecret: String? = null,
-        scope: String = "openid+robolab+offline_access"
+        scope: String = "openid robolab offline_access"
     ): DeviceAuthResponse {
         return sendHttpRequest(
             config.deviceAuthorizationEndpoint,
@@ -95,7 +95,7 @@ class OIDCServer(val config: OpenIDConfiguration) {
     suspend fun performDeviceAuth(
         clientID: String,
         clientSecret: String? = null,
-        scope: String = "openid+robolab+offline_access",
+        scope: String = "openid robolab offline_access",
         promptHandler: (DeviceAuthPrompt) -> IDeviceAuthPromptCallbacks
     ): TokenResponse.FinalTokenResponse.AccessToken {
         var currentHandler: IDeviceAuthPromptCallbacks? = null
