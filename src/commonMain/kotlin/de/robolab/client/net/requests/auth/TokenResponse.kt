@@ -1,14 +1,10 @@
 package de.robolab.client.net.requests.auth
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.element
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.*
 
 @Serializable(with = TokenResponse.TokenResponseSerializer::class)
 sealed class TokenResponse(val error: String?) {
@@ -24,9 +20,26 @@ sealed class TokenResponse(val error: String?) {
                 this.element<String?>("scope", isOptional = true)
             }
 
-        override fun deserialize(decoder: Decoder): TokenResponse {
-            if (decoder.decodeNotNullMark()) {
-                val error: String = decoder.decodeString()
+        override fun deserialize(decoder: Decoder): TokenResponse = decoder.decodeStructure(descriptor) {
+            var error: String? = null
+            var tokenType: String? = null
+            var accessToken: String? = null
+            var expires: Long? = null
+            var refreshToken: String? = null
+            var scope: String? = null
+            while (true) {
+                when (val index = this.decodeElementIndex(descriptor)) {
+                    0 -> error = decodeNullableSerializableElement(descriptor, 0, serializer<String?>())
+                    1 -> tokenType = decodeNullableSerializableElement(descriptor, 0, serializer<String?>())
+                    2 -> accessToken = decodeNullableSerializableElement(descriptor, 0, serializer<String?>())
+                    3 -> expires = decodeNullableSerializableElement(descriptor, 0, serializer<Long?>())
+                    4 -> refreshToken = decodeNullableSerializableElement(descriptor, 0, serializer<String?>())
+                    5 -> scope = decodeNullableSerializableElement(descriptor, 0, serializer<String?>())
+                    CompositeDecoder.DECODE_DONE -> break
+                    else -> throw SerializationException("Unexpected index \"$index\"")
+                }
+            }
+            if (error != null) {
                 return when (error) {
                     ContinueTokenResponse.AuthorizationPending.error -> ContinueTokenResponse.AuthorizationPending
                     ContinueTokenResponse.SlowDown.error -> ContinueTokenResponse.SlowDown
@@ -35,52 +48,31 @@ sealed class TokenResponse(val error: String?) {
                     else -> throw SerializationException("Failed to deserialize TokenResponse with error-field \"$error\"")
                 }
             } else {
-                decoder.decodeNull()
-                val tokenType: String =
-                    if (decoder.decodeNotNullMark()) decoder.decodeString() else throw SerializationException("Expected \"token_type\" on a TokenResponse without error-field")
-                val accessToken: String =
-                    if (decoder.decodeNotNullMark()) decoder.decodeString() else throw SerializationException("Expected \"access_token\" on a TokenResponse without error-field")
-                val expires: Long? =
-                    if (decoder.decodeNotNullMark()) decoder.decodeLong() else decoder.decodeNull()
-                val refreshToken: String? =
-                    if (decoder.decodeNotNullMark()) decoder.decodeString() else decoder.decodeNull()
-                val scope: String? =
-                    if(decoder.decodeNotNullMark()) decoder.decodeString() else decoder.decodeNull()
-                return FinalTokenResponse.AccessToken(accessToken, refreshToken, tokenType, expires, scope)
+                return FinalTokenResponse.AccessToken(
+                    accessToken ?: throw SerializationException("Expected field \"accessToken\" missing on non-error response"),
+                    refreshToken,
+                    tokenType ?: throw SerializationException("Expected field \"tokenType\" missing on non-error response"),
+                    expires,
+                    scope
+                )
             }
         }
 
         override fun serialize(encoder: Encoder, value: TokenResponse) {
-            when {
-                value is FinalTokenResponse.AccessToken -> {
-                    encoder.encodeNull()
-                    encoder.encodeNotNullMark()
-                    encoder.encodeString(value.tokenType)
-                    encoder.encodeNotNullMark()
-                    encoder.encodeString(value.accessToken)
-                    if (value.expiresIn != null) {
-                        encoder.encodeNotNullMark()
-                        encoder.encodeLong(value.expiresIn)
-                    } else encoder.encodeNull()
-                    if (value.refreshToken != null) {
-                        encoder.encodeNotNullMark()
-                        encoder.encodeString(value.refreshToken)
-                    } else encoder.encodeNull()
-                    if (value.scope != null) {
-                        encoder.encodeNotNullMark()
-                        encoder.encodeString(value.scope)
-                    } else encoder.encodeNull()
+            encoder.encodeStructure(descriptor) {
+                when {
+                    value is FinalTokenResponse.AccessToken -> {
+                        this.encodeStringElement(descriptor, 1, value.tokenType)
+                        this.encodeStringElement(descriptor, 2, value.accessToken)
+                        if(value.expiresIn != null) this.encodeNullableSerializableElement(descriptor, 3, serializer<Long?>(), value.expiresIn)
+                        if(value.refreshToken != null) this.encodeNullableSerializableElement(descriptor, 4, serializer<String?>(), value.refreshToken)
+                        if(value.scope != null) this.encodeNullableSerializableElement(descriptor, 5, serializer<String?>(), value.scope)
+                    }
+                    value.error != null -> {
+                        this.encodeStringElement(descriptor, 0, value.error)
+                    }
+                    else -> throw SerializationException("Cannot not serialize non-AccessToken TokenResponse without \"error\" field")
                 }
-                value.error != null -> {
-                    encoder.encodeNotNullMark()
-                    encoder.encodeString(value.error)
-                    encoder.encodeNull()
-                    encoder.encodeNull()
-                    encoder.encodeNull()
-                    encoder.encodeNull()
-                    encoder.encodeNull()
-                }
-                else -> throw SerializationException("Cannot not serialize non-AccessToken TokenResponse without \"error\" field")
             }
         }
     }
@@ -97,12 +89,12 @@ sealed class TokenResponse(val error: String?) {
             @SerialName("access_token")
             val accessToken: String,
             @SerialName("refresh_token")
-            val refreshToken: String?,
+            val refreshToken: String? = null,
             @SerialName("token_type")
             val tokenType: String,
             @SerialName("expires_in")
-            val expiresIn: Long?,
-            val scope: String?,
+            val expiresIn: Long? = null,
+            val scope: String? = null,
         ) : FinalTokenResponse(null)
     }
 }
