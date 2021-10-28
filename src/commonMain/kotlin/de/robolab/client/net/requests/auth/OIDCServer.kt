@@ -47,7 +47,7 @@ class OIDCServer(val config: OpenIDConfiguration) {
                 "accept" to listOf(MIMEType.JSON.primaryName),
                 "content-type" to listOf(MIMEType.FORM_URLENCODED.primaryName)
             )
-        ).parseOrThrow(DeviceAuthResponse.serializer())
+        ).parseOrThrow(DeviceAuthResponse.serializer(), ensureStatusCode = null)
     }
 
     suspend fun pollTokenOnce(
@@ -68,7 +68,7 @@ class OIDCServer(val config: OpenIDConfiguration) {
             "content-type" to listOf(MIMEType.FORM_URLENCODED.primaryName)
         ),
         throwOnNonOk = false
-    ).parseOrThrow(TokenResponse.serializer())
+    ).parseOrThrow(TokenResponse.serializer(), ensureStatusCode = null)
 
     suspend fun pollTokenContinuous(
         authResponse: DeviceAuthResponse,
@@ -139,7 +139,7 @@ class OIDCServer(val config: OpenIDConfiguration) {
                 "content-type" to listOf(MIMEType.FORM_URLENCODED.primaryName)
             ),
             throwOnNonOk = false
-        ).parseOrThrow(TokenResponse.serializer())
+        ).parseOrThrow(TokenResponse.serializer(), ensureStatusCode = null)
     }
 
     companion object {
