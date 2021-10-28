@@ -41,6 +41,7 @@ class OIDCServer(val config: OpenIDConfiguration) {
             Parameters.build {
                 append("client_id", clientID)
                 if (!clientSecret.isNullOrEmpty()) append("client_secret", clientSecret)
+                if (offlineAccessRegex.matches(scope)) append("prompt", "consent")
                 append("scope", scope)
             }.formUrlEncode(),
             mapOf(
@@ -144,6 +145,7 @@ class OIDCServer(val config: OpenIDConfiguration) {
 
     companion object {
         private val JSON = Json { ignoreUnknownKeys = true }
+        private val offlineAccessRegex = "(?:^|\\+)offline_access(?:\\+|\$)".toRegex()
 
         suspend fun discover(url: String): OIDCServer {
             val response = (URLInfo.fromURL(url)
