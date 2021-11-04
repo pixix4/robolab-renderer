@@ -196,6 +196,7 @@ object PlanetRouter {
             res.status(HttpStatusCode.Created).sendClientInfo(planet.info)
         }
         router.use("/planet/:id", idRouter.baseRouter)
+        router.use("/planet/:id/*", idRouter.baseRouter)
     }
 
     suspend fun clearMeta(): Pair<Boolean, String> = planetStore.clearMeta()
