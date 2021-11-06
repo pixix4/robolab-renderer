@@ -3,10 +3,7 @@ package de.robolab.client.app.controller
 import de.robolab.client.renderer.events.KeyCode
 import de.robolab.client.renderer.events.KeyEvent
 import de.robolab.client.repl.ReplExecutor
-import de.robolab.client.repl.base.DummyReplOutput
-import de.robolab.client.repl.base.IReplCommandParameter
-import de.robolab.client.repl.base.IReplCommandParameterTypeDescriptor
-import de.robolab.client.repl.base.IReplOutput
+import de.robolab.client.repl.base.*
 import de.robolab.client.repl.commands.macro.MacroCommand
 import de.robolab.client.utils.PreferenceStorage
 import de.robolab.common.utils.Logger
@@ -100,17 +97,17 @@ class MacroController {
 
     fun onKeyDown(event: KeyEvent) {
         debugOutput?.writeln(event.toString())
-        if (execute(KeyBinding.fromKeyEvent(event), debugOutput ?: DummyReplOutput)) {
+        if (execute(KeyBinding.fromKeyEvent(event), DummyReplInput, debugOutput ?: DummyReplOutput)) {
             event.stopPropagation()
         }
     }
 
-    fun execute(binding: KeyBinding, output: IReplOutput): Boolean {
+    fun execute(binding: KeyBinding, input: IReplInput, output: IReplOutput): Boolean {
         val macro = macroList.find { it.keyBinding == binding } ?: return false
 
         GlobalScope.launch {
             for (line in macro.commands) {
-                ReplExecutor.execute(line, output)
+                ReplExecutor.execute(line, input, output)
             }
         }
         return true

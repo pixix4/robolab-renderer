@@ -25,7 +25,7 @@ class TerminalInputView(
 
     init {
         classList.bind("readonly", viewModel.readOnlyProperty)
-        html.tabIndex = 0
+        allowFocus()
         onKeyDown { event ->
             val e = event.toEvent()
             viewModel.onKeyDown(e)

@@ -15,6 +15,6 @@ object MacroExecuteCommand : ReplBindableLeafCommand<MacroController>(
     override suspend fun execute(binding: MacroController, context: IReplExecutionContext) {
         val keyBinding = context.getParameter(bindingParameter)
 
-        binding.execute(keyBinding, context)
+        binding.execute(keyBinding, context, context)
     }
 }

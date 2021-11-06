@@ -3,9 +3,7 @@ package de.robolab.client.app.viewmodel
 import de.robolab.client.app.controller.TerminalController
 import de.robolab.client.app.controller.ui.UiController
 import de.robolab.client.repl.ReplExecutor
-import de.robolab.client.repl.base.DummyReplOutput
-import de.robolab.client.repl.base.IReplOutput
-import de.robolab.client.repl.base.ReplColor
+import de.robolab.client.repl.base.*
 import de.robolab.common.utils.ConsoleGreeter
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -20,10 +18,15 @@ class TerminalViewModel(
         DummyReplOutput
     }
 
-    private fun execute(input: String) {
+    private var replInputGenerator: () -> IReplInput = {
+        DummyReplInput
+    }
+
+    private fun execute(command: String) {
         GlobalScope.launch {
-            val output = replOutputGenerator(TerminalInputViewModel(input, true))
-            ReplExecutor.execute(input, output)
+            val input = replInputGenerator()
+            val output = replOutputGenerator(TerminalInputViewModel(command, true))
+            ReplExecutor.execute(command, input, output)
         }
     }
 
@@ -34,6 +37,10 @@ class TerminalViewModel(
 
     fun closeTerminal() {
         activeProperty.value = false
+    }
+
+    fun setInputGenerator(generator: () -> IReplInput) {
+        replInputGenerator = generator
     }
 
     fun setOutputGenerator(generator: (TerminalInputViewModel?) -> IReplOutput) {

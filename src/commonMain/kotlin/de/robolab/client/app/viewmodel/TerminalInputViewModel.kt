@@ -120,7 +120,7 @@ class TerminalInputViewModel(
                     onPasteRequest.emit()
                 }
                 else -> {
-                    // Nothing todo
+                    // Nothing to do
                 }
             }
             return

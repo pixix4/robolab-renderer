@@ -1,6 +1,8 @@
 package de.robolab.client.repl.base
 
 import de.robolab.client.app.model.base.MaterialIcon
+import de.robolab.client.renderer.events.KeyCode
+import de.robolab.client.renderer.events.KeyEvent
 
 enum class ReplColor {
     RED,
@@ -15,6 +17,12 @@ enum class ReplColor {
 enum class ReplFileType {
     TEXT,
     BINARY,
+}
+
+interface IReplInput {
+
+    suspend fun readInputEvent(): KeyEvent
+    suspend fun readInputLine(): String
 }
 
 interface IReplOutput {
@@ -52,7 +60,18 @@ interface IReplParameterContext {
     }
 }
 
-interface IReplExecutionContext : IReplOutput, IReplParameterContext
+interface IReplExecutionContext : IReplInput, IReplOutput, IReplParameterContext
+
+object DummyReplInput : IReplInput {
+
+    override suspend fun readInputEvent(): KeyEvent {
+        return KeyEvent(KeyCode.UNSUPPORTED, "")
+    }
+
+    override suspend fun readInputLine(): String {
+        return ""
+    }
+}
 
 object DummyReplOutput : IReplOutput {
 

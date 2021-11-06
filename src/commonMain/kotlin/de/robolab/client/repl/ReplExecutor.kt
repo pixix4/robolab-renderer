@@ -71,9 +71,9 @@ object ReplExecutor {
 
     private var activeAutoComplete: AutoCompleteJob? = null
 
-    suspend fun execute(input: String, output: IReplOutput) {
+    suspend fun execute(command: String, input: IReplInput, output: IReplOutput) {
         try {
-            execute(bindTokenList(tokenize(input), output))
+            execute(bindTokenList(tokenize(command), input, output))
         } catch (e: Exception) {
             output.writeln(
                 "Command could not be parsed: ${e::class.simpleName ?: "Exception"}: ${e.message}",
@@ -174,9 +174,10 @@ object ReplExecutor {
     }
 
     class ExecutionContext(
+        val input: IReplInput,
         val output: IReplOutput,
         val tokenCommandList: List<TokenBinding>,
-    ) : IReplExecutionContext, IReplOutput by output {
+    ) : IReplExecutionContext, IReplInput by input, IReplOutput by output {
 
         val containsErrors = tokenCommandList.any { it is TokenBinding.Error }
 
@@ -379,8 +380,8 @@ object ReplExecutor {
         return tokenList
     }
 
-    private fun bindTokenList(input: List<Token>, output: IReplOutput = DummyReplOutput): ExecutionContext {
-        if (input.isEmpty()) return ExecutionContext(output, emptyList())
+    private fun bindTokenList(tokenList: List<Token>, input: IReplInput = DummyReplInput, output: IReplOutput = DummyReplOutput): ExecutionContext {
+        if (tokenList.isEmpty()) return ExecutionContext(input, output, emptyList())
 
         var currentCommandBinding: CommandBinding<*> = ROOT_BINDING
         var parameterIndex = 0
@@ -388,8 +389,8 @@ object ReplExecutor {
             TokenBinding.Node(Token("", 0 until 0, -1), RootCommand, Unit, ROOT_BINDING)
         )
 
-        for ((index, token) in input.withIndex()) {
-            val istLastToken = index == input.lastIndex
+        for ((index, token) in tokenList.withIndex()) {
+            val istLastToken = index == tokenList.lastIndex
             val current = currentCommandBinding
 
             tokenCommandList += when (current.command) {
@@ -450,7 +451,7 @@ object ReplExecutor {
             }
         }
 
-        return ExecutionContext(output, tokenCommandList)
+        return ExecutionContext(input, output, tokenCommandList)
     }
 
     private val ROOT_BINDING: CommandBinding<*> = CommandBinding(RootCommand, Unit)
